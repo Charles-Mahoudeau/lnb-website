@@ -1,0 +1,14 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":semanticCommitsDisabled"],
+  "schedule": ["before 6am on monday"],
+  "timezone": "Europe/Paris",
+  "lockFileMaintenance": { "enabled": true, "schedule": ["before 6am on monday"] },
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch"
+    }
+  ]
+}

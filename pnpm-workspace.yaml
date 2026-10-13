@@ -1,0 +1,24 @@
+allowBuilds:
+  '@parcel/watcher': false
+  '@tailwindcss/oxide': false
+  esbuild: false
+  unrs-resolver: false
+  vue-demi: false
+
+# Security overrides for transitive dependencies. Drop each one once upstream ships the fix.
+overrides:
+  # @nuxt/fonts (via fontless) still pulls esbuild 0.27 (GHSA-g7r4-m6w7-qqqr).
+  'esbuild@<0.28.1': ^0.28.2
+
+auditConfig:
+  # None of these reach the production server. Re-check them when Renovate bumps Nuxt.
+  ignoreGhsas:
+    # node-forge (no fix yet), via listhen: dev server HTTPS only.
+    - GHSA-86w9-cpqp-85rv
+    # braces (no fix yet), via globby: build time, with our own patterns only.
+    - GHSA-vfj7-8cjw-p6xm
+    # simple-git 3, via @nuxt/devtools: local dev only. Overriding to simple-git 4 breaks devtools.
+    - GHSA-v5rq-49vh-5v5c
+    - GHSA-x6jw-m9v5-85vh
+    - GHSA-g4wm-2vf7-vfgr
+    - GHSA-858h-whjf-mvg5

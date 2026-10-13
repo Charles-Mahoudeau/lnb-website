@@ -1,0 +1,54 @@
+{
+  "name": "lnb-website",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "prepare": "husky",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "nuxt typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.142",
+    "@iconify-json/simple-icons": "^1.2.99",
+    "@nuxt/ui": "^4.11.3",
+    "nuxt": "^4.6.1",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.17.0",
+    "@nuxt/test-utils": "^4.3.3",
+    "@vue/test-utils": "^2.5.1",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-better-tailwindcss": "^4.9.0",
+    "happy-dom": "^21.0.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.10",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.4",
+    "vue-tsc": "^3.3.13"
+  },
+  "lint-staged": {
+    "*.{js,mjs,cjs,ts,mts,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml,css}": "prettier --write"
+  },
+  "packageManager": "pnpm@12.11.2",
+  "volta": {
+    "node": "26.11.1",
+    "pnpm": "12.11.2"
+  }
+}
