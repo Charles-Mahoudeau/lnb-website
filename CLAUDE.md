@@ -27,7 +27,7 @@ CI (`.github/workflows/ci.yml`) runs lint, format check, typecheck, tests, build
 
 ## Stack
 
-- Nuxt 4 in Nuxt 5 compatibility mode, with Nuxt UI v4 on Tailwind 4
+- Nuxt 4 in Nuxt 5 compatibility mode, with Nuxt UI v4 on Tailwind 4. The server still runs nitropack v2 on h3 v1, so ignore the Nitro v3 and h3 v2 guidance in the `nuxt` skill (`nuxt/server` imports, no auto-imports, `useKV`).
 - Better Auth with the Microsoft provider
 - Drizzle on PostgreSQL
 - Zod 4
@@ -46,6 +46,7 @@ If a stack choice is challenged, re-check it against the plan doc's weighted cri
 - Accounts inactive for 24 months are deleted.
 - Backups come only from the VPS's daily backup. There are no off-site backups.
 - License: AGPL-3.0-or-later. Contributions should carry a DCO sign-off.
+- Install agent skills into `.claude/skills/` only, never `.agents/`. With the skills.sh CLI, use `npx skills add <owner/repo> -a claude-code --copy` so the files are real copies, not symlinks. Afterwards, check that no `.agents/` directory was created.
 
 ## Commits and pull requests
 
