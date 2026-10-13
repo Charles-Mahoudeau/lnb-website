@@ -43,6 +43,7 @@ Root files: `nuxt.config.ts`, `vitest.config.ts`, `eslint.config.mjs`, `.prettie
 
 ## Server rules
 
+- Import framework helpers (`defineEventHandler`, `getRouterParams`, `readValidatedBody`, ...) from `nuxt/server`, because Nitro auto-imports are off in compatibility mode 5. Exports from `server/utils/` and `shared/utils/` are still auto-imported.
 - Services take explicit inputs (such as `actorId`), run multi-step writes in a transaction, and throw typed errors (`NotFoundError`, `ForbiddenError`, `ConflictError`). These are turned into HTTP errors in one place.
 - Every team action checks that the team belongs to the event and that the user is registered. Size limits come from the event and are enforced inside the transaction, backed by a unique `(eventId, userId)` constraint.
 - Lists expose public profiles only (name, avatar). Email appears only on the user's own account endpoint.
@@ -52,15 +53,21 @@ A handler looks like this:
 
 ```ts
 // server/api/events/[eventId]/teams/[teamId]/members.post.ts
+import { defineEventHandler, getRouterParams } from 'nuxt/server';
+import { teamParams } from '#shared/schemas/teams';
+import { teamService } from '~~/server/services/teams';
+
+// requireUser comes from server/utils/, so it's auto-imported.
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
-  const { eventId, teamId } = await getValidatedRouterParams(event, teamParams.parse);
+  const { eventId, teamId } = teamParams.parse(getRouterParams(event));
   return teamService.join({ actorId: user.id, eventId, teamId });
 });
 ```
 
 ## Client rules
 
+- Rely on auto-imports for Vue, Nuxt composables and Nuxt UI components. Import Zod schemas from `#shared/schemas/...` explicitly.
 - Reads: `useFetch` with an explicit key, in setup only, one request per page.
 - Writes: plain async functions using `$fetch` that throw. The component shows the toast.
 - Forms: Nuxt UI `UForm` with the shared Zod schema.
