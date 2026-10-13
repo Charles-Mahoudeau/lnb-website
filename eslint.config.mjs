@@ -14,5 +14,22 @@ export default withNuxt(
       },
     },
   },
+  {
+    rules: {
+      'import/order': [
+        'error',
+        {
+          groups: ['builtin', 'external', 'internal', ['parent', 'sibling', 'index']],
+          pathGroups: [
+            { pattern: '#*', group: 'internal' },
+            { pattern: '~/**', group: 'internal' },
+            { pattern: '~~/**', group: 'internal' },
+          ],
+          'newlines-between': 'always',
+          alphabetize: { order: 'asc', caseInsensitive: true },
+        },
+      ],
+    },
+  },
   prettier,
 )
