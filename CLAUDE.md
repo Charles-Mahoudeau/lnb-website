@@ -51,4 +51,6 @@ If a stack choice is challenged, re-check it against the plan doc's weighted cri
 
 ## Commits and pull requests
 
+- Make atomic commits: one logical change per commit, so it can be reviewed and reverted on its own. Split unrelated changes, such as a feature and a docs fix, into separate commits.
+- Write descriptive commit messages: a Conventional Commits subject (`feat:`, `fix:`, `docs:`, `chore:`...) that says what changed, and a body that explains why when the subject alone doesn't.
 - Never add AI attribution: no `Co-Authored-By` line naming Claude or any other AI, and no "Generated with Claude Code" line in commits or pull requests.
