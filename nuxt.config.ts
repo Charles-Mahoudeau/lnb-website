@@ -27,4 +27,4 @@ export default defineNuxtConfig({
       typescript: { tsconfigPath: './tsconfig.json' },
     },
   },
-})
+});

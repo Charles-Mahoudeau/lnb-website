@@ -53,10 +53,10 @@ A handler looks like this:
 ```ts
 // server/api/events/[eventId]/teams/[teamId]/members.post.ts
 export default defineEventHandler(async (event) => {
-  const user = await requireUser(event)
-  const { eventId, teamId } = await getValidatedRouterParams(event, teamParams.parse)
-  return teamService.join({ actorId: user.id, eventId, teamId })
-})
+  const user = await requireUser(event);
+  const { eventId, teamId } = await getValidatedRouterParams(event, teamParams.parse);
+  return teamService.join({ actorId: user.id, eventId, teamId });
+});
 ```
 
 ## Client rules

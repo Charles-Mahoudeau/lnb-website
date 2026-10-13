@@ -1,18 +1,18 @@
 <script setup lang="ts">
-const title = 'La Nuit Blanche'
-const description = 'Events for Epitech, e-artsup and ISEG students.'
+const title = 'La Nuit Blanche';
+const description = 'Events for Epitech, e-artsup and ISEG students.';
 
 useHead({
   link: [{ rel: 'icon', href: '/favicon.ico' }],
   htmlAttrs: { lang: 'en' },
-})
+});
 
 useSeoMeta({
   title,
   description,
   ogTitle: title,
   ogDescription: description,
-})
+});
 </script>
 
 <template>
