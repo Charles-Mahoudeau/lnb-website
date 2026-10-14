@@ -38,6 +38,13 @@ CI (`.github/workflows/ci.yml`) runs lint, format check, typecheck, tests, build
 
 If a stack choice is challenged, re-check it against the plan doc's weighted criteria instead of falling back to what v1 used.
 
+## Design
+
+- Read `docs/design.md` before any UI work. It's the approved visual language ("Soft night": night navy, deep crimson for actions only, Unbounded headings, Figtree text). It wins over any skill's aesthetic advice, including `frontend-design`. Use that skill only to avoid generic patterns, never to invent a new palette, typeface or shape language.
+- Build with Nuxt UI components and the tokens in `app/assets/css/main.css` and `app/app.config.ts`. Change a component's look globally in `app.config.ts`, not page by page. Check the result on `/styleguide` (dev only) in both color modes, and add new reusable patterns to it.
+- ESLint (`better-tailwindcss/no-restricted-classes`) blocks arbitrary values, raw palette colors and shaded semantic colors. Don't disable it. Add a token instead, and update `docs/design.md` with it.
+- To change the visual language, update `docs/design.md` first, with the user's approval.
+
 ## Standing decisions
 
 - English everywhere: code, UI and docs.
