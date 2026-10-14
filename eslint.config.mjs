@@ -17,6 +17,29 @@ export default withNuxt(
   },
   {
     rules: {
+      // Keep styling on the design tokens (docs/design.md).
+      'better-tailwindcss/no-restricted-classes': [
+        'error',
+        {
+          restrict: [
+            {
+              pattern: String.raw`^(?:.*:)?-?[a-z][a-z0-9-]*-\[[^\]]+\]$`,
+              message:
+                'Arbitrary values bypass the design tokens. Use a theme class instead (docs/design.md).',
+            },
+            {
+              pattern: String.raw`^(?:.*:)?[a-z-]+-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|white|black|night|crimson)(?:-\d{2,3})?(?:\/\d+)?$`,
+              message:
+                'Raw palette colors bypass the design tokens. Use a semantic class such as text-muted, bg-elevated or text-primary (docs/design.md).',
+            },
+            {
+              pattern: String.raw`^(?:.*:)?[a-z-]+-(?:primary|secondary|success|info|warning|error)-\d{2,3}(?:\/\d+)?$`,
+              message:
+                'Use the semantic color without a shade (text-primary, bg-error/10), so light and dark mode stay in sync (docs/design.md).',
+            },
+          ],
+        },
+      ],
       'import/order': [
         'error',
         {
