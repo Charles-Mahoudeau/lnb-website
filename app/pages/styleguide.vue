@@ -20,6 +20,8 @@ const colors = [
   { name: 'Muted text', variable: '--ui-text-muted', usage: 'text-muted' },
   { name: 'Action fill', variable: '--lnb-action', usage: 'bg-action' },
   { name: 'Red text, links, focus', variable: '--ui-primary', usage: 'text-primary' },
+  { name: 'Banner', variable: '--color-banner', usage: 'bg-banner' },
+  { name: 'Text on banners', variable: '--color-on-banner', usage: 'text-on-banner' },
   { name: 'Success', variable: '--ui-success', usage: 'color="success"' },
   { name: 'Warning', variable: '--ui-warning', usage: 'color="warning"' },
 ];

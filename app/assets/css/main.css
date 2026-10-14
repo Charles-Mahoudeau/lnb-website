@@ -41,6 +41,13 @@
   --color-on-action: #fff;
 }
 
+/* Event banners stay dark in both color modes, so text on them uses its own colors. */
+@theme static {
+  --color-banner: var(--color-night-900);
+  --color-on-banner: var(--color-night-100);
+  --color-on-banner-muted: var(--color-night-300);
+}
+
 :root {
   --ui-radius: 0.375rem;
 

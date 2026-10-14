@@ -42,7 +42,9 @@
     "accountMenu": "Account menu",
     "signInPage": {
       "title": "Sign in",
-      "lede": "Use your school Microsoft account: Epitech, e-artsup or ISEG."
+      "lede": "Use your school Microsoft account: Epitech, e-artsup or ISEG.",
+      "nextEvent": "Next event on {date}, {where}",
+      "noPassword": "There's no password to create here: Microsoft checks your school account."
     },
     "errors": {
       "tenantNotAllowed": "Only Epitech, e-artsup and ISEG accounts can sign in. Choose your school Microsoft account, for example name{'@'}epitech.eu.",

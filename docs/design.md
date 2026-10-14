@@ -51,12 +51,14 @@ Two custom palettes, wired into Nuxt UI as `neutral: 'night'` and `primary: 'cri
 - Shadows only on floating layers: dialogs, menus, popovers, toasts. Never on cards in the page flow.
 - Controls default to size `xl` (40 px tall, 16 px text, so phones don't zoom into inputs) through `app.config.ts`. Use `md` (32 px) in dense lists and tables.
 - Spacing on the 4 px Tailwind scale. Lay out siblings with `gap`, not margins.
-- A hero that should fill the first screen uses `min-h-hero` (the viewport height minus the header). Use it for the home hero only, and let other sections size to their content.
+- A hero that should fill the first screen uses `min-h-hero` (the viewport height minus the header). Use it for the home hero and the sign-in page only, and let other sections size to their content.
 - Don't chop content into grids of identical cards by reflex. Pick the form that fits the content: dated rows for event lists, cards when the image matters, a table for tabular data.
 
 ## Imagery
 
 - The home hero is a full-width game banner (SteamGridDB hero art, 1920 × 620) behind the next event, with a dark scrim from the text side so text stays readable. The hero stays dark in light mode too.
+- The sign-in page shows the next event's banner beside the form, with the same scrim, so the page isn't empty. On phones the banner sits above the form.
+- Text on a banner uses `text-on-banner` and `text-on-banner-muted`, and the scrim and the no-banner fallback use `bg-banner` (night-900). These stay the same in light mode.
 - Banners are downloaded by the server and stored in object storage, never hotlinked.
 - Events without a banner fall back to plain night navy, never to a placeholder graphic.
 - The logo is a black fox on a grey moon: `public/logo.svg`. On dark backgrounds use `public/logo-dark.svg`: the same drawing with a night-100 fox on a night-600 moon (night-700 shadow and craters) and night-950 details. A pure white fox on the light moon lacked contrast, and pure white glared, so keep these colors. Show them with `dark:hidden` and `hidden dark:block`, as in the header. Don't recolor the logo red.

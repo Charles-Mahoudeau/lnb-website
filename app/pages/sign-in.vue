@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePageMeta({ auth: false });
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const route = useRoute();
 const { user, signIn } = useAuth();
 
@@ -19,6 +19,23 @@ const errorMessage = computed(() => {
 if (user.value) {
   await navigateTo(redirect.value, { replace: true });
 }
+
+// The banner shows the next event, so the page isn't empty while people sign in.
+const nextEvent = computed(() =>
+  UPCOMING_EVENTS.find((event) => new Date(event.startsAt).getTime() > Date.now()),
+);
+const nextEventWhen = computed(
+  () =>
+    nextEvent.value &&
+    formatEventDate(nextEvent.value.startsAt, locale.value, {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }),
+);
 
 useSeoMeta({ title: () => t('auth.signInPage.title'), robots: 'noindex' });
 
@@ -39,25 +56,64 @@ async function onSignIn() {
 </script>
 
 <template>
-  <UContainer class="flex max-w-md flex-col items-start gap-6 py-14">
-    <div class="flex flex-col gap-2">
-      <h1 class="text-4xl font-bold text-highlighted">{{ t('auth.signInPage.title') }}</h1>
-      <p class="text-muted">{{ t('auth.signInPage.lede') }}</p>
+  <div class="grid lg:min-h-hero lg:grid-cols-12">
+    <section
+      class="relative flex aspect-video flex-col justify-end overflow-hidden bg-banner lg:col-span-7 lg:aspect-auto"
+    >
+      <template v-if="nextEvent">
+        <img
+          v-if="nextEvent.banner"
+          :src="nextEvent.banner"
+          alt=""
+          class="absolute inset-0 size-full object-cover"
+        />
+        <div
+          class="absolute inset-0 bg-linear-to-t from-banner via-banner/60 via-40% to-transparent to-70%"
+        />
+        <div class="relative flex flex-col gap-1 p-4 sm:p-8">
+          <h2 class="text-xl font-bold text-on-banner sm:text-2xl">
+            {{ t(`events.${nextEvent.key}.title`) }}
+          </h2>
+          <p class="text-on-banner-muted tabular-nums">
+            {{
+              t('auth.signInPage.nextEvent', {
+                date: nextEventWhen,
+                where: t(`events.${nextEvent.key}.where`),
+              })
+            }}
+          </p>
+        </div>
+      </template>
+    </section>
+
+    <div class="flex items-center px-4 py-10 sm:px-8 lg:col-span-5 lg:px-12">
+      <div class="flex w-full max-w-sm flex-col items-start gap-6">
+        <img src="/logo.svg" alt="" class="size-14 dark:hidden" />
+        <img src="/logo-dark.svg" alt="" class="hidden size-14 dark:block" />
+
+        <div class="flex flex-col gap-2">
+          <h1 class="text-4xl font-bold text-highlighted">{{ t('auth.signInPage.title') }}</h1>
+          <p class="text-lg text-muted">{{ t('auth.signInPage.lede') }}</p>
+        </div>
+
+        <UAlert
+          v-if="errorMessage || failed"
+          color="error"
+          variant="subtle"
+          icon="i-lucide-circle-alert"
+          :description="errorMessage ?? t('auth.errors.generic')"
+        />
+
+        <UButton
+          icon="i-simple-icons-microsoft"
+          :label="t('auth.signInWithMicrosoft')"
+          :loading="pending"
+          block
+          @click="onSignIn"
+        />
+
+        <p class="text-sm text-muted">{{ t('auth.signInPage.noPassword') }}</p>
+      </div>
     </div>
-
-    <UAlert
-      v-if="errorMessage || failed"
-      color="error"
-      variant="subtle"
-      icon="i-lucide-circle-alert"
-      :description="errorMessage ?? t('auth.errors.generic')"
-    />
-
-    <UButton
-      icon="i-simple-icons-microsoft"
-      :label="t('auth.signInWithMicrosoft')"
-      :loading="pending"
-      @click="onSignIn"
-    />
-  </UContainer>
+  </div>
 </template>

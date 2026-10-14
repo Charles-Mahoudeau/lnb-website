@@ -42,7 +42,9 @@
     "accountMenu": "Menu du compte",
     "signInPage": {
       "title": "Connexion",
-      "lede": "Utilise ton compte Microsoft de l’école : Epitech, e-artsup ou ISEG."
+      "lede": "Utilise ton compte Microsoft de l’école : Epitech, e-artsup ou ISEG.",
+      "nextEvent": "Prochain événement le {date}, {where}",
+      "noPassword": "Pas de mot de passe à créer ici : Microsoft vérifie ton compte de l’école."
     },
     "errors": {
       "tenantNotAllowed": "Seuls les comptes Epitech, e-artsup et ISEG peuvent se connecter. Choisis ton compte Microsoft de l’école, par exemple prenom.nom{'@'}epitech.eu.",
