@@ -103,3 +103,8 @@
     text-wrap: balance;
   }
 }
+
+/* A hero that fills the first screen under the header. */
+@utility min-h-hero {
+  min-height: calc(100svh - var(--ui-header-height));
+}
