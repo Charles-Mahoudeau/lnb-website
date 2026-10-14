@@ -1,6 +1,6 @@
 # Design
 
-The LNB visual language, "Soft night": a dark, confident showcase for a gaming association (video games, IRL games, events). The energy comes from game art and type. The layout stays clean, simple and obvious. It should read as a polished event brand, never as a design experiment.
+The LNB visual language, "Soft night": a dark, confident showcase for a student association (evenings, tournaments, video games, IRL games and other events). The energy comes from event art and type. In copy, describe what the association runs instead of calling it "gaming", which doesn't cover everything it does and doesn't land well with everyone. The layout stays clean, simple and obvious. It should read as a polished event brand, never as a design experiment.
 
 These rules apply to every page and component. They override any design skill or generic aesthetic advice. If something here doesn't fit a new case, ask before inventing a new style.
 
