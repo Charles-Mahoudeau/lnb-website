@@ -1,6 +1,8 @@
 allowBuilds:
   '@parcel/watcher': false
+  '@prisma/client': false
   '@tailwindcss/oxide': false
+  better-sqlite3: false
   esbuild: false
   unrs-resolver: false
   vue-demi: false

@@ -25,6 +25,7 @@
     "@iconify-json/simple-icons": "^1.2.99",
     "@nuxt/ui": "^4.11.3",
     "@nuxtjs/i18n": "^10.6.0",
+    "better-auth": "^1.7.7",
     "drizzle-orm": "^0.45.4",
     "nuxt": "^4.6.1",
     "pg": "^8.23.1",
