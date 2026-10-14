@@ -21,7 +21,7 @@ app/                  Nuxt app (client and SSR)
 server/               Nitro server, picked up by Nuxt automatically
   api/                handlers of 5 to 10 lines: guard, validate, call a service, return
     auth/[...all].ts  Better Auth's routes under /api/auth
-  services/           (planned) business rules, one file per domain:
+  services/           business rules, one file per domain: links (app link codes), later
                       events, registrations, teams, files, users, push
   db/
     index.ts          Drizzle client (node-postgres)
@@ -38,8 +38,8 @@ server/               Nitro server, picked up by Nuxt automatically
 i18n/locales/         UI strings: en.json (default) and fr.json, with the same keys
 
 shared/               code imported by both app/ and server/
-  schemas/            (planned) Zod contracts used by server validation and client forms
-  utils/              auto-imported: school names by tenant ID, auth error codes
+  schemas/            Zod contracts used by server validation and client forms
+  utils/              auto-imported: school names by tenant ID, auth error codes, apps that can link
 
 public/               static files served as-is
 test/

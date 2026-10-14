@@ -47,6 +47,28 @@ Roles come from Better Auth's admin plugin. Promote the first admin by hand, aft
 UPDATE "user" SET role = 'admin' WHERE email = 'name@epitech.eu';
 ```
 
+## Linking apps
+
+Apps such as the EpiLink Minecraft mod link to an account with a 6-digit code, through Better Auth's device authorization plugin ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628)):
+
+1. The app calls `POST /api/auth/device/code` with its `client_id`. It gets a `device_code`, a 6-digit `user_code` that lasts 10 minutes, and `verification_uri_complete` (`/link?user_code=…`).
+2. The person enters the code on `/link`, signed in. Checking it (`GET /api/auth/device`) claims it for them. The page then shows the app, the code and what the app receives, and they choose Link or Cancel.
+3. Link calls `POST /api/link/approve` (`server/services/links.ts`). Better Auth's own `/device/approve` is disabled, so the school and redirect rules below can't be skipped.
+4. The app gets its access token in one of two ways:
+   - It polls `POST /api/auth/device/token` every 5 seconds until the code is approved.
+   - Or it opens `/link?user_code=…&redirect_uri=…&state=…`. Once linked, the browser goes to `redirect_uri` with `access_token`, `token_type`, `expires_in` and `state` in the query. The code is used up there, so an app that takes this path must not poll.
+   - Or the app has a `redirectAfterLink` (see below), and the browser always goes there once linked, with the same query, even when the code was typed on a plain `/link`.
+
+Apps are listed in `shared/utils/link-apps.ts`. To add one, add its ID and name there and its description under `link.apps.<id>` in both locale files. Each app can also have:
+
+- `schools`: the tenant IDs of the schools whose students can link it. Students from other schools see a page that says so, and their code is refused, so the app gets `access_denied`.
+- `redirectAfterLink`: where to send people once linked when the link has no `redirect_uri`. A path on this site (EpiLink uses `/epilink`) or a full URL. It's set in code, so it isn't checked against `redirectUris`.
+- `redirectUris`: the only addresses `redirect_uri` may use, matched on origin and path. Loopback addresses (`127.0.0.1`, `[::1]`, `localhost`) match on any port, for apps that listen on the person's own device ([RFC 8252](https://datatracker.ietf.org/doc/html/rfc8252#section-7.3)). Apps should send a random `state` and check it comes back, so that no other page can hand them a token.
+
+`GET /api/auth/device` is limited to 5 tries per 10 minutes per IP, since there are only a million codes. Better Auth applies its rate limits in production only.
+
+The access token is a regular session token for the person's account. The bearer plugin isn't on, so apps can't call the API with it yet. Decide what an app may read before turning it on.
+
 ## Changing the auth schema
 
 `server/db/schema/auth.ts` is generated. After changing user fields or plugins in `server/lib/auth.ts`, regenerate it and create a migration:

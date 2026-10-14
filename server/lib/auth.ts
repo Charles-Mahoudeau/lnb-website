@@ -1,11 +1,15 @@
+import { randomInt } from 'node:crypto';
+
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { admin } from 'better-auth/plugins/admin';
+import { deviceAuthorization } from 'better-auth/plugins/device-authorization';
 
-import { TENANT_NOT_ALLOWED } from '../../shared/utils/auth-errors';
-import { db } from '../db';
 import { readAuthEnv } from './auth-env';
 import { isAllowedTenant } from './tenants';
+import { TENANT_NOT_ALLOWED } from '../../shared/utils/auth-errors';
+import { isLinkApp, LINK_CODE_LENGTH } from '../../shared/utils/link-apps';
+import { db } from '../db';
 import * as schema from '../db/schema';
 
 // No Nuxt imports here: the Better Auth CLI loads this file to generate the schema.
@@ -60,7 +64,8 @@ export const auth = betterAuth({
   },
 
   // Profiles come from Microsoft. Users can't edit them, and especially not tenantId.
-  disabledPaths: ['/update-user'],
+  // Link codes are approved by POST /api/link/approve instead, which checks the app's schools.
+  disabledPaths: ['/update-user', '/device/approve'],
 
   databaseHooks: {
     account: {
@@ -89,7 +94,19 @@ export const auth = betterAuth({
     },
   },
 
-  plugins: [admin()],
+  plugins: [
+    admin(),
+    // Apps such as the EpiLink Minecraft mod link to an account with a 6-digit code
+    // entered on /link. See docs/authentication.md.
+    deviceAuthorization({
+      verificationUri: '/link',
+      expiresIn: '10m',
+      userCodeLength: LINK_CODE_LENGTH,
+      generateUserCode: () =>
+        String(randomInt(10 ** LINK_CODE_LENGTH)).padStart(LINK_CODE_LENGTH, '0'),
+      validateClient: (clientId) => isLinkApp(clientId),
+    }),
+  ],
 });
 
 export type AuthSession = typeof auth.$Infer.Session;
