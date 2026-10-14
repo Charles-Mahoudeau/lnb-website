@@ -16,7 +16,11 @@ async function changeLocale(code: string) {
 }
 
 useHead({
-  link: () => [{ rel: 'icon', href: '/favicon.ico', sizes: '48x48' }, ...i18nHead.value.link],
+  link: () => [
+    { rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
+    { rel: 'icon', href: '/logo.svg', type: 'image/svg+xml' },
+    ...i18nHead.value.link,
+  ],
   meta: () => i18nHead.value.meta,
   htmlAttrs: { lang: () => i18nHead.value.htmlAttrs.lang },
 });
@@ -32,6 +36,11 @@ useSeoMeta({
 <template>
   <UApp :locale="uiLocale">
     <UHeader :title="t('site.name')" :to="localePath('index')">
+      <template #title>
+        <img src="/logo.svg" alt="" class="size-8 dark:hidden" />
+        <img src="/logo-dark.svg" alt="" class="hidden size-8 dark:block" />
+        <span>{{ t('site.name') }}</span>
+      </template>
       <template #right>
         <ULocaleSelect
           :model-value="locale"

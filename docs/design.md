@@ -59,7 +59,7 @@ Two custom palettes, wired into Nuxt UI as `neutral: 'night'` and `primary: 'cri
 - The home hero is a full-width game banner (SteamGridDB hero art, 1920 × 620) behind the next event, with a dark scrim from the text side so text stays readable. The hero stays dark in light mode too.
 - Banners are downloaded by the server and stored in object storage, never hotlinked.
 - Events without a banner fall back to plain night navy, never to a placeholder graphic.
-- The logo is a black fox on a grey moon. On dark backgrounds use the white-fox variant (to be made as an SVG). Don't recolor the logo red.
+- The logo is a black fox on a grey moon: `public/logo.svg`. On dark backgrounds use `public/logo-dark.svg`: the same drawing with a night-100 fox on a night-600 moon (night-700 shadow and craters) and night-950 details. A pure white fox on the light moon lacked contrast, and pure white glared, so keep these colors. Show them with `dark:hidden` and `hidden dark:block`, as in the header. Don't recolor the logo red.
 
 ## Motion
 

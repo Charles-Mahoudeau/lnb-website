@@ -51,6 +51,8 @@ export default defineAppConfig({
     switch: {
       variants: { color: { primary: { base: 'data-[state=checked]:bg-action' } } },
     },
+    // The title holds the logo next to the site name, so center them.
+    header: { slots: { title: 'items-center gap-2.5' } },
     // Selection is state, not an action, so tabs stay neutral.
     tabs: { defaultVariants: { color: 'neutral' } },
     input: { defaultVariants: { size: 'xl' } },
