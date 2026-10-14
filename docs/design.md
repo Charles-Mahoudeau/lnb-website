@@ -69,7 +69,8 @@ Two custom palettes, wired into Nuxt UI as `neutral: 'night'` and `primary: 'cri
 
 ## Copy
 
-- English, sentence case, plain and friendly. Students talking to students, without slang.
+- English and French, both sentence case, plain and friendly. Students talking to students, without slang. Write each string in both languages, in `i18n/locales/`, and keep their meaning the same.
+- In French, use the typographic apostrophe (’) and the usual French terms ("BDE", "salle"). Dates and times come from `Intl` with the active locale, in the Europe/Paris time zone, never hand-written.
 - Buttons say exactly what happens: "Register", "Join waitlist", "Cancel registration". The resulting toast reuses the verb: "Registered".
 - Errors say what went wrong and how to fix it: "Use your school email, for example name@epitech.eu." No apologies, no vague "Something went wrong".
 - Empty states tell people what to do next.

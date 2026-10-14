@@ -28,6 +28,8 @@ server/               (planned) Nitro server, picked up by Nuxt automatically
   utils/              auth guards (requireUser, requireAdmin), typed errors, param schemas
   lib/auth.ts         Better Auth setup: Microsoft provider, tenant allowlist, admin plugin
 
+i18n/locales/         UI strings: en.json (default) and fr.json, with the same keys
+
 shared/               (planned) code imported by both app/ and server/
   schemas/            Zod contracts used by server validation and client forms
 

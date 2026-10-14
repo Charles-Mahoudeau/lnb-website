@@ -29,6 +29,7 @@ CI (`.github/workflows/ci.yml`) runs lint, format check, typecheck, tests, build
 
 - Nuxt 4 in Nuxt 5 compatibility mode, with Nuxt UI v4 on Tailwind 4. The server still runs nitropack v2 on h3 v1, so Nitro v3-only features such as `useKV` aren't available.
 - Auto-imports: app code relies on them, except for `shared/schemas/` (import from `#shared/schemas/...`) and `useServerHead`-style composables (import from `#app`). Compatibility mode 5 turns off Nitro auto-imports, so server code imports framework helpers such as `defineEventHandler` from `nuxt/server`. Our own exports from `server/utils/` and `shared/utils/` are still auto-imported.
+- `@nuxtjs/i18n` for English and French
 - Better Auth with the Microsoft provider
 - Drizzle on PostgreSQL
 - Zod 4
@@ -47,7 +48,7 @@ If a stack choice is challenged, re-check it against the plan doc's weighted cri
 
 ## Standing decisions
 
-- English everywhere: code, UI and docs.
+- The UI is in English and French, through `@nuxtjs/i18n`. Every user-facing string goes in both `i18n/locales/en.json` and `i18n/locales/fr.json`, never inline. The language is never in the URL: a first visit follows the browser language (English as the fallback), and the language picker's choice is kept in the `lnb_locale` cookie. It will move to the user's account once accounts exist. Code, comments, docs and commits stay in English.
 - Use only the `main` branch. There is no preprod environment.
 - Don't use Redis. Don't add games or internal analytics or tracking. Don't bring back features the plan dropped.
 - Sign-in is limited by a Microsoft tenant-ID allowlist: Epitech, e-artsup and ISEG.

@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ['@nuxt/eslint', '@nuxt/ui', '@nuxt/test-utils/module'],
+  modules: ['@nuxt/eslint', '@nuxt/ui', '@nuxtjs/i18n', '@nuxt/test-utils/module'],
 
   devtools: {
     enabled: true,
@@ -16,6 +16,23 @@ export default defineNuxtConfig({
   fonts: {
     defaults: {
       weights: [400, 500, 600, 700],
+    },
+  },
+
+  // English and French. Message files live in i18n/locales/.
+  i18n: {
+    locales: [
+      { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
+      { code: 'fr', language: 'fr-FR', name: 'Français', file: 'fr.json' },
+    ],
+    defaultLocale: 'en',
+    // The language never appears in the URL. A first visit follows the browser language, and
+    // the choice from the language picker is kept in a cookie so server rendering uses it too.
+    strategy: 'no_prefix',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'lnb_locale',
+      fallbackLocale: 'en',
     },
   },
 
