@@ -7,6 +7,8 @@ if (!import.meta.dev && !import.meta.test) {
   throw createError({ statusCode: 404, statusMessage: 'Page not found' });
 }
 
+definePageMeta({ auth: false });
+
 useSeoMeta({ title: 'Style guide', robots: 'noindex' });
 
 const colors = [

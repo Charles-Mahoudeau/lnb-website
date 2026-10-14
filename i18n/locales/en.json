@@ -34,5 +34,25 @@
         "where": "room to be announced"
       }
     }
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signInWithMicrosoft": "Sign in with Microsoft",
+    "signOut": "Sign out",
+    "accountMenu": "Account menu",
+    "signInPage": {
+      "title": "Sign in",
+      "lede": "Use your school Microsoft account: Epitech, e-artsup or ISEG."
+    },
+    "errors": {
+      "tenantNotAllowed": "Only Epitech, e-artsup and ISEG accounts can sign in. Choose your school Microsoft account, for example name{'@'}epitech.eu.",
+      "generic": "Sign-in didn't finish. Try again with your school Microsoft account."
+    }
+  },
+  "account": {
+    "title": "Your account",
+    "name": "Name",
+    "email": "Email",
+    "school": "School"
   }
 }

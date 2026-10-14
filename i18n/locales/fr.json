@@ -34,5 +34,25 @@
         "where": "salle à confirmer"
       }
     }
+  },
+  "auth": {
+    "signIn": "Se connecter",
+    "signInWithMicrosoft": "Se connecter avec Microsoft",
+    "signOut": "Se déconnecter",
+    "accountMenu": "Menu du compte",
+    "signInPage": {
+      "title": "Connexion",
+      "lede": "Utilise ton compte Microsoft de l’école : Epitech, e-artsup ou ISEG."
+    },
+    "errors": {
+      "tenantNotAllowed": "Seuls les comptes Epitech, e-artsup et ISEG peuvent se connecter. Choisis ton compte Microsoft de l’école, par exemple prenom.nom{'@'}epitech.eu.",
+      "generic": "La connexion n’a pas abouti. Réessaie avec ton compte Microsoft de l’école."
+    }
+  },
+  "account": {
+    "title": "Ton compte",
+    "name": "Nom",
+    "email": "E-mail",
+    "school": "École"
   }
 }

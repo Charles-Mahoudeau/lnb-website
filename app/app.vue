@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import type { DropdownMenuItem } from '@nuxt/ui';
 import { en, fr } from '@nuxt/ui/locale';
 
 const { t, locale, setLocale } = useI18n();
 const localePath = useLocalePath();
 const i18nHead = useLocaleHead();
+const route = useRoute();
+const { user, school, signOut } = useAuth();
 
 // Nuxt UI's own strings (close buttons, empty states...) follow the site language.
 const uiLocales = { en, fr };
@@ -14,6 +17,19 @@ async function changeLocale(code: string) {
     await setLocale(code);
   }
 }
+
+// Come back to the current page after signing in.
+const signInLink = computed(() =>
+  route.name === 'sign-in'
+    ? route.fullPath
+    : { path: '/sign-in', query: { redirect: route.fullPath } },
+);
+
+const userMenu = computed<DropdownMenuItem[][]>(() => [
+  [{ type: 'label', label: user.value?.name, description: school.value }],
+  [{ label: t('account.title'), icon: 'i-lucide-user', to: '/account' }],
+  [{ label: t('auth.signOut'), icon: 'i-lucide-log-out', onSelect: () => void signOut() }],
+]);
 
 useHead({
   link: () => [
@@ -51,6 +67,19 @@ useSeoMeta({
           @update:model-value="changeLocale"
         />
         <UColorModeButton />
+        <UDropdownMenu v-if="user" :items="userMenu" :content="{ align: 'end' }">
+          <UButton color="neutral" variant="ghost" size="md" :aria-label="t('auth.accountMenu')">
+            <UAvatar :alt="user.name" size="sm" />
+          </UButton>
+        </UDropdownMenu>
+        <UButton
+          v-else
+          color="neutral"
+          variant="outline"
+          size="md"
+          :label="t('auth.signIn')"
+          :to="signInLink"
+        />
       </template>
     </UHeader>
 

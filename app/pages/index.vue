@@ -1,4 +1,6 @@
 <script setup lang="ts">
+definePageMeta({ auth: false });
+
 const { t, locale } = useI18n();
 
 const activities = ['videoGames', 'irlGames', 'events'];
