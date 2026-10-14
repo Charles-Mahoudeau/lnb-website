@@ -60,5 +60,10 @@ export default defineAppConfig({
     selectMenu: { defaultVariants: { size: 'xl' } },
     inputMenu: { defaultVariants: { size: 'xl' } },
     textarea: { defaultVariants: { size: 'xl' } },
+    // Used for 6-digit link codes: larger boxes than other controls, so each digit reads at a glance.
+    pinInput: {
+      variants: { size: { xl: { base: 'h-14 w-11 text-2xl font-semibold tabular-nums sm:w-12' } } },
+      defaultVariants: { size: 'xl' },
+    },
   },
 });

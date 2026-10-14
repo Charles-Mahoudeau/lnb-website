@@ -1,10 +1,15 @@
-import { adminClient, inferAdditionalFields } from 'better-auth/client/plugins';
+import {
+  adminClient,
+  deviceAuthorizationClient,
+  inferAdditionalFields,
+} from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/vue';
 
 function createClient() {
   return createAuthClient({
     plugins: [
       adminClient(),
+      deviceAuthorizationClient(),
       // Mirrors user.additionalFields in server/lib/auth.ts.
       inferAdditionalFields({
         user: {

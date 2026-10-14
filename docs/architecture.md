@@ -13,7 +13,7 @@ app/                  Nuxt app (client and SSR)
   pages/              thin: one composable call, then components
   components/         (planned) by domain: events/ teams/ account/ layout/
                       Primitives come from Nuxt UI; don't rebuild them.
-  composables/        one per resource: useAuth, later useEvent, useEventTeams, useAccount
+  composables/        one per resource: useAuth, useLinkCode, later useEvent, useEventTeams, useAccount
   middleware/         auth.global.ts (public pages opt out with `auth: false`), later admin.ts
   utils/              small client helpers (safeRedirect, the Better Auth client), placeholder events
                       until the events service exists

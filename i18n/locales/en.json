@@ -56,5 +56,50 @@
     "name": "Name",
     "email": "Email",
     "school": "School"
+  },
+  "link": {
+    "title": "Link an app",
+    "lede": "Enter the 6-digit code shown in the app you want to connect to your LNB account.",
+    "code": "Code",
+    "continue": "Continue",
+    "help": "Codes last 10 minutes. If yours stopped working, ask the app for a new one.",
+    "confirm": {
+      "title": "Link {app}?",
+      "matchCode": "Check that {app} shows the same code:",
+      "account": "Your account",
+      "warning": "Only link an app you just started connecting yourself. If someone sent you this code, cancel.",
+      "link": "Link",
+      "cancel": "Cancel",
+      "shared": "{app} will receive:",
+      "identity": {
+        "title": "Your personal identity",
+        "details": "First name, last name, school email and school"
+      }
+    },
+    "done": {
+      "title": "{app} is linked",
+      "lede": "You can go back to {app}.",
+      "another": "Link another app",
+      "toast": "Linked",
+      "redirecting": "Taking you back to {app}."
+    },
+    "apps": {
+      "epilink": {
+        "description": "EpiLink links your Minecraft account with your LNB account."
+      }
+    },
+    "errors": {
+      "unknown": "No app is waiting for this code. Check the digits, or get a new code from the app.",
+      "expired": "This code has expired. Get a new one from the app, then enter it here.",
+      "used": "This code was already used. Get a new one from the app.",
+      "tooManyAttempts": "Too many tries. Wait 10 minutes, then enter the code again.",
+      "failed": "The code couldn’t be checked. Check your connection, then try again.",
+      "schoolNotAllowed": "This app isn’t open to your school.",
+      "invalidRedirect": "The link from this app has an address it isn’t allowed to use. Enter the code by hand instead."
+    },
+    "schoolNotAllowed": {
+      "title": "{app} isn’t open to your school",
+      "lede": "{app} is only for {schools} students, and your account is from {school}. The code was refused, so you can close {app}."
+    }
   }
 }

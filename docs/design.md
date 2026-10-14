@@ -51,7 +51,7 @@ Two custom palettes, wired into Nuxt UI as `neutral: 'night'` and `primary: 'cri
 - Shadows only on floating layers: dialogs, menus, popovers, toasts. Never on cards in the page flow.
 - Controls default to size `xl` (40 px tall, 16 px text, so phones don't zoom into inputs) through `app.config.ts`. Use `md` (32 px) in dense lists and tables.
 - Spacing on the 4 px Tailwind scale. Lay out siblings with `gap`, not margins.
-- A hero that should fill the first screen uses `min-h-hero` (the viewport height minus the header). Use it for the home hero and the sign-in page only, and let other sections size to their content.
+- A hero that should fill the first screen uses `min-h-hero` (the viewport height minus the header). Use it for the home hero, the sign-in page and `/link` only, and let other sections size to their content.
 - Don't chop content into grids of identical cards by reflex. Pick the form that fits the content: dated rows for event lists, cards when the image matters, a table for tabular data.
 
 ## Imagery
@@ -89,5 +89,5 @@ These are the usual tells of generated design. Don't use them unless this docume
 - Monospace fonts for small labels or data.
 - Decorative glows, blurred blobs, glassmorphism and gradient washes.
 - Neon, glitch or "gamer RGB" effects, and angled or cut corners.
-- Everything centered. Content is left-aligned. Center only short, standalone moments such as an empty state.
+- Everything centered. Content is left-aligned. Center only short, standalone moments such as an empty state, or a page with a single short task such as entering a code on `/link`.
 - The same rounded card with the same shadow repeated for every block.

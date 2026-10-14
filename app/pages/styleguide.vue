@@ -29,6 +29,7 @@ const colors = [
 const campuses = ['Paris', 'Lyon', 'Nantes', 'Marseille'];
 const campus = ref('Paris');
 const email = ref('alex@gmail.com');
+const linkCode = ref([1, 9, 6, 0]);
 const notify = ref(true);
 const reminders = ref(true);
 
@@ -207,6 +208,9 @@ function showToast() {
         </UFormField>
         <UFormField label="Team name" hint="Optional">
           <UInput placeholder="Night Owls" class="w-full" />
+        </UFormField>
+        <UFormField label="Link code">
+          <UPinInput v-model="linkCode" :length="6" :separator="3" type="number" otp />
         </UFormField>
         <UCheckbox v-model="notify" label="Email me when a spot opens" />
         <USwitch v-model="reminders" label="Event reminders" />

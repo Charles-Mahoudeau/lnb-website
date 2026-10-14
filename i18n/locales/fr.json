@@ -56,5 +56,50 @@
     "name": "Nom",
     "email": "E-mail",
     "school": "École"
+  },
+  "link": {
+    "title": "Associer une application",
+    "lede": "Saisis le code à 6 chiffres affiché dans l’application que tu veux connecter à ton compte LNB.",
+    "code": "Code",
+    "continue": "Continuer",
+    "help": "Un code dure 10 minutes. S’il ne marche plus, demandes-en un nouveau à l’application.",
+    "confirm": {
+      "title": "Associer {app} ?",
+      "matchCode": "Vérifie que {app} affiche le même code :",
+      "account": "Ton compte",
+      "warning": "N’associe qu’une application que tu viens toi-même de connecter. Si quelqu’un t’a envoyé ce code, annule.",
+      "link": "Associer",
+      "cancel": "Annuler",
+      "shared": "{app} recevra :",
+      "identity": {
+        "title": "Ton identité",
+        "details": "Prénom, nom, e-mail de l’école et école"
+      }
+    },
+    "done": {
+      "title": "{app} est associé",
+      "lede": "Tu peux retourner dans {app}.",
+      "another": "Associer une autre application",
+      "toast": "Application associée",
+      "redirecting": "Retour vers {app}."
+    },
+    "apps": {
+      "epilink": {
+        "description": "EpiLink associe ton compte Minecraft à ton compte LNB."
+      }
+    },
+    "errors": {
+      "unknown": "Aucune application n’attend ce code. Vérifie les chiffres, ou demande un nouveau code à l’application.",
+      "expired": "Ce code a expiré. Demandes-en un nouveau à l’application, puis saisis-le ici.",
+      "used": "Ce code a déjà été utilisé. Demandes-en un nouveau à l’application.",
+      "tooManyAttempts": "Trop d’essais. Attends 10 minutes, puis saisis à nouveau le code.",
+      "failed": "Le code n’a pas pu être vérifié. Vérifie ta connexion, puis réessaie.",
+      "schoolNotAllowed": "Cette application n’est pas ouverte à ton école.",
+      "invalidRedirect": "Le lien de cette application utilise une adresse qui ne lui est pas autorisée. Saisis plutôt le code à la main."
+    },
+    "schoolNotAllowed": {
+      "title": "{app} n’est pas ouvert à ton école",
+      "lede": "{app} est réservé aux étudiants de {schools}, et ton compte vient de {school}. Le code a été refusé, tu peux fermer {app}."
+    }
   }
 }
