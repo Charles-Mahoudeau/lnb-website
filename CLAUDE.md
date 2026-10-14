@@ -8,13 +8,14 @@ This is the LNB website v2: a from-scratch rebuild in a new repository. The v1 r
 
 Plan doc (the source of truth for scope and stack rationale): https://claude.ai/code/artifact/832685bb-1191-4795-b2c9-8b1d872f0e21
 
-The repository setup step of the plan is done: Nuxt UI starter (stripped down), ESLint and Prettier, Husky and lint-staged, Vitest, CI, Renovate, and Compose with PostgreSQL. Next comes the spike: Better Auth with the Microsoft provider, Drizzle, and a Coolify deploy.
+The repository setup step of the plan is done: Nuxt UI starter (stripped down), ESLint and Prettier, Husky and lint-staged, Vitest, CI, Renovate, and Compose with PostgreSQL. The spike is in progress: Drizzle and Better Auth with Microsoft sign-in and the tenant allowlist are in place (see `docs/authentication.md`). Still to do: real logins from the three schools and a refused tenant, and the Coolify deploy.
 
 The target file structure and the server and client rules are in `docs/architecture.md`. Follow that layout when adding code.
 
 ## Commands
 
 - `docker compose up -d`: start local PostgreSQL (see `compose.yaml`, `.env.example`)
+- `pnpm db:migrate`: apply migrations. `pnpm db:generate --name <change>` creates one from `server/db/schema/`, and `pnpm db:studio` browses the database.
 - `pnpm dev`: dev server on http://localhost:3000
 - `pnpm build`, then `node .output/server/index.mjs`: production build and run
 - `pnpm lint` / `pnpm lint:fix`: ESLint (`@nuxt/eslint`, stylistic rules off)

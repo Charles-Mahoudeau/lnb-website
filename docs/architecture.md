@@ -13,25 +13,32 @@ app/                  Nuxt app (client and SSR)
   pages/              thin: one composable call, then components
   components/         (planned) by domain: events/ teams/ account/ layout/
                       Primitives come from Nuxt UI; don't rebuild them.
-  composables/        (planned) one per resource: useEvent, useEventTeams, useAccount
-  middleware/         (planned) auth.global.ts (public pages opt out), admin.ts
+  composables/        one per resource: useAuth, later useEvent, useEventTeams, useAccount
+  middleware/         auth.global.ts (public pages opt out with `auth: false`), later admin.ts
+  utils/              small client helpers (safeRedirect)
 
-server/               (planned) Nitro server, picked up by Nuxt automatically
+server/               Nitro server, picked up by Nuxt automatically
   api/                handlers of 5 to 10 lines: guard, validate, call a service, return
-  services/           business rules, one file per domain:
+    auth/[...all].ts  Better Auth's routes under /api/auth
+  services/           (planned) business rules, one file per domain:
                       events, registrations, teams, files, users, push
   db/
-    schema/           Drizzle tables, one file per domain
+    index.ts          Drizzle client (node-postgres)
+    schema/           Drizzle tables, one file per domain. auth.ts is generated.
     migrations/       generated and committed
-    seed.ts
-  tasks/              scheduled jobs: event reminders, inactive-account cleanup
-  utils/              auth guards (requireUser, requireAdmin), typed errors, param schemas
-  lib/auth.ts         Better Auth setup: Microsoft provider, tenant allowlist, admin plugin
+    seed.ts           (planned)
+  tasks/              (planned) scheduled jobs: event reminders, inactive-account cleanup
+  utils/              auth guards (requireUser, requireAdmin), later typed errors, param schemas
+  lib/                code without Nuxt imports, loaded by the Better Auth CLI too:
+    auth.ts           Better Auth setup: Microsoft provider, tenant allowlist, admin plugin
+    auth-env.ts       auth environment variables, validated with Zod
+    tenants.ts        AUTH_ALLOWED_TENANTS parsing and checks
 
 i18n/locales/         UI strings: en.json (default) and fr.json, with the same keys
 
-shared/               (planned) code imported by both app/ and server/
-  schemas/            Zod contracts used by server validation and client forms
+shared/               code imported by both app/ and server/
+  schemas/            (planned) Zod contracts used by server validation and client forms
+  utils/              auto-imported: school names by tenant ID, auth error codes
 
 public/               static files served as-is
 test/
@@ -41,7 +48,7 @@ docs/                 project documentation
 .github/workflows/    CI
 ```
 
-Root files: `nuxt.config.ts`, `vitest.config.ts`, `eslint.config.mjs`, `.prettierrc.json`, `compose.yaml` (local PostgreSQL), `.env.example`, `renovate.json`, and `pnpm-workspace.yaml` (pnpm settings, audit exceptions and security overrides).
+Root files: `nuxt.config.ts`, `vitest.config.ts`, `drizzle.config.ts`, `eslint.config.mjs`, `.prettierrc.json`, `compose.yaml` (local PostgreSQL), `.env.example`, `renovate.json`, and `pnpm-workspace.yaml` (pnpm settings, audit exceptions and security overrides).
 
 ## Server rules
 
