@@ -5,16 +5,8 @@ const { t, locale } = useI18n();
 
 const activities = ['videoGames', 'irlGames', 'events'];
 
-const upcomingEvents = [
-  { key: 'werewolf', startsAt: '2026-11-04T19:30:00+01:00' },
-  { key: 'minecraft', startsAt: '2026-11-18T19:30:00+01:00' },
-];
-
-// Dates are shown in Paris time, whatever the server's time zone.
 function formatDate(iso: string, options: Intl.DateTimeFormatOptions) {
-  return new Intl.DateTimeFormat(locale.value, { timeZone: 'Europe/Paris', ...options }).format(
-    new Date(iso),
-  );
+  return formatEventDate(iso, locale.value, options);
 }
 </script>
 
@@ -63,7 +55,7 @@ function formatDate(iso: string, options: Intl.DateTimeFormatOptions) {
       <h2 class="text-lg font-bold text-highlighted">{{ t('home.upcoming') }}</h2>
       <ul class="flex flex-col gap-2">
         <li
-          v-for="event in upcomingEvents"
+          v-for="event in UPCOMING_EVENTS"
           :key="event.key"
           class="flex items-center gap-4 rounded-md bg-default py-3 pr-4 pl-3"
         >
@@ -79,7 +71,7 @@ function formatDate(iso: string, options: Intl.DateTimeFormatOptions) {
           </div>
           <div class="min-w-0 flex-1">
             <h3 class="font-sans text-base font-bold tracking-normal">
-              {{ t(`home.events.${event.key}.title`) }}
+              {{ t(`events.${event.key}.title`) }}
             </h3>
             <p class="text-sm text-muted tabular-nums">
               {{
@@ -89,7 +81,7 @@ function formatDate(iso: string, options: Intl.DateTimeFormatOptions) {
                   minute: '2-digit',
                   hourCycle: 'h23',
                 })
-              }}, {{ t(`home.events.${event.key}.where`) }}
+              }}, {{ t(`events.${event.key}.where`) }}
             </p>
           </div>
         </li>

@@ -23,16 +23,16 @@
     },
     "studentOffice": "Site du BDE",
     "github": "Suivre sur GitHub",
-    "upcoming": "À venir",
-    "events": {
-      "werewolf": {
-        "title": "Soirée Loup-Garou et Among Us",
-        "where": "salle Wakanda"
-      },
-      "minecraft": {
-        "title": "Lancement du serveur Minecraft",
-        "where": "salle à confirmer"
-      }
+    "upcoming": "À venir"
+  },
+  "events": {
+    "werewolf": {
+      "title": "Soirée Loup-Garou et Among Us",
+      "where": "salle Wakanda"
+    },
+    "minecraft": {
+      "title": "Lancement du serveur Minecraft",
+      "where": "salle à confirmer"
     }
   },
   "auth": {
