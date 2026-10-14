@@ -3,5 +3,36 @@
     "name": "La Nuit Blanche",
     "description": "Student events for Epitech, e-artsup and ISEG."
   },
-  "language": "Language"
+  "language": "Language",
+  "home": {
+    "workInProgress": "Work in progress",
+    "lede": "Evenings, tournaments and events for Epitech, e-artsup and ISEG students. Registrations open here soon.",
+    "activities": {
+      "videoGames": {
+        "title": "Video games",
+        "description": "Tournaments and LAN nights"
+      },
+      "irlGames": {
+        "title": "IRL games",
+        "description": "Board games, werewolf"
+      },
+      "events": {
+        "title": "Events",
+        "description": "All year long"
+      }
+    },
+    "studentOffice": "Student office website",
+    "github": "Follow on GitHub",
+    "upcoming": "Upcoming",
+    "events": {
+      "werewolf": {
+        "title": "Werewolf and Among Us night",
+        "where": "Wakanda room"
+      },
+      "minecraft": {
+        "title": "Minecraft server launch",
+        "where": "room to be announced"
+      }
+    }
+  }
 }

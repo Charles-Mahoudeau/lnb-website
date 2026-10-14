@@ -3,5 +3,36 @@
     "name": "La Nuit Blanche",
     "description": "Des événements étudiants pour Epitech, e-artsup et ISEG."
   },
-  "language": "Langue"
+  "language": "Langue",
+  "home": {
+    "workInProgress": "En construction",
+    "lede": "Soirées, tournois et événements pour les étudiants d’Epitech, e-artsup et ISEG. Les inscriptions ouvriront bientôt ici.",
+    "activities": {
+      "videoGames": {
+        "title": "Jeux vidéo",
+        "description": "Tournois et soirées LAN"
+      },
+      "irlGames": {
+        "title": "Jeux IRL",
+        "description": "Jeux de société, loup-garou"
+      },
+      "events": {
+        "title": "Événements",
+        "description": "Toute l’année"
+      }
+    },
+    "studentOffice": "Site du BDE",
+    "github": "Suivre sur GitHub",
+    "upcoming": "À venir",
+    "events": {
+      "werewolf": {
+        "title": "Soirée Loup-Garou et Among Us",
+        "where": "salle Wakanda"
+      },
+      "minecraft": {
+        "title": "Lancement du serveur Minecraft",
+        "where": "salle à confirmer"
+      }
+    }
+  }
 }

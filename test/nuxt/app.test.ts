@@ -8,4 +8,9 @@ describe('home page', () => {
     const page = await mountSuspended(IndexPage);
     expect(page.text()).toContain('La Nuit Blanche');
   });
+
+  it('says the site is a work in progress', async () => {
+    const page = await mountSuspended(IndexPage);
+    expect(page.text()).toContain('Work in progress');
+  });
 });
