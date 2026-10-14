@@ -53,7 +53,8 @@ Root files: `nuxt.config.ts`, `vitest.config.ts`, `drizzle.config.ts`, `eslint.c
 
 ## Server rules
 
-- Import framework helpers (`defineEventHandler`, `getRouterParams`, `readValidatedBody`, ...) from `nuxt/server`, because Nitro auto-imports are off in compatibility mode 5. Exports from `server/utils/` and `shared/utils/` are still auto-imported.
+- Import framework helpers (`defineEventHandler`, `getRouterParams`, `readBody`, ...) from `nuxt/server`, because Nitro auto-imports are off in compatibility mode 5. Exports from `server/utils/` and `shared/utils/` are still auto-imported.
+- Don't use `readValidatedBody` from `nuxt/server` for now. In Nuxt 4.6 it pulls `app.config.ts` into the server bundle, and every request then fails with `defineAppConfig is not defined`. Use `readBody`, then `safeParse` with the shared schema, as in `server/api/link/approve.post.ts`.
 - Services take explicit inputs (such as `actorId`), run multi-step writes in a transaction, and throw typed errors (`NotFoundError`, `ForbiddenError`, `ConflictError`). These are turned into HTTP errors in one place.
 - Every team action checks that the team belongs to the event and that the user is registered. Size limits come from the event and are enforced inside the transaction, backed by a unique `(eventId, userId)` constraint.
 - Lists expose public profiles only (name, avatar). Email appears only on the user's own account endpoint.
