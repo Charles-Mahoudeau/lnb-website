@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { isAllowedTenant, parseAllowedTenants, schoolForTenant } from '../../server/lib/tenants.ts';
+import { isAllowedTenant, parseAllowedTenants } from '../../server/lib/tenants.ts';
+import { schoolForTenant } from '../../shared/utils/schools.ts';
 
 const EPITECH = '901cb4ca-b862-4029-9306-e5cd0f6d9f86';
 const EARTSUP = '791f2edf-38ab-4c6c-b323-ea94dd988fde';
