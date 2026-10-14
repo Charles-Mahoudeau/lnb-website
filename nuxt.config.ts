@@ -41,8 +41,9 @@ export default defineNuxtConfig({
   },
 
   typescript: {
-    // Unit tests run in plain Node, so they belong to the Node tsconfig. Paths are relative to .nuxt/.
-    nodeTsConfig: { include: ['../test/unit/**/*'] },
+    // Unit tests and tool configs run in plain Node, so they belong to the Node tsconfig.
+    // Paths are relative to .nuxt/.
+    nodeTsConfig: { include: ['../test/unit/**/*', '../drizzle.config.ts'] },
   },
 
   compatibilityDate: '2026-10-13',
