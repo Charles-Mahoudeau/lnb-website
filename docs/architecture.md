@@ -15,7 +15,8 @@ app/                  Nuxt app (client and SSR)
                       Primitives come from Nuxt UI; don't rebuild them.
   composables/        one per resource: useAuth, later useEvent, useEventTeams, useAccount
   middleware/         auth.global.ts (public pages opt out with `auth: false`), later admin.ts
-  utils/              small client helpers (safeRedirect), placeholder events until the events service exists
+  utils/              small client helpers (safeRedirect, the Better Auth client), placeholder events
+                      until the events service exists
 
 server/               Nitro server, picked up by Nuxt automatically
   api/                handlers of 5 to 10 lines: guard, validate, call a service, return

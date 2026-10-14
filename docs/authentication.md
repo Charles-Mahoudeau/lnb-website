@@ -57,4 +57,4 @@ pnpm format
 pnpm db:generate --name <change>
 ```
 
-The CLI loads `server/lib/auth.ts`, so the auth variables must be set in the environment. Keep that file and what it imports free of Nuxt imports. Mirror new user fields in `inferAdditionalFields` in `app/composables/useAuth.ts`.
+The CLI loads `server/lib/auth.ts`, so the auth variables must be set in the environment. Keep that file and what it imports free of Nuxt imports. Mirror new user fields in `inferAdditionalFields` in `app/utils/auth-client.ts`.
