@@ -1,2 +1,105 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
+
+/* Design tokens. See docs/design.md for when to use what. */
+
+@theme static {
+  --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Unbounded', 'Figtree', ui-sans-serif, system-ui, sans-serif;
+
+  /* Neutral palette, wired as Nuxt UI's `neutral` in app.config.ts */
+  --color-night-50: #f4f5fa;
+  --color-night-100: #ecedf5;
+  --color-night-200: #daddeb;
+  --color-night-300: #bfc4da;
+  --color-night-400: #9ca1be;
+  --color-night-500: #5f6485;
+  --color-night-600: #3a4170;
+  --color-night-700: #2a3052;
+  --color-night-800: #1f2441;
+  --color-night-900: #161a30;
+  --color-night-950: #0e1122;
+
+  /* Accent palette, wired as Nuxt UI's `primary` and `error` */
+  --color-crimson-50: #fff1f3;
+  --color-crimson-100: #ffe0e5;
+  --color-crimson-200: #ffc5ce;
+  --color-crimson-300: #ff96a6;
+  --color-crimson-400: #f25c70;
+  --color-crimson-500: #dc3349;
+  --color-crimson-600: #b82238;
+  --color-crimson-700: #a51f33;
+  --color-crimson-800: #8c1a2b;
+  --color-crimson-900: #6e1724;
+  --color-crimson-950: #3f0910;
+}
+
+/* Solid fill for the main action. Separate from `primary`, which is tuned for red text. */
+@theme inline {
+  --color-action: var(--lnb-action);
+  --color-action-hover: var(--lnb-action-hover);
+  --color-on-action: #fff;
+}
+
+:root {
+  --ui-radius: 0.375rem;
+
+  --ui-primary: var(--ui-color-primary-700);
+  --ui-error: var(--ui-color-error-700);
+  --ui-success: var(--ui-color-success-700);
+  --ui-warning: var(--ui-color-warning-700);
+  --lnb-action: var(--color-crimson-700);
+  --lnb-action-hover: var(--color-crimson-800);
+
+  --ui-bg: var(--ui-color-neutral-50);
+  --ui-bg-muted: var(--ui-color-neutral-100);
+  --ui-bg-elevated: #fff;
+  --ui-bg-accented: var(--ui-color-neutral-200);
+  --ui-bg-inverted: var(--ui-color-neutral-950);
+  --ui-text-dimmed: var(--ui-color-neutral-400);
+  --ui-text-muted: var(--ui-color-neutral-500);
+  --ui-text-toned: var(--ui-color-neutral-700);
+  --ui-text: var(--ui-color-neutral-950);
+  --ui-text-highlighted: var(--ui-color-neutral-950);
+  --ui-text-inverted: #fff;
+  --ui-border: var(--ui-color-neutral-200);
+  --ui-border-muted: var(--ui-color-neutral-100);
+  --ui-border-accented: var(--ui-color-neutral-300);
+  --ui-border-inverted: var(--ui-color-neutral-950);
+}
+
+.dark {
+  --ui-primary: var(--ui-color-primary-400);
+  --ui-error: var(--ui-color-error-400);
+  /* Status colors one step softer than Nuxt UI's default, so they don't glow on night navy. */
+  --ui-success: var(--ui-color-success-500);
+  --ui-warning: var(--ui-color-warning-400);
+  --lnb-action: var(--color-crimson-600);
+  --lnb-action-hover: var(--color-crimson-700);
+
+  --ui-bg: var(--ui-color-neutral-950);
+  --ui-bg-muted: var(--ui-color-neutral-900);
+  --ui-bg-elevated: var(--ui-color-neutral-900);
+  --ui-bg-accented: var(--ui-color-neutral-800);
+  --ui-bg-inverted: var(--ui-color-neutral-100);
+  --ui-text-dimmed: var(--ui-color-neutral-500);
+  --ui-text-muted: var(--ui-color-neutral-400);
+  --ui-text-toned: var(--ui-color-neutral-200);
+  --ui-text: var(--ui-color-neutral-100);
+  --ui-text-highlighted: #fff;
+  --ui-text-inverted: var(--ui-color-neutral-950);
+  --ui-border: var(--ui-color-neutral-700);
+  --ui-border-muted: var(--ui-color-neutral-800);
+  --ui-border-accented: var(--ui-color-neutral-600);
+  --ui-border-inverted: var(--ui-color-neutral-100);
+}
+
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+}

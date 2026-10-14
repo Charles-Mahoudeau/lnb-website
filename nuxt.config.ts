@@ -8,6 +8,17 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  // Dark first, see docs/design.md.
+  colorMode: {
+    preference: 'dark',
+  },
+
+  fonts: {
+    defaults: {
+      weights: [400, 500, 600, 700],
+    },
+  },
+
   future: {
     compatibilityVersion: 5,
   },
