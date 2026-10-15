@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import * as admin from '../../shared/schemas/admin.ts';
 import { linkApproveBody, linkApproveResult } from '../../shared/schemas/link.ts';
 import * as warden from '../../shared/schemas/warden.ts';
 
@@ -42,6 +43,8 @@ type OpenApiObject = Record<string, unknown>;
 // Named schemas, listed under Models in the reference. Requests are described as they're sent,
 // responses as they're returned.
 const requestSchemas = {
+  AdminRolesBody: admin.adminRolesBody,
+  AdminBanBody: admin.adminBanBody,
   LinkApproveBody: linkApproveBody,
   WardenIssuer: warden.wardenIssuer,
   WardenLinkRequestBody: warden.wardenLinkRequestBody,
@@ -64,6 +67,8 @@ const requestSchemas = {
 };
 
 const responseSchemas = {
+  AdminUserRow: admin.adminUserRow,
+  AdminUserPage: admin.adminUserPage,
   LinkApproveResult: linkApproveResult,
   WardenLinkRequest: warden.wardenLinkRequest,
   WardenLinkRequestStatus: warden.wardenLinkRequestStatus,
@@ -98,6 +103,7 @@ const TAGS = {
   health: 'Health',
   reference: 'API reference',
   link: 'App linking',
+  admin: 'Admin',
   wardenServer: 'Warden: Minecraft server',
   wardenPlayer: 'Warden: players',
   wardenAdmin: 'Warden: admins',
@@ -164,6 +170,91 @@ const routes: RouteDoc[] = [
         status: 409,
         problems: ['accountLimitReached', 'minecraftAccountTaken', 'wrongAccount'],
       },
+    ],
+  },
+
+  // Admin
+  {
+    method: 'get',
+    path: '/api/admin/users',
+    tag: TAGS.admin,
+    summary: 'Accounts',
+    description:
+      'Every account, by name, with its school, roles, last sign-in and site ban. Search by name or email.',
+    access: 'admin',
+    query: admin.adminUsersQuery,
+    response: admin.adminUserPage,
+    problems: [{ status: 400, problems: ['invalidCursor'] }],
+  },
+  {
+    method: 'put',
+    path: '/api/admin/users/{userId}/roles',
+    tag: TAGS.admin,
+    summary: "Set an account's roles",
+    description:
+      "Sets `admin` and `warden-admin` together. Admins can't remove their own admin role.",
+    access: 'admin',
+    params: admin.adminUserParams,
+    body: admin.adminRolesBody,
+    noContent: true,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['self'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/users/{userId}/ban',
+    tag: TAGS.admin,
+    summary: 'Ban from the site',
+    description:
+      "Refuses sign-in until the ban ends, and signs out every session. Separate from Warden bans, which only block the Minecraft server. Admins can't be banned until their admin role is removed.",
+    access: 'admin',
+    params: admin.adminUserParams,
+    body: admin.adminBanBody,
+    noContent: true,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['self', 'targetIsAdmin'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/users/{userId}/unban',
+    tag: TAGS.admin,
+    summary: 'Lift a site ban',
+    access: 'admin',
+    params: admin.adminUserParams,
+    noContent: true,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['notBanned'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/users/{userId}/sign-out',
+    tag: TAGS.admin,
+    summary: 'Sign out everywhere',
+    description: 'Ends every session of the account, on every device.',
+    access: 'admin',
+    params: admin.adminUserParams,
+    noContent: true,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'delete',
+    path: '/api/admin/users/{userId}',
+    tag: TAGS.admin,
+    summary: 'Delete an account',
+    description:
+      "Deletes the account and everything that belongs to it, Warden data included. It can't be undone. Admins can't be deleted until their admin role is removed.",
+    access: 'admin',
+    params: admin.adminUserParams,
+    noContent: true,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['self', 'targetIsAdmin'] },
     ],
   },
 
@@ -897,9 +988,13 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       { name: TAGS.health },
       { name: TAGS.reference },
       { name: TAGS.link, description: 'Linking apps to an account with a 6-digit code.' },
+      { name: TAGS.admin, description: 'The admin area at `/admin`. Site admins only.' },
       { name: TAGS.wardenServer, description: 'Called by the LNB Minecraft server only.' },
       { name: TAGS.wardenPlayer, description: 'The `/warden` and `/link` pages.' },
-      { name: TAGS.wardenAdmin, description: 'The Warden admin panel.' },
+      {
+        name: TAGS.wardenAdmin,
+        description: 'The Warden section of the admin area, `/admin/warden`.',
+      },
       { name: TAGS.auth, description: AUTH_TAG_DESCRIPTION },
       { name: TAGS.authAdmin, description: "Better Auth's admin plugin. Site admins only." },
       {
@@ -909,7 +1004,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       },
     ],
     'x-tagGroups': [
-      { name: 'Site', tags: [TAGS.health, TAGS.link, TAGS.reference] },
+      { name: 'Site', tags: [TAGS.health, TAGS.link, TAGS.admin, TAGS.reference] },
       { name: 'Auth', tags: [TAGS.auth, TAGS.authAdmin, TAGS.authDevice] },
       { name: 'Warden', tags: [TAGS.wardenServer, TAGS.wardenPlayer, TAGS.wardenAdmin] },
     ],
