@@ -86,9 +86,18 @@ export const wardenLinkRequest = pgTable(
     cracked: boolean('cracked').notNull(),
     // Set when the server knew the player from their address: only they can link it.
     boundUserId: text('bound_user_id').references(() => user.id, { onDelete: 'cascade' }),
+    // The admin who made the code by hand on the admin panel. Null for codes from the server.
+    createdByUserId: text('created_by_user_id').references(() => user.id, { onDelete: 'set null' }),
+    // Set when an admin cancels a code they made. The device code is denied at the same time.
+    cancelledAt: timestamp('cancelled_at'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
-  (table) => [index('warden_link_request_minecraft_uuid_idx').on(table.minecraftUuid)],
+  (table) => [
+    index('warden_link_request_minecraft_uuid_idx').on(table.minecraftUuid),
+    index('warden_link_request_created_by_idx')
+      .on(table.createdAt)
+      .where(sql`${table.createdByUserId} is not null`),
+  ],
 );
 
 export type WardenSessionEndReason = 'quit' | 'kicked' | 'timeout';
@@ -193,6 +202,8 @@ export const wardenNote = pgTable(
 
 export const WARDEN_AUDIT_ACTIONS = [
   'link',
+  'link.request',
+  'link.cancel',
   'unlink',
   'token.rotate',
   'ban',

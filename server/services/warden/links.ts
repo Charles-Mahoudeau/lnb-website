@@ -55,10 +55,15 @@ function toResponse(row: {
 }
 
 /**
- * Creates a link code for a Minecraft account, for the Minecraft server. With a known token,
- * only that player can link it. A pending request for the same account is returned again.
+ * Creates a link code for a Minecraft account. From the Minecraft server, a known token binds it
+ * to that player, and a pending request for the same account is returned again. From the admin
+ * panel, `createdByUserId` names the admin and `boundUserId` the player it's for, if any, and
+ * each call makes a new code.
  */
-async function create(body: WardenLinkRequestBody, tx?: Tx): Promise<WardenLinkRequest> {
+async function create(
+  body: WardenLinkRequestBody,
+  options: { tx?: Tx; boundUserId?: string; createdByUserId?: string } = {},
+): Promise<WardenLinkRequest> {
   if (!uuidMatchesAccount(body)) refuse(400, 'invalidUuid');
   const run = async (tx: Tx) => {
     const settings = await wardenSettingsService.get(tx);
@@ -70,8 +75,11 @@ async function create(body: WardenLinkRequestBody, tx?: Tx): Promise<WardenLinkR
       .where(eq(minecraftAccount.uuid, body.uuid));
     if (linked) refuse(409, 'alreadyLinked');
 
-    const bound = body.token ? await wardenPlayerService.findByToken(body.token, tx) : undefined;
-    const boundUserId = bound?.userId ?? null;
+    const bound =
+      !options.boundUserId && body.token
+        ? await wardenPlayerService.findByToken(body.token, tx)
+        : undefined;
+    const boundUserId = options.boundUserId ?? bound?.userId ?? null;
     if (boundUserId && (await wardenModerationService.activeBan(boundUserId, tx))) {
       refuse(403, 'banned');
     }
@@ -97,6 +105,7 @@ async function create(body: WardenLinkRequestBody, tx?: Tx): Promise<WardenLinkR
       .orderBy(desc(wardenLinkRequest.createdAt))
       .limit(1);
     if (
+      !options.createdByUserId &&
       pending &&
       pending.boundUserId === boundUserId &&
       pending.username === body.username &&
@@ -115,11 +124,12 @@ async function create(body: WardenLinkRequestBody, tx?: Tx): Promise<WardenLinkR
         username: body.username,
         cracked: body.cracked,
         boundUserId,
+        createdByUserId: options.createdByUserId ?? null,
       })
       .returning({ id: wardenLinkRequest.id });
     return toResponse({ id: request!.id, userCode: code.userCode, expiresAt, boundUserId });
   };
-  return tx ? run(tx) : db.transaction(run);
+  return options.tx ? run(options.tx) : db.transaction(run);
 }
 
 /** A Better Auth device code for Warden, so /link claims and expires it like any other. */

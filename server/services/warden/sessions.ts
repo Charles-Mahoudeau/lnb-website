@@ -42,7 +42,7 @@ async function login(body: WardenLoginBody): Promise<WardenLogin> {
       if (ban) return denied('banned', ban);
       const link = await wardenLinkService.create(
         { uuid: body.uuid, username: body.username, cracked: body.cracked, token: body.token },
-        tx,
+        { tx },
       );
       return { ...denied('notLinked'), link };
     }

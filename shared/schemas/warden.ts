@@ -399,6 +399,52 @@ export type WardenEvent =
   | { type: 'link'; data: { requestId: string | null; uuid: string; userId: string } }
   | { type: 'settings'; data: { defaultMaxAccounts: number; allowCracked: boolean } };
 
+/** GET /api/warden/admin/minecraft/:username?cracked=: the account a username names. */
+export const wardenMinecraftLookupParams = z.object({ username: minecraftUsername });
+export const wardenMinecraftLookupQuery = z.object({
+  cracked: z.enum(['true', 'false']).transform((value) => value === 'true'),
+});
+
+export interface WardenMinecraftLookup {
+  uuid: string;
+  /** As Mojang spells it, for premium accounts. */
+  username: string;
+  cracked: boolean;
+  /** The LNB player who already linked it, if anyone. */
+  linkedTo: { userId: string; name: string } | null;
+}
+
+/** Body of POST /api/warden/admin/link-requests: a link code made by hand. */
+export const wardenManualLinkBody = z.object({
+  username: minecraftUsername,
+  cracked: z.boolean(),
+  // Only this LNB player can use the code.
+  userId: z.string().min(1).max(64).optional(),
+});
+export type WardenManualLinkBody = z.infer<typeof wardenManualLinkBody>;
+
+export interface WardenManualLinkView {
+  id: string;
+  userCode: string;
+  createdAt: string;
+  expiresAt: string;
+  verificationUriComplete: string;
+  account: { uuid: string; username: string; cracked: boolean };
+  for: { userId: string; name: string } | null;
+  by: { userId: string; name: string } | null;
+  status: 'pending' | 'linked' | 'expired' | 'cancelled' | 'denied';
+  /** Who linked the account, once linked. */
+  linkedBy: { userId: string; name: string } | null;
+}
+
+/** GET /api/warden/admin/users?q=: LNB players to make a code for. */
+export const wardenUserSearchQuery = z.object({ q: z.string().trim().min(1).max(100) });
+export interface WardenUserOption {
+  userId: string;
+  name: string;
+  email: string;
+}
+
 export const wardenIdParams = z.object({ id: z.uuid() });
 export const wardenUserCodeParams = z.object({ userCode: z.string().regex(/^\d{6}$/) });
 
@@ -416,5 +462,8 @@ export const WARDEN_PROBLEMS = [
   'appealClosed',
   'schoolNotAllowed',
   'invalidCursor',
+  'unknownMinecraftUsername',
+  'mojangUnavailable',
+  'linkRequestClosed',
 ] as const;
 export type WardenProblem = (typeof WARDEN_PROBLEMS)[number];
