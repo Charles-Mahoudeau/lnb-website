@@ -33,8 +33,8 @@ const appSchools = computed(() =>
   ),
 );
 
-// Apps can send people to /link?user_code=123456 (Better Auth's verification_uri_complete),
-// and add redirect_uri and state to get the token back in the browser once linked.
+// Apps can send people to /link?code=123456, and add redirect_uri and state to get the token back
+// in the browser once linked.
 const redirect = computed(() => {
   const { redirect_uri: uri, state } = route.query;
   if (typeof uri !== 'string') return undefined;
@@ -102,7 +102,8 @@ function startOver() {
 }
 
 onMounted(() => {
-  const fromLink = route.query.user_code;
+  // Better Auth's verification_uri_complete still says ?user_code=, so both work.
+  const fromLink = route.query.code ?? route.query.user_code;
   if (typeof fromLink !== 'string') return;
   const prefilled = normalizeLinkCode(fromLink);
   if (prefilled.length !== LINK_CODE_LENGTH) return;

@@ -53,12 +53,12 @@ A user's `role` is a comma-separated list. Besides `admin`, there is `warden-adm
 
 Apps link to an account with a 6-digit code, through Better Auth's device authorization plugin ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628)). Warden, the Minecraft link, works differently: its server creates the codes, and linking gives no token. See `docs/warden.md`. For other apps:
 
-1. The app calls `POST /api/auth/device/code` with its `client_id`. It gets a `device_code`, a 6-digit `user_code` that lasts 10 minutes, and `verification_uri_complete` (`/link?user_code=…`).
+1. The app calls `POST /api/auth/device/code` with its `client_id`. It gets a `device_code`, a 6-digit `user_code` that lasts 10 minutes, and `verification_uri_complete` (`/link?user_code=…`). `/link` reads the code from `?code=`, and still accepts Better Auth's `?user_code=`.
 2. The person enters the code on `/link`, signed in. Checking it (`GET /api/auth/device`) claims it for them. The page then shows the app, the code and what the app receives, and they choose Link or Cancel.
 3. Link calls `POST /api/link/approve` (`server/services/links.ts`). Better Auth's own `/device/approve` is disabled, so the school and redirect rules below can't be skipped.
 4. The app gets its access token in one of two ways:
    - It polls `POST /api/auth/device/token` every 5 seconds until the code is approved.
-   - Or it opens `/link?user_code=…&redirect_uri=…&state=…`. Once linked, the browser goes to `redirect_uri` with `access_token`, `token_type`, `expires_in` and `state` in the query. The code is used up there, so an app that takes this path must not poll.
+   - Or it opens `/link?code=…&redirect_uri=…&state=…`. Once linked, the browser goes to `redirect_uri` with `access_token`, `token_type`, `expires_in` and `state` in the query. The code is used up there, so an app that takes this path must not poll.
    - Or the app has a `redirectAfterLink` (see below), and the browser always goes there once linked, with the same query, even when the code was typed on a plain `/link`.
 
 Apps are listed in `shared/utils/link-apps.ts`. To add one, add its ID and name there and its description under `link.apps.<id>` in both locale files. Each app can also have:

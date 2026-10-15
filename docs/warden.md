@@ -77,7 +77,7 @@ With a valid `token`, the request is bound to that player: only they can link it
   "expiresIn": 600,
   "interval": 5,
   "verificationUri": "https://<site>/link",
-  "verificationUriComplete": "https://<site>/link?user_code=123456",
+  "verificationUriComplete": "https://<site>/link?code=123456",
   "boundToUser": false
 }
 ```

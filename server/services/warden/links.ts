@@ -41,7 +41,7 @@ function toResponse(row: {
 }): WardenLinkRequest {
   const verificationUri = new URL('/link', wardenEnv().BETTER_AUTH_URL);
   const complete = new URL(verificationUri);
-  complete.searchParams.set('user_code', row.userCode);
+  complete.searchParams.set('code', row.userCode);
   return {
     requestId: row.id,
     userCode: row.userCode,
