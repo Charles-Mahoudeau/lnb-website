@@ -22,6 +22,8 @@ const canUseWarden = computed(
 
 const navItems = computed<NavigationMenuItem[]>(() => [
   { label: t('nav.home'), icon: 'i-lucide-house', to: localePath('index'), exact: true },
+  // The mod list is public, so everyone gets it.
+  { label: t('nav.minecraft'), icon: 'i-lucide-blocks', to: '/minecraft/mod-list' },
   ...(canUseWarden.value
     ? [{ label: t('warden.title'), icon: 'i-lucide-pickaxe', to: '/warden' }]
     : []),
@@ -41,8 +43,7 @@ const userMenu = computed<DropdownMenuItem[][]>(() => [
 
 <template>
   <div>
-    <!-- The mobile menu only repeats the nav, so skip it when Home is the only link. -->
-    <UHeader :title="t('site.name')" :to="localePath('index')" :toggle="navItems.length > 1">
+    <UHeader :title="t('site.name')" :to="localePath('index')">
       <template #title>
         <img src="/logo.svg" alt="" class="size-8 dark:hidden" />
         <img src="/logo-dark.svg" alt="" class="hidden size-8 dark:block" />

@@ -5,7 +5,8 @@
   },
   "language": "Langue",
   "nav": {
-    "home": "Accueil"
+    "home": "Accueil",
+    "minecraft": "Mods Minecraft"
   },
   "home": {
     "workInProgress": "En construction",
@@ -234,7 +235,10 @@
       "activity": "Activité",
       "settings": "Réglages",
       "users": "Utilisateurs",
-      "overview": "Vue d’ensemble"
+      "overview": "Vue d’ensemble",
+      "mods": "Mods",
+      "modList": "Liste de mods",
+      "modSuggestions": "Propositions"
     },
     "cancel": "Annuler",
     "roles": {
@@ -336,6 +340,75 @@
         "deleteInactive": "Le nettoyage de la nuit a supprimé 1 compte sans connexion depuis 24 mois. | Le nettoyage de la nuit a supprimé {count} comptes sans connexion depuis 24 mois."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page."
+    },
+    "mods": {
+      "settings": {
+        "title": "Réglages",
+        "open": "Votes et propositions ouverts",
+        "openHelp": "Fermés, la page reste visible mais personne ne peut voter ni proposer.",
+        "maxSuggestions": "Propositions par personne",
+        "maxSuggestionsHelp": "Les propositions retirées par l’équipe comptent aussi. Celles retirées par leur auteur ou ajoutées à la liste officielle libèrent une place.",
+        "gameVersion": "Version de Minecraft",
+        "loader": "Loader",
+        "serverHelp": "Les nouveaux mods doivent tourner sur cette version et ce loader. Les mods déjà dans la liste ne sont pas revérifiés.",
+        "save": "Enregistrer les réglages",
+        "saved": "Réglages enregistrés"
+      },
+      "official": {
+        "add": "Ajouter un mod",
+        "empty": "Aucun mod officiel pour l’instant. Ajoutez-en un, ou promouvez une proposition.",
+        "mod": "Mod",
+        "source": "Source",
+        "score": "Score",
+        "up": "Pour",
+        "down": "Contre",
+        "added": "Ajouté",
+        "fromSuggestion": "Issu d’une proposition",
+        "openPage": "Ouvrir la page",
+        "remove": "Retirer",
+        "removeTitle": "Retirer {name} de la liste officielle ?",
+        "removeBody": "Le mod et ses votes sont supprimés. Il pourra être ajouté ou proposé à nouveau.",
+        "removed": "Mod retiré"
+      },
+      "add": {
+        "title": "Ajouter un mod à la liste officielle",
+        "lede": "Choisissez-le sur Modrinth ou CurseForge, ou ajoutez-le à la main s’il n’est sur aucun des deux.",
+        "fromSearch": "Recherche",
+        "manual": "À la main",
+        "name": "Nom",
+        "summary": "Résumé",
+        "pageUrl": "URL de la page",
+        "iconUrl": "URL de l’icône",
+        "iconHelp": "Facultatif. Le site la télécharge une fois. PNG, JPEG, WebP ou GIF, 512 Ko au plus.",
+        "submit": "Ajouter le mod",
+        "added": "Mod ajouté"
+      },
+      "suggestions": {
+        "visible": "Visibles",
+        "removed": "Retirées",
+        "lede": "Triées par score. Retirer une proposition la masque avec ses votes, et en donne la raison à son auteur.",
+        "emptyVisible": "Aucune proposition à examiner.",
+        "emptyRemoved": "Aucune proposition retirée.",
+        "mod": "Mod",
+        "proposer": "Proposé par",
+        "reason": "Raison",
+        "formerMember": "Ancien membre",
+        "removedReason": "Retirée : {reason}",
+        "promote": "Ajouter à la liste officielle",
+        "promoted": "Ajouté à la liste officielle",
+        "remove": "Retirer",
+        "restore": "Rétablir",
+        "restored": "Proposition rétablie"
+      },
+      "removeModal": {
+        "title": "Retirer {name} ?",
+        "reason": "Raison",
+        "reasonHelp": "Affichée à la personne qui l’a proposé.",
+        "placeholder": "Par exemple : il ne fonctionne pas encore avec Create.",
+        "note": "La proposition compte toujours dans sa limite, et le mod ne peut plus être proposé. Vous pourrez la rétablir plus tard.",
+        "submit": "Retirer la proposition",
+        "done": "Proposition retirée"
+      }
     }
   },
   "wardenAdmin": {
@@ -428,7 +501,13 @@
       "identityShown": "Nom affiché en jeu",
       "identityHidden": "Nom masqué en jeu",
       "linkRequest": "A créé un code de liaison pour {username}",
-      "linkCancel": "A annulé un code de liaison pour {username}"
+      "linkCancel": "A annulé un code de liaison pour {username}",
+      "modAdd": "Mod {name} ajouté",
+      "modPromote": "{name} ajouté à la liste officielle",
+      "modRemove": "Proposition {name} retirée",
+      "modRestore": "Proposition {name} rétablie",
+      "modDelete": "{name} retiré de la liste officielle",
+      "modSettingsUpdate": "Réglages de la liste de mods modifiés"
     },
     "actors": {
       "console": "Console",
@@ -622,6 +701,121 @@
         "linkRequestClosed": "Ce code a déjà été utilisé ou a expiré.",
         "failed": "Ça n’a pas marché. Vérifie ta connexion, puis réessaie."
       }
+    }
+  },
+  "mods": {
+    "title": "Liste de mods",
+    "lede": "Votez pour les mods du serveur Minecraft de LNB, et proposez ceux que vous aimeriez voir. L’équipe Minecraft choisit la liste officielle.",
+    "officialLede": "Ces mods sont sur le serveur. Vos votes disent à l’équipe Minecraft lesquels garder.",
+    "loadFailed": "La liste de mods n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page.",
+    "bannedNotice": "Vous êtes banni du serveur Minecraft : vous ne pouvez ni voter ni proposer de mods avant la fin du ban.",
+    "cancel": "Annuler",
+    "status": {
+      "open": "Votes ouverts",
+      "closed": "Votes fermés",
+      "server": "{loader} {version}"
+    },
+    "loaders": {
+      "neoforge": "NeoForge",
+      "fabric": "Fabric",
+      "forge": "Forge",
+      "quilt": "Quilt"
+    },
+    "sources": {
+      "modrinth": "Modrinth",
+      "curseforge": "CurseForge",
+      "manual": "Ajouté à la main"
+    },
+    "tabs": {
+      "official": "Liste officielle",
+      "suggestions": "Propositions"
+    },
+    "sort": {
+      "label": "Trier",
+      "top": "Les mieux notés",
+      "new": "Les plus récents"
+    },
+    "empty": {
+      "official": "La liste officielle est vide pour l’instant. L’équipe Minecraft y ajoute les mods.",
+      "suggestions": "Aucune proposition pour l’instant. Proposez le premier mod ci-dessous."
+    },
+    "vote": {
+      "group": "Voter pour {name}",
+      "up": "Vote pour",
+      "down": "Vote contre",
+      "split": "{up} pour, {down} contre",
+      "score": "Score {score} : {up} pour, {down} contre",
+      "own": "Vous ne pouvez pas voter pour votre propre proposition",
+      "closed": "Les votes sont fermés",
+      "banned": "Vous ne pouvez pas voter tant que vous êtes banni du serveur Minecraft"
+    },
+    "row": {
+      "yours": "Votre proposition",
+      "suggestedBy": "Proposé par {name}, {when}",
+      "formerMember": "un ancien membre",
+      "editReason": "Modifier la raison",
+      "withdraw": "Retirer"
+    },
+    "search": {
+      "label": "Mod",
+      "placeholder": "Rechercher sur Modrinth et CurseForge",
+      "empty": "Aucun mod ne correspond. Essayez un autre nom, ou vérifiez l’orthographe.",
+      "meta": "{author}, {downloads} téléchargements",
+      "unknownAuthor": "Auteur inconnu",
+      "status": {
+        "listed": "Déjà dans la liste",
+        "removed": "Retiré par l’équipe Minecraft",
+        "incompatible": "Ne tourne pas sur le serveur"
+      },
+      "sources": "Les résultats viennent d’abord de Modrinth. Les mods absents de Modrinth viennent de CurseForge."
+    },
+    "suggest": {
+      "title": "Proposer un mod",
+      "lede": "Il doit tourner sur {loader} {version}. Il vous reste {left} propositions sur {max}.",
+      "mod": "Mod",
+      "change": "Changer",
+      "reason": "Pourquoi l’ajouter ?",
+      "reasonHelp": "Votre nom et votre raison sont affichés avec la proposition.",
+      "reasonPlaceholder": "Ce qu’il apporte au serveur, et pour qui.",
+      "submit": "Proposer le mod",
+      "done": "Mod proposé",
+      "panelTitle": "Il manque un mod ?",
+      "panelClosed": "Les propositions sont fermées pour l’instant.",
+      "panelLeft": "Vous avez utilisé toutes vos propositions. Retirez-en une pour proposer un autre mod. | Proposez-le et tout le monde pourra voter. Il vous reste {left} proposition sur {max}. | Proposez-le et tout le monde pourra voter. Il vous reste {left} propositions sur {max}.",
+      "panelSignedOut": "Connectez-vous pour proposer un mod et voter.",
+      "open": "Proposer un mod"
+    },
+    "reason": {
+      "title": "Modifier votre raison pour {name}",
+      "lede": "Les votes restent tels quels.",
+      "save": "Enregistrer la raison",
+      "saved": "Raison enregistrée"
+    },
+    "withdraw": {
+      "title": "Retirer {name} ?",
+      "body": "Votre proposition et ses votes sont supprimés. Vous pourrez proposer un autre mod à la place.",
+      "confirm": "Retirer",
+      "keep": "La garder",
+      "done": "Proposition retirée"
+    },
+    "removed": {
+      "title": "{name} a été retiré des propositions",
+      "reason": "L’équipe Minecraft a indiqué : {reason}"
+    },
+    "errors": {
+      "closed": "Les votes et les propositions sont fermés pour l’instant.",
+      "banned": "Impossible tant que vous êtes banni du serveur Minecraft.",
+      "ownMod": "Vous ne pouvez pas voter pour votre propre proposition.",
+      "limitReached": "Vous avez utilisé toutes vos propositions. Retirez-en une pour proposer un autre mod.",
+      "duplicate": "Ce mod est déjà dans la liste. Votez pour lui à la place.",
+      "removed": "L’équipe Minecraft a retiré ce mod des propositions : il ne peut plus être proposé.",
+      "incompatible": "Ce mod ne tourne pas sur la version et le loader du serveur.",
+      "notFound": "Ce mod n’est plus dans la liste. Rechargez la page.",
+      "notSuggestion": "Cette proposition a déjà été traitée. Rechargez la page.",
+      "notOfficial": "Ce mod n’est plus dans la liste officielle. Rechargez la page.",
+      "rateLimited": "Trop de recherches. Attendez une minute, puis réessayez.",
+      "sourceUnavailable": "Modrinth et CurseForge sont injoignables pour le moment. Réessayez dans quelques minutes.",
+      "failed": "Ça n’a pas marché. Vérifiez votre connexion, puis réessayez."
     }
   }
 }

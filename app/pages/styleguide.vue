@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { DropdownMenuItem, NavigationMenuItem, TableColumn, TabsItem } from '@nuxt/ui';
 
+import type { ModView } from '#shared/schemas/mods';
+
 // A living reference for docs/design.md, built from the real themed components.
 // Dev only (and in tests): it isn't part of the public site.
 if (!import.meta.dev && !import.meta.test) {
@@ -25,6 +27,33 @@ const colors = [
   { name: 'Success', variable: '--ui-success', usage: 'color="success"' },
   { name: 'Warning', variable: '--ui-warning', usage: 'color="warning"' },
 ];
+
+// A suggestion as the mod list shows it, with your vote on it.
+const sampleMod = ref<ModView>({
+  id: 1,
+  list: 'suggestion',
+  source: 'modrinth',
+  name: 'Farmer’s Delight',
+  summary: 'A cozy expansion to farming and cooking.',
+  pageUrl: 'https://modrinth.com/mod/farmers-delight',
+  iconUrl: null,
+  score: 9,
+  up: 11,
+  down: 2,
+  suggested: true,
+  proposerName: 'Léa M.',
+  reason: 'Cooking gives everyone something to do between builds.',
+  createdAt: '2026-10-14T18:00:00.000Z',
+  myVote: 1,
+  mine: false,
+});
+
+function onSampleVote(value: -1 | 0 | 1) {
+  const mod = sampleMod.value;
+  const up = mod.up - (mod.myVote === 1 ? 1 : 0) + (value === 1 ? 1 : 0);
+  const down = mod.down - (mod.myVote === -1 ? 1 : 0) + (value === -1 ? 1 : 0);
+  sampleMod.value = { ...mod, up, down, score: up - down, myVote: value };
+}
 
 const campuses = ['Paris', 'Lyon', 'Nantes', 'Marseille'];
 const campus = ref('Paris');
@@ -356,6 +385,33 @@ function showToast() {
         <WardenMinecraftHead uuid="069a79f4-44e9-4726-a5be-fca90e38aaf5" size="lg" />
         <WardenNametag username="Renard_Lunaire" name="Charles M." />
         <WardenNametag username="Renard_Lunaire" />
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Mod list</h2>
+      <p class="max-w-2xl text-muted">
+        One row per mod: icon (or initials on a plain tile), name, summary, the reason when it was
+        suggested, and the vote pill. Your vote is state, so it's marked in neutral, never in red.
+        Clicking your current vote clears it.
+      </p>
+      <ul class="flex max-w-3xl flex-col gap-2">
+        <ModsRow :mod="sampleMod" :blocked="null" @vote="onSampleVote" />
+      </ul>
+      <div class="flex flex-wrap items-center gap-6">
+        <ModsVoteControl :score="4" :up="5" :down="1" :my-vote="0" name="No vote" />
+        <ModsVoteControl :score="4" :up="5" :down="1" :my-vote="1" name="Upvoted" />
+        <ModsVoteControl :score="4" :up="5" :down="1" :my-vote="-1" name="Downvoted" />
+        <ModsVoteControl
+          :score="4"
+          :up="5"
+          :down="1"
+          :my-vote="0"
+          name="Blocked"
+          blocked="Voting is closed"
+        />
+        <ModsIcon name="Sodium" :src="null" />
+        <ModsIcon name="Simple Voice Chat" :src="null" size="sm" />
       </div>
     </section>
 

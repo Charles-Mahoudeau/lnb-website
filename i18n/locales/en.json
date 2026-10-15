@@ -5,7 +5,8 @@
   },
   "language": "Language",
   "nav": {
-    "home": "Home"
+    "home": "Home",
+    "minecraft": "Minecraft mods"
   },
   "home": {
     "workInProgress": "Work in progress",
@@ -234,7 +235,10 @@
       "activity": "Activity",
       "settings": "Settings",
       "users": "Users",
-      "overview": "Overview"
+      "overview": "Overview",
+      "mods": "Mods",
+      "modList": "Mod list",
+      "modSuggestions": "Suggestions"
     },
     "cancel": "Cancel",
     "roles": {
@@ -336,6 +340,75 @@
         "deleteInactive": "The nightly cleanup deleted 1 account with no sign-in for 24 months. | The nightly cleanup deleted {count} accounts with no sign-in for 24 months."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page."
+    },
+    "mods": {
+      "settings": {
+        "title": "Settings",
+        "open": "Voting and suggestions open",
+        "openHelp": "When closed, the page stays visible but nobody can vote or suggest.",
+        "maxSuggestions": "Suggestions per person",
+        "maxSuggestionsHelp": "Removed suggestions count too. Withdrawn and promoted ones free a slot.",
+        "gameVersion": "Minecraft version",
+        "loader": "Loader",
+        "serverHelp": "New mods must run on this version and loader. Mods already in the list aren’t checked again.",
+        "save": "Save settings",
+        "saved": "Settings saved"
+      },
+      "official": {
+        "add": "Add mod",
+        "empty": "No official mods yet. Add one, or promote a suggestion.",
+        "mod": "Mod",
+        "source": "Source",
+        "score": "Score",
+        "up": "Up",
+        "down": "Down",
+        "added": "Added",
+        "fromSuggestion": "From a suggestion",
+        "openPage": "Open page",
+        "remove": "Remove",
+        "removeTitle": "Remove {name} from the official list?",
+        "removeBody": "The mod and its votes are deleted. It can be added or suggested again later.",
+        "removed": "Mod removed"
+      },
+      "add": {
+        "title": "Add a mod to the official list",
+        "lede": "Pick it from Modrinth or CurseForge, or add it by hand if it’s on neither.",
+        "fromSearch": "Search",
+        "manual": "By hand",
+        "name": "Name",
+        "summary": "Summary",
+        "pageUrl": "Page URL",
+        "iconUrl": "Icon URL",
+        "iconHelp": "Optional. The site downloads it once. PNG, JPEG, WebP or GIF, up to 512 KB.",
+        "submit": "Add mod",
+        "added": "Mod added"
+      },
+      "suggestions": {
+        "visible": "Visible",
+        "removed": "Removed",
+        "lede": "Sorted by score. Removing a suggestion hides it and its votes, and tells the person who suggested it why.",
+        "emptyVisible": "No suggestions to look at.",
+        "emptyRemoved": "No removed suggestions.",
+        "mod": "Mod",
+        "proposer": "Suggested by",
+        "reason": "Reason",
+        "formerMember": "Former member",
+        "removedReason": "Removed: {reason}",
+        "promote": "Add to official list",
+        "promoted": "Added to the official list",
+        "remove": "Remove",
+        "restore": "Restore",
+        "restored": "Suggestion restored"
+      },
+      "removeModal": {
+        "title": "Remove {name}?",
+        "reason": "Reason",
+        "reasonHelp": "Shown to the person who suggested it.",
+        "placeholder": "For example: it doesn’t run with Create yet.",
+        "note": "The suggestion still counts toward their limit, and the mod can’t be suggested again. You can restore it later.",
+        "submit": "Remove suggestion",
+        "done": "Suggestion removed"
+      }
     }
   },
   "wardenAdmin": {
@@ -428,7 +501,13 @@
       "identityShown": "Name shown in-game",
       "identityHidden": "Name hidden in-game",
       "linkRequest": "Made a link code for {username}",
-      "linkCancel": "Cancelled a link code for {username}"
+      "linkCancel": "Cancelled a link code for {username}",
+      "modAdd": "Added the mod {name}",
+      "modPromote": "Added {name} to the official list",
+      "modRemove": "Removed the suggestion {name}",
+      "modRestore": "Restored the suggestion {name}",
+      "modDelete": "Removed {name} from the official list",
+      "modSettingsUpdate": "Mod list settings changed"
     },
     "actors": {
       "console": "Console",
@@ -622,6 +701,121 @@
         "linkRequestClosed": "This code was already used or has expired.",
         "failed": "That didn’t work. Check your connection, then try again."
       }
+    }
+  },
+  "mods": {
+    "title": "Mod list",
+    "lede": "Vote on the mods for the LNB Minecraft server, and suggest the ones you want to see. The Minecraft team picks the official list.",
+    "officialLede": "These mods are on the server. Your votes tell the Minecraft team what to keep.",
+    "loadFailed": "The mod list couldn’t be loaded. Check your connection, then reload the page.",
+    "bannedNotice": "You’re banned from the Minecraft server, so you can’t vote or suggest mods until the ban ends.",
+    "cancel": "Cancel",
+    "status": {
+      "open": "Voting open",
+      "closed": "Voting closed",
+      "server": "{loader} {version}"
+    },
+    "loaders": {
+      "neoforge": "NeoForge",
+      "fabric": "Fabric",
+      "forge": "Forge",
+      "quilt": "Quilt"
+    },
+    "sources": {
+      "modrinth": "Modrinth",
+      "curseforge": "CurseForge",
+      "manual": "Added by hand"
+    },
+    "tabs": {
+      "official": "Official list",
+      "suggestions": "Suggestions"
+    },
+    "sort": {
+      "label": "Sort",
+      "top": "Top",
+      "new": "Newest"
+    },
+    "empty": {
+      "official": "The official list is empty for now. The Minecraft team adds mods here.",
+      "suggestions": "No suggestions yet. Suggest the first mod below."
+    },
+    "vote": {
+      "group": "Vote on {name}",
+      "up": "Upvote",
+      "down": "Downvote",
+      "split": "{up} up, {down} down",
+      "score": "Score {score}: {up} up, {down} down",
+      "own": "You can’t vote on your own suggestion",
+      "closed": "Voting is closed",
+      "banned": "You can’t vote while you’re banned from the Minecraft server"
+    },
+    "row": {
+      "yours": "Your suggestion",
+      "suggestedBy": "Suggested by {name}, {when}",
+      "formerMember": "a former member",
+      "editReason": "Edit reason",
+      "withdraw": "Withdraw"
+    },
+    "search": {
+      "label": "Mod",
+      "placeholder": "Search Modrinth and CurseForge",
+      "empty": "No mods match. Try another name, or check the spelling.",
+      "meta": "{author}, {downloads} downloads",
+      "unknownAuthor": "Unknown author",
+      "status": {
+        "listed": "Already in the list",
+        "removed": "Removed by the Minecraft team",
+        "incompatible": "Doesn’t run on the server"
+      },
+      "sources": "Results come from Modrinth first. Mods that aren’t on Modrinth come from CurseForge."
+    },
+    "suggest": {
+      "title": "Suggest a mod",
+      "lede": "It must run on {loader} {version}. You have {left} of {max} suggestions left.",
+      "mod": "Mod",
+      "change": "Change",
+      "reason": "Why should we add it?",
+      "reasonHelp": "Your name and reason are shown with the suggestion.",
+      "reasonPlaceholder": "What it adds to the server, and who it’s for.",
+      "submit": "Suggest mod",
+      "done": "Mod suggested",
+      "panelTitle": "Missing a mod?",
+      "panelClosed": "Suggestions are closed for now.",
+      "panelLeft": "You’ve used all your suggestions. Withdraw one to suggest another mod. | Suggest it and everyone can vote on it. You have {left} of {max} suggestions left. | Suggest it and everyone can vote on it. You have {left} of {max} suggestions left.",
+      "panelSignedOut": "Sign in to suggest a mod and vote on the list.",
+      "open": "Suggest a mod"
+    },
+    "reason": {
+      "title": "Edit your reason for {name}",
+      "lede": "The votes stay as they are.",
+      "save": "Save reason",
+      "saved": "Reason saved"
+    },
+    "withdraw": {
+      "title": "Withdraw {name}?",
+      "body": "Your suggestion and its votes are deleted. You can suggest another mod in its place.",
+      "confirm": "Withdraw",
+      "keep": "Keep it",
+      "done": "Suggestion withdrawn"
+    },
+    "removed": {
+      "title": "{name} was removed from the suggestions",
+      "reason": "The Minecraft team said: {reason}"
+    },
+    "errors": {
+      "closed": "Voting and suggestions are closed for now.",
+      "banned": "You can’t do this while you’re banned from the Minecraft server.",
+      "ownMod": "You can’t vote on your own suggestion.",
+      "limitReached": "You’ve used all your suggestions. Withdraw one to suggest another mod.",
+      "duplicate": "This mod is already in the list. Vote on it instead.",
+      "removed": "The Minecraft team removed this mod from the suggestions, so it can’t be suggested again.",
+      "incompatible": "This mod doesn’t run on the server’s Minecraft version and loader.",
+      "notFound": "This mod isn’t in the list anymore. Reload the page.",
+      "notSuggestion": "This suggestion was already handled. Reload the page.",
+      "notOfficial": "This mod isn’t in the official list anymore. Reload the page.",
+      "rateLimited": "Too many searches. Wait a minute, then try again.",
+      "sourceUnavailable": "Modrinth and CurseForge can’t be reached right now. Try again in a few minutes.",
+      "failed": "That didn’t work. Check your connection, then try again."
     }
   }
 }
