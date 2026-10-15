@@ -29,7 +29,7 @@ CI (`.github/workflows/ci.yml`) runs lint, format check, typecheck, tests, build
 ## Stack
 
 - Nuxt 4 in Nuxt 5 compatibility mode, with Nuxt UI v4 on Tailwind 4. The server still runs nitropack v2 on h3 v1, so Nitro v3-only features such as `useKV` aren't available.
-- Auto-imports: app code relies on them, except for `shared/schemas/` (import from `#shared/schemas/...`) and `useServerHead`-style composables (import from `#app`). Compatibility mode 5 turns off Nitro auto-imports, so server code imports framework helpers such as `defineEventHandler` from `nuxt/server`. Our own exports from `server/utils/` and `shared/utils/` are still auto-imported.
+- Auto-imports: app code relies on them, except for `shared/schemas/` (import from `#shared/schemas/...`) and `useServerHead`-style composables (import from `#app`). Compatibility mode 5 turns off Nitro auto-imports, so server code imports framework helpers such as `defineEventHandler` from `nuxt/server`. Our own exports from `server/utils/` are still auto-imported on the server, and `shared/utils/` in the app only (server code imports it from `#shared/utils/...`).
 - `@nuxtjs/i18n` for English and French
 - Better Auth with the Microsoft provider
 - Drizzle on PostgreSQL

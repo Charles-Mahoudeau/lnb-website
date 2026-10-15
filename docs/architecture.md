@@ -30,7 +30,8 @@ server/               Nitro server, picked up by Nuxt automatically
     migrations/       generated and committed
     seed.ts           (planned)
   tasks/              (planned) scheduled jobs: event reminders, inactive-account cleanup
-  utils/              auth guards (requireUser, requireAdmin), later typed errors, param schemas
+  utils/              auth guards (requireUser, requireAdmin, requireWardenServer), body and
+                      params validation (parseBody, parseParams), later typed errors
   lib/                code without Nuxt imports, loaded by the Better Auth CLI too:
     auth.ts           Better Auth setup: Microsoft provider, tenant allowlist, admin plugin
     auth-env.ts       auth environment variables, validated with Zod
@@ -54,8 +55,8 @@ Root files: `nuxt.config.ts`, `vitest.config.ts`, `drizzle.config.ts`, `eslint.c
 
 ## Server rules
 
-- Import framework helpers (`defineEventHandler`, `getRouterParams`, `readBody`, ...) from `nuxt/server`, because Nitro auto-imports are off in compatibility mode 5. Exports from `server/utils/` and `shared/utils/` are still auto-imported.
-- Don't use `readValidatedBody` from `nuxt/server` for now. In Nuxt 4.6 it pulls `app.config.ts` into the server bundle, and every request then fails with `defineAppConfig is not defined`. Use `readBody`, then `safeParse` with the shared schema, as in `server/api/link/approve.post.ts`.
+- Import framework helpers (`defineEventHandler`, `createError`, `readBody`, ...) from `nuxt/server`, because Nitro auto-imports are off in compatibility mode 5. Exports from `server/utils/` are still auto-imported. `shared/utils/` is auto-imported in the app only, so server code imports it from `#shared/utils/...`.
+- Don't use `readValidatedBody` or `getRouterParams` from `nuxt/server` for now. In Nuxt 4.6 they pull `app.config.ts` into the server bundle, and every request then fails with `defineAppConfig is not defined`. Use `parseBody(event, schema)` and `parseParams(event, schema)` from `server/utils/validation.ts` instead: they check with the shared Zod schema and throw a 400 or a 404.
 - Services take explicit inputs (such as `actorId`), run multi-step writes in a transaction, and throw typed errors (`NotFoundError`, `ForbiddenError`, `ConflictError`). These are turned into HTTP errors in one place.
 - Every team action checks that the team belongs to the event and that the user is registered. Size limits come from the event and are enforced inside the transaction, backed by a unique `(eventId, userId)` constraint.
 - Lists expose public profiles only (name, avatar). Email appears only on the user's own account endpoint.
@@ -65,14 +66,14 @@ A handler looks like this:
 
 ```ts
 // server/api/events/[eventId]/teams/[teamId]/members.post.ts
-import { defineEventHandler, getRouterParams } from 'nuxt/server';
+import { defineEventHandler } from 'nuxt/server';
 import { teamParams } from '#shared/schemas/teams';
 import { teamService } from '~~/server/services/teams';
 
-// requireUser comes from server/utils/, so it's auto-imported.
+// requireUser and parseParams come from server/utils/, so they're auto-imported.
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
-  const { eventId, teamId } = teamParams.parse(getRouterParams(event));
+  const { eventId, teamId } = parseParams(event, teamParams);
   return teamService.join({ actorId: user.id, eventId, teamId });
 });
 ```
