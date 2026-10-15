@@ -56,7 +56,7 @@ If a stack choice is challenged, re-check it against the plan doc's weighted cri
 - Use only the `main` branch. There is no preprod environment.
 - Don't use Redis. Don't add games or internal analytics or tracking. Don't bring back features the plan dropped.
 - Sign-in is limited by a Microsoft tenant-ID allowlist: Epitech, e-artsup and ISEG.
-- Accounts inactive for 24 months are deleted.
+- Accounts inactive for 24 months are deleted, by the nightly `users:delete-inactive` job. Accounts with a site or Warden ban in force are kept, so a ban can't be escaped by waiting.
 - Backups come only from the VPS's daily backup. There are no off-site backups.
 - License: AGPL-3.0-or-later. Contributions should carry a DCO sign-off.
 - Install agent skills into `.claude/skills/` only, never `.agents/`. With the skills.sh CLI, use `npx skills add <owner/repo> -a claude-code --copy` so the files are real copies, not symlinks. Afterwards, check that no `.agents/` directory was created.

@@ -92,6 +92,10 @@ function describe(entry: AdminAuditView): string {
       return t('admin.overview.log.signOut', { actor, target });
     case 'user.delete':
       return t('admin.overview.log.delete', { actor });
+    case 'users.deleteInactive': {
+      const deleted = Number(entry.data.count ?? 0);
+      return t('admin.overview.log.deleteInactive', { count: deleted }, deleted);
+    }
   }
 }
 </script>

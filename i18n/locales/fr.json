@@ -318,7 +318,7 @@
       "appealsOldest": "La plus ancienne date du {date}.",
       "reviewAppeals": "Voir les contestations",
       "inactive": "1 compte ne s’est pas connecté depuis 24 mois | {n} comptes ne se sont pas connectés depuis 24 mois",
-      "inactiveDetail": "Les comptes inactifs depuis aussi longtemps doivent être supprimés.",
+      "inactiveDetail": "Le nettoyage de la nuit les supprime, sauf s’ils ont un bannissement en cours.",
       "seeAccounts": "Voir les comptes",
       "bans": "1 compte est banni du site | {n} comptes sont bannis du site",
       "bansDetail": "Ils ne peuvent pas se connecter avant la fin de leur bannissement.",
@@ -332,7 +332,8 @@
         "banPermanent": "{actor} a banni {target} du site définitivement.",
         "unban": "{actor} a levé le bannissement de {target}.",
         "signOut": "{actor} a déconnecté {target} partout.",
-        "delete": "{actor} a supprimé un compte."
+        "delete": "{actor} a supprimé un compte.",
+        "deleteInactive": "Le nettoyage de la nuit a supprimé 1 compte sans connexion depuis 24 mois. | Le nettoyage de la nuit a supprimé {count} comptes sans connexion depuis 24 mois."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page."
     }

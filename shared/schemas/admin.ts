@@ -85,7 +85,14 @@ export type AdminBanBody = z.infer<typeof adminBanBody>;
 export const adminAuditView = z.object({
   id: z.number(),
   at: isoDate,
-  action: z.enum(['user.roles', 'user.ban', 'user.unban', 'user.signOut', 'user.delete']),
+  action: z.enum([
+    'user.roles',
+    'user.ban',
+    'user.unban',
+    'user.signOut',
+    'user.delete',
+    'users.deleteInactive',
+  ]),
   actor: z.object({ userId: z.string(), name: z.string() }).nullable(),
   target: z.object({ userId: z.string(), name: z.string() }).nullable(),
   data: z.record(z.string(), z.unknown()),

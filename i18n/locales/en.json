@@ -318,7 +318,7 @@
       "appealsOldest": "The oldest was sent on {date}.",
       "reviewAppeals": "Review appeals",
       "inactive": "1 account hasn’t signed in for 24 months | {n} accounts haven’t signed in for 24 months",
-      "inactiveDetail": "Accounts inactive this long are to be deleted.",
+      "inactiveDetail": "The nightly cleanup deletes them, unless they have a ban in force.",
       "seeAccounts": "See the accounts",
       "bans": "1 account is banned from the site | {n} accounts are banned from the site",
       "bansDetail": "They can’t sign in until their ban ends.",
@@ -332,7 +332,8 @@
         "banPermanent": "{actor} banned {target} from the site permanently.",
         "unban": "{actor} lifted the site ban of {target}.",
         "signOut": "{actor} signed {target} out everywhere.",
-        "delete": "{actor} deleted an account."
+        "delete": "{actor} deleted an account.",
+        "deleteInactive": "The nightly cleanup deleted 1 account with no sign-in for 24 months. | The nightly cleanup deleted {count} accounts with no sign-in for 24 months."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page."
     }

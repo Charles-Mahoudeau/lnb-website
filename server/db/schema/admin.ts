@@ -4,7 +4,13 @@ import { user } from './auth';
 
 /** Site admin actions on accounts. Warden's own actions go to warden_audit. */
 export type AdminAuditAction =
-  'user.roles' | 'user.ban' | 'user.unban' | 'user.signOut' | 'user.delete';
+  | 'user.roles'
+  | 'user.ban'
+  | 'user.unban'
+  | 'user.signOut'
+  | 'user.delete'
+  /** The nightly cleanup of inactive accounts, with `data.count`. No actor and no target. */
+  | 'users.deleteInactive';
 
 // Rows outlive the accounts they name: a deleted actor or target becomes null, so the log keeps
 // what happened without keeping who it happened to.

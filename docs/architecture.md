@@ -34,7 +34,8 @@ server/               Nitro server, picked up by Nuxt automatically
     schema/           Drizzle tables, one file per domain. auth.ts is generated.
     migrations/       generated and committed
     seed.ts           (planned)
-  tasks/              (planned) scheduled jobs: event reminders, inactive-account cleanup
+  tasks/              scheduled jobs, timed in nuxt.config.ts: warden/close-stale-sessions,
+                      users/delete-inactive (every night at 03:00), later event reminders
   utils/              auth guards (requireUser, requireAdmin, requireWardenServer), body and
                       params validation (parseBody, parseParams, parseQuery), later typed errors
   lib/                code without Nuxt imports, loaded by the Better Auth CLI too:

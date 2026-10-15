@@ -4,8 +4,9 @@ import type { AdminAuditAction } from '~~/server/db/schema';
 
 export interface AdminAuditEntry {
   action: AdminAuditAction;
-  actorUserId: string;
-  targetUserId: string;
+  /** Null for the site itself, such as a scheduled job. */
+  actorUserId: string | null;
+  targetUserId: string | null;
   data?: Record<string, unknown>;
 }
 

@@ -1,9 +1,22 @@
-import { and, asc, eq, gt, ilike, isNull, lt, or, sql } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  eq,
+  gt,
+  ilike,
+  isNotNull,
+  isNull,
+  lt,
+  lte,
+  notExists,
+  or,
+  sql,
+} from 'drizzle-orm';
 import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
 import type { Db } from '~~/server/db';
-import { session, user } from '~~/server/db/schema';
+import { session, user, wardenBan } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 
 import type {
@@ -235,4 +248,50 @@ async function remove(input: { actorId: string; userId: string }) {
   });
 }
 
-export const usersService = { list, setRoles, ban, unban, signOut, remove };
+/**
+ * Deletes accounts with no sign-in for 24 months, as the plan requires. Run every night by
+ * tasks/users/delete-inactive.ts. Accounts with a site or Warden ban in force are kept: deleting
+ * them would let a banned person come back with a fresh account. Returns how many were deleted.
+ */
+async function deleteInactive(now = new Date()): Promise<number> {
+  return db.transaction(async (tx) => {
+    const deleted = await tx
+      .delete(user)
+      .where(
+        and(
+          lt(lastActive, inactiveBefore(now)),
+          // Not banned from the site. `banned` can be null on old rows.
+          or(
+            isNull(user.banned),
+            eq(user.banned, false),
+            and(isNotNull(user.banExpires), lte(user.banExpires, now)),
+          ),
+          // Not banned from Warden either.
+          notExists(
+            tx
+              .select({ one: sql`1` })
+              .from(wardenBan)
+              .where(
+                and(
+                  eq(wardenBan.userId, user.id),
+                  isNull(wardenBan.revokedAt),
+                  or(isNull(wardenBan.expiresAt), gt(wardenBan.expiresAt, now)),
+                ),
+              ),
+          ),
+        ),
+      )
+      .returning({ id: user.id });
+    if (deleted.length) {
+      await adminAuditService.record(tx, {
+        action: 'users.deleteInactive',
+        actorUserId: null,
+        targetUserId: null,
+        data: { count: deleted.length },
+      });
+    }
+    return deleted.length;
+  });
+}
+
+export const usersService = { list, setRoles, ban, unban, signOut, remove, deleteInactive };

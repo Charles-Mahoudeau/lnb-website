@@ -45,6 +45,8 @@ export default defineNuxtConfig({
     experimental: { tasks: true },
     scheduledTasks: {
       '*/5 * * * *': ['warden:close-stale-sessions'],
+      // Every night at 03:00, server time.
+      '0 3 * * *': ['users:delete-inactive'],
     },
     // Skin heads fetched from Crafatar, cached on disk. See server/services/warden/heads.ts.
     storage: {
