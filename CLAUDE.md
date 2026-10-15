@@ -10,7 +10,7 @@ Plan doc (the source of truth for scope and stack rationale): https://claude.ai/
 
 The repository setup step of the plan is done: Nuxt UI starter (stripped down), ESLint and Prettier, Husky and lint-staged, Vitest, CI, Renovate, and Compose with PostgreSQL. The spike is in progress: Drizzle and Better Auth with Microsoft sign-in and the tenant allowlist are in place (see `docs/authentication.md`). Still to do: real logins from the three schools and a refused tenant, and the Coolify deploy.
 
-The admin area (`/admin`, sidebar layout) was started ahead of the plan's "After v2" item: Overview, Users and Warden are in place. Events, Files and Push each get a section as they're built, not before.
+The admin area (`/admin`, sidebar layout) was started ahead of the plan's "After v2" item: Overview, Users, Warden and Mods are in place. Mods manages the Minecraft mod list at `/minecraft/mod-list` (see `docs/mods.md`). Events, Files and Push each get a section as they're built, not before.
 
 The target file structure and the server and client rules are in `docs/architecture.md`. Follow that layout when adding code.
 

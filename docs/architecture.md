@@ -14,9 +14,10 @@ app/                  Nuxt app (client and SSR)
   pages/              thin: one composable call, then components
   pages/admin/        the admin area. pages/admin.vue sets the admin layout and middleware on
                       every page under it: site admins only, unless a page sets `wardenAdmins: true`
-  components/         by domain: admin/ (AdminPage, the frame of an admin page), warden/,
+  components/         by domain: admin/ (AdminPage, the frame of an admin page), warden/, mods/,
                       later events/ teams/ account/. Primitives come from Nuxt UI; don't rebuild them.
-  composables/        one per resource: useAuth, useLinkCode, later useEvent, useEventTeams, useAccount
+  composables/        one per resource: useAuth, useLinkCode, useModList, later useEvent,
+                      useEventTeams, useAccount
   middleware/         auth.global.ts (public pages opt out with `auth: false`), admin.ts
   utils/              small client helpers (safeRedirect, the Better Auth client), placeholder events
                       until the events service exists
@@ -26,7 +27,8 @@ server/               Nitro server, picked up by Nuxt automatically
     auth/[...all].ts  Better Auth's routes under /api/auth
     docs.get.ts       the API reference (Scalar), from openapi.json.get.ts
   services/           business rules, one file per domain: links (app link codes), warden/
-                      (Minecraft link, see docs/warden.md), users (accounts, for admins),
+                      (Minecraft link, see docs/warden.md), mods/ (the mod list, see
+                      docs/mods.md), users (accounts, for admins),
                       admin-audit and admin-overview (the admin log and Overview), later
                       events, registrations, teams, files, push
   db/
