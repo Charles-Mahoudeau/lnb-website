@@ -105,7 +105,6 @@ Allowed:
   "player": {
     "userId": "...",
     "displayName": "Charles M., or null when hidden",
-    "school": "Epitech",
     "roles": ["warden-admin"]
   },
   "account": { "uuid": "...", "username": "Notch" },

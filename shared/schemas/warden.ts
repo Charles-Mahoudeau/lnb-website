@@ -85,7 +85,6 @@ export type WardenLogin =
         userId: string;
         /** "Charles M.", or null when the player hides their name. */
         displayName: string | null;
-        school: string | null;
         roles: string[];
       };
       account: { uuid: string; username: string };

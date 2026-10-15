@@ -21,7 +21,6 @@ import type { Tx } from './shared';
 import type { WardenLogin, WardenLoginBody } from '#shared/schemas/warden';
 import { canLinkFromSchool, getLinkApp } from '#shared/utils/link-apps';
 import { isWardenAdmin, WARDEN_ADMIN_ROLE } from '#shared/utils/roles';
-import { schoolForTenant } from '#shared/utils/schools';
 
 /**
  * Decides whether a player may join, for the Minecraft server. Opens a session when they may.
@@ -101,7 +100,6 @@ async function login(body: WardenLoginBody): Promise<WardenLogin> {
       player: {
         userId: player.userId,
         displayName: player.showRealName ? shortName(player.name) : null,
-        school: schoolForTenant(player.tenantId) ?? null,
         roles: isWardenAdmin(player.role) ? [WARDEN_ADMIN_ROLE] : [],
       },
       account: { uuid: account.uuid, username: body.username },
