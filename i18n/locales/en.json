@@ -816,6 +816,12 @@
       "rateLimited": "Too many searches. Wait a minute, then try again.",
       "sourceUnavailable": "Modrinth and CurseForge can’t be reached right now. Try again in a few minutes.",
       "failed": "That didn’t work. Check your connection, then try again."
+    },
+    "toSuggestions": {
+      "title": "Don’t see the mods you like?",
+      "body": "Members suggested 1 more mod. Vote on it, or suggest your own. | Members suggested {count} more mods. Vote on them, or suggest your own.",
+      "bodyEmpty": "Members can suggest more mods. Be the first to suggest one.",
+      "open": "See the suggestions"
     }
   }
 }

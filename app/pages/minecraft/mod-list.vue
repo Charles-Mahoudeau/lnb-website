@@ -45,6 +45,14 @@ const mods = computed<ModView[]>(() => {
   return [...list].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 });
 
+// The end of the official list leads to the suggestions, back at the top of the tabs.
+const tabsBar = ref<HTMLElement | null>(null);
+async function showSuggestions() {
+  tab.value = 'suggestion';
+  await nextTick();
+  tabsBar.value?.scrollIntoView({ block: 'start' });
+}
+
 const signedIn = computed(() => data.value?.me !== null);
 const open = computed(() => data.value?.settings.open ?? false);
 
@@ -187,7 +195,7 @@ async function onDismiss(id: number) {
         :description="t('mods.bannedNotice')"
       />
 
-      <div class="flex flex-wrap items-center justify-between gap-3">
+      <div ref="tabsBar" class="flex scroll-mt-20 flex-wrap items-center justify-between gap-3">
         <UTabs v-model="tab" :items="tabs" :content="false" class="w-auto" />
         <div
           v-if="tab === 'suggestion'"
@@ -237,6 +245,28 @@ async function onDismiss(id: number) {
         <p class="max-w-md text-muted">
           {{ tab === 'official' ? t('mods.empty.official') : t('mods.empty.suggestions') }}
         </p>
+      </div>
+
+      <div
+        v-if="tab === 'official'"
+        class="flex flex-wrap items-center gap-4 rounded-lg bg-elevated p-5"
+      >
+        <UIcon name="i-lucide-messages-square" class="size-6 shrink-0 text-muted" />
+        <div class="flex min-w-0 grow basis-64 flex-col gap-0.5">
+          <span class="font-semibold text-highlighted">{{ t('mods.toSuggestions.title') }}</span>
+          <span class="text-muted">
+            {{
+              data.suggestions.length
+                ? t(
+                    'mods.toSuggestions.body',
+                    { count: data.suggestions.length },
+                    data.suggestions.length,
+                  )
+                : t('mods.toSuggestions.bodyEmpty')
+            }}
+          </span>
+        </div>
+        <UButton :label="t('mods.toSuggestions.open')" @click="showSuggestions" />
       </div>
 
       <template v-if="tab === 'suggestion'">

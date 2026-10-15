@@ -816,6 +816,12 @@
       "rateLimited": "Trop de recherches. Attendez une minute, puis réessayez.",
       "sourceUnavailable": "Modrinth et CurseForge sont injoignables pour le moment. Réessayez dans quelques minutes.",
       "failed": "Ça n’a pas marché. Vérifiez votre connexion, puis réessayez."
+    },
+    "toSuggestions": {
+      "title": "Vos mods préférés n’y sont pas ?",
+      "body": "Les membres ont proposé 1 autre mod. Votez pour lui, ou proposez le vôtre. | Les membres ont proposé {count} autres mods. Votez pour eux, ou proposez le vôtre.",
+      "bodyEmpty": "Les membres peuvent proposer d’autres mods. Soyez le premier à en proposer un.",
+      "open": "Voir les propositions"
     }
   }
 }
