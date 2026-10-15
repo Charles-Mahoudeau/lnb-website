@@ -8,7 +8,17 @@ const { user, school } = useAuth();
 
 const items = computed<NavigationMenuItem[][]>(() => [
   ...(isAdmin(user.value?.role)
-    ? [[{ label: t('admin.nav.users'), icon: 'i-lucide-users', to: '/admin/users' }]]
+    ? [
+        [
+          {
+            label: t('admin.nav.overview'),
+            icon: 'i-lucide-layout-dashboard',
+            to: '/admin',
+            exact: true,
+          },
+          { label: t('admin.nav.users'), icon: 'i-lucide-users', to: '/admin/users' },
+        ],
+      ]
     : []),
   [
     {

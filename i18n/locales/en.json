@@ -233,7 +233,8 @@
       "linking": "Manual linking",
       "activity": "Activity",
       "settings": "Settings",
-      "users": "Users"
+      "users": "Users",
+      "overview": "Overview"
     },
     "cancel": "Cancel",
     "roles": {
@@ -309,6 +310,31 @@
       "self": "You can’t do that to your own account. Ask another admin.",
       "targetIsAdmin": "This account is an admin. Remove the admin role first.",
       "notBanned": "This account isn’t banned anymore. Reload the page."
+    },
+    "overview": {
+      "attention": "Needs attention",
+      "nothing": "Nothing needs you right now.",
+      "appeals": "1 Warden appeal is waiting | {n} Warden appeals are waiting",
+      "appealsOldest": "The oldest was sent on {date}.",
+      "reviewAppeals": "Review appeals",
+      "inactive": "1 account hasn’t signed in for 24 months | {n} accounts haven’t signed in for 24 months",
+      "inactiveDetail": "Accounts inactive this long are to be deleted.",
+      "seeAccounts": "See the accounts",
+      "bans": "1 account is banned from the site | {n} accounts are banned from the site",
+      "bansDetail": "They can’t sign in until their ban ends.",
+      "recent": "Recent admin changes",
+      "noChanges": "No changes yet. Role changes, bans and deletions show up here.",
+      "deletedAdmin": "A deleted admin",
+      "deletedAccount": "a deleted account",
+      "log": {
+        "roles": "{actor} set the roles of {target}: {roles}.",
+        "ban": "{actor} banned {target} from the site until {date}.",
+        "banPermanent": "{actor} banned {target} from the site permanently.",
+        "unban": "{actor} lifted the site ban of {target}.",
+        "signOut": "{actor} signed {target} out everywhere.",
+        "delete": "{actor} deleted an account."
+      },
+      "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page."
     }
   },
   "wardenAdmin": {

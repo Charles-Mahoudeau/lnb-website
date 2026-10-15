@@ -233,7 +233,8 @@
       "linking": "Liaison manuelle",
       "activity": "Activité",
       "settings": "Réglages",
-      "users": "Utilisateurs"
+      "users": "Utilisateurs",
+      "overview": "Vue d’ensemble"
     },
     "cancel": "Annuler",
     "roles": {
@@ -309,6 +310,31 @@
       "self": "Vous ne pouvez pas faire ça sur votre propre compte. Demandez à un autre admin.",
       "targetIsAdmin": "Ce compte est admin. Retirez d’abord le rôle admin.",
       "notBanned": "Ce compte n’est plus banni. Rechargez la page."
+    },
+    "overview": {
+      "attention": "À traiter",
+      "nothing": "Rien ne vous attend pour l’instant.",
+      "appeals": "1 contestation Warden attend une réponse | {n} contestations Warden attendent une réponse",
+      "appealsOldest": "La plus ancienne date du {date}.",
+      "reviewAppeals": "Voir les contestations",
+      "inactive": "1 compte ne s’est pas connecté depuis 24 mois | {n} comptes ne se sont pas connectés depuis 24 mois",
+      "inactiveDetail": "Les comptes inactifs depuis aussi longtemps doivent être supprimés.",
+      "seeAccounts": "Voir les comptes",
+      "bans": "1 compte est banni du site | {n} comptes sont bannis du site",
+      "bansDetail": "Ils ne peuvent pas se connecter avant la fin de leur bannissement.",
+      "recent": "Derniers changements",
+      "noChanges": "Aucun changement pour l’instant. Les rôles, bannissements et suppressions apparaîtront ici.",
+      "deletedAdmin": "Un admin supprimé",
+      "deletedAccount": "un compte supprimé",
+      "log": {
+        "roles": "{actor} a modifié les rôles de {target} : {roles}.",
+        "ban": "{actor} a banni {target} du site jusqu’au {date}.",
+        "banPermanent": "{actor} a banni {target} du site définitivement.",
+        "unban": "{actor} a levé le bannissement de {target}.",
+        "signOut": "{actor} a déconnecté {target} partout.",
+        "delete": "{actor} a supprimé un compte."
+      },
+      "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page."
     }
   },
   "wardenAdmin": {

@@ -80,3 +80,26 @@ export const adminBanBody = z.object({
     .describe('Null for a permanent ban.'),
 });
 export type AdminBanBody = z.infer<typeof adminBanBody>;
+
+/** One admin change, for the Overview. A deleted account shows as a null actor or target. */
+export const adminAuditView = z.object({
+  id: z.number(),
+  at: isoDate,
+  action: z.enum(['user.roles', 'user.ban', 'user.unban', 'user.signOut', 'user.delete']),
+  actor: z.object({ userId: z.string(), name: z.string() }).nullable(),
+  target: z.object({ userId: z.string(), name: z.string() }).nullable(),
+  data: z.record(z.string(), z.unknown()),
+});
+export type AdminAuditView = z.infer<typeof adminAuditView>;
+
+/** GET /api/admin/overview: what needs an admin, and the latest changes. */
+export const adminOverview = z.object({
+  appeals: z.object({
+    pending: z.number().describe('Warden appeals waiting for an answer.'),
+    oldestAt: isoDate.nullable(),
+  }),
+  inactiveAccounts: z.number().describe('Accounts with no sign-in for 24 months.'),
+  siteBans: z.number().describe('Site bans in force.'),
+  recent: z.array(adminAuditView).describe('The 10 latest admin changes, newest first.'),
+});
+export type AdminOverview = z.infer<typeof adminOverview>;

@@ -67,6 +67,8 @@ const requestSchemas = {
 };
 
 const responseSchemas = {
+  AdminOverview: admin.adminOverview,
+  AdminAuditView: admin.adminAuditView,
   AdminUserRow: admin.adminUserRow,
   AdminUserPage: admin.adminUserPage,
   LinkApproveResult: linkApproveResult,
@@ -174,6 +176,16 @@ const routes: RouteDoc[] = [
   },
 
   // Admin
+  {
+    method: 'get',
+    path: '/api/admin/overview',
+    tag: TAGS.admin,
+    summary: 'Overview',
+    description:
+      'What needs an admin (Warden appeals waiting, accounts inactive for 24 months, site bans in force) and the 10 latest admin changes.',
+    access: 'admin',
+    response: admin.adminOverview,
+  },
   {
     method: 'get',
     path: '/api/admin/users',

@@ -1,6 +1,7 @@
 import { ADMIN_PROBLEMS } from '#shared/schemas/admin';
 import type {
   AdminBanBody,
+  AdminOverview,
   AdminProblem,
   AdminRolesBody,
   AdminUserPage,
@@ -25,6 +26,11 @@ async function call<T>(request: () => Promise<T>): Promise<T> {
       ADMIN_PROBLEMS.includes(problem as AdminProblem) ? (problem as AdminProblem) : 'failed',
     );
   }
+}
+
+/** What needs an admin, and the latest changes. */
+export function useAdminOverview() {
+  return useFetch<AdminOverview>('/api/admin/overview', { key: 'admin-overview' });
 }
 
 /** Accounts for the list, refetched when the query changes. */
