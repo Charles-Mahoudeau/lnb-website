@@ -1,12 +1,10 @@
 import { createError } from 'nuxt/server';
 
-import type { db } from '~~/server/db';
+import type { Db, Tx } from '~~/server/db';
 
 import type { WardenProblem } from '#shared/schemas/warden';
 
-export type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
-/** The database, or a transaction in progress. */
-export type Db = typeof db | Tx;
+export type { Db, Tx };
 
 export function refuse(status: number, problem: WardenProblem): never {
   throw createError({ status, statusText: problem, data: { problem } });
