@@ -288,6 +288,93 @@ export interface WardenServerPlayer {
   playtimeSeconds: number;
 }
 
+/** GET /api/warden/admin/players query. */
+export const wardenPlayersQuery = z.object({
+  q: z.string().trim().max(100).optional(),
+  status: z.enum(['all', 'banned', 'online']).default('all'),
+  cursor: z.string().max(200).optional(),
+});
+export type WardenPlayersQuery = z.input<typeof wardenPlayersQuery>;
+
+export interface WardenPlayerRow {
+  userId: string;
+  name: string;
+  email: string;
+  school: string | null;
+  wardenAdmin: boolean;
+  accounts: { uuid: string; username: string; cracked: boolean; online: boolean }[];
+  ban: { id: string; expiresAt: string | null } | null;
+  lastSeenAt: string | null;
+  playtimeSeconds: number;
+}
+
+export interface WardenAuditView {
+  id: number;
+  at: string;
+  action: string;
+  source: 'web' | 'minecraft' | 'system';
+  actor: WardenActorView;
+  target: { userId: string; name: string | null } | null;
+  targetMinecraftUuid: string | null;
+  data: Record<string, unknown>;
+}
+
+/** GET /api/warden/admin/players/:userId */
+export interface WardenPlayerDetail {
+  player: {
+    userId: string;
+    name: string;
+    email: string;
+    school: string | null;
+    admin: boolean;
+    wardenAdmin: boolean;
+    showRealName: boolean;
+    tokenRotatedAt: string | null;
+    /** The player's own limit, or null for the global one. */
+    maxAccounts: number | null;
+    limit: { used: number; max: number };
+  };
+  accounts: WardenAccountView[];
+  bans: (WardenBanView & { appeal: WardenAppealView | null })[];
+  notes: WardenNoteView[];
+  sessions: WardenPage<WardenSessionView>;
+  audit: WardenAuditView[];
+}
+
+/** Body of PATCH /api/warden/admin/players/:userId. */
+export const wardenPlayerPatchBody = z.object({
+  maxAccounts: z.number().int().min(0).max(20).nullable(),
+});
+
+/** Body of PUT /api/warden/admin/players/:userId/role. */
+export const wardenRoleBody = z.object({ wardenAdmin: z.boolean() });
+
+/** GET /api/warden/admin/audit query. */
+export const wardenAuditQuery = z.object({
+  userId: z.string().max(64).optional(),
+  action: z.string().max(40).optional(),
+  source: z.enum(['web', 'minecraft', 'system']).optional(),
+  cursor: z.coerce.number().int().positive().optional(),
+});
+
+export interface WardenSettingsView {
+  defaultMaxAccounts: number;
+  allowCracked: boolean;
+}
+
+/** Body of PATCH /api/warden/admin/settings. */
+export const wardenSettingsPatchBody = z
+  .object({
+    defaultMaxAccounts: z.number().int().min(0).max(20),
+    allowCracked: z.boolean(),
+  })
+  .partial();
+
+export const wardenUserAccountParams = z.object({
+  userId: z.string().min(1).max(64),
+  uuid: minecraftUuid,
+});
+
 export const wardenIdParams = z.object({ id: z.uuid() });
 export const wardenUserCodeParams = z.object({ userCode: z.string().regex(/^\d{6}$/) });
 
