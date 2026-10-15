@@ -37,7 +37,13 @@ export function actorView(
   if (source === 'system') return { kind: 'system' };
   if (source === 'minecraft') {
     if (minecraft.uuid && minecraft.name) {
-      return { kind: 'minecraft', uuid: minecraft.uuid, username: minecraft.name, userId };
+      return {
+        kind: 'minecraft',
+        uuid: minecraft.uuid,
+        username: minecraft.name,
+        userId,
+        name: userId ? (names.get(userId) ?? null) : null,
+      };
     }
     return { kind: 'console' };
   }

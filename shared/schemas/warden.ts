@@ -165,7 +165,14 @@ export const wardenAppealsQuery = z.object({
 /** Who did something, as admins see it. */
 export type WardenActorView =
   | { kind: 'user'; userId: string; name: string | null }
-  | { kind: 'minecraft'; uuid: string; username: string; userId: string | null }
+  | {
+      kind: 'minecraft';
+      uuid: string;
+      username: string;
+      /** The staff member's LNB account, when their Minecraft account is linked. */
+      userId: string | null;
+      name: string | null;
+    }
   | { kind: 'console' }
   | { kind: 'system' };
 
