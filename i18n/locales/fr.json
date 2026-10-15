@@ -232,7 +232,83 @@
       "appeals": "Contestations",
       "linking": "Liaison manuelle",
       "activity": "Activité",
-      "settings": "Réglages"
+      "settings": "Réglages",
+      "users": "Utilisateurs"
+    },
+    "cancel": "Annuler",
+    "roles": {
+      "admin": "Admin",
+      "wardenAdmin": "Admin Warden"
+    },
+    "users": {
+      "search": "Rechercher par nom ou e-mail",
+      "allSchools": "Toutes les écoles",
+      "anyRole": "Tous les rôles",
+      "status": {
+        "all": "Tout le monde",
+        "banned": "Bannis du site",
+        "inactive": "Inactifs depuis 24 mois"
+      },
+      "user": "Utilisateur",
+      "school": "École",
+      "roles": "Rôles",
+      "lastSignIn": "Dernière connexion",
+      "state": "Statut",
+      "unknownSchool": "Inconnue",
+      "noRole": "Aucun",
+      "never": "Jamais",
+      "bannedUntil": "Banni jusqu’au {date}",
+      "actions": "Actions pour {name}",
+      "changeRoles": "Modifier les rôles",
+      "signOut": "Déconnecter partout",
+      "ban": "Bannir du site",
+      "unban": "Lever le bannissement",
+      "delete": "Supprimer le compte",
+      "rolesSaved": "Rôles enregistrés",
+      "banned": "Banni du site",
+      "unbanned": "Bannissement levé",
+      "signedOut": "Déconnecté partout",
+      "deleted": "Compte supprimé",
+      "unbanTitle": "Lever le bannissement de {name} ?",
+      "unbanBody": "Cette personne pourra se reconnecter tout de suite.",
+      "signOutTitle": "Déconnecter {name} partout ?",
+      "signOutBody": "Toutes ses sessions prennent fin, sur tous ses appareils. Elle peut se reconnecter avec Microsoft.",
+      "deleteTitle": "Supprimer le compte de {name} ?",
+      "deleteBody": "Le compte et tout son contenu sont supprimés, données Warden comprises. C’est définitif. Si cette personne se reconnecte, elle repart d’un compte neuf et vide.",
+      "empty": "Aucun compte ne correspond. Essayez un autre nom, ou retirez les filtres.",
+      "loadFailed": "Les comptes n’ont pas pu être chargés. Vérifiez votre connexion, puis rechargez la page.",
+      "next": "Page suivante",
+      "first": "Première page"
+    },
+    "banModal": {
+      "title": "Bannir {name} du site",
+      "lede": "Cette personne ne peut plus se connecter jusqu’à la fin du bannissement, et ses sessions prennent fin maintenant. Les bannissements Warden sont à part.",
+      "reason": "Motif",
+      "reasonHint": "Visible des admins uniquement",
+      "length": "Durée",
+      "presets": {
+        "day": "1 jour",
+        "week": "7 jours",
+        "month": "30 jours",
+        "permanent": "Définitif"
+      },
+      "ends": "Prend fin le {date}",
+      "never": "Sans fin. Seul un admin peut le lever.",
+      "submit": "Bannir du site"
+    },
+    "rolesModal": {
+      "title": "Rôles de {name}",
+      "adminHint": "Tout l’espace admin, Warden compris.",
+      "self": "Vous ne pouvez pas retirer votre propre rôle admin. Demandez à un autre admin.",
+      "wardenAdminHint": "La section Warden et la modération en jeu, rien d’autre.",
+      "save": "Enregistrer les rôles"
+    },
+    "errors": {
+      "failed": "Ça n’a pas marché. Vérifiez votre connexion, puis réessayez.",
+      "notFound": "Ce compte n’existe plus. Rechargez la page.",
+      "self": "Vous ne pouvez pas faire ça sur votre propre compte. Demandez à un autre admin.",
+      "targetIsAdmin": "Ce compte est admin. Retirez d’abord le rôle admin.",
+      "notBanned": "Ce compte n’est plus banni. Rechargez la page."
     }
   },
   "wardenAdmin": {

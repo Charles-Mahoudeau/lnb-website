@@ -232,7 +232,83 @@
       "appeals": "Appeals",
       "linking": "Manual linking",
       "activity": "Activity",
-      "settings": "Settings"
+      "settings": "Settings",
+      "users": "Users"
+    },
+    "cancel": "Cancel",
+    "roles": {
+      "admin": "Admin",
+      "wardenAdmin": "Warden admin"
+    },
+    "users": {
+      "search": "Search by name or email",
+      "allSchools": "All schools",
+      "anyRole": "Any role",
+      "status": {
+        "all": "Everyone",
+        "banned": "Banned from the site",
+        "inactive": "Inactive for 24 months"
+      },
+      "user": "User",
+      "school": "School",
+      "roles": "Roles",
+      "lastSignIn": "Last sign-in",
+      "state": "Status",
+      "unknownSchool": "Unknown",
+      "noRole": "None",
+      "never": "Never",
+      "bannedUntil": "Banned until {date}",
+      "actions": "Actions for {name}",
+      "changeRoles": "Change roles",
+      "signOut": "Sign out everywhere",
+      "ban": "Ban from the site",
+      "unban": "Lift the site ban",
+      "delete": "Delete account",
+      "rolesSaved": "Roles saved",
+      "banned": "Banned from the site",
+      "unbanned": "Site ban lifted",
+      "signedOut": "Signed out everywhere",
+      "deleted": "Account deleted",
+      "unbanTitle": "Lift {name}’s site ban?",
+      "unbanBody": "They can sign in again right away.",
+      "signOutTitle": "Sign {name} out everywhere?",
+      "signOutBody": "Every session ends, on every device. They can sign in again with Microsoft.",
+      "deleteTitle": "Delete {name}’s account?",
+      "deleteBody": "Their account and everything in it are deleted, Warden data included. This can’t be undone. If they sign in again, they start with a new, empty account.",
+      "empty": "No accounts match. Try another name, or clear the filters.",
+      "loadFailed": "The accounts couldn’t be loaded. Check your connection, then reload the page.",
+      "next": "Next page",
+      "first": "First page"
+    },
+    "banModal": {
+      "title": "Ban {name} from the site",
+      "lede": "They can’t sign in until the ban ends, and every session they have ends now. Warden bans are separate.",
+      "reason": "Reason",
+      "reasonHint": "Kept for admins",
+      "length": "Length",
+      "presets": {
+        "day": "1 day",
+        "week": "7 days",
+        "month": "30 days",
+        "permanent": "Permanent"
+      },
+      "ends": "Ends {date}",
+      "never": "Never ends. Only an admin can lift it.",
+      "submit": "Ban from the site"
+    },
+    "rolesModal": {
+      "title": "Roles of {name}",
+      "adminHint": "Everything in the admin area, Warden included.",
+      "self": "You can’t remove your own admin role. Ask another admin.",
+      "wardenAdminHint": "The Warden section and in-game moderation, nothing else.",
+      "save": "Save roles"
+    },
+    "errors": {
+      "failed": "That didn’t work. Check your connection, then try again.",
+      "notFound": "This account doesn’t exist anymore. Reload the page.",
+      "self": "You can’t do that to your own account. Ask another admin.",
+      "targetIsAdmin": "This account is an admin. Remove the admin role first.",
+      "notBanned": "This account isn’t banned anymore. Reload the page."
     }
   },
   "wardenAdmin": {

@@ -7,6 +7,9 @@ const { t } = useI18n();
 const { user, school } = useAuth();
 
 const items = computed<NavigationMenuItem[][]>(() => [
+  ...(isAdmin(user.value?.role)
+    ? [[{ label: t('admin.nav.users'), icon: 'i-lucide-users', to: '/admin/users' }]]
+    : []),
   [
     {
       label: t('admin.nav.warden'),
