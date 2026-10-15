@@ -58,6 +58,57 @@ export interface WardenLinkPreview {
   limit: { used: number; max: number };
 }
 
+/** Body of POST /api/warden/server/login. */
+export const wardenLoginBody = z.object({
+  token: serverTokenInput,
+  uuid: minecraftUuid,
+  username: minecraftUsername,
+  cracked: z.boolean(),
+});
+export type WardenLoginBody = z.infer<typeof wardenLoginBody>;
+
+export const WARDEN_DENY_REASONS = [
+  'unknownToken',
+  'notLinked',
+  'linkedElsewhere',
+  'banned',
+  'crackedNotAllowed',
+  'crackedMismatch',
+  'schoolNotAllowed',
+] as const;
+
+export type WardenLogin =
+  | {
+      result: 'allowed';
+      sessionId: string;
+      player: {
+        userId: string;
+        /** "Charles M.", or null when the player hides their name. */
+        displayName: string | null;
+        school: string | null;
+        roles: string[];
+      };
+      account: { uuid: string; username: string };
+      /** Warnings given since the account was last seen. */
+      warnings: { id: string; body: string; createdAt: string }[];
+    }
+  | {
+      result: 'denied';
+      reason: (typeof WARDEN_DENY_REASONS)[number];
+      ban?: { reason: string; expiresAt: string | null };
+      /** For notLinked: a code to link the account. */
+      link?: WardenLinkRequest;
+    };
+
+/** Body of POST /api/warden/server/sessions/heartbeat. The server sends it every 60 seconds. */
+export const wardenHeartbeatBody = z.object({ sessionIds: z.array(z.uuid()).max(500) });
+
+/** Body of POST /api/warden/server/sessions/end. */
+export const wardenSessionEndBody = z.object({
+  sessionId: z.uuid(),
+  reason: z.enum(['quit', 'kicked']),
+});
+
 export const wardenIdParams = z.object({ id: z.uuid() });
 export const wardenUserCodeParams = z.object({ userCode: z.string().regex(/^\d{6}$/) });
 

@@ -40,6 +40,14 @@ export default defineNuxtConfig({
     compatibilityVersion: 5,
   },
 
+  nitro: {
+    // Scheduled jobs in server/tasks/.
+    experimental: { tasks: true },
+    scheduledTasks: {
+      '*/5 * * * *': ['warden:close-stale-sessions'],
+    },
+  },
+
   typescript: {
     // Unit tests and tool configs run in plain Node, so they belong to the Node tsconfig.
     // Paths are relative to .nuxt/.

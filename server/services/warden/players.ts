@@ -1,23 +1,14 @@
-import { randomBytes } from 'node:crypto';
-
 import { count, eq } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import { minecraftAccount, user, wardenPlayer } from '~~/server/db/schema';
 import { wardenEnv } from '~~/server/lib/warden-env';
 
+import { generateServerToken, resolveMaxAccounts } from './rules';
 import { wardenSettingsService } from './settings';
 import type { Db } from './shared';
 
-import { isServerToken, SERVER_TOKEN_LENGTH } from '#shared/schemas/warden';
-
-const BASE32 = 'abcdefghijklmnopqrstuvwxyz234567';
-
-/** 26 characters of lowercase base32 (130 bits), so it's a valid DNS label. */
-export function generateServerToken(): string {
-  const bytes = randomBytes(SERVER_TOKEN_LENGTH);
-  return Array.from(bytes, (byte) => BASE32[byte & 31]).join('');
-}
+import { isServerToken } from '#shared/schemas/warden';
 
 export function serverUrl(token: string): string {
   return `${token}.${wardenEnv().WARDEN_SERVER_HOST}`;
@@ -65,11 +56,6 @@ async function limit(dbx: Db, userId: string): Promise<{ used: number; max: numb
     used: linked?.used ?? 0,
     max: resolveMaxAccounts(player?.maxAccounts, settings.defaultMaxAccounts),
   };
-}
-
-/** A player's own limit wins over the global one. */
-export function resolveMaxAccounts(override: number | null | undefined, global: number): number {
-  return override ?? global;
 }
 
 export const wardenPlayerService = { ensure, findByToken, limit };
