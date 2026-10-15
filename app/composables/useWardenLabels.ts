@@ -58,6 +58,14 @@ export function useWardenLabels() {
             ? 'wardenAdmin.actions.identityShown'
             : 'wardenAdmin.actions.identityHidden',
         );
+      case 'mod.add':
+      case 'mod.promote':
+      case 'mod.remove':
+      case 'mod.restore':
+      case 'mod.delete': {
+        const key = `mod${entry.action.charAt(4).toUpperCase()}${entry.action.slice(5)}`;
+        return t(`wardenAdmin.actions.${key}`, { name: text('name') });
+      }
       default: {
         // token.rotate becomes tokenRotate, and so on.
         const key = entry.action.replace(/\.(\w)/g, (_, c: string) => c.toUpperCase());
