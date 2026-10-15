@@ -1,5 +1,6 @@
 import type { LinkProblem } from '#shared/schemas/link';
 import { LINK_PROBLEMS } from '#shared/schemas/link';
+import type { WardenLinkPreview } from '#shared/schemas/warden';
 
 export class LinkCodeError extends Error {
   constructor(readonly problem: LinkProblem) {
@@ -56,5 +57,14 @@ export function useLinkCode() {
     if (error) throw fromAuthClient(error);
   }
 
-  return { check, approve, deny };
+  /** The Minecraft account behind a Warden code the user just checked, and their slots. */
+  async function wardenPreview(code: string): Promise<WardenLinkPreview> {
+    try {
+      return await $fetch<WardenLinkPreview>(`/api/warden/link-requests/${code}`);
+    } catch (error) {
+      throw fromApi(error);
+    }
+  }
+
+  return { check, approve, deny, wardenPreview };
 }

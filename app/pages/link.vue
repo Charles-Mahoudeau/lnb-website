@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { LinkProblem } from '#shared/schemas/link';
+import type { WardenLinkPreview } from '#shared/schemas/warden';
 
 const { t, locale } = useI18n();
 const route = useRoute();
@@ -11,7 +12,7 @@ useSeoMeta({ title: () => t('link.title'), robots: 'noindex' });
 
 type Step =
   | { name: 'enter' }
-  | { name: 'confirm'; appId: string }
+  | { name: 'confirm'; appId: string; warden?: WardenLinkPreview }
   | { name: 'schoolNotAllowed'; appId: string }
   | { name: 'done'; appId: string; redirecting: boolean };
 const step = ref<Step>({ name: 'enter' });
@@ -69,7 +70,9 @@ function onContinue() {
       step.value = { name: 'schoolNotAllowed', appId };
       return;
     }
-    step.value = { name: 'confirm', appId };
+    // Warden codes carry a Minecraft account: show it, and the slot it takes.
+    const warden = appId === 'warden' ? await linkCode.wardenPreview(code.value) : undefined;
+    step.value = { name: 'confirm', appId, warden };
   });
 }
 
@@ -160,6 +163,48 @@ onMounted(() => {
               {{ spacedCode }}
             </span>
           </p>
+          <template v-if="step.warden">
+            <USeparator />
+            <div class="flex items-center gap-4">
+              <WardenMinecraftHead :uuid="step.warden.uuid" size="lg" />
+              <div class="flex min-w-0 flex-col gap-0.5">
+                <span class="text-sm text-muted">{{ t('link.warden.account') }}</span>
+                <span class="font-semibold break-all text-highlighted">
+                  {{ step.warden.username }}
+                </span>
+                <span class="text-sm text-muted">
+                  {{
+                    step.warden.cracked
+                      ? t('warden.accounts.cracked')
+                      : t('warden.accounts.premium')
+                  }}
+                </span>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2">
+              <div class="flex gap-1.5" aria-hidden="true">
+                <span
+                  v-for="slot in step.warden.limit.max"
+                  :key="slot"
+                  :class="[
+                    'h-2 w-6 rounded-full',
+                    slot <= step.warden.limit.used
+                      ? 'bg-inverted/40'
+                      : slot === step.warden.limit.used + 1
+                        ? 'bg-action'
+                        : 'bg-accented',
+                  ]"
+                />
+              </div>
+              <span class="text-sm text-muted">
+                {{
+                  step.warden.limit.used < step.warden.limit.max
+                    ? t('link.warden.slots', { max: step.warden.limit.max }, step.warden.limit.max)
+                    : t('link.errors.accountLimitReached')
+                }}
+              </span>
+            </div>
+          </template>
           <USeparator />
           <div class="flex flex-col gap-3">
             <span class="text-sm text-muted">
@@ -169,7 +214,9 @@ onMounted(() => {
               <UIcon name="i-lucide-id-card" class="mt-0.5 size-5 shrink-0 text-muted" />
               <div class="flex flex-col">
                 <span class="text-highlighted">{{ t('link.confirm.identity.title') }}</span>
-                <span class="text-sm text-muted">{{ t('link.confirm.identity.details') }}</span>
+                <span class="text-sm text-muted">
+                  {{ step.warden ? t('link.warden.identity') : t('link.confirm.identity.details') }}
+                </span>
               </div>
             </div>
           </div>
@@ -201,6 +248,7 @@ onMounted(() => {
             icon="i-lucide-link"
             :label="t('link.confirm.link')"
             :loading="pending"
+            :disabled="!!step.warden && step.warden.limit.used >= step.warden.limit.max"
             @click="onLink(step.appId)"
           />
           <UButton

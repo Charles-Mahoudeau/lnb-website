@@ -103,6 +103,11 @@
     "schoolNotAllowed": {
       "title": "{app} n’est pas ouvert à ton école",
       "lede": "{app} est réservé aux étudiants de {schools}, et ton compte vient de {school}. Le code a été refusé, tu peux fermer {app}."
+    },
+    "warden": {
+      "account": "Compte Minecraft",
+      "slots": "Cela utilise ton unique emplacement de compte. | Cela utilise un de tes {max} emplacements de compte.",
+      "identity": "Ton prénom et l’initiale de ton nom, affichés en jeu sous ton pseudo sauf si tu les masques"
     }
   },
   "warden": {

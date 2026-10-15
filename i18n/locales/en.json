@@ -103,6 +103,11 @@
     "schoolNotAllowed": {
       "title": "{app} isn’t open to your school",
       "lede": "{app} is only for {schools} students, and your account is from {school}. The code was refused, so you can close {app}."
+    },
+    "warden": {
+      "account": "Minecraft account",
+      "slots": "This uses your only account slot. | This uses one of your {max} account slots.",
+      "identity": "Your first name and last initial, shown in-game under your username unless you hide it"
     }
   },
   "warden": {
