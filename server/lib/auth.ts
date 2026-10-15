@@ -28,6 +28,13 @@ const roles = {
   [WARDEN_ADMIN_ROLE]: ac.newRole({ user: [], session: [] }),
 };
 
+// The admin plugin stays for its role and ban columns and for refusing banned sign-ins, but its
+// own routes are off: admins go through /api/admin (server/services/users.ts), which checks our
+// rules and writes admin_audit. Read from the plugin, so routes added by an upgrade are off too.
+// This also turns off impersonation.
+const adminPlugin = admin({ ac, roles, adminRoles: [ADMIN_ROLE] });
+const adminPluginPaths = Object.values(adminPlugin.endpoints).map((endpoint) => endpoint.path);
+
 export const auth = betterAuth({
   appName: 'La Nuit Blanche',
   secret: env.BETTER_AUTH_SECRET,
@@ -78,7 +85,12 @@ export const auth = betterAuth({
   // Profiles come from Microsoft. Users can't edit them, and especially not tenantId.
   // Link codes are approved by POST /api/link/approve instead, which checks the app's schools.
   // Better Auth's OpenAPI schema is merged into ours (server/openapi/), so it isn't served here.
-  disabledPaths: ['/update-user', '/device/approve', '/open-api/generate-schema'],
+  disabledPaths: [
+    '/update-user',
+    '/device/approve',
+    '/open-api/generate-schema',
+    ...adminPluginPaths,
+  ],
 
   databaseHooks: {
     account: {
@@ -108,7 +120,7 @@ export const auth = betterAuth({
   },
 
   plugins: [
-    admin({ ac, roles, adminRoles: [ADMIN_ROLE] }),
+    adminPlugin,
     // Apps such as the Warden Minecraft mod link to an account with a 6-digit code
     // entered on /link. See docs/authentication.md.
     deviceAuthorization({

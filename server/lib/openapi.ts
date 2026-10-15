@@ -110,14 +110,12 @@ const TAGS = {
   wardenPlayer: 'Warden: players',
   wardenAdmin: 'Warden: admins',
   auth: 'Auth',
-  authAdmin: 'Auth: admins',
   authDevice: 'Auth: device authorization',
 };
 
 // Better Auth's tags, renamed to sit next to ours.
 const AUTH_TAGS: Record<string, string> = {
   Default: TAGS.auth,
-  Admin: TAGS.authAdmin,
   'Device-authorization': TAGS.authDevice,
 };
 
@@ -1008,7 +1006,6 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
         description: 'The Warden section of the admin area, `/admin/warden`.',
       },
       { name: TAGS.auth, description: AUTH_TAG_DESCRIPTION },
-      { name: TAGS.authAdmin, description: "Better Auth's admin plugin. Site admins only." },
       {
         name: TAGS.authDevice,
         description:
@@ -1017,7 +1014,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
     ],
     'x-tagGroups': [
       { name: 'Site', tags: [TAGS.health, TAGS.link, TAGS.admin, TAGS.reference] },
-      { name: 'Auth', tags: [TAGS.auth, TAGS.authAdmin, TAGS.authDevice] },
+      { name: 'Auth', tags: [TAGS.auth, TAGS.authDevice] },
       { name: 'Warden', tags: [TAGS.wardenServer, TAGS.wardenPlayer, TAGS.wardenAdmin] },
     ],
     paths,

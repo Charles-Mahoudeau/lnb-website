@@ -54,6 +54,7 @@ After that, site admins manage accounts on `/admin/users`, through `/api/admin/u
 - Admins can't remove their own admin role, ban themselves or delete themselves. Another admin must lose the admin role before a ban or a deletion.
 - A site ban uses the admin plugin's `banned`, `ban_reason` and `ban_expires` columns, so Better Auth refuses the sign-in itself and lifts a ban once it has expired. Banning also deletes every session. It's separate from Warden bans, which only block the Minecraft server.
 - Deleting an account deletes everything that belongs to it, through the foreign keys.
+- Better Auth's own admin routes (`/api/auth/admin/*`, impersonation included) are turned off in `server/lib/auth.ts`, so these rules and the log can't be skipped. The plugin stays for its columns and for refusing banned sign-ins.
 - Every change is written to `admin_audit`, shown on the admin Overview. Its rows outlive the accounts they name: a deleted actor or target becomes null.
 
 ## Linking apps
