@@ -95,7 +95,10 @@
       "tooManyAttempts": "Too many tries. Wait 10 minutes, then enter the code again.",
       "failed": "The code couldn’t be checked. Check your connection, then try again.",
       "schoolNotAllowed": "This app isn’t open to your school.",
-      "invalidRedirect": "The link from this app has an address it isn’t allowed to use. Enter the code by hand instead."
+      "invalidRedirect": "The link from this app has an address it isn’t allowed to use. Enter the code by hand instead.",
+      "accountLimitReached": "You've linked as many Minecraft accounts as you can. Unlink one on the Warden page first.",
+      "minecraftAccountTaken": "This Minecraft account is already linked to an LNB account.",
+      "wrongAccount": "This code is for another LNB account. Join the server with your own address to get a code for yours."
     },
     "schoolNotAllowed": {
       "title": "{app} isn’t open to your school",

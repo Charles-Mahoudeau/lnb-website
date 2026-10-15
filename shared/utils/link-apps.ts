@@ -12,17 +12,23 @@ export interface LinkApp {
    * no redirect_uri (for example when the code was typed on /link). A path on this site or a URL.
    */
   redirectAfterLink?: string;
+  /**
+   * The app's own server creates its codes and handles what linking means, so Better Auth's
+   * /device/code and /device/token refuse it and linking gives no token. Warden works this way.
+   */
+  issuedByServer?: boolean;
 }
 
 // Apps that can link to an LNB account with a 6-digit code on /link (Better Auth's device
 // authorization). An app sends its ID as `client_id`, and codes from any other ID are refused.
 // The app's description is under `link.apps.<id>` in the locale files.
 export const LINK_APPS: Readonly<Record<string, LinkApp>> = {
+  // Minecraft accounts, linked from codes the Minecraft server creates. See docs/warden.md.
   warden: {
     name: 'Warden',
     schools: ['901cb4ca-b862-4029-9306-e5cd0f6d9f86'], // Epitech
-    redirectUris: ['http://127.0.0.1/callback'],
     redirectAfterLink: '/warden',
+    issuedByServer: true,
   },
 };
 

@@ -95,7 +95,10 @@
       "tooManyAttempts": "Trop d’essais. Attends 10 minutes, puis saisis à nouveau le code.",
       "failed": "Le code n’a pas pu être vérifié. Vérifie ta connexion, puis réessaie.",
       "schoolNotAllowed": "Cette application n’est pas ouverte à ton école.",
-      "invalidRedirect": "Le lien de cette application utilise une adresse qui ne lui est pas autorisée. Saisis plutôt le code à la main."
+      "invalidRedirect": "Le lien de cette application utilise une adresse qui ne lui est pas autorisée. Saisis plutôt le code à la main.",
+      "accountLimitReached": "Tu as lié autant de comptes Minecraft que possible. Délie-en un sur la page Warden d’abord.",
+      "minecraftAccountTaken": "Ce compte Minecraft est déjà lié à un compte LNB.",
+      "wrongAccount": "Ce code est pour un autre compte LNB. Rejoins le serveur avec ta propre adresse pour obtenir un code pour le tien."
     },
     "schoolNotAllowed": {
       "title": "{app} n’est pas ouvert à ton école",

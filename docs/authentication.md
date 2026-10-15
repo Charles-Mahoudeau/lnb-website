@@ -66,6 +66,7 @@ Apps are listed in `shared/utils/link-apps.ts`. To add one, add its ID and name 
 - `schools`: the tenant IDs of the schools whose students can link it. Students from other schools see a page that says so, and their code is refused, so the app gets `access_denied`.
 - `redirectAfterLink`: where to send people once linked when the link has no `redirect_uri`. A path on this site (Warden uses `/warden`) or a full URL. It's set in code, so it isn't checked against `redirectUris`.
 - `redirectUris`: the only addresses `redirect_uri` may use, matched on origin and path. Loopback addresses (`127.0.0.1`, `[::1]`, `localhost`) match on any port, for apps that listen on the person's own device ([RFC 8252](https://datatracker.ietf.org/doc/html/rfc8252#section-7.3)). Apps should send a random `state` and check it comes back, so that no other page can hand them a token.
+- `issuedByServer`: the app's own server creates its codes and decides what linking does, as Warden does (see `docs/warden.md`). Better Auth's `/device/code` and `/device/token` refuse the app, and linking gives no token: `/api/link/approve` runs the app's linking, then sends the person to `redirectAfterLink`.
 
 `GET /api/auth/device` is limited to 5 tries per 10 minutes per IP, since there are only a million codes. Better Auth applies its rate limits in production only.
 

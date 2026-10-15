@@ -1,5 +1,3 @@
-import { randomInt } from 'node:crypto';
-
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { createAccessControl } from 'better-auth/plugins/access';
@@ -8,9 +6,10 @@ import { adminAc, defaultStatements, userAc } from 'better-auth/plugins/admin/ac
 import { deviceAuthorization } from 'better-auth/plugins/device-authorization';
 
 import { readAuthEnv } from './auth-env';
+import { generateLinkCode } from './link-codes';
 import { isAllowedTenant } from './tenants';
 import { TENANT_NOT_ALLOWED } from '../../shared/utils/auth-errors';
-import { isLinkApp, LINK_CODE_LENGTH } from '../../shared/utils/link-apps';
+import { getLinkApp, LINK_CODE_LENGTH } from '../../shared/utils/link-apps';
 import { ADMIN_ROLE, WARDEN_ADMIN_ROLE } from '../../shared/utils/roles';
 import { db } from '../db';
 import * as schema from '../db/schema';
@@ -114,9 +113,12 @@ export const auth = betterAuth({
       verificationUri: '/link',
       expiresIn: '10m',
       userCodeLength: LINK_CODE_LENGTH,
-      generateUserCode: () =>
-        String(randomInt(10 ** LINK_CODE_LENGTH)).padStart(LINK_CODE_LENGTH, '0'),
-      validateClient: (clientId) => isLinkApp(clientId),
+      generateUserCode: generateLinkCode,
+      // Apps whose codes come from their own server (Warden) can't ask for codes or tokens here.
+      validateClient: (clientId) => {
+        const app = getLinkApp(clientId);
+        return app !== undefined && !app.issuedByServer;
+      },
     }),
   ],
 });
