@@ -49,6 +49,13 @@ UPDATE "user" SET role = 'admin' WHERE email = 'name@epitech.eu';
 
 A user's `role` is a comma-separated list. Besides `admin`, there is `warden-admin`, for Minecraft staff: it opens the Warden section of the admin area (`/admin/warden`) and in-game moderation, and gives no other admin rights. Site admins are Warden admins too, and give or remove the role from a player's page there. The helpers are in `shared/utils/roles.ts`, and routes check them with `requireAdmin` and `requireWardenAdmin`.
 
+After that, site admins manage accounts on `/admin/users`, through `/api/admin/users` (`server/services/users.ts`): roles (both at once), site bans, signing out everywhere, and deletion. The rules:
+
+- Admins can't remove their own admin role, ban themselves or delete themselves. Another admin must lose the admin role before a ban or a deletion.
+- A site ban uses the admin plugin's `banned`, `ban_reason` and `ban_expires` columns, so Better Auth refuses the sign-in itself and lifts a ban once it has expired. Banning also deletes every session. It's separate from Warden bans, which only block the Minecraft server.
+- Deleting an account deletes everything that belongs to it, through the foreign keys.
+- Every change is written to `admin_audit`, shown on the admin Overview. Its rows outlive the accounts they name: a deleted actor or target becomes null.
+
 ## Linking apps
 
 Apps link to an account with a 6-digit code, through Better Auth's device authorization plugin ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628)). Warden, the Minecraft link, works differently: its server creates the codes, and linking gives no token. See `docs/warden.md`. For other apps:

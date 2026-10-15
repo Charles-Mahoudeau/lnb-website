@@ -26,10 +26,11 @@ server/               Nitro server, picked up by Nuxt automatically
     auth/[...all].ts  Better Auth's routes under /api/auth
     docs.get.ts       the API reference (Scalar), from openapi.json.get.ts
   services/           business rules, one file per domain: links (app link codes), warden/
-                      (Minecraft link, see docs/warden.md), later
-                      events, registrations, teams, files, users, push
+                      (Minecraft link, see docs/warden.md), users (accounts, for admins),
+                      admin-audit and admin-overview (the admin log and Overview), later
+                      events, registrations, teams, files, push
   db/
-    index.ts          Drizzle client (node-postgres)
+    index.ts          Drizzle client (node-postgres), and the Tx and Db types
     schema/           Drizzle tables, one file per domain. auth.ts is generated.
     migrations/       generated and committed
     seed.ts           (planned)
@@ -67,7 +68,7 @@ Root files: `nuxt.config.ts`, `vitest.config.ts`, `drizzle.config.ts`, `eslint.c
 - Services take explicit inputs (such as `actorId`), run multi-step writes in a transaction, and throw typed errors (`NotFoundError`, `ForbiddenError`, `ConflictError`). These are turned into HTTP errors in one place.
 - Every team action checks that the team belongs to the event and that the user is registered. Size limits come from the event and are enforced inside the transaction, backed by a unique `(eventId, userId)` constraint.
 - Every route is documented in `server/lib/openapi.ts`: who may call it, its parameters, body, response and problem codes. `test/unit/openapi.test.ts` fails when a file in `server/api/` has no entry. Define response shapes as Zod schemas in `shared/schemas/` and infer their types, so the reference can't drift from the code. The reference is at `/api/docs`, and Better Auth's routes are added from its own schema.
-- Lists expose public profiles only (name, avatar). Email appears only on the user's own account endpoint.
+- Lists expose public profiles only (name, avatar). Email appears only on the user's own account endpoint, and in admin routes, where admins need it to find people.
 - Files: metadata goes in a `files` table and content in object storage, behind the files service. Files are served with `Content-Type`, `nosniff` and long caching. Uploads are checked for type and size.
 
 A handler looks like this:
