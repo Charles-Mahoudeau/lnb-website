@@ -1,5 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { openAPI } from 'better-auth/plugins';
 import { createAccessControl } from 'better-auth/plugins/access';
 import { admin } from 'better-auth/plugins/admin';
 import { adminAc, defaultStatements, userAc } from 'better-auth/plugins/admin/access';
@@ -76,7 +77,8 @@ export const auth = betterAuth({
 
   // Profiles come from Microsoft. Users can't edit them, and especially not tenantId.
   // Link codes are approved by POST /api/link/approve instead, which checks the app's schools.
-  disabledPaths: ['/update-user', '/device/approve'],
+  // Better Auth's OpenAPI schema is merged into ours (server/openapi/), so it isn't served here.
+  disabledPaths: ['/update-user', '/device/approve', '/open-api/generate-schema'],
 
   databaseHooks: {
     account: {
@@ -120,6 +122,8 @@ export const auth = betterAuth({
         return app !== undefined && !app.issuedByServer;
       },
     }),
+    // For auth.api.generateOpenAPISchema() only. The API reference is /api/docs.
+    openAPI({ disableDefaultReference: true }),
   ],
 });
 

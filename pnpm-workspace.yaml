@@ -7,6 +7,9 @@ allowBuilds:
 overrides:
   # @nuxt/fonts (via fontless) still pulls esbuild 0.27 (GHSA-g7r4-m6w7-qqqr).
   'esbuild@<0.28.1': ^0.28.2
+  # @scalar/api-reference (dev, for /api/docs) pulls ai 6.0.33, which @nuxt/ui then counts as its
+  # optional peer, so it shows in the production tree (GHSA-866g-f22w-33x8).
+  '@ai-sdk/provider-utils@<4.0.33': ^4.0.33
 
 auditConfig:
   # None of these reach the production server. Re-check them when Renovate bumps Nuxt.

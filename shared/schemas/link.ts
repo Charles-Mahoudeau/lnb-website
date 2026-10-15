@@ -10,6 +10,11 @@ export const linkApproveBody = z.object({
 
 export type LinkApproveBody = z.infer<typeof linkApproveBody>;
 
+/** Response of POST /api/link/approve. */
+export const linkApproveResult = z.object({
+  redirectTo: z.string().optional().describe('Where to send the person once linked, if anywhere.'),
+});
+
 /** Why a link was refused. The /link page shows a message for each one. */
 export const LINK_PROBLEMS = [
   'unknown',
