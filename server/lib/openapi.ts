@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import * as admin from '../../shared/schemas/admin.ts';
 import { linkApproveBody, linkApproveResult } from '../../shared/schemas/link.ts';
+import * as mods from '../../shared/schemas/mods.ts';
 import * as warden from '../../shared/schemas/warden.ts';
 
 // The OpenAPI document behind the API reference at /api/docs. Schemas come from the shared Zod
@@ -35,6 +36,8 @@ interface RouteDoc {
   response?: z.ZodType | OpenApiObject;
   /** For routes that answer with 204 No Content. */
   noContent?: true;
+  /** For routes that answer with 201 Created and `response`. */
+  created?: true;
   problems?: Problem[];
 }
 
@@ -64,6 +67,12 @@ const requestSchemas = {
   WardenRoleBody: warden.wardenRoleBody,
   WardenSettingsPatchBody: warden.wardenSettingsPatchBody,
   WardenManualLinkBody: warden.wardenManualLinkBody,
+  ModVoteBody: mods.modVoteBody,
+  ModSuggestBody: mods.modSuggestBody,
+  ModReasonBody: mods.modReasonBody,
+  ModAddBody: mods.modAddBody,
+  ModRemoveBody: mods.modRemoveBody,
+  ModSettingsPatchBody: mods.modSettingsPatchBody,
 };
 
 const responseSchemas = {
@@ -99,6 +108,16 @@ const responseSchemas = {
   WardenMinecraftLookup: warden.wardenMinecraftLookup,
   WardenManualLinkView: warden.wardenManualLinkView,
   WardenUserOption: warden.wardenUserOption,
+  ModView: mods.modView,
+  ModRemovalNotice: mods.modRemovalNotice,
+  ModListPage: mods.modListPage,
+  ModVoteResult: mods.modVoteResult,
+  ModSearchResult: mods.modSearchResult,
+  ModSearchResults: mods.modSearchResults,
+  ModCreated: mods.modCreated,
+  ModSettingsView: mods.modSettingsView,
+  ModAdminRow: mods.modAdminRow,
+  ModAdminList: mods.modAdminList,
 };
 
 const TAGS = {
@@ -109,6 +128,8 @@ const TAGS = {
   wardenServer: 'Warden: Minecraft server',
   wardenPlayer: 'Warden: players',
   wardenAdmin: 'Warden: admins',
+  mods: 'Mod list',
+  modsAdmin: 'Mod list: admins',
   auth: 'Auth',
   authDevice: 'Auth: device authorization',
 };
@@ -729,6 +750,209 @@ const routes: RouteDoc[] = [
     body: warden.wardenSettingsPatchBody,
     response: warden.wardenSettingsView,
   },
+  // Mod list
+  {
+    method: 'get',
+    path: '/api/minecraft/mods',
+    tag: TAGS.mods,
+    summary: 'The mod list',
+    description:
+      "Both tabs, sorted by score then newest, with the settings the page shows. Signed in, it adds the viewer's votes, their suggestions left, and the removal notices they haven't dismissed. Removed suggestions are left out.",
+    access: 'public',
+    response: mods.modListPage,
+  },
+  {
+    method: 'get',
+    path: '/api/minecraft/mods/search',
+    tag: TAGS.mods,
+    summary: 'Search Modrinth and CurseForge',
+    description:
+      "Modrinth first, then CurseForge mods that aren't on Modrinth (only when the site has a CurseForge key). Each result says whether it can be added. Cached for an hour, and limited to 20 searches a minute per account.",
+    access: 'user',
+    query: mods.modSearchQuery,
+    response: mods.modSearchResults,
+    problems: [
+      { status: 429, problems: ['rateLimited'] },
+      { status: 502, problems: ['sourceUnavailable'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/minecraft/mods',
+    tag: TAGS.mods,
+    summary: 'Suggest a mod',
+    description:
+      'Adds a mod from a search result to the Suggestions tab. The project is fetched again, so its details and compatibility come from the source. Each account can have `maxSuggestions` suggestions in the list, removed ones included.',
+    access: 'user',
+    body: mods.modSuggestBody,
+    response: mods.modCreated,
+    created: true,
+    problems: [
+      { status: 403, problems: ['banned'] },
+      { status: 404, problems: ['notFound'] },
+      {
+        status: 409,
+        problems: ['closed', 'limitReached', 'duplicate', 'removed', 'incompatible'],
+      },
+      { status: 502, problems: ['sourceUnavailable'] },
+    ],
+  },
+  {
+    method: 'patch',
+    path: '/api/minecraft/mods/{id}',
+    tag: TAGS.mods,
+    summary: 'Edit the reason of your suggestion',
+    description: 'The votes stay.',
+    access: 'user',
+    params: mods.modIdParams,
+    body: mods.modReasonBody,
+    noContent: true,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'delete',
+    path: '/api/minecraft/mods/{id}',
+    tag: TAGS.mods,
+    summary: 'Withdraw your suggestion',
+    description:
+      "Deletes it with its votes, which frees the slot and the mod. Removed suggestions can't be withdrawn.",
+    access: 'user',
+    params: mods.modIdParams,
+    noContent: true,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'put',
+    path: '/api/minecraft/mods/{id}/vote',
+    tag: TAGS.mods,
+    summary: 'Vote on a mod',
+    description: '1 or -1 sets the vote, 0 clears it. Nobody can vote on their own suggestion.',
+    access: 'user',
+    params: mods.modIdParams,
+    body: mods.modVoteBody,
+    response: mods.modVoteResult,
+    problems: [
+      { status: 403, problems: ['banned', 'ownMod'] },
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['closed'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/minecraft/mods/{id}/dismiss-removal',
+    tag: TAGS.mods,
+    summary: 'Dismiss a removal notice',
+    access: 'user',
+    params: mods.modIdParams,
+    noContent: true,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/minecraft/mods/{id}/icon',
+    tag: TAGS.mods,
+    summary: "A mod's icon",
+    description:
+      'Downloaded once by the site when the mod was added, so visitors never contact the source. Cached for a year.',
+    access: 'public',
+    params: mods.modIdParams,
+    response: {
+      description: 'The icon: PNG, JPEG, WebP or GIF.',
+      content: { 'image/*': { schema: { type: 'string', format: 'binary' } } },
+    },
+  },
+
+  // Mod list: admins
+  {
+    method: 'get',
+    path: '/api/minecraft/admin/settings',
+    tag: TAGS.modsAdmin,
+    summary: 'Mod list settings',
+    access: 'wardenAdmin',
+    response: mods.modSettingsView,
+  },
+  {
+    method: 'patch',
+    path: '/api/minecraft/admin/settings',
+    tag: TAGS.modsAdmin,
+    summary: 'Change the mod list settings',
+    description: "Changing the version or loader doesn't re-check the mods already in the list.",
+    access: 'wardenAdmin',
+    body: mods.modSettingsPatchBody,
+    response: mods.modSettingsView,
+  },
+  {
+    method: 'get',
+    path: '/api/minecraft/admin/mods',
+    tag: TAGS.modsAdmin,
+    summary: 'Mods of one tab',
+    description: 'By score, with who suggested each one.',
+    access: 'wardenAdmin',
+    query: mods.modAdminQuery,
+    response: mods.modAdminList,
+  },
+  {
+    method: 'post',
+    path: '/api/minecraft/admin/mods',
+    tag: TAGS.modsAdmin,
+    summary: 'Add an official mod',
+    description:
+      'From a search result, checked like a suggestion, or by hand for mods on neither source.',
+    access: 'wardenAdmin',
+    body: mods.modAddBody,
+    response: mods.modCreated,
+    created: true,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['duplicate', 'removed', 'incompatible'] },
+      { status: 502, problems: ['sourceUnavailable'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/minecraft/admin/mods/{id}/promote',
+    tag: TAGS.modsAdmin,
+    summary: 'Add a suggestion to the official list',
+    description: 'Keeps its votes and its proposer, and frees their slot.',
+    access: 'wardenAdmin',
+    params: mods.modIdParams,
+    noContent: true,
+    problems: [{ status: 404, problems: ['notSuggestion'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/minecraft/admin/mods/{id}/remove',
+    tag: TAGS.modsAdmin,
+    summary: 'Remove a suggestion',
+    description:
+      "Hides it, and shows the reason to its proposer. The mod can't be suggested again until it's restored, and it still counts toward the proposer's limit.",
+    access: 'wardenAdmin',
+    params: mods.modIdParams,
+    body: mods.modRemoveBody,
+    noContent: true,
+    problems: [{ status: 404, problems: ['notSuggestion'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/minecraft/admin/mods/{id}/restore',
+    tag: TAGS.modsAdmin,
+    summary: 'Restore a removed suggestion',
+    access: 'wardenAdmin',
+    params: mods.modIdParams,
+    noContent: true,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'delete',
+    path: '/api/minecraft/admin/mods/{id}',
+    tag: TAGS.modsAdmin,
+    summary: 'Delete an official mod',
+    description: 'Deletes it with its votes.',
+    access: 'wardenAdmin',
+    params: mods.modIdParams,
+    noContent: true,
+    problems: [{ status: 404, problems: ['notOfficial'] }],
+  },
 ];
 
 const ACCESS: Record<Access, { security?: OpenApiObject[]; note?: string; errors: Problem[] }> = {
@@ -765,6 +989,7 @@ const STATUS_TEXT: Record<number, string> = {
   403: 'Forbidden',
   404: 'Not Found',
   409: 'Conflict',
+  429: 'Too Many Requests',
   502: 'Bad Gateway',
 };
 
@@ -875,8 +1100,8 @@ function operation(route: RouteDoc) {
     ? { 204: { description: 'No Content' } }
     : route.response instanceof z.ZodType
       ? {
-          200: {
-            description: 'OK',
+          [route.created ? 201 : 200]: {
+            description: route.created ? 'Created' : 'OK',
             content: {
               'application/json': { schema: schemaFor(route.response, responseNames, 'output') },
             },
@@ -1005,6 +1230,11 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
         name: TAGS.wardenAdmin,
         description: 'The Warden section of the admin area, `/admin/warden`.',
       },
+      { name: TAGS.mods, description: 'The `/minecraft/mod-list` page. See `docs/mods.md`.' },
+      {
+        name: TAGS.modsAdmin,
+        description: 'The Mods section of the admin area, `/admin/mods`.',
+      },
       { name: TAGS.auth, description: AUTH_TAG_DESCRIPTION },
       {
         name: TAGS.authDevice,
@@ -1016,6 +1246,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       { name: 'Site', tags: [TAGS.health, TAGS.link, TAGS.admin, TAGS.reference] },
       { name: 'Auth', tags: [TAGS.auth, TAGS.authDevice] },
       { name: 'Warden', tags: [TAGS.wardenServer, TAGS.wardenPlayer, TAGS.wardenAdmin] },
+      { name: 'Minecraft', tags: [TAGS.mods, TAGS.modsAdmin] },
     ],
     paths,
     components: {

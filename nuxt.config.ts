@@ -49,11 +49,14 @@ export default defineNuxtConfig({
       '0 3 * * *': ['users:delete-inactive'],
     },
     // Skin heads fetched from Crafatar, cached on disk. See server/services/warden/heads.ts.
+    // Mod icons, downloaded once when a mod is added. See server/services/mods/icons.ts.
     storage: {
       'warden-heads': { driver: 'fs', base: './.data/warden-heads' },
+      'mod-icons': { driver: 'fs', base: './.data/mod-icons' },
     },
     devStorage: {
       'warden-heads': { driver: 'fs', base: './.data/warden-heads' },
+      'mod-icons': { driver: 'fs', base: './.data/mod-icons' },
     },
   },
 

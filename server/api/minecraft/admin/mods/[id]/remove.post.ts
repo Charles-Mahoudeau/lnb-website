@@ -1,0 +1,14 @@
+import { defineEventHandler, setResponseStatus } from 'nuxt/server';
+
+import { modAdminService } from '~~/server/services/mods/admin';
+
+import { modIdParams, modRemoveBody } from '#shared/schemas/mods';
+
+export default defineEventHandler(async (event) => {
+  const admin = await requireWardenAdmin(event);
+  const { id } = parseParams(event, modIdParams);
+  const { reason } = await parseBody(event, modRemoveBody);
+  await modAdminService.remove({ modId: id, reason, actor: { source: 'web', userId: admin.id } });
+  setResponseStatus(event, 204);
+  return null;
+});
