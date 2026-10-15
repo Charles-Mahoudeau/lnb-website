@@ -10,7 +10,7 @@ Warden links Minecraft accounts to LNB accounts and tells the LNB Minecraft serv
 - Each player has a personal server address, `<token>.mc.bde-teknantes.fr`. The token names their LNB account. Every login needs it, and for cracked accounts it's the only proof of identity. The player can regenerate it at any time, which signs out their online sessions.
 - Bans apply to the LNB account, so they cover all of its Minecraft accounts. There is at most one active ban per player. A new ban replaces the active one. Warden bans are separate from site bans.
 - Every change (link, unlink, new token, ban, unban, appeal, note, warning, limit, role, settings) is written to the audit log with who did it, when, and from where (the site, the Minecraft server, or the system).
-- No IP addresses are stored. Session history is kept with the account and deleted with it. A player's real name is hidden in-game unless they turn it on.
+- No IP addresses are stored. Session history is kept with the account and deleted with it. Players' first name and initial show in-game under their username by default. They can hide it from `/warden`.
 
 ## Flows
 

@@ -29,7 +29,8 @@ export const wardenPlayer = pgTable('warden_player', {
   // The label in <token>.mc.bde-teknantes.fr. Kept as is so /warden can always show it.
   serverToken: text('server_token').notNull().unique(),
   tokenRotatedAt: timestamp('token_rotated_at').defaultNow().notNull(),
-  showRealName: boolean('show_real_name').default(false).notNull(),
+  // Shown by default: it helps people at events know who they play with. Hiding it asks first.
+  showRealName: boolean('show_real_name').default(true).notNull(),
   // Overrides warden_settings.default_max_accounts when set.
   maxAccounts: smallint('max_accounts'),
   createdAt: timestamp('created_at').defaultNow().notNull(),

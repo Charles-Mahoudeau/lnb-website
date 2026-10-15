@@ -22,6 +22,13 @@
       "when": 1792072173033,
       "tag": "0002_warden",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792074717831,
+      "tag": "0003_warden_show_name_by_default",
+      "breakpoints": true
     }
   ]
 }

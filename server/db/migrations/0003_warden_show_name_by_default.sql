@@ -1,0 +1,1 @@
+ALTER TABLE "warden_player" ALTER COLUMN "show_real_name" SET DEFAULT true;
