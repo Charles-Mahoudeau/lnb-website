@@ -777,6 +777,21 @@ const routes: RouteDoc[] = [
     ],
   },
   {
+    method: 'get',
+    path: '/api/minecraft/mods/catalog-icon',
+    tag: TAGS.mods,
+    summary: "A search result's icon",
+    description:
+      "The `iconUrl` of search results: the site fetches the icon from Modrinth's or CurseForge's image host, and nowhere else, so visitors never contact them. Cached for a day.",
+    access: 'user',
+    query: mods.modCatalogIconQuery,
+    response: {
+      description: 'The icon: PNG, JPEG, WebP or GIF.',
+      content: { 'image/*': { schema: { type: 'string', format: 'binary' } } },
+    },
+    problems: [{ status: 404, problems: [] }],
+  },
+  {
     method: 'post',
     path: '/api/minecraft/mods',
     tag: TAGS.mods,

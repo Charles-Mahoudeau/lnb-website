@@ -27,7 +27,7 @@ Search goes through the site (`GET /api/minecraft/mods/search`), so visitors nev
 - When a mod is added, its project is fetched again from the source, so the name, summary, page and compatibility can't be forged by the client. They're stored once and never refreshed.
 - Admins can also add a mod by hand, for mods on neither source: a name, a summary, an https page URL, and an optional icon URL.
 
-Icons are downloaded once, when the mod is added (PNG, JPEG, WebP or GIF, up to 512 KB), and kept in the `mod-icons` Nitro storage (`.data/mod-icons`). The page shows them from `/api/minecraft/mods/:id/icon`, cached for a year. A mod without an icon shows its initials on a plain tile. Search results show initials too, so nothing is hotlinked.
+Icons are downloaded once, when the mod is added (PNG, JPEG, WebP or GIF, up to 512 KB), and kept in the `mod-icons` Nitro storage (`.data/mod-icons`). The page shows them from `/api/minecraft/mods/:id/icon`, cached for a year. A mod without an icon shows its initials on a plain tile. Search results' icons go through the site as well, from `/api/minecraft/mods/catalog-icon`, which only fetches from `cdn.modrinth.com` and `media.forgecdn.net` and caches each icon for a day, so nothing is hotlinked and the route can't fetch anything else.
 
 ## Environment
 

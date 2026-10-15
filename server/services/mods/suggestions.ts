@@ -9,7 +9,7 @@ import { CatalogUnavailableError, modCatalog } from './catalog';
 import type { CatalogProject } from './catalog';
 import { modIconService } from './icons';
 import { suggestionsUsed } from './list';
-import { createRateLimiter } from './rules';
+import { catalogIconPath, createRateLimiter } from './rules';
 import { modSettingsService } from './settings';
 import { refuse } from './shared';
 
@@ -67,6 +67,7 @@ async function search(input: { actorId: string; query: string }): Promise<ModSea
       author: project.author,
       downloads: project.downloads,
       pageUrl: project.pageUrl,
+      iconUrl: catalogIconPath(project.iconUrl),
       status,
       listedModId: status === 'listed' && known ? known.id : null,
     };

@@ -64,7 +64,7 @@ async function onSubmit() {
         <div class="flex flex-col gap-2">
           <span class="text-sm font-medium text-highlighted">{{ t('mods.suggest.mod') }}</span>
           <div class="flex items-center gap-3 rounded-md bg-accented p-2">
-            <ModsIcon :name="picked.name" :src="null" size="sm" />
+            <ModsIcon :name="picked.name" :src="picked.iconUrl" size="sm" />
             <span class="flex min-w-0 grow flex-col">
               <span class="truncate font-semibold text-highlighted">{{ picked.name }}</span>
               <span class="truncate text-sm text-muted">{{

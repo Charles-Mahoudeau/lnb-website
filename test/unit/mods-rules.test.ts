@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  catalogIconPath,
   createRateLimiter,
+  isCatalogIconUrl,
   isCompatible,
   mergeCatalogResults,
   normalizeName,
@@ -60,6 +62,27 @@ describe('mergeCatalogResults', () => {
 
   it('matches names without punctuation or case', () => {
     expect(normalizeName("Farmer's Delight")).toBe(normalizeName('farmers-delight'));
+  });
+});
+
+describe('catalog icons', () => {
+  it("are fetched from Modrinth's and CurseForge's image hosts only", () => {
+    expect(isCatalogIconUrl('https://cdn.modrinth.com/data/AANobbMI/icon.webp')).toBe(true);
+    expect(isCatalogIconUrl('https://media.forgecdn.net/avatars/thumbnails/1/2.png')).toBe(true);
+    expect(isCatalogIconUrl('http://cdn.modrinth.com/data/x/icon.png')).toBe(false);
+    expect(isCatalogIconUrl('https://cdn.modrinth.com.evil.example/icon.png')).toBe(false);
+    expect(isCatalogIconUrl('https://evil@cdn.modrinth.com/icon.png')).toBe(false);
+    expect(isCatalogIconUrl('https://cdn.modrinth.com:8443/icon.png')).toBe(false);
+    expect(isCatalogIconUrl('https://169.254.169.254/latest/meta-data')).toBe(false);
+    expect(isCatalogIconUrl('not a url')).toBe(false);
+  });
+
+  it('go through the site', () => {
+    expect(catalogIconPath('https://cdn.modrinth.com/data/a/icon.png')).toBe(
+      '/api/minecraft/mods/catalog-icon?src=https%3A%2F%2Fcdn.modrinth.com%2Fdata%2Fa%2Ficon.png',
+    );
+    expect(catalogIconPath('https://example.org/icon.png')).toBeNull();
+    expect(catalogIconPath(null)).toBeNull();
   });
 });
 

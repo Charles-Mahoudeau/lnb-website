@@ -124,6 +124,10 @@ export const modSearchResult = z.object({
   author: z.string(),
   downloads: z.number(),
   pageUrl: z.string(),
+  iconUrl: z
+    .string()
+    .nullable()
+    .describe('Served by this site, from the source. Null when the mod has no icon.'),
   status: z
     .enum(['available', 'listed', 'removed', 'incompatible'])
     .describe(
@@ -134,6 +138,11 @@ export const modSearchResult = z.object({
 export type ModSearchResult = z.infer<typeof modSearchResult>;
 
 export const modSearchResults = z.object({ items: z.array(modSearchResult) });
+
+/** GET /api/minecraft/mods/catalog-icon?src= */
+export const modCatalogIconQuery = z.object({
+  src: z.url().max(500).describe("An icon URL on Modrinth's or CurseForge's image host."),
+});
 
 /** Body of POST /api/minecraft/mods. */
 export const modSuggestBody = z.object({

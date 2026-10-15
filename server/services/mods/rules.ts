@@ -83,3 +83,32 @@ export function createRateLimiter(limit: number, windowMs: number) {
     return true;
   };
 }
+
+/** The hosts Modrinth and CurseForge serve mod icons from. */
+const CATALOG_ICON_HOSTS = new Set(['cdn.modrinth.com', 'media.forgecdn.net']);
+
+/**
+ * Whether the site will fetch this icon for a search result. Only https and the two sources'
+ * image hosts, so the icon route can't be used to fetch anything else.
+ */
+export function isCatalogIconUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return (
+      parsed.protocol === 'https:' &&
+      CATALOG_ICON_HOSTS.has(parsed.hostname) &&
+      !parsed.username &&
+      !parsed.password &&
+      !parsed.port
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** Where the page loads a search result's icon from: through the site, never from the source. */
+export function catalogIconPath(url: string | null): string | null {
+  return url && isCatalogIconUrl(url)
+    ? `/api/minecraft/mods/catalog-icon?src=${encodeURIComponent(url)}`
+    : null;
+}

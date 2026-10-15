@@ -84,7 +84,7 @@ const downloads = (count: number) =>
         >
           <ModsIcon
             :name="result.name"
-            :src="null"
+            :src="result.iconUrl"
             size="sm"
             :class="result.status === 'available' ? '' : 'opacity-50'"
           />
