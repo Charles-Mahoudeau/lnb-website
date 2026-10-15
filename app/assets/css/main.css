@@ -115,3 +115,40 @@
 @utility min-h-hero {
   min-height: calc(100svh - var(--ui-header-height));
 }
+
+/* Minecraft nametags: Monocraft (SIL OFL 1.1, public/fonts/monocraft/) in white on a translucent
+   black plate, as in-game, so the same in both color modes. Only for nametag previews. */
+@font-face {
+  font-family: 'Monocraft';
+  src: url('/fonts/monocraft/Monocraft.otf') format('opentype');
+  font-display: swap;
+}
+
+@theme static {
+  --font-nametag: 'Monocraft', ui-monospace, monospace;
+}
+
+@utility nametag {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.25rem 0.625rem 0.3rem;
+  background: rgb(0 0 0 / 0.55);
+  color: #fff;
+  font-family: var(--font-nametag);
+  font-size: 1.05rem;
+  line-height: 1.15;
+  text-shadow: 2px 2px 0 #3f3f3f;
+}
+
+/* The second line of a nametag: Minecraft's gray text. */
+@utility nametag-muted {
+  color: #aaa;
+  text-shadow: 2px 2px 0 #2a2a2a;
+}
+
+/* Minecraft skin heads are 8 pixels wide: scale them up without blurring. */
+@utility pixelated {
+  image-rendering: pixelated;
+}

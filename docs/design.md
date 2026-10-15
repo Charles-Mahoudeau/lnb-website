@@ -43,6 +43,7 @@ Two custom palettes, wired into Nuxt UI as `neutral: 'night'` and `primary: 'cri
 - Headings are sentence case, never all caps, and they use `text-wrap: balance`. Don't accent single words in a heading with a different color, weight or italic.
 - Keep running text under about 70 characters wide.
 - Use tabular numbers (`tabular-nums`) wherever digits line up: dates, times, counts.
+- **Monocraft** is for Minecraft nametag previews only, through the `nametag` utility (and `nametag-muted` for the second line): white pixel type on a translucent black plate, as in-game, so it looks the same in both color modes. It's a third typeface on purpose, to show players exactly what others see in-game. Don't use it for anything else, and don't use another pixel or monospace face anywhere.
 
 ## Shape and density
 
@@ -62,6 +63,7 @@ Two custom palettes, wired into Nuxt UI as `neutral: 'night'` and `primary: 'cri
 - Banners are downloaded by the server and stored in object storage, never hotlinked.
 - Events without a banner fall back to plain night navy, never to a placeholder graphic.
 - The logo is a black fox on a grey moon: `public/logo.svg`. On dark backgrounds use `public/logo-dark.svg`: the same drawing with a night-100 fox on a night-600 moon (night-700 shadow and craters) and night-950 details. A pure white fox on the light moon lacked contrast, and pure white glared, so keep these colors. Show them with `dark:hidden` and `hidden dark:block`, as in the header. Don't recolor the logo red.
+- Minecraft skin heads come from `/api/warden/heads/:uuid` (the server fetches and caches them, never hotlinked). Show them with the `pixelated` utility so the 8-pixel faces stay sharp, at 28, 40 or 56 px, with `rounded-sm`.
 
 ## Motion
 

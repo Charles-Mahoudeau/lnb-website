@@ -308,6 +308,21 @@ function showToast() {
     </section>
 
     <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Minecraft</h2>
+      <p class="max-w-2xl text-muted">
+        Skin heads from /api/warden/heads, sharp at every size, with a plain fallback when the head
+        can't load (unknown here). Nametags use Monocraft and look the same in both modes.
+      </p>
+      <div class="flex flex-wrap items-center gap-6">
+        <WardenMinecraftHead uuid="069a79f4-44e9-4726-a5be-fca90e38aaf5" size="sm" />
+        <WardenMinecraftHead uuid="069a79f4-44e9-4726-a5be-fca90e38aaf5" />
+        <WardenMinecraftHead uuid="069a79f4-44e9-4726-a5be-fca90e38aaf5" size="lg" />
+        <WardenNametag username="Renard_Lunaire" name="Charles M." />
+        <WardenNametag username="Renard_Lunaire" />
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
       <h2 class="text-2xl font-bold">Table</h2>
       <UTable :data="registrations" :columns="columns" class="tabular-nums">
         <template #status-cell="{ row }">
