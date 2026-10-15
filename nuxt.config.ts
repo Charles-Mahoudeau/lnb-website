@@ -46,6 +46,13 @@ export default defineNuxtConfig({
     scheduledTasks: {
       '*/5 * * * *': ['warden:close-stale-sessions'],
     },
+    // Skin heads fetched from Crafatar, cached on disk. See server/services/warden/heads.ts.
+    storage: {
+      'warden-heads': { driver: 'fs', base: './.data/warden-heads' },
+    },
+    devStorage: {
+      'warden-heads': { driver: 'fs', base: './.data/warden-heads' },
+    },
   },
 
   typescript: {
