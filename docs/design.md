@@ -53,6 +53,7 @@ Two custom palettes, wired into Nuxt UI as `neutral: 'night'` and `primary: 'cri
 - Controls default to size `xl` (40 px tall, 16 px text, so phones don't zoom into inputs) through `app.config.ts`. Use `md` (32 px) in dense lists and tables.
 - Spacing on the 4 px Tailwind scale. Lay out siblings with `gap`, not margins.
 - A hero that should fill the first screen uses `min-h-hero` (the viewport height minus the header). Use it for the home hero, the sign-in page and `/link` only, and let other sections size to their content.
+- The admin area (`/admin`) uses Nuxt UI's dashboard components instead of the site header: the sidebar is a surface (`bg-elevated`) beside the page, with no border, and the navbar shows where you are (Warden, then Players). The current page in the sidebar is marked in neutral, like tabs, because it's state. Every admin page renders an `AdminPage`.
 - Don't chop content into grids of identical cards by reflex. Pick the form that fits the content: dated rows for event lists, cards when the image matters, a table for tabular data.
 
 ## Imagery

@@ -222,17 +222,20 @@
       "schoolNotAllowed": "Warden isn’t open to your school yet."
     }
   },
-  "wardenAdmin": {
-    "title": "Warden admin",
-    "lede": "Players on the Minecraft server, their bans, and everything that changed.",
-    "menu": "Warden admin",
-    "tabs": {
+  "admin": {
+    "title": "Admin",
+    "menu": "Admin",
+    "backToSite": "Back to the site",
+    "nav": {
+      "warden": "Warden",
       "players": "Players",
       "appeals": "Appeals",
       "linking": "Manual linking",
       "activity": "Activity",
       "settings": "Settings"
-    },
+    }
+  },
+  "wardenAdmin": {
     "players": {
       "search": "Search by name, email or Minecraft username",
       "status": {
@@ -338,7 +341,6 @@
       "saved": "Settings saved"
     },
     "player": {
-      "back": "Players",
       "ban": "Ban",
       "unban": "Unban",
       "addNote": "Add a note",

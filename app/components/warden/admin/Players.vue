@@ -61,7 +61,7 @@ function isPlaying(row: WardenPlayerRow) {
 }
 
 async function open(row: WardenPlayerRow) {
-  await navigateTo(`/warden/admin/players/${row.userId}`);
+  await navigateTo(`/admin/warden/players/${row.userId}`);
 }
 </script>
 

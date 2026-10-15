@@ -34,7 +34,7 @@ const columns = computed<TableColumn<WardenAuditView>[]>(() => [
     <template #player-cell="{ row }">
       <NuxtLink
         v-if="row.original.target"
-        :to="`/warden/admin/players/${row.original.target.userId}`"
+        :to="`/admin/warden/players/${row.original.target.userId}`"
         class="text-highlighted hover:underline"
       >
         {{ row.original.target.name ?? row.original.target.userId }}

@@ -8,13 +8,16 @@ Folders marked _(planned)_ don't exist yet. Create them as the work reaches them
 
 ```
 app/                  Nuxt app (client and SSR)
-  app.vue             root layout: header, main, footer
+  app.vue             root: UApp, head tags, then the page's layout
+  layouts/            default.vue (the site: header, main, footer), admin.vue (/admin: sidebar)
   assets/css/main.css Tailwind and Nuxt UI entry point
   pages/              thin: one composable call, then components
-  components/         (planned) by domain: events/ teams/ account/ layout/
-                      Primitives come from Nuxt UI; don't rebuild them.
+  pages/admin/        the admin area. pages/admin.vue sets the admin layout and middleware on
+                      every page under it: site admins only, unless a page sets `wardenAdmins: true`
+  components/         by domain: admin/ (AdminPage, the frame of an admin page), warden/,
+                      later events/ teams/ account/. Primitives come from Nuxt UI; don't rebuild them.
   composables/        one per resource: useAuth, useLinkCode, later useEvent, useEventTeams, useAccount
-  middleware/         auth.global.ts (public pages opt out with `auth: false`), later admin.ts
+  middleware/         auth.global.ts (public pages opt out with `auth: false`), admin.ts
   utils/              small client helpers (safeRedirect, the Better Auth client), placeholder events
                       until the events service exists
 

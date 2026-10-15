@@ -47,7 +47,7 @@ Roles come from Better Auth's admin plugin. Promote the first admin by hand, aft
 UPDATE "user" SET role = 'admin' WHERE email = 'name@epitech.eu';
 ```
 
-A user's `role` is a comma-separated list. Besides `admin`, there is `warden-admin`, for Minecraft staff: it opens the Warden admin panel and in-game moderation, and gives no other admin rights. Site admins are Warden admins too, and give or remove the role from the Warden admin panel. The helpers are in `shared/utils/roles.ts`, and routes check them with `requireAdmin` and `requireWardenAdmin`.
+A user's `role` is a comma-separated list. Besides `admin`, there is `warden-admin`, for Minecraft staff: it opens the Warden section of the admin area (`/admin/warden`) and in-game moderation, and gives no other admin rights. Site admins are Warden admins too, and give or remove the role from a player's page there. The helpers are in `shared/utils/roles.ts`, and routes check them with `requireAdmin` and `requireWardenAdmin`.
 
 ## Linking apps
 

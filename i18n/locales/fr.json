@@ -222,17 +222,20 @@
       "schoolNotAllowed": "Warden n’est pas encore ouvert à ton école."
     }
   },
-  "wardenAdmin": {
-    "title": "Admin Warden",
-    "lede": "Les joueurs du serveur Minecraft, leurs bannissements, et tout ce qui a changé.",
-    "menu": "Admin Warden",
-    "tabs": {
+  "admin": {
+    "title": "Admin",
+    "menu": "Admin",
+    "backToSite": "Retour au site",
+    "nav": {
+      "warden": "Warden",
       "players": "Joueurs",
       "appeals": "Contestations",
       "linking": "Liaison manuelle",
       "activity": "Activité",
       "settings": "Réglages"
-    },
+    }
+  },
+  "wardenAdmin": {
     "players": {
       "search": "Rechercher par nom, e-mail ou pseudo Minecraft",
       "status": {
@@ -338,7 +341,6 @@
       "saved": "Réglages enregistrés"
     },
     "player": {
-      "back": "Joueurs",
       "ban": "Bannir",
       "unban": "Débannir",
       "addNote": "Ajouter une note",

@@ -11,7 +11,7 @@ import {
 
 import type { WardenAccountView, WardenPlayerDetail } from '#shared/schemas/warden';
 
-definePageMeta({ middleware: 'warden-admin' });
+definePageMeta({ wardenAdmins: true });
 
 const { t, locale } = useI18n();
 const route = useRoute();
@@ -23,8 +23,6 @@ const { user } = useAuth();
 const userId = String(route.params.userId);
 const admin = useWardenAdminPlayer(userId);
 const { data, error, refresh } = await admin.player;
-
-useSeoMeta({ title: () => data.value?.player.name ?? t('wardenAdmin.title'), robots: 'noindex' });
 
 const activeBan = computed(() => data.value?.bans.find((ban) => ban.active));
 const isSiteAdmin = computed(() => isAdmin(user.value?.role));
@@ -182,16 +180,13 @@ function dateTime(iso: string) {
 </script>
 
 <template>
-  <UContainer class="flex flex-col gap-8 py-14">
-    <UButton
-      to="/warden/admin"
-      color="neutral"
-      variant="link"
-      icon="i-lucide-chevron-left"
-      :label="t('wardenAdmin.player.back')"
-      class="self-start px-0"
-    />
-
+  <AdminPage
+    :title="data?.player.name ?? t('admin.nav.players')"
+    :parents="[
+      { label: t('admin.nav.warden') },
+      { label: t('admin.nav.players'), to: '/admin/warden/players' },
+    ]"
+  >
     <UAlert
       v-if="error || !data"
       color="error"
@@ -204,7 +199,7 @@ function dateTime(iso: string) {
       <div class="flex flex-wrap items-start justify-between gap-5">
         <div class="flex min-w-0 flex-col gap-1.5">
           <div class="flex flex-wrap items-center gap-3">
-            <h1 class="text-4xl font-bold text-highlighted">{{ data.player.name }}</h1>
+            <h2 class="text-3xl font-bold text-highlighted">{{ data.player.name }}</h2>
             <UBadge
               v-if="activeBan"
               color="error"
@@ -505,5 +500,5 @@ function dateTime(iso: string) {
         </aside>
       </div>
     </template>
-  </UContainer>
+  </AdminPage>
 </template>

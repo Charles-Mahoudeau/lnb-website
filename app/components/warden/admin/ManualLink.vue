@@ -261,7 +261,7 @@ function statusColor(status: WardenManualLinkView['status']) {
             <i18n-t keypath="wardenAdmin.linking.linkedToBody" tag="span" scope="global">
               <template #name>
                 <NuxtLink
-                  :to="`/warden/admin/players/${found.linkedTo.userId}`"
+                  :to="`/admin/warden/players/${found.linkedTo.userId}`"
                   class="text-primary hover:underline"
                 >
                   {{ found.linkedTo.name }}

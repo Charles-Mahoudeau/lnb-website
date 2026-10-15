@@ -51,6 +51,12 @@ export default defineAppConfig({
     switch: {
       variants: { color: { primary: { base: 'data-[state=checked]:bg-action' } } },
     },
+    // The admin sidebar is a surface step beside the page, not a bordered column.
+    dashboardSidebar: {
+      slots: { root: 'bg-elevated' },
+      variants: { side: { left: { root: 'border-e-0' } } },
+    },
+    dashboardNavbar: { slots: { root: 'border-b-0' } },
     // The title holds the logo next to the site name, so center them.
     header: { slots: { title: 'items-center gap-2.5' } },
     // Selection is state, not an action, so tabs stay neutral.

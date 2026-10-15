@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DropdownMenuItem, TableColumn, TabsItem } from '@nuxt/ui';
+import type { DropdownMenuItem, NavigationMenuItem, TableColumn, TabsItem } from '@nuxt/ui';
 
 // A living reference for docs/design.md, built from the real themed components.
 // Dev only (and in tests): it isn't part of the public site.
@@ -83,6 +83,18 @@ const columns: TableColumn<Registration>[] = [
   { accessorKey: 'school', header: 'School' },
   { accessorKey: 'registeredAt', header: 'Registered' },
   { accessorKey: 'status', header: 'Status' },
+];
+
+// The admin sidebar, as in layouts/admin.vue. The real one is at /admin.
+const adminNav: NavigationMenuItem[] = [
+  { label: 'Overview', icon: 'i-lucide-layout-dashboard', to: '/styleguide', exact: true },
+  { label: 'Users', icon: 'i-lucide-users' },
+  {
+    label: 'Warden',
+    icon: 'i-lucide-pickaxe',
+    defaultOpen: true,
+    children: [{ label: 'Players' }, { label: 'Appeals' }, { label: 'Settings' }],
+  },
 ];
 
 const cancelOpen = ref(false);
@@ -307,6 +319,28 @@ function showToast() {
             Alex Laurent
           </UButton>
         </UDropdownMenu>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Admin</h2>
+      <p class="max-w-2xl text-muted">
+        The admin area replaces the header with a sidebar on a surface step, without a border. The
+        current page is marked in neutral, since it's state, and the navbar shows where you are.
+      </p>
+      <div class="flex max-w-3xl overflow-hidden rounded-lg">
+        <div class="flex w-60 shrink-0 flex-col gap-4 bg-elevated p-4">
+          <span class="font-display font-bold text-highlighted">Admin</span>
+          <UNavigationMenu :items="adminNav" orientation="vertical" color="neutral" />
+        </div>
+        <div class="flex min-w-0 flex-1 flex-col gap-4 p-6">
+          <div class="flex items-center gap-1.5 font-semibold text-highlighted">
+            <span class="font-medium text-muted">Warden</span>
+            <UIcon name="i-lucide-chevron-right" class="size-4 text-dimmed" />
+            <span>Players</span>
+          </div>
+          <p class="text-muted">Page content</p>
+        </div>
       </div>
     </section>
 

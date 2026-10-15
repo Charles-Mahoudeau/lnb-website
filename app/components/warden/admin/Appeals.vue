@@ -57,7 +57,7 @@ async function onDecide(id: string, accept: boolean) {
       <div class="flex flex-col gap-1">
         <div class="flex flex-wrap items-center gap-3">
           <NuxtLink
-            :to="`/warden/admin/players/${item.player.userId}`"
+            :to="`/admin/warden/players/${item.player.userId}`"
             class="font-display text-xl font-medium text-highlighted hover:underline"
           >
             {{ item.player.name }}
