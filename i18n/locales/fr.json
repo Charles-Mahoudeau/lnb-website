@@ -4,6 +4,9 @@
     "description": "Des événements étudiants pour Epitech, e-artsup et ISEG."
   },
   "language": "Langue",
+  "nav": {
+    "home": "Accueil"
+  },
   "home": {
     "workInProgress": "En construction",
     "lede": "Soirées, tournois et événements pour les étudiants d’Epitech, e-artsup et ISEG. Les inscriptions ouvriront bientôt ici.",

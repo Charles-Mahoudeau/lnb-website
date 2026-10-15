@@ -4,6 +4,9 @@
     "description": "Student events for Epitech, e-artsup and ISEG."
   },
   "language": "Language",
+  "nav": {
+    "home": "Home"
+  },
   "home": {
     "workInProgress": "Work in progress",
     "lede": "Evenings, tournaments and events for Epitech, e-artsup and ISEG students. Registrations open here soon.",

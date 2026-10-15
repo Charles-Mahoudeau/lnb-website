@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DropdownMenuItem } from '@nuxt/ui';
+import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui';
 import { en, fr } from '@nuxt/ui/locale';
 
 const { t, locale } = useI18n();
@@ -25,13 +25,17 @@ const canUseWarden = computed(
   () => !!wardenApp && !!user.value && canLinkFromSchool(wardenApp, user.value.tenantId),
 );
 
+const navItems = computed<NavigationMenuItem[]>(() => [
+  { label: t('nav.home'), icon: 'i-lucide-house', to: localePath('index'), exact: true },
+  ...(canUseWarden.value
+    ? [{ label: t('warden.title'), icon: 'i-lucide-pickaxe', to: '/warden' }]
+    : []),
+]);
+
 const userMenu = computed<DropdownMenuItem[][]>(() => [
   [{ type: 'label', label: user.value?.name, description: school.value }],
   [
     { label: t('account.title'), icon: 'i-lucide-user', to: '/account' },
-    ...(canUseWarden.value
-      ? [{ label: t('warden.title'), icon: 'i-lucide-pickaxe', to: '/warden' }]
-      : []),
     ...(isWardenAdmin(user.value?.role)
       ? [{ label: t('wardenAdmin.menu'), icon: 'i-lucide-shield', to: '/warden/admin' }]
       : []),
@@ -59,12 +63,16 @@ useSeoMeta({
 
 <template>
   <UApp :locale="uiLocale">
-    <UHeader :title="t('site.name')" :to="localePath('index')">
+    <!-- The mobile menu only repeats the nav, so skip it when Home is the only link. -->
+    <UHeader :title="t('site.name')" :to="localePath('index')" :toggle="navItems.length > 1">
       <template #title>
         <img src="/logo.svg" alt="" class="size-8 dark:hidden" />
         <img src="/logo-dark.svg" alt="" class="hidden size-8 dark:block" />
         <span>{{ t('site.name') }}</span>
       </template>
+
+      <UNavigationMenu :items="navItems" />
+
       <template #right>
         <UDropdownMenu v-if="user" :items="userMenu" :content="{ align: 'end' }">
           <UButton color="neutral" variant="ghost" size="md" :aria-label="t('auth.accountMenu')">
@@ -79,6 +87,10 @@ useSeoMeta({
           :label="t('auth.signIn')"
           :to="signInLink"
         />
+      </template>
+
+      <template #body>
+        <UNavigationMenu :items="navItems" orientation="vertical" class="-mx-2.5" />
       </template>
     </UHeader>
 
