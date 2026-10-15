@@ -375,6 +375,20 @@ export const wardenUserAccountParams = z.object({
   uuid: minecraftUuid,
 });
 
+/** Events on GET /api/warden/server/events. */
+export type WardenEvent =
+  | {
+      type: 'kick';
+      data: {
+        uuids: string[];
+        reason: 'banned' | 'unlinked' | 'tokenRotated';
+        ban?: { reason: string; expiresAt: string | null };
+      };
+    }
+  | { type: 'unban'; data: { uuids: string[] } }
+  | { type: 'link'; data: { requestId: string | null; uuid: string; userId: string } }
+  | { type: 'settings'; data: { defaultMaxAccounts: number; allowCracked: boolean } };
+
 export const wardenIdParams = z.object({ id: z.uuid() });
 export const wardenUserCodeParams = z.object({ userCode: z.string().regex(/^\d{6}$/) });
 

@@ -348,10 +348,11 @@ async function updateSettings(input: {
         defaultMaxAccounts: wardenSettings.defaultMaxAccounts,
         allowCracked: wardenSettings.allowCracked,
       });
+    // The resulting settings too, so a replayed event carries the values of that time.
     await wardenAuditService.record(tx, {
       action: 'settings.update',
       actor: input.actor,
-      data: input.patch,
+      data: { changed: input.patch, settings: updated },
     });
     return updated!;
   });
