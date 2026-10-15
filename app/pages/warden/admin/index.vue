@@ -9,7 +9,7 @@ const route = useRoute();
 useSeoMeta({ title: () => t('wardenAdmin.title'), robots: 'noindex' });
 
 // The tab is in the URL (?tab=appeals), so links and the back button keep it.
-const TABS = ['players', 'appeals', 'activity', 'settings'] as const;
+const TABS = ['players', 'appeals', 'linking', 'activity', 'settings'] as const;
 type Tab = (typeof TABS)[number];
 const tab = computed<Tab>({
   get: () => {
@@ -41,6 +41,7 @@ const items = computed<TabsItem[]>(() =>
     >
       <template #players><WardenAdminPlayers class="pt-4" /></template>
       <template #appeals><WardenAdminAppeals class="pt-4" /></template>
+      <template #linking><WardenAdminManualLink class="pt-4" /></template>
       <template #activity><WardenAdminActivity class="pt-4" /></template>
       <template #settings><WardenAdminSettings class="pt-4" /></template>
     </UTabs>

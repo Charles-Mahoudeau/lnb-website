@@ -30,6 +30,10 @@ export function useWardenLabels() {
       case 'link':
       case 'unlink':
         return t(`wardenAdmin.actions.${entry.action}`, { username: text('username') });
+      case 'link.request':
+        return t('wardenAdmin.actions.linkRequest', { username: text('username') });
+      case 'link.cancel':
+        return t('wardenAdmin.actions.linkCancel', { username: text('username') });
       case 'ban':
         return text('expiresAt')
           ? t('wardenAdmin.actions.banFor', {

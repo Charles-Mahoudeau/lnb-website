@@ -42,6 +42,8 @@ const ACTIONS = {
   ban: 'ban',
   unban: 'unban',
   link: 'link',
+  'link.request': 'linkRequest',
+  'link.cancel': 'linkCancel',
   unlink: 'unlink',
   'token.rotate': 'tokenRotate',
   'warning.create': 'warningCreate',

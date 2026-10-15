@@ -224,6 +224,7 @@
     "tabs": {
       "players": "Joueurs",
       "appeals": "Contestations",
+      "linking": "Liaison manuelle",
       "activity": "Activité",
       "settings": "Réglages"
     },
@@ -284,7 +285,9 @@
         "appealDecide": "Réponses aux contestations",
         "limitSet": "Limites de comptes",
         "roleSet": "Rôles",
-        "settingsUpdate": "Réglages"
+        "settingsUpdate": "Réglages",
+        "linkRequest": "Codes manuels",
+        "linkCancel": "Codes annulés"
       }
     },
     "sources": {
@@ -312,7 +315,9 @@
       "roleOff": "N’est plus admin Warden",
       "settingsUpdate": "Réglages modifiés",
       "identityShown": "Nom affiché en jeu",
-      "identityHidden": "Nom masqué en jeu"
+      "identityHidden": "Nom masqué en jeu",
+      "linkRequest": "A créé un code de liaison pour {username}",
+      "linkCancel": "A annulé un code de liaison pour {username}"
     },
     "actors": {
       "console": "Console",
@@ -447,6 +452,66 @@
       "notBanned": "Ce joueur n’est plus banni. Recharge la page.",
       "appealClosed": "Un autre admin a déjà répondu à cette contestation. Recharge la page.",
       "notLinked": "Ce compte n’est plus lié. Recharge la page."
+    },
+    "linking": {
+      "lede": "Crée un code de liaison pour un joueur qui ne peut pas en obtenir un depuis le serveur, par exemple quand son jeu ne se connecte pas. Il le saisit sur la page de liaison en étant connecté, comme un code du serveur.",
+      "account": "Compte Minecraft",
+      "type": "Type de compte",
+      "premium": "Premium",
+      "cracked": "Cracké",
+      "username": "Pseudo",
+      "usernameHelp": "L’UUID est trouvé à partir du pseudo : via Mojang pour les comptes premium, calculé depuis le nom pour les comptes crackés.",
+      "looking": "Recherche du pseudo chez Mojang",
+      "foundMojang": "Trouvé chez Mojang",
+      "foundOffline": "UUID hors ligne, calculé depuis le pseudo",
+      "linkedTo": "{username} est déjà lié",
+      "linkedToBody": "Il appartient à {name}. Délie-le d’abord depuis sa page.",
+      "player": "Pour un joueur, facultatif",
+      "playerPlaceholder": "Rechercher par nom ou e-mail",
+      "playerHelp": "Seul ce joueur pourra utiliser le code. Sinon, n’importe qui ayant accès à Warden le peut, alors donne-le uniquement à la bonne personne.",
+      "remove": "Retirer",
+      "generate": "Générer un code",
+      "generated": "Code prêt",
+      "empty": "Le code s’affiche ici. Il dure 10 minutes.",
+      "code": "Code de liaison",
+      "expiresIn": "Expire dans {time}",
+      "expired": "Expiré",
+      "forPlayer": "{type}, pour {name} uniquement",
+      "forAnyone": "{type}, pour n’importe qui",
+      "give": "Donne ce code au joueur, ou le lien ci-dessous. Il le saisit sur la page de liaison en étant connecté.",
+      "linkLabel": "Lien avec le code",
+      "copyCode": "Copier le code",
+      "copyLink": "Copier le lien",
+      "copied": "Copié",
+      "cancel": "Annuler le code",
+      "cancelled": "Code annulé",
+      "recent": "Codes manuels récents",
+      "recentRange": "7 derniers jours",
+      "created": "Créé",
+      "minecraft": "Minecraft",
+      "for": "Pour",
+      "by": "Par",
+      "status": "Statut",
+      "anyone": "N’importe qui",
+      "noRecent": "Aucun code créé à la main ces 7 derniers jours.",
+      "statuses": {
+        "pending": "En attente",
+        "linked": "Lié",
+        "linkedBy": "Lié par {name}",
+        "expired": "Expiré",
+        "cancelled": "Annulé",
+        "denied": "Refusé"
+      },
+      "errors": {
+        "unknownMinecraftUsername": "Aucun compte Minecraft n’a ce pseudo. Vérifie l’orthographe, ou passe en cracké.",
+        "mojangUnavailable": "Mojang est injoignable pour l’instant. Réessaie dans quelques minutes.",
+        "crackedNotAllowed": "Les comptes crackés sont désactivés dans les réglages.",
+        "alreadyLinked": "Ce compte a été lié entre-temps. Recherche-le à nouveau.",
+        "banned": "Ce joueur est banni, il ne peut donc pas lier de compte.",
+        "schoolNotAllowed": "Warden n’est pas ouvert à l’école de ce joueur.",
+        "linkRequestClosed": "Ce code a déjà été utilisé ou a expiré.",
+        "failed": "Ça n’a pas marché. Vérifie ta connexion, puis réessaie."
+      }
     }
   }
 }

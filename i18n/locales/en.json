@@ -224,6 +224,7 @@
     "tabs": {
       "players": "Players",
       "appeals": "Appeals",
+      "linking": "Manual linking",
       "activity": "Activity",
       "settings": "Settings"
     },
@@ -284,7 +285,9 @@
         "appealDecide": "Appeal answers",
         "limitSet": "Account limits",
         "roleSet": "Roles",
-        "settingsUpdate": "Settings"
+        "settingsUpdate": "Settings",
+        "linkRequest": "Manual codes",
+        "linkCancel": "Cancelled codes"
       }
     },
     "sources": {
@@ -312,7 +315,9 @@
       "roleOff": "No longer Warden admin",
       "settingsUpdate": "Settings changed",
       "identityShown": "Name shown in-game",
-      "identityHidden": "Name hidden in-game"
+      "identityHidden": "Name hidden in-game",
+      "linkRequest": "Made a link code for {username}",
+      "linkCancel": "Cancelled a link code for {username}"
     },
     "actors": {
       "console": "Console",
@@ -447,6 +452,66 @@
       "notBanned": "This player isn’t banned anymore. Reload the page.",
       "appealClosed": "Another admin already answered this appeal. Reload the page.",
       "notLinked": "This account isn’t linked anymore. Reload the page."
+    },
+    "linking": {
+      "lede": "Make a link code for a player who can’t get one from the server, for example when their game won’t connect. They enter it on the link page while signed in, like a code from the server.",
+      "account": "Minecraft account",
+      "type": "Account type",
+      "premium": "Premium",
+      "cracked": "Cracked",
+      "username": "Username",
+      "usernameHelp": "The UUID is found from the username: with Mojang for premium accounts, worked out from the name for cracked ones.",
+      "looking": "Looking up the username with Mojang",
+      "foundMojang": "Found with Mojang",
+      "foundOffline": "Offline UUID, from the username",
+      "linkedTo": "{username} is already linked",
+      "linkedToBody": "It belongs to {name}. Unlink it from their page first.",
+      "player": "For a player, optional",
+      "playerPlaceholder": "Search by name or email",
+      "playerHelp": "Only this player can use the code. Without one, anyone Warden is open to can, so give it to the right person only.",
+      "remove": "Remove",
+      "generate": "Generate code",
+      "generated": "Code ready",
+      "empty": "The code shows up here. It lasts 10 minutes.",
+      "code": "Link code",
+      "expiresIn": "Expires in {time}",
+      "expired": "Expired",
+      "forPlayer": "{type}, for {name} only",
+      "forAnyone": "{type}, for anyone",
+      "give": "Give the player this code, or the link below. They enter it on the link page while signed in.",
+      "linkLabel": "Link with the code",
+      "copyCode": "Copy code",
+      "copyLink": "Copy link",
+      "copied": "Copied",
+      "cancel": "Cancel code",
+      "cancelled": "Code cancelled",
+      "recent": "Recent manual codes",
+      "recentRange": "Last 7 days",
+      "created": "Created",
+      "minecraft": "Minecraft",
+      "for": "For",
+      "by": "By",
+      "status": "Status",
+      "anyone": "Anyone",
+      "noRecent": "No codes made by hand in the last 7 days.",
+      "statuses": {
+        "pending": "Waiting",
+        "linked": "Linked",
+        "linkedBy": "Linked by {name}",
+        "expired": "Expired",
+        "cancelled": "Cancelled",
+        "denied": "Refused"
+      },
+      "errors": {
+        "unknownMinecraftUsername": "No Minecraft account has this username. Check the spelling, or switch to cracked.",
+        "mojangUnavailable": "Mojang can’t be reached right now. Try again in a few minutes.",
+        "crackedNotAllowed": "Cracked accounts are turned off in the settings.",
+        "alreadyLinked": "This account was linked in the meantime. Look it up again.",
+        "banned": "This player is banned, so they can’t link an account.",
+        "schoolNotAllowed": "Warden isn’t open to this player’s school.",
+        "linkRequestClosed": "This code was already used or has expired.",
+        "failed": "That didn’t work. Check your connection, then try again."
+      }
     }
   }
 }
