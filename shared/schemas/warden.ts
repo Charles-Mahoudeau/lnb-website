@@ -109,6 +109,107 @@ export const wardenSessionEndBody = z.object({
   reason: z.enum(['quit', 'kicked']),
 });
 
+/** Seconds, up to ten years, or null for a permanent ban. */
+export const banDuration = z
+  .number()
+  .int()
+  .positive()
+  .max(10 * 365 * 24 * 3600)
+  .nullable();
+
+export const banReason = z.string().trim().min(1).max(500);
+export const noteBody = z.string().trim().min(1).max(2000);
+
+/** Body of POST /api/warden/server/players/:uuid/bans. */
+export const wardenServerBanBody = z.object({
+  reason: banReason,
+  durationSeconds: banDuration,
+  issuer: wardenIssuer.optional(),
+});
+
+/** Body of POST /api/warden/server/players/:uuid/unban. */
+export const wardenServerUnbanBody = z.object({
+  reason: z.string().trim().max(500).optional(),
+  issuer: wardenIssuer.optional(),
+});
+
+/** Body of POST /api/warden/server/players/:uuid/warnings. */
+export const wardenServerWarningBody = z.object({
+  body: noteBody,
+  issuer: wardenIssuer.optional(),
+});
+
+/** Body of POST /api/warden/admin/players/:userId/bans. */
+export const wardenBanBody = z.object({ reason: banReason, durationSeconds: banDuration });
+export type WardenBanBody = z.infer<typeof wardenBanBody>;
+
+/** Body of POST /api/warden/admin/bans/:banId/revoke. */
+export const wardenRevokeBody = z.object({ reason: z.string().trim().max(500).optional() });
+
+/** Body of POST /api/warden/admin/players/:userId/notes. */
+export const wardenNoteBody = z.object({ kind: z.enum(['note', 'warning']), body: noteBody });
+export type WardenNoteBody = z.infer<typeof wardenNoteBody>;
+
+/** Body of POST /api/warden/me/bans/:banId/appeal. */
+export const wardenAppealBody = z.object({ body: z.string().trim().min(1).max(2000) });
+
+/** Body of POST /api/warden/admin/appeals/:id/decision. */
+export const wardenAppealDecisionBody = z.object({
+  accept: z.boolean(),
+  response: z.string().trim().min(1).max(2000),
+});
+
+export const wardenAppealsQuery = z.object({
+  status: z.enum(['pending', 'accepted', 'rejected']).optional(),
+});
+
+/** Who did something, as admins see it. */
+export type WardenActorView =
+  | { kind: 'user'; userId: string; name: string | null }
+  | { kind: 'minecraft'; uuid: string; username: string; userId: string | null }
+  | { kind: 'console' }
+  | { kind: 'system' };
+
+export interface WardenBanView {
+  id: string;
+  reason: string;
+  createdAt: string;
+  expiresAt: string | null;
+  active: boolean;
+  source: 'web' | 'minecraft' | 'system';
+  minecraftUuid: string | null;
+  issuedBy: WardenActorView;
+  revoked: {
+    at: string;
+    by: WardenActorView;
+    source: 'web' | 'minecraft' | 'system';
+    reason: string | null;
+  } | null;
+}
+
+export interface WardenNoteView {
+  id: string;
+  kind: 'note' | 'warning';
+  body: string;
+  createdAt: string;
+  source: 'web' | 'minecraft' | 'system';
+  author: WardenActorView;
+}
+
+export interface WardenAppealView {
+  id: string;
+  body: string;
+  createdAt: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  response: string | null;
+  decidedAt: string | null;
+  decidedBy: WardenActorView | null;
+}
+
+export const wardenUuidParams = z.object({ uuid: minecraftUuid });
+export const wardenUserParams = z.object({ userId: z.string().min(1).max(64) });
+export const wardenBanParams = z.object({ banId: z.uuid() });
+
 export const wardenIdParams = z.object({ id: z.uuid() });
 export const wardenUserCodeParams = z.object({ userCode: z.string().regex(/^\d{6}$/) });
 

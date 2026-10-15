@@ -31,7 +31,7 @@ server/               Nitro server, picked up by Nuxt automatically
     seed.ts           (planned)
   tasks/              (planned) scheduled jobs: event reminders, inactive-account cleanup
   utils/              auth guards (requireUser, requireAdmin, requireWardenServer), body and
-                      params validation (parseBody, parseParams), later typed errors
+                      params validation (parseBody, parseParams, parseQuery), later typed errors
   lib/                code without Nuxt imports, loaded by the Better Auth CLI too:
     auth.ts           Better Auth setup: Microsoft provider, tenant allowlist, admin plugin
     auth-env.ts       auth environment variables, validated with Zod

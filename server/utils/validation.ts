@@ -1,4 +1,4 @@
-import { createError, readBody } from 'nuxt/server';
+import { createError, getQuery, readBody } from 'nuxt/server';
 import type { RequestEvent } from 'nuxt/server';
 import type { z } from 'zod';
 
@@ -20,5 +20,12 @@ export async function parseBody<T extends z.ZodType>(
 export function parseParams<T extends z.ZodType>(event: RequestEvent, schema: T): z.output<T> {
   const result = schema.safeParse(event.context.params ?? {});
   if (!result.success) throw createError({ status: 404, statusText: 'Not Found' });
+  return result.data;
+}
+
+/** The query string, checked with a schema. Throws a 400 if it doesn't match. */
+export function parseQuery<T extends z.ZodType>(event: RequestEvent, schema: T): z.output<T> {
+  const result = schema.safeParse(getQuery(event));
+  if (!result.success) throw createError({ status: 400, statusText: 'Bad Request' });
   return result.data;
 }
