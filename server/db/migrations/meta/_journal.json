@@ -43,6 +43,13 @@
       "when": 1792080173939,
       "tag": "0005_admin_audit",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792106454662,
+      "tag": "0006_mod_list",
+      "breakpoints": true
     }
   ]
 }

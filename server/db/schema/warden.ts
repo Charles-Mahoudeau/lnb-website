@@ -217,6 +217,13 @@ export const WARDEN_AUDIT_ACTIONS = [
   'role.set',
   'settings.update',
   'identity.update',
+  // The mod list (docs/mods.md), run by the same staff. Not sent to the Minecraft server.
+  'mod.add',
+  'mod.promote',
+  'mod.remove',
+  'mod.restore',
+  'mod.delete',
+  'modSettings.update',
 ] as const;
 
 export type WardenAuditAction = (typeof WARDEN_AUDIT_ACTIONS)[number];
