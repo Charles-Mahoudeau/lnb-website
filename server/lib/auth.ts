@@ -2,19 +2,31 @@ import { randomInt } from 'node:crypto';
 
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { createAccessControl } from 'better-auth/plugins/access';
 import { admin } from 'better-auth/plugins/admin';
+import { adminAc, defaultStatements, userAc } from 'better-auth/plugins/admin/access';
 import { deviceAuthorization } from 'better-auth/plugins/device-authorization';
 
 import { readAuthEnv } from './auth-env';
 import { isAllowedTenant } from './tenants';
 import { TENANT_NOT_ALLOWED } from '../../shared/utils/auth-errors';
 import { isLinkApp, LINK_CODE_LENGTH } from '../../shared/utils/link-apps';
+import { ADMIN_ROLE, WARDEN_ADMIN_ROLE } from '../../shared/utils/roles';
 import { db } from '../db';
 import * as schema from '../db/schema';
 
 // No Nuxt imports here: the Better Auth CLI loads this file to generate the schema.
 // See docs/authentication.md for the Entra app registration and the tenant allowlist.
 const env = readAuthEnv();
+
+// Warden admins get no Better Auth admin rights: their powers are Warden's own routes,
+// checked with requireWardenAdmin. See shared/utils/roles.ts.
+const ac = createAccessControl(defaultStatements);
+const roles = {
+  user: userAc,
+  [ADMIN_ROLE]: adminAc,
+  [WARDEN_ADMIN_ROLE]: ac.newRole({ user: [], session: [] }),
+};
 
 export const auth = betterAuth({
   appName: 'La Nuit Blanche',
@@ -95,7 +107,7 @@ export const auth = betterAuth({
   },
 
   plugins: [
-    admin(),
+    admin({ ac, roles, adminRoles: [ADMIN_ROLE] }),
     // Apps such as the Warden Minecraft mod link to an account with a 6-digit code
     // entered on /link. See docs/authentication.md.
     deviceAuthorization({

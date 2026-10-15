@@ -47,6 +47,8 @@ Roles come from Better Auth's admin plugin. Promote the first admin by hand, aft
 UPDATE "user" SET role = 'admin' WHERE email = 'name@epitech.eu';
 ```
 
+A user's `role` is a comma-separated list. Besides `admin`, there is `warden-admin`, for Minecraft staff: it opens the Warden admin panel and in-game moderation, and gives no other admin rights. Site admins are Warden admins too, and give or remove the role from the Warden admin panel. The helpers are in `shared/utils/roles.ts`, and routes check them with `requireAdmin` and `requireWardenAdmin`.
+
 ## Linking apps
 
 Apps link to an account with a 6-digit code, through Better Auth's device authorization plugin ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628)). Warden, the Minecraft link, works differently: its server creates the codes, and linking gives no token. See `docs/warden.md`. For other apps:
