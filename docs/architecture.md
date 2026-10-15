@@ -21,6 +21,7 @@ app/                  Nuxt app (client and SSR)
 server/               Nitro server, picked up by Nuxt automatically
   api/                handlers of 5 to 10 lines: guard, validate, call a service, return
     auth/[...all].ts  Better Auth's routes under /api/auth
+    docs.get.ts       the API reference (Scalar), from openapi.json.get.ts
   services/           business rules, one file per domain: links (app link codes), warden/
                       (Minecraft link, see docs/warden.md), later
                       events, registrations, teams, files, users, push
@@ -36,13 +37,16 @@ server/               Nitro server, picked up by Nuxt automatically
     auth.ts           Better Auth setup: Microsoft provider, tenant allowlist, admin plugin
     auth-env.ts       auth environment variables, validated with Zod
     tenants.ts        AUTH_ALLOWED_TENANTS parsing and checks
+    openapi.ts        the OpenAPI document: one entry per route, schemas from shared/schemas/
 
 i18n/locales/         UI strings: en.json (default) and fr.json, with the same keys
 
 shared/               code imported by both app/ and server/
-  schemas/            Zod contracts used by server validation and client forms
+  schemas/            Zod contracts: bodies, params and queries checked by the server, and
+                      responses, whose types the app uses. All of them feed the API reference.
   utils/              auto-imported: school names by tenant ID, auth error codes, apps that can link
 
+modules/              local Nuxt modules: scalar.ts serves Scalar's script for /api/docs
 public/               static files served as-is
 test/
   unit/               plain Node tests (Vitest project "unit")
@@ -59,6 +63,7 @@ Root files: `nuxt.config.ts`, `vitest.config.ts`, `drizzle.config.ts`, `eslint.c
 - Don't use `readValidatedBody` or `getRouterParams` from `nuxt/server` for now. In Nuxt 4.6 they pull `app.config.ts` into the server bundle, and every request then fails with `defineAppConfig is not defined`. Use `parseBody(event, schema)` and `parseParams(event, schema)` from `server/utils/validation.ts` instead: they check with the shared Zod schema and throw a 400 or a 404.
 - Services take explicit inputs (such as `actorId`), run multi-step writes in a transaction, and throw typed errors (`NotFoundError`, `ForbiddenError`, `ConflictError`). These are turned into HTTP errors in one place.
 - Every team action checks that the team belongs to the event and that the user is registered. Size limits come from the event and are enforced inside the transaction, backed by a unique `(eventId, userId)` constraint.
+- Every route is documented in `server/lib/openapi.ts`: who may call it, its parameters, body, response and problem codes. `test/unit/openapi.test.ts` fails when a file in `server/api/` has no entry. Define response shapes as Zod schemas in `shared/schemas/` and infer their types, so the reference can't drift from the code. The reference is at `/api/docs`, and Better Auth's routes are added from its own schema.
 - Lists expose public profiles only (name, avatar). Email appears only on the user's own account endpoint.
 - Files: metadata goes in a `files` table and content in object storage, behind the files service. Files are served with `Content-Type`, `nosniff` and long caching. Uploads are checked for type and size.
 

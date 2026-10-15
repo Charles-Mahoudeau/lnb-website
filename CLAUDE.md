@@ -18,6 +18,7 @@ The target file structure and the server and client rules are in `docs/architect
 - `pnpm db:migrate`: apply migrations. `pnpm db:generate --name <change>` creates one from `server/db/schema/`, and `pnpm db:studio` browses the database.
 - `pnpm dev`: dev server on http://localhost:3000
 - `pnpm build`, then `node .output/server/index.mjs`: production build and run
+- `/api/docs`: the API reference (Scalar), built from `server/lib/openapi.ts`. A new route needs an entry there, or `test/unit/openapi.test.ts` fails.
 - `pnpm lint` / `pnpm lint:fix`: ESLint (`@nuxt/eslint`, stylistic rules off)
 - `pnpm format` / `pnpm format:check`: Prettier, which owns all formatting
 - `pnpm typecheck`: `nuxt typecheck` (vue-tsc)

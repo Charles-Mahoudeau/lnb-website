@@ -45,7 +45,7 @@ Site admins are Warden admins too. Only site admins can give or remove `warden-a
 
 ## Conventions
 
-- Bodies and responses are JSON. Their Zod schemas are in `shared/schemas/warden.ts`.
+- Bodies and responses are JSON. Their Zod schemas are in `shared/schemas/warden.ts`, and the full reference for every route is at `/api/docs`.
 - UUIDs are written with dashes. Usernames are 3 to 16 letters, digits or underscores.
 - Dates are ISO 8601 strings in UTC.
 - `durationSeconds` is a positive number of seconds, or `null` for a permanent ban.
