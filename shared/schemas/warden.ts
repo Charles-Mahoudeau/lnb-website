@@ -210,6 +210,84 @@ export const wardenUuidParams = z.object({ uuid: minecraftUuid });
 export const wardenUserParams = z.object({ userId: z.string().min(1).max(64) });
 export const wardenBanParams = z.object({ banId: z.uuid() });
 
+export interface WardenAccountView {
+  uuid: string;
+  username: string;
+  cracked: boolean;
+  linkedAt: string;
+  lastSeenAt: string | null;
+  online: boolean;
+  playtimeSeconds: number;
+  /** Earlier usernames, newest first, without the current one. */
+  pastUsernames: { username: string; firstSeenAt: string }[];
+}
+
+/** A past ban or a warning, as the player sees it: without staff names. */
+export type WardenHistoryItem =
+  | {
+      kind: 'ban';
+      id: string;
+      reason: string;
+      createdAt: string;
+      expiresAt: string | null;
+      revokedAt: string | null;
+      active: boolean;
+    }
+  | { kind: 'warning'; id: string; body: string; createdAt: string };
+
+/** GET /api/warden/me: everything the /warden page shows. */
+export interface WardenMe {
+  serverUrl: string;
+  tokenRotatedAt: string;
+  showRealName: boolean;
+  /** What other players see when the name is shown, such as "Charles M.". */
+  shortName: string;
+  limit: { used: number; max: number };
+  accounts: WardenAccountView[];
+  totals: { playtimeSeconds: number; lastSeenAt: string | null };
+  activeBan: {
+    id: string;
+    reason: string;
+    createdAt: string;
+    expiresAt: string | null;
+    appeal: WardenAppealView | null;
+  } | null;
+  history: WardenHistoryItem[];
+}
+
+/** Body of PATCH /api/warden/me. */
+export const wardenMePatchBody = z.object({ showRealName: z.boolean() });
+
+export interface WardenSessionView {
+  id: string;
+  minecraftUuid: string;
+  username: string;
+  startedAt: string;
+  endedAt: string | null;
+  durationSeconds: number;
+  online: boolean;
+}
+
+export interface WardenPage<T> {
+  items: T[];
+  nextCursor: string | null;
+}
+
+/** ?cursor= on lists: the opaque value of the previous page's nextCursor. */
+export const wardenCursorQuery = z.object({ cursor: z.string().max(200).optional() });
+
+/** GET /api/warden/server/players/:uuid, for staff commands in-game. */
+export interface WardenServerPlayer {
+  userId: string;
+  name: string;
+  school: string | null;
+  roles: string[];
+  accounts: { uuid: string; username: string; cracked: boolean }[];
+  activeBan: { id: string; reason: string; expiresAt: string | null } | null;
+  warnings: number;
+  playtimeSeconds: number;
+}
+
 export const wardenIdParams = z.object({ id: z.uuid() });
 export const wardenUserCodeParams = z.object({ userCode: z.string().regex(/^\d{6}$/) });
 
@@ -225,5 +303,7 @@ export const WARDEN_PROBLEMS = [
   'issuerNotAllowed',
   'appealExists',
   'appealClosed',
+  'schoolNotAllowed',
+  'invalidCursor',
 ] as const;
 export type WardenProblem = (typeof WARDEN_PROBLEMS)[number];

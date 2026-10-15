@@ -204,14 +204,4 @@ async function closeSessions(
   return closed.length;
 }
 
-/** Closes every open session of these accounts, for kicks from the site. */
-async function closeForAccounts(tx: Tx, uuids: string[]): Promise<void> {
-  if (uuids.length === 0) return;
-  await closeSessions(tx, {
-    where: and(inArray(wardenSession.minecraftUuid, uuids), isNull(wardenSession.endedAt)),
-    reason: 'kicked',
-    at: 'now',
-  });
-}
-
-export const wardenSessionService = { login, heartbeat, end, closeStale, closeForAccounts };
+export const wardenSessionService = { login, heartbeat, end, closeStale };
