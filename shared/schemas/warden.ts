@@ -252,6 +252,8 @@ export interface WardenMe {
     appeal: WardenAppealView | null;
   } | null;
   history: WardenHistoryItem[];
+  /** The first page of sessions. More come from GET /api/warden/me/sessions. */
+  sessions: WardenPage<WardenSessionView>;
 }
 
 /** Body of PATCH /api/warden/me. */

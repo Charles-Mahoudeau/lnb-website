@@ -194,6 +194,7 @@ async function me(actor: { id: string; name: string; tenantId: string }): Promis
           }
         : null,
       history: await history(tx, actor.id),
+      sessions: await sessions(actor.id),
     };
   });
 }
