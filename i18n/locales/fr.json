@@ -55,7 +55,9 @@
     "title": "Ton compte",
     "name": "Nom",
     "email": "E-mail",
-    "school": "École"
+    "school": "École",
+    "preferences": "Préférences",
+    "theme": "Thème"
   },
   "link": {
     "title": "Associer une application",

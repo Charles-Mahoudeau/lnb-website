@@ -1,6 +1,15 @@
 <script setup lang="ts">
-const { t } = useI18n();
+import { en, fr } from '@nuxt/ui/locale';
+
+const { t, locale, setLocale } = useI18n();
 const { user, school, signOut } = useAuth();
+
+// Kept in the lnb_locale cookie for now, like a first visit's browser language.
+async function changeLocale(code: string) {
+  if (code === 'en' || code === 'fr') {
+    await setLocale(code);
+  }
+}
 
 useSeoMeta({ title: () => t('account.title'), robots: 'noindex' });
 </script>
@@ -23,6 +32,23 @@ useSeoMeta({ title: () => t('account.title'), robots: 'noindex' });
         <dd class="text-highlighted">{{ school }}</dd>
       </div>
     </dl>
+
+    <section class="flex w-full flex-col gap-4">
+      <h2 class="text-2xl font-bold text-highlighted">{{ t('account.preferences') }}</h2>
+      <div class="grid gap-4 rounded-lg bg-elevated p-6 sm:grid-cols-2">
+        <UFormField :label="t('language')">
+          <ULocaleSelect
+            :model-value="locale"
+            :locales="[en, fr]"
+            class="w-full"
+            @update:model-value="changeLocale"
+          />
+        </UFormField>
+        <UFormField :label="t('account.theme')">
+          <UColorModeSelect class="w-full" />
+        </UFormField>
+      </div>
+    </section>
 
     <UButton
       color="neutral"

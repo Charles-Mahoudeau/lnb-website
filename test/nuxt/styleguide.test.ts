@@ -7,6 +7,7 @@ describe('style guide page', () => {
   it('renders the themed components', async () => {
     const page = await mountSuspended(StyleguidePage);
     expect(page.text()).toContain('Style guide');
-    expect(page.find('button').classes()).toContain('bg-action');
+    const register = page.findAll('button').find((button) => button.text() === 'Register');
+    expect(register?.classes()).toContain('bg-action');
   });
 });

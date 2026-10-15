@@ -2,7 +2,7 @@
 import type { DropdownMenuItem } from '@nuxt/ui';
 import { en, fr } from '@nuxt/ui/locale';
 
-const { t, locale, setLocale } = useI18n();
+const { t, locale } = useI18n();
 const localePath = useLocalePath();
 const i18nHead = useLocaleHead();
 const route = useRoute();
@@ -11,12 +11,6 @@ const { user, school, signOut } = useAuth();
 // Nuxt UI's own strings (close buttons, empty states...) follow the site language.
 const uiLocales = { en, fr };
 const uiLocale = computed(() => uiLocales[locale.value]);
-
-async function changeLocale(code: string) {
-  if (code === 'en' || code === 'fr') {
-    await setLocale(code);
-  }
-}
 
 // Come back to the current page after signing in.
 const signInLink = computed(() =>
@@ -72,15 +66,6 @@ useSeoMeta({
         <span>{{ t('site.name') }}</span>
       </template>
       <template #right>
-        <ULocaleSelect
-          :model-value="locale"
-          :locales="[en, fr]"
-          :aria-label="t('language')"
-          size="md"
-          variant="ghost"
-          @update:model-value="changeLocale"
-        />
-        <UColorModeButton />
         <UDropdownMenu v-if="user" :items="userMenu" :content="{ align: 'end' }">
           <UButton color="neutral" variant="ghost" size="md" :aria-label="t('auth.accountMenu')">
             <UAvatar :alt="user.name" size="sm" />

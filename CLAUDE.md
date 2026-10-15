@@ -50,7 +50,7 @@ If a stack choice is challenged, re-check it against the plan doc's weighted cri
 
 ## Standing decisions
 
-- The UI is in English and French, through `@nuxtjs/i18n`. Every user-facing string goes in both `i18n/locales/en.json` and `i18n/locales/fr.json`, never inline. The language is never in the URL: a first visit follows the browser language (English as the fallback), and the language picker's choice is kept in the `lnb_locale` cookie. It will move to the user's account once accounts exist. Code, comments, docs and commits stay in English.
+- The UI is in English and French, through `@nuxtjs/i18n`. Every user-facing string goes in both `i18n/locales/en.json` and `i18n/locales/fr.json`, never inline. The language is never in the URL: a first visit follows the browser language (English as the fallback), and the language picker on `/account` (next to the theme picker) keeps its choice in the `lnb_locale` cookie. Storing it on the account itself is still to do. Code, comments, docs and commits stay in English.
 - Use only the `main` branch. There is no preprod environment.
 - Don't use Redis. Don't add games or internal analytics or tracking. Don't bring back features the plan dropped.
 - Sign-in is limited by a Microsoft tenant-ID allowlist: Epitech, e-artsup and ISEG.

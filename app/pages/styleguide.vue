@@ -99,12 +99,15 @@ function showToast() {
 
 <template>
   <UContainer class="flex flex-col gap-16 py-12">
-    <header class="flex max-w-2xl flex-col gap-3">
-      <h1 class="text-4xl font-bold">Style guide</h1>
+    <header class="flex max-w-2xl flex-col items-start gap-3">
+      <div class="flex w-full items-center justify-between gap-4">
+        <h1 class="text-4xl font-bold">Style guide</h1>
+        <UColorModeButton />
+      </div>
       <p class="text-muted">
         The Soft night design language, rendered with the real themed components. The rules behind
-        it are in <code>docs/design.md</code>. Toggle the color mode in the header to check light
-        mode. Names and events are example content.
+        it are in <code>docs/design.md</code>. Toggle the color mode next to the title to check
+        light mode. Names and events are example content.
       </p>
     </header>
 

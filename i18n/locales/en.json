@@ -55,7 +55,9 @@
     "title": "Your account",
     "name": "Name",
     "email": "Email",
-    "school": "School"
+    "school": "School",
+    "preferences": "Preferences",
+    "theme": "Theme"
   },
   "link": {
     "title": "Link an app",
