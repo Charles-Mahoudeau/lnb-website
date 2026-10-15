@@ -104,5 +104,112 @@
       "title": "{app} isn’t open to your school",
       "lede": "{app} is only for {schools} students, and your account is from {school}. The code was refused, so you can close {app}."
     }
+  },
+  "warden": {
+    "title": "Warden",
+    "lede": "Your Minecraft accounts on the LNB server, and the address you join it with.",
+    "loadFailed": "Your Warden status couldn’t be loaded. Check your connection, then reload the page.",
+    "schoolNotAllowed": {
+      "title": "Warden isn’t open to your school yet",
+      "lede": "Warden is only for {schools} students for now."
+    },
+    "ban": {
+      "title": "You can’t join the server",
+      "badge": "Banned",
+      "since": "Banned on {date}.",
+      "ends": "Ends {date}.",
+      "permanent": "This ban is permanent.",
+      "appeal": "Appeal this ban",
+      "appealHint": "You can appeal once. An admin will answer here.",
+      "appealPending": "You appealed on {date}. An admin will answer here.",
+      "appealRejected": "Your appeal was rejected: {response}"
+    },
+    "appeal": {
+      "title": "Appeal your ban",
+      "lede": "Explain what happened. You can appeal this ban once.",
+      "label": "Your appeal",
+      "placeholder": "What happened, and why the ban should be lifted",
+      "send": "Send appeal",
+      "cancel": "Cancel",
+      "toast": "Appeal sent"
+    },
+    "address": {
+      "title": "Your server address",
+      "help": "Add it as a server in Minecraft. It’s yours alone: anyone who has it can join as you, so keep it to yourself.",
+      "label": "Your server address",
+      "show": "Show",
+      "hide": "Hide",
+      "copy": "Copy",
+      "copied": "Address copied",
+      "copyFailed": "The address couldn’t be copied. Show it, then copy it by hand.",
+      "created": "Created on {date}",
+      "regenerate": "Regenerate",
+      "regenerateTitle": "Regenerate your address?",
+      "regenerateBody": "Your current address stops working right away, and you’re disconnected if you’re playing. Use the new address in Minecraft after this.",
+      "keep": "Keep this address",
+      "regenerated": "New address ready"
+    },
+    "accounts": {
+      "title": "Minecraft accounts",
+      "count": "{used} out of {max} account linked | {used} out of {max} accounts linked",
+      "premium": "Premium account",
+      "cracked": "Cracked account",
+      "playing": "Playing now",
+      "playtime": "Playtime",
+      "lastSeen": "Last seen",
+      "neverSeen": "Not seen on the server yet",
+      "linkedOn": "Linked on",
+      "pastNames": "Earlier names",
+      "unlink": "Unlink",
+      "unlinkTitle": "Unlink {username}?",
+      "unlinkBody": "Its playtime and sessions are deleted, and it can’t join until it’s linked again. Anyone can then link it to their LNB account.",
+      "unlinkCancel": "Cancel",
+      "unlinked": "Unlinked",
+      "howTo": "To link another account, join {host} with it. The server gives you a 6-digit code to enter on the link page.",
+      "full": "You’ve linked as many accounts as you can. Unlink one to link another.",
+      "empty": {
+        "title": "Link your Minecraft account",
+        "body": "Join {host} in Minecraft. The server gives you a 6-digit code: enter it on the link page, and your account appears here.",
+        "limit": "You can link {max} account. | You can link {max} accounts."
+      }
+    },
+    "identity": {
+      "title": "In-game identity",
+      "label": "Show my name in-game",
+      "help": "Other players see your first name and initial under your Minecraft name.",
+      "preview": "Players see",
+      "hideTitle": "Hide your name in-game?",
+      "hideBody": "Other players will only see your Minecraft username. Your name helps people at LNB events know who they’re playing with, and staff still see it.",
+      "keep": "Keep showing it",
+      "hide": "Hide my name",
+      "shown": "Name shown in-game",
+      "hidden": "Name hidden in-game"
+    },
+    "sessions": {
+      "title": "Recent sessions",
+      "total": "{time} in total",
+      "started": "Started",
+      "account": "Account",
+      "length": "Length",
+      "playing": "Playing now",
+      "more": "Show more",
+      "empty": "No sessions yet. They show up here after you play."
+    },
+    "history": {
+      "title": "History",
+      "warning": "Warning",
+      "banFor": "Banned for {length}",
+      "banPermanent": "Banned permanently",
+      "lifted": "Lifted",
+      "ended": "Ended",
+      "active": "Active"
+    },
+    "errors": {
+      "failed": "That didn’t work. Check your connection, then try again.",
+      "appealExists": "You already appealed this ban.",
+      "notFound": "This ban has ended or changed. Reload the page.",
+      "notLinked": "This account isn’t linked anymore. Reload the page.",
+      "schoolNotAllowed": "Warden isn’t open to your school yet."
+    }
   }
 }

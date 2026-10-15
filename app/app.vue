@@ -25,9 +25,20 @@ const signInLink = computed(() =>
     : { path: '/sign-in', query: { redirect: route.fullPath } },
 );
 
+// Warden (Minecraft) is open to some schools only.
+const wardenApp = getLinkApp('warden');
+const canUseWarden = computed(
+  () => !!wardenApp && !!user.value && canLinkFromSchool(wardenApp, user.value.tenantId),
+);
+
 const userMenu = computed<DropdownMenuItem[][]>(() => [
   [{ type: 'label', label: user.value?.name, description: school.value }],
-  [{ label: t('account.title'), icon: 'i-lucide-user', to: '/account' }],
+  [
+    { label: t('account.title'), icon: 'i-lucide-user', to: '/account' },
+    ...(canUseWarden.value
+      ? [{ label: t('warden.title'), icon: 'i-lucide-pickaxe', to: '/warden' }]
+      : []),
+  ],
   [{ label: t('auth.signOut'), icon: 'i-lucide-log-out', onSelect: () => void signOut() }],
 ]);
 

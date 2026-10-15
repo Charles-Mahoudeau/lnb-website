@@ -104,5 +104,112 @@
       "title": "{app} n’est pas ouvert à ton école",
       "lede": "{app} est réservé aux étudiants de {schools}, et ton compte vient de {school}. Le code a été refusé, tu peux fermer {app}."
     }
+  },
+  "warden": {
+    "title": "Warden",
+    "lede": "Tes comptes Minecraft sur le serveur de LNB, et l’adresse pour le rejoindre.",
+    "loadFailed": "Ton statut Warden n’a pas pu être chargé. Vérifie ta connexion, puis recharge la page.",
+    "schoolNotAllowed": {
+      "title": "Warden n’est pas encore ouvert à ton école",
+      "lede": "Pour l’instant, Warden est réservé aux étudiants de {schools}."
+    },
+    "ban": {
+      "title": "Tu ne peux pas rejoindre le serveur",
+      "badge": "Banni",
+      "since": "Banni le {date}.",
+      "ends": "Fin le {date}.",
+      "permanent": "Ce bannissement est définitif.",
+      "appeal": "Contester le bannissement",
+      "appealHint": "Tu peux le contester une fois. Un admin te répondra ici.",
+      "appealPending": "Tu l’as contesté le {date}. Un admin te répondra ici.",
+      "appealRejected": "Ta contestation a été refusée : {response}"
+    },
+    "appeal": {
+      "title": "Contester ton bannissement",
+      "lede": "Explique ce qui s’est passé. Tu peux contester ce bannissement une seule fois.",
+      "label": "Ta contestation",
+      "placeholder": "Ce qui s’est passé, et pourquoi le bannissement devrait être levé",
+      "send": "Envoyer",
+      "cancel": "Annuler",
+      "toast": "Contestation envoyée"
+    },
+    "address": {
+      "title": "Ton adresse de serveur",
+      "help": "Ajoute-la comme serveur dans Minecraft. Elle n’est qu’à toi : n’importe qui l’ayant peut se connecter à ta place, alors garde-la pour toi.",
+      "label": "Ton adresse de serveur",
+      "show": "Afficher",
+      "hide": "Masquer",
+      "copy": "Copier",
+      "copied": "Adresse copiée",
+      "copyFailed": "L’adresse n’a pas pu être copiée. Affiche-la, puis copie-la à la main.",
+      "created": "Créée le {date}",
+      "regenerate": "Régénérer",
+      "regenerateTitle": "Régénérer ton adresse ?",
+      "regenerateBody": "Ton adresse actuelle cesse de fonctionner tout de suite, et tu es déconnecté si tu joues. Utilise ensuite la nouvelle adresse dans Minecraft.",
+      "keep": "Garder cette adresse",
+      "regenerated": "Nouvelle adresse prête"
+    },
+    "accounts": {
+      "title": "Comptes Minecraft",
+      "count": "{used} sur {max} compte lié | {used} sur {max} comptes liés",
+      "premium": "Compte premium",
+      "cracked": "Compte cracké",
+      "playing": "En jeu",
+      "playtime": "Temps de jeu",
+      "lastSeen": "Vu",
+      "neverSeen": "Pas encore vu sur le serveur",
+      "linkedOn": "Lié le",
+      "pastNames": "Anciens pseudos",
+      "unlink": "Délier",
+      "unlinkTitle": "Délier {username} ?",
+      "unlinkBody": "Son temps de jeu et ses sessions sont supprimés, et il ne peut plus se connecter avant d’être lié à nouveau. N’importe qui pourra alors le lier à son compte LNB.",
+      "unlinkCancel": "Annuler",
+      "unlinked": "Délié",
+      "howTo": "Pour lier un autre compte, rejoins {host} avec. Le serveur te donne un code à 6 chiffres à saisir sur la page de liaison.",
+      "full": "Tu as lié autant de comptes que possible. Délie-en un pour en lier un autre.",
+      "empty": {
+        "title": "Lie ton compte Minecraft",
+        "body": "Rejoins {host} dans Minecraft. Le serveur te donne un code à 6 chiffres : saisis-le sur la page de liaison, et ton compte apparaît ici.",
+        "limit": "Tu peux lier {max} compte. | Tu peux lier {max} comptes."
+      }
+    },
+    "identity": {
+      "title": "Identité en jeu",
+      "label": "Afficher mon nom en jeu",
+      "help": "Les autres joueurs voient ton prénom et ton initiale sous ton pseudo Minecraft.",
+      "preview": "Les joueurs voient",
+      "hideTitle": "Masquer ton nom en jeu ?",
+      "hideBody": "Les autres joueurs ne verront que ton pseudo Minecraft. Ton nom aide les gens aux événements de LNB à savoir avec qui ils jouent, et le staff le voit toujours.",
+      "keep": "Continuer à l’afficher",
+      "hide": "Masquer mon nom",
+      "shown": "Nom affiché en jeu",
+      "hidden": "Nom masqué en jeu"
+    },
+    "sessions": {
+      "title": "Sessions récentes",
+      "total": "{time} au total",
+      "started": "Début",
+      "account": "Compte",
+      "length": "Durée",
+      "playing": "En jeu",
+      "more": "Afficher plus",
+      "empty": "Aucune session pour l’instant. Elles apparaissent ici après avoir joué."
+    },
+    "history": {
+      "title": "Historique",
+      "warning": "Avertissement",
+      "banFor": "Banni pour {length}",
+      "banPermanent": "Banni définitivement",
+      "lifted": "Levé",
+      "ended": "Terminé",
+      "active": "En cours"
+    },
+    "errors": {
+      "failed": "Ça n’a pas marché. Vérifie ta connexion, puis réessaie.",
+      "appealExists": "Tu as déjà contesté ce bannissement.",
+      "notFound": "Ce bannissement a pris fin ou a changé. Recharge la page.",
+      "notLinked": "Ce compte n’est plus lié. Recharge la page.",
+      "schoolNotAllowed": "Warden n’est pas encore ouvert à ton école."
+    }
   }
 }
