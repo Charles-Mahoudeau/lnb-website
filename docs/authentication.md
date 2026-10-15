@@ -49,7 +49,7 @@ UPDATE "user" SET role = 'admin' WHERE email = 'name@epitech.eu';
 
 ## Linking apps
 
-Apps such as the Warden Minecraft mod link to an account with a 6-digit code, through Better Auth's device authorization plugin ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628)):
+Apps link to an account with a 6-digit code, through Better Auth's device authorization plugin ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628)). Warden, the Minecraft link, works differently: its server creates the codes, and linking gives no token. See `docs/warden.md`. For other apps:
 
 1. The app calls `POST /api/auth/device/code` with its `client_id`. It gets a `device_code`, a 6-digit `user_code` that lasts 10 minutes, and `verification_uri_complete` (`/link?user_code=…`).
 2. The person enters the code on `/link`, signed in. Checking it (`GET /api/auth/device`) claims it for them. The page then shows the app, the code and what the app receives, and they choose Link or Cancel.

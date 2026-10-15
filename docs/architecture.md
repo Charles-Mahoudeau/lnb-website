@@ -21,7 +21,8 @@ app/                  Nuxt app (client and SSR)
 server/               Nitro server, picked up by Nuxt automatically
   api/                handlers of 5 to 10 lines: guard, validate, call a service, return
     auth/[...all].ts  Better Auth's routes under /api/auth
-  services/           business rules, one file per domain: links (app link codes), later
+  services/           business rules, one file per domain: links (app link codes), warden/
+                      (Minecraft link, see docs/warden.md), later
                       events, registrations, teams, files, users, push
   db/
     index.ts          Drizzle client (node-postgres)
