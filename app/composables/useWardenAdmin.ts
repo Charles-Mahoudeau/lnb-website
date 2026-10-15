@@ -1,5 +1,5 @@
 import type {
-  WardenAppealView,
+  WardenAppealListItem,
   WardenAuditView,
   WardenBanBody,
   WardenBanView,
@@ -32,12 +32,6 @@ export function useWardenAdminPlayers(query: Ref<WardenPlayersQuery>) {
     key: 'warden-admin-players',
     query,
   });
-}
-
-export interface WardenAppealListItem {
-  appeal: WardenAppealView;
-  ban: WardenBanView;
-  player: { userId: string; name: string };
 }
 
 /** Appeals waiting for an answer, and answering them. */

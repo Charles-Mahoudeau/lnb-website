@@ -9,6 +9,7 @@ import type { Db, Tx, WardenActor } from './shared';
 import { appealView, banNameIds, banView, namesOf, noteView } from './views';
 
 import type {
+  WardenAppealListItem,
   WardenAppealView,
   WardenBanBody,
   WardenBanView,
@@ -278,12 +279,6 @@ async function decideAppeal(input: {
     }
     return appealView(decided!, await namesOf(tx, [input.actorId]));
   });
-}
-
-export interface WardenAppealListItem {
-  appeal: WardenAppealView;
-  ban: WardenBanView;
-  player: { userId: string; name: string };
 }
 
 /** Appeals for the admin panel, newest first. */
