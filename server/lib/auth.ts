@@ -96,7 +96,7 @@ export const auth = betterAuth({
 
   plugins: [
     admin(),
-    // Apps such as the EpiLink Minecraft mod link to an account with a 6-digit code
+    // Apps such as the Warden Minecraft mod link to an account with a 6-digit code
     // entered on /link. See docs/authentication.md.
     deviceAuthorization({
       verificationUri: '/link',

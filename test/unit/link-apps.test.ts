@@ -24,7 +24,7 @@ describe('normalizeLinkCode', () => {
 
 describe('isLinkApp', () => {
   it('accepts a listed app', () => {
-    expect(isLinkApp('epilink')).toBe(true);
+    expect(isLinkApp('warden')).toBe(true);
   });
 
   it('refuses unknown IDs, including inherited object keys', () => {

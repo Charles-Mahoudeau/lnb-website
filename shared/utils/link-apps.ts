@@ -18,11 +18,11 @@ export interface LinkApp {
 // authorization). An app sends its ID as `client_id`, and codes from any other ID are refused.
 // The app's description is under `link.apps.<id>` in the locale files.
 export const LINK_APPS: Readonly<Record<string, LinkApp>> = {
-  epilink: {
-    name: 'EpiLink',
+  warden: {
+    name: 'Warden',
     schools: ['901cb4ca-b862-4029-9306-e5cd0f6d9f86'], // Epitech
     redirectUris: ['http://127.0.0.1/callback'],
-    redirectAfterLink: '/epilink',
+    redirectAfterLink: '/warden',
   },
 };
 

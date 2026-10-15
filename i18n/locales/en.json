@@ -84,8 +84,8 @@
       "redirecting": "Taking you back to {app}."
     },
     "apps": {
-      "epilink": {
-        "description": "EpiLink links your Minecraft account with your LNB account."
+      "warden": {
+        "description": "Warden links your Minecraft account with your LNB account."
       }
     },
     "errors": {
