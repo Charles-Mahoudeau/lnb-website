@@ -340,6 +340,8 @@ export interface WardenPlayerDetail {
     tokenRotatedAt: string | null;
     /** The player's own limit, or null for the global one. */
     maxAccounts: number | null;
+    /** The global limit, which applies when maxAccounts is null. */
+    defaultMaxAccounts: number;
     limit: { used: number; max: number };
   };
   accounts: WardenAccountView[];

@@ -227,6 +227,7 @@ async function player(userId: string): Promise<WardenPlayerDetail> {
       showRealName: row.warden?.showRealName ?? false,
       tokenRotatedAt: row.warden?.tokenRotatedAt.toISOString() ?? null,
       maxAccounts: row.warden?.maxAccounts ?? null,
+      defaultMaxAccounts: (await wardenSettingsService.get()).defaultMaxAccounts,
       limit: await wardenPlayerService.limit(db, userId),
     },
     accounts: await wardenPlayerService.accounts(db, userId),

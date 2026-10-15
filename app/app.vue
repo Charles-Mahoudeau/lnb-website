@@ -38,6 +38,9 @@ const userMenu = computed<DropdownMenuItem[][]>(() => [
     ...(canUseWarden.value
       ? [{ label: t('warden.title'), icon: 'i-lucide-pickaxe', to: '/warden' }]
       : []),
+    ...(isWardenAdmin(user.value?.role)
+      ? [{ label: t('wardenAdmin.menu'), icon: 'i-lucide-shield', to: '/warden/admin' }]
+      : []),
   ],
   [{ label: t('auth.signOut'), icon: 'i-lucide-log-out', onSelect: () => void signOut() }],
 ]);
