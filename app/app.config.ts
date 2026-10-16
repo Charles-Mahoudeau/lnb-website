@@ -59,6 +59,9 @@ export default defineAppConfig({
     dashboardNavbar: { slots: { root: 'border-b-0' } },
     // The title holds the logo next to the site name, so center them.
     header: { slots: { title: 'items-center gap-2.5' } },
+    // A dropdown sits in a wrapper as wide as the menu, so a short menu would squeeze it and cut
+    // off its right edge. Keep it at its own width.
+    navigationMenu: { slots: { viewport: 'shrink-0' } },
     // Selection is state, not an action, so tabs stay neutral.
     tabs: { defaultVariants: { color: 'neutral' } },
     input: { defaultVariants: { size: 'xl' } },
