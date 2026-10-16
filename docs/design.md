@@ -8,32 +8,41 @@ The tokens live in `app/assets/css/main.css` and `app/app.config.ts`. Build with
 
 The living reference is the style guide at `/styleguide` (`app/pages/styleguide.vue`, dev only): every component below, rendered with the real theme. When you add a reusable component or pattern, add it there too.
 
-Original mocks (not code to port): [style direction](https://claude.ai/artifact/XemXuxrMwzsGBMr9yYUmp6), [design language specimen](https://claude.ai/artifact/XcAANpQ7ykYBp7xhCtC13m), option A.
+Original mocks (not code to port): [style direction](https://claude.ai/artifact/XemXuxrMwzsGBMr9yYUmp6), [design language specimen](https://claude.ai/artifact/XcAANpQ7ykYBp7xhCtC13m), option A. The color additions (richer navy, dusk violet, avatar tints, tinted banner fallback) came from the [color proposals](https://claude.ai/artifact/LyvUm2CfgpoiGAZr929QR4), "Recommended" preset.
 
 ## Color
 
 Dark first. Light mode is supported but secondary: design in dark, then check light.
 
-Two custom palettes, wired into Nuxt UI as `neutral: 'night'` and `primary: 'crimson'`:
+Three custom palettes, wired into Nuxt UI as `neutral: 'night'`, `primary: 'crimson'` and `secondary: 'dusk'`. The night navy leans toward indigo, so every surface carries some color:
 
 | Role                        | Dark                  | Light                 |
 | --------------------------- | --------------------- | --------------------- |
-| Page background             | night-950 `#0E1122`   | night-50 `#F4F5FA`    |
-| Surface (cards, rows)       | night-900 `#161A30`   | white                 |
-| Raised (hover, neutral btn) | night-800 `#1F2441`   | night-200 `#DADDEB`   |
-| Border                      | night-700 `#2A3052`   | night-200 `#DADDEB`   |
-| Text                        | night-100 `#ECEDF5`   | night-950 `#0E1122`   |
-| Muted text                  | night-400 `#9CA1BE`   | night-500 `#5F6485`   |
+| Page background             | night-950 `#0B0E27`   | night-50 `#EFF1FB`    |
+| Surface (cards, rows)       | night-900 `#13173A`   | white                 |
+| Raised (hover, neutral btn) | night-800 `#1C2150`   | night-200 `#D6DAF0`   |
+| Border                      | night-700 `#282F66`   | night-200 `#D6DAF0`   |
+| Text                        | night-100 `#E9EBF8`   | night-950 `#0B0E27`   |
+| Muted text                  | night-400 `#A0A6D0`   | night-500 `#565C8C`   |
 | Action fill (`bg-action`)   | crimson-600 `#B82238` | crimson-700 `#A51F33` |
 | Red text, links, focus      | crimson-400 `#F25C70` | crimson-700 `#A51F33` |
+| Second accent               | dusk-400 `#A99BFF`    | dusk-700 `#5B49C9`    |
 
-- **Deep crimson is the only accent, and it only marks actions**: the main button, links, focus rings, errors and destructive actions. Never use red on large surfaces, backgrounds, banners, cards or decoration.
+- **Deep crimson only marks actions**: the main button, links, focus rings, errors and destructive actions. Never use red on large surfaces, backgrounds, banners, cards or decoration.
+- **Dusk violet is the second accent, and it never marks an action.** It brings color to these places only:
+  - the big date numbers in event lists (`text-secondary`, the month stays muted);
+  - icons in small tinted tiles: activities, menu items, admin overview items (the `IconTile` component, `bg-secondary/15 text-secondary`);
+  - the current page in navigation menus (header and admin sidebar) and the selected tab (Nuxt UI's `secondary` color, set globally in `app.config.ts`).
+
+  Nowhere else: no violet buttons, links, headings, large surfaces or decoration. Status colors and your own vote on a mod stay as they are.
+
 - One solid red button per view or per item: the main action. Secondary actions use `color="neutral"` (`variant="soft"` or `"outline"`), and tertiary ones use `variant="ghost"`.
 - Destructive actions use `color="error" variant="outline"`, never solid, so they don't look like the main action.
 - Status colors (`success`, `warning`, `error`) are for state only: registered, waitlist, full. They're never decoration, and they don't count as accents.
 - No activity or category colors. Video games, IRL games and events are told apart by text, not by color.
+- Avatars without a photo get a soft tint picked from a fixed set (`avatarTint` in `app/utils/avatar.ts`) by a hash of the user's ID, so a person keeps the same color everywhere. The set has five hues (violet, blue, teal, gold, orchid) and no red, so it can't read as an action or an error.
 - No gradients as decoration. The only gradient allowed is the dark scrim that keeps text readable over a banner image.
-- Use semantic classes only: `bg-default`, `bg-elevated`, `bg-accented`, `text-default`, `text-muted`, `text-highlighted`, `border-default`, `text-primary`, `bg-action`. Raw palette classes (`bg-red-500`, `text-white`, `bg-night-900`), hex values and arbitrary values (`bg-[#…]`, `p-[13px]`) are blocked by ESLint.
+- Use semantic classes only: `bg-default`, `bg-elevated`, `bg-accented`, `text-default`, `text-muted`, `text-highlighted`, `border-default`, `text-primary`, `text-secondary`, `bg-action`. Raw palette classes (`bg-red-500`, `text-white`, `bg-night-900`), hex values and arbitrary values (`bg-[#…]`, `p-[13px]`) are blocked by ESLint.
 
 ## Type
 
@@ -53,17 +62,17 @@ Two custom palettes, wired into Nuxt UI as `neutral: 'night'` and `primary: 'cri
 - Controls default to size `xl` (40 px tall, 16 px text, so phones don't zoom into inputs) through `app.config.ts`. Use `md` (32 px) in dense lists and tables.
 - Spacing on the 4 px Tailwind scale. Lay out siblings with `gap`, not margins.
 - A hero that should fill the first screen uses `min-h-hero` (the viewport height minus the header). Use it for the home hero, the sign-in page and `/link` only, and let other sections size to their content.
-- The admin area (`/admin`) uses Nuxt UI's dashboard components instead of the site header: the sidebar is a surface (`bg-elevated`) beside the page, with no border, and the navbar shows where you are (Warden, then Players). The current page in the sidebar is marked in neutral, like tabs, because it's state. Every admin page renders an `AdminPage`.
+- The admin area (`/admin`) uses Nuxt UI's dashboard components instead of the site header: the sidebar is a surface (`bg-elevated`) beside the page, with no border, and the navbar shows where you are (Warden, then Players). The current page in the sidebar is marked with the second accent, like the header and tabs, because it's state, not an action. Every admin page renders an `AdminPage`.
 - Don't chop content into grids of identical cards by reflex. Pick the form that fits the content: dated rows for event lists, cards when the image matters, a table for tabular data.
 
 ## Imagery
 
 - The home hero is a full-width game banner (SteamGridDB hero art, 1920 × 620) behind the next event, with a dark scrim from the text side so text stays readable. The hero stays dark in light mode too.
 - The sign-in page shows the next event's banner beside the form, with the same scrim, so the page isn't empty. On phones the banner sits above the form.
-- Text on a banner uses `text-on-banner` and `text-on-banner-muted`, and the scrim and the no-banner fallback use `bg-banner` (night-900). These stay the same in light mode.
+- Text on a banner uses `text-on-banner` and `text-on-banner-muted`, and the scrim uses `bg-banner` (night-900). These stay the same in light mode.
 - Banners are downloaded by the server and stored in object storage, never hotlinked.
-- Events without a banner fall back to plain night navy, never to a placeholder graphic.
-- The logo is a black fox on a grey moon: `public/logo.svg`. On dark backgrounds use `public/logo-dark.svg`: the same drawing with a night-100 fox on a night-600 moon (night-700 shadow and craters) and night-950 details. A pure white fox on the light moon lacked contrast, and pure white glared, so keep these colors. Show them with `dark:hidden` and `hidden dark:block`, as in the header. Don't recolor the logo red.
+- Events without a banner fall back to `bg-banner-fallback`: a flat night navy tinted with dusk violet, the same in both modes. No scrim on it, no gradient and never a placeholder graphic.
+- The logo is a black fox on a grey moon: `public/logo.svg`. On dark backgrounds use `public/logo-dark.svg`: the same drawing with a night-100 fox on a night-600 moon (night-700 shadow and craters) and night-950 details. When the night palette changes, update these fills too. A pure white fox on the light moon lacked contrast, and pure white glared, so keep these colors. Show them with `dark:hidden` and `hidden dark:block`, as in the header. Don't recolor the logo red.
 - Minecraft skin heads come from `/api/warden/heads/:uuid` (the server fetches and caches them, never hotlinked). Show them with the `pixelated` utility so the 8-pixel faces stay sharp, at 28, 40 or 56 px, with `rounded-sm`.
 
 ## Motion
