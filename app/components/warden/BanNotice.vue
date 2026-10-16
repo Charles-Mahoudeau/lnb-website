@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { WardenMe } from '#shared/schemas/warden';
 
-// The player's active ban, at the top of /warden: why, until when, and their appeal.
+// The player's active ban, at the top of /minecraft/warden: why, until when, and their appeal.
 defineProps<{ ban: NonNullable<WardenMe['activeBan']> }>();
 const emit = defineEmits<{ appeal: [] }>();
 

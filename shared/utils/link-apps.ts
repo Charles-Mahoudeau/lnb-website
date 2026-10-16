@@ -27,7 +27,7 @@ export const LINK_APPS: Readonly<Record<string, LinkApp>> = {
   warden: {
     name: 'Warden',
     schools: ['901cb4ca-b862-4029-9306-e5cd0f6d9f86'], // Epitech
-    redirectAfterLink: '/warden',
+    redirectAfterLink: '/minecraft/warden',
     issuedByServer: true,
   },
 };

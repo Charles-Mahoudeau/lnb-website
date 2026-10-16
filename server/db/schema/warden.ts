@@ -26,7 +26,7 @@ export const wardenPlayer = pgTable('warden_player', {
   userId: text('user_id')
     .primaryKey()
     .references(() => user.id, { onDelete: 'cascade' }),
-  // The label in <token>.mc.bde-teknantes.fr. Kept as is so /warden can always show it.
+  // The label in <token>.mc.bde-teknantes.fr. Kept as is so /minecraft/warden can always show it.
   serverToken: text('server_token').notNull().unique(),
   tokenRotatedAt: timestamp('token_rotated_at').defaultNow().notNull(),
   // Shown by default: it helps people at events know who they play with. Hiding it asks first.

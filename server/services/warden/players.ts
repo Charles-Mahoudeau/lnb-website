@@ -158,7 +158,7 @@ export function requireWardenSchool(tenantId: string): void {
   if (!app || !canLinkFromSchool(app, tenantId)) refuse(403, 'schoolNotAllowed');
 }
 
-/** Everything the /warden page shows. */
+/** Everything the /minecraft/warden page shows. */
 async function me(actor: { id: string; name: string; tenantId: string }): Promise<WardenMe> {
   requireWardenSchool(actor.tenantId);
   return db.transaction(async (tx) => {

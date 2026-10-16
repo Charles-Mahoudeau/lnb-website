@@ -31,7 +31,7 @@ async function call<T>(request: () => Promise<T>): Promise<T> {
 }
 
 /**
- * The signed-in player's Warden status (/warden), and what they can change. Pass
+ * The signed-in player's Warden status (/minecraft/warden), and what they can change. Pass
  * `immediate: false` to skip loading it, for students Warden isn't open to.
  */
 export function useWarden(options: { immediate?: boolean } = {}) {
