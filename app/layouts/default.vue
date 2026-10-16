@@ -22,11 +22,30 @@ const canUseWarden = computed(
 
 const navItems = computed<NavigationMenuItem[]>(() => [
   { label: t('nav.home'), icon: 'i-lucide-house', to: localePath('index'), exact: true },
-  // The mod list is public, so everyone gets it.
-  { label: t('nav.minecraft'), icon: 'i-lucide-blocks', to: '/minecraft/mod-list' },
-  ...(canUseWarden.value
-    ? [{ label: t('warden.title'), icon: 'i-lucide-pickaxe', to: '/warden' }]
-    : []),
+  {
+    label: t('nav.minecraft'),
+    icon: 'i-lucide-blocks',
+    active: route.path.startsWith('/minecraft/'),
+    children: [
+      // The mod list is public, so everyone gets it.
+      {
+        label: t('nav.mods'),
+        description: t('nav.modsDescription'),
+        icon: 'i-lucide-puzzle',
+        to: '/minecraft/mod-list',
+      },
+      ...(canUseWarden.value
+        ? [
+            {
+              label: t('warden.title'),
+              description: t('nav.wardenDescription'),
+              icon: 'i-lucide-pickaxe',
+              to: '/minecraft/warden',
+            },
+          ]
+        : []),
+    ],
+  },
 ]);
 
 const userMenu = computed<DropdownMenuItem[][]>(() => [
@@ -50,7 +69,8 @@ const userMenu = computed<DropdownMenuItem[][]>(() => [
         <span>{{ t('site.name') }}</span>
       </template>
 
-      <UNavigationMenu :items="navItems" />
+      <!-- Categories open a single column of links, each with its description below. -->
+      <UNavigationMenu :items="navItems" content-orientation="vertical" />
 
       <template #right>
         <UDropdownMenu v-if="user" :items="userMenu" :content="{ align: 'end' }">

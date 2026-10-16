@@ -6,7 +6,10 @@
   "language": "Langue",
   "nav": {
     "home": "Accueil",
-    "minecraft": "Mods Minecraft"
+    "minecraft": "Minecraft",
+    "mods": "Mods",
+    "modsDescription": "Votes et propositions pour les mods du serveur",
+    "wardenDescription": "Ton compte Minecraft associé et ton adresse de serveur"
   },
   "home": {
     "workInProgress": "En construction",
