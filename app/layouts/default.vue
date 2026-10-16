@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui';
+import type { NavigationMenuItem } from '@nuxt/ui';
 
 // The public site: header, page, footer.
 const { t } = useI18n();
 const localePath = useLocalePath();
 const route = useRoute();
-const { user, school, signOut } = useAuth();
+const { user } = useAuth();
 
 // Come back to the current page after signing in.
 const signInLink = computed(() =>
@@ -47,17 +47,6 @@ const navItems = computed<NavigationMenuItem[]>(() => [
     ],
   },
 ]);
-
-const userMenu = computed<DropdownMenuItem[][]>(() => [
-  [{ type: 'label', label: user.value?.name, description: school.value }],
-  [
-    { label: t('account.title'), icon: 'i-lucide-user', to: '/account' },
-    ...(isWardenAdmin(user.value?.role)
-      ? [{ label: t('admin.menu'), icon: 'i-lucide-shield', to: '/admin' }]
-      : []),
-  ],
-  [{ label: t('auth.signOut'), icon: 'i-lucide-log-out', onSelect: () => void signOut() }],
-]);
 </script>
 
 <template>
@@ -79,11 +68,7 @@ const userMenu = computed<DropdownMenuItem[][]>(() => [
       />
 
       <template #right>
-        <UDropdownMenu v-if="user" :items="userMenu" :content="{ align: 'end' }">
-          <UButton color="neutral" variant="ghost" size="md" :aria-label="t('auth.accountMenu')">
-            <UAvatar :alt="user.name" size="sm" :ui="avatarTint(user.id)" />
-          </UButton>
-        </UDropdownMenu>
+        <AccountMenu v-if="user" :user="user" />
         <UButton
           v-else
           color="neutral"

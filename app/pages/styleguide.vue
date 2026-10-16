@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DropdownMenuItem, NavigationMenuItem, TableColumn, TabsItem } from '@nuxt/ui';
+import type { NavigationMenuItem, TableColumn, TabsItem } from '@nuxt/ui';
 
 import type { ModView } from '#shared/schemas/mods';
 
@@ -96,14 +96,14 @@ const events = [
   },
 ];
 
-const accountItems: DropdownMenuItem[][] = [
-  [
-    { label: 'My events', icon: 'i-lucide-calendar' },
-    { label: 'Notifications', icon: 'i-lucide-bell' },
-    { label: 'Settings', icon: 'i-lucide-settings' },
-  ],
-  [{ label: 'Sign out', icon: 'i-lucide-log-out', color: 'error' }],
-];
+// An Epitech admin, so the menu shows every entry.
+const sampleUser = {
+  id: 'user-1',
+  name: 'Alex Laurent',
+  email: 'alex.laurent@epitech.eu',
+  tenantId: '901cb4ca-b862-4029-9306-e5cd0f6d9f86',
+  role: 'admin',
+};
 
 type Registration = {
   name: string;
@@ -356,12 +356,20 @@ function showToast() {
 
       <div class="flex flex-col gap-5">
         <h2 class="text-2xl font-bold">Account menu</h2>
-        <UDropdownMenu :items="accountItems">
-          <UButton color="neutral" variant="ghost" class="self-start">
-            <UAvatar text="AL" size="sm" :ui="avatarTint('user-1')" />
-            Alex Laurent
-          </UButton>
-        </UDropdownMenu>
+        <div class="flex flex-wrap items-center gap-3">
+          <AccountMenu :user="sampleUser" />
+          <UButton
+            color="neutral"
+            variant="soft"
+            size="lg"
+            icon="i-lucide-log-in"
+            label="Sign in"
+          />
+        </div>
+        <p class="text-sm text-muted">
+          The header's sign-in button (soft, with the icon) and the account menu: profile on the
+          menu background, shortcuts on icon tiles, sign out as an outline button.
+        </p>
       </div>
     </section>
 

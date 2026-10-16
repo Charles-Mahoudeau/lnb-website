@@ -64,7 +64,12 @@
     "email": "Email",
     "school": "School",
     "preferences": "Preferences",
-    "theme": "Theme"
+    "theme": "Theme",
+    "menu": {
+      "account": "Profile, theme and language",
+      "warden": "Your Minecraft accounts",
+      "admin": "Manage the site"
+    }
   },
   "link": {
     "title": "Link an app",

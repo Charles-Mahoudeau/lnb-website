@@ -64,7 +64,12 @@
     "email": "E-mail",
     "school": "École",
     "preferences": "Préférences",
-    "theme": "Thème"
+    "theme": "Thème",
+    "menu": {
+      "account": "Profil, thème et langue",
+      "warden": "Tes comptes Minecraft",
+      "admin": "Gérer le site"
+    }
   },
   "link": {
     "title": "Associer une application",
