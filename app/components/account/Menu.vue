@@ -4,7 +4,14 @@ import type { DropdownMenuItem } from '@nuxt/ui';
 // The header's account menu: who's signed in, shortcuts as icon tiles with a description (like the
 // Minecraft menu), and sign out as an outline button (docs/design.md).
 const props = defineProps<{
-  user: { id: string; name: string; email: string; tenantId: string; role?: string | null };
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    image?: string | null;
+    tenantId: string;
+    role?: string | null;
+  };
 }>();
 
 const { t } = useI18n();
@@ -81,13 +88,24 @@ const items = computed<DropdownMenuItem[][]>(() => [
       :aria-label="t('auth.accountMenu')"
       :ui="{ trailingIcon: 'size-4 text-muted' }"
     >
-      <UAvatar :alt="user.name" size="sm" :ui="avatarTint(user.id)" />
+      <UAvatar
+        :src="user.image ?? undefined"
+        :alt="user.name"
+        size="sm"
+        :ui="avatarTint(user.id)"
+      />
       <span class="max-sm:hidden">{{ firstName }}</span>
     </UButton>
 
     <template #content-top>
       <div class="flex items-center gap-3 border-b border-default p-4">
-        <UAvatar :alt="user.name" size="xl" :ui="avatarTint(user.id)" class="text-base" />
+        <UAvatar
+          :src="user.image ?? undefined"
+          :alt="user.name"
+          size="xl"
+          :ui="avatarTint(user.id)"
+          class="text-base"
+        />
         <div class="flex min-w-0 flex-col gap-0.5">
           <span class="truncate font-semibold text-highlighted">{{ user.name }}</span>
           <span class="truncate text-sm text-muted">{{ user.email }}</span>

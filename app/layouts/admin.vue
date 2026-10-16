@@ -75,7 +75,7 @@ const items = computed<NavigationMenuItem[][]>(() => [
           v-if="user"
           :name="user.name"
           :description="school"
-          :avatar="{ alt: user.name, ui: avatarTint(user.id) }"
+          :avatar="{ src: user.image ?? undefined, alt: user.name, ui: avatarTint(user.id) }"
           class="px-2.5 py-1.5"
         />
       </template>
