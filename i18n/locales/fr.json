@@ -540,6 +540,52 @@
           "description": "La vérification qui ferme les sessions Warden sans signal de vie."
         }
       }
+    },
+    "events": {
+      "edit": "Modifier",
+      "archive": "Archiver",
+      "restore": "Restaurer",
+      "archivedBadge": "Archivé",
+      "rooms": {
+        "lede": "Les salles où les événements peuvent avoir lieu. Une salle archivée reste sur ses événements et sort du formulaire d’événement.",
+        "add": "Ajouter une salle",
+        "addTitle": "Ajouter une salle",
+        "editTitle": "Modifier la salle",
+        "name": "Nom",
+        "details": "Précisions",
+        "detailsHelp": "Un campus ou une adresse, affiché après le nom.",
+        "save": "Enregistrer la salle",
+        "added": "Salle ajoutée",
+        "saved": "Salle enregistrée",
+        "archived": "Salle archivée",
+        "restored": "Salle restaurée",
+        "empty": "Aucune salle pour l’instant. Ajoutez la première pour créer des événements."
+      },
+      "types": {
+        "lede": "Les sortes d’événements, avec un nom dans chaque langue et une icône. Un type archivé reste sur ses événements et sort du formulaire d’événement.",
+        "add": "Ajouter un type",
+        "addTitle": "Ajouter un type d’événement",
+        "editTitle": "Modifier le type d’événement",
+        "nameEn": "Nom en anglais",
+        "nameFr": "Nom en français",
+        "icon": "Icône",
+        "iconHelp": "Un nom d’icône de {link}, commençant par i-lucide-, comme i-lucide-swords.",
+        "save": "Enregistrer le type",
+        "added": "Type d’événement ajouté",
+        "saved": "Type d’événement enregistré",
+        "archived": "Type d’événement archivé",
+        "restored": "Type d’événement restauré",
+        "empty": "Aucun type d’événement pour l’instant. Ajoutez le premier pour créer des événements."
+      },
+      "errors": {
+        "failed": "Ça n’a pas marché. Vérifiez votre connexion, puis réessayez.",
+        "notFound": "Cet événement n’existe plus. Rechargez la page.",
+        "roomNotFound": "Cette salle n’existe plus, ou elle a été archivée. Choisissez-en une autre.",
+        "typeNotFound": "Ce type d’événement n’existe plus, ou il a été archivé. Choisissez-en un autre.",
+        "duplicateName": "Ce nom est déjà pris. Choisissez-en un autre, ou restaurez celui qui est archivé.",
+        "hasRegistrations": "Des personnes sont inscrites à cet événement. Annulez-le plutôt, pour que sa page reste.",
+        "cancelled": "Cet événement est annulé, il ne peut plus être modifié."
+      }
     }
   },
   "wardenAdmin": {

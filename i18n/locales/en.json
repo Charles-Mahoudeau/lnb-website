@@ -540,6 +540,52 @@
           "description": "The check that closes Warden sessions with no heartbeat."
         }
       }
+    },
+    "events": {
+      "edit": "Edit",
+      "archive": "Archive",
+      "restore": "Restore",
+      "archivedBadge": "Archived",
+      "rooms": {
+        "lede": "The rooms events can take place in. Archiving a room keeps it on its events and takes it out of the event form.",
+        "add": "Add a room",
+        "addTitle": "Add a room",
+        "editTitle": "Edit the room",
+        "name": "Name",
+        "details": "Details",
+        "detailsHelp": "A campus or an address, shown after the name.",
+        "save": "Save the room",
+        "added": "Room added",
+        "saved": "Room saved",
+        "archived": "Room archived",
+        "restored": "Room restored",
+        "empty": "No rooms yet. Add the first one to create events."
+      },
+      "types": {
+        "lede": "The kinds of events, with a name in each language and an icon. Archiving a type keeps it on its events and takes it out of the event form.",
+        "add": "Add a type",
+        "addTitle": "Add an event type",
+        "editTitle": "Edit the event type",
+        "nameEn": "Name in English",
+        "nameFr": "Name in French",
+        "icon": "Icon",
+        "iconHelp": "An icon name from {link}, starting with i-lucide-, such as i-lucide-swords.",
+        "save": "Save the type",
+        "added": "Event type added",
+        "saved": "Event type saved",
+        "archived": "Event type archived",
+        "restored": "Event type restored",
+        "empty": "No event types yet. Add the first one to create events."
+      },
+      "errors": {
+        "failed": "That didn’t work. Check your connection, then try again.",
+        "notFound": "This event doesn’t exist anymore. Reload the page.",
+        "roomNotFound": "This room doesn’t exist anymore, or it was archived. Pick another one.",
+        "typeNotFound": "This event type doesn’t exist anymore, or it was archived. Pick another one.",
+        "duplicateName": "That name is already taken. Pick another one, or restore the archived one.",
+        "hasRegistrations": "People registered to this event. Cancel it instead, so its page stays.",
+        "cancelled": "This event is cancelled, so it can’t be changed anymore."
+      }
     }
   },
   "wardenAdmin": {
