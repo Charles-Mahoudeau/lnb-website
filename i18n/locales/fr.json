@@ -870,7 +870,8 @@
         "use": "Utiliser cette image",
         "cropBanner": "Page de l’événement et accueil",
         "cropThumb": "Agenda",
-        "cropEmbed": "Discord, X et le BDE"
+        "cropEmbed": "Discord, X et le BDE",
+        "pickLedeNoSearch": "Étape 1 sur 2. Envoyez une image, ou collez un lien vers une image."
       },
       "bde": {
         "synced": "Sur le site du BDE",

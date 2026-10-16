@@ -174,7 +174,11 @@ const crops = computed(() => [
   <UModal
     :title="step === 'pick' ? title : t('admin.events.picker.focusTitle')"
     :description="
-      step === 'pick' ? t('admin.events.picker.pickLede') : t('admin.events.picker.focusLede')
+      step === 'focus'
+        ? t('admin.events.picker.focusLede')
+        : providers?.steamgriddb
+          ? t('admin.events.picker.pickLede')
+          : t('admin.events.picker.pickLedeNoSearch')
     "
     :close="false"
     :ui="{ content: 'sm:max-w-3xl' }"
