@@ -2,7 +2,7 @@
 
 Events are listed at `/events`, each with its page at `/events/<id>`. Students register from the event page. Events managers run them from the Events section of the admin area (`/admin/events`). An event can also be pushed to the BDE website (see `docs/bde/external_events_api.md`).
 
-The feature is built in slices. Done: the role, the data, rooms, types and the admin API. Still to do, in order: mocks of the pages, the public pages (replacing the placeholders in `app/utils/events.ts`), registrations, images and the BDE sync.
+The feature is built in slices. Done: the role, the data, rooms, types, the admin API, and the public pages (`/events`, `/events/<id>`, the home hero and agenda, the sign-in banner). Still to do, in order: registrations, the admin event form, images and the BDE sync. The approved mocks are in the [events mocks](https://claude.ai/artifact/E7UkoDfz9U9uiYATh1gZYo): event page A, list A1, admin form with 2 tabs, picker A.
 
 ## Roles
 
@@ -21,6 +21,13 @@ The feature is built in slices. Done: the role, the data, rooms, types and the a
 - **Capacity** is optional. Past it, registrations join a waitlist, promoted in order when a place frees up, until the event starts.
 - **BDE rules.** While an event is pushed to the BDE website, its name must be 3 to 100 characters and its description at least 10, since the BDE refuses anything else.
 - Every manager change is written to `admin_audit` (`event.*`, `eventRoom.*`, `eventType.*`) and shows on the Overview.
+
+## Pages
+
+- `/events` lists upcoming events by month, opening on the next one as a larger card (`EventsNextCard`), with a Past tab and filters by type and school. Events under way count as upcoming, and cancelled ones stay listed with a badge.
+- `/events/<id>` shows the banner with the type, name, date and room, then the description beside the registration panel (above it on phones). It sets OG and Twitter tags from the embed image and the start of the description, and offers an `.ics` file (`/api/events/<id>/calendar.ics`).
+- The home hero shows the next event, the home agenda the 5 after it, and the sign-in banner the next one. `events.home` turns the home part off, and `events` the whole feature.
+- Descriptions are rendered by `server/services/events/markdown.ts` and styled with the `event-prose` utility.
 
 ## Data
 
