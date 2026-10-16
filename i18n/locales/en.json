@@ -630,6 +630,14 @@
         "events_registration": {
           "label": "Event registration",
           "description": "Registering, joining the waitlist and cancelling. Pages stay, and managers can still add and remove people."
+        },
+        "events_imageSearch": {
+          "label": "Event image search",
+          "description": "SteamGridDB in the event image picker. Uploads and links keep working."
+        },
+        "jobs_pruneEventImages": {
+          "label": "Pruning event images",
+          "description": "The nightly removal of event images no event uses."
         }
       }
     },
@@ -684,7 +692,12 @@
         "full": "The event is full. Tick “Register even though it’s full” to add them anyway.",
         "alreadyRegistered": "They’re already registered.",
         "notRegistered": "They weren’t registered anymore. Reload the page.",
-        "userNotFound": "This account doesn’t exist anymore."
+        "userNotFound": "This account doesn’t exist anymore.",
+        "imageTooLarge": "This image is over 10 MB. Pick a smaller one.",
+        "imageUnreadable": "This file isn’t an image the site can read. Use a PNG, JPEG, WebP or GIF.",
+        "imageUnreachable": "The image couldn’t be downloaded. Check that the link is a public https link to an image.",
+        "imageNotFound": "This image is gone from the server. Pick it again.",
+        "providerUnavailable": "SteamGridDB isn’t answering. Try again in a moment, or upload an image."
       },
       "new": "New event",
       "create": "Create the event",
@@ -780,7 +793,18 @@
           "opensAfterClose": "Registration must open before it closes.",
           "bdeName": "For the BDE website, the name needs 3 to 100 characters.",
           "bdeDescription": "For the BDE website, the description needs at least 10 characters."
-        }
+        },
+        "images": "Images",
+        "banner": "Banner",
+        "embed": "Image for links",
+        "bannerEmpty": "No banner: the event shows on the plain night blue. Wide art works best, 1920 × 620.",
+        "embedEmpty": "Pick the image Discord, X and the BDE website show for this event.",
+        "chooseImage": "Choose an image",
+        "changeImage": "Change the image",
+        "moveFocus": "Move the focal point",
+        "removeImage": "Remove",
+        "sameEmbed": "Use the banner for links",
+        "sameEmbedHelp": "Turn it off to pick another image for Discord, X and the BDE website."
       },
       "preview": {
         "title": "Preview",
@@ -811,6 +835,34 @@
         "forceHelp": "The event goes over its limit by one place.",
         "addSubmit": "Register them",
         "added": "{name} registered"
+      },
+      "picker": {
+        "bannerTitle": "Choose the banner",
+        "embedTitle": "Choose the image for links",
+        "pickLede": "Step 1 of 2. Pick art from SteamGridDB, upload your own, or paste a link.",
+        "focusTitle": "Set the focal point",
+        "focusLede": "Step 2 of 2. Click the part of the image that must always show: every crop is centered on it.",
+        "upload": "Upload",
+        "link": "From a link",
+        "searchPlaceholder": "Search a game, such as Minecraft",
+        "banners": "Banners",
+        "covers": "Covers",
+        "bannersHelp": "Banners are 1920 × 620, the exact shape of the event banner.",
+        "coversHelp": "Covers are narrower: the banner keeps a band of them.",
+        "pickImage": "Pick this image, {width} × {height}",
+        "noArt": "No art of this kind for this game. Try the other tab, or another game.",
+        "file": "Image file",
+        "fileHelp": "PNG, JPEG, WebP or GIF, up to 10 MB. Wide images work best.",
+        "drop": "Drop an image here",
+        "dropHelp": "Or click to choose a file.",
+        "linkLabel": "Image link",
+        "linkHelp": "An https link to an image. The site downloads it once and never loads it from there again.",
+        "next": "Next",
+        "back": "Back",
+        "use": "Use this image",
+        "cropBanner": "Event page and home",
+        "cropThumb": "Agenda",
+        "cropEmbed": "Discord, X and the BDE"
       }
     }
   },

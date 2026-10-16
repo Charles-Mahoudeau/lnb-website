@@ -630,6 +630,14 @@
         "events_registration": {
           "label": "Inscriptions aux événements",
           "description": "S’inscrire, rejoindre la liste d’attente et se désinscrire. Les pages restent, et les gestionnaires peuvent toujours ajouter et retirer des personnes."
+        },
+        "events_imageSearch": {
+          "label": "Recherche d’images d’événements",
+          "description": "SteamGridDB dans le choix d’image des événements. L’envoi de fichiers et les liens restent possibles."
+        },
+        "jobs_pruneEventImages": {
+          "label": "Nettoyage des images d’événements",
+          "description": "La suppression chaque nuit des images d’événements qu’aucun événement n’utilise."
         }
       }
     },
@@ -684,7 +692,12 @@
         "full": "L’événement est complet. Cochez « Inscrire même si c’est complet » pour l’ajouter quand même.",
         "alreadyRegistered": "Cette personne est déjà inscrite.",
         "notRegistered": "Cette personne n’était plus inscrite. Rechargez la page.",
-        "userNotFound": "Ce compte n’existe plus."
+        "userNotFound": "Ce compte n’existe plus.",
+        "imageTooLarge": "Cette image dépasse 10 Mo. Choisissez-en une plus légère.",
+        "imageUnreadable": "Ce fichier n’est pas une image que le site sait lire. Utilisez un PNG, JPEG, WebP ou GIF.",
+        "imageUnreachable": "L’image n’a pas pu être téléchargée. Vérifiez que le lien est un lien https public vers une image.",
+        "imageNotFound": "Cette image n’est plus sur le serveur. Choisissez-la à nouveau.",
+        "providerUnavailable": "SteamGridDB ne répond pas. Réessayez dans un moment, ou envoyez une image."
       },
       "new": "Nouvel événement",
       "create": "Créer l’événement",
@@ -780,7 +793,18 @@
           "opensAfterClose": "Les inscriptions doivent ouvrir avant de fermer.",
           "bdeName": "Pour le site du BDE, le nom doit faire de 3 à 100 caractères.",
           "bdeDescription": "Pour le site du BDE, la description doit faire au moins 10 caractères."
-        }
+        },
+        "images": "Images",
+        "banner": "Bannière",
+        "embed": "Image pour les liens",
+        "bannerEmpty": "Pas de bannière : l’événement s’affiche sur le bleu nuit uni. Une image large rend mieux, 1920 × 620.",
+        "embedEmpty": "Choisissez l’image que Discord, X et le site du BDE affichent pour cet événement.",
+        "chooseImage": "Choisir une image",
+        "changeImage": "Changer l’image",
+        "moveFocus": "Déplacer le point central",
+        "removeImage": "Retirer",
+        "sameEmbed": "Utiliser la bannière pour les liens",
+        "sameEmbedHelp": "Désactivez-le pour choisir une autre image pour Discord, X et le site du BDE."
       },
       "preview": {
         "title": "Aperçu",
@@ -811,6 +835,34 @@
         "forceHelp": "L’événement dépasse sa limite d’une place.",
         "addSubmit": "L’inscrire",
         "added": "{name} inscrit"
+      },
+      "picker": {
+        "bannerTitle": "Choisir la bannière",
+        "embedTitle": "Choisir l’image pour les liens",
+        "pickLede": "Étape 1 sur 2. Choisissez une image sur SteamGridDB, envoyez la vôtre ou collez un lien.",
+        "focusTitle": "Placer le point central",
+        "focusLede": "Étape 2 sur 2. Cliquez sur la partie de l’image qui doit toujours rester visible : chaque recadrage est centré dessus.",
+        "upload": "Envoyer",
+        "link": "Depuis un lien",
+        "searchPlaceholder": "Cherchez un jeu, comme Minecraft",
+        "banners": "Bannières",
+        "covers": "Jaquettes",
+        "bannersHelp": "Les bannières font 1920 × 620, la forme exacte de la bannière de l’événement.",
+        "coversHelp": "Les jaquettes sont plus étroites : la bannière n’en garde qu’une bande.",
+        "pickImage": "Choisir cette image, {width} × {height}",
+        "noArt": "Aucune image de ce genre pour ce jeu. Essayez l’autre onglet, ou un autre jeu.",
+        "file": "Fichier image",
+        "fileHelp": "PNG, JPEG, WebP ou GIF, jusqu’à 10 Mo. Les images larges rendent mieux.",
+        "drop": "Déposez une image ici",
+        "dropHelp": "Ou cliquez pour choisir un fichier.",
+        "linkLabel": "Lien de l’image",
+        "linkHelp": "Un lien https vers une image. Le site la télécharge une fois et ne la charge plus jamais depuis ce lien.",
+        "next": "Suivant",
+        "back": "Retour",
+        "use": "Utiliser cette image",
+        "cropBanner": "Page de l’événement et accueil",
+        "cropThumb": "Agenda",
+        "cropEmbed": "Discord, X et le BDE"
       }
     }
   },

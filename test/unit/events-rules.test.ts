@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildIcs,
+  focalCrop,
+  isPrivateAddress,
   placesToPromote,
   registrationState,
   shiftDate,
@@ -200,5 +202,47 @@ describe('registration', () => {
     expect(placesToPromote({ ...event, registered: 12 }, now)).toBe(0);
     expect(placesToPromote({ ...event, capacity: null }, now)).toBe(5);
     expect(placesToPromote(event, open.startsAt)).toBe(0);
+  });
+});
+
+describe('images', () => {
+  it('crops around the focal point, within the image', () => {
+    // A 3840 × 2160 image to a 1920 × 620 banner: full width, a band 1240 high.
+    expect(focalCrop(3840, 2160, 1920 / 620, 0.5, 0.5)).toEqual({
+      left: 0,
+      top: 460,
+      width: 3840,
+      height: 1240,
+    });
+    expect(focalCrop(3840, 2160, 1920 / 620, 0.5, 0)).toMatchObject({ top: 0 });
+    expect(focalCrop(3840, 2160, 1920 / 620, 0.5, 1)).toMatchObject({ top: 920 });
+    // A banner-shaped image to 16:9: full height, the width around the focus.
+    expect(focalCrop(1920, 620, 16 / 9, 0.9, 0.5)).toEqual({
+      left: 818,
+      top: 0,
+      width: 1102,
+      height: 620,
+    });
+  });
+
+  it('refuses private, loopback and link-local addresses', () => {
+    for (const address of [
+      '127.0.0.1',
+      '10.1.2.3',
+      '172.16.0.1',
+      '192.168.1.1',
+      '169.254.169.254',
+      '100.64.0.1',
+      '0.0.0.0',
+      '::1',
+      'fd00::1',
+      'fe80::1',
+      '::ffff:127.0.0.1',
+    ]) {
+      expect(isPrivateAddress(address)).toBe(true);
+    }
+    for (const address of ['104.21.32.1', '2606:4700::6810:84e5', '172.32.0.1']) {
+      expect(isPrivateAddress(address)).toBe(false);
+    }
   });
 });

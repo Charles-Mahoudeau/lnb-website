@@ -26,6 +26,11 @@ export const EVENT_PROBLEMS = [
   'alreadyRegistered',
   'notRegistered',
   'userNotFound',
+  'imageTooLarge',
+  'imageUnreadable',
+  'imageUnreachable',
+  'imageNotFound',
+  'providerUnavailable',
 ] as const;
 export type EventProblem = (typeof EVENT_PROBLEMS)[number];
 
@@ -106,6 +111,73 @@ const schoolId = z
   .refine((tid) => tid in SCHOOLS)
   .describe("A school's Microsoft tenant ID.");
 
+// Images
+
+const eventImages = z
+  .object({
+    banner: z.string().describe('1920 × 620, for the event page and the home hero.'),
+    thumb: z.string().describe('16:9, for agenda rows.'),
+    embed: z.string().describe('1200 × 630, for social embeds and the BDE website.'),
+  })
+  .nullable()
+  .describe('Null: no art. Pages show the flat fallback.');
+
+/** A stored image: the SHA-256 of its bytes, then its format. */
+export const imageKey = z.string().regex(/^[0-9a-f]{64}\.(?:webp|jpg)$/);
+export const mediaParams = z.object({ key: imageKey });
+
+/** An image picked for an event, and the point its crops are centered on (0 to 1). */
+export const eventImageInput = z.object({
+  key: imageKey,
+  focusX: z.number().min(0).max(1),
+  focusY: z.number().min(0).max(1),
+});
+export type EventImageInput = z.infer<typeof eventImageInput>;
+
+export const eventStoredImage = z.object({
+  key: imageKey,
+  url: z.string(),
+  width: z.number(),
+  height: z.number(),
+});
+export type EventStoredImage = z.infer<typeof eventStoredImage>;
+
+/** POST /api/admin/events/images/import */
+export const eventImageImportBody = z.object({
+  source: z.enum(['url', 'steamgriddb']),
+  url: z.url({ protocol: /^https$/ }).max(2000),
+});
+
+export const imageProviderName = z.enum(['steamgriddb']);
+export const imageProviderParams = z.object({ provider: imageProviderName });
+export const imageProviderGameParams = z.object({
+  provider: imageProviderName,
+  gameId: z.string().regex(/^\d{1,12}$/),
+});
+export const imageSearchQuery = z.object({ q: z.string().trim().min(2).max(100) });
+export const imageListQuery = z.object({ kind: z.enum(['banners', 'covers']).default('banners') });
+export const imageThumbQuery = z.object({ url: z.url({ protocol: /^https$/ }).max(2000) });
+
+export const imageProviders = z.object({
+  steamgriddb: z.boolean().describe('Set up, and its flag on.'),
+});
+export const providerGames = z.object({
+  items: z.array(z.object({ id: z.string(), name: z.string(), year: z.number().nullable() })),
+});
+export type ProviderGames = z.infer<typeof providerGames>;
+export const providerImages = z.object({
+  items: z.array(
+    z.object({
+      url: z.string(),
+      thumb: z.string().describe('Through /api/admin/events/images/thumb.'),
+      width: z.number(),
+      height: z.number(),
+      author: z.string().nullable(),
+    }),
+  ),
+});
+export type ProviderImages = z.infer<typeof providerImages>;
+
 /** POST /api/admin/events and PUT /api/admin/events/:id: the whole event, every time. */
 export const eventBody = z
   .object({
@@ -136,6 +208,11 @@ export const eventBody = z
     price: z.int().min(0).max(1000).nullable().describe('Whole euros, informational. Null: free.'),
     hidden: z.boolean().describe('A draft: only events managers see it.'),
     bdeSync: z.boolean().describe('Publish the event on the BDE website too.'),
+    banner: eventImageInput.nullable().default(null).describe('Null: no art.'),
+    embed: eventImageInput
+      .nullable()
+      .default(null)
+      .describe('For social embeds and the BDE website. Null: cropped from the banner.'),
   })
   .superRefine((body, ctx) => {
     const time = (iso: string) => new Date(iso).getTime();
@@ -216,8 +293,13 @@ export const eventAdminQuery = z.object({
 });
 export type EventAdminQuery = z.input<typeof eventAdminQuery>;
 
+const eventImageView = eventImageInput.extend({ url: z.string() }).nullable();
+
 export const eventAdminView = eventAdminRow.extend({
   description: z.string(),
+  banner: eventImageView,
+  embed: eventImageView,
+  images: eventImages,
   schools: z.array(z.string()),
   registrationOpensAt: isoDate.nullable(),
   registrationClosesAt: isoDate.nullable(),
@@ -248,15 +330,6 @@ export const eventQuery = z.object({
   limit: z.coerce.number().int().min(1).max(50).default(50),
 });
 export type EventQuery = z.input<typeof eventQuery>;
-
-const eventImages = z
-  .object({
-    banner: z.string().describe('1920 × 620, for the event page and the home hero.'),
-    thumb: z.string().describe('16:9, for agenda rows.'),
-    embed: z.string().describe('1200 × 630, for social embeds and the BDE website.'),
-  })
-  .nullable()
-  .describe('Null: no art. Pages show the flat fallback.');
 
 export const eventSummary = z.object({
   id: z.uuid(),

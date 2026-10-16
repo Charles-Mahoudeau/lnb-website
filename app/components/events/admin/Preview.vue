@@ -8,10 +8,13 @@ const props = defineProps<{
   room: string;
   type?: { label: string; icon: string };
   description: string;
-  banner?: string;
-  thumb?: string;
-  embed?: string;
+  /** Picked images: crops are shown centered on their focal point, as the server cuts them. */
+  banner?: { url: string; focusX: number; focusY: number };
+  embed?: { url: string; focusX: number; focusY: number };
 }>();
+
+const position = (image: { focusX: number; focusY: number }) =>
+  `${String(image.focusX * 100)}% ${String(image.focusY * 100)}%`;
 
 const { t, locale } = useI18n();
 
@@ -47,7 +50,12 @@ const summary = computed(() => {
       class="dark relative isolate flex min-h-36 items-end overflow-hidden rounded-lg bg-banner-fallback"
     >
       <template v-if="banner">
-        <img :src="banner" alt="" class="absolute inset-0 -z-1 size-full object-cover" />
+        <img
+          :src="banner.url"
+          alt=""
+          class="absolute inset-0 -z-1 size-full object-cover"
+          :style="{ objectPosition: position(banner) }"
+        />
         <div
           class="absolute inset-0 -z-1 bg-linear-to-t from-banner via-banner/60 to-transparent"
         />
@@ -65,7 +73,13 @@ const summary = computed(() => {
       <div
         class="relative aspect-video w-24 shrink-0 overflow-hidden rounded-sm bg-banner-fallback"
       >
-        <img v-if="thumb" :src="thumb" alt="" class="absolute inset-0 size-full object-cover" />
+        <img
+          v-if="banner"
+          :src="banner.url"
+          alt=""
+          class="absolute inset-0 size-full object-cover"
+          :style="{ objectPosition: position(banner) }"
+        />
       </div>
       <div class="flex min-w-0 flex-col">
         <span class="truncate text-sm font-bold text-highlighted">{{ name }}</span>
@@ -81,7 +95,13 @@ const summary = computed(() => {
       <span class="text-sm font-bold text-highlighted">{{ name }}</span>
       <span v-if="summary" class="text-sm text-muted">{{ summary }}</span>
       <div class="relative aspect-embed overflow-hidden rounded-sm bg-banner-fallback">
-        <img v-if="embed" :src="embed" alt="" class="absolute inset-0 size-full object-cover" />
+        <img
+          v-if="embed"
+          :src="embed.url"
+          alt=""
+          class="absolute inset-0 size-full object-cover"
+          :style="{ objectPosition: position(embed) }"
+        />
       </div>
     </div>
   </aside>

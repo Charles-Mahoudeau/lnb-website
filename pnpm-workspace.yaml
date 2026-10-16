@@ -1,4 +1,6 @@
 allowBuilds:
+  # Uses the prebuilt libvips binaries from @img/sharp-*, so it needs no install script.
+  sharp: false
   esbuild: false
   unrs-resolver: false
   vue-demi: false

@@ -5,12 +5,13 @@ import type { Tx } from '~~/server/db';
 import { event, eventRegistration, eventRoom, eventType } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 
+import { eventImageService } from './images';
 import { eventRegistrationService } from './registrations';
 import { roomView } from './rooms';
 import { shiftDate } from './rules';
 import { refuse } from './shared';
 import { typeView } from './types';
-import { selectEvents } from './views';
+import { eventImages, mediaUrl, selectEvents } from './views';
 import type { SelectedEvent } from './views';
 
 import type {
@@ -47,6 +48,18 @@ function adminView(row: SelectedEvent): EventAdminView {
   return {
     ...adminRow(row),
     description: e.description,
+    banner: e.bannerKey
+      ? {
+          key: e.bannerKey,
+          focusX: e.bannerFocusX,
+          focusY: e.bannerFocusY,
+          url: mediaUrl(e.bannerKey),
+        }
+      : null,
+    embed: e.embedKey
+      ? { key: e.embedKey, focusX: e.embedFocusX, focusY: e.embedFocusY, url: mediaUrl(e.embedKey) }
+      : null,
+    images: eventImages(e),
     schools: e.schools,
     registrationOpensAt: e.registrationOpensAt?.toISOString() ?? null,
     registrationClosesAt: e.registrationClosesAt?.toISOString() ?? null,
@@ -99,6 +112,36 @@ async function checkChoices(
   return { roomName: room.name };
 }
 
+/**
+ * The image columns: the picked originals and focal points, and the crops made from them. Run
+ * before the transaction, since cropping takes a moment. A missing original is refused.
+ */
+async function imageColumns(body: EventBody) {
+  const banner = body.banner ?? null;
+  const embed = banner ? (body.embed ?? null) : null;
+  if (!banner) {
+    return {
+      bannerKey: null,
+      embedKey: null,
+      bannerCropKey: null,
+      thumbCropKey: null,
+      embedCropKey: null,
+    };
+  }
+  for (const image of [banner, embed]) {
+    if (image && !(await eventImageService.exists(image.key))) refuse(400, 'imageNotFound');
+  }
+  return {
+    bannerKey: banner.key,
+    bannerFocusX: banner.focusX,
+    bannerFocusY: banner.focusY,
+    embedKey: embed?.key ?? null,
+    embedFocusX: embed?.focusX ?? 0.5,
+    embedFocusY: embed?.focusY ?? 0.5,
+    ...(await eventImageService.crops(banner, embed)),
+  };
+}
+
 function columns(body: EventBody) {
   const date = (iso: string) => new Date(iso);
   const optionalDate = (iso: string | null) => (iso ? new Date(iso) : null);
@@ -120,11 +163,12 @@ function columns(body: EventBody) {
 }
 
 async function create(input: { actorId: string; body: EventBody }): Promise<{ id: string }> {
+  const images = await imageColumns(input.body);
   return db.transaction(async (tx) => {
     await checkChoices(tx, input.body);
     const [row] = await tx
       .insert(event)
-      .values({ ...columns(input.body), createdByUserId: input.actorId })
+      .values({ ...columns(input.body), ...images, createdByUserId: input.actorId })
       .returning({ id: event.id, name: event.name });
     await adminAuditService.record(tx, {
       action: 'event.create',
@@ -144,11 +188,15 @@ async function lockEvent(tx: Tx, id: string): Promise<EventRow> {
 
 /** Replaces the whole event. A cancelled event can't be edited. */
 async function update(input: { actorId: string; id: string; body: EventBody }): Promise<void> {
+  const images = await imageColumns(input.body);
   await db.transaction(async (tx) => {
     const current = await lockEvent(tx, input.id);
     if (current.cancelledAt) refuse(409, 'cancelled');
     await checkChoices(tx, input.body, current);
-    await tx.update(event).set(columns(input.body)).where(eq(event.id, input.id));
+    await tx
+      .update(event)
+      .set({ ...columns(input.body), ...images })
+      .where(eq(event.id, input.id));
     // More places, or no limit any more: the waitlist moves up at once.
     await eventRegistrationService.promoteAfterChange(tx, input.id);
     await adminAuditService.record(tx, {

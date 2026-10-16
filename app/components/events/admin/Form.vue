@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FormError } from '@nuxt/ui';
 
-import { EventsAdminRoomModal } from '#components';
+import { EventsAdminImagePicker, EventsAdminRoomModal } from '#components';
 
 import { eventBody, EVENT_DESCRIPTION_MAX, EVENT_NAME_MAX } from '#shared/schemas/events';
 import type { EventAdminView, EventBody, EventRegistrationRow } from '#shared/schemas/events';
@@ -43,6 +43,8 @@ const state = reactive({
     : '',
   // Empty means free. An emptied number input gives '', which counts as empty too.
   price: initial?.price ?? undefined,
+  banner: initial?.banner ?? null,
+  embed: initial?.embed ?? null,
   hidden: initial?.hidden ?? true,
   bdeSync: initial?.bdeSync ?? false,
 });
@@ -74,6 +76,17 @@ function body(): EventBody {
     price: typeof state.price === 'number' ? state.price : null,
     hidden: state.hidden,
     bdeSync: state.bdeSync,
+    banner: state.banner && {
+      key: state.banner.key,
+      focusX: state.banner.focusX,
+      focusY: state.banner.focusY,
+    },
+    embed: state.banner &&
+      state.embed && {
+        key: state.embed.key,
+        focusX: state.embed.focusX,
+        focusY: state.embed.focusY,
+      },
   };
 }
 
@@ -134,6 +147,30 @@ const strandedRegistrants = computed(() => {
   ).length;
 });
 
+// Images: the banner, and an embed of its own when the banner doesn't suit social links.
+const picker = overlay.create(EventsAdminImagePicker);
+const ownEmbed = ref(!!initial?.embed);
+watch(ownEmbed, (on) => {
+  if (!on) state.embed = null;
+});
+
+async function pick(which: 'banner' | 'embed', focusOnly = false) {
+  const current = state[which];
+  const image: unknown = await picker.open({
+    title: t(`admin.events.picker.${which}Title`),
+    image: focusOnly && current ? current : undefined,
+  }).result;
+  if (image && typeof image === 'object') state[which] = image as PickedEventImage;
+}
+
+function remove(which: 'banner' | 'embed') {
+  state[which] = null;
+  if (which === 'banner') ownEmbed.value = false;
+}
+
+const position = (image: PickedEventImage) =>
+  `${String(image.focusX * 100)}% ${String(image.focusY * 100)}%`;
+
 const preview = computed(() => ({
   name: state.name || t('admin.events.form.untitled'),
   startsAt: parisLocalToIso(state.startsAt),
@@ -141,6 +178,8 @@ const preview = computed(() => ({
   room: roomItems.value.find((item) => item.value === state.roomId)?.label ?? '',
   type: selectedType.value,
   description: state.description,
+  banner: state.banner ?? undefined,
+  embed: state.embed ?? state.banner ?? undefined,
 }));
 </script>
 
@@ -297,6 +336,78 @@ const preview = computed(() => ({
             <template #trailing><span class="text-muted">€</span></template>
           </UInput>
         </UFormField>
+      </section>
+
+      <section class="flex flex-col gap-5 rounded-lg bg-elevated p-5">
+        <h2 class="text-lg font-bold text-highlighted">{{ t('admin.events.form.images') }}</h2>
+        <div
+          v-for="which in ownEmbed ? (['banner', 'embed'] as const) : (['banner'] as const)"
+          :key="which"
+          class="flex flex-col gap-3"
+        >
+          <span class="font-semibold text-highlighted">
+            {{ t(`admin.events.form.${which}`) }}
+          </span>
+          <template v-if="state[which]">
+            <div
+              class="relative overflow-hidden rounded-md bg-banner-fallback"
+              :class="which === 'banner' ? 'aspect-banner' : 'aspect-embed sm:w-96'"
+            >
+              <img
+                :src="state[which]!.url"
+                alt=""
+                class="absolute inset-0 size-full object-cover"
+                :style="{ objectPosition: position(state[which]!) }"
+              />
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <UButton
+                size="md"
+                color="neutral"
+                variant="soft"
+                icon="i-lucide-image"
+                :label="t('admin.events.form.changeImage')"
+                @click="pick(which)"
+              />
+              <UButton
+                size="md"
+                color="neutral"
+                variant="ghost"
+                icon="i-lucide-crosshair"
+                :label="t('admin.events.form.moveFocus')"
+                @click="pick(which, true)"
+              />
+              <UButton
+                size="md"
+                color="neutral"
+                variant="ghost"
+                :label="t('admin.events.form.removeImage')"
+                @click="remove(which)"
+              />
+            </div>
+          </template>
+          <div
+            v-else
+            class="flex flex-col items-start gap-3 rounded-md border border-dashed border-accented p-5"
+          >
+            <p class="text-sm text-muted">{{ t(`admin.events.form.${which}Empty`) }}</p>
+            <UButton
+              size="md"
+              color="neutral"
+              variant="soft"
+              icon="i-lucide-image-plus"
+              :label="t('admin.events.form.chooseImage')"
+              @click="pick(which)"
+            />
+          </div>
+        </div>
+        <USwitch
+          v-if="state.banner"
+          :model-value="!ownEmbed"
+          :label="t('admin.events.form.sameEmbed')"
+          :description="t('admin.events.form.sameEmbedHelp')"
+          @update:model-value="ownEmbed = !$event"
+        />
       </section>
 
       <section class="flex flex-col gap-5 rounded-lg bg-elevated p-5">

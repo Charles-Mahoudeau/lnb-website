@@ -128,3 +128,71 @@ export function placesToPromote(
   if (event.capacity === null) return event.waitlist;
   return Math.max(0, Math.min(event.capacity - event.registered, event.waitlist));
 }
+
+// Images
+
+export interface CropRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+/**
+ * The largest region of a `width` × `height` image with the given aspect ratio, centered on the
+ * focal point (0 to 1 from the top left) as far as the edges allow.
+ */
+export function focalCrop(
+  width: number,
+  height: number,
+  aspect: number,
+  focusX: number,
+  focusY: number,
+): CropRect {
+  const cropWidth = Math.min(width, Math.round(height * aspect));
+  const cropHeight = Math.min(height, Math.round(cropWidth / aspect));
+  const clamp = (value: number, max: number) => Math.min(Math.max(value, 0), max);
+  return {
+    left: clamp(Math.round(focusX * width - cropWidth / 2), width - cropWidth),
+    top: clamp(Math.round(focusY * height - cropHeight / 2), height - cropHeight),
+    width: cropWidth,
+    height: cropHeight,
+  };
+}
+
+/**
+ * Whether an IP address is one the server must never fetch from a pasted link: loopback,
+ * private, link-local, carrier-grade NAT, unspecified, multicast or reserved, in IPv4 or IPv6.
+ */
+export function isPrivateAddress(address: string): boolean {
+  const v4 = /^(?:::ffff:)?(\d+)\.(\d+)\.(\d+)\.(\d+)$/i.exec(address);
+  if (v4) {
+    const [a, b] = [Number(v4[1]), Number(v4[2])];
+    return (
+      a === 0 ||
+      a === 10 ||
+      a === 127 ||
+      (a === 100 && b >= 64 && b <= 127) ||
+      (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      (a === 192 && b === 0) ||
+      (a === 198 && (b === 18 || b === 19)) ||
+      a >= 224
+    );
+  }
+  const v6 = address.toLowerCase();
+  return (
+    v6 === '::' ||
+    v6 === '::1' ||
+    v6.startsWith('fc') ||
+    v6.startsWith('fd') ||
+    v6.startsWith('fe8') ||
+    v6.startsWith('fe9') ||
+    v6.startsWith('fea') ||
+    v6.startsWith('feb') ||
+    v6.startsWith('ff') ||
+    v6.startsWith('64:ff9b:') ||
+    v6.startsWith('2001:db8')
+  );
+}

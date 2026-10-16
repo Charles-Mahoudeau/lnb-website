@@ -9,6 +9,14 @@ export interface EventAttendees {
   people: readonly { id: string; name: string }[];
 }
 
+/** An image picked for an event: where it's served, and the focal point its crops center on. */
+export interface PickedEventImage {
+  key: string;
+  url: string;
+  focusX: number;
+  focusY: number;
+}
+
 /** Formats an event date in Paris time, whatever the server's time zone. */
 export function formatEventDate(
   iso: string,

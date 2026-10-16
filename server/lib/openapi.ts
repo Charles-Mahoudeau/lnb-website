@@ -84,6 +84,8 @@ const requestSchemas = {
   EventBody: events.eventBody,
   EventDuplicateBody: events.eventDuplicateBody,
   EventRegistrationAddBody: events.eventRegistrationAddBody,
+  EventImageImportBody: events.eventImageImportBody,
+  EventImageInput: events.eventImageInput,
 };
 
 const responseSchemas = {
@@ -147,6 +149,10 @@ const responseSchemas = {
   EventRegistrationRow: events.eventRegistrationRow,
   EventRegistrationList: events.eventRegistrationList,
   EventUserOptions: events.eventUserOptions,
+  EventStoredImage: events.eventStoredImage,
+  ImageProviders: events.imageProviders,
+  ProviderGames: events.providerGames,
+  ProviderImages: events.providerImages,
 };
 
 const TAGS = {
@@ -1138,7 +1144,105 @@ const routes: RouteDoc[] = [
     problems: [{ status: 503, problems: ['disabled'] }],
   },
 
+  {
+    method: 'get',
+    path: '/api/media/{key}',
+    tag: TAGS.events,
+    summary: 'An event image',
+    description:
+      'A banner, thumbnail or embed image, or a picked original. Keyed by content, so cached for a year by everyone.',
+    access: 'public',
+    params: events.mediaParams,
+    response: {
+      description: 'The image.',
+      content: {
+        'image/webp': { schema: { type: 'string', format: 'binary' } },
+        'image/jpeg': { schema: { type: 'string', format: 'binary' } },
+      },
+    },
+    problems: [{ status: 404, problems: [] }],
+  },
+
   // Events: managers
+  {
+    method: 'post',
+    path: '/api/admin/events/images',
+    tag: TAGS.eventsAdmin,
+    summary: 'Upload an event image',
+    description:
+      'Multipart form data with a `file` field: PNG, JPEG, WebP or GIF (first frame), up to 10 MB. It is re-encoded, without its metadata, and kept until no event uses it.',
+    access: 'eventsManager',
+    response: events.eventStoredImage,
+    created: true,
+    problems: [{ status: 400, problems: ['imageTooLarge', 'imageUnreadable'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/events/images/import',
+    tag: TAGS.eventsAdmin,
+    summary: 'Import an event image from a link',
+    description:
+      'The server downloads the image once: https only, within 10 seconds, never from a private address, and for a provider only from its own hosts.',
+    access: 'eventsManager',
+    body: events.eventImageImportBody,
+    response: events.eventStoredImage,
+    created: true,
+    problems: [{ status: 400, problems: ['imageTooLarge', 'imageUnreadable', 'imageUnreachable'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/admin/events/images/providers',
+    tag: TAGS.eventsAdmin,
+    summary: 'Image providers',
+    description: 'Which providers the picker can offer: set up, and with their flag on.',
+    access: 'eventsManager',
+    response: events.imageProviders,
+  },
+  {
+    method: 'get',
+    path: '/api/admin/events/images/{provider}/search',
+    tag: TAGS.eventsAdmin,
+    summary: 'Search games for art',
+    description: 'Up to 8 games, cached for an hour per search.',
+    access: 'eventsManager',
+    params: events.imageProviderParams,
+    query: events.imageSearchQuery,
+    response: events.providerGames,
+    problems: [
+      { status: 502, problems: ['providerUnavailable'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/admin/events/images/{provider}/{gameId}',
+    tag: TAGS.eventsAdmin,
+    summary: "A game's art",
+    description:
+      'Banners (1920 × 620 or 3840 × 1240) or covers, without NSFW, humor or epilepsy-warning art. Cached for an hour.',
+    access: 'eventsManager',
+    params: events.imageProviderGameParams,
+    query: events.imageListQuery,
+    response: events.providerImages,
+    problems: [
+      { status: 502, problems: ['providerUnavailable'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/admin/events/images/thumb',
+    tag: TAGS.eventsAdmin,
+    summary: 'A preview of provider art',
+    description: "Fetched from the provider's hosts only, and cached for a day.",
+    access: 'eventsManager',
+    query: events.imageThumbQuery,
+    response: {
+      description: 'The preview.',
+      content: { 'image/*': { schema: { type: 'string', format: 'binary' } } },
+    },
+    problems: [{ status: 404, problems: [] }],
+  },
   {
     method: 'get',
     path: '/api/admin/events/{id}/registrations',

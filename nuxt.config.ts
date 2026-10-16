@@ -56,20 +56,23 @@ export default defineNuxtConfig({
     scheduledTasks: {
       '*/5 * * * *': ['warden:close-stale-sessions'],
       // Every night at 03:00, server time.
-      '0 3 * * *': ['users:delete-inactive', 'users:prune-avatars'],
+      '0 3 * * *': ['users:delete-inactive', 'users:prune-avatars', 'events:prune-images'],
     },
     // Skin heads fetched from Crafatar, cached on disk. See server/services/warden/heads.ts.
     // Mod icons, downloaded once when a mod is added. See server/services/mods/icons.ts.
     // Profile photos from Microsoft, saved at sign-in. See server/services/avatars.ts.
+    // Event images, uploaded or picked, and their crops. See server/services/events/images.ts.
     storage: {
       'warden-heads': { driver: 'fs', base: './.data/warden-heads' },
       'mod-icons': { driver: 'fs', base: './.data/mod-icons' },
       avatars: { driver: 'fs', base: './.data/avatars' },
+      'event-images': { driver: 'fs', base: './.data/event-images' },
     },
     devStorage: {
       'warden-heads': { driver: 'fs', base: './.data/warden-heads' },
       'mod-icons': { driver: 'fs', base: './.data/mod-icons' },
       avatars: { driver: 'fs', base: './.data/avatars' },
+      'event-images': { driver: 'fs', base: './.data/event-images' },
     },
   },
 
