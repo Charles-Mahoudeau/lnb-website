@@ -370,16 +370,16 @@ function showToast() {
         <div class="flex flex-wrap items-center gap-3">
           <AccountMenu :user="sampleUser" />
           <UButton
-            color="neutral"
-            variant="soft"
+            color="primary"
+            variant="outline"
             size="lg"
             icon="i-lucide-log-in"
             label="Sign in"
           />
         </div>
         <p class="text-sm text-muted">
-          The header's sign-in button (soft, with the icon) and the account menu: profile on the
-          menu background, shortcuts on icon tiles, sign out as an outline button.
+          The header's sign-in button (crimson outline, with the icon) and the account menu: profile
+          on the menu background, shortcuts on icon tiles, sign out as an outline button.
         </p>
       </div>
     </section>
