@@ -87,8 +87,9 @@ const userMenu = computed<DropdownMenuItem[][]>(() => [
         <UButton
           v-else
           color="neutral"
-          variant="outline"
-          size="md"
+          variant="soft"
+          size="lg"
+          icon="i-lucide-log-in"
           :label="t('auth.signIn')"
           :to="signInLink"
         />
