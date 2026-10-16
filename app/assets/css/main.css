@@ -54,6 +54,12 @@
   --color-on-action: #fff;
 }
 
+/* Event images: the banner (SteamGridDB hero art) and the social embed (Open Graph). */
+@theme static {
+  --aspect-banner: 1920 / 620;
+  --aspect-embed: 1200 / 630;
+}
+
 /* Event banners stay dark in both color modes, so text on them uses its own colors. */
 @theme static {
   --color-banner: var(--color-night-900);

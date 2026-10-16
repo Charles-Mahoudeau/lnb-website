@@ -5,6 +5,7 @@ import type { NavigationMenuItem } from '@nuxt/ui';
 // AdminPage. Warden admins only see the Warden and Mods sections, events managers only Events.
 const { t } = useI18n();
 const { user, school } = useAuth();
+const route = useRoute();
 
 const wardenItems = computed<NavigationMenuItem[]>(() => [
   {
@@ -53,6 +54,14 @@ const items = computed<NavigationMenuItem[][]>(() => [
             icon: 'i-lucide-calendar',
             defaultOpen: true,
             children: [
+              {
+                label: t('admin.nav.eventList'),
+                to: '/admin/events',
+                // The list, and each event's page under it, but not rooms or types.
+                active:
+                  route.path === '/admin/events' ||
+                  /^\/admin\/events\/(?!rooms|types)/.test(route.path),
+              },
               { label: t('admin.nav.eventRooms'), to: '/admin/events/rooms' },
               { label: t('admin.nav.eventTypes'), to: '/admin/events/types' },
             ],

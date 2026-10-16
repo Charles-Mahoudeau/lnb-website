@@ -1,5 +1,13 @@
 import type {
+  EventAdminQuery,
+  EventAdminRow,
+  EventAdminView,
+  EventBody,
+  EventDuplicateBody,
   EventProblem,
+  EventRegistrationAddBody,
+  EventRegistrationList,
+  EventUserOption,
   EventRoomBody,
   EventRoomPatchBody,
   EventRoomView,
@@ -62,4 +70,45 @@ export const eventAdminActions = {
     call(() =>
       $fetch<EventTypeView>(`/api/admin/event-types/${id}`, { method: 'PATCH', body: patch }),
     ),
+};
+
+/** One tab of the admin events list. */
+export function useAdminEvents(tab: Ref<NonNullable<EventAdminQuery['tab']>>) {
+  return useFetch<{ items: EventAdminRow[] }>('/api/admin/events', {
+    key: 'event-admin-list',
+    query: computed(() => ({ tab: tab.value })),
+  });
+}
+
+/** One event, as managers edit it. */
+export function useAdminEvent(id: string) {
+  return useFetch<EventAdminView>(`/api/admin/events/${id}`, { key: `event-admin-${id}` });
+}
+
+/** Everyone registered to an event, then the waitlist. */
+export function useEventRegistrations(id: string) {
+  return useFetch<EventRegistrationList>(`/api/admin/events/${id}/registrations`, {
+    key: `event-admin-registrations-${id}`,
+  });
+}
+
+const base = (id: string) => `/api/admin/events/${id}`;
+
+/** What events managers can do to events. Each throws an EventError when refused. */
+export const eventActions = {
+  create: (body: EventBody) =>
+    call(() => $fetch<{ id: string }>('/api/admin/events', { method: 'POST', body })),
+  update: (id: string, body: EventBody) => call(() => $fetch(base(id), { method: 'PUT', body })),
+  cancel: (id: string) => call(() => $fetch(`${base(id)}/cancel`, { method: 'POST' })),
+  remove: (id: string) => call(() => $fetch(base(id), { method: 'DELETE' })),
+  duplicate: (id: string, body: EventDuplicateBody) =>
+    call(() => $fetch<{ id: string }>(`${base(id)}/duplicate`, { method: 'POST', body })),
+  addRegistration: (id: string, body: EventRegistrationAddBody) =>
+    call(() => $fetch(`${base(id)}/registrations`, { method: 'POST', body })),
+  removeRegistration: (id: string, userId: string) =>
+    call(() =>
+      $fetch(`${base(id)}/registrations/${encodeURIComponent(userId)}`, { method: 'DELETE' }),
+    ),
+  searchUsers: (q: string) =>
+    call(() => $fetch<{ items: EventUserOption[] }>('/api/admin/events/users', { query: { q } })),
 };
