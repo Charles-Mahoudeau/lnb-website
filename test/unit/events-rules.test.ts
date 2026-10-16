@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { shiftDate } from '../../server/services/events/rules.ts';
+import { buildIcs, shiftDate } from '../../server/services/events/rules.ts';
 import {
   eventBody,
   eventRoomBody,
@@ -111,5 +111,40 @@ describe('duplicating', () => {
       new Date('2026-11-20T11:00:00Z'),
     );
     expect(shiftDate(null, from, to)).toBeNull();
+  });
+});
+
+describe('calendar file', () => {
+  const event = {
+    id: '0b6f3c1e-2a4d-4c1b-9b7e-5f1c2d3e4a5b',
+    name: 'Werewolf, Among Us; and more',
+    description: 'Two rounds.\n- 19:30 doors',
+    location: 'Wakanda, Campus Nantes',
+    startsAt: new Date('2026-11-04T18:30:00Z'),
+    endsAt: new Date('2026-11-04T22:30:00Z'),
+    url: 'https://lnb.bde-teknantes.fr/events/0b6f3c1e-2a4d-4c1b-9b7e-5f1c2d3e4a5b',
+    cancelled: false,
+    updatedAt: new Date('2026-10-16T09:00:00Z'),
+  };
+
+  it('writes the event in UTC with escaped text and CRLF lines', () => {
+    const ics = buildIcs(event, new Date('2026-10-16T10:00:00Z'));
+    expect(ics).toContain('DTSTART:20261104T183000Z\r\n');
+    expect(ics).toContain('DTEND:20261104T223000Z\r\n');
+    expect(ics).toContain('SUMMARY:Werewolf\\, Among Us\\; and more\r\n');
+    expect(ics).toContain('UID:0b6f3c1e-2a4d-4c1b-9b7e-5f1c2d3e4a5b@lnb');
+    expect(ics).toContain('STATUS:CONFIRMED');
+    expect(ics.endsWith('END:VCALENDAR\r\n')).toBe(true);
+  });
+
+  it('folds long lines at 75 octets', () => {
+    const ics = buildIcs({ ...event, description: 'é'.repeat(200) });
+    for (const line of ics.split('\r\n')) {
+      expect(new TextEncoder().encode(line).length).toBeLessThanOrEqual(75);
+    }
+  });
+
+  it('marks a cancelled event', () => {
+    expect(buildIcs({ ...event, cancelled: true })).toContain('STATUS:CANCELLED');
   });
 });

@@ -64,6 +64,13 @@
       "when": 1792160306127,
       "tag": "0008_events",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792161993138,
+      "tag": "0009_rename_home_events_flag",
+      "breakpoints": true
     }
   ]
 }

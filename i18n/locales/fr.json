@@ -9,11 +9,12 @@
     "minecraft": "Minecraft",
     "mods": "Mods",
     "modsDescription": "Votes et propositions pour les mods du serveur",
-    "wardenDescription": "Ton compte Minecraft associé et ton adresse de serveur"
+    "wardenDescription": "Ton compte Minecraft associé et ton adresse de serveur",
+    "events": "Événements"
   },
   "home": {
     "workInProgress": "En construction",
-    "lede": "Soirées, tournois et événements pour les étudiants d’Epitech, e-artsup et ISEG. Les inscriptions ouvriront bientôt ici.",
+    "lede": "Soirées, tournois et événements pour les étudiants d’Epitech, e-artsup et ISEG.",
     "activities": {
       "videoGames": {
         "title": "Jeux vidéo",
@@ -36,23 +37,60 @@
     "minecraft": {
       "title": "Serveur Minecraft",
       "lede": "Le serveur de l’association, avec des mods choisis par vote."
-    }
+    },
+    "allEvents": "Tous les événements"
   },
   "events": {
-    "werewolf": {
-      "title": "Soirée Loup-Garou et Among Us",
-      "where": "salle Wakanda"
-    },
-    "minecraft": {
-      "title": "Lancement du serveur Minecraft",
-      "where": "salle à confirmer"
-    },
     "attendees": {
       "title": "Qui vient",
       "names": "{names} | {names} et {count} autre | {names} et {count} autres",
       "registered": "Personne n’est encore inscrit | {count} inscrit | {count} inscrits",
       "spotsLeft": "plus de place | {count} place restante | {count} places restantes"
-    }
+    },
+    "title": "Événements",
+    "lede": "Soirées, tournois et événements pour les étudiants d’Epitech, e-artsup et ISEG, et comment s’y inscrire.",
+    "upcoming": "À venir",
+    "past": "Passés",
+    "type": "Type",
+    "school": "École",
+    "allTypes": "Tous les types",
+    "allSchools": "Toutes les écoles",
+    "loadFailed": "Les événements n’ont pas pu se charger. Vérifiez votre connexion, puis rechargez la page.",
+    "empty": {
+      "upcoming": "Aucun événement prévu pour l’instant",
+      "past": "Aucun événement passé pour l’instant"
+    },
+    "emptyHint": {
+      "upcoming": "Les nouveaux événements s’affichent ici dès qu’ils sont prévus.",
+      "past": "Les événements arrivent ici une fois terminés."
+    },
+    "noMatch": "Aucun événement ne correspond à ces filtres",
+    "noMatchHint": "Choisissez un autre type ou une autre école, ou affichez-les tous.",
+    "seeEvent": "Voir l’événement",
+    "nextEventIn": "Prochain événement, {when}",
+    "happeningNow": "En ce moment",
+    "cancelled": "Annulé",
+    "full": "Complet",
+    "over": "Cet événement est terminé",
+    "went": "Personne n’est venu | {count} personne est venue | {count} personnes sont venues",
+    "placesTaken": "{count} places sur {capacity}",
+    "placesLeft": "{taken} places prises sur {capacity}, {left} restantes",
+    "ofPlaces": "places prises sur {capacity}",
+    "left": "{count} restantes",
+    "timeRange": "de {start} à {end}",
+    "price": "{price} €, à payer sur place",
+    "free": "Gratuit",
+    "openTo": "Ouvert aux étudiants d’{schools}",
+    "openToHint": "Tout le monde peut lire cette page. Seuls ces étudiants peuvent s’inscrire.",
+    "addToCalendar": "Ajouter à l’agenda",
+    "about": "Présentation",
+    "details": "Infos pratiques",
+    "opensOn": "Inscriptions ouvertes le {date}",
+    "closedOn": "Inscriptions closes le {date}",
+    "draftTitle": "C’est un brouillon",
+    "draftBody": "Seuls les gestionnaires d’événements le voient. Publiez-le depuis l’espace admin quand il est prêt.",
+    "cancelledTitle": "Cet événement est annulé",
+    "cancelledBody": "Il n’aura pas lieu. Si vous étiez inscrit, vous n’avez rien d’autre à faire."
   },
   "auth": {
     "signIn": "Se connecter",
@@ -519,7 +557,11 @@
           "label": "Photo Microsoft à la connexion",
           "description": "La récupération et l’enregistrement de la photo de profil Microsoft à la connexion. Les photos déjà enregistrées restent."
         },
-        "homeEvents": {
+        "events": {
+          "label": "Événements",
+          "description": "Les pages des événements, leur API et le lien Événements dans l’en-tête."
+        },
+        "events_home": {
           "label": "Événements en page d’accueil",
           "description": "Le prochain événement et l’agenda en page d’accueil."
         },

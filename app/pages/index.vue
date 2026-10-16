@@ -11,10 +11,12 @@ const activities = [
   { key: 'events', icon: 'i-lucide-calendar' },
 ];
 
-// The next event gets the hero, the later ones the agenda.
-const [next, ...later] = UPCOMING_EVENTS.filter(
-  (event) => new Date(event.startsAt).getTime() > Date.now(),
-);
+// The next event gets the hero, the later ones the agenda. Events under way still count, so the
+// hero shows tonight's event until it ends.
+const showEvents = computed(() => isEnabled('events.home'));
+const { data: upcoming } = await useEventList({ when: 'upcoming', limit: 6 }, 'home-events');
+const next = computed(() => (showEvents.value ? upcoming.value?.items[0] : undefined));
+const later = computed(() => upcoming.value?.items.slice(1) ?? []);
 
 // Warden (Minecraft) is open to some schools only.
 const wardenApp = getLinkApp('warden');
@@ -29,11 +31,16 @@ const canUseWarden = computed(
 
 <template>
   <div>
-    <EventsHero v-if="next && isEnabled('homeEvents')" :event="next" />
+    <EventsHero v-if="next" :event="next" />
 
     <UContainer class="grid gap-10 py-12 lg:grid-cols-12 lg:gap-8">
-      <section v-if="isEnabled('homeEvents')" class="flex min-w-0 flex-col gap-5 lg:col-span-8">
-        <h2 class="text-2xl font-bold text-highlighted sm:text-3xl">{{ t('home.upcoming') }}</h2>
+      <section v-if="showEvents" class="flex min-w-0 flex-col gap-5 lg:col-span-8">
+        <div class="flex flex-wrap items-baseline justify-between gap-3">
+          <h2 class="text-2xl font-bold text-highlighted sm:text-3xl">{{ t('home.upcoming') }}</h2>
+          <ULink to="/events" class="font-semibold text-primary hover:underline">
+            {{ t('home.allEvents') }}
+          </ULink>
+        </div>
         <EventsAgenda v-if="later.length" :events="later" />
         <p v-else class="text-muted">{{ t('home.noLaterEvents') }}</p>
       </section>

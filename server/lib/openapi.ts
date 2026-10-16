@@ -138,6 +138,9 @@ const responseSchemas = {
   EventAdminList: events.eventAdminList,
   EventAdminView: events.eventAdminView,
   EventCreated: events.eventCreated,
+  EventSummary: events.eventSummary,
+  EventList: events.eventList,
+  EventView: events.eventView,
 };
 
 const TAGS = {
@@ -152,6 +155,7 @@ const TAGS = {
   wardenAdmin: 'Warden: admins',
   mods: 'Mod list',
   modsAdmin: 'Mod list: admins',
+  events: 'Events',
   eventsAdmin: 'Events: managers',
   auth: 'Auth',
   authDevice: 'Auth: device authorization',
@@ -1038,6 +1042,52 @@ const routes: RouteDoc[] = [
     noContent: true,
     problems: [{ status: 404, problems: ['notOfficial'] }],
   },
+  // Events
+  {
+    method: 'get',
+    path: '/api/events',
+    tag: TAGS.events,
+    summary: 'Events',
+    description:
+      'Published events. `upcoming` includes events under way and cancelled ones, which keep their page.',
+    access: 'public',
+    query: events.eventQuery,
+    response: events.eventList,
+    problems: [{ status: 503, problems: ['disabled'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/events/{id}',
+    tag: TAGS.events,
+    summary: 'An event',
+    description: 'A draft answers 404, except to events managers.',
+    access: 'public',
+    params: events.eventIdParams,
+    response: events.eventView,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/events/{id}/calendar.ics',
+    tag: TAGS.events,
+    summary: 'Add an event to a calendar',
+    description:
+      'The event as an iCalendar file. Its UID stays the same, so importing it again updates the entry.',
+    access: 'public',
+    params: events.eventIdParams,
+    response: {
+      description: 'The .ics file.',
+      content: { 'text/calendar': { schema: { type: 'string' } } },
+    },
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+
   // Events: managers
   {
     method: 'get',

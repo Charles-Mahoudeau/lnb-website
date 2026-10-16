@@ -21,9 +21,8 @@ if (user.value) {
 }
 
 // The banner shows the next event, so the page isn't empty while people sign in.
-const nextEvent = computed(() =>
-  UPCOMING_EVENTS.find((event) => new Date(event.startsAt).getTime() > Date.now()),
-);
+const { data: upcoming } = await useEventList({ when: 'upcoming', limit: 1 }, 'sign-in-event');
+const nextEvent = computed(() => upcoming.value?.items[0]);
 const nextEventWhen = computed(
   () =>
     nextEvent.value &&
@@ -61,9 +60,9 @@ async function onSignIn() {
       class="dark relative isolate flex aspect-video flex-col justify-end overflow-hidden bg-banner-fallback lg:col-span-7 lg:aspect-auto"
     >
       <template v-if="nextEvent">
-        <template v-if="nextEvent.banner">
+        <template v-if="nextEvent.images">
           <img
-            :src="nextEvent.banner"
+            :src="nextEvent.images.banner"
             alt=""
             class="absolute inset-0 -z-1 size-full object-cover"
           />
@@ -74,13 +73,13 @@ async function onSignIn() {
         <EventsIconScatter v-else class="-z-1" />
         <div class="relative flex flex-col gap-1 p-4 sm:p-8">
           <h2 class="text-xl font-bold text-on-banner sm:text-2xl">
-            {{ t(`events.${nextEvent.key}.title`) }}
+            {{ nextEvent.name }}
           </h2>
           <p class="text-on-banner-muted tabular-nums">
             {{
               t('auth.signInPage.nextEvent', {
                 date: nextEventWhen,
-                where: t(`events.${nextEvent.key}.where`),
+                where: nextEvent.room.name,
               })
             }}
           </p>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { NavigationMenuItem, TableColumn, TabsItem } from '@nuxt/ui';
 
+import type { EventSummary } from '#shared/schemas/events';
 import type { ModView } from '#shared/schemas/mods';
 
 // A living reference for docs/design.md, built from the real themed components.
@@ -106,15 +107,44 @@ const sampleUser = {
 };
 
 // The home hero for an event without banner art, with registrations.
-const sampleEvent: UpcomingEvent = {
-  key: 'werewolf',
-  startsAt: '2026-11-04T19:30:00+01:00',
-  attendees: {
-    registered: 18,
-    capacity: 40,
-    people: people.map(({ id, name }) => ({ id, name })),
+const sampleEvent: EventSummary = {
+  id: '0b6f3c1e-2a4d-4c1b-9b7e-5f1c2d3e4a5b',
+  name: 'Werewolf and Among Us night',
+  startsAt: '2026-11-04T18:30:00.000Z',
+  endsAt: '2026-11-04T22:30:00.000Z',
+  cancelled: false,
+  room: { name: 'Wakanda', details: 'Campus Nantes' },
+  type: {
+    id: '1b6f3c1e-2a4d-4c1b-9b7e-5f1c2d3e4a5b',
+    nameEn: 'Game night',
+    nameFr: 'Soirée jeux',
+    icon: 'i-lucide-dices',
   },
+  schools: ['901cb4ca-b862-4029-9306-e5cd0f6d9f86'],
+  capacity: 40,
+  registered: 18,
+  images: null,
 };
+const sampleAttendees: EventAttendees = {
+  registered: 18,
+  capacity: 40,
+  people: people.map(({ id, name }) => ({ id, name })),
+};
+// Later events, for the agenda and the next-event card.
+const sampleAgenda: EventSummary[] = [
+  sampleEvent,
+  {
+    ...sampleEvent,
+    id: '2b6f3c1e-2a4d-4c1b-9b7e-5f1c2d3e4a5b',
+    name: 'Smash Bros inter-school cup',
+    startsAt: '2026-11-28T13:00:00.000Z',
+    endsAt: '2026-11-28T19:00:00.000Z',
+    room: { name: 'Amphi B', details: null },
+    type: { ...sampleEvent.type, nameEn: 'Tournament', nameFr: 'Tournoi', icon: 'i-lucide-swords' },
+    capacity: 32,
+    registered: 32,
+  },
+];
 
 type Registration = {
   name: string;
@@ -392,8 +422,17 @@ function showToast() {
         stays dark in both color modes.
       </p>
       <div class="overflow-hidden rounded-lg">
-        <EventsHero :event="sampleEvent" />
+        <EventsHero :event="sampleEvent" :attendees="sampleAttendees" />
       </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Event agenda</h2>
+      <p class="max-w-2xl text-muted">
+        Events grouped by month, as dated rows. On the events page the next event opens its month as
+        a larger card (<code>EventsNextCard</code>), so it's where the eye starts.
+      </p>
+      <EventsAgenda :events="sampleAgenda" feature-next />
     </section>
 
     <section class="flex flex-col gap-6">

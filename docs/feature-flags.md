@@ -20,7 +20,7 @@ Admins switch a feature, or one part of it, off and on from `/admin/flags`, with
 | `warden`, `.linking`, `.appeals`, `.serverApi`                    | The player-facing Warden pages, or only that part. With `serverApi` off the Minecraft plugin's calls get a 503.           |
 | `appLinking`                                                      | `/link` and `POST /api/link/approve`.                                                                                     |
 | `avatars`, `avatars.microsoftPhoto`                               | Saving the Microsoft photo at sign-in. Saved photos stay.                                                                 |
-| `homeEvents`                                                      | The events on the front page.                                                                                             |
+| `events`, `events.home`                                           | The events pages and API, or only the events on the front page.                                                           |
 | `jobs`, `.deleteInactive`, `.pruneAvatars`, `.closeStaleSessions` | The scheduled task skips its run and reports `skipped`.                                                                   |
 
 Sign-in can't use `requireFlag`: Better Auth's `validateUserInfo` in `server/lib/auth.ts` reads the flags through `server/lib/flag-gate.ts`, which the Nitro plugin `server/plugins/flags.ts` plugs in. A refused visitor lands on `/sign-in?error=sign_in_disabled`. An admin is recognised by the email of their existing account, so a switched-off sign-in can't lock admins out of this page.

@@ -226,3 +226,56 @@ export const eventAdminView = eventAdminRow.extend({
 export type EventAdminView = z.infer<typeof eventAdminView>;
 
 export const eventCreated = z.object({ id: z.uuid() });
+
+// Events, for everyone
+
+/** GET /api/events query. */
+export const eventQuery = z.object({
+  when: z
+    .enum(['upcoming', 'past'])
+    .default('upcoming')
+    .describe('`upcoming`: not over yet, soonest first. `past`: over, latest first.'),
+  type: z.uuid().optional(),
+  school: schoolId.optional(),
+  limit: z.coerce.number().int().min(1).max(50).default(50),
+});
+export type EventQuery = z.input<typeof eventQuery>;
+
+const eventImages = z
+  .object({
+    banner: z.string().describe('1920 × 620, for the event page and the home hero.'),
+    thumb: z.string().describe('16:9, for agenda rows.'),
+    embed: z.string().describe('1200 × 630, for social embeds and the BDE website.'),
+  })
+  .nullable()
+  .describe('Null: no art. Pages show the flat fallback.');
+
+export const eventSummary = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  startsAt: isoDate,
+  endsAt: isoDate,
+  cancelled: z.boolean(),
+  room: z.object({ name: z.string(), details: z.string().nullable() }),
+  type: z.object({ id: z.uuid(), nameEn: z.string(), nameFr: z.string(), icon: z.string() }),
+  schools: z
+    .array(z.string())
+    .describe('The tenant IDs of the schools whose students can register.'),
+  capacity: z.number().nullable(),
+  registered: z.number(),
+  images: eventImages,
+});
+export type EventSummary = z.infer<typeof eventSummary>;
+
+export const eventList = z.object({ items: z.array(eventSummary) });
+export type EventList = z.infer<typeof eventList>;
+
+export const eventView = eventSummary.extend({
+  descriptionHtml: z.string().describe('The description, rendered. No raw HTML, no images.'),
+  summary: z.string().describe('The start of the description as plain text, for meta tags.'),
+  price: z.number().nullable(),
+  registrationOpensAt: isoDate.nullable(),
+  registrationClosesAt: isoDate.nullable(),
+  hidden: z.boolean().describe('A draft. Only events managers get one.'),
+});
+export type EventView = z.infer<typeof eventView>;

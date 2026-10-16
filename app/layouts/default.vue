@@ -51,6 +51,9 @@ const navItems = computed<NavigationMenuItem[]>(() => {
   ];
   return [
     { label: t('nav.home'), icon: 'i-lucide-house', to: localePath('index'), exact: true },
+    ...(isEnabled('events')
+      ? [{ label: t('nav.events'), icon: 'i-lucide-calendar', to: '/events' }]
+      : []),
     // No menu when every page in it is off.
     ...(minecraft.length
       ? [

@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, isNull, lt, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, isNull, lt } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import type { Tx } from '~~/server/db';
@@ -9,6 +9,8 @@ import { roomView } from './rooms';
 import { shiftDate } from './rules';
 import { refuse } from './shared';
 import { typeView } from './types';
+import { selectEvents } from './views';
+import type { SelectedEvent } from './views';
 
 import type {
   EventAdminRow,
@@ -22,32 +24,7 @@ import type {
 
 type EventRow = typeof event.$inferSelect;
 
-const registeredCount = sql<number>`(
-  select count(*)::int from ${eventRegistration}
-  where ${eventRegistration.eventId} = ${event.id} and ${eventRegistration.status} = 'registered'
-)`;
-const waitlistCount = sql<number>`(
-  select count(*)::int from ${eventRegistration}
-  where ${eventRegistration.eventId} = ${event.id} and ${eventRegistration.status} = 'waitlist'
-)`;
-
-function selectEvents() {
-  return db
-    .select({
-      event,
-      room: eventRoom,
-      type: eventType,
-      registered: registeredCount,
-      waitlist: waitlistCount,
-    })
-    .from(event)
-    .innerJoin(eventRoom, eq(eventRoom.id, event.roomId))
-    .innerJoin(eventType, eq(eventType.id, event.typeId));
-}
-
-type Selected = Awaited<ReturnType<typeof selectEvents>>[number];
-
-function adminRow(row: Selected): EventAdminRow {
+function adminRow(row: SelectedEvent): EventAdminRow {
   return {
     id: row.event.id,
     name: row.event.name,
@@ -64,7 +41,7 @@ function adminRow(row: Selected): EventAdminRow {
   };
 }
 
-function adminView(row: Selected): EventAdminView {
+function adminView(row: SelectedEvent): EventAdminView {
   const e = row.event;
   return {
     ...adminRow(row),

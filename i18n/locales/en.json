@@ -9,11 +9,12 @@
     "minecraft": "Minecraft",
     "mods": "Mods",
     "modsDescription": "Votes and suggestions for the server’s mods",
-    "wardenDescription": "Your linked Minecraft account and server address"
+    "wardenDescription": "Your linked Minecraft account and server address",
+    "events": "Events"
   },
   "home": {
     "workInProgress": "Work in progress",
-    "lede": "Evenings, tournaments and events for Epitech, e-artsup and ISEG students. Registrations open here soon.",
+    "lede": "Evenings, tournaments and events for Epitech, e-artsup and ISEG students.",
     "activities": {
       "videoGames": {
         "title": "Video games",
@@ -36,23 +37,60 @@
     "minecraft": {
       "title": "Minecraft server",
       "lede": "The association’s server, with mods picked by vote."
-    }
+    },
+    "allEvents": "All events"
   },
   "events": {
-    "werewolf": {
-      "title": "Werewolf and Among Us night",
-      "where": "Wakanda room"
-    },
-    "minecraft": {
-      "title": "Minecraft server launch",
-      "where": "room to be announced"
-    },
     "attendees": {
       "title": "Who’s going",
       "names": "{names} | {names} and {count} other | {names} and {count} others",
       "registered": "No one registered yet | {count} registered | {count} registered",
       "spotsLeft": "no spots left | {count} spot left | {count} spots left"
-    }
+    },
+    "title": "Events",
+    "lede": "Evenings, tournaments and events for Epitech, e-artsup and ISEG students, and how to register.",
+    "upcoming": "Upcoming",
+    "past": "Past",
+    "type": "Type",
+    "school": "School",
+    "allTypes": "All types",
+    "allSchools": "All schools",
+    "loadFailed": "The events couldn’t load. Check your connection, then reload the page.",
+    "empty": {
+      "upcoming": "No events planned yet",
+      "past": "No past events yet"
+    },
+    "emptyHint": {
+      "upcoming": "New events show up here as soon as they’re planned.",
+      "past": "Events move here once they’re over."
+    },
+    "noMatch": "No events match these filters",
+    "noMatchHint": "Pick another type or school, or show them all.",
+    "seeEvent": "See the event",
+    "nextEventIn": "Next event, {when}",
+    "happeningNow": "Happening now",
+    "cancelled": "Cancelled",
+    "full": "Full",
+    "over": "This event is over",
+    "went": "Nobody went | {count} person went | {count} people went",
+    "placesTaken": "{count} of {capacity} places",
+    "placesLeft": "{taken} of {capacity} places taken, {left} left",
+    "ofPlaces": "of {capacity} places taken",
+    "left": "{count} left",
+    "timeRange": "{start} to {end}",
+    "price": "€{price}, paid on site",
+    "free": "Free",
+    "openTo": "Open to {schools} students",
+    "openToHint": "Anyone can read this page. Only these students can register.",
+    "addToCalendar": "Add to calendar",
+    "about": "About",
+    "details": "Details",
+    "opensOn": "Registration opens on {date}",
+    "closedOn": "Registration closed on {date}",
+    "draftTitle": "This is a draft",
+    "draftBody": "Only events managers can see it. Publish it from the admin area when it’s ready.",
+    "cancelledTitle": "This event is cancelled",
+    "cancelledBody": "It won’t take place. If you registered, there’s nothing more to do."
   },
   "auth": {
     "signIn": "Sign in",
@@ -519,7 +557,11 @@
           "label": "Microsoft photo at sign-in",
           "description": "Fetching and saving the Microsoft profile photo when someone signs in. Saved photos stay."
         },
-        "homeEvents": {
+        "events": {
+          "label": "Events",
+          "description": "The events pages, their API, and the Events link in the header."
+        },
+        "events_home": {
           "label": "Events on the front page",
           "description": "The next event and the agenda on the front page."
         },
