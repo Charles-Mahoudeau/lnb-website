@@ -14,13 +14,15 @@ app/                  Nuxt app (client and SSR)
   pages/              thin: one composable call, then components
   pages/admin/        the admin area. pages/admin.vue sets the admin layout and middleware on
                       every page under it: site admins only, unless a page sets `wardenAdmins: true`
+                      or `eventsManagers: true`
   components/         by domain: admin/ (AdminPage, the frame of an admin page), warden/, mods/,
-                      later events/ teams/ account/. Primitives come from Nuxt UI; don't rebuild them.
-  composables/        one per resource: useAuth, useLinkCode, useModList, later useEvent,
-                      useEventTeams, useAccount
+                      events/ (events/admin/ for managers), later teams/ account/. Primitives come
+                      from Nuxt UI; don't rebuild them.
+  composables/        one per resource: useAuth, useLinkCode, useModList, useEvents (useEventList,
+                      useEvent, useMyEvents), useEventAdmin, later useEventTeams, useAccount
   middleware/         auth.global.ts (public pages opt out with `auth: false`), admin.ts
-  utils/              small client helpers (safeRedirect, the Better Auth client), placeholder events
-                      until the events service exists
+  utils/              small client helpers (safeRedirect, the Better Auth client), event dates in
+                      Paris time and event display helpers (events.ts)
 
 server/               Nitro server, picked up by Nuxt automatically
   api/                handlers of 5 to 10 lines: guard, validate, call a service, return
@@ -29,19 +31,21 @@ server/               Nitro server, picked up by Nuxt automatically
   services/           business rules, one file per domain: links (app link codes), warden/
                       (Minecraft link, see docs/warden.md), mods/ (the mod list, see
                       docs/mods.md), users (accounts, for admins), avatars (profile photos),
-                      admin-audit and admin-overview (the admin log and Overview), later
-                      events, registrations, teams, files, push
+                      admin-audit and admin-overview (the admin log and Overview), events/
+                      (see docs/events.md: admin, public, registrations, rooms, types, images,
+                      bde, markdown, and rules.ts for the pure rules), later teams, files, push
   db/
     index.ts          Drizzle client (node-postgres), and the Tx and Db types
     schema/           Drizzle tables, one file per domain. auth.ts is generated.
     migrations/       generated and committed
     seed.ts           (planned)
-  tasks/              scheduled jobs, timed in nuxt.config.ts: warden/close-stale-sessions,
-                      users/delete-inactive and users/prune-avatars (every night at 03:00),
-                      later event reminders
+  tasks/              scheduled jobs, timed in nuxt.config.ts: events/bde-sync (every minute),
+                      warden/close-stale-sessions, users/delete-inactive, users/prune-avatars and
+                      events/prune-images (every night at 03:00), later event reminders
   plugins/            Nitro plugins: migrate.ts applies pending migrations at startup (its state feeds /api/health), avatars.ts
                       gives server/lib/ the avatars service
-  utils/              auth guards (requireUser, requireAdmin, requireWardenServer), body and
+  utils/              auth guards (requireUser, requireAdmin, requireWardenAdmin,
+                      requireEventsManager, requireWardenServer), body and
                       params validation (parseBody, parseParams, parseQuery), later typed errors
   lib/                code without Nuxt imports, loaded by the Better Auth CLI too:
     auth.ts           Better Auth setup: Microsoft provider, tenant allowlist, admin plugin
@@ -49,13 +53,16 @@ server/               Nitro server, picked up by Nuxt automatically
     tenants.ts        AUTH_ALLOWED_TENANTS parsing and checks
     avatars.ts        moves the Microsoft photo to storage, through the service the plugin sets
     openapi.ts        the OpenAPI document: one entry per route, schemas from shared/schemas/
+    site.ts           absolute URLs on this site, from BETTER_AUTH_URL
+    *-env.ts          one Zod-checked reader per domain: mods, warden, images, bde
 
 i18n/locales/         UI strings: en.json (default) and fr.json, with the same keys
 
 shared/               code imported by both app/ and server/
   schemas/            Zod contracts: bodies, params and queries checked by the server, and
                       responses, whose types the app uses. All of them feed the API reference.
-  utils/              auto-imported: school names by tenant ID, auth error codes, apps that can link
+  utils/              auto-imported: school names by tenant ID, auth error codes, apps that can link,
+                      Paris wall-clock time for forms (paris-time.ts)
 
 modules/              local Nuxt modules: scalar.ts serves Scalar's script for /api/docs
 public/               static files served as-is
@@ -76,7 +83,7 @@ Root files: `nuxt.config.ts`, `vitest.config.ts`, `drizzle.config.ts`, `eslint.c
 - Every team action checks that the team belongs to the event and that the user is registered. Size limits come from the event and are enforced inside the transaction, backed by a unique `(eventId, userId)` constraint.
 - Every route is documented in `server/lib/openapi.ts`: who may call it, its parameters, body, response and problem codes. `test/unit/openapi.test.ts` fails when a file in `server/api/` has no entry. Define response shapes as Zod schemas in `shared/schemas/` and infer their types, so the reference can't drift from the code. The reference is at `/api/docs`, and Better Auth's routes are added from its own schema.
 - Lists expose public profiles only (name, avatar). Email appears only on the user's own account endpoint, and in admin routes, where admins need it to find people.
-- Files: metadata goes in a `files` table and content in object storage, behind the files service. Files are served with `Content-Type`, `nosniff` and long caching. Uploads are checked for type and size.
+- Files: metadata goes in a `files` table and content in Nitro storage on the VPS's disk (object storage later, if ever), behind the files service. Files are served with `Content-Type`, `nosniff` and long caching. Uploads are checked for type and size. Event images already work this way, without the table: see docs/events.md.
 
 A handler looks like this:
 
