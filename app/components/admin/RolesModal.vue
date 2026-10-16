@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { AdminRolesBody } from '#shared/schemas/admin';
 
-// Both roles of an account, at once. Closes with the roles to save, or null.
+// Every role of an account, at once. Closes with the roles to save, or null.
 const props = defineProps<{ name: string; roles: AdminRolesBody; self: boolean }>();
 const emit = defineEmits<{ close: [roles: AdminRolesBody | null] }>();
 
@@ -9,8 +9,12 @@ const { t } = useI18n();
 
 const admin = ref(props.roles.admin);
 const wardenAdmin = ref(props.roles.wardenAdmin);
+const eventsManager = ref(props.roles.eventsManager);
 const changed = computed(
-  () => admin.value !== props.roles.admin || wardenAdmin.value !== props.roles.wardenAdmin,
+  () =>
+    admin.value !== props.roles.admin ||
+    wardenAdmin.value !== props.roles.wardenAdmin ||
+    eventsManager.value !== props.roles.eventsManager,
 );
 </script>
 
@@ -29,6 +33,11 @@ const changed = computed(
           :label="t('admin.roles.wardenAdmin')"
           :description="t('admin.rolesModal.wardenAdminHint')"
         />
+        <USwitch
+          v-model="eventsManager"
+          :label="t('admin.roles.eventsManager')"
+          :description="t('admin.rolesModal.eventsManagerHint')"
+        />
       </div>
     </template>
     <template #footer>
@@ -42,7 +51,7 @@ const changed = computed(
         <UButton
           :label="t('admin.rolesModal.save')"
           :disabled="!changed"
-          @click="emit('close', { admin, wardenAdmin })"
+          @click="emit('close', { admin, wardenAdmin, eventsManager })"
         />
       </div>
     </template>

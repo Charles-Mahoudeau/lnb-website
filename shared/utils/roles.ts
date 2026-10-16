@@ -5,6 +5,8 @@
 export const ADMIN_ROLE = 'admin';
 /** Minecraft staff: the Warden admin panel and in-game moderation, nothing else on the site. */
 export const WARDEN_ADMIN_ROLE = 'warden-admin';
+/** Event organizers: events, rooms, types and registrations in the admin area, nothing else. */
+export const EVENTS_MANAGER_ROLE = 'events-manager';
 
 export function parseRoles(role: string | null | undefined): string[] {
   return (role ?? '')
@@ -24,6 +26,16 @@ export function isAdmin(role: string | null | undefined): boolean {
 /** Site admins are Warden admins too. */
 export function isWardenAdmin(role: string | null | undefined): boolean {
   return isAdmin(role) || hasRole(role, WARDEN_ADMIN_ROLE);
+}
+
+/** Site admins are events managers too. */
+export function isEventsManager(role: string | null | undefined): boolean {
+  return isAdmin(role) || hasRole(role, EVENTS_MANAGER_ROLE);
+}
+
+/** Whether the account can open some part of the admin area. */
+export function canOpenAdmin(role: string | null | undefined): boolean {
+  return isWardenAdmin(role) || isEventsManager(role);
 }
 
 /** The role list with `name` added or removed, or null for a plain user. */

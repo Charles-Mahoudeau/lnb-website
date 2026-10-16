@@ -46,7 +46,7 @@ const items = computed<DropdownMenuItem[][]>(() => [
           },
         ]
       : []),
-    ...(isWardenAdmin(props.user.role)
+    ...(canOpenAdmin(props.user.role)
       ? [
           {
             label: t('admin.menu'),

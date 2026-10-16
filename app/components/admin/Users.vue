@@ -3,7 +3,7 @@ import type { DropdownMenuItem, TableColumn } from '@nuxt/ui';
 
 import { AdminBanModal, AdminRolesModal, WardenConfirmModal } from '#components';
 
-import type { AdminUserRow, AdminUsersQuery } from '#shared/schemas/admin';
+import type { AdminRolesBody, AdminUserRow, AdminUsersQuery } from '#shared/schemas/admin';
 
 // Every account: search, filter and page through them, and act on one from its row menu.
 const { t, locale } = useI18n();
@@ -14,7 +14,7 @@ const { user: me } = useAuth();
 const actions = useAdminUserActions();
 
 type Status = 'all' | 'banned' | 'inactive';
-type Role = 'any' | 'admin' | 'warden-admin';
+type Role = 'any' | 'admin' | 'warden-admin' | 'events-manager';
 
 // The Overview links here with ?status=inactive or ?status=banned.
 const initialStatus = String(route.query.status ?? '');
@@ -71,6 +71,7 @@ const roleItems = computed(() => [
   { label: t('admin.users.anyRole'), value: 'any' },
   { label: t('admin.roles.admin'), value: 'admin' },
   { label: t('admin.roles.wardenAdmin'), value: 'warden-admin' },
+  { label: t('admin.roles.eventsManager'), value: 'events-manager' },
 ]);
 const statusItems = computed(() => [
   { label: t('admin.users.status.all'), value: 'all' },
@@ -123,12 +124,12 @@ async function run(action: () => Promise<unknown>, success: string) {
 async function onRoles(row: AdminUserRow) {
   const roles: unknown = await modals.roles.open({
     name: row.name,
-    roles: { admin: row.admin, wardenAdmin: row.wardenAdmin },
+    roles: { admin: row.admin, wardenAdmin: row.wardenAdmin, eventsManager: row.eventsManager },
     self: row.userId === me.value?.id,
   }).result;
   if (!roles || typeof roles !== 'object') return;
   await run(
-    () => actions.setRoles(row.userId, roles as { admin: boolean; wardenAdmin: boolean }),
+    () => actions.setRoles(row.userId, roles as AdminRolesBody),
     t('admin.users.rolesSaved'),
   );
 }
@@ -281,7 +282,10 @@ function rowItems(row: AdminUserRow): DropdownMenuItem[][] {
           {{ row.original.school ?? t('admin.users.unknownSchool') }}
         </template>
         <template #roles-cell="{ row }">
-          <div v-if="row.original.admin || row.original.wardenAdmin" class="flex flex-wrap gap-1">
+          <div
+            v-if="row.original.admin || row.original.wardenAdmin || row.original.eventsManager"
+            class="flex flex-wrap gap-1"
+          >
             <UBadge
               v-if="row.original.admin"
               color="neutral"
@@ -295,6 +299,13 @@ function rowItems(row: AdminUserRow): DropdownMenuItem[][] {
               variant="soft"
               size="sm"
               :label="t('admin.roles.wardenAdmin')"
+            />
+            <UBadge
+              v-if="row.original.eventsManager"
+              color="neutral"
+              variant="soft"
+              size="sm"
+              :label="t('admin.roles.eventsManager')"
             />
           </div>
           <span v-else class="text-muted">{{ t('admin.users.noRole') }}</span>

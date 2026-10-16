@@ -4,7 +4,7 @@ import type { RequestEvent } from 'nuxt/server';
 import { auth } from '~~/server/lib/auth';
 import type { AuthSession } from '~~/server/lib/auth';
 
-import { isAdmin, isWardenAdmin } from '#shared/utils/roles';
+import { isAdmin, isEventsManager, isWardenAdmin } from '#shared/utils/roles';
 
 /** The signed-in user's session, or null. */
 export function getAuthSession(event: RequestEvent): Promise<AuthSession | null> {
@@ -33,6 +33,15 @@ export async function requireAdmin(event: RequestEvent): Promise<AuthSession['us
 export async function requireWardenAdmin(event: RequestEvent): Promise<AuthSession['user']> {
   const user = await requireUser(event);
   if (!isWardenAdmin(user.role)) {
+    throw createError({ status: 403, statusText: 'Forbidden' });
+  }
+  return user;
+}
+
+/** The signed-in events manager (or site admin). Throws a 401 when signed out, else a 403. */
+export async function requireEventsManager(event: RequestEvent): Promise<AuthSession['user']> {
+  const user = await requireUser(event);
+  if (!isEventsManager(user.role)) {
     throw createError({ status: 403, statusText: 'Forbidden' });
   }
   return user;

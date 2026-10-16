@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { hasRole, isAdmin, isWardenAdmin, parseRoles, withRole } from '../../shared/utils/roles.ts';
+import {
+  canOpenAdmin,
+  hasRole,
+  isAdmin,
+  isEventsManager,
+  isWardenAdmin,
+  parseRoles,
+  withRole,
+} from '../../shared/utils/roles.ts';
 
 describe('roles', () => {
   it('parses comma-separated roles', () => {
@@ -14,6 +22,16 @@ describe('roles', () => {
     expect(isWardenAdmin('warden-admin')).toBe(true);
     expect(isWardenAdmin('user')).toBe(false);
     expect(isAdmin('warden-admin')).toBe(false);
+  });
+
+  it('makes site admins events managers, and keeps the role apart from Warden', () => {
+    expect(isEventsManager('admin')).toBe(true);
+    expect(isEventsManager('events-manager')).toBe(true);
+    expect(isEventsManager('warden-admin')).toBe(false);
+    expect(isWardenAdmin('events-manager')).toBe(false);
+    expect(canOpenAdmin('events-manager')).toBe(true);
+    expect(canOpenAdmin('warden-admin')).toBe(true);
+    expect(canOpenAdmin(null)).toBe(false);
   });
 
   it('adds and removes a role', () => {

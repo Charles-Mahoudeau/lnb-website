@@ -13,6 +13,7 @@ function row(overrides: Partial<AdminUserRow>): AdminUserRow {
     school: 'Epitech',
     admin: false,
     wardenAdmin: false,
+    eventsManager: false,
     createdAt: '2024-09-01T12:00:00.000Z',
     lastSignInAt: '2026-10-14T12:00:00.000Z',
     inactive: false,

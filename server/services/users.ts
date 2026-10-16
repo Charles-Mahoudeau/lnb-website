@@ -26,7 +26,14 @@ import type {
   AdminUserPage,
   AdminUserRow,
 } from '#shared/schemas/admin';
-import { ADMIN_ROLE, hasRole, isAdmin, WARDEN_ADMIN_ROLE, withRole } from '#shared/utils/roles';
+import {
+  ADMIN_ROLE,
+  EVENTS_MANAGER_ROLE,
+  hasRole,
+  isAdmin,
+  WARDEN_ADMIN_ROLE,
+  withRole,
+} from '#shared/utils/roles';
 import { schoolForTenant } from '#shared/utils/schools';
 
 // Accounts, for site admins: roles, site bans, sessions and deletion. Every change is written to
@@ -59,7 +66,7 @@ function banActiveWhere(now: Date) {
 async function list(query: {
   q?: string;
   tenantId?: string;
-  role: 'any' | 'admin' | 'warden-admin';
+  role: 'any' | 'admin' | 'warden-admin' | 'events-manager';
   status: 'all' | 'banned' | 'inactive';
   cursor?: string;
 }): Promise<AdminUserPage> {
@@ -105,6 +112,7 @@ async function list(query: {
     school: schoolForTenant(row.tenantId) ?? null,
     admin: isAdmin(row.role),
     wardenAdmin: hasRole(row.role, WARDEN_ADMIN_ROLE),
+    eventsManager: hasRole(row.role, EVENTS_MANAGER_ROLE),
     createdAt: row.createdAt.toISOString(),
     lastSignInAt: row.lastSignInAt?.toISOString() ?? null,
     inactive: (row.lastSignInAt ?? row.createdAt) < cutoff,
@@ -147,7 +155,7 @@ async function requireTarget(dbx: Db, userId: string) {
 }
 
 /**
- * Sets both roles at once. An admin can't remove their own admin role, so the site always keeps
+ * Sets every role at once. An admin can't remove their own admin role, so the site always keeps
  * at least the admin who is acting.
  */
 async function setRoles(input: { actorId: string; userId: string; roles: AdminRolesBody }) {
@@ -157,14 +165,17 @@ async function setRoles(input: { actorId: string; userId: string; roles: AdminRo
     const before = {
       admin: isAdmin(target.role),
       wardenAdmin: hasRole(target.role, WARDEN_ADMIN_ROLE),
+      eventsManager: hasRole(target.role, EVENTS_MANAGER_ROLE),
     };
-    if (before.admin === input.roles.admin && before.wardenAdmin === input.roles.wardenAdmin)
+    if (
+      before.admin === input.roles.admin &&
+      before.wardenAdmin === input.roles.wardenAdmin &&
+      before.eventsManager === input.roles.eventsManager
+    )
       return;
-    const role = withRole(
-      withRole(target.role, ADMIN_ROLE, input.roles.admin),
-      WARDEN_ADMIN_ROLE,
-      input.roles.wardenAdmin,
-    );
+    let role = withRole(target.role, ADMIN_ROLE, input.roles.admin);
+    role = withRole(role, WARDEN_ADMIN_ROLE, input.roles.wardenAdmin);
+    role = withRole(role, EVENTS_MANAGER_ROLE, input.roles.eventsManager);
     await tx.update(user).set({ role }).where(eq(user.id, input.userId));
     await adminAuditService.record(tx, {
       action: 'user.roles',

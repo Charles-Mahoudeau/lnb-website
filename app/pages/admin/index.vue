@@ -1,10 +1,14 @@
 <script setup lang="ts">
 definePageMeta({
   wardenAdmins: true,
-  // The Overview is for site admins. Warden admins start on Warden's players.
+  eventsManagers: true,
+  // The Overview is for site admins. Warden admins start on Warden's players, events managers on
+  // their rooms until the events list exists.
   middleware: () => {
     const { user } = useAuth();
-    if (!isAdmin(user.value?.role)) return navigateTo('/admin/warden/players');
+    const role = user.value?.role;
+    if (isAdmin(role)) return;
+    return navigateTo(isWardenAdmin(role) ? '/admin/warden/players' : '/admin/events/rooms');
   },
 });
 

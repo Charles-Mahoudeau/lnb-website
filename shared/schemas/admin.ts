@@ -34,7 +34,7 @@ export const adminUsersQuery = z.object({
     .refine((tid) => tid in SCHOOLS)
     .optional()
     .describe("The school's Microsoft tenant ID."),
-  role: z.enum(['any', 'admin', 'warden-admin']).default('any'),
+  role: z.enum(['any', 'admin', 'warden-admin', 'events-manager']).default('any'),
   status: z
     .enum(['all', 'banned', 'inactive'])
     .default('all')
@@ -52,6 +52,9 @@ export const adminUserRow = z.object({
   wardenAdmin: z
     .boolean()
     .describe('Has the warden-admin role itself. Site admins have its rights anyway.'),
+  eventsManager: z
+    .boolean()
+    .describe('Has the events-manager role itself. Site admins have its rights anyway.'),
   createdAt: isoDate,
   lastSignInAt: isoDate.nullable(),
   inactive: z.boolean().describe('No sign-in for 24 months.'),
@@ -66,7 +69,11 @@ export const adminUserPage = page(adminUserRow);
 export type AdminUserPage = z.infer<typeof adminUserPage>;
 
 /** PUT /api/admin/users/:userId/roles */
-export const adminRolesBody = z.object({ admin: z.boolean(), wardenAdmin: z.boolean() });
+export const adminRolesBody = z.object({
+  admin: z.boolean(),
+  wardenAdmin: z.boolean(),
+  eventsManager: z.boolean(),
+});
 export type AdminRolesBody = z.infer<typeof adminRolesBody>;
 
 /** POST /api/admin/users/:userId/ban */

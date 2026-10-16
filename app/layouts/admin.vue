@@ -2,9 +2,33 @@
 import type { NavigationMenuItem } from '@nuxt/ui';
 
 // The admin area (/admin): a sidebar instead of the public header. Each page renders an
-// AdminPage. Warden admins only see the Warden and Mods sections.
+// AdminPage. Warden admins only see the Warden and Mods sections, events managers only Events.
 const { t } = useI18n();
 const { user, school } = useAuth();
+
+const wardenItems = computed<NavigationMenuItem[]>(() => [
+  {
+    label: t('admin.nav.warden'),
+    icon: 'i-lucide-pickaxe',
+    defaultOpen: true,
+    children: [
+      { label: t('admin.nav.players'), to: '/admin/warden/players' },
+      { label: t('admin.nav.appeals'), to: '/admin/warden/appeals' },
+      { label: t('admin.nav.linking'), to: '/admin/warden/linking' },
+      { label: t('admin.nav.activity'), to: '/admin/warden/activity' },
+      { label: t('admin.nav.settings'), to: '/admin/warden/settings' },
+    ],
+  },
+  {
+    label: t('admin.nav.mods'),
+    icon: 'i-lucide-blocks',
+    defaultOpen: true,
+    children: [
+      { label: t('admin.nav.modList'), to: '/admin/mods', exact: true },
+      { label: t('admin.nav.modSuggestions'), to: '/admin/mods/suggestions' },
+    ],
+  },
+]);
 
 const items = computed<NavigationMenuItem[][]>(() => [
   ...(isAdmin(user.value?.role)
@@ -22,27 +46,20 @@ const items = computed<NavigationMenuItem[][]>(() => [
       ]
     : []),
   [
-    {
-      label: t('admin.nav.warden'),
-      icon: 'i-lucide-pickaxe',
-      defaultOpen: true,
-      children: [
-        { label: t('admin.nav.players'), to: '/admin/warden/players' },
-        { label: t('admin.nav.appeals'), to: '/admin/warden/appeals' },
-        { label: t('admin.nav.linking'), to: '/admin/warden/linking' },
-        { label: t('admin.nav.activity'), to: '/admin/warden/activity' },
-        { label: t('admin.nav.settings'), to: '/admin/warden/settings' },
-      ],
-    },
-    {
-      label: t('admin.nav.mods'),
-      icon: 'i-lucide-blocks',
-      defaultOpen: true,
-      children: [
-        { label: t('admin.nav.modList'), to: '/admin/mods', exact: true },
-        { label: t('admin.nav.modSuggestions'), to: '/admin/mods/suggestions' },
-      ],
-    },
+    ...(isEventsManager(user.value?.role)
+      ? [
+          {
+            label: t('admin.nav.events'),
+            icon: 'i-lucide-calendar',
+            defaultOpen: true,
+            children: [
+              { label: t('admin.nav.eventRooms'), to: '/admin/events/rooms' },
+              { label: t('admin.nav.eventTypes'), to: '/admin/events/types' },
+            ],
+          },
+        ]
+      : []),
+    ...(isWardenAdmin(user.value?.role) ? wardenItems.value : []),
   ],
 ]);
 </script>

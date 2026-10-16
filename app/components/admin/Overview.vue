@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { flagMessageKey } from '#shared/flags';
 import type { FlagKey } from '#shared/flags';
-import type { AdminAuditView } from '#shared/schemas/admin';
+import type { AdminAuditView, AdminRolesBody } from '#shared/schemas/admin';
 
 // The Overview: what needs an admin, then the latest admin changes. Counts only for things to
 // handle, never usage figures (no internal analytics).
@@ -67,10 +67,11 @@ function describe(entry: AdminAuditView): string {
   const target = entry.target?.name ?? t('admin.overview.deletedAccount');
   switch (entry.action) {
     case 'user.roles': {
-      const after = entry.data.after as { admin?: boolean; wardenAdmin?: boolean } | undefined;
+      const after = entry.data.after as Partial<AdminRolesBody> | undefined;
       const roles = [
         after?.admin ? t('admin.roles.admin') : null,
         after?.wardenAdmin ? t('admin.roles.wardenAdmin') : null,
+        after?.eventsManager ? t('admin.roles.eventsManager') : null,
       ].filter(Boolean);
       return t('admin.overview.log.roles', {
         actor,

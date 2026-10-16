@@ -23,6 +23,7 @@ describe('admin middleware', () => {
     signIn('admin');
     expect(opens({})).toBe(true);
     expect(opens({ wardenAdmins: true })).toBe(true);
+    expect(opens({ eventsManagers: true })).toBe(true);
   });
 
   it('lets Warden admins into Warden pages only', () => {
@@ -31,8 +32,21 @@ describe('admin middleware', () => {
     expect(opens({})).toBe(false);
   });
 
+  it('lets events managers into events pages only', () => {
+    signIn('events-manager');
+    expect(opens({ eventsManagers: true })).toBe(true);
+    expect(opens({ wardenAdmins: true })).toBe(false);
+    expect(opens({})).toBe(false);
+  });
+
+  it('keeps Warden admins out of events pages', () => {
+    signIn('warden-admin');
+    expect(opens({ eventsManagers: true })).toBe(false);
+  });
+
   it('hides the admin area from everyone else', () => {
     signIn(null);
+    expect(opens({ eventsManagers: true })).toBe(false);
     expect(opens({ wardenAdmins: true })).toBe(false);
     expect(opens({})).toBe(false);
   });

@@ -260,12 +260,16 @@
       "mods": "Mods",
       "modList": "Mod list",
       "modSuggestions": "Suggestions",
-      "flags": "Feature flags"
+      "flags": "Feature flags",
+      "events": "Events",
+      "eventRooms": "Rooms",
+      "eventTypes": "Event types"
     },
     "cancel": "Cancel",
     "roles": {
       "admin": "Admin",
-      "wardenAdmin": "Warden admin"
+      "wardenAdmin": "Warden admin",
+      "eventsManager": "Events manager"
     },
     "users": {
       "search": "Search by name or email",
@@ -328,7 +332,8 @@
       "adminHint": "Everything in the admin area, Warden included.",
       "self": "You can’t remove your own admin role. Ask another admin.",
       "wardenAdminHint": "The Warden section and in-game moderation, nothing else.",
-      "save": "Save roles"
+      "save": "Save roles",
+      "eventsManagerHint": "Events, rooms, types and registrations, nothing else."
     },
     "errors": {
       "failed": "That didn’t work. Check your connection, then try again.",

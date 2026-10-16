@@ -14,7 +14,12 @@ import { generateLinkCode } from './link-codes';
 import { isAllowedTenant, SCHOOL_SIGN_IN_FLAGS } from './tenants';
 import { SIGN_IN_DISABLED, TENANT_NOT_ALLOWED } from '../../shared/utils/auth-errors';
 import { getLinkApp, LINK_CODE_LENGTH } from '../../shared/utils/link-apps';
-import { ADMIN_ROLE, hasRole, WARDEN_ADMIN_ROLE } from '../../shared/utils/roles';
+import {
+  ADMIN_ROLE,
+  EVENTS_MANAGER_ROLE,
+  hasRole,
+  WARDEN_ADMIN_ROLE,
+} from '../../shared/utils/roles';
 import { db } from '../db';
 import * as schema from '../db/schema';
 
@@ -32,13 +37,14 @@ async function isExistingAdmin(email: unknown): Promise<boolean> {
   return hasRole(row?.role, ADMIN_ROLE);
 }
 
-// Warden admins get no Better Auth admin rights: their powers are Warden's own routes,
-// checked with requireWardenAdmin. See shared/utils/roles.ts.
+// Warden admins and events managers get no Better Auth admin rights: their powers are our own
+// routes, checked with requireWardenAdmin and requireEventsManager. See shared/utils/roles.ts.
 const ac = createAccessControl(defaultStatements);
 const roles = {
   user: userAc,
   [ADMIN_ROLE]: adminAc,
   [WARDEN_ADMIN_ROLE]: ac.newRole({ user: [], session: [] }),
+  [EVENTS_MANAGER_ROLE]: ac.newRole({ user: [], session: [] }),
 };
 
 // The admin plugin stays for its role and ban columns and for refusing banned sign-ins, but its

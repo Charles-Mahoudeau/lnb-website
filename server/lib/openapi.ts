@@ -15,7 +15,7 @@ import * as warden from '../../shared/schemas/warden.ts';
 type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
 
 /** Who may call a route. */
-type Access = 'public' | 'user' | 'wardenAdmin' | 'admin' | 'wardenServer';
+type Access = 'public' | 'user' | 'wardenAdmin' | 'eventsManager' | 'admin' | 'wardenServer';
 
 interface Problem {
   status: number;
@@ -277,7 +277,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.admin,
     summary: "Set an account's roles",
     description:
-      "Sets `admin` and `warden-admin` together. Admins can't remove their own admin role.",
+      "Sets `admin`, `warden-admin` and `events-manager` together. Admins can't remove their own admin role.",
     access: 'admin',
     params: admin.adminUserParams,
     body: admin.adminRolesBody,
@@ -1033,6 +1033,14 @@ const ACCESS: Record<Access, { security?: OpenApiObject[]; note?: string; errors
   wardenAdmin: {
     security: [{ session: [] }],
     note: 'Warden admins and site admins only.',
+    errors: [
+      { status: 401, problems: [] },
+      { status: 403, problems: [] },
+    ],
+  },
+  eventsManager: {
+    security: [{ session: [] }],
+    note: 'Events managers and site admins only.',
     errors: [
       { status: 401, problems: [] },
       { status: 403, problems: [] },
