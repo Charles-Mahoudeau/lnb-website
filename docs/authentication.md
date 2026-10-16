@@ -8,16 +8,15 @@ Sign-in is Microsoft only, through Better Auth (`server/lib/auth.ts`). Only stud
 2. Microsoft comes back to `/api/auth/callback/microsoft`. Better Auth checks the ID token, including that `tid` matches the token's issuer.
 3. `user.validateUserInfo` refuses any `tid` that isn't in `AUTH_ALLOWED_TENANTS`. It runs for new accounts and on every sign-in, so removing a school from the list blocks its students at their next sign-in. A refusal sends the visitor back to `/sign-in?error=tenant_not_allowed`.
 4. The account is keyed by the `oid` claim. Name, email and tenant are refreshed from Microsoft on every sign-in.
+5. Better Auth fetches the profile photo from Microsoft Graph (`/me/photos/96x96/$value`) with the sign-in's access token. The site saves it in the `avatars` Nitro storage (`.data/avatars`) and puts its URL, `/api/avatars/<sha256>`, in `user.image` (`server/lib/avatars.ts`, `server/services/avatars.ts`). When Graph returns no photo (none set, or a failed fetch), the stored one is left as it is, so a photo removed on Microsoft's side stays until it's replaced. Avatars without a photo show initials.
 
 Signed-out visitors are sent to `/sign-in` by `app/middleware/auth.global.ts`, unless the page sets `definePageMeta({ auth: false })`. API routes use `requireUser(event)` and `requireAdmin(event)` from `server/utils/auth.ts`.
 
 ## What is stored
 
-- `user`: name, email, tenant ID, role, ban fields and `lastSignInAt` (for the 24-month inactive-account cleanup).
-- `account`: the provider and the `oid`. OAuth tokens are dropped before they're saved: the app requests only `openid profile email` and never calls Microsoft Graph.
+- `user`: name, email, profile photo, tenant ID, role, ban fields and `lastSignInAt` (for the 24-month inactive-account cleanup). The photo itself is a 96×96 JPEG in the `avatars` Nitro storage, keyed by the SHA-256 of its bytes. `/api/avatars/:key` serves it to signed-in users, cached by the browser for a year. On Coolify, keep `.data` on a persistent volume. Every night at 03:00, the `users:prune-avatars` task removes photos no account points to any more (replaced, or of a deleted account), except those saved in the last hour, which may belong to a sign-in in progress.
+- `account`: the provider and the `oid`. OAuth tokens are dropped before they're saved: the app requests `openid profile email User.Read`, and calls Microsoft Graph only during the sign-in, for the photo.
 - `session`: token and expiry. IP address and user agent are cleared before saving.
-
-No profile photo is fetched yet. Avatars will come with object storage.
 
 ## Microsoft Entra app registration
 
@@ -25,6 +24,7 @@ In the Entra admin center, under App registrations, then New registration:
 
 - Supported account types: accounts in any organizational directory (multitenant).
 - Redirect URI, platform Web: `http://localhost:3000/api/auth/callback/microsoft` for development, and `https://<production host>/api/auth/callback/microsoft` for production.
+- Under API permissions, keep Microsoft Graph `User.Read` (delegated), which new registrations have by default. It's only used for the photo.
 - Under Certificates & secrets, create a client secret. Put the application (client) ID in `MICROSOFT_CLIENT_ID` and the secret value in `MICROSOFT_CLIENT_SECRET`. Note the secret's expiry date: sign-in stops working when it expires.
 
 A school's tenant may require an admin to approve third-party apps. Its students then see a "Need admin approval" screen until a tenant admin consents.

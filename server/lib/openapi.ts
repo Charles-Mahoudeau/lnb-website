@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import * as admin from '../../shared/schemas/admin.ts';
+import { avatarParams } from '../../shared/schemas/avatars.ts';
 import { linkApproveBody, linkApproveResult } from '../../shared/schemas/link.ts';
 import * as mods from '../../shared/schemas/mods.ts';
 import * as warden from '../../shared/schemas/warden.ts';
@@ -122,6 +123,7 @@ const responseSchemas = {
 
 const TAGS = {
   health: 'Health',
+  users: 'Users',
   reference: 'API reference',
   link: 'App linking',
   admin: 'Admin',
@@ -150,6 +152,21 @@ const routes: RouteDoc[] = [
     description: 'For Coolify. Answers as long as the server runs, without checking the database.',
     access: 'public',
     response: z.object({ status: z.literal('ok') }),
+  },
+  {
+    method: 'get',
+    path: '/api/avatars/{key}',
+    tag: TAGS.users,
+    summary: 'A profile photo',
+    description:
+      "A user's Microsoft profile photo, saved by the site at sign-in. The URL is the user's `image`. Keyed by content, so it's cached for a year, by the browser only.",
+    access: 'user',
+    params: avatarParams,
+    response: {
+      description: 'The photo, 96×96.',
+      content: { 'image/jpeg': { schema: { type: 'string', format: 'binary' } } },
+    },
+    problems: [{ status: 404, problems: [] }],
   },
   {
     method: 'get',

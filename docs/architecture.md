@@ -28,7 +28,7 @@ server/               Nitro server, picked up by Nuxt automatically
     docs.get.ts       the API reference (Scalar), from openapi.json.get.ts
   services/           business rules, one file per domain: links (app link codes), warden/
                       (Minecraft link, see docs/warden.md), mods/ (the mod list, see
-                      docs/mods.md), users (accounts, for admins),
+                      docs/mods.md), users (accounts, for admins), avatars (profile photos),
                       admin-audit and admin-overview (the admin log and Overview), later
                       events, registrations, teams, files, push
   db/
@@ -37,13 +37,16 @@ server/               Nitro server, picked up by Nuxt automatically
     migrations/       generated and committed
     seed.ts           (planned)
   tasks/              scheduled jobs, timed in nuxt.config.ts: warden/close-stale-sessions,
-                      users/delete-inactive (every night at 03:00), later event reminders
+                      users/delete-inactive and users/prune-avatars (every night at 03:00),
+                      later event reminders
+  plugins/            Nitro plugins: avatars.ts gives server/lib/ the avatars service
   utils/              auth guards (requireUser, requireAdmin, requireWardenServer), body and
                       params validation (parseBody, parseParams, parseQuery), later typed errors
   lib/                code without Nuxt imports, loaded by the Better Auth CLI too:
     auth.ts           Better Auth setup: Microsoft provider, tenant allowlist, admin plugin
     auth-env.ts       auth environment variables, validated with Zod
     tenants.ts        AUTH_ALLOWED_TENANTS parsing and checks
+    avatars.ts        moves the Microsoft photo to storage, through the service the plugin sets
     openapi.ts        the OpenAPI document: one entry per route, schemas from shared/schemas/
 
 i18n/locales/         UI strings: en.json (default) and fr.json, with the same keys

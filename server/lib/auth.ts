@@ -7,6 +7,7 @@ import { adminAc, defaultStatements, userAc } from 'better-auth/plugins/admin/ac
 import { deviceAuthorization } from 'better-auth/plugins/device-authorization';
 
 import { readAuthEnv } from './auth-env';
+import { saveProfilePhoto } from './avatars';
 import { generateLinkCode } from './link-codes';
 import { isAllowedTenant } from './tenants';
 import { TENANT_NOT_ALLOWED } from '../../shared/utils/auth-errors';
@@ -49,13 +50,21 @@ export const auth = betterAuth({
       // Work and school accounts only: Microsoft refuses personal accounts itself.
       tenantId: 'organizations',
       prompt: 'select_account',
-      // The ID token has everything we need. No Graph access (photo) and no refresh token.
+      // The ID token has the profile. User.Read is only for the photo, fetched from Microsoft
+      // Graph during the callback. No refresh token, and the access token isn't kept.
       disableDefaultScope: true,
-      scope: ['openid', 'profile', 'email'],
-      disableProfilePhoto: true,
-      // Refresh name, email and tenant from Microsoft on every sign-in.
+      scope: ['openid', 'profile', 'email', 'User.Read'],
+      // 96 px covers the largest avatar (40 px) on 2x screens.
+      profilePhotoSize: 96,
+      // Refresh name, email, photo and tenant from Microsoft on every sign-in.
       overrideUserInfoOnSignIn: true,
-      mapProfileToUser: (profile) => ({ tenantId: profile.tid }),
+      // The photo arrives as a data URL. It's moved to Nitro storage (server/lib/avatars.ts), and
+      // user.image gets its URL on this site. `picture` is typed as always set, but is missing
+      // when the user has no photo or Graph fails: the stored photo is then left as it is.
+      mapProfileToUser: async (profile) => ({
+        tenantId: profile.tid,
+        image: await saveProfilePhoto(profile.picture as string | undefined),
+      }),
     },
   },
 
