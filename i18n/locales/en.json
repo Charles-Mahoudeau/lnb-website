@@ -30,7 +30,13 @@
     },
     "studentOffice": "Student office website",
     "github": "Follow on GitHub",
-    "upcoming": "Upcoming"
+    "upcoming": "Coming up",
+    "nextEvent": "Next event",
+    "noLaterEvents": "No other dates yet. New events show up here as soon as they’re planned.",
+    "minecraft": {
+      "title": "Minecraft server",
+      "lede": "The association’s server, with mods picked by vote."
+    }
   },
   "events": {
     "werewolf": {
@@ -40,6 +46,12 @@
     "minecraft": {
       "title": "Minecraft server launch",
       "where": "room to be announced"
+    },
+    "attendees": {
+      "title": "Who’s going",
+      "names": "{names} | {names} and {count} other | {names} and {count} others",
+      "registered": "No one registered yet | {count} registered | {count} registered",
+      "spotsLeft": "no spots left | {count} spot left | {count} spots left"
     }
   },
   "auth": {

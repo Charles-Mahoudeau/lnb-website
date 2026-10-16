@@ -1,9 +1,20 @@
+/** Who's registered for an event, for the "Who's going" panel. */
+export interface EventAttendees {
+  registered: number;
+  /** Spots in total. Left out when there's no limit. */
+  capacity?: number;
+  /** The first few people registered, in order. */
+  people: readonly { id: string; name: string }[];
+}
+
 export interface UpcomingEvent {
   /** Key of the event's title and room under `events.` in the locale files. */
   key: string;
   startsAt: string;
   /** Banner art URL. Events without one show plain night navy. */
   banner?: string;
+  /** Left out until the events service handles registrations. */
+  attendees?: EventAttendees;
 }
 
 /** Placeholder events, shown until the events service exists. */

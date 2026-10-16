@@ -40,6 +40,9 @@ export default withNuxt(
           ],
         },
       ],
+      // `dark` is the color mode class. On an element, it gives that subtree the dark tokens, as the
+      // home hero needs (docs/design.md, Imagery).
+      'better-tailwindcss/no-unknown-classes': ['error', { ignore: ['^dark$'] }],
       'import/order': [
         'error',
         {

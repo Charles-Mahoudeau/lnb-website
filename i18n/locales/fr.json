@@ -30,7 +30,13 @@
     },
     "studentOffice": "Site du BDE",
     "github": "Suivre sur GitHub",
-    "upcoming": "À venir"
+    "upcoming": "À venir",
+    "nextEvent": "Prochain événement",
+    "noLaterEvents": "Pas d’autres dates pour l’instant. Les nouveaux événements s’affichent ici dès qu’ils sont prévus.",
+    "minecraft": {
+      "title": "Serveur Minecraft",
+      "lede": "Le serveur de l’association, avec des mods choisis par vote."
+    }
   },
   "events": {
     "werewolf": {
@@ -40,6 +46,12 @@
     "minecraft": {
       "title": "Lancement du serveur Minecraft",
       "where": "salle à confirmer"
+    },
+    "attendees": {
+      "title": "Qui vient",
+      "names": "{names} | {names} et {count} autre | {names} et {count} autres",
+      "registered": "Personne n’est encore inscrit | {count} inscrit | {count} inscrits",
+      "spotsLeft": "plus de place | {count} place restante | {count} places restantes"
     }
   },
   "auth": {

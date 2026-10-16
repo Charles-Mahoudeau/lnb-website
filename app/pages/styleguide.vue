@@ -105,6 +105,17 @@ const sampleUser = {
   role: 'admin',
 };
 
+// The home hero for an event without banner art, with registrations.
+const sampleEvent: UpcomingEvent = {
+  key: 'werewolf',
+  startsAt: '2026-11-04T19:30:00+01:00',
+  attendees: {
+    registered: 18,
+    capacity: 40,
+    people: people.map(({ id, name }) => ({ id, name })),
+  },
+};
+
 type Registration = {
   name: string;
   school: string;
@@ -370,6 +381,18 @@ function showToast() {
           The header's sign-in button (soft, with the icon) and the account menu: profile on the
           menu background, shortcuts on icon tiles, sign out as an outline button.
         </p>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Event hero</h2>
+      <p class="max-w-2xl text-muted">
+        The home hero for the next event. Without banner art it sits on the fallback with scattered
+        activity icons. Who's going shows once the event has registrations, with or without art. It
+        stays dark in both color modes.
+      </p>
+      <div class="overflow-hidden rounded-lg">
+        <EventsHero :event="sampleEvent" />
       </div>
     </section>
 
