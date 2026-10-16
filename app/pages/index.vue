@@ -14,8 +14,21 @@ const activities = [
 // The next event gets the hero, the later ones the agenda. Events under way still count, so the
 // hero shows tonight's event until it ends.
 const showEvents = computed(() => isEnabled('events.home'));
-const { data: upcoming } = await useEventList({ when: 'upcoming', limit: 6 }, 'home-events');
+const { data: upcoming } = await useEventList(
+  { when: 'upcoming', limit: 6, attendees: 'next' },
+  'home-events',
+);
 const next = computed(() => (showEvents.value ? upcoming.value?.items[0] : undefined));
+// Who's going, once the next event has registrations: names for signed-in members only.
+const nextAttendees = computed<EventAttendees | undefined>(() =>
+  next.value && upcoming.value?.nextAttendees
+    ? {
+        registered: next.value.registered,
+        capacity: next.value.capacity ?? undefined,
+        people: upcoming.value.nextAttendees,
+      }
+    : undefined,
+);
 const later = computed(() => upcoming.value?.items.slice(1) ?? []);
 
 // Warden (Minecraft) is open to some schools only.
@@ -31,7 +44,7 @@ const canUseWarden = computed(
 
 <template>
   <div>
-    <EventsHero v-if="next" :event="next" />
+    <EventsHero v-if="next" :event="next" :attendees="nextAttendees" />
 
     <UContainer class="grid gap-10 py-12 lg:grid-cols-12 lg:gap-8">
       <section v-if="showEvents" class="flex min-w-0 flex-col gap-5 lg:col-span-8">

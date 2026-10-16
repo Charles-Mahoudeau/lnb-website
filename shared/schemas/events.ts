@@ -335,6 +335,10 @@ export const eventQuery = z.object({
   type: z.uuid().optional(),
   school: schoolId.optional(),
   limit: z.coerce.number().int().min(1).max(50).default(50),
+  attendees: z
+    .enum(['next'])
+    .optional()
+    .describe('`next`: also return who is going to the first event, for the home hero.'),
 });
 export type EventQuery = z.input<typeof eventQuery>;
 
@@ -359,7 +363,19 @@ export const eventSummary = z.object({
 });
 export type EventSummary = z.infer<typeof eventSummary>;
 
-export const eventList = z.object({ items: z.array(eventSummary) });
+const attendeeList = z.array(
+  z.object({ id: z.string(), name: z.string(), image: z.string().nullable() }),
+);
+
+export const eventList = z.object({
+  items: z.array(eventSummary),
+  nextAttendees: attendeeList
+    .nullable()
+    .optional()
+    .describe(
+      'With `attendees=next`: the first 6 people registered to the first event. Null when signed out.',
+    ),
+});
 export type EventList = z.infer<typeof eventList>;
 
 export const eventView = eventSummary.extend({
@@ -383,8 +399,7 @@ export const eventView = eventSummary.extend({
       })
       .nullable(),
   }),
-  attendees: z
-    .array(z.object({ id: z.string(), name: z.string(), image: z.string().nullable() }))
+  attendees: attendeeList
     .nullable()
     .describe('The first 6 people registered. Null when signed out: names are for members only.'),
 });
