@@ -32,7 +32,7 @@ Three custom palettes, wired into Nuxt UI as `neutral: 'night'`, `primary: 'crim
 - **Dusk violet is the second accent, and it never marks an action.** It brings color to these places only:
   - the big date numbers in event lists (`text-secondary`, the month stays muted);
   - icons in small tinted tiles: activities, menu items, admin overview items (the `IconTile` component, `bg-secondary/15 text-secondary`);
-  - the scattered activity icons on an event hero without banner art (see Imagery);
+  - the scattered activity icons on an event hero or the sign-in banner without banner art (see Imagery);
   - the current page in navigation menus (header and admin sidebar) and the selected tab (Nuxt UI's `secondary` color, set globally in `app.config.ts`).
 
   Nowhere else: no violet buttons, links, headings, large surfaces or decoration. Status colors and your own vote on a mod stay as they are.
@@ -70,7 +70,7 @@ Three custom palettes, wired into Nuxt UI as `neutral: 'night'`, `primary: 'crim
 ## Imagery
 
 - The home hero is a full-width game banner (SteamGridDB hero art, 1920 × 620) behind the next event, with a dark scrim from the text side so text stays readable. The hero stays dark in light mode too: it's a `dark` scope, so Nuxt UI components and tokens inside it take their dark values (`EventsHero`).
-- Without banner art, the hero sits on `bg-banner-fallback` with activity icons scattered over its right half (a strip above the text on phones): different sizes, angles and strengths, one per cell of a loose grid so they never overlap, seeded so the layout never changes (`EventsIconScatter`). This is the only decorative graphic allowed, and only there. Without art the hero doesn't fill the first screen: it takes the room its text needs. On phones, an agenda row without art drops its empty thumbnail.
+- Without banner art, the hero sits on `bg-banner-fallback` with activity icons scattered over its right half (a strip above the text on phones): different sizes, angles and strengths, one per cell of a loose grid so they never overlap, seeded so the layout never changes (`EventsIconScatter`). This is the only decorative graphic allowed, and only there and on the sign-in banner. Without art the hero doesn't fill the first screen: it takes the room its text needs. On phones, an agenda row without art drops its empty thumbnail.
 - Once an event has registrations, the hero shows "Who's going" on its right, with or without art: the first avatars in their tints, a few first names and the spots left, on a raised surface (`EventsAttendees`). Without art, a band of the fallback color keeps the icons off its edges.
 - Below the hero, the later events are an agenda grouped by month: one row per event with its banner as a thumbnail (or the flat fallback), the date and the room (`EventsAgenda`).
 - The sign-in page shows the next event's banner beside the form, with the same scrim, so the page isn't empty. On phones the banner sits above the form.
