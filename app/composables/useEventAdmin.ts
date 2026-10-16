@@ -109,6 +109,7 @@ export const eventActions = {
     call(() =>
       $fetch(`${base(id)}/registrations/${encodeURIComponent(userId)}`, { method: 'DELETE' }),
     ),
+  bdeRetry: (id: string) => call(() => $fetch(`${base(id)}/bde-sync`, { method: 'POST' })),
   searchUsers: (q: string) =>
     call(() => $fetch<{ items: EventUserOption[] }>('/api/admin/events/users', { query: { q } })),
 };

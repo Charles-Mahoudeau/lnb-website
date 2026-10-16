@@ -151,6 +151,7 @@ const responseSchemas = {
   EventUserOptions: events.eventUserOptions,
   EventStoredImage: events.eventStoredImage,
   ImageProviders: events.imageProviders,
+  BdeSettings: events.bdeSettings,
   ProviderGames: events.providerGames,
   ProviderImages: events.providerImages,
 };
@@ -1165,6 +1166,28 @@ const routes: RouteDoc[] = [
 
   // Events: managers
   {
+    method: 'get',
+    path: '/api/admin/events/bde',
+    tag: TAGS.eventsAdmin,
+    summary: 'BDE website settings',
+    description:
+      'Whether events can be pushed to the BDE website: a token is set, and the flag is on.',
+    access: 'eventsManager',
+    response: events.bdeSettings,
+  },
+  {
+    method: 'post',
+    path: '/api/admin/events/{id}/bde-sync',
+    tag: TAGS.eventsAdmin,
+    summary: 'Push to the BDE website again',
+    description:
+      "Marks the event for a push and tries at once, such as after fixing what the BDE refused. The event's `bdeStatus` says how it went.",
+    access: 'eventsManager',
+    params: events.eventIdParams,
+    noContent: true,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
     method: 'post',
     path: '/api/admin/events/images',
     tag: TAGS.eventsAdmin,
@@ -1428,13 +1451,14 @@ const routes: RouteDoc[] = [
     tag: TAGS.eventsAdmin,
     summary: 'Delete an event',
     description:
-      'Only drafts and events nobody registered to. Cancel the others, so their page stays.',
+      'Only drafts and events nobody registered to. Cancel the others, so their page stays. An event on the BDE website is taken down there first: while the BDE website is unreachable, deleting is refused.',
     access: 'eventsManager',
     params: events.eventIdParams,
     noContent: true,
     problems: [
       { status: 404, problems: ['notFound'] },
       { status: 409, problems: ['hasRegistrations'] },
+      { status: 502, problems: ['bdeUnavailable'] },
     ],
   },
   {

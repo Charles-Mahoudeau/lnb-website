@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  bdeProblems,
   buildIcs,
   focalCrop,
   isPrivateAddress,
+  nextBdeAttempt,
   placesToPromote,
   registrationState,
   shiftDate,
+  toBdePayload,
 } from '../../server/services/events/rules.ts';
 import {
   eventBody,
@@ -244,5 +247,65 @@ describe('images', () => {
     for (const address of ['104.21.32.1', '2606:4700::6810:84e5', '172.32.0.1']) {
       expect(isPrivateAddress(address)).toBe(false);
     }
+  });
+});
+
+describe('BDE website', () => {
+  const event = {
+    name: 'Werewolf night',
+    descriptionText: 'Two rounds of Werewolf, then Among Us.',
+    room: { name: 'Wakanda', details: 'Campus Nantes' },
+    startsAt: new Date('2026-11-04T18:30:00Z'),
+    endsAt: new Date('2026-11-04T22:30:00Z'),
+    hidden: false,
+    price: null,
+    pageUrl: 'https://lnb.bde-teknantes.fr/events/0b6f3c1e-2a4d-4c1b-9b7e-5f1c2d3e4a5b',
+    embedUrl: 'https://lnb.bde-teknantes.fr/api/media/abc.jpg',
+  };
+
+  it('maps an event to the BDE fields', () => {
+    expect(toBdePayload(event)).toEqual({
+      name: 'Werewolf night',
+      description: 'Two rounds of Werewolf, then Among Us.',
+      location: 'Wakanda, Campus Nantes',
+      starts_at: '2026-11-04T18:30:00.000Z',
+      ends_at: '2026-11-04T22:30:00.000Z',
+      url: event.pageUrl,
+      images: [event.embedUrl],
+      paid: false,
+      price: null,
+      hidden: false,
+    });
+    expect(toBdePayload({ ...event, price: 2, embedUrl: null })).toMatchObject({
+      paid: true,
+      price: 2,
+      images: [],
+    });
+    expect(toBdePayload({ ...event, price: 0 })).toMatchObject({ paid: false, price: null });
+  });
+
+  it('checks the fields as the BDE website does', () => {
+    expect(bdeProblems(toBdePayload(event))).toEqual({});
+    expect(
+      bdeProblems(
+        toBdePayload({
+          ...event,
+          name: 'Go',
+          descriptionText: 'Short',
+          room: { name: 'B', details: null },
+        }),
+      ),
+    ).toEqual({
+      name: ['should be 3 to 100 characters'],
+      description: ['should be at least 10 characters'],
+      location: ['should be at least 3 characters'],
+    });
+  });
+
+  it('retries after 1, 5 and 30 minutes, then every hour', () => {
+    const now = new Date('2026-11-01T12:00:00Z');
+    const minutes = (attempts: number) =>
+      (nextBdeAttempt(attempts, now).getTime() - now.getTime()) / 60_000;
+    expect([1, 2, 3, 4, 9].map(minutes)).toEqual([1, 5, 30, 60, 60]);
   });
 });

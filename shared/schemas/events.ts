@@ -31,6 +31,7 @@ export const EVENT_PROBLEMS = [
   'imageUnreachable',
   'imageNotFound',
   'providerUnavailable',
+  'bdeUnavailable',
 ] as const;
 export type EventProblem = (typeof EVENT_PROBLEMS)[number];
 
@@ -157,6 +158,12 @@ export const imageProviderGameParams = z.object({
 export const imageSearchQuery = z.object({ q: z.string().trim().min(2).max(100) });
 export const imageListQuery = z.object({ kind: z.enum(['banners', 'covers']).default('banners') });
 export const imageThumbQuery = z.object({ url: z.url({ protocol: /^https$/ }).max(2000) });
+
+/** GET /api/admin/events/bde */
+export const bdeSettings = z.object({
+  configured: z.boolean().describe('BDE_API_TOKEN is set.'),
+  enabled: z.boolean().describe('The events.bdeSync flag is on.'),
+});
 
 export const imageProviders = z.object({
   steamgriddb: z.boolean().describe('Set up, and its flag on.'),

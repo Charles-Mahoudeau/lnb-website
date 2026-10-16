@@ -638,6 +638,10 @@
         "jobs_pruneEventImages": {
           "label": "Nettoyage des images d’événements",
           "description": "La suppression chaque nuit des images d’événements qu’aucun événement n’utilise."
+        },
+        "events_bdeSync": {
+          "label": "Envoi des événements au site du BDE",
+          "description": "Les événements restent en attente, et partent quand c’est réactivé."
         }
       }
     },
@@ -697,7 +701,8 @@
         "imageUnreadable": "Ce fichier n’est pas une image que le site sait lire. Utilisez un PNG, JPEG, WebP ou GIF.",
         "imageUnreachable": "L’image n’a pas pu être téléchargée. Vérifiez que le lien est un lien https public vers une image.",
         "imageNotFound": "Cette image n’est plus sur le serveur. Choisissez-la à nouveau.",
-        "providerUnavailable": "SteamGridDB ne répond pas. Réessayez dans un moment, ou envoyez une image."
+        "providerUnavailable": "SteamGridDB ne répond pas. Réessayez dans un moment, ou envoyez une image.",
+        "bdeUnavailable": "Le site du BDE est injoignable, l’événement ne peut donc pas en être retiré. Réessayez plus tard, ou annulez-le plutôt."
       },
       "new": "Nouvel événement",
       "create": "Créer l’événement",
@@ -804,7 +809,10 @@
         "moveFocus": "Déplacer le point central",
         "removeImage": "Retirer",
         "sameEmbed": "Utiliser la bannière pour les liens",
-        "sameEmbedHelp": "Désactivez-le pour choisir une autre image pour Discord, X et le site du BDE."
+        "sameEmbedHelp": "Désactivez-le pour choisir une autre image pour Discord, X et le site du BDE.",
+        "bdeSync": "Publier aussi sur le site du BDE",
+        "bdeSyncHelp": "Son bouton S’inscrire renvoie ici. Un brouillon y reste masqué, et un événement annulé en est retiré.",
+        "bdeOff": "Pas configuré : il faut le jeton que donne le bureau du BDE (BDE_API_TOKEN)."
       },
       "preview": {
         "title": "Aperçu",
@@ -863,6 +871,17 @@
         "cropBanner": "Page de l’événement et accueil",
         "cropThumb": "Agenda",
         "cropEmbed": "Discord, X et le BDE"
+      },
+      "bde": {
+        "synced": "Sur le site du BDE",
+        "failed": "Le site du BDE a refusé l’événement",
+        "pending": "En attente du site du BDE",
+        "notThere": "Pas sur le site du BDE",
+        "seeThere": "Le voir là-bas",
+        "paused": "L’envoi est en pause (fonctionnalité désactivée). Il reprend quand elle est réactivée.",
+        "nextTry": "Prochain essai à {time}, après {count} essais ratés.",
+        "retry": "Réessayer",
+        "retried": "Renvoyé"
       }
     }
   },

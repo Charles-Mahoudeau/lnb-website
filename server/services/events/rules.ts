@@ -196,3 +196,77 @@ export function isPrivateAddress(address: string): boolean {
     v6.startsWith('2001:db8')
   );
 }
+
+// The BDE website (docs/bde/external_events_api.md)
+
+/** What the BDE website takes for an event: every field, every time, since PUT replaces it. */
+export interface BdePayload {
+  name: string;
+  description: string;
+  location: string;
+  starts_at: string;
+  ends_at: string;
+  url: string;
+  images: string[];
+  paid: boolean;
+  price: number | null;
+  hidden: boolean;
+}
+
+export function toBdePayload(input: {
+  name: string;
+  descriptionText: string;
+  room: { name: string; details: string | null };
+  startsAt: Date;
+  endsAt: Date;
+  hidden: boolean;
+  price: number | null;
+  /** Absolute URLs. */
+  pageUrl: string;
+  embedUrl: string | null;
+}): BdePayload {
+  const paid = input.price !== null && input.price > 0;
+  return {
+    name: input.name,
+    description: input.descriptionText,
+    location: input.room.details ? `${input.room.name}, ${input.room.details}` : input.room.name,
+    starts_at: input.startsAt.toISOString(),
+    ends_at: input.endsAt.toISOString(),
+    url: input.pageUrl,
+    images: input.embedUrl ? [input.embedUrl] : [],
+    paid,
+    price: paid ? input.price : null,
+    hidden: input.hidden,
+  };
+}
+
+/**
+ * The BDE website's own checks, made before sending so a payload bound to fail isn't sent. In
+ * its error format: field name, then messages. Empty when it passes.
+ */
+/** Characters as people count them (graphemes), as the BDE website's Elixir code counts them. */
+function graphemes(text: string): number {
+  return [...new Intl.Segmenter().segment(text)].length;
+}
+
+export function bdeProblems(payload: BdePayload): Record<string, string[]> {
+  const problems: Record<string, string[]> = {};
+  const add = (field: string, message: string) => (problems[field] ??= []).push(message);
+  const length = graphemes(payload.name);
+  if (length < 3 || length > 100) add('name', 'should be 3 to 100 characters');
+  if (graphemes(payload.description) < 10) add('description', 'should be at least 10 characters');
+  if (graphemes(payload.location) < 3) add('location', 'should be at least 3 characters');
+  if (Date.parse(payload.ends_at) <= Date.parse(payload.starts_at)) {
+    add('ends_at', 'must be after the start date');
+  }
+  return problems;
+}
+
+/** Waits after the 1st, 2nd and 3rd failure, then every hour. */
+const RETRY_MINUTES = [1, 5, 30];
+
+/** When to try again after `attempts` failures in a row. */
+export function nextBdeAttempt(attempts: number, now = new Date()): Date {
+  const minutes = RETRY_MINUTES[attempts - 1] ?? 60;
+  return new Date(now.getTime() + minutes * 60_000);
+}

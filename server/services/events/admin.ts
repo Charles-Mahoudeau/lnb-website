@@ -5,6 +5,7 @@ import type { Tx } from '~~/server/db';
 import { event, eventRegistration, eventRoom, eventType } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 
+import { bdeSyncService } from './bde';
 import { eventImageService } from './images';
 import { eventRegistrationService } from './registrations';
 import { roomView } from './rooms';
@@ -164,7 +165,7 @@ function columns(body: EventBody) {
 
 async function create(input: { actorId: string; body: EventBody }): Promise<{ id: string }> {
   const images = await imageColumns(input.body);
-  return db.transaction(async (tx) => {
+  const created = await db.transaction(async (tx) => {
     await checkChoices(tx, input.body);
     const [row] = await tx
       .insert(event)
@@ -176,8 +177,11 @@ async function create(input: { actorId: string; body: EventBody }): Promise<{ id
       targetUserId: null,
       data: { eventId: row!.id, name: row!.name },
     });
+    await bdeSyncService.markPending(tx, row!.id);
     return { id: row!.id };
   });
+  await bdeSyncService.sync(created.id);
+  return created;
 }
 
 async function lockEvent(tx: Tx, id: string): Promise<EventRow> {
@@ -205,7 +209,9 @@ async function update(input: { actorId: string; id: string; body: EventBody }): 
       targetUserId: null,
       data: { eventId: input.id, name: input.body.name },
     });
+    await bdeSyncService.markPending(tx, input.id);
   });
+  await bdeSyncService.sync(input.id);
 }
 
 /** Cancels the event: its page stays, with registrations closed. It can't be undone. */
@@ -226,7 +232,10 @@ async function cancel(input: { actorId: string; id: string }): Promise<void> {
       targetUserId: null,
       data: { eventId: row.id, name: row.name },
     });
+    // A cancelled event comes down from the BDE website.
+    await bdeSyncService.markPending(tx, row.id);
   });
+  await bdeSyncService.sync(input.id);
 }
 
 /** Deletes a draft, or an event nobody registered to. Others are cancelled instead. */
@@ -241,6 +250,7 @@ async function remove(input: { actorId: string; id: string }): Promise<void> {
         .limit(1);
       if (registration) refuse(409, 'hasRegistrations');
     }
+    await bdeSyncService.removeBeforeDelete(current);
     await tx.delete(event).where(eq(event.id, input.id));
     await adminAuditService.record(tx, {
       action: 'event.delete',
@@ -295,6 +305,7 @@ async function duplicate(input: {
       targetUserId: null,
       data: { eventId: row!.id, name: source.name, duplicateOf: source.id },
     });
+    await bdeSyncService.markPending(tx, row!.id);
     return { id: row!.id };
   });
 }

@@ -131,6 +131,11 @@ const menu = computed<DropdownMenuItem[][]>(() => [
   ],
 ]);
 
+async function onBdeRetry() {
+  await act(() => eventActions.bdeRetry(id), t('admin.events.bde.retried'));
+  await refresh();
+}
+
 async function onRegistrationsChanged() {
   await Promise.all([refresh(), refreshRegistrations()]);
 }
@@ -189,6 +194,7 @@ async function onRegistrationsChanged() {
           :registrations="registrations?.items"
           class="max-w-7xl"
           @submit="onSubmit"
+          @bde-retry="onBdeRetry"
         />
       </template>
       <EventsAdminRegistrations v-else :event="event" @changed="onRegistrationsChanged" />

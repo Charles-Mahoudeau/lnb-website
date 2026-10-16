@@ -54,6 +54,7 @@ export default defineNuxtConfig({
       },
     },
     scheduledTasks: {
+      '* * * * *': ['events:bde-sync'],
       '*/5 * * * *': ['warden:close-stale-sessions'],
       // Every night at 03:00, server time.
       '0 3 * * *': ['users:delete-inactive', 'users:prune-avatars', 'events:prune-images'],

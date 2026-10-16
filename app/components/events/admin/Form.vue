@@ -15,13 +15,17 @@ const props = defineProps<{
   /** On an existing event, to warn when a school with registrants is unticked. */
   registrations?: readonly EventRegistrationRow[];
 }>();
-const emit = defineEmits<{ submit: [body: EventBody] }>();
+const emit = defineEmits<{ submit: [body: EventBody]; bdeRetry: [] }>();
 
 const { t, locale } = useI18n();
 const overlay = useOverlay();
 
 const { data: rooms, refresh: refreshRooms } = await useEventRooms();
 const { data: types } = await useEventTypes();
+const { data: bde } = await useFetch<{ configured: boolean; enabled: boolean }>(
+  '/api/admin/events/bde',
+  { key: 'event-admin-bde' },
+);
 
 const HOURS = 3_600_000;
 const initial = props.event;
@@ -416,6 +420,20 @@ const preview = computed(() => ({
           v-model="state.hidden"
           :label="t('admin.events.form.draft')"
           :description="t('admin.events.form.draftHelp')"
+        />
+        <USwitch
+          v-model="state.bdeSync"
+          :disabled="!bde?.configured"
+          :label="t('admin.events.form.bdeSync')"
+          :description="
+            bde?.configured ? t('admin.events.form.bdeSyncHelp') : t('admin.events.form.bdeOff')
+          "
+        />
+        <EventsAdminBdeStatus
+          v-if="event && (event.bdeSync || event.bdeStatus)"
+          :event="event"
+          :paused="bde?.enabled === false"
+          @retry="emit('bdeRetry')"
         />
       </section>
     </UForm>
