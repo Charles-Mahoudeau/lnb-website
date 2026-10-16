@@ -3,7 +3,11 @@ definePageMeta({ auth: false });
 
 const { t, locale } = useI18n();
 
-const activities = ['videoGames', 'irlGames', 'events'];
+const activities = [
+  { key: 'videoGames', icon: 'i-lucide-gamepad-2' },
+  { key: 'irlGames', icon: 'i-lucide-dices' },
+  { key: 'events', icon: 'i-lucide-calendar' },
+];
 
 function formatDate(iso: string, options: Intl.DateTimeFormatOptions) {
   return formatEventDate(iso, locale.value, options);
@@ -23,11 +27,16 @@ function formatDate(iso: string, options: Intl.DateTimeFormatOptions) {
       <p class="max-w-sm text-lg text-muted">{{ t('home.lede') }}</p>
 
       <ul class="grid w-full gap-4 border-t border-default pt-5 sm:grid-cols-3">
-        <li v-for="activity in activities" :key="activity" class="flex flex-col gap-0.5">
-          <span class="font-display font-medium text-highlighted">
-            {{ t(`home.activities.${activity}.title`) }}
-          </span>
-          <span class="text-sm text-muted">{{ t(`home.activities.${activity}.description`) }}</span>
+        <li v-for="activity in activities" :key="activity.key" class="flex flex-col gap-2">
+          <IconTile :icon="activity.icon" />
+          <div class="flex flex-col gap-0.5">
+            <span class="font-display font-medium text-highlighted">
+              {{ t(`home.activities.${activity.key}.title`) }}
+            </span>
+            <span class="text-sm text-muted">
+              {{ t(`home.activities.${activity.key}.description`) }}
+            </span>
+          </div>
         </li>
       </ul>
 
@@ -62,7 +71,7 @@ function formatDate(iso: string, options: Intl.DateTimeFormatOptions) {
           <div
             class="flex w-14 shrink-0 flex-col items-center border-r border-default py-1 tabular-nums"
           >
-            <span class="font-display text-2xl leading-none font-bold">
+            <span class="font-display text-2xl leading-none font-bold text-secondary">
               {{ formatDate(event.startsAt, { day: 'numeric' }) }}
             </span>
             <span class="mt-1 text-sm text-muted">

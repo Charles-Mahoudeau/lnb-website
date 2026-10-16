@@ -69,13 +69,19 @@ const userMenu = computed<DropdownMenuItem[][]>(() => [
         <span>{{ t('site.name') }}</span>
       </template>
 
-      <!-- Categories open a single column of links, each with its description below. -->
-      <UNavigationMenu :items="navItems" content-orientation="vertical" />
+      <!-- Categories open a single column of links, each with its description below. The current
+           page's line sits on the header's bottom border. -->
+      <UNavigationMenu
+        :items="navItems"
+        content-orientation="vertical"
+        highlight
+        :ui="{ link: 'after:-bottom-4 after:h-0.5' }"
+      />
 
       <template #right>
         <UDropdownMenu v-if="user" :items="userMenu" :content="{ align: 'end' }">
           <UButton color="neutral" variant="ghost" size="md" :aria-label="t('auth.accountMenu')">
-            <UAvatar :alt="user.name" size="sm" />
+            <UAvatar :alt="user.name" size="sm" :ui="avatarTint(user.id)" />
           </UButton>
         </UDropdownMenu>
         <UButton

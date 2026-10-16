@@ -28,7 +28,7 @@ export default withNuxt(
                 'Arbitrary values bypass the design tokens. Use a theme class instead (docs/design.md).',
             },
             {
-              pattern: String.raw`^(?:.*:)?[a-z-]+-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|white|black|night|crimson)(?:-\d{2,3})?(?:\/\d+)?$`,
+              pattern: String.raw`^(?:.*:)?[a-z-]+-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|white|black|night|crimson|dusk)(?:-\d{2,3})?(?:\/\d+)?$`,
               message:
                 'Raw palette colors bypass the design tokens. Use a semantic class such as text-muted, bg-elevated or text-primary (docs/design.md).',
             },

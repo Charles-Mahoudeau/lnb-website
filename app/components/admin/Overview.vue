@@ -119,11 +119,12 @@ function describe(entry: AdminAuditView): string {
           class="flex flex-wrap items-center gap-4 rounded-lg bg-elevated px-4 py-3"
         >
           <span
-            class="grid size-9 shrink-0 place-items-center rounded-sm"
-            :class="item.warning ? 'bg-warning/10 text-warning' : 'bg-accented text-default'"
+            v-if="item.warning"
+            class="grid size-9 shrink-0 place-items-center rounded-md bg-warning/10 text-warning"
           >
             <UIcon :name="item.icon" class="size-5" />
           </span>
+          <IconTile v-else :icon="item.icon" />
           <div class="flex min-w-0 flex-1 basis-64 flex-col">
             <span class="font-semibold text-highlighted">{{ item.title }}</span>
             <span v-if="item.detail" class="text-sm text-muted">{{ item.detail }}</span>

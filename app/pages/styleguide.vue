@@ -22,7 +22,9 @@ const colors = [
   { name: 'Muted text', variable: '--ui-text-muted', usage: 'text-muted' },
   { name: 'Action fill', variable: '--lnb-action', usage: 'bg-action' },
   { name: 'Red text, links, focus', variable: '--ui-primary', usage: 'text-primary' },
+  { name: 'Second accent', variable: '--ui-secondary', usage: 'text-secondary' },
   { name: 'Banner', variable: '--color-banner', usage: 'bg-banner' },
+  { name: 'Banner fallback', variable: '--color-banner-fallback', usage: 'bg-banner-fallback' },
   { name: 'Text on banners', variable: '--color-on-banner', usage: 'text-on-banner' },
   { name: 'Success', variable: '--ui-success', usage: 'color="success"' },
   { name: 'Warning', variable: '--ui-warning', usage: 'color="warning"' },
@@ -54,6 +56,15 @@ function onSampleVote(value: -1 | 0 | 1) {
   const down = mod.down - (mod.myVote === -1 ? 1 : 0) + (value === -1 ? 1 : 0);
   sampleMod.value = { ...mod, up, down, score: up - down, myVote: value };
 }
+
+// Example IDs, picked so each avatar gets a different tint.
+const people = [
+  { id: 'user-1', name: 'Alex Laurent' },
+  { id: 'user-6', name: 'Inès Moreau' },
+  { id: 'user-2', name: 'Sam Nguyen' },
+  { id: 'user-3', name: 'Léa Martin' },
+  { id: 'user-5', name: 'Yanis Touré' },
+];
 
 const campuses = ['Paris', 'Lyon', 'Nantes', 'Marseille'];
 const campus = ref('Paris');
@@ -155,8 +166,9 @@ function showToast() {
     <section class="flex flex-col gap-6">
       <h2 class="text-2xl font-bold">Color</h2>
       <p class="max-w-2xl text-muted">
-        Deep crimson is the only accent and only marks actions. Status colors are for state, never
-        decoration. Use the semantic classes, never raw palette colors.
+        Deep crimson only marks actions. Dusk violet, the second accent, marks state and brings
+        color to dates, icon tiles and the current page, never to actions. Status colors are for
+        state, never decoration. Use the semantic classes, never raw palette colors.
       </p>
       <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <li
@@ -272,7 +284,9 @@ function showToast() {
             <div
               class="flex w-14 shrink-0 flex-col items-center border-r border-default py-1 tabular-nums"
             >
-              <span class="font-display text-2xl leading-none font-bold">{{ event.day }}</span>
+              <span class="font-display text-2xl leading-none font-bold text-secondary">
+                {{ event.day }}
+              </span>
               <span class="mt-1 text-sm text-muted">{{ event.month }}</span>
             </div>
             <div class="min-w-0 flex-1">
@@ -284,8 +298,8 @@ function showToast() {
           </li>
         </ul>
         <p class="text-sm text-muted">
-          Event lists are dated rows, not card grids. The date uses <code>font-display</code> and
-          tabular numbers.
+          Event lists are dated rows, not card grids. The date uses <code>font-display</code>,
+          tabular numbers and the second accent.
         </p>
       </div>
     </section>
@@ -344,7 +358,7 @@ function showToast() {
         <h2 class="text-2xl font-bold">Account menu</h2>
         <UDropdownMenu :items="accountItems">
           <UButton color="neutral" variant="ghost" class="self-start">
-            <UAvatar text="AL" size="sm" />
+            <UAvatar text="AL" size="sm" :ui="avatarTint('user-1')" />
             Alex Laurent
           </UButton>
         </UDropdownMenu>
@@ -352,15 +366,39 @@ function showToast() {
     </section>
 
     <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Icons and avatars</h2>
+      <p class="max-w-2xl text-muted">
+        Icons that introduce an item sit on a tile tinted with the second accent
+        (<code>IconTile</code>). Avatars without a photo get a tint per person from
+        <code>avatarTint</code>, so someone keeps the same color everywhere.
+      </p>
+      <div class="flex flex-wrap items-center gap-3">
+        <IconTile icon="i-lucide-gamepad-2" />
+        <IconTile icon="i-lucide-dices" />
+        <IconTile icon="i-lucide-calendar" />
+        <IconTile icon="i-lucide-puzzle" />
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <UAvatar
+          v-for="person in people"
+          :key="person.id"
+          :alt="person.name"
+          :ui="avatarTint(person.id)"
+        />
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
       <h2 class="text-2xl font-bold">Admin</h2>
       <p class="max-w-2xl text-muted">
         The admin area replaces the header with a sidebar on a surface step, without a border. The
-        current page is marked in neutral, since it's state, and the navbar shows where you are.
+        current page is marked with the second accent, since it's state, and the navbar shows where
+        you are.
       </p>
       <div class="flex max-w-3xl overflow-hidden rounded-lg">
         <div class="flex w-60 shrink-0 flex-col gap-4 bg-elevated p-4">
           <span class="font-display font-bold text-highlighted">Admin</span>
-          <UNavigationMenu :items="adminNav" orientation="vertical" color="neutral" />
+          <UNavigationMenu :items="adminNav" orientation="vertical" />
         </div>
         <div class="flex min-w-0 flex-1 flex-col gap-4 p-6">
           <div class="flex items-center gap-1.5 font-semibold text-highlighted">

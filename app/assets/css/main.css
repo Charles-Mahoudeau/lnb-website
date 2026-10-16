@@ -7,18 +7,18 @@
   --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Unbounded', 'Figtree', ui-sans-serif, system-ui, sans-serif;
 
-  /* Neutral palette, wired as Nuxt UI's `neutral` in app.config.ts */
-  --color-night-50: #f4f5fa;
-  --color-night-100: #ecedf5;
-  --color-night-200: #daddeb;
-  --color-night-300: #bfc4da;
-  --color-night-400: #9ca1be;
-  --color-night-500: #5f6485;
-  --color-night-600: #3a4170;
-  --color-night-700: #2a3052;
-  --color-night-800: #1f2441;
-  --color-night-900: #161a30;
-  --color-night-950: #0e1122;
+  /* Neutral palette, wired as Nuxt UI's `neutral` in app.config.ts. Leans toward indigo. */
+  --color-night-50: #eff1fb;
+  --color-night-100: #e9ebf8;
+  --color-night-200: #d6daf0;
+  --color-night-300: #bcc2e2;
+  --color-night-400: #a0a6d0;
+  --color-night-500: #565c8c;
+  --color-night-600: #3a4290;
+  --color-night-700: #282f66;
+  --color-night-800: #1c2150;
+  --color-night-900: #13173a;
+  --color-night-950: #0b0e27;
 
   /* Accent palette, wired as Nuxt UI's `primary` and `error` */
   --color-crimson-50: #fff1f3;
@@ -32,6 +32,19 @@
   --color-crimson-800: #8c1a2b;
   --color-crimson-900: #6e1724;
   --color-crimson-950: #3f0910;
+
+  /* Second accent, wired as Nuxt UI's `secondary`. Never for actions: see docs/design.md. */
+  --color-dusk-50: #f3f1ff;
+  --color-dusk-100: #e9e5ff;
+  --color-dusk-200: #d5ceff;
+  --color-dusk-300: #bfb3ff;
+  --color-dusk-400: #a99bff;
+  --color-dusk-500: #8e7cf5;
+  --color-dusk-600: #7461e0;
+  --color-dusk-700: #5b49c9;
+  --color-dusk-800: #4a3ba3;
+  --color-dusk-900: #3c3283;
+  --color-dusk-950: #241c52;
 }
 
 /* Solid fill for the main action. Separate from `primary`, which is tuned for red text. */
@@ -46,6 +59,18 @@
   --color-banner: var(--color-night-900);
   --color-on-banner: var(--color-night-100);
   --color-on-banner-muted: var(--color-night-300);
+  /* An event without a banner image: flat navy with a violet tint, never a gradient. */
+  --color-banner-fallback: color-mix(in oklab, var(--color-dusk-500) 20%, var(--color-night-950));
+}
+
+/* Avatars without a photo: a soft tint per person, picked by avatarTint() in app/utils/avatar.ts.
+   No red, so a tint never reads as an action or an error. */
+@theme inline {
+  --color-avatar-1: var(--lnb-avatar-1);
+  --color-avatar-2: var(--lnb-avatar-2);
+  --color-avatar-3: var(--lnb-avatar-3);
+  --color-avatar-4: var(--lnb-avatar-4);
+  --color-avatar-5: var(--lnb-avatar-5);
 }
 
 :root {
@@ -57,6 +82,12 @@
   --ui-warning: var(--ui-color-warning-700);
   --lnb-action: var(--color-crimson-700);
   --lnb-action-hover: var(--color-crimson-800);
+  --ui-secondary: var(--ui-color-secondary-700);
+  --lnb-avatar-1: var(--color-dusk-700);
+  --lnb-avatar-2: #3d5bd1;
+  --lnb-avatar-3: #13766b;
+  --lnb-avatar-4: #8a6210;
+  --lnb-avatar-5: #a03a9a;
 
   --ui-bg: var(--ui-color-neutral-50);
   --ui-bg-muted: var(--ui-color-neutral-100);
@@ -83,6 +114,12 @@
   --ui-warning: var(--ui-color-warning-400);
   --lnb-action: var(--color-crimson-600);
   --lnb-action-hover: var(--color-crimson-700);
+  --ui-secondary: var(--ui-color-secondary-400);
+  --lnb-avatar-1: var(--color-dusk-400);
+  --lnb-avatar-2: #8fa8ff;
+  --lnb-avatar-3: #5ccfc0;
+  --lnb-avatar-4: #eec46a;
+  --lnb-avatar-5: #e59be0;
 
   --ui-bg: var(--ui-color-neutral-950);
   --ui-bg-muted: var(--ui-color-neutral-900);

@@ -270,7 +270,7 @@ function rowItems(row: AdminUserRow): DropdownMenuItem[][] {
       >
         <template #name-cell="{ row }">
           <div class="flex items-center gap-3">
-            <UAvatar :alt="row.original.name" size="sm" />
+            <UAvatar :alt="row.original.name" size="sm" :ui="avatarTint(row.original.userId)" />
             <div class="flex min-w-0 flex-col">
               <span class="font-semibold text-highlighted">{{ row.original.name }}</span>
               <span class="text-sm text-muted">{{ row.original.email }}</span>

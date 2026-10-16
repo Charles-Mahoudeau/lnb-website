@@ -6,6 +6,7 @@ export default defineAppConfig({
       error: 'crimson',
       success: 'emerald',
       warning: 'amber',
+      secondary: 'dusk',
       neutral: 'night',
     },
     button: {
@@ -61,9 +62,38 @@ export default defineAppConfig({
     header: { slots: { title: 'items-center gap-2.5' } },
     // A dropdown sits in a wrapper as wide as the menu, so a short menu would squeeze it and cut
     // off its right edge. Keep it at its own width.
-    navigationMenu: { slots: { viewport: 'shrink-0' } },
-    // Selection is state, not an action, so tabs stay neutral.
-    tabs: { defaultVariants: { color: 'neutral' } },
+    // The current page is state, not an action, so it's marked with the second accent.
+    // Dropdown icons sit on a tinted tile, drawn by `after:` since an icon can't hold a background.
+    navigationMenu: {
+      slots: {
+        viewport: 'shrink-0',
+        childLink:
+          'after:absolute after:top-0.5 after:left-1.5 after:-z-1 after:size-8 after:rounded-md after:bg-secondary/15',
+      },
+      variants: {
+        // Room between the tile and the label, set here since the orientation sets its own gap.
+        orientation: { horizontal: { childLink: 'gap-4' } },
+        active: {
+          true: { childLinkIcon: 'text-secondary' },
+          false: { childLinkIcon: 'text-secondary group-hover:text-secondary' },
+        },
+      },
+      defaultVariants: { color: 'secondary', highlightColor: 'secondary' },
+    },
+    // Selection is state, not an action: the selected tab gets a soft second-accent tint.
+    tabs: {
+      compoundVariants: [
+        {
+          color: 'secondary',
+          variant: 'pill',
+          class: {
+            indicator: 'bg-secondary/15',
+            trigger: 'data-[state=active]:text-secondary',
+          },
+        },
+      ],
+      defaultVariants: { color: 'secondary' },
+    },
     input: { defaultVariants: { size: 'xl' } },
     select: { defaultVariants: { size: 'xl' } },
     selectMenu: { defaultVariants: { size: 'xl' } },

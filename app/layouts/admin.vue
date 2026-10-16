@@ -60,8 +60,7 @@ const items = computed<NavigationMenuItem[][]>(() => [
         </NuxtLink>
       </template>
 
-      <!-- Selection is state, not an action, so the current page is marked in neutral. -->
-      <UNavigationMenu :items="items" orientation="vertical" color="neutral" />
+      <UNavigationMenu :items="items" orientation="vertical" />
 
       <template #footer>
         <UButton
@@ -76,7 +75,7 @@ const items = computed<NavigationMenuItem[][]>(() => [
           v-if="user"
           :name="user.name"
           :description="school"
-          :avatar="{ alt: user.name }"
+          :avatar="{ alt: user.name, ui: avatarTint(user.id) }"
           class="px-2.5 py-1.5"
         />
       </template>

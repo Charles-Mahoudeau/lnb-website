@@ -58,7 +58,7 @@ async function onSignIn() {
 <template>
   <div class="grid lg:min-h-hero lg:grid-cols-12">
     <section
-      class="relative flex aspect-video flex-col justify-end overflow-hidden bg-banner lg:col-span-7 lg:aspect-auto"
+      class="relative flex aspect-video flex-col justify-end overflow-hidden bg-banner-fallback lg:col-span-7 lg:aspect-auto"
     >
       <template v-if="nextEvent">
         <img
@@ -68,6 +68,7 @@ async function onSignIn() {
           class="absolute inset-0 size-full object-cover"
         />
         <div
+          v-if="nextEvent.banner"
           class="absolute inset-0 bg-linear-to-t from-banner via-banner/60 via-40% to-transparent to-70%"
         />
         <div class="relative flex flex-col gap-1 p-4 sm:p-8">
