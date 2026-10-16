@@ -8,6 +8,8 @@ const toast = useToast();
 const { user, school } = useAuth();
 const linkCode = useLinkCode();
 
+definePageMeta({ flag: 'appLinking' });
+
 useSeoMeta({ title: () => t('link.title'), robots: 'noindex' });
 
 type Step =

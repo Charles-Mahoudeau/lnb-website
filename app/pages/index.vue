@@ -3,6 +3,7 @@ definePageMeta({ auth: false });
 
 const { t } = useI18n();
 const { user } = useAuth();
+const { isEnabled } = useFlags();
 
 const activities = [
   { key: 'videoGames', icon: 'i-lucide-gamepad-2' },
@@ -18,16 +19,20 @@ const [next, ...later] = UPCOMING_EVENTS.filter(
 // Warden (Minecraft) is open to some schools only.
 const wardenApp = getLinkApp('warden');
 const canUseWarden = computed(
-  () => !!wardenApp && !!user.value && canLinkFromSchool(wardenApp, user.value.tenantId),
+  () =>
+    isEnabled('warden') &&
+    !!wardenApp &&
+    !!user.value &&
+    canLinkFromSchool(wardenApp, user.value.tenantId),
 );
 </script>
 
 <template>
   <div>
-    <EventsHero v-if="next" :event="next" />
+    <EventsHero v-if="next && isEnabled('homeEvents')" :event="next" />
 
     <UContainer class="grid gap-10 py-12 lg:grid-cols-12 lg:gap-8">
-      <section class="flex min-w-0 flex-col gap-5 lg:col-span-8">
+      <section v-if="isEnabled('homeEvents')" class="flex min-w-0 flex-col gap-5 lg:col-span-8">
         <h2 class="text-2xl font-bold text-highlighted sm:text-3xl">{{ t('home.upcoming') }}</h2>
         <EventsAgenda v-if="later.length" :events="later" />
         <p v-else class="text-muted">{{ t('home.noLaterEvents') }}</p>

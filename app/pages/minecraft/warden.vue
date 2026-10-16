@@ -3,6 +3,8 @@ import { WardenAppealModal, WardenConfirmModal } from '#components';
 
 import type { WardenAccountView, WardenSessionView } from '#shared/schemas/warden';
 
+definePageMeta({ flag: 'warden' });
+
 const { t, locale } = useI18n();
 const toast = useToast();
 const overlay = useOverlay();

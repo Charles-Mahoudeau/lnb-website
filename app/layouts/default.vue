@@ -6,6 +6,7 @@ const { t } = useI18n();
 const localePath = useLocalePath();
 const route = useRoute();
 const { user } = useAuth();
+const { isEnabled } = useFlags();
 
 // Come back to the current page after signing in.
 const signInLink = computed(() =>
@@ -17,7 +18,11 @@ const signInLink = computed(() =>
 // Warden (Minecraft) is open to some schools only.
 const wardenApp = getLinkApp('warden');
 const canUseWarden = computed(
-  () => !!wardenApp && !!user.value && canLinkFromSchool(wardenApp, user.value.tenantId),
+  () =>
+    isEnabled('warden') &&
+    !!wardenApp &&
+    !!user.value &&
+    canLinkFromSchool(wardenApp, user.value.tenantId),
 );
 
 const navItems = computed<NavigationMenuItem[]>(() => [
@@ -28,12 +33,16 @@ const navItems = computed<NavigationMenuItem[]>(() => [
     active: route.path.startsWith('/minecraft/'),
     children: [
       // The mod list is public, so everyone gets it.
-      {
-        label: t('nav.mods'),
-        description: t('nav.modsDescription'),
-        icon: 'i-lucide-puzzle',
-        to: '/minecraft/mod-list',
-      },
+      ...(isEnabled('modList')
+        ? [
+            {
+              label: t('nav.mods'),
+              description: t('nav.modsDescription'),
+              icon: 'i-lucide-puzzle',
+              to: '/minecraft/mod-list',
+            },
+          ]
+        : []),
       ...(canUseWarden.value
         ? [
             {

@@ -6,12 +6,13 @@ import { ModsReasonModal, ModsSuggestModal, WardenConfirmModal } from '#componen
 import type { ModView } from '#shared/schemas/mods';
 
 // Public: anyone sees the list and the scores. Voting and suggesting need an account.
-definePageMeta({ auth: false });
+definePageMeta({ auth: false, flag: 'modList' });
 
 const { t } = useI18n();
 const toast = useToast();
 const overlay = useOverlay();
 const route = useRoute();
+const { isEnabled } = useFlags();
 
 useSeoMeta({ title: () => t('mods.title'), description: () => t('mods.lede') });
 
@@ -58,7 +59,7 @@ const open = computed(() => data.value?.settings.open ?? false);
 
 /** Why the viewer can't vote or suggest, or null when they can. Signed out, they're sent to sign in. */
 const blocked = computed(() => {
-  if (!open.value) return t('mods.vote.closed');
+  if (!open.value || !isEnabled('modList.voting')) return t('mods.vote.closed');
   if (data.value?.me?.banned) return t('mods.vote.banned');
   return null;
 });
@@ -303,7 +304,12 @@ async function onDismiss(id: number) {
           <UButton
             icon="i-lucide-plus"
             :label="t('mods.suggest.open')"
-            :disabled="!open || !!data.me?.banned || data.me?.suggestionsLeft === 0"
+            :disabled="
+              !open ||
+              !isEnabled('modList.suggestions') ||
+              !!data.me?.banned ||
+              data.me?.suggestionsLeft === 0
+            "
             @click="onSuggest"
           />
         </div>

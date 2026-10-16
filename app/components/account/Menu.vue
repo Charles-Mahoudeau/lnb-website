@@ -23,8 +23,9 @@ const firstName = computed(() => props.user.name.trim().split(/\s+/)[0]);
 
 // Warden (Minecraft) is open to some schools only.
 const wardenApp = getLinkApp('warden');
+const { isEnabled } = useFlags();
 const canUseWarden = computed(
-  () => !!wardenApp && canLinkFromSchool(wardenApp, props.user.tenantId),
+  () => isEnabled('warden') && !!wardenApp && canLinkFromSchool(wardenApp, props.user.tenantId),
 );
 
 const items = computed<DropdownMenuItem[][]>(() => [
