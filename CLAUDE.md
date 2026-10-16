@@ -49,10 +49,12 @@ If a stack choice is challenged, re-check it against the plan doc's weighted cri
 - Build with Nuxt UI components and the tokens in `app/assets/css/main.css` and `app/app.config.ts`. Change a component's look globally in `app.config.ts`, not page by page. Check the result on `/styleguide` (dev only) in both color modes, and add new reusable patterns to it.
 - ESLint (`better-tailwindcss/no-restricted-classes`) blocks arbitrary values, raw palette colors and shaded semantic colors. Don't disable it. Add a token instead, and update `docs/design.md` with it.
 - To change the visual language, update `docs/design.md` first, with the user's approval.
+- Frontend design always starts with a mock offering several propositions. The user reviews them before anything is implemented.
 
 ## Standing decisions
 
 - The UI is in English and French, through `@nuxtjs/i18n`. Every user-facing string goes in both `i18n/locales/en.json` and `i18n/locales/fr.json`, never inline. The language is never in the URL: a first visit follows the browser language (English as the fallback), and the language picker on `/account` (next to the theme picker) keeps its choice in the `lnb_locale` cookie. Storing it on the account itself is still to do. Code, comments, docs and commits stay in English.
+- Write "LNB", never "La LNB" (it would expand to "La La Nuit Blanche"). This holds in French and in English.
 - Use only the `main` branch. There is no preprod environment.
 - Don't use Redis. Don't add games or internal analytics or tracking. Don't bring back features the plan dropped.
 - Sign-in is limited by a Microsoft tenant-ID allowlist: Epitech, e-artsup and ISEG.
@@ -61,8 +63,14 @@ If a stack choice is challenged, re-check it against the plan doc's weighted cri
 - License: AGPL-3.0-or-later. Contributions should carry a DCO sign-off.
 - Install agent skills into `.claude/skills/` only, never `.agents/`. With the skills.sh CLI, use `npx skills add <owner/repo> -a claude-code --copy` so the files are real copies, not symlinks. Afterwards, check that no `.agents/` directory was created.
 
+## Workflow
+
+- For a full or complex feature, use the `grilling` skill (grill-me) to sharpen the feature's requirements before implementing, and have the user review the result.
+- When using plan mode, end the plan by telling the user which Claude model and effort level would suit the implementation best: the best output for the least usage.
+
 ## Commits and pull requests
 
+- Commit as you work, in atomic and descriptive commits, but ask the user whether to push them.
 - Make atomic commits: one logical change per commit, so it can be reviewed and reverted on its own. Split unrelated changes, such as a feature and a docs fix, into separate commits.
 - Write descriptive commit messages: a Conventional Commits subject (`feat:`, `fix:`, `docs:`, `chore:`...) that says what changed, and a body that explains why when the subject alone doesn't.
 - Never add AI attribution: no `Co-Authored-By` line naming Claude or any other AI, and no "Generated with Claude Code" line in commits or pull requests.
