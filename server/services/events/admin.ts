@@ -5,6 +5,7 @@ import type { Tx } from '~~/server/db';
 import { event, eventRegistration, eventRoom, eventType } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 
+import { eventRegistrationService } from './registrations';
 import { roomView } from './rooms';
 import { shiftDate } from './rules';
 import { refuse } from './shared';
@@ -148,6 +149,8 @@ async function update(input: { actorId: string; id: string; body: EventBody }): 
     if (current.cancelledAt) refuse(409, 'cancelled');
     await checkChoices(tx, input.body, current);
     await tx.update(event).set(columns(input.body)).where(eq(event.id, input.id));
+    // More places, or no limit any more: the waitlist moves up at once.
+    await eventRegistrationService.promoteAfterChange(tx, input.id);
     await adminAuditService.record(tx, {
       action: 'event.update',
       actorUserId: input.actorId,

@@ -124,6 +124,7 @@ const sampleEvent: EventSummary = {
   capacity: 40,
   registered: 18,
   images: null,
+  me: null,
 };
 const sampleAttendees: EventAttendees = {
   registered: 18,

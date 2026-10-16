@@ -108,12 +108,15 @@ function describe(entry: AdminAuditView): string {
     case 'event.update':
     case 'event.cancel':
     case 'event.delete':
+    case 'event.registrationAdd':
+    case 'event.registrationRemove':
     case 'eventRoom.create':
     case 'eventRoom.update':
     case 'eventType.create':
     case 'eventType.update':
       return t(`admin.overview.log.${entry.action.replace('.', '_')}`, {
         actor,
+        target,
         name: typeof entry.data.name === 'string' ? entry.data.name : '',
       });
   }

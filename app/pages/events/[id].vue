@@ -14,7 +14,7 @@ const route = useRoute();
 const requestUrl = useRequestURL();
 
 const id = computed(() => String(route.params.id));
-const { data: event, error } = await useEvent(id);
+const { data: event, error, refresh } = await useEvent(id);
 if (error.value || !event.value) {
   throw createError({
     status: error.value?.status ?? 404,
@@ -122,6 +122,7 @@ useSeoMeta({
         <EventsRegistrationPanel
           :event="event"
           class="max-lg:order-first lg:sticky lg:top-24 lg:col-span-4"
+          @changed="refresh"
         />
       </div>
     </UContainer>

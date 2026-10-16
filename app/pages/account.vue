@@ -3,6 +3,10 @@ import { en, fr } from '@nuxt/ui/locale';
 
 const { t, locale, setLocale } = useI18n();
 const { user, school, signOut } = useAuth();
+const { isEnabled } = useFlags();
+
+// The events they registered to or wait for, still to come.
+const { data: myEvents } = await useMyEvents(!!user.value && isEnabled('events'));
 
 // Kept in the lnb_locale cookie for now, like a first visit's browser language.
 async function changeLocale(code: string) {
@@ -32,6 +36,20 @@ useSeoMeta({ title: () => t('account.title'), robots: 'noindex' });
         <dd class="text-highlighted">{{ school }}</dd>
       </div>
     </dl>
+
+    <section v-if="isEnabled('events')" class="flex w-full flex-col gap-4">
+      <div class="flex flex-wrap items-baseline justify-between gap-3">
+        <h2 class="text-2xl font-bold text-highlighted">{{ t('account.myEvents') }}</h2>
+        <ULink :to="{ path: '/events', query: { tab: 'mine' } }" class="font-semibold text-primary">
+          {{ t('account.allMyEvents') }}
+        </ULink>
+      </div>
+      <EventsAgenda v-if="myEvents?.upcoming.length" :events="myEvents.upcoming" />
+      <div v-else class="flex flex-col items-start gap-3 rounded-lg bg-elevated p-6">
+        <p class="text-muted">{{ t('account.noEvents') }}</p>
+        <UButton to="/events" color="neutral" variant="soft" :label="t('account.seeEvents')" />
+      </div>
+    </section>
 
     <section class="flex w-full flex-col gap-4">
       <h2 class="text-2xl font-bold text-highlighted">{{ t('account.preferences') }}</h2>

@@ -58,11 +58,13 @@
     "loadFailed": "Les événements n’ont pas pu se charger. Vérifiez votre connexion, puis rechargez la page.",
     "empty": {
       "upcoming": "Aucun événement prévu pour l’instant",
-      "past": "Aucun événement passé pour l’instant"
+      "past": "Aucun événement passé pour l’instant",
+      "mine": "Vous n’êtes inscrit à rien pour l’instant"
     },
     "emptyHint": {
       "upcoming": "Les nouveaux événements s’affichent ici dès qu’ils sont prévus.",
-      "past": "Les événements arrivent ici une fois terminés."
+      "past": "Les événements arrivent ici une fois terminés.",
+      "mine": "Choisissez un événement dans À venir et inscrivez-vous depuis sa page."
     },
     "noMatch": "Aucun événement ne correspond à ces filtres",
     "noMatchHint": "Choisissez un autre type ou une autre école, ou affichez-les tous.",
@@ -90,7 +92,44 @@
     "draftTitle": "C’est un brouillon",
     "draftBody": "Seuls les gestionnaires d’événements le voient. Publiez-le depuis l’espace admin quand il est prêt.",
     "cancelledTitle": "Cet événement est annulé",
-    "cancelledBody": "Il n’aura pas lieu. Si vous étiez inscrit, vous n’avez rien d’autre à faire."
+    "cancelledBody": "Il n’aura pas lieu. Si vous étiez inscrit, vous n’avez rien d’autre à faire.",
+    "mine": "Mes événements",
+    "register": "S’inscrire",
+    "joinWaitlist": "Rejoindre la liste d’attente",
+    "signInToRegister": "Se connecter pour s’inscrire",
+    "signInHint": "Ouvert aux étudiants d’{schools}. Vous revenez ici après la connexion.",
+    "canCancel": "Vous pouvez vous désinscrire jusqu’au début de l’événement.",
+    "waitlistCount": "Personne n’attend encore. Si une place se libère, la première personne de la liste l’obtient. | 1 personne attend. Si une place se libère, la première personne de la liste l’obtient. | {count} personnes attendent. Si une place se libère, la première personne de la liste l’obtient.",
+    "youreRegistered": "Vous êtes inscrit",
+    "youWent": "Vous étiez inscrit",
+    "waitlistPosition": "Liste d’attente, numéro {position}",
+    "waitlistHint": "Si une place se libère avant l’événement, vous l’obtenez automatiquement.",
+    "leaveWaitlist": "Quitter la liste d’attente",
+    "cancelRegistration": "Se désinscrire",
+    "keepPlace": "Garder ma place",
+    "cancelTitle": "Vous désinscrire ?",
+    "cancelBody": "Votre place revient à la première personne de la liste d’attente. Si vous changez d’avis, vous devrez peut-être attendre.",
+    "leaveWaitlistTitle": "Quitter la liste d’attente ?",
+    "leaveWaitlistBody": "Vous perdez votre place dans la file. En revenant, vous repartez à la fin.",
+    "registered": "Inscrit",
+    "joinedWaitlist": "Sur la liste d’attente, numéro {position}",
+    "unregistered": "Désinscription faite",
+    "leftWaitlist": "Vous avez quitté la liste d’attente",
+    "paused": "Les inscriptions sont en pause pour l’instant",
+    "wrongSchoolHint": "Votre compte est celui d’une autre école, vous ne pouvez donc pas vous inscrire à celui-ci.",
+    "signInToSeeWho": "Connectez-vous pour voir qui vient.",
+    "statusRegistered": "Inscrit",
+    "statusWaitlist": "En liste d’attente",
+    "errors": {
+      "failed": "Ça n’a pas marché. Vérifiez votre connexion, puis réessayez.",
+      "notFound": "Cet événement n’existe plus.",
+      "cancelled": "Cet événement est annulé.",
+      "started": "L’événement a commencé, les inscriptions ne peuvent plus changer.",
+      "notYet": "Les inscriptions ne sont pas encore ouvertes. Revenez à l’ouverture.",
+      "closed": "Les inscriptions sont closes pour cet événement.",
+      "wrongSchool": "Cet événement est réservé aux étudiants d’autres écoles.",
+      "notRegistered": "Vous n’étiez plus inscrit. Rechargez la page."
+    }
   },
   "auth": {
     "signIn": "Se connecter",
@@ -120,7 +159,11 @@
       "account": "Profil, thème et langue",
       "warden": "Tes comptes Minecraft",
       "admin": "Gérer le site"
-    }
+    },
+    "myEvents": "Mes événements",
+    "allMyEvents": "Tous mes événements",
+    "noEvents": "Vous n’êtes inscrit à aucun événement à venir.",
+    "seeEvents": "Voir les événements"
   },
   "link": {
     "title": "Associer une application",
@@ -412,7 +455,9 @@
         "eventRoom_create": "{actor} a ajouté la salle {name}.",
         "eventRoom_update": "{actor} a modifié la salle {name}.",
         "eventType_create": "{actor} a ajouté le type d’événement {name}.",
-        "eventType_update": "{actor} a modifié le type d’événement {name}."
+        "eventType_update": "{actor} a modifié le type d’événement {name}.",
+        "event_registrationAdd": "{actor} a inscrit {target} à {name}.",
+        "event_registrationRemove": "{actor} a retiré {target} de {name}."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page."
     },
@@ -580,6 +625,10 @@
         "jobs_closeStaleSessions": {
           "label": "Fermeture des sessions Warden figées",
           "description": "La vérification qui ferme les sessions Warden sans signal de vie."
+        },
+        "events_registration": {
+          "label": "Inscriptions aux événements",
+          "description": "S’inscrire, rejoindre la liste d’attente et se désinscrire. Les pages restent, et les gestionnaires peuvent toujours ajouter et retirer des personnes."
         }
       }
     },

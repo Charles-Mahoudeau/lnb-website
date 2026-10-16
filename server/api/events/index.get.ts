@@ -7,5 +7,6 @@ import { eventQuery } from '#shared/schemas/events';
 export default defineEventHandler(async (event) => {
   await requireFlag(event, 'events');
   const query = parseQuery(event, eventQuery);
-  return { items: await eventPublicService.list(query) };
+  const session = await getAuthSession(event);
+  return { items: await eventPublicService.list(query, { userId: session?.user.id ?? null }) };
 });

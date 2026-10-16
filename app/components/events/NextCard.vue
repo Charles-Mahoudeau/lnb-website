@@ -86,7 +86,28 @@ const ratio = computed(() =>
       <p v-else class="text-sm text-muted tabular-nums">
         {{ t('events.attendees.registered', { count: event.registered }, event.registered) }}
       </p>
-      <UButton :to="to" :label="t('events.seeEvent')" />
+      <div class="flex flex-wrap items-center gap-3">
+        <UBadge
+          v-if="event.me === 'registered'"
+          color="success"
+          variant="subtle"
+          icon="i-lucide-circle-check"
+          :label="t('events.youreRegistered')"
+        />
+        <UBadge
+          v-else-if="event.me === 'waitlist'"
+          color="warning"
+          variant="subtle"
+          icon="i-lucide-hourglass"
+          :label="t('events.statusWaitlist')"
+        />
+        <UButton
+          :to="to"
+          :label="t('events.seeEvent')"
+          :color="event.me ? 'neutral' : 'primary'"
+          :variant="event.me ? 'soft' : 'solid'"
+        />
+      </div>
     </div>
   </article>
 </template>

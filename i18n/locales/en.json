@@ -58,11 +58,13 @@
     "loadFailed": "The events couldn’t load. Check your connection, then reload the page.",
     "empty": {
       "upcoming": "No events planned yet",
-      "past": "No past events yet"
+      "past": "No past events yet",
+      "mine": "You haven’t registered to anything yet"
     },
     "emptyHint": {
       "upcoming": "New events show up here as soon as they’re planned.",
-      "past": "Events move here once they’re over."
+      "past": "Events move here once they’re over.",
+      "mine": "Pick an event in Upcoming and register from its page."
     },
     "noMatch": "No events match these filters",
     "noMatchHint": "Pick another type or school, or show them all.",
@@ -90,7 +92,44 @@
     "draftTitle": "This is a draft",
     "draftBody": "Only events managers can see it. Publish it from the admin area when it’s ready.",
     "cancelledTitle": "This event is cancelled",
-    "cancelledBody": "It won’t take place. If you registered, there’s nothing more to do."
+    "cancelledBody": "It won’t take place. If you registered, there’s nothing more to do.",
+    "mine": "My events",
+    "register": "Register",
+    "joinWaitlist": "Join waitlist",
+    "signInToRegister": "Sign in to register",
+    "signInHint": "Open to {schools} students. You come back here after signing in.",
+    "canCancel": "You can cancel until the event starts.",
+    "waitlistCount": "Nobody is waiting yet. If a place frees up, the first person on the list gets it. | 1 person is waiting. If a place frees up, the first person on the list gets it. | {count} people are waiting. If a place frees up, the first person on the list gets it.",
+    "youreRegistered": "You’re registered",
+    "youWent": "You were registered",
+    "waitlistPosition": "Waitlist, number {position}",
+    "waitlistHint": "If a place frees up before the event, you get it automatically.",
+    "leaveWaitlist": "Leave the waitlist",
+    "cancelRegistration": "Cancel registration",
+    "keepPlace": "Keep my place",
+    "cancelTitle": "Cancel your registration?",
+    "cancelBody": "Your place goes to the first person on the waitlist. If you change your mind, you may have to wait.",
+    "leaveWaitlistTitle": "Leave the waitlist?",
+    "leaveWaitlistBody": "You lose your place in line. Joining again puts you at the end.",
+    "registered": "Registered",
+    "joinedWaitlist": "On the waitlist, number {position}",
+    "unregistered": "Registration cancelled",
+    "leftWaitlist": "You left the waitlist",
+    "paused": "Registration is paused for now",
+    "wrongSchoolHint": "Your account is from another school, so you can’t register for this one.",
+    "signInToSeeWho": "Sign in to see who’s going.",
+    "statusRegistered": "Registered",
+    "statusWaitlist": "On the waitlist",
+    "errors": {
+      "failed": "That didn’t work. Check your connection, then try again.",
+      "notFound": "This event doesn’t exist anymore.",
+      "cancelled": "This event is cancelled.",
+      "started": "The event has started, so registrations can’t change anymore.",
+      "notYet": "Registration isn’t open yet. Come back when it opens.",
+      "closed": "Registration is closed for this event.",
+      "wrongSchool": "This event is for students of other schools.",
+      "notRegistered": "You weren’t registered anymore. Reload the page."
+    }
   },
   "auth": {
     "signIn": "Sign in",
@@ -120,7 +159,11 @@
       "account": "Profile, theme and language",
       "warden": "Your Minecraft accounts",
       "admin": "Manage the site"
-    }
+    },
+    "myEvents": "My events",
+    "allMyEvents": "All my events",
+    "noEvents": "You haven’t registered to an upcoming event.",
+    "seeEvents": "See the events"
   },
   "link": {
     "title": "Link an app",
@@ -412,7 +455,9 @@
         "eventRoom_create": "{actor} added the room {name}.",
         "eventRoom_update": "{actor} changed the room {name}.",
         "eventType_create": "{actor} added the event type {name}.",
-        "eventType_update": "{actor} changed the event type {name}."
+        "eventType_update": "{actor} changed the event type {name}.",
+        "event_registrationAdd": "{actor} registered {target} for {name}.",
+        "event_registrationRemove": "{actor} removed {target} from {name}."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page."
     },
@@ -580,6 +625,10 @@
         "jobs_closeStaleSessions": {
           "label": "Close stale Warden sessions",
           "description": "The check that closes Warden sessions with no heartbeat."
+        },
+        "events_registration": {
+          "label": "Event registration",
+          "description": "Registering, joining the waitlist and cancelling. Pages stay, and managers can still add and remove people."
         }
       }
     },

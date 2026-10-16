@@ -18,6 +18,14 @@ export const EVENT_PROBLEMS = [
   'duplicateName',
   'hasRegistrations',
   'cancelled',
+  'started',
+  'notYet',
+  'closed',
+  'wrongSchool',
+  'full',
+  'alreadyRegistered',
+  'notRegistered',
+  'userNotFound',
 ] as const;
 export type EventProblem = (typeof EVENT_PROBLEMS)[number];
 
@@ -264,6 +272,10 @@ export const eventSummary = z.object({
   capacity: z.number().nullable(),
   registered: z.number(),
   images: eventImages,
+  me: z
+    .enum(['registered', 'waitlist'])
+    .nullable()
+    .describe("The caller's registration. Null when signed out or not registered."),
 });
 export type EventSummary = z.infer<typeof eventSummary>;
 
@@ -277,5 +289,76 @@ export const eventView = eventSummary.extend({
   registrationOpensAt: isoDate.nullable(),
   registrationClosesAt: isoDate.nullable(),
   hidden: z.boolean().describe('A draft. Only events managers get one.'),
+  registration: z.object({
+    state: z
+      .enum(['cancelled', 'started', 'notYet', 'closed', 'wrongSchool', 'full', 'open'])
+      .describe(
+        'Whether the caller can register now. `full` still takes waitlist sign-ups. Signed out, the school is not checked.',
+      ),
+    waitlist: z.number().describe('People on the waitlist.'),
+    me: z
+      .object({
+        status: z.enum(['registered', 'waitlist']),
+        position: z.number().nullable().describe('Place on the waitlist, from 1.'),
+      })
+      .nullable(),
+  }),
+  attendees: z
+    .array(z.object({ id: z.string(), name: z.string(), image: z.string().nullable() }))
+    .nullable()
+    .describe('The first 6 people registered. Null when signed out: names are for members only.'),
 });
 export type EventView = z.infer<typeof eventView>;
+export type RegistrationState = EventView['registration']['state'];
+
+/** POST /api/events/:id/registration */
+export const eventRegistrationResult = eventView.shape.registration.shape.me.unwrap();
+export type EventRegistrationResult = z.infer<typeof eventRegistrationResult>;
+
+/** GET /api/account/events: the caller's registrations, upcoming soonest first, then past. */
+export const myEventList = z.object({
+  upcoming: z.array(eventSummary),
+  past: z.array(eventSummary),
+});
+export type MyEventList = z.infer<typeof myEventList>;
+
+// Registrations, for managers
+
+export const eventRegistrationParams = z.object({
+  id: z.uuid(),
+  userId: z.string().min(1).max(64),
+});
+
+export const eventRegistrationRow = z.object({
+  userId: z.string(),
+  name: z.string(),
+  email: z.string(),
+  school: z.string().nullable(),
+  status: z.enum(['registered', 'waitlist']),
+  position: z.number().nullable().describe('Place on the waitlist, from 1.'),
+  registeredAt: isoDate,
+  addedBy: z.string().nullable().describe('The manager who added them, by name.'),
+});
+export type EventRegistrationRow = z.infer<typeof eventRegistrationRow>;
+
+export const eventRegistrationList = z.object({ items: z.array(eventRegistrationRow) });
+export type EventRegistrationList = z.infer<typeof eventRegistrationList>;
+
+/** POST /api/admin/events/:id/registrations */
+export const eventRegistrationAddBody = z.object({
+  userId: z.string().min(1).max(64),
+  force: z.boolean().default(false).describe('Register even past the limit.'),
+});
+export type EventRegistrationAddBody = z.input<typeof eventRegistrationAddBody>;
+
+/** GET /api/admin/events/users */
+export const eventUserQuery = z.object({ q: z.string().trim().min(2).max(100) });
+
+export const eventUserOption = z.object({
+  userId: z.string(),
+  name: z.string(),
+  email: z.string(),
+  school: z.string().nullable(),
+});
+export const eventUserOptions = z.object({ items: z.array(eventUserOption) });
+export type EventUserOption = z.infer<typeof eventUserOption>;

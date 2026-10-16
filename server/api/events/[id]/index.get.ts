@@ -8,6 +8,10 @@ import { isEventsManager } from '#shared/utils/roles';
 export default defineEventHandler(async (event) => {
   await requireFlag(event, 'events');
   const { id } = parseParams(event, eventIdParams);
-  const session = await getAuthSession(event);
-  return eventPublicService.get(id, isEventsManager(session?.user.role));
+  const viewer = (await getAuthSession(event))?.user;
+  return eventPublicService.get(id, {
+    userId: viewer?.id ?? null,
+    tenantId: viewer?.tenantId ?? null,
+    canSeeDrafts: isEventsManager(viewer?.role),
+  });
 });

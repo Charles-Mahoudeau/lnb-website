@@ -27,6 +27,7 @@ function summary(overrides: Partial<EventSummary> = {}): EventSummary {
     capacity: 40,
     registered: 23,
     images: null,
+    me: null,
     ...overrides,
   };
 }
@@ -40,6 +41,8 @@ function view(overrides: Partial<EventView> = {}): EventView {
     registrationOpensAt: null,
     registrationClosesAt: null,
     hidden: false,
+    registration: { state: 'open', waitlist: 0, me: null },
+    attendees: null,
     ...overrides,
   };
 }
@@ -79,9 +82,48 @@ describe('registration panel', () => {
 
   it('says when registration opens', async () => {
     const panel = await mountSuspended(EventsRegistrationPanel, {
-      props: { event: view({ registrationOpensAt: at(2 * DAY) }) },
+      props: {
+        event: view({
+          registrationOpensAt: at(2 * DAY),
+          registration: { state: 'notYet', waitlist: 0, me: null },
+        }),
+      },
     });
     expect(panel.text()).toContain('Registration opens on');
+    expect(panel.text()).not.toContain('Register');
+  });
+
+  it('asks visitors to sign in, and hides who is going', async () => {
+    const text = (
+      await mountSuspended(EventsRegistrationPanel, { props: { event: view() } })
+    ).text();
+    expect(text).toContain('Sign in to register');
+    expect(text).toContain('Sign in to see who’s going.');
+  });
+
+  it('shows the caller where they stand', async () => {
+    const registered = await mountSuspended(EventsRegistrationPanel, {
+      props: {
+        event: view({
+          registration: {
+            state: 'open',
+            waitlist: 0,
+            me: { status: 'registered', position: null },
+          },
+        }),
+      },
+    });
+    expect(registered.text()).toContain('You’re registered');
+    expect(registered.text()).toContain('Cancel registration');
+    const waiting = await mountSuspended(EventsRegistrationPanel, {
+      props: {
+        event: view({
+          registration: { state: 'full', waitlist: 3, me: { status: 'waitlist', position: 2 } },
+        }),
+      },
+    });
+    expect(waiting.text()).toContain('Waitlist, number 2');
+    expect(waiting.text()).toContain('Leave the waitlist');
   });
 
   it('marks cancelled and past events', async () => {

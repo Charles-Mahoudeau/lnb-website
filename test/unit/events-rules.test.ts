@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildIcs, shiftDate } from '../../server/services/events/rules.ts';
+import {
+  buildIcs,
+  placesToPromote,
+  registrationState,
+  shiftDate,
+} from '../../server/services/events/rules.ts';
 import {
   eventBody,
   eventRoomBody,
@@ -146,5 +151,54 @@ describe('calendar file', () => {
 
   it('marks a cancelled event', () => {
     expect(buildIcs({ ...event, cancelled: true })).toContain('STATUS:CANCELLED');
+  });
+});
+
+describe('registration', () => {
+  const now = new Date('2026-11-01T12:00:00Z');
+  const EPITECH_ID = '901cb4ca-b862-4029-9306-e5cd0f6d9f86';
+  const open = {
+    startsAt: new Date('2026-11-04T18:30:00Z'),
+    cancelledAt: null,
+    registrationOpensAt: null,
+    registrationClosesAt: null,
+    schools: [EPITECH_ID],
+    capacity: 40,
+    registered: 10,
+  };
+
+  it('is open by default, from publication until the start', () => {
+    expect(registrationState(open, EPITECH_ID, now)).toBe('open');
+    expect(registrationState(open, null, now)).toBe('open');
+    expect(registrationState(open, EPITECH_ID, new Date('2026-11-04T18:30:00Z'))).toBe('started');
+  });
+
+  it('follows the registration window', () => {
+    const later = { ...open, registrationOpensAt: new Date('2026-11-02T11:00:00Z') };
+    expect(registrationState(later, EPITECH_ID, now)).toBe('notYet');
+    const early = { ...open, registrationClosesAt: new Date('2026-11-01T12:00:00Z') };
+    expect(registrationState(early, EPITECH_ID, now)).toBe('closed');
+  });
+
+  it('checks the school only when someone is signed in, after the window', () => {
+    const iseg = '8dab9574-4b8e-4eec-8e5e-791d6835fdea';
+    expect(registrationState(open, iseg, now)).toBe('wrongSchool');
+    expect(registrationState(open, EPITECH_ID.toUpperCase(), now)).toBe('open');
+  });
+
+  it('turns full at the limit, and cancelled wins over everything', () => {
+    expect(registrationState({ ...open, registered: 40 }, EPITECH_ID, now)).toBe('full');
+    expect(registrationState({ ...open, capacity: null, registered: 500 }, EPITECH_ID, now)).toBe(
+      'open',
+    );
+    expect(registrationState({ ...open, cancelledAt: now }, EPITECH_ID, now)).toBe('cancelled');
+  });
+
+  it('promotes as many people as there are free places, until the start', () => {
+    const event = { startsAt: open.startsAt, capacity: 10, registered: 8, waitlist: 5 };
+    expect(placesToPromote(event, now)).toBe(2);
+    expect(placesToPromote({ ...event, registered: 12 }, now)).toBe(0);
+    expect(placesToPromote({ ...event, capacity: null }, now)).toBe(5);
+    expect(placesToPromote(event, open.startsAt)).toBe(0);
   });
 });

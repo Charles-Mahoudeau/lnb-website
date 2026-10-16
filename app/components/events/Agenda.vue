@@ -91,6 +91,18 @@ const full = (event: EventSummary) =>
                   :label="t('events.cancelled')"
                 />
                 <UBadge
+                  v-else-if="event.me === 'registered' && !past"
+                  color="success"
+                  variant="subtle"
+                  :label="t('events.statusRegistered')"
+                />
+                <UBadge
+                  v-else-if="event.me === 'waitlist' && !past"
+                  color="warning"
+                  variant="subtle"
+                  :label="t('events.statusWaitlist')"
+                />
+                <UBadge
                   v-else-if="full(event)"
                   color="warning"
                   variant="subtle"

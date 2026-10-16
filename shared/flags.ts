@@ -28,6 +28,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'avatars.microsoftPhoto', parent: 'avatars' },
   { key: 'events' },
   { key: 'events.home', parent: 'events' },
+  { key: 'events.registration', parent: 'events' },
   { key: 'jobs' },
   { key: 'jobs.deleteInactive', parent: 'jobs' },
   { key: 'jobs.pruneAvatars', parent: 'jobs' },

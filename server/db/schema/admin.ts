@@ -18,6 +18,9 @@ export type AdminAuditAction =
   | 'event.update'
   | 'event.cancel'
   | 'event.delete'
+  /** A manager registered someone by hand, or removed them. The target is that account. */
+  | 'event.registrationAdd'
+  | 'event.registrationRemove'
   /** Rooms and types of events. `data.id` and `data.name`. */
   | 'eventRoom.create'
   | 'eventRoom.update'

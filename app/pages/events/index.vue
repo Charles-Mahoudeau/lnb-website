@@ -11,17 +11,36 @@ const router = useRouter();
 
 useSeoMeta({ title: () => t('events.title'), description: () => t('events.lede') });
 
-type Tab = 'upcoming' | 'past';
+const { user } = useAuth();
+
+type Tab = 'upcoming' | 'mine' | 'past';
 const tab = computed<Tab>({
-  get: () => (route.query.tab === 'past' ? 'past' : 'upcoming'),
+  get: () => {
+    const value = route.query.tab;
+    return value === 'past' || (value === 'mine' && user.value) ? value : 'upcoming';
+  },
   set: (value) => void router.replace({ query: { ...route.query, tab: value } }),
 });
 const tabs = computed<TabsItem[]>(() => [
   { label: t('events.upcoming'), value: 'upcoming' },
+  ...(user.value ? [{ label: t('events.mine'), value: 'mine' }] : []),
   { label: t('events.past'), value: 'past' },
 ]);
 
-const { data, error, status } = await useEventList(() => ({ when: tab.value }), 'events-list');
+// "My events" has its own endpoint: the caller's registrations, upcoming then past.
+const list = useEventList(
+  () => ({ when: tab.value === 'past' ? 'past' : 'upcoming' }),
+  'events-list',
+);
+const mine = useMyEvents(!!user.value);
+await Promise.all([list, mine]);
+const data = computed(() =>
+  tab.value === 'mine'
+    ? { items: [...(mine.data.value?.upcoming ?? []), ...(mine.data.value?.past ?? [])] }
+    : list.data.value,
+);
+const error = computed(() => (tab.value === 'mine' ? mine.error.value : list.error.value));
+const status = computed(() => (tab.value === 'mine' ? mine.status.value : list.status.value));
 
 // Filters apply to the loaded tab, so they only offer types that tab has.
 const type = ref('all');

@@ -81,3 +81,50 @@ export function buildIcs(event: IcsEvent, now = new Date()): string {
   ];
   return `${lines.map(fold).join('\r\n')}\r\n`;
 }
+
+// Registration
+
+/** Whether someone can register now, and if not, why. Checked in this order. */
+export type RegistrationState =
+  'cancelled' | 'started' | 'notYet' | 'closed' | 'wrongSchool' | 'full' | 'open';
+
+export interface RegistrationEvent {
+  startsAt: Date;
+  cancelledAt: Date | null;
+  registrationOpensAt: Date | null;
+  registrationClosesAt: Date | null;
+  schools: readonly string[];
+  capacity: number | null;
+  registered: number;
+}
+
+/**
+ * Where registration stands for an event. `tenantId` is the visitor's school, or null when
+ * signed out, which skips the school check. `full` still lets people join the waitlist.
+ */
+export function registrationState(
+  event: RegistrationEvent,
+  tenantId: string | null,
+  now = new Date(),
+): RegistrationState {
+  if (event.cancelledAt) return 'cancelled';
+  if (now >= event.startsAt) return 'started';
+  if (event.registrationOpensAt && now < event.registrationOpensAt) return 'notYet';
+  if (event.registrationClosesAt && now >= event.registrationClosesAt) return 'closed';
+  if (tenantId !== null && !event.schools.includes(tenantId.toLowerCase())) return 'wrongSchool';
+  if (event.capacity !== null && event.registered >= event.capacity) return 'full';
+  return 'open';
+}
+
+/**
+ * How many people on the waitlist get a place: as many as there are free places, or all of them
+ * once there's no limit. None after the start: the list is frozen once the event begins.
+ */
+export function placesToPromote(
+  event: { startsAt: Date; capacity: number | null; registered: number; waitlist: number },
+  now = new Date(),
+): number {
+  if (now >= event.startsAt || event.waitlist === 0) return 0;
+  if (event.capacity === null) return event.waitlist;
+  return Math.max(0, Math.min(event.capacity - event.registered, event.waitlist));
+}

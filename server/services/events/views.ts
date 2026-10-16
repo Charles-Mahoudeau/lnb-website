@@ -47,7 +47,7 @@ export function eventImages(row: typeof event.$inferSelect): EventSummary['image
   };
 }
 
-export function summaryView(row: SelectedEvent): EventSummary {
+export function summaryView(row: SelectedEvent, me: EventSummary['me'] = null): EventSummary {
   const e = row.event;
   return {
     id: e.id,
@@ -66,5 +66,6 @@ export function summaryView(row: SelectedEvent): EventSummary {
     capacity: e.capacity,
     registered: row.registered,
     images: eventImages(e),
+    me,
   };
 }

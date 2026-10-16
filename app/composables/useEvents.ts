@@ -1,4 +1,10 @@
-import type { EventList, EventQuery, EventView } from '#shared/schemas/events';
+import type {
+  EventList,
+  EventQuery,
+  EventRegistrationResult,
+  EventView,
+  MyEventList,
+} from '#shared/schemas/events';
 
 // Events, as everyone sees them.
 
@@ -13,3 +19,26 @@ export function useEvent(id: MaybeRefOrGetter<string>) {
     key: computed(() => `event-${toValue(id)}`),
   });
 }
+
+/** The caller's registrations, upcoming and past. */
+export function useMyEvents(signedIn = true) {
+  return useFetch<MyEventList>('/api/account/events', { key: 'my-events', immediate: signedIn });
+}
+
+async function call<T>(request: () => Promise<T>): Promise<T> {
+  try {
+    return await request();
+  } catch (error) {
+    throw toEventError(error);
+  }
+}
+
+/** Registering and cancelling. Each throws an EventError when refused. */
+export const eventRegistrationActions = {
+  register: (id: string) =>
+    call(() =>
+      $fetch<EventRegistrationResult>(`/api/events/${id}/registration`, { method: 'POST' }),
+    ),
+  unregister: (id: string) =>
+    call(() => $fetch(`/api/events/${id}/registration`, { method: 'DELETE' })),
+};

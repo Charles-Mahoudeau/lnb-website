@@ -83,6 +83,7 @@ const requestSchemas = {
   EventTypePatchBody: events.eventTypePatchBody,
   EventBody: events.eventBody,
   EventDuplicateBody: events.eventDuplicateBody,
+  EventRegistrationAddBody: events.eventRegistrationAddBody,
 };
 
 const responseSchemas = {
@@ -141,6 +142,11 @@ const responseSchemas = {
   EventSummary: events.eventSummary,
   EventList: events.eventList,
   EventView: events.eventView,
+  EventRegistrationResult: events.eventRegistrationResult,
+  MyEventList: events.myEventList,
+  EventRegistrationRow: events.eventRegistrationRow,
+  EventRegistrationList: events.eventRegistrationList,
+  EventUserOptions: events.eventUserOptions,
 };
 
 const TAGS = {
@@ -1088,7 +1094,112 @@ const routes: RouteDoc[] = [
     ],
   },
 
+  {
+    method: 'post',
+    path: '/api/events/{id}/registration',
+    tag: TAGS.events,
+    summary: 'Register',
+    description:
+      'Registers the caller, or puts them on the waitlist when the event is full. Registering again changes nothing and returns where they stand. The school and the registration window are checked.',
+    access: 'user',
+    params: events.eventIdParams,
+    response: events.eventRegistrationResult,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['cancelled', 'started', 'notYet', 'closed', 'wrongSchool'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'delete',
+    path: '/api/events/{id}/registration',
+    tag: TAGS.events,
+    summary: 'Cancel a registration',
+    description:
+      'Cancels the registration, or leaves the waitlist, until the event starts. The first person waiting gets the place.',
+    access: 'user',
+    params: events.eventIdParams,
+    noContent: true,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['started', 'notRegistered'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/account/events',
+    tag: TAGS.events,
+    summary: 'My events',
+    description:
+      "The caller's registrations and waitlist places, upcoming soonest first, then the 50 latest past ones.",
+    access: 'user',
+    response: events.myEventList,
+    problems: [{ status: 503, problems: ['disabled'] }],
+  },
+
   // Events: managers
+  {
+    method: 'get',
+    path: '/api/admin/events/{id}/registrations',
+    tag: TAGS.eventsAdmin,
+    summary: 'Registrations',
+    description: 'Everyone registered, then the waitlist in order, with their email and school.',
+    access: 'eventsManager',
+    params: events.eventIdParams,
+    response: events.eventRegistrationList,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/admin/events/{id}/registrations.csv',
+    tag: TAGS.eventsAdmin,
+    summary: 'Registrations as CSV',
+    access: 'eventsManager',
+    params: events.eventIdParams,
+    response: {
+      description: 'The same list as a CSV file, UTF-8 with a byte order mark for spreadsheets.',
+      content: { 'text/csv': { schema: { type: 'string' } } },
+    },
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/events/{id}/registrations',
+    tag: TAGS.eventsAdmin,
+    summary: 'Register someone',
+    description:
+      "Registers an account by hand, whatever its school or the registration window. Past the limit it's refused with `full`, unless `force` is set. Someone on the waitlist is moved up.",
+    access: 'eventsManager',
+    params: events.eventIdParams,
+    body: events.eventRegistrationAddBody,
+    noContent: true,
+    problems: [
+      { status: 404, problems: ['notFound', 'userNotFound'] },
+      { status: 409, problems: ['cancelled', 'alreadyRegistered', 'full'] },
+    ],
+  },
+  {
+    method: 'delete',
+    path: '/api/admin/events/{id}/registrations/{userId}',
+    tag: TAGS.eventsAdmin,
+    summary: 'Remove someone',
+    description: 'Removes a registration or a waitlist place. The waitlist moves up.',
+    access: 'eventsManager',
+    params: events.eventRegistrationParams,
+    noContent: true,
+    problems: [{ status: 404, problems: ['notFound', 'notRegistered'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/admin/events/users',
+    tag: TAGS.eventsAdmin,
+    summary: 'Find an account',
+    description: 'Up to 10 accounts by name or email, to register someone by hand.',
+    access: 'eventsManager',
+    query: events.eventUserQuery,
+    response: events.eventUserOptions,
+  },
   {
     method: 'get',
     path: '/api/admin/event-rooms',

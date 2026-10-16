@@ -104,6 +104,8 @@ export const adminAuditView = z.object({
     'event.update',
     'event.cancel',
     'event.delete',
+    'event.registrationAdd',
+    'event.registrationRemove',
     'eventRoom.create',
     'eventRoom.update',
     'eventType.create',
