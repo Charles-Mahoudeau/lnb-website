@@ -2,7 +2,7 @@
 
 Events are listed at `/events`, each with its page at `/events/<id>`. Students register from the event page. Events managers run them from the Events section of the admin area (`/admin/events`). An event can also be pushed to the BDE website (see `docs/bde/external_events_api.md`).
 
-The feature is built in slices. Done: the role, the data, rooms, types, the public pages (`/events`, `/events/<id>`, the home hero and agenda, the sign-in banner), registrations with the waitlist, the admin event pages, and images. Still to do: the BDE sync. The approved mocks are in the [events mocks](https://claude.ai/artifact/E7UkoDfz9U9uiYATh1gZYo): event page A, list A1, admin form with 2 tabs, picker A.
+Later, not built yet: notifications (promotion from the waitlist, reminders) once Push exists, team events, an iCal feed, and more image providers. The approved mocks are in the [events mocks](https://claude.ai/artifact/E7UkoDfz9U9uiYATh1gZYo): event page A, list A1, admin form with 2 tabs, picker A.
 
 ## Roles
 
@@ -45,11 +45,21 @@ The feature is built in slices. Done: the role, the data, rooms, types, the publ
 - Links are fetched over https only, up to 10 MB, within 10 seconds, never from a private, loopback or link-local address, and each redirect is checked again. Provider images are fetched from the provider's hosts only, and so are the picker's previews (`/api/admin/events/images/thumb`, cached a day).
 - `events:prune-images` removes images no event uses, a day after they were stored, every night (`jobs.pruneEventImages`). `events.imageSearch` turns SteamGridDB off: uploads and links stay.
 
+## BDE website
+
+- With "Publish on the BDE website too" on, an event is pushed to the BDE's external events API (`docs/bde/external_events_api.md`) with `PUT /events/<our id>`: the name, the description as plain text, the room as location, the dates, our page as `url`, the embed image, the price, and `hidden` while it's a draft. Cancelling, deleting or turning the switch off sends `DELETE`. `server/services/events/bde.ts` does it, `toBdePayload` and `bdeProblems` in `rules.ts` map and check the fields.
+- Saving marks the event `pending` and pushes at once. A network error, a 5xx or a 429 is retried by `events:bde-sync` (every minute) after 1, 5 and 30 minutes, then hourly. A refusal (422, a token problem, or our own check of the BDE's rules) is `failed`, with the BDE's messages on the form, until the event changes or a manager clicks Try again. A save during a push makes the next run send the new version.
+- Deleting an event that is on the BDE website takes it down there first, and is refused while the BDE website can't be reached, since nothing could retry afterwards.
+- The page and image URLs come from `BETTER_AUTH_URL`, which must be on `bde-teknantes.fr` for the BDE to accept them. `events.bdeSync` pauses the pushes: events wait as pending.
+- If the API stays down, the LNB office can add the event by hand in the BDE admin panel, then delete it there before the API is back (see the API doc).
+
 ## Environment
 
-| Variable              | Required | Use                                       |
-| --------------------- | -------- | ----------------------------------------- |
-| `STEAMGRIDDB_API_KEY` | No       | Turns on SteamGridDB in the image picker. |
+| Variable              | Required | Use                                                                                    |
+| --------------------- | -------- | -------------------------------------------------------------------------------------- |
+| `STEAMGRIDDB_API_KEY` | No       | Turns on SteamGridDB in the image picker.                                              |
+| `BDE_API_TOKEN`       | No       | From the BDE office. Turns on pushing events to the BDE website.                       |
+| `BDE_API_URL`         | No       | The BDE API, `https://bde-teknantes.fr/api/v1` by default. Point it at a stub to test. |
 
 ## Pages
 
