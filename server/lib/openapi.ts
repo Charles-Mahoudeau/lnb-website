@@ -153,10 +153,12 @@ const routes: RouteDoc[] = [
     method: 'get',
     path: '/api/health',
     tag: TAGS.health,
-    summary: 'Liveness check',
-    description: 'For Coolify. Answers as long as the server runs, without checking the database.',
+    summary: 'Health check',
+    description:
+      'For Coolify. Answers 200 once the startup migration is done and the database responds, and 503 before that or if either fails.',
     access: 'public',
     response: z.object({ status: z.literal('ok') }),
+    problems: [{ status: 503, problems: ['migrating', 'migrationFailed', 'database'] }],
   },
   {
     method: 'get',
@@ -1058,6 +1060,7 @@ const STATUS_TEXT: Record<number, string> = {
   409: 'Conflict',
   429: 'Too Many Requests',
   502: 'Bad Gateway',
+  503: 'Service Unavailable',
 };
 
 // The body of every error from our routes (h3's format). Better Auth's routes have their own.

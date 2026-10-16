@@ -17,7 +17,7 @@ The target file structure and the server and client rules are in `docs/architect
 ## Commands
 
 - `docker compose up -d`: start local PostgreSQL (see `compose.yaml`, `.env.example`)
-- `pnpm db:migrate`: apply migrations by hand. The production server applies pending ones at startup (`server/plugins/migrate.ts`) and exits if one fails. `pnpm db:generate --name <change>` creates one from `server/db/schema/`, and `pnpm db:studio` browses the database.
+- `pnpm db:migrate`: apply migrations by hand. The server applies pending ones at startup (`server/plugins/migrate.ts`). If that fails it logs the error and stays up, and `/api/health` answers 503. Coolify needs its health check on `/api/health` for that to keep the previous container serving. `pnpm db:generate --name <change>` creates one from `server/db/schema/`, and `pnpm db:studio` browses the database.
 - `pnpm dev`: dev server on http://localhost:3000
 - `pnpm build`, then `node .output/server/index.mjs`: production build and run
 - `/api/docs`: the API reference (Scalar), built from `server/lib/openapi.ts`. A new route needs an entry there, or `test/unit/openapi.test.ts` fails.
