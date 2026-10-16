@@ -11,6 +11,7 @@ const PING_MS = 25_000;
 // audit log IDs. Send Last-Event-ID when reconnecting to get the events you missed.
 export default defineEventHandler(async (event) => {
   requireWardenServer(event);
+  await requireFlag(event, 'warden.serverApi');
   const lastEventId = Number(getRequestHeader(event, 'last-event-id'));
   let cursor =
     Number.isSafeInteger(lastEventId) && lastEventId >= 0

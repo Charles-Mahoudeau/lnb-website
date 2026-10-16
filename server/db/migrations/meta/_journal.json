@@ -50,6 +50,13 @@
       "when": 1792106454662,
       "tag": "0006_mod_list",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792147521462,
+      "tag": "0007_feature_flags",
+      "breakpoints": true
     }
   ]
 }

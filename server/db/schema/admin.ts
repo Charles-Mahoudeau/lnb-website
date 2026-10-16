@@ -9,6 +9,8 @@ export type AdminAuditAction =
   | 'user.unban'
   | 'user.signOut'
   | 'user.delete'
+  /** A feature flag switched, with `data.key` and `data.enabled`. */
+  | 'flag.update'
   /** The nightly cleanup of inactive accounts, with `data.count`. No actor and no target. */
   | 'users.deleteInactive';
 

@@ -6,6 +6,7 @@ import { wardenUserCodeParams } from '#shared/schemas/warden';
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
+  await requireFlag(event, 'warden.linking');
   const { userCode } = parseParams(event, wardenUserCodeParams);
   return wardenLinkService.preview({ actorId: user.id, userCode });
 });

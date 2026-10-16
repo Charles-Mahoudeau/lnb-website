@@ -92,6 +92,7 @@ export const adminAuditView = z.object({
     'user.signOut',
     'user.delete',
     'users.deleteInactive',
+    'flag.update',
   ]),
   actor: z.object({ userId: z.string(), name: z.string() }).nullable(),
   target: z.object({ userId: z.string(), name: z.string() }).nullable(),

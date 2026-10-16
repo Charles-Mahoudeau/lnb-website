@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import * as admin from '../../shared/schemas/admin.ts';
 import { avatarParams } from '../../shared/schemas/avatars.ts';
+import * as flags from '../../shared/schemas/flags.ts';
 import { linkApproveBody, linkApproveResult } from '../../shared/schemas/link.ts';
 import * as mods from '../../shared/schemas/mods.ts';
 import * as warden from '../../shared/schemas/warden.ts';
@@ -49,6 +50,7 @@ type OpenApiObject = Record<string, unknown>;
 const requestSchemas = {
   AdminRolesBody: admin.adminRolesBody,
   AdminBanBody: admin.adminBanBody,
+  FlagPatchBody: flags.flagPatchBody,
   LinkApproveBody: linkApproveBody,
   WardenIssuer: warden.wardenIssuer,
   WardenLinkRequestBody: warden.wardenLinkRequestBody,
@@ -81,6 +83,8 @@ const responseSchemas = {
   AdminAuditView: admin.adminAuditView,
   AdminUserRow: admin.adminUserRow,
   AdminUserPage: admin.adminUserPage,
+  FlagStates: flags.flagStates,
+  AdminFlagList: flags.adminFlagList,
   LinkApproveResult: linkApproveResult,
   WardenLinkRequest: warden.wardenLinkRequest,
   WardenLinkRequestStatus: warden.wardenLinkRequestStatus,
@@ -127,6 +131,7 @@ const TAGS = {
   reference: 'API reference',
   link: 'App linking',
   admin: 'Admin',
+  flags: 'Feature flags',
   wardenServer: 'Warden: Minecraft server',
   wardenPlayer: 'Warden: players',
   wardenAdmin: 'Warden: admins',
@@ -221,6 +226,36 @@ const routes: RouteDoc[] = [
       'What needs an admin (Warden appeals waiting, accounts inactive for 24 months, site bans in force) and the 10 latest admin changes.',
     access: 'admin',
     response: admin.adminOverview,
+  },
+  {
+    method: 'get',
+    path: '/api/flags',
+    tag: TAGS.flags,
+    summary: 'Feature flags',
+    description:
+      'Whether each feature is on. A flag whose parent is off is off too. Gated routes answer 503 `disabled` while their flag is off.',
+    access: 'public',
+    response: flags.flagStates,
+  },
+  {
+    method: 'get',
+    path: '/api/admin/flags',
+    tag: TAGS.admin,
+    summary: 'Feature flags, for admins',
+    description: 'Each flag with its own switch, what is applied, and who last changed it.',
+    access: 'admin',
+    response: flags.adminFlagList,
+  },
+  {
+    method: 'patch',
+    path: '/api/admin/flags/{key}',
+    tag: TAGS.admin,
+    summary: 'Switch a feature flag',
+    description: 'Takes effect at once on this instance and within 10 seconds on the others.',
+    access: 'admin',
+    params: flags.flagParams,
+    body: flags.flagPatchBody,
+    response: flags.adminFlagList,
   },
   {
     method: 'get',

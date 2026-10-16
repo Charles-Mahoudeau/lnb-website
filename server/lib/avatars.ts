@@ -1,3 +1,5 @@
+import { isFlagOn } from './flag-gate.ts';
+
 // No Nuxt imports here: auth.ts uses this, and the Better Auth CLI loads auth.ts. The Nitro
 // plugin server/plugins/avatars.ts plugs the avatars service in at startup.
 
@@ -27,7 +29,7 @@ export function decodePhotoDataUrl(url: string | undefined): Buffer | undefined 
  */
 export async function saveProfilePhoto(dataUrl: string | undefined): Promise<string | undefined> {
   const bytes = decodePhotoDataUrl(dataUrl);
-  if (!bytes || !store) return undefined;
+  if (!bytes || !store || !(await isFlagOn('avatars.microsoftPhoto'))) return undefined;
   try {
     return await store(bytes);
   } catch {

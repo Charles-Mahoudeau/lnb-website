@@ -6,6 +6,7 @@ import { wardenUuidParams } from '#shared/schemas/warden';
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
+  await requireFlag(event, 'warden.linking');
   const { uuid } = parseParams(event, wardenUuidParams);
   await wardenPlayerService.unlink({
     userId: user.id,

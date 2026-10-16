@@ -11,9 +11,9 @@ const redirect = computed(() => safeRedirect(route.query.redirect));
 const errorMessage = computed(() => {
   const error = route.query.error;
   if (!error) return null;
-  return error === TENANT_NOT_ALLOWED
-    ? t('auth.errors.tenantNotAllowed')
-    : t('auth.errors.generic');
+  if (error === TENANT_NOT_ALLOWED) return t('auth.errors.tenantNotAllowed');
+  if (error === SIGN_IN_DISABLED) return t('auth.errors.signInDisabled');
+  return t('auth.errors.generic');
 });
 
 if (user.value) {

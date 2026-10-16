@@ -6,6 +6,7 @@ import { wardenAppealBody, wardenBanParams } from '#shared/schemas/warden';
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
+  await requireFlag(event, 'warden.appeals');
   const { banId } = parseParams(event, wardenBanParams);
   const { body } = await parseBody(event, wardenAppealBody);
   return wardenModerationService.appeal({ actorId: user.id, banId, body });

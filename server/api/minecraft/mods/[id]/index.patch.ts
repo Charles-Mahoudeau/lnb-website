@@ -6,6 +6,7 @@ import { modIdParams, modReasonBody } from '#shared/schemas/mods';
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
+  await requireFlag(event, 'modList.suggestions');
   const { id } = parseParams(event, modIdParams);
   const { reason } = await parseBody(event, modReasonBody);
   await modSuggestionService.editReason({ actorId: user.id, modId: id, reason });

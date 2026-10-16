@@ -7,6 +7,7 @@ import { modIdParams } from '#shared/schemas/mods';
 
 // A mod's icon never changes once it's stored, so it's cached for a year.
 export default defineEventHandler(async (event) => {
+  await requireFlag(event, 'modList.icons');
   const { id } = parseParams(event, modIdParams);
   const key = await modListService.iconKey(id);
   const icon = key ? await modIconService.get(key) : undefined;

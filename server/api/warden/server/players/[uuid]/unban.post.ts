@@ -7,6 +7,7 @@ import { wardenServerUnbanBody, wardenUuidParams } from '#shared/schemas/warden'
 
 export default defineEventHandler(async (event) => {
   requireWardenServer(event);
+  await requireFlag(event, 'warden.serverApi');
   const { uuid } = parseParams(event, wardenUuidParams);
   const { issuer, reason } = await parseBody(event, wardenServerUnbanBody);
   const actor = await wardenModerationService.serverActor(db, issuer);

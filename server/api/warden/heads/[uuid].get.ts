@@ -5,6 +5,7 @@ import { wardenHeadService } from '~~/server/services/warden/heads';
 import { wardenUuidParams } from '#shared/schemas/warden';
 
 export default defineEventHandler(async (event) => {
+  await requireFlag(event, 'warden');
   const { uuid } = parseParams(event, wardenUuidParams);
   const png = await wardenHeadService.get(uuid);
   if (!png) throw createError({ status: 404, statusText: 'Not Found' });

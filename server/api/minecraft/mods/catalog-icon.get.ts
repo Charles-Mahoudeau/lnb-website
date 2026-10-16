@@ -7,6 +7,7 @@ import { modCatalogIconQuery } from '#shared/schemas/mods';
 // Icons of search results, fetched by the site from Modrinth's or CurseForge's image host only.
 export default defineEventHandler(async (event) => {
   await requireUser(event);
+  await requireFlag(event, 'modList.icons');
   const { src } = parseQuery(event, modCatalogIconQuery);
   const icon = await modIconService.catalog(src);
   if (!icon) throw createError({ status: 404, statusText: 'Not Found' });

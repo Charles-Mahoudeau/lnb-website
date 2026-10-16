@@ -5,20 +5,32 @@ import { createAccessControl } from 'better-auth/plugins/access';
 import { admin } from 'better-auth/plugins/admin';
 import { adminAc, defaultStatements, userAc } from 'better-auth/plugins/admin/access';
 import { deviceAuthorization } from 'better-auth/plugins/device-authorization';
+import { sql } from 'drizzle-orm';
 
 import { readAuthEnv } from './auth-env';
 import { saveProfilePhoto } from './avatars';
+import { isFlagOn } from './flag-gate';
 import { generateLinkCode } from './link-codes';
-import { isAllowedTenant } from './tenants';
-import { TENANT_NOT_ALLOWED } from '../../shared/utils/auth-errors';
+import { isAllowedTenant, SCHOOL_SIGN_IN_FLAGS } from './tenants';
+import { SIGN_IN_DISABLED, TENANT_NOT_ALLOWED } from '../../shared/utils/auth-errors';
 import { getLinkApp, LINK_CODE_LENGTH } from '../../shared/utils/link-apps';
-import { ADMIN_ROLE, WARDEN_ADMIN_ROLE } from '../../shared/utils/roles';
+import { ADMIN_ROLE, hasRole, WARDEN_ADMIN_ROLE } from '../../shared/utils/roles';
 import { db } from '../db';
 import * as schema from '../db/schema';
 
 // No Nuxt imports here: the Better Auth CLI loads this file to generate the schema.
 // See docs/authentication.md for the Entra app registration and the tenant allowlist.
 const env = readAuthEnv();
+
+/** Whether an account with this email already exists and is a site admin. */
+async function isExistingAdmin(email: unknown): Promise<boolean> {
+  if (typeof email !== 'string') return false;
+  const [row] = await db
+    .select({ role: schema.user.role })
+    .from(schema.user)
+    .where(sql`lower(${schema.user.email}) = ${email.toLowerCase()}`);
+  return hasRole(row?.role, ADMIN_ROLE);
+}
 
 // Warden admins get no Better Auth admin rights: their powers are Warden's own routes,
 // checked with requireWardenAdmin. See shared/utils/roles.ts.
@@ -76,10 +88,17 @@ export const auth = betterAuth({
     },
     // Runs on account creation and on every Microsoft sign-in, with the fresh ID token claims.
     // The Microsoft provider has already checked that `tid` matches the token's issuer.
-    validateUserInfo: ({ source }) => {
+    validateUserInfo: async ({ source }) => {
       const tid = source.oauth?.providerId === 'microsoft' ? source.oauth.profile?.tid : undefined;
       if (!isAllowedTenant(tid, env.AUTH_ALLOWED_TENANTS)) {
         return { error: TENANT_NOT_ALLOWED };
+      }
+      // The signIn feature flags (shared/flags.ts) refuse everyone, or one school. Admins stay
+      // able to sign in, so a flag can't lock them out of the page that switches it back on.
+      const schoolFlag = SCHOOL_SIGN_IN_FLAGS[tid.toLowerCase()];
+      const open = (await isFlagOn('signIn')) && (!schoolFlag || (await isFlagOn(schoolFlag)));
+      if (!open && !(await isExistingAdmin(source.oauth?.profile?.email))) {
+        return { error: SIGN_IN_DISABLED };
       }
     },
   },

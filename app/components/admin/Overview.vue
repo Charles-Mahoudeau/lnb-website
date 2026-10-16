@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { flagMessageKey } from '#shared/flags';
+import type { FlagKey } from '#shared/flags';
 import type { AdminAuditView } from '#shared/schemas/admin';
 
 // The Overview: what needs an admin, then the latest admin changes. Counts only for things to
@@ -92,6 +94,11 @@ function describe(entry: AdminAuditView): string {
       return t('admin.overview.log.signOut', { actor, target });
     case 'user.delete':
       return t('admin.overview.log.delete', { actor });
+    case 'flag.update':
+      return t(entry.data.enabled ? 'admin.overview.log.flagOn' : 'admin.overview.log.flagOff', {
+        actor,
+        name: t(`admin.flags.items.${flagMessageKey(entry.data.key as FlagKey)}.label`),
+      });
     case 'users.deleteInactive': {
       const deleted = Number(entry.data.count ?? 0);
       return t('admin.overview.log.deleteInactive', { count: deleted }, deleted);

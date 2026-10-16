@@ -67,7 +67,8 @@
     },
     "errors": {
       "tenantNotAllowed": "Only Epitech, e-artsup and ISEG accounts can sign in. Choose your school Microsoft account, for example name{'@'}epitech.eu.",
-      "generic": "Sign-in didn't finish. Try again with your school Microsoft account."
+      "generic": "Sign-in didn't finish. Try again with your school Microsoft account.",
+      "signInDisabled": "Sign-in is switched off for now. Try again later."
     }
   },
   "account": {
@@ -258,7 +259,8 @@
       "overview": "Overview",
       "mods": "Mods",
       "modList": "Mod list",
-      "modSuggestions": "Suggestions"
+      "modSuggestions": "Suggestions",
+      "flags": "Feature flags"
     },
     "cancel": "Cancel",
     "roles": {
@@ -357,7 +359,9 @@
         "unban": "{actor} lifted the site ban of {target}.",
         "signOut": "{actor} signed {target} out everywhere.",
         "delete": "{actor} deleted an account.",
-        "deleteInactive": "The nightly cleanup deleted 1 account with no sign-in for 24 months. | The nightly cleanup deleted {count} accounts with no sign-in for 24 months."
+        "deleteInactive": "The nightly cleanup deleted 1 account with no sign-in for 24 months. | The nightly cleanup deleted {count} accounts with no sign-in for 24 months.",
+        "flagOn": "{actor} switched {name} on.",
+        "flagOff": "{actor} switched {name} off."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page."
     },
@@ -428,6 +432,100 @@
         "note": "The suggestion still counts toward their limit, and the mod can’t be suggested again. You can restore it later.",
         "submit": "Remove suggestion",
         "done": "Suggestion removed"
+      }
+    },
+    "flags": {
+      "lede": "Switch a feature off to stop it at once, without a deploy. Turning a feature off also turns off its parts. Changes are logged on the Overview.",
+      "partsOff": "This feature is off, so its parts are off too.",
+      "enabled": "{name} is on",
+      "disabled": "{name} is off",
+      "failed": "That didn’t work. Check your connection, then try again.",
+      "loadFailed": "The feature flags couldn’t be loaded. Check your connection, then reload the page.",
+      "items": {
+        "signIn": {
+          "label": "Sign-in",
+          "description": "Turns off sign-in with Microsoft for everyone except admins. People already signed in stay signed in."
+        },
+        "signIn_epitech": {
+          "label": "Epitech",
+          "description": "Refuses new sign-ins from Epitech accounts. Admins can still sign in."
+        },
+        "signIn_eartsup": {
+          "label": "e-artsup",
+          "description": "Refuses new sign-ins from e-artsup accounts. Admins can still sign in."
+        },
+        "signIn_iseg": {
+          "label": "ISEG",
+          "description": "Refuses new sign-ins from ISEG accounts. Admins can still sign in."
+        },
+        "modList": {
+          "label": "Mod list",
+          "description": "The public mod list page and everything it does."
+        },
+        "modList_voting": {
+          "label": "Voting",
+          "description": "Votes on mods. The scores stay visible."
+        },
+        "modList_suggestions": {
+          "label": "Suggestions",
+          "description": "Suggesting a mod and editing a suggestion."
+        },
+        "modList_search": {
+          "label": "Mod search",
+          "description": "The Modrinth and CurseForge search used to suggest a mod."
+        },
+        "modList_icons": {
+          "label": "Mod icons",
+          "description": "Mod icons, and the icons of search results."
+        },
+        "warden": {
+          "label": "Warden",
+          "description": "The Warden pages for players: linked accounts, bans and sessions."
+        },
+        "warden_linking": {
+          "label": "Account linking",
+          "description": "Linking and unlinking a Minecraft account, and the server address token."
+        },
+        "warden_appeals": {
+          "label": "Ban appeals",
+          "description": "Sending an appeal against a Warden ban."
+        },
+        "warden_serverApi": {
+          "label": "Minecraft server API",
+          "description": "What the Warden plugin on the Minecraft server calls. The plugin gets a 503 while this is off."
+        },
+        "appLinking": {
+          "label": "App linking",
+          "description": "The /link page, where an app’s 6-digit code is approved."
+        },
+        "avatars": {
+          "label": "Profile photos",
+          "description": "Profile photos on the site."
+        },
+        "avatars_microsoftPhoto": {
+          "label": "Microsoft photo at sign-in",
+          "description": "Fetching and saving the Microsoft profile photo when someone signs in. Saved photos stay."
+        },
+        "homeEvents": {
+          "label": "Events on the front page",
+          "description": "The next event and the agenda on the front page."
+        },
+        "jobs": {
+          "label": "Scheduled jobs",
+          "description": "The nightly and periodic jobs."
+        },
+        "jobs_deleteInactive": {
+          "label": "Delete inactive accounts",
+          "description": "The nightly deletion of accounts with no sign-in for 24 months."
+        },
+        "jobs_pruneAvatars": {
+          "label": "Prune profile photos",
+          "description": "The removal of photos no account uses."
+        },
+        "jobs_closeStaleSessions": {
+          "label": "Close stale Warden sessions",
+          "description": "The check that closes Warden sessions with no heartbeat."
+        }
       }
     }
   },

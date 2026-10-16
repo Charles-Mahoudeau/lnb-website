@@ -67,7 +67,8 @@
     },
     "errors": {
       "tenantNotAllowed": "Seuls les comptes Epitech, e-artsup et ISEG peuvent se connecter. Choisis ton compte Microsoft de l’école, par exemple prenom.nom{'@'}epitech.eu.",
-      "generic": "La connexion n’a pas abouti. Réessaie avec ton compte Microsoft de l’école."
+      "generic": "La connexion n’a pas abouti. Réessaie avec ton compte Microsoft de l’école.",
+      "signInDisabled": "La connexion est coupée pour le moment. Réessaie plus tard."
     }
   },
   "account": {
@@ -258,7 +259,8 @@
       "overview": "Vue d’ensemble",
       "mods": "Mods",
       "modList": "Liste de mods",
-      "modSuggestions": "Propositions"
+      "modSuggestions": "Propositions",
+      "flags": "Fonctionnalités"
     },
     "cancel": "Annuler",
     "roles": {
@@ -357,7 +359,9 @@
         "unban": "{actor} a levé le bannissement de {target}.",
         "signOut": "{actor} a déconnecté {target} partout.",
         "delete": "{actor} a supprimé un compte.",
-        "deleteInactive": "Le nettoyage de la nuit a supprimé 1 compte sans connexion depuis 24 mois. | Le nettoyage de la nuit a supprimé {count} comptes sans connexion depuis 24 mois."
+        "deleteInactive": "Le nettoyage de la nuit a supprimé 1 compte sans connexion depuis 24 mois. | Le nettoyage de la nuit a supprimé {count} comptes sans connexion depuis 24 mois.",
+        "flagOn": "{actor} a activé {name}.",
+        "flagOff": "{actor} a coupé {name}."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page."
     },
@@ -428,6 +432,100 @@
         "note": "La proposition compte toujours dans sa limite, et le mod ne peut plus être proposé. Vous pourrez la rétablir plus tard.",
         "submit": "Retirer la proposition",
         "done": "Proposition retirée"
+      }
+    },
+    "flags": {
+      "lede": "Coupe une fonctionnalité pour l’arrêter aussitôt, sans déploiement. Couper une fonctionnalité coupe aussi ses parties. Les changements sont notés dans la vue d’ensemble.",
+      "partsOff": "Cette fonctionnalité est coupée, ses parties le sont donc aussi.",
+      "enabled": "{name} est activé",
+      "disabled": "{name} est coupé",
+      "failed": "Ça n’a pas marché. Vérifie ta connexion, puis réessaie.",
+      "loadFailed": "Impossible de charger les fonctionnalités. Vérifie ta connexion, puis recharge la page.",
+      "items": {
+        "signIn": {
+          "label": "Connexion",
+          "description": "Coupe la connexion avec Microsoft pour tout le monde sauf les admins. Les personnes déjà connectées le restent."
+        },
+        "signIn_epitech": {
+          "label": "Epitech",
+          "description": "Refuse les nouvelles connexions des comptes Epitech. Les admins peuvent toujours se connecter."
+        },
+        "signIn_eartsup": {
+          "label": "e-artsup",
+          "description": "Refuse les nouvelles connexions des comptes e-artsup. Les admins peuvent toujours se connecter."
+        },
+        "signIn_iseg": {
+          "label": "ISEG",
+          "description": "Refuse les nouvelles connexions des comptes ISEG. Les admins peuvent toujours se connecter."
+        },
+        "modList": {
+          "label": "Liste des mods",
+          "description": "La page publique de la liste des mods et tout ce qu’elle permet."
+        },
+        "modList_voting": {
+          "label": "Votes",
+          "description": "Les votes sur les mods. Les scores restent visibles."
+        },
+        "modList_suggestions": {
+          "label": "Suggestions",
+          "description": "Suggérer un mod et modifier une suggestion."
+        },
+        "modList_search": {
+          "label": "Recherche de mods",
+          "description": "La recherche Modrinth et CurseForge pour suggérer un mod."
+        },
+        "modList_icons": {
+          "label": "Icônes des mods",
+          "description": "Les icônes des mods et celles des résultats de recherche."
+        },
+        "warden": {
+          "label": "Warden",
+          "description": "Les pages Warden des joueurs : comptes liés, bannissements et sessions."
+        },
+        "warden_linking": {
+          "label": "Liaison de compte",
+          "description": "Lier et délier un compte Minecraft, et le jeton de l’adresse du serveur."
+        },
+        "warden_appeals": {
+          "label": "Appels de bannissement",
+          "description": "L’envoi d’un appel contre un bannissement Warden."
+        },
+        "warden_serverApi": {
+          "label": "API du serveur Minecraft",
+          "description": "Ce qu’appelle le plugin Warden sur le serveur Minecraft. Le plugin reçoit une erreur 503 tant que c’est coupé."
+        },
+        "appLinking": {
+          "label": "Liaison d’applications",
+          "description": "La page /link, où le code à 6 chiffres d’une application est approuvé."
+        },
+        "avatars": {
+          "label": "Photos de profil",
+          "description": "Les photos de profil sur le site."
+        },
+        "avatars_microsoftPhoto": {
+          "label": "Photo Microsoft à la connexion",
+          "description": "La récupération et l’enregistrement de la photo de profil Microsoft à la connexion. Les photos déjà enregistrées restent."
+        },
+        "homeEvents": {
+          "label": "Événements en page d’accueil",
+          "description": "Le prochain événement et l’agenda en page d’accueil."
+        },
+        "jobs": {
+          "label": "Tâches planifiées",
+          "description": "Les tâches de la nuit et les tâches périodiques."
+        },
+        "jobs_deleteInactive": {
+          "label": "Suppression des comptes inactifs",
+          "description": "La suppression de nuit des comptes sans connexion depuis 24 mois."
+        },
+        "jobs_pruneAvatars": {
+          "label": "Nettoyage des photos de profil",
+          "description": "La suppression des photos qu’aucun compte n’utilise."
+        },
+        "jobs_closeStaleSessions": {
+          "label": "Fermeture des sessions Warden figées",
+          "description": "La vérification qui ferme les sessions Warden sans signal de vie."
+        }
       }
     }
   },
