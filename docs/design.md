@@ -76,7 +76,7 @@ Three custom palettes, wired into Nuxt UI as `neutral: 'night'`, `primary: 'crim
 - Below the hero, the later events are an agenda grouped by month: one row per event with its banner as a thumbnail (or the flat fallback), the date and the room (`EventsAgenda`).
 - The sign-in page shows the next event's banner beside the form, with the same scrim, so the page isn't empty. On phones the banner sits above the form.
 - Text on a banner uses `text-on-banner` and `text-on-banner-muted`, and the scrim uses `bg-banner` (night-900). These stay the same in light mode.
-- Banners are downloaded by the server and stored on our side, never hotlinked.
+- Banners are downloaded by the server and stored on our side, never hotlinked. Event images use the `aspect-banner` (1920 / 620) and `aspect-embed` (1200 / 630) tokens; thumbnails use `aspect-video`.
 - Events without a banner fall back to `bg-banner-fallback`: a flat night navy tinted with dusk violet, the same in both modes. No scrim on it, no gradient and no placeholder graphic, except the scattered icons on the home hero.
 - The logo is a black fox on a grey moon: `public/logo.svg`. On dark backgrounds use `public/logo-dark.svg`: the same drawing with a night-100 fox on a night-600 moon (night-700 shadow and craters) and night-950 details. When the night palette changes, update these fills too. A pure white fox on the light moon lacked contrast, and pure white glared, so keep these colors. Show them with `dark:hidden` and `hidden dark:block`, as in the header. Don't recolor the logo red.
 - Minecraft skin heads come from `/api/warden/heads/:uuid` (the server fetches and caches them, never hotlinked). Show them with the `pixelated` utility so the 8-pixel faces stay sharp, at 28, 40 or 56 px, with `rounded-sm`.

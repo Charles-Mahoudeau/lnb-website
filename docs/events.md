@@ -2,7 +2,7 @@
 
 Events are listed at `/events`, each with its page at `/events/<id>`. Students register from the event page. Events managers run them from the Events section of the admin area (`/admin/events`). An event can also be pushed to the BDE website (see `docs/bde/external_events_api.md`).
 
-The feature is built in slices. Done: the role, the data, rooms, types, the public pages (`/events`, `/events/<id>`, the home hero and agenda, the sign-in banner), registrations with the waitlist, and the admin event pages. Still to do, in order: images (the picker, SteamGridDB, crops) and the BDE sync. The approved mocks are in the [events mocks](https://claude.ai/artifact/E7UkoDfz9U9uiYATh1gZYo): event page A, list A1, admin form with 2 tabs, picker A.
+The feature is built in slices. Done: the role, the data, rooms, types, the public pages (`/events`, `/events/<id>`, the home hero and agenda, the sign-in banner), registrations with the waitlist, the admin event pages, and images. Still to do: the BDE sync. The approved mocks are in the [events mocks](https://claude.ai/artifact/E7UkoDfz9U9uiYATh1gZYo): event page A, list A1, admin form with 2 tabs, picker A.
 
 ## Roles
 
@@ -36,6 +36,20 @@ The feature is built in slices. Done: the role, the data, rooms, types, the publ
 
 - `/admin/events`: upcoming, drafts and past events, with registrations and the waitlist at a glance.
 - `/admin/events/new` and `/admin/events/<id>`: the form (one page of sections beside a preview of the site page, the agenda row and a Discord embed), and a Registrations tab. New events start as drafts. The menu views the page, duplicates, cancels or deletes. Times are typed in Paris time (`shared/utils/paris-time.ts`).
+
+## Images
+
+- The picker (`EventsAdminImagePicker`) works in two steps: the art, then the focal point. Art comes from SteamGridDB (a game's banners, 1920 × 620, or covers), an upload, or a link. Providers implement `ImageProvider` in `server/services/events/providers/`: adding one is a file there and a tab in the picker.
+- The server keeps every picked image: decoded and re-encoded by sharp (WebP, at most 3840 wide, no metadata), stored under the SHA-256 of its bytes in the `event-images` Nitro storage (`.data/event-images`, on the VPS's disk), and served from `/api/media/<key>` with immutable caching, on our own domain as the BDE website requires.
+- Saving an event cuts three crops around the focal point (`focalCrop` in `rules.ts`): the page banner (1920 × 620 WebP), the agenda thumbnail (640 × 360 WebP) and the embed (1200 × 630 JPEG, since some embeds refuse WebP). The embed uses its own image when one is picked, else the banner.
+- Links are fetched over https only, up to 10 MB, within 10 seconds, never from a private, loopback or link-local address, and each redirect is checked again. Provider images are fetched from the provider's hosts only, and so are the picker's previews (`/api/admin/events/images/thumb`, cached a day).
+- `events:prune-images` removes images no event uses, a day after they were stored, every night (`jobs.pruneEventImages`). `events.imageSearch` turns SteamGridDB off: uploads and links stay.
+
+## Environment
+
+| Variable              | Required | Use                                       |
+| --------------------- | -------- | ----------------------------------------- |
+| `STEAMGRIDDB_API_KEY` | No       | Turns on SteamGridDB in the image picker. |
 
 ## Pages
 
