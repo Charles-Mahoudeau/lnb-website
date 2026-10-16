@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { NavigationMenuItem, TableColumn, TabsItem } from '@nuxt/ui';
 
-import type { EventSummary } from '#shared/schemas/events';
+import { EventsAdminImagePicker } from '#components';
+
+import type { EventAdminView, EventSummary, EventView } from '#shared/schemas/events';
 import type { ModView } from '#shared/schemas/mods';
 
 // A living reference for docs/design.md, built from the real themed components.
@@ -131,6 +133,113 @@ const sampleAttendees: EventAttendees = {
   capacity: 40,
   people: people.map(({ id, name }) => ({ id, name })),
 };
+// An event page's data, in the registration states the panel shows.
+function sampleView(registration: EventView['registration'], overrides: Partial<EventView> = {}) {
+  return {
+    ...sampleEvent,
+    descriptionHtml: '<p>Two rounds of <strong>Werewolf</strong>, then Among Us.</p>',
+    summary: 'Two rounds of Werewolf, then Among Us.',
+    price: null,
+    registrationOpensAt: null,
+    registrationClosesAt: null,
+    hidden: false,
+    registration,
+    attendees: sampleAttendees.people.map((person) => ({ ...person, image: null })),
+    ...overrides,
+  } satisfies EventView;
+}
+const panels = [
+  // Signed out, as on the style guide: the API sends no names.
+  {
+    label: 'Open, signed out',
+    event: sampleView({ state: 'open', waitlist: 0, me: null }, { attendees: null }),
+  },
+  {
+    label: 'Full, on the waitlist',
+    event: sampleView(
+      { state: 'full', waitlist: 4, me: { status: 'waitlist', position: 2 } },
+      { registered: 40 },
+    ),
+  },
+  {
+    label: 'Registered',
+    event: sampleView({ state: 'open', waitlist: 0, me: { status: 'registered', position: null } }),
+  },
+  {
+    label: 'Not open yet',
+    event: sampleView(
+      { state: 'notYet', waitlist: 0, me: null },
+      { registrationOpensAt: '2026-11-02T11:00:00.000Z' },
+    ),
+  },
+  {
+    label: 'Cancelled',
+    event: sampleView({ state: 'cancelled', waitlist: 0, me: null }, { cancelled: true }),
+  },
+];
+
+// An event as managers see it, for the BDE status block.
+function sampleAdmin(overrides: Partial<EventAdminView>): EventAdminView {
+  return {
+    id: sampleEvent.id,
+    name: sampleEvent.name,
+    startsAt: sampleEvent.startsAt,
+    endsAt: sampleEvent.endsAt,
+    hidden: false,
+    cancelledAt: null,
+    room: { id: sampleEvent.type.id, name: 'Wakanda', details: 'Campus Nantes', archived: false },
+    type: { ...sampleEvent.type, archived: false },
+    capacity: 40,
+    counts: { registered: 18, waitlist: 0 },
+    bdeSync: true,
+    bdeStatus: 'synced',
+    description: 'Two rounds of **Werewolf**.',
+    banner: null,
+    embed: null,
+    images: null,
+    schools: sampleEvent.schools,
+    registrationOpensAt: null,
+    registrationClosesAt: null,
+    price: null,
+    bde: {
+      attempts: 0,
+      nextAttemptAt: null,
+      lastError: null,
+      pageUrl: 'https://bde-teknantes.fr/home/event/42',
+    },
+    createdAt: sampleEvent.startsAt,
+    updatedAt: sampleEvent.startsAt,
+    ...overrides,
+  };
+}
+const bdeStates = [
+  sampleAdmin({}),
+  sampleAdmin({
+    bdeStatus: 'pending',
+    bde: {
+      attempts: 2,
+      nextAttemptAt: '2026-11-01T12:30:00.000Z',
+      lastError: { status: 503 },
+      pageUrl: null,
+    },
+  }),
+  sampleAdmin({
+    bdeStatus: 'failed',
+    bde: {
+      attempts: 1,
+      nextAttemptAt: null,
+      lastError: { status: 422, url: ['must be an https link on an allowed domain'] },
+      pageUrl: null,
+    },
+  }),
+];
+
+// The image picker talks to the admin API, so it opens for events managers only.
+const picker = useOverlay().create(EventsAdminImagePicker);
+function openPicker() {
+  void picker.open({ title: 'Choose the banner' });
+}
+
 // Later events, for the agenda and the next-event card.
 const sampleAgenda: EventSummary[] = [
   sampleEvent,
@@ -434,6 +543,63 @@ function showToast() {
         a larger card (<code>EventsNextCard</code>), so it's where the eye starts.
       </p>
       <EventsAgenda :events="sampleAgenda" feature-next />
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Event registration</h2>
+      <p class="max-w-2xl text-muted">
+        The panel beside an event's description (<code>EventsRegistrationPanel</code>): the places
+        taken, then where you stand and the one action that fits. Status colors only for state:
+        registered, waitlist, full, cancelled. Signed out, it asks to sign in and hides the names.
+      </p>
+      <div class="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div v-for="panel in panels" :key="panel.label" class="flex flex-col gap-2">
+          <span class="text-sm text-muted">{{ panel.label }}</span>
+          <EventsRegistrationPanel :event="panel.event" />
+        </div>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Event details</h2>
+      <p class="max-w-2xl text-muted">
+        The practical details of an event page (<code>EventsDetails</code>): icons in muted text,
+        the value in bold, its precision below, and the calendar file as a link.
+      </p>
+      <EventsDetails :event="panels[0]!.event" class="max-w-xl" />
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">BDE website status</h2>
+      <p class="max-w-2xl text-muted">
+        In the event form (<code>EventsAdminBdeStatus</code>): on the BDE website, waiting for a
+        retry, or refused with the BDE's own messages.
+      </p>
+      <div class="grid items-start gap-4 lg:grid-cols-3">
+        <EventsAdminBdeStatus
+          v-for="state in bdeStates"
+          :key="state.bdeStatus ?? ''"
+          :event="state"
+        />
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Event image picker</h2>
+      <p class="max-w-2xl text-muted">
+        A modal in two steps (<code>EventsAdminImagePicker</code>): the art, from SteamGridDB, an
+        upload or a link, then the focal point with the three crops. It calls the admin API, so it
+        only works signed in as an events manager.
+      </p>
+      <div>
+        <UButton
+          color="neutral"
+          variant="soft"
+          icon="i-lucide-image"
+          label="Open the picker"
+          @click="openPicker"
+        />
+      </div>
     </section>
 
     <section class="flex flex-col gap-6">
