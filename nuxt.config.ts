@@ -1,3 +1,5 @@
+import { cpSync } from 'node:fs';
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: ['@nuxt/eslint', '@nuxt/ui', '@nuxtjs/i18n', '@nuxt/test-utils/module'],
@@ -43,6 +45,14 @@ export default defineNuxtConfig({
   nitro: {
     // Scheduled jobs in server/tasks/.
     experimental: { tasks: true },
+    hooks: {
+      // The startup migration plugin (server/plugins/migrate.ts) reads the SQL files at runtime.
+      compiled: (nitro) => {
+        cpSync('server/db/migrations', `${nitro.options.output.serverDir}/migrations`, {
+          recursive: true,
+        });
+      },
+    },
     scheduledTasks: {
       '*/5 * * * *': ['warden:close-stale-sessions'],
       // Every night at 03:00, server time.
