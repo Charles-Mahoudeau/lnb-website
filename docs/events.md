@@ -2,7 +2,7 @@
 
 Events are listed at `/events`, each with its page at `/events/<id>`. Students register from the event page. Events managers run them from the Events section of the admin area (`/admin/events`). An event can also be pushed to the BDE website (see `docs/bde/external_events_api.md`).
 
-The feature is built in slices. Done: the role, the data, rooms, types, the admin API, and the public pages (`/events`, `/events/<id>`, the home hero and agenda, the sign-in banner). Still to do, in order: registrations, the admin event form, images and the BDE sync. The approved mocks are in the [events mocks](https://claude.ai/artifact/E7UkoDfz9U9uiYATh1gZYo): event page A, list A1, admin form with 2 tabs, picker A.
+The feature is built in slices. Done: the role, the data, rooms, types, the public pages (`/events`, `/events/<id>`, the home hero and agenda, the sign-in banner), registrations with the waitlist, and the admin event pages. Still to do, in order: images (the picker, SteamGridDB, crops) and the BDE sync. The approved mocks are in the [events mocks](https://claude.ai/artifact/E7UkoDfz9U9uiYATh1gZYo): event page A, list A1, admin form with 2 tabs, picker A.
 
 ## Roles
 
@@ -21,6 +21,21 @@ The feature is built in slices. Done: the role, the data, rooms, types, the admi
 - **Capacity** is optional. Past it, registrations join a waitlist, promoted in order when a place frees up, until the event starts.
 - **BDE rules.** While an event is pushed to the BDE website, its name must be 3 to 100 characters and its description at least 10, since the BDE refuses anything else.
 - Every manager change is written to `admin_audit` (`event.*`, `eventRoom.*`, `eventType.*`) and shows on the Overview.
+
+## Registration
+
+- One click registers, or joins the waitlist when the event is full. Registering twice changes nothing. Signed-out visitors are sent to sign in and come back to the event.
+- Registration checks, in order: cancelled, started, the window (`notYet`, `closed`), the school (`wrongSchool`), then the limit (`full` still takes waitlist sign-ups). The rules live in `server/services/events/rules.ts`.
+- Cancelling or leaving the waitlist is possible until the start. A freed place goes to the first person waiting, at once. Raising the capacity, removing someone and deleting an account promote too. Nobody is promoted once the event has started.
+- Every change locks the event row (`SELECT … FOR UPDATE`) before counting, so the last place can't go twice.
+- "Who's going" (first names and avatars of the first 6) is for signed-in members only.
+- Managers see everyone with their email and school, add someone by hand (any school, any time; past the limit only with `force`), remove someone, and export the list as CSV. Adding and removing are written to `admin_audit`. People aren't notified of any of it yet: that waits for Push.
+- `events.registration` pauses sign-ups and cancellations, without hiding the pages. Managers can still add and remove people.
+
+## Admin pages
+
+- `/admin/events`: upcoming, drafts and past events, with registrations and the waitlist at a glance.
+- `/admin/events/new` and `/admin/events/<id>`: the form (one page of sections beside a preview of the site page, the agenda row and a Discord embed), and a Registrations tab. New events start as drafts. The menu views the page, duplicates, cancels or deletes. Times are typed in Paris time (`shared/utils/paris-time.ts`).
 
 ## Pages
 
