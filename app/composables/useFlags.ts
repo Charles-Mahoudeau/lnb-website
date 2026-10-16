@@ -11,9 +11,9 @@ export function useFlags() {
   // Forwards the visitor's cookies when this runs during server rendering.
   const requestFetch = useRequestFetch();
 
-  /** Loads the flags, again after 30 seconds. The global middleware calls it before every page. */
-  async function ensureFlags() {
-    if (Date.now() - loadedAt.value < REFRESH_AFTER_MS) return;
+  /** Loads the flags, again after 30 seconds or when `force` is set. The global middleware calls it before every page. */
+  async function ensureFlags(force = false) {
+    if (!force && Date.now() - loadedAt.value < REFRESH_AFTER_MS) return;
     try {
       states.value = await requestFetch<Record<FlagKey, boolean>>('/api/flags');
       loadedAt.value = Date.now();

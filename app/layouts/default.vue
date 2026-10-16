@@ -25,37 +25,45 @@ const canUseWarden = computed(
     canLinkFromSchool(wardenApp, user.value.tenantId),
 );
 
-const navItems = computed<NavigationMenuItem[]>(() => [
-  { label: t('nav.home'), icon: 'i-lucide-house', to: localePath('index'), exact: true },
-  {
-    label: t('nav.minecraft'),
-    icon: 'i-lucide-blocks',
-    active: route.path.startsWith('/minecraft/'),
-    children: [
-      // The mod list is public, so everyone gets it.
-      ...(isEnabled('modList')
-        ? [
-            {
-              label: t('nav.mods'),
-              description: t('nav.modsDescription'),
-              icon: 'i-lucide-puzzle',
-              to: '/minecraft/mod-list',
-            },
-          ]
-        : []),
-      ...(canUseWarden.value
-        ? [
-            {
-              label: t('warden.title'),
-              description: t('nav.wardenDescription'),
-              icon: 'i-lucide-pickaxe',
-              to: '/minecraft/warden',
-            },
-          ]
-        : []),
-    ],
-  },
-]);
+const navItems = computed<NavigationMenuItem[]>(() => {
+  // The mod list is public, so everyone gets it, unless its feature flag is off.
+  const minecraft: NavigationMenuItem[] = [
+    ...(isEnabled('modList')
+      ? [
+          {
+            label: t('nav.mods'),
+            description: t('nav.modsDescription'),
+            icon: 'i-lucide-puzzle',
+            to: '/minecraft/mod-list',
+          },
+        ]
+      : []),
+    ...(canUseWarden.value
+      ? [
+          {
+            label: t('warden.title'),
+            description: t('nav.wardenDescription'),
+            icon: 'i-lucide-pickaxe',
+            to: '/minecraft/warden',
+          },
+        ]
+      : []),
+  ];
+  return [
+    { label: t('nav.home'), icon: 'i-lucide-house', to: localePath('index'), exact: true },
+    // No menu when every page in it is off.
+    ...(minecraft.length
+      ? [
+          {
+            label: t('nav.minecraft'),
+            icon: 'i-lucide-blocks',
+            active: route.path.startsWith('/minecraft/'),
+            children: minecraft,
+          },
+        ]
+      : []),
+  ];
+});
 </script>
 
 <template>

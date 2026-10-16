@@ -7,7 +7,7 @@ import type { AdminFlag } from '#shared/schemas/flags';
 const { t } = useI18n();
 const toast = useToast();
 const { data, error, refresh } = await useAdminFlags();
-const { ensureFlags, states } = useFlags();
+const { ensureFlags } = useFlags();
 
 const groups = computed(() => {
   const items = data.value?.items ?? [];
@@ -23,8 +23,7 @@ async function onToggle(flag: AdminFlag, enabled: boolean) {
     const result = await setAdminFlag(flag.key, enabled);
     data.value = result;
     // The site's own header and pages follow at once.
-    states.value = {};
-    await ensureFlags();
+    await ensureFlags(true);
     toast.add({
       title: t(enabled ? 'admin.flags.enabled' : 'admin.flags.disabled', {
         name: t(`admin.flags.items.${flagMessageKey(flag.key)}.label`),
