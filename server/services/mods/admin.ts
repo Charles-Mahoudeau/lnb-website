@@ -1,6 +1,7 @@
 import { and, eq } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
+import { isUniqueViolation } from '~~/server/db/errors';
 import { mod, modListSettings } from '~~/server/db/schema';
 import { wardenAuditService } from '~~/server/services/warden/audit';
 import type { WardenActor } from '~~/server/services/warden/shared';
@@ -8,7 +9,7 @@ import type { WardenActor } from '~~/server/services/warden/shared';
 import { modIconService } from './icons';
 import { modSettingsService } from './settings';
 import { iconUrl, refuse } from './shared';
-import { fetchAddable, isUniqueViolation } from './suggestions';
+import { fetchAddable } from './suggestions';
 import { modsWithVotes } from './views';
 
 import type {
