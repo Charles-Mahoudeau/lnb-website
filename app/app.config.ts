@@ -94,6 +94,9 @@ export default defineAppConfig({
       ],
       defaultVariants: { color: 'secondary' },
     },
+    // Capacity meters are state, not an action, so neutral. The full inverted color made a full
+    // event a heavy black bar in light mode: half of it reads in both modes.
+    progress: { variants: { color: { neutral: { indicator: 'bg-inverted/50' } } } },
     input: { defaultVariants: { size: 'xl' } },
     select: { defaultVariants: { size: 'xl' } },
     selectMenu: { defaultVariants: { size: 'xl' } },
