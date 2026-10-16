@@ -366,7 +366,15 @@
         "delete": "{actor} deleted an account.",
         "deleteInactive": "The nightly cleanup deleted 1 account with no sign-in for 24 months. | The nightly cleanup deleted {count} accounts with no sign-in for 24 months.",
         "flagOn": "{actor} switched {name} on.",
-        "flagOff": "{actor} switched {name} off."
+        "flagOff": "{actor} switched {name} off.",
+        "event_create": "{actor} created the event {name}.",
+        "event_update": "{actor} edited the event {name}.",
+        "event_cancel": "{actor} cancelled the event {name}.",
+        "event_delete": "{actor} deleted the event {name}.",
+        "eventRoom_create": "{actor} added the room {name}.",
+        "eventRoom_update": "{actor} changed the room {name}.",
+        "eventType_create": "{actor} added the event type {name}.",
+        "eventType_update": "{actor} changed the event type {name}."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page."
     },

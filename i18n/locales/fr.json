@@ -366,7 +366,15 @@
         "delete": "{actor} a supprimé un compte.",
         "deleteInactive": "Le nettoyage de la nuit a supprimé 1 compte sans connexion depuis 24 mois. | Le nettoyage de la nuit a supprimé {count} comptes sans connexion depuis 24 mois.",
         "flagOn": "{actor} a activé {name}.",
-        "flagOff": "{actor} a coupé {name}."
+        "flagOff": "{actor} a coupé {name}.",
+        "event_create": "{actor} a créé l’événement {name}.",
+        "event_update": "{actor} a modifié l’événement {name}.",
+        "event_cancel": "{actor} a annulé l’événement {name}.",
+        "event_delete": "{actor} a supprimé l’événement {name}.",
+        "eventRoom_create": "{actor} a ajouté la salle {name}.",
+        "eventRoom_update": "{actor} a modifié la salle {name}.",
+        "eventType_create": "{actor} a ajouté le type d’événement {name}.",
+        "eventType_update": "{actor} a modifié le type d’événement {name}."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page."
     },

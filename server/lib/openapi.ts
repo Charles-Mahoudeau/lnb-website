@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import * as admin from '../../shared/schemas/admin.ts';
 import { avatarParams } from '../../shared/schemas/avatars.ts';
+import * as events from '../../shared/schemas/events.ts';
 import * as flags from '../../shared/schemas/flags.ts';
 import { linkApproveBody, linkApproveResult } from '../../shared/schemas/link.ts';
 import * as mods from '../../shared/schemas/mods.ts';
@@ -76,6 +77,12 @@ const requestSchemas = {
   ModAddBody: mods.modAddBody,
   ModRemoveBody: mods.modRemoveBody,
   ModSettingsPatchBody: mods.modSettingsPatchBody,
+  EventRoomBody: events.eventRoomBody,
+  EventRoomPatchBody: events.eventRoomPatchBody,
+  EventTypeBody: events.eventTypeBody,
+  EventTypePatchBody: events.eventTypePatchBody,
+  EventBody: events.eventBody,
+  EventDuplicateBody: events.eventDuplicateBody,
 };
 
 const responseSchemas = {
@@ -123,6 +130,14 @@ const responseSchemas = {
   ModSettingsView: mods.modSettingsView,
   ModAdminRow: mods.modAdminRow,
   ModAdminList: mods.modAdminList,
+  EventRoomView: events.eventRoomView,
+  EventRoomList: events.eventRoomList,
+  EventTypeView: events.eventTypeView,
+  EventTypeList: events.eventTypeList,
+  EventAdminRow: events.eventAdminRow,
+  EventAdminList: events.eventAdminList,
+  EventAdminView: events.eventAdminView,
+  EventCreated: events.eventCreated,
 };
 
 const TAGS = {
@@ -137,6 +152,7 @@ const TAGS = {
   wardenAdmin: 'Warden: admins',
   mods: 'Mod list',
   modsAdmin: 'Mod list: admins',
+  eventsAdmin: 'Events: managers',
   auth: 'Auth',
   authDevice: 'Auth: device authorization',
 };
@@ -1021,6 +1037,168 @@ const routes: RouteDoc[] = [
     params: mods.modIdParams,
     noContent: true,
     problems: [{ status: 404, problems: ['notOfficial'] }],
+  },
+  // Events: managers
+  {
+    method: 'get',
+    path: '/api/admin/event-rooms',
+    tag: TAGS.eventsAdmin,
+    summary: 'Rooms',
+    description: 'Every room, those in use first, by name.',
+    access: 'eventsManager',
+    response: events.eventRoomList,
+  },
+  {
+    method: 'post',
+    path: '/api/admin/event-rooms',
+    tag: TAGS.eventsAdmin,
+    summary: 'Add a room',
+    access: 'eventsManager',
+    body: events.eventRoomBody,
+    response: events.eventRoomView,
+    created: true,
+    problems: [{ status: 409, problems: ['duplicateName'] }],
+  },
+  {
+    method: 'patch',
+    path: '/api/admin/event-rooms/{id}',
+    tag: TAGS.eventsAdmin,
+    summary: 'Rename or archive a room',
+    description:
+      'Rooms are archived, never deleted: events keep their room, and the form stops offering it.',
+    access: 'eventsManager',
+    params: events.eventIdParams,
+    body: events.eventRoomPatchBody,
+    response: events.eventRoomView,
+    problems: [
+      { status: 404, problems: ['roomNotFound'] },
+      { status: 409, problems: ['duplicateName'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/admin/event-types',
+    tag: TAGS.eventsAdmin,
+    summary: 'Event types',
+    description: 'Every type, those in use first, by English name.',
+    access: 'eventsManager',
+    response: events.eventTypeList,
+  },
+  {
+    method: 'post',
+    path: '/api/admin/event-types',
+    tag: TAGS.eventsAdmin,
+    summary: 'Add an event type',
+    access: 'eventsManager',
+    body: events.eventTypeBody,
+    response: events.eventTypeView,
+    created: true,
+    problems: [{ status: 409, problems: ['duplicateName'] }],
+  },
+  {
+    method: 'patch',
+    path: '/api/admin/event-types/{id}',
+    tag: TAGS.eventsAdmin,
+    summary: 'Rename or archive an event type',
+    access: 'eventsManager',
+    params: events.eventIdParams,
+    body: events.eventTypePatchBody,
+    response: events.eventTypeView,
+    problems: [
+      { status: 404, problems: ['typeNotFound'] },
+      { status: 409, problems: ['duplicateName'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/admin/events',
+    tag: TAGS.eventsAdmin,
+    summary: 'Events',
+    description:
+      'One tab of the admin list: upcoming events soonest first, drafts and past events latest first.',
+    access: 'eventsManager',
+    query: events.eventAdminQuery,
+    response: events.eventAdminList,
+  },
+  {
+    method: 'post',
+    path: '/api/admin/events',
+    tag: TAGS.eventsAdmin,
+    summary: 'Create an event',
+    access: 'eventsManager',
+    body: events.eventBody,
+    response: events.eventCreated,
+    created: true,
+    problems: [{ status: 400, problems: ['roomNotFound', 'typeNotFound'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/admin/events/{id}',
+    tag: TAGS.eventsAdmin,
+    summary: 'An event, for managers',
+    access: 'eventsManager',
+    params: events.eventIdParams,
+    response: events.eventAdminView,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'put',
+    path: '/api/admin/events/{id}',
+    tag: TAGS.eventsAdmin,
+    summary: 'Edit an event',
+    description: "Replaces the whole event. A cancelled event can't be edited.",
+    access: 'eventsManager',
+    params: events.eventIdParams,
+    body: events.eventBody,
+    noContent: true,
+    problems: [
+      { status: 400, problems: ['roomNotFound', 'typeNotFound'] },
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['cancelled'] },
+    ],
+  },
+  {
+    method: 'delete',
+    path: '/api/admin/events/{id}',
+    tag: TAGS.eventsAdmin,
+    summary: 'Delete an event',
+    description:
+      'Only drafts and events nobody registered to. Cancel the others, so their page stays.',
+    access: 'eventsManager',
+    params: events.eventIdParams,
+    noContent: true,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['hasRegistrations'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/events/{id}/cancel',
+    tag: TAGS.eventsAdmin,
+    summary: 'Cancel an event',
+    description: "The page stays, marked cancelled, and registrations close. It can't be undone.",
+    access: 'eventsManager',
+    params: events.eventIdParams,
+    noContent: true,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['cancelled'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/events/{id}/duplicate',
+    tag: TAGS.eventsAdmin,
+    summary: 'Duplicate an event',
+    description:
+      'A draft copy at new dates, without its registrations. The registration window moves with the start.',
+    access: 'eventsManager',
+    params: events.eventIdParams,
+    body: events.eventDuplicateBody,
+    response: events.eventCreated,
+    created: true,
+    problems: [{ status: 404, problems: ['notFound'] }],
   },
 ];
 

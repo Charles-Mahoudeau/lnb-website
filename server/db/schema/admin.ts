@@ -2,7 +2,7 @@ import { bigserial, index, jsonb, pgTable, text, timestamp } from 'drizzle-orm/p
 
 import { user } from './auth';
 
-/** Site admin actions on accounts. Warden's own actions go to warden_audit. */
+/** Site admin and events manager actions. Warden's own actions go to warden_audit. */
 export type AdminAuditAction =
   | 'user.roles'
   | 'user.ban'
@@ -12,7 +12,17 @@ export type AdminAuditAction =
   /** A feature flag switched, with `data.key` and `data.enabled`. */
   | 'flag.update'
   /** The nightly cleanup of inactive accounts, with `data.count`. No actor and no target. */
-  | 'users.deleteInactive';
+  | 'users.deleteInactive'
+  /** Events, by events managers. `data.eventId` and `data.name`. */
+  | 'event.create'
+  | 'event.update'
+  | 'event.cancel'
+  | 'event.delete'
+  /** Rooms and types of events. `data.id` and `data.name`. */
+  | 'eventRoom.create'
+  | 'eventRoom.update'
+  | 'eventType.create'
+  | 'eventType.update';
 
 // Rows outlive the accounts they name: a deleted actor or target becomes null, so the log keeps
 // what happened without keeping who it happened to.
