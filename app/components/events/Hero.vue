@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // The home hero: the next event over its banner art, with a scrim from the text side. Without art
-// it sits on the flat fallback with scattered activity icons, and only takes the room its text needs. It stays dark in both color modes,
-// so it's a `dark` scope: Nuxt UI components and tokens inside take their dark values.
+// it sits on the flat fallback with scattered activity icons, and only takes the room its text needs. With art it follows the art's
+// aspect ratio on large screens and the room its text needs below that. It stays dark in both color modes, so it's a `dark` scope: Nuxt UI components and tokens inside take their dark values.
 import type { EventSummary } from '#shared/schemas/events';
 
 const props = defineProps<{ event: EventSummary; attendees?: EventAttendees }>();
@@ -24,7 +24,7 @@ const when = computed(() =>
 <template>
   <section
     class="dark relative isolate flex overflow-hidden bg-banner-fallback"
-    :class="banner ? 'min-h-hero items-end lg:items-center' : ''"
+    :class="banner ? 'items-end lg:aspect-banner lg:min-h-96 lg:items-center' : ''"
   >
     <template v-if="banner">
       <img :src="banner" alt="" class="absolute inset-0 -z-1 size-full object-cover" />
@@ -36,7 +36,7 @@ const when = computed(() =>
 
     <UContainer
       class="grid w-full gap-8 py-8 lg:grid-cols-12 lg:gap-12 lg:py-14"
-      :class="banner ? 'lg:items-end' : 'pt-40 lg:items-center lg:py-28'"
+      :class="banner ? 'pt-40 lg:items-center lg:py-8' : 'pt-40 lg:items-center lg:py-28'"
     >
       <div class="flex flex-col items-start gap-5 lg:col-span-7">
         <UBadge
