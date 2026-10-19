@@ -16,7 +16,7 @@ app/                  Nuxt app (client and SSR)
                       every page under it: site admins only, unless a page sets `wardenAdmins: true`
                       or `eventsManagers: true`
   components/         by domain: admin/ (AdminPage, the frame of an admin page), warden/, mods/,
-                      events/ (events/admin/ for managers), team/ (the public team page), admin/team/, later event teams/ account/. Primitives come
+                      events/ (events/admin/ for managers), team/ (the public team page), admin/team/, partners/ (the public partners page), admin/partners/, later event teams/ account/. Primitives come
                       from Nuxt UI; don't rebuild them.
   composables/        one per resource: useAuth, useLinkCode, useModList, useEvents (useEventList,
                       useEvent, useMyEvents), useEventAdmin, later useEventTeams, useAccount
@@ -34,7 +34,7 @@ server/               Nitro server, picked up by Nuxt automatically
                       admin-audit and admin-overview (the admin log and Overview), events/
                       (see docs/events.md: admin, public, registrations, rooms, types, images,
                       bde, push, markdown, and rules.ts for the pure rules), push/ (see docs/push.md:
-                      queue, deliver, reminders, subscriptions, settings, stats), team (the team page, see docs/team.md), later event teams, files
+                      queue, deliver, reminders, subscriptions, settings, stats), team (the team page, see docs/team.md), partners (the partners page and its logos, see docs/partners.md), later event teams, files
   db/
     index.ts          Drizzle client (node-postgres), and the Tx and Db types
     schema/           Drizzle tables, one file per domain. auth.ts is generated.
@@ -42,7 +42,7 @@ server/               Nitro server, picked up by Nuxt automatically
     seed.ts           (planned)
   tasks/              scheduled jobs, timed in nuxt.config.ts: events/bde-sync (every minute),
                       warden/close-stale-sessions, users/delete-inactive, users/prune-avatars and
-                      events/prune-images and push/prune (every night at 03:00), push/deliver (every minute,
+                      events/prune-images and partners/prune-logos and push/prune (every night at 03:00), push/deliver (every minute,
                       with the event reminders)
   plugins/            Nitro plugins: migrate.ts applies pending migrations at startup (its state feeds /api/health), avatars.ts
                       gives server/lib/ the avatars service
