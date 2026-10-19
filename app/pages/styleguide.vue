@@ -5,6 +5,7 @@ import { EventsAdminImagePicker } from '#components';
 
 import type { EventAdminView, EventSummary, EventView } from '#shared/schemas/events';
 import type { ModView } from '#shared/schemas/mods';
+import type { PartnerPublicKind } from '#shared/schemas/partners';
 
 // A living reference for docs/design.md, built from the real themed components.
 // Dev only (and in tests): it isn't part of the public site.
@@ -69,6 +70,36 @@ const people = [
   { id: 'user-5', name: 'Yanis Touré' },
 ];
 
+// Example partners: the logos are inline drawings, so the guide needs no stored files.
+const logoSvg = (text: string) =>
+  `data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60"><path d="M10 50 30 10 50 50z" fill="#1a1f4d"/><text x="62" y="40" font-family="sans-serif" font-size="24" font-weight="700" fill="#1a1f4d">${text}</text></svg>`,
+  )}`;
+const samplePartners: PartnerPublicKind = {
+  kind: 'sponsor',
+  partners: [
+    {
+      id: '1',
+      name: 'Northpeak Hardware',
+      description: {
+        en: 'Lends the gaming PCs for our LAN evenings and sets them up on site.',
+        fr: 'Prête les PC gamer pour nos soirées LAN et les installe sur place.',
+      },
+      url: 'https://northpeak.example',
+      logo: logoSvg('Northpeak'),
+    },
+    {
+      id: '2',
+      name: 'Lumen Café',
+      description: {
+        en: 'A free coffee for anyone who comes to a Friday evening.',
+        fr: 'Un café offert à toute personne qui vient à une soirée du vendredi.',
+      },
+      url: null,
+      logo: logoSvg('Lumen'),
+    },
+  ],
+};
 const campuses = ['Paris', 'Lyon', 'Nantes', 'Marseille'];
 const campus = ref('Paris');
 const email = ref('alex@gmail.com');
@@ -573,6 +604,16 @@ function showToast() {
           <EventsRegistrationPanel :event="panel.event" />
         </div>
       </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Partners</h2>
+      <p class="max-w-2xl text-muted">
+        One section per kind: the kind on the left, the partners as plain rows on the right. Logos
+        sit on a light plate in both color modes, so one upload works everywhere. The plate is the
+        link when a partner has one.
+      </p>
+      <PartnersKind :group="samplePartners" />
     </section>
 
     <section class="flex flex-col gap-6">

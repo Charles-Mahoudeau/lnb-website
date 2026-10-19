@@ -1214,7 +1214,9 @@
         "imageTooLarge": "This file is too large. Logos can be up to 1 MB.",
         "imageUnreadable": "This file isn’t a PNG, WebP or SVG image we can use.",
         "failed": "The change wasn’t saved. Check your connection and try again."
-      }
+      },
+      "deleteTitle": "Delete {name}?",
+      "deleteLede": "The partner and its link disappear from the partners page. This can’t be undone."
     }
   },
   "wardenAdmin": {

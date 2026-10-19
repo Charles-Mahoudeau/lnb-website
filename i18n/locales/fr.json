@@ -1214,7 +1214,9 @@
         "imageTooLarge": "Ce fichier est trop lourd. Les logos font 1 Mo au maximum.",
         "imageUnreadable": "Ce fichier n’est pas une image PNG, WebP ou SVG utilisable.",
         "failed": "Le changement n’a pas été enregistré. Vérifiez votre connexion et réessayez."
-      }
+      },
+      "deleteTitle": "Supprimer {name} ?",
+      "deleteLede": "Le partenaire et son lien disparaissent de la page des partenaires. Cette action est irréversible."
     }
   },
   "wardenAdmin": {

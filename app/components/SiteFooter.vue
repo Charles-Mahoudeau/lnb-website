@@ -31,6 +31,7 @@ const columns = computed(() => {
         ]
       : []),
     ...(isEnabled('team') ? [{ label: t('nav.team'), to: '/team' }] : []),
+    ...(isEnabled('partners') ? [{ label: t('nav.partners'), to: '/partners' }] : []),
   ];
   const minecraft: FooterLink[] = [
     ...(isEnabled('modList') ? [{ label: t('nav.mods'), to: '/minecraft/mod-list' }] : []),
