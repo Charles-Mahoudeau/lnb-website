@@ -34,6 +34,7 @@ export const EVENT_PROBLEMS = [
   'providerUnavailable',
   'bdeUnavailable',
   'alreadyAnnounced',
+  'notAnnouncedYet',
   'notAnnounceable',
 ] as const;
 export type EventProblem = (typeof EVENT_PROBLEMS)[number];

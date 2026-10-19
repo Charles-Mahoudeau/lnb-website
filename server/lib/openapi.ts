@@ -1661,6 +1661,21 @@ const routes: RouteDoc[] = [
       { status: 409, problems: ['notAnnounceable', 'alreadyAnnounced'] },
     ],
   },
+  {
+    method: 'post',
+    path: '/api/admin/events/{id}/announce-resend',
+    tag: TAGS.pushAdmin,
+    summary: 'Resend an event announcement',
+    description:
+      'Queues the new-event notification again, for an event that was already announced, to everyone it would reach, including people who got it. The same rules as the announcement apply, quiet hours included. Recorded as `event.announceResend`.',
+    access: 'eventsManager',
+    params: events.eventIdParams,
+    response: push.pushAnnounced,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['notAnnounceable', 'notAnnouncedYet'] },
+    ],
+  },
 ];
 
 const ACCESS: Record<Access, { security?: OpenApiObject[]; note?: string; errors: Problem[] }> = {

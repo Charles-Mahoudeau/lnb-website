@@ -82,7 +82,12 @@ async function impact(eventId: string, body: PushImpactBody): Promise<PushImpact
     case 'announce':
       kind = 'newEvent';
       audience =
-        row.hidden || row.cancelledAt || row.announcedAt ? [] : await inSchools(db, row.schools);
+        row.hidden ||
+        row.cancelledAt ||
+        row.startsAt <= new Date() ||
+        !!row.announcedAt !== body.resend
+          ? []
+          : await inSchools(db, row.schools);
       break;
     case 'cancel':
       kind = 'cancelled';
@@ -119,25 +124,38 @@ async function impact(eventId: string, body: PushImpactBody): Promise<PushImpact
   };
 }
 
-/** Sends the new-event notification, once, to followers in the schools the event is open to. */
+/**
+ * Sends the new-event notification to followers in the schools the event is open to. Once, unless
+ * `resend` is set: that sends it again to an event already announced, even to people who got it.
+ */
 async function announce(input: {
   actorId: string;
   id: string;
+  resend?: boolean;
 }): Promise<{ recipients: number; sendAt: string }> {
   return db.transaction(async (tx) => {
     const [row] = await tx.select().from(event).where(eq(event.id, input.id)).for('update');
     if (!row) refuse(404, 'notFound');
     if (row.hidden || row.cancelledAt || row.startsAt <= new Date()) refuse(409, 'notAnnounceable');
-    if (row.announcedAt) refuse(409, 'alreadyAnnounced');
-    await tx.update(event).set({ announcedAt: new Date() }).where(eq(event.id, row.id));
+    if (input.resend) {
+      if (!row.announcedAt) refuse(409, 'notAnnouncedYet');
+    } else {
+      if (row.announcedAt) refuse(409, 'alreadyAnnounced');
+      await tx.update(event).set({ announcedAt: new Date() }).where(eq(event.id, row.id));
+    }
+    const resentAt = Date.now();
     const recipients = await pushQueueService.enqueue(tx, {
       kind: 'newEvent',
       eventId: row.id,
       userIds: await inSchools(tx, row.schools),
-      dedupe: (userId) => `newEvent:${row.id}:${userId}`,
+      // A resend needs its own key, or the first announcement's rows would swallow it.
+      dedupe: (userId) =>
+        input.resend
+          ? `newEvent:${row.id}:${userId}:resend:${String(resentAt)}`
+          : `newEvent:${row.id}:${userId}`,
     });
     await adminAuditService.record(tx, {
-      action: 'event.announce',
+      action: input.resend ? 'event.announceResend' : 'event.announce',
       actorUserId: input.actorId,
       targetUserId: null,
       data: { eventId: row.id, name: row.name, recipients },

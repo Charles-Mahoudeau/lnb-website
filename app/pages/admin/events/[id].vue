@@ -132,14 +132,17 @@ async function onCancelEvent() {
 }
 
 // Sends the new-event notification, once.
-async function onAnnounce() {
+async function onAnnounce(resend = false) {
   const confirmed = await confirmPush({
     eventId: id,
-    action: { action: 'announce' },
-    title: t('admin.events.push.announceTitle', { name: event.value?.name }),
-    description: t('admin.events.push.announceBody'),
-    confirmLabel: t('admin.events.push.announceSubmit'),
+    action: { action: 'announce', resend },
+    title: t(resend ? 'admin.events.push.resendTitle' : 'admin.events.push.announceTitle', {
+      name: event.value?.name,
+    }),
+    description: t(resend ? 'admin.events.push.resendBody' : 'admin.events.push.announceBody'),
+    confirmLabel: t(resend ? 'admin.events.push.resendSubmit' : 'admin.events.push.announceSubmit'),
     cancelLabel: t('admin.events.push.back'),
+    destructive: resend,
   });
   if (!confirmed) return;
   const sent = (result: unknown) => {
@@ -147,7 +150,8 @@ async function onAnnounce() {
     if (Date.parse(sendAt) - Date.now() <= 60_000) return t('admin.events.push.announceDone');
     return t('admin.events.push.announceHeld', parisParts(sendAt, locale.value));
   };
-  if (await act(() => eventActions.announce(id), sent)) await refresh();
+  const send = () => (resend ? eventActions.announceResend(id) : eventActions.announce(id));
+  if (await act(send, sent)) await refresh();
 }
 
 const canAnnounce = computed(
@@ -156,6 +160,15 @@ const canAnnounce = computed(
     !event.value.hidden &&
     !event.value.cancelledAt &&
     !event.value.announcedAt &&
+    Date.parse(event.value.startsAt) > Date.now(),
+);
+
+const canResend = computed(
+  () =>
+    !!event.value &&
+    !event.value.hidden &&
+    !event.value.cancelledAt &&
+    !!event.value.announcedAt &&
     Date.parse(event.value.startsAt) > Date.now(),
 );
 
@@ -185,7 +198,18 @@ const menu = computed<DropdownMenuItem[][]>(() => [
       onSelect: () => void onDuplicate(),
     },
     ...(event.value?.announcedAt
-      ? [{ label: t('admin.events.push.announced'), icon: 'i-lucide-bell-ring', disabled: true }]
+      ? [
+          { label: t('admin.events.push.announced'), icon: 'i-lucide-bell-ring', disabled: true },
+          ...(canResend.value
+            ? [
+                {
+                  label: t('admin.events.push.resend'),
+                  icon: 'i-lucide-bell-plus',
+                  onSelect: () => void onAnnounce(true),
+                },
+              ]
+            : []),
+        ]
       : canAnnounce.value
         ? [
             {

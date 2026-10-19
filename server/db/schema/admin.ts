@@ -20,6 +20,8 @@ export type AdminAuditAction =
   | 'event.delete'
   /** A manager sent the new-event notification. `data.eventId`, `data.name`, `data.recipients`. */
   | 'event.announce'
+  /** A manager sent it again, to everyone. Same `data` as `event.announce`. */
+  | 'event.announceResend'
   /** A manager registered someone by hand, or removed them. The target is that account. */
   | 'event.registrationAdd'
   | 'event.registrationRemove'

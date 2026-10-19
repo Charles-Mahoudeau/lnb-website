@@ -116,6 +116,12 @@ export const eventActions = {
     call(() =>
       $fetch<{ recipients: number; sendAt: string }>(`${base(id)}/announce`, { method: 'POST' }),
     ),
+  announceResend: (id: string) =>
+    call(() =>
+      $fetch<{ recipients: number; sendAt: string }>(`${base(id)}/announce-resend`, {
+        method: 'POST',
+      }),
+    ),
   bdeRetry: (id: string) => call(() => $fetch(`${base(id)}/bde-sync`, { method: 'POST' })),
   searchUsers: (q: string) =>
     call(() => $fetch<{ items: EventUserOption[] }>('/api/admin/events/users', { query: { q } })),

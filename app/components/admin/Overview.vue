@@ -109,6 +109,7 @@ function describe(entry: AdminAuditView): string {
     case 'event.cancel':
     case 'event.delete':
     case 'event.announce':
+    case 'event.announceResend':
     case 'event.registrationAdd':
     case 'event.registrationRemove':
     case 'eventRoom.create':

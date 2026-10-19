@@ -130,7 +130,11 @@ const impactBase = {
 
 /** POST /api/admin/events/:id/push-impact: what an action would send, before it does. */
 export const pushImpactBody = z.discriminatedUnion('action', [
-  z.object({ action: z.literal('announce'), ...impactBase }),
+  z.object({
+    action: z.literal('announce'),
+    resend: z.boolean().default(false).describe('Count a second send, for an announced event.'),
+    ...impactBase,
+  }),
   z.object({ action: z.literal('cancel'), ...impactBase }),
   z.object({
     action: z.literal('reschedule'),
