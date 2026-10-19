@@ -9,8 +9,8 @@ describe('home page', () => {
     expect(page.text()).toContain('La Nuit Blanche');
   });
 
-  it('says the site is a work in progress', async () => {
+  it('introduces the association when no event is planned', async () => {
     const page = await mountSuspended(IndexPage);
-    expect(page.text()).toContain('Work in progress');
+    expect(page.text()).toContain('Evenings, tournaments and events for students');
   });
 });

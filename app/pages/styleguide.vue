@@ -537,6 +537,18 @@ function showToast() {
     </section>
 
     <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Home intro</h2>
+      <p class="max-w-2xl text-muted">
+        The home hero when no event is planned (<code>HomeIntro</code>): what the association does,
+        on the fallback with the scattered icons. The sign-in button shows signed out only. The
+        notification button waits for Push.
+      </p>
+      <div class="overflow-hidden rounded-lg">
+        <HomeIntro />
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
       <h2 class="text-2xl font-bold">Event agenda</h2>
       <p class="max-w-2xl text-muted">
         Events grouped by month, as dated rows. On the events page the next event opens its month as

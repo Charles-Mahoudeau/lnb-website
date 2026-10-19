@@ -13,27 +13,26 @@
     "events": "Events"
   },
   "home": {
-    "workInProgress": "Work in progress",
-    "lede": "Evenings, tournaments and events for Epitech, e-artsup and ISEG students.",
-    "activities": {
-      "videoGames": {
-        "title": "Video games",
-        "description": "Tournaments and LAN nights"
-      },
-      "irlGames": {
-        "title": "IRL games",
-        "description": "Board games, werewolf"
-      },
-      "events": {
-        "title": "Events",
-        "description": "All year long"
-      }
+    "intro": {
+      "title": "Evenings, tournaments and events for students",
+      "lede": "LNB runs the video game tournaments, board game nights and LAN parties of Epitech, e-artsup and ISEG.",
+      "signIn": "Sign in to register"
     },
-    "studentOffice": "Student office website",
-    "github": "Follow on GitHub",
+    "lede": "Evenings, tournaments and events for Epitech, e-artsup and ISEG students.",
+    "noEvent": {
+      "title": "No event is planned yet",
+      "lede": "New events show up here as soon as they’re announced."
+    },
+    "studentOffice": {
+      "title": "Student office",
+      "lede": "LNB is part of the BDE. Find its news and other events on its website.",
+      "link": "Student office website"
+    },
     "upcoming": "Coming up",
     "nextEvent": "Next event",
     "noLaterEvents": "No other dates yet. New events show up here as soon as they’re planned.",
+    "recent": "Recent events",
+    "pastEvents": "Past events",
     "minecraft": {
       "title": "Minecraft server",
       "lede": "The association’s server, with mods picked by vote."

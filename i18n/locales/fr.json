@@ -13,27 +13,26 @@
     "events": "Événements"
   },
   "home": {
-    "workInProgress": "En construction",
-    "lede": "Soirées, tournois et événements pour les étudiants d’Epitech, e-artsup et ISEG.",
-    "activities": {
-      "videoGames": {
-        "title": "Jeux vidéo",
-        "description": "Tournois et soirées LAN"
-      },
-      "irlGames": {
-        "title": "Jeux IRL",
-        "description": "Jeux de société, loup-garou"
-      },
-      "events": {
-        "title": "Événements",
-        "description": "Toute l’année"
-      }
+    "intro": {
+      "title": "Soirées, tournois et événements pour les étudiants",
+      "lede": "LNB organise les tournois de jeux vidéo, les soirées jeux de société et les LAN d’Epitech, d’e-artsup et d’ISEG.",
+      "signIn": "Se connecter pour s’inscrire"
     },
-    "studentOffice": "Site du BDE",
-    "github": "Suivre sur GitHub",
+    "lede": "Soirées, tournois et événements pour les étudiants d’Epitech, e-artsup et ISEG.",
+    "noEvent": {
+      "title": "Aucun événement n’est prévu pour l’instant",
+      "lede": "Les nouveaux événements s’affichent ici dès qu’ils sont annoncés."
+    },
+    "studentOffice": {
+      "title": "Bureau des étudiants",
+      "lede": "LNB fait partie du BDE. Retrouvez ses actualités et ses autres événements sur son site.",
+      "link": "Site du BDE"
+    },
     "upcoming": "À venir",
     "nextEvent": "Prochain événement",
     "noLaterEvents": "Pas d’autres dates pour l’instant. Les nouveaux événements s’affichent ici dès qu’ils sont prévus.",
+    "recent": "Événements récents",
+    "pastEvents": "Événements passés",
     "minecraft": {
       "title": "Serveur Minecraft",
       "lede": "Le serveur de l’association, avec des mods choisis par vote."
