@@ -278,7 +278,12 @@ function statusColor(status: WardenManualLinkView['status']) {
           :help="t('wardenAdmin.linking.playerHelp')"
         >
           <div v-if="player" class="flex items-center gap-3 rounded-md bg-default px-3 py-2">
-            <UAvatar :alt="player.name" size="sm" :ui="avatarTint(player.userId)" />
+            <UAvatar
+              :src="player.image ?? undefined"
+              :alt="player.name"
+              size="sm"
+              :ui="avatarTint(player.userId)"
+            />
             <div class="flex min-w-0 flex-1 flex-col">
               <span class="truncate text-highlighted">{{ player.name }}</span>
               <span class="truncate text-sm text-muted">{{ player.email }}</span>

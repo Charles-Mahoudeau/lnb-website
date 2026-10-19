@@ -10,6 +10,7 @@ function row(overrides: Partial<AdminUserRow>): AdminUserRow {
     userId: 'u1',
     name: 'Alex Laurent',
     email: 'alex.laurent@epitech.eu',
+    image: null,
     school: 'Epitech',
     admin: false,
     wardenAdmin: false,

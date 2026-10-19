@@ -131,7 +131,7 @@ const sampleEvent: EventSummary = {
 const sampleAttendees: EventAttendees = {
   registered: 18,
   capacity: 40,
-  people: people.map(({ id, name }) => ({ id, name })),
+  people: people.map(({ id, name }) => ({ id, name, image: null })),
 };
 // An event page's data, in the registration states the panel shows.
 function sampleView(registration: EventView['registration'], overrides: Partial<EventView> = {}) {

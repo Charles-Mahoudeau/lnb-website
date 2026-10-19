@@ -6,7 +6,7 @@ export interface EventAttendees {
   /** Spots in total. Left out when there's no limit. */
   capacity?: number;
   /** The first few people registered, in order. */
-  people: readonly { id: string; name: string }[];
+  people: readonly { id: string; name: string; image?: string | null }[];
 }
 
 /** An image picked for an event: where it's served, and the focal point its crops center on. */

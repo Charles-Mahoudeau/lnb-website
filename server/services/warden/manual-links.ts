@@ -192,7 +192,13 @@ async function searchUsers(q: string): Promise<WardenUserOption[]> {
   const pattern = `%${q.replace(/[\\%_]/g, '\\$&')}%`;
   const app = getLinkApp('warden');
   const rows = await db
-    .select({ userId: user.id, name: user.name, email: user.email, tenantId: user.tenantId })
+    .select({
+      userId: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+      tenantId: user.tenantId,
+    })
     .from(user)
     .where(or(ilike(user.name, pattern), ilike(user.email, pattern)))
     .orderBy(user.name)
@@ -200,7 +206,7 @@ async function searchUsers(q: string): Promise<WardenUserOption[]> {
   return rows
     .filter((row) => app && canLinkFromSchool(app, row.tenantId))
     .slice(0, 8)
-    .map(({ userId, name, email }) => ({ userId, name, email }));
+    .map(({ userId, name, email, image }) => ({ userId, name, email, image }));
 }
 
 export const wardenManualLinkService = { lookup, create, cancel, recent, searchUsers };

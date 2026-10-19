@@ -546,6 +546,7 @@ export const wardenUserOption = z.object({
   userId: z.string(),
   name: z.string(),
   email: z.string(),
+  image: z.string().nullable(),
 });
 export type WardenUserOption = z.infer<typeof wardenUserOption>;
 

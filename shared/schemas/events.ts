@@ -428,6 +428,7 @@ export const eventRegistrationRow = z.object({
   userId: z.string(),
   name: z.string(),
   email: z.string(),
+  image: z.string().nullable(),
   school: z.string().nullable(),
   status: z.enum(['registered', 'waitlist']),
   position: z.number().nullable().describe('Place on the waitlist, from 1.'),

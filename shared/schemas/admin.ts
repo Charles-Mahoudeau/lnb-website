@@ -47,6 +47,7 @@ export const adminUserRow = z.object({
   userId: z.string(),
   name: z.string(),
   email: z.string(),
+  image: z.string().nullable(),
   school: z.string().nullable(),
   admin: z.boolean(),
   wardenAdmin: z
