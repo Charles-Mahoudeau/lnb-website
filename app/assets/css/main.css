@@ -69,6 +69,11 @@
   --color-banner-fallback: color-mix(in oklab, var(--color-dusk-500) 20%, var(--color-night-950));
 }
 
+/* Partner logos sit on a light plate in both color modes, so one upload works everywhere. */
+@theme inline {
+  --color-plate: var(--lnb-plate);
+}
+
 /* Avatars without a photo: a soft tint per person, picked by avatarTint() in app/utils/avatar.ts.
    No red, so a tint never reads as an action or an error. */
 @theme inline {
@@ -89,6 +94,7 @@
   --lnb-action: var(--color-crimson-700);
   --lnb-action-hover: var(--color-crimson-800);
   --ui-secondary: var(--ui-color-secondary-700);
+  --lnb-plate: #fff;
   --lnb-avatar-1: var(--color-dusk-700);
   --lnb-avatar-2: #3d5bd1;
   --lnb-avatar-3: #13766b;
@@ -121,6 +127,7 @@
   --lnb-action: var(--color-crimson-600);
   --lnb-action-hover: var(--color-crimson-700);
   --ui-secondary: var(--ui-color-secondary-400);
+  --lnb-plate: var(--color-night-100);
   --lnb-avatar-1: var(--color-dusk-400);
   --lnb-avatar-2: #8fa8ff;
   --lnb-avatar-3: #5ccfc0;

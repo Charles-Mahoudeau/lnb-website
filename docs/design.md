@@ -92,6 +92,17 @@ Original mock (not code to port): [team page mocks](https://claude.ai/artifact/P
 - Every photo is the account's profile photo, and an account without one gets its tinted initials like everywhere else.
 - "Join the team" is a raised band at the end with the one solid red button of the page. It shows only with a link set and its flag on.
 
+## Partners page
+
+Original mock (not code to port): [partners page mocks](https://claude.ai/artifact/7cxvy5vCbmQsW8FL7UzpFT), proposal G, "Kind, E style". The page lists the companies and studios that help LNB, in three fixed kinds: sponsors, game partners (studios and publishers who give game keys) and prize partners (brands that give gifts for winners).
+
+- One section per kind, in a fixed order, and a kind with nothing to show is left out. Each section is two columns: the kind on the left (its `IconTile`, its name as an `h3` and one line on what it means), the partners on the right. On phones the columns stack.
+- A partner is a row: its logo on a plate, then its name, its description (always shown) and its link as plain text. Rows are separated by dividers, with no cards around them. The text stays muted, and the link is the only red.
+- **Logos sit on a plate** (`bg-plate`, white in light mode and night-100 in dark mode), in both color modes, so one upload works everywhere. The plate is 9 px (`rounded-md`), the logo is contained inside it with some padding and never stretched or cropped. Logos are SVG, PNG or WebP.
+- A logo with a link makes the whole plate the link. Nothing else on the row moves on hover.
+- The end of the page is a raised band like the team page's: "Want to support LNB?" with the one solid red button, shown only with a contact link set and its flag on.
+- Admin: one raised section per kind, a row per partner with its logo on the plate, the name, the description cut to one line, a "Hidden" badge, the up and down arrows, an edit button and a switch. Order is set with arrows, as on the team page, never by dragging.
+
 ## Notifications
 
 Original mock (not code to port): [push notifications mock](https://claude.ai/artifact/B9QVfPJbgPRYARQ1hjmN6A), bottom sheet (phones) and one-card settings. The desktop dialog came after, from the same content.
