@@ -88,6 +88,13 @@ export const event = pgTable(
     // Whole euros, shown on the page only. Null: free.
     price: smallint('price'),
     hidden: boolean('hidden').default(true).notNull(),
+    // Minutes before the start when registered people get a reminder. Empty: none.
+    reminderOffsets: integer('reminder_offsets')
+      .array()
+      .default(sql`'{60}'::integer[]`)
+      .notNull(),
+    // When the new-event notification was sent. Null: not yet.
+    announcedAt: timestamp('announced_at'),
     cancelledAt: timestamp('cancelled_at'),
 
     // Images, as keys in the event-images storage: the picked originals, where to crop them
