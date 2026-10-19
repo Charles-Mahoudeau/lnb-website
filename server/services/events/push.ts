@@ -2,9 +2,10 @@ import { and, asc, count, eq, inArray, isNull, or } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import type { Tx } from '~~/server/db';
-import { event, eventRegistration, user } from '~~/server/db/schema';
+import { event, eventRegistration, eventRoom, user } from '~~/server/db/schema';
 import type { PushKind } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
+import { buildMessage } from '~~/server/services/push/messages';
 import { pushQueueService } from '~~/server/services/push/queue';
 
 import { placesToPromote } from './rules';
@@ -69,6 +70,10 @@ async function wouldBePromoted(row: EventRow, capacity: number | null): Promise<
 /** What an action would send, before the manager confirms it. Nothing is written. */
 async function impact(eventId: string, body: PushImpactBody): Promise<PushImpactView> {
   const row = await getEvent(db, eventId);
+  const [room] = await db
+    .select({ name: eventRoom.name })
+    .from(eventRoom)
+    .where(eq(eventRoom.id, row.roomId));
   let kind: PushKind;
   let audience: string[];
   switch (body.action) {
@@ -94,7 +99,18 @@ async function impact(eventId: string, body: PushImpactBody): Promise<PushImpact
       audience = [body.userId];
       break;
   }
-  return pushQueueService.impact(kind, audience);
+  const startsAt =
+    body.action === 'reschedule' && body.startsAt ? new Date(body.startsAt) : row.startsAt;
+  const message = buildMessage(
+    kind,
+    body.locale ?? 'en',
+    { id: row.id, name: row.name, startsAt, room: room?.name ?? '' },
+    { offset: row.reminderOffsets[0] },
+  );
+  return {
+    ...(await pushQueueService.impact(kind, audience)),
+    preview: { title: message.title, body: message.body },
+  };
 }
 
 /** Sends the new-event notification, once, to followers in the schools the event is open to. */

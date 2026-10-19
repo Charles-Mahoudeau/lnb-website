@@ -122,7 +122,10 @@ async function receivedByUser(userIds: string[], now = new Date()): Promise<Map<
  * What an action would send, for the manager's confirmation: how many people would get it, and
  * how many of them already received the weekly limit. Nothing is blocked either way.
  */
-async function impact(kind: PushKind, audience: string[]): Promise<PushImpactView> {
+async function impact(
+  kind: PushKind,
+  audience: string[],
+): Promise<Omit<PushImpactView, 'preview'>> {
   const settings = await pushSettingsService.get();
   const recipients = (await allowed(kind)) ? await eligible(db, kind, audience) : [];
   const received = await receivedByUser(recipients);

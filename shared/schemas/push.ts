@@ -106,21 +106,39 @@ export type PushSubscriberRow = z.infer<typeof pushSubscriberRow>;
 /** GET /api/admin/push/subscribers */
 export const pushSubscriberList = z.object({ items: z.array(pushSubscriberRow) });
 
+const impactBase = {
+  locale: z.enum(['en', 'fr']).default('en').describe('The language of the preview.'),
+};
+
 /** POST /api/admin/events/:id/push-impact: what an action would send, before it does. */
 export const pushImpactBody = z.discriminatedUnion('action', [
-  z.object({ action: z.literal('announce') }),
-  z.object({ action: z.literal('cancel') }),
-  z.object({ action: z.literal('reschedule') }),
-  z.object({ action: z.literal('capacity'), capacity: z.int().positive().max(10_000).nullable() }),
-  z.object({ action: z.literal('add'), userId: z.string().min(1) }),
+  z.object({ action: z.literal('announce'), ...impactBase }),
+  z.object({ action: z.literal('cancel'), ...impactBase }),
+  z.object({
+    action: z.literal('reschedule'),
+    startsAt: z.iso
+      .datetime({ offset: true })
+      .optional()
+      .describe('The new start, for the preview.'),
+    ...impactBase,
+  }),
+  z.object({
+    action: z.literal('capacity'),
+    capacity: z.int().positive().max(10_000).nullable(),
+    ...impactBase,
+  }),
+  z.object({ action: z.literal('add'), userId: z.string().min(1), ...impactBase }),
 ]);
-export type PushImpactBody = z.infer<typeof pushImpactBody>;
+export type PushImpactBody = z.input<typeof pushImpactBody>;
 
 export const pushImpactView = z.object({
   recipients: z.number().describe('People who would get the notification.'),
   audience: z.number().describe('People the action concerns, with or without notifications on.'),
   overCap: z.number().describe('Recipients who already received the weekly limit or more.'),
   weeklyCap: z.number(),
+  preview: z
+    .object({ title: z.string(), body: z.string() })
+    .describe('The notification as people will see it.'),
 });
 export type PushImpactView = z.infer<typeof pushImpactView>;
 
