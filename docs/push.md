@@ -32,7 +32,7 @@ The limit (3 by default, an admin setting) is not enforced. `/admin/push` shows 
 - `push_notification` is both the outbox and the log. `push:deliver` runs every minute: it queues the due reminders, claims due rows (`FOR UPDATE SKIP LOCKED`, moving `send_at` forward so a crash retries), and sends. A failure retries after 1, 5 and 30 minutes, then hourly, up to 6 attempts. A 404 or 410 from the push service deletes that device. `push:prune` removes rows after 90 days, every night.
 - Events call the queue from `registrations.promote` and `add`, and from `admin.update` and `admin.cancel` through `events/push.ts`. The announcement is `POST /api/admin/events/:id/announce`.
 - Text comes from `push.message.*` in the locale files, in the language saved on each device (kept up to date from `/account`). A tag per event makes the latest notification replace the earlier ones.
-- `public/sw.js` is the service worker: it shows the notification and opens the event page on tap. It caches nothing.
+- `public/sw.js` is the service worker: it shows the notification and opens the event page on tap. It caches nothing. Its icon is `public/notification-icon.png` (192 px, the LNB logo) and its Android status-bar badge is `public/notification-badge.png` (a white silhouette, the fox cut out of the moon). Both are rendered from `public/logo.svg` with `sharp`, since notifications can't use an SVG: change the logo, regenerate them.
 - The browser side is `usePush` (`app/composables/usePush.ts`). `PushPrePrompt` is offered after a registration or joining the waitlist: a bottom sheet on phones, a centered dialog on desktop, `PushSettings` is the card on `/account`.
 
 ## Asking

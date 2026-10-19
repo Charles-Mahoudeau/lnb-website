@@ -15,7 +15,9 @@ self.addEventListener('push', (event) => {
     self.registration.showNotification(data.title || 'LNB', {
       body: data.body || '',
       tag: data.tag,
-      icon: '/favicon.ico',
+      // PNGs of the LNB logo: notifications can't use the SVG.
+      icon: '/notification-icon.png',
+      badge: '/notification-badge.png',
       data: { url: data.url || '/events' },
     }),
   );
