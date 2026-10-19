@@ -10,7 +10,7 @@ Plan doc (the source of truth for scope and stack rationale): https://claude.ai/
 
 The repository setup step of the plan is done: Nuxt UI starter (stripped down), ESLint and Prettier, Husky and lint-staged, Vitest, CI, Renovate, and Compose with PostgreSQL. The spike is in progress: Drizzle and Better Auth with Microsoft sign-in and the tenant allowlist are in place (see `docs/authentication.md`). Still to do: real logins from the three schools and a refused tenant, and the Coolify deploy.
 
-The admin area (`/admin`, sidebar layout) was started ahead of the plan's "After v2" item: Overview, Users, Warden, Mods and Events are in place. Mods manages the Minecraft mod list at `/minecraft/mod-list` (see `docs/mods.md`). Feature flags switch a feature or part of one off from `/admin/flags` (see `docs/feature-flags.md`: a new feature that can misbehave gets a flag). Events (see `docs/events.md`) has its own `events-manager` role, registrations with a waitlist, an image picker, and a push to the BDE website. Push (see `docs/push.md`) sends opt-in notifications about events only, and has an admin section. The team page (`/team`, see `docs/team.md`) shows accounts the admins put in poles, with a Team section in the admin. Files gets a section when it's built, not before.
+The admin area (`/admin`, sidebar layout) was started ahead of the plan's "After v2" item: Overview, Users, Warden, Mods and Events are in place. Mods manages the Minecraft mod list at `/minecraft/mod-list` (see `docs/mods.md`). Feature flags switch a feature or part of one off from `/admin/flags` (see `docs/feature-flags.md`: a new feature that can misbehave gets a flag). Events (see `docs/events.md`) has its own `events-manager` role, registrations with a waitlist, an image picker, and a push to the BDE website. Push (see `docs/push.md`) sends opt-in notifications about events only, and has an admin section. The team page (`/team`, see `docs/team.md`) shows accounts the admins put in poles, with a Team section in the admin. The partners page (`/partners`, see `docs/partners.md`) lists sponsors, game partners and prize partners, with a Partners section in the admin. Files gets a section when it's built, not before.
 
 The target file structure and the server and client rules are in `docs/architecture.md`. Follow that layout when adding code.
 
@@ -39,7 +39,7 @@ CI (`.github/workflows/ci.yml`) runs lint, format check, typecheck, tests, build
 - Zod 4
 - Standard VAPID Web Push
 - pnpm, with Node 26 LTS pinned through Volta (not nvm)
-- Deployed with Coolify on an OVHcloud VPS. Uploads are stored on the VPS's filesystem (Nitro `fs` storage under `.data/`), not in object storage, for now.
+- Deployed with Coolify on an OVHcloud VPS. Uploads are stored on the VPS's filesystem (Nitro `fs` storage under `.data/`), not in object storage, for now. Coolify needs `.data` on a persistent volume (see `docs/deployment.md`).
 
 If a stack choice is challenged, re-check it against the plan doc's weighted criteria instead of falling back to what v1 used.
 
