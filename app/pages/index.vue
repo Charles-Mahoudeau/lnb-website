@@ -38,6 +38,9 @@ const canUseWarden = computed(
     !!user.value &&
     canLinkFromSchool(wardenApp, user.value.tenantId),
 );
+const showModList = computed(() => isEnabled('modList'));
+// The card is empty without either link, so it goes too.
+const showMinecraft = computed(() => showModList.value || canUseWarden.value);
 </script>
 
 <template>
@@ -113,10 +116,14 @@ const canUseWarden = computed(
             />
           </section>
 
-          <section class="flex flex-col gap-4 rounded-lg bg-elevated p-5">
+          <section v-if="showMinecraft" class="flex flex-col gap-4 rounded-lg bg-elevated p-5">
             <h2 class="text-xl font-bold text-highlighted">{{ t('home.minecraft.title') }}</h2>
             <p class="text-muted">{{ t('home.minecraft.lede') }}</p>
-            <NuxtLink to="/minecraft/mod-list" class="group flex items-center gap-3">
+            <NuxtLink
+              v-if="showModList"
+              to="/minecraft/mod-list"
+              class="group flex items-center gap-3"
+            >
               <IconTile icon="i-lucide-puzzle" />
               <span class="flex flex-col">
                 <span class="font-semibold text-highlighted group-hover:underline">
