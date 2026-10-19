@@ -5,6 +5,7 @@ export * from './auth';
 export * from './events';
 export * from './flags';
 export * from './mods';
+export * from './partners';
 export * from './push';
 export * from './team';
 export * from './warden';

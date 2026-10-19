@@ -20,7 +20,8 @@
     "modsDescription": "Votes et propositions pour les mods du serveur",
     "wardenDescription": "Ton compte Minecraft associé et ton adresse de serveur",
     "events": "Événements",
-    "team": "L’équipe"
+    "team": "L’équipe",
+    "partners": "Partenaires"
   },
   "home": {
     "intro": {
@@ -363,7 +364,8 @@
       "eventTypes": "Types d’événements",
       "eventList": "Tous les événements",
       "push": "Notifications push",
-      "team": "Équipe"
+      "team": "Équipe",
+      "partners": "Partenaires"
     },
     "cancel": "Annuler",
     "roles": {
@@ -486,7 +488,11 @@
         "teamMember_add": "{actor} a ajouté {target} à l’équipe.",
         "teamMember_update": "{actor} a modifié {target} dans l’équipe.",
         "teamMember_remove": "{actor} a retiré {target} de l’équipe.",
-        "team_settings": "{actor} a modifié les réglages de la page de l’équipe."
+        "team_settings": "{actor} a modifié les réglages de la page de l’équipe.",
+        "partner_create": "{actor} a ajouté le partenaire {name}.",
+        "partner_update": "{actor} a modifié le partenaire {name}.",
+        "partner_delete": "{actor} a supprimé le partenaire {name}.",
+        "partners_settings": "{actor} a modifié les réglages de la page des partenaires."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page."
     },
@@ -734,6 +740,18 @@
         "team_join": {
           "label": "Bouton « Rejoindre l’équipe »",
           "description": "Le bouton en bas de la page de l’équipe. Le lien enregistré est conservé."
+        },
+        "partners": {
+          "label": "Page des partenaires",
+          "description": "La page publique des partenaires et son lien dans le pied de page. Les admins peuvent toujours gérer les partenaires."
+        },
+        "partners_contact": {
+          "label": "Bandeau « Soutenir LNB »",
+          "description": "Le bandeau « Vous voulez soutenir LNB ? » en bas de la page des partenaires. Le lien enregistré reste."
+        },
+        "jobs_prunePartnerLogos": {
+          "label": "Nettoyage des logos de partenaires",
+          "description": "La suppression nocturne des logos qu’aucun partenaire n’utilise."
         }
       }
     },
@@ -1143,6 +1161,58 @@
         "userNotFound": "Ce compte n’existe plus.",
         "alreadyMember": "Ce compte est déjà dans l’équipe.",
         "hasMembers": "Déplacez ou retirez d’abord les membres de ce pôle.",
+        "failed": "Le changement n’a pas été enregistré. Vérifiez votre connexion et réessayez."
+      }
+    },
+    "partners": {
+      "title": "Partenaires",
+      "note": "Les partenaires apparaissent sur la page publique des partenaires avec leur logo, leur description et leur lien. Chaque partenaire a besoin d’une description.",
+      "add": "Ajouter un partenaire",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "empty": "Aucun partenaire pour l’instant. Ajoutez le premier.",
+      "noneInKind": "Aucun partenaire de ce type pour l’instant.",
+      "kindCount": "{count} partenaire | {count} partenaires",
+      "badges": {
+        "hidden": "Masqué"
+      },
+      "contact": {
+        "title": "Lien de contact",
+        "help": "Là où mène le bouton « Nous contacter » : un lien https ou une adresse mailto:. Laissez vide pour masquer le bandeau.",
+        "label": "Lien",
+        "save": "Enregistrer le lien",
+        "saved": "Lien enregistré",
+        "flagOff": "Le bandeau est désactivé dans les options de fonctionnalités."
+      },
+      "partner": {
+        "addTitle": "Ajouter un partenaire",
+        "editTitle": "Modifier le partenaire",
+        "kind": "Type",
+        "name": "Nom",
+        "descriptionEn": "Description en anglais",
+        "descriptionFr": "Description en français",
+        "descriptionHelp": "Ce qu’ils font pour LNB. Un texte français laissé vide affiche l’anglais.",
+        "url": "Lien",
+        "urlHelp": "Facultatif. Il doit commencer par https://.",
+        "logo": "Logo",
+        "logoHelp": "PNG, WebP ou SVG, jusqu’à 1 Mo. Il est affiché sur une pastille claire, donc les logos sombres conviennent le mieux.",
+        "logoChoose": "Téléverser un logo",
+        "logoReplace": "Remplacer le logo",
+        "logoMissing": "Téléversez d’abord un logo.",
+        "visible": "Affiché sur le site",
+        "add": "Ajouter le partenaire",
+        "save": "Enregistrer le partenaire",
+        "added": "Partenaire ajouté",
+        "saved": "Partenaire enregistré",
+        "deleted": "Partenaire supprimé"
+      },
+      "errors": {
+        "partnerNotFound": "Ce partenaire n’existe plus. Rechargez la page.",
+        "logoNotFound": "Le logo a disparu. Téléversez-le à nouveau.",
+        "imageTooLarge": "Ce fichier est trop lourd. Les logos font 1 Mo au maximum.",
+        "imageUnreadable": "Ce fichier n’est pas une image PNG, WebP ou SVG utilisable.",
         "failed": "Le changement n’a pas été enregistré. Vérifiez votre connexion et réessayez."
       }
     }
@@ -1648,6 +1718,31 @@
       "title": "Envie de participer à l’organisation de LNB ?",
       "lede": "Dites-nous sur quoi vous aimeriez travailler.",
       "button": "Rejoindre l’équipe"
+    }
+  },
+  "partners": {
+    "title": "Nos partenaires",
+    "lede": "Les entreprises et les studios qui aident LNB à organiser des soirées, des tournois et des jeux IRL.",
+    "empty": "Nos partenaires apparaîtront bientôt ici.",
+    "kinds": {
+      "sponsor": {
+        "name": "Sponsors",
+        "lede": "Ils nous donnent de l’argent, du matériel ou de quoi manger, pour que les soirées et les tournois puissent avoir lieu."
+      },
+      "game": {
+        "name": "Partenaires jeux",
+        "lede": "Des studios et des éditeurs qui nous donnent des clés de jeux pour les lots et les tirages au sort."
+      },
+      "prize": {
+        "name": "Partenaires lots",
+        "lede": "Des marques qui offrent des cadeaux pour les gagnants des tournois et les tirages au sort."
+      }
+    },
+    "logoAlt": "Logo de {name}",
+    "contact": {
+      "title": "Vous voulez soutenir LNB ?",
+      "lede": "Dites-nous ce que vous pouvez offrir et nous trouverons la meilleure façon de faire : lots, repas, matériel ou clés de jeux.",
+      "button": "Nous contacter"
     }
   }
 }

@@ -61,6 +61,7 @@ export default defineNuxtConfig({
         'users:delete-inactive',
         'users:prune-avatars',
         'events:prune-images',
+        'partners:prune-logos',
         'push:prune',
       ],
     },
@@ -68,17 +69,20 @@ export default defineNuxtConfig({
     // Mod icons, downloaded once when a mod is added. See server/services/mods/icons.ts.
     // Profile photos from Microsoft, saved at sign-in. See server/services/avatars.ts.
     // Event images, uploaded or picked, and their crops. See server/services/events/images.ts.
+    // Partner logos, uploaded by admins. See server/services/partners.ts.
     storage: {
       'warden-heads': { driver: 'fs', base: './.data/warden-heads' },
       'mod-icons': { driver: 'fs', base: './.data/mod-icons' },
       avatars: { driver: 'fs', base: './.data/avatars' },
       'event-images': { driver: 'fs', base: './.data/event-images' },
+      'partner-logos': { driver: 'fs', base: './.data/partner-logos' },
     },
     devStorage: {
       'warden-heads': { driver: 'fs', base: './.data/warden-heads' },
       'mod-icons': { driver: 'fs', base: './.data/mod-icons' },
       avatars: { driver: 'fs', base: './.data/avatars' },
       'event-images': { driver: 'fs', base: './.data/event-images' },
+      'partner-logos': { driver: 'fs', base: './.data/partner-logos' },
     },
   },
 

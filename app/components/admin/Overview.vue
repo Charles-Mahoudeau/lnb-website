@@ -124,6 +124,10 @@ function describe(entry: AdminAuditView): string {
     case 'teamMember.update':
     case 'teamMember.remove':
     case 'team.settings':
+    case 'partner.create':
+    case 'partner.update':
+    case 'partner.delete':
+    case 'partners.settings':
       return t(`admin.overview.log.${entry.action.replace('.', '_')}`, {
         actor,
         target,

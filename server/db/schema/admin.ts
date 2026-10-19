@@ -41,7 +41,12 @@ export type AdminAuditAction =
   | 'teamMember.update'
   | 'teamMember.remove'
   /** The team page settings, with `data.joinUrl`. */
-  | 'team.settings';
+  | 'team.settings'
+  | 'partner.create'
+  | 'partner.update'
+  | 'partner.delete'
+  /** The partners page settings, with `data.contactUrl`. */
+  | 'partners.settings';
 
 // Rows outlive the accounts they name: a deleted actor or target becomes null, so the log keeps
 // what happened without keeping who it happened to.

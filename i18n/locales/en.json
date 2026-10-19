@@ -20,7 +20,8 @@
     "modsDescription": "Votes and suggestions for the server’s mods",
     "wardenDescription": "Your linked Minecraft account and server address",
     "events": "Events",
-    "team": "Team"
+    "team": "Team",
+    "partners": "Partners"
   },
   "home": {
     "intro": {
@@ -363,7 +364,8 @@
       "eventTypes": "Event types",
       "eventList": "All events",
       "push": "Push notifications",
-      "team": "Team"
+      "team": "Team",
+      "partners": "Partners"
     },
     "cancel": "Cancel",
     "roles": {
@@ -486,7 +488,11 @@
         "teamMember_add": "{actor} added {target} to the team.",
         "teamMember_update": "{actor} changed {target} on the team.",
         "teamMember_remove": "{actor} removed {target} from the team.",
-        "team_settings": "{actor} changed the team page settings."
+        "team_settings": "{actor} changed the team page settings.",
+        "partner_create": "{actor} added the partner {name}.",
+        "partner_update": "{actor} changed the partner {name}.",
+        "partner_delete": "{actor} deleted the partner {name}.",
+        "partners_settings": "{actor} changed the partners page settings."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page."
     },
@@ -734,6 +740,18 @@
         "team_join": {
           "label": "Join the team button",
           "description": "The button at the bottom of the team page. The saved link stays."
+        },
+        "partners": {
+          "label": "Partners page",
+          "description": "The public partners page and its footer link. Admins can still manage the partners."
+        },
+        "partners_contact": {
+          "label": "Support LNB band",
+          "description": "The “Want to support LNB?” band at the bottom of the partners page. The saved link stays."
+        },
+        "jobs_prunePartnerLogos": {
+          "label": "Pruning partner logos",
+          "description": "The nightly removal of logos no partner uses."
         }
       }
     },
@@ -1143,6 +1161,58 @@
         "userNotFound": "This account no longer exists.",
         "alreadyMember": "This account is already on the team.",
         "hasMembers": "Move or remove the members of this pole first.",
+        "failed": "The change wasn’t saved. Check your connection and try again."
+      }
+    },
+    "partners": {
+      "title": "Partners",
+      "note": "Partners appear on the public partners page with their logo, description and link. Every partner needs a description.",
+      "add": "Add a partner",
+      "edit": "Edit",
+      "delete": "Delete",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "empty": "No partner yet. Add the first one.",
+      "noneInKind": "No partner of this kind yet.",
+      "kindCount": "{count} partner | {count} partners",
+      "badges": {
+        "hidden": "Hidden"
+      },
+      "contact": {
+        "title": "Contact link",
+        "help": "Where the “Get in touch” button leads: an https link, or a mailto: address. Leave it empty to hide the band.",
+        "label": "Link",
+        "save": "Save link",
+        "saved": "Link saved",
+        "flagOff": "The band is switched off in the feature flags."
+      },
+      "partner": {
+        "addTitle": "Add a partner",
+        "editTitle": "Edit partner",
+        "kind": "Kind",
+        "name": "Name",
+        "descriptionEn": "Description in English",
+        "descriptionFr": "Description in French",
+        "descriptionHelp": "What they do for LNB. A French text left empty shows the English one.",
+        "url": "Link",
+        "urlHelp": "Optional. It must start with https://.",
+        "logo": "Logo",
+        "logoHelp": "PNG, WebP or SVG, up to 1 MB. It is shown on a light plate, so dark logos work best.",
+        "logoChoose": "Upload a logo",
+        "logoReplace": "Replace logo",
+        "logoMissing": "Upload a logo first.",
+        "visible": "Shown on the site",
+        "add": "Add partner",
+        "save": "Save partner",
+        "added": "Partner added",
+        "saved": "Partner saved",
+        "deleted": "Partner deleted"
+      },
+      "errors": {
+        "partnerNotFound": "This partner no longer exists. Reload the page.",
+        "logoNotFound": "The logo is gone. Upload it again.",
+        "imageTooLarge": "This file is too large. Logos can be up to 1 MB.",
+        "imageUnreadable": "This file isn’t a PNG, WebP or SVG image we can use.",
         "failed": "The change wasn’t saved. Check your connection and try again."
       }
     }
@@ -1648,6 +1718,31 @@
       "title": "Want to help run LNB?",
       "lede": "Tell us what you would like to work on.",
       "button": "Join the team"
+    }
+  },
+  "partners": {
+    "title": "Our partners",
+    "lede": "The companies and studios that help LNB run evenings, tournaments and IRL games.",
+    "empty": "Our partners will show up here soon.",
+    "kinds": {
+      "sponsor": {
+        "name": "Sponsors",
+        "lede": "They give us money, equipment or food, so evenings and tournaments can happen."
+      },
+      "game": {
+        "name": "Game partners",
+        "lede": "Studios and publishers who give us game keys for prizes and giveaways."
+      },
+      "prize": {
+        "name": "Prize partners",
+        "lede": "Brands that give gifts for tournament winners and giveaways."
+      }
+    },
+    "logoAlt": "{name} logo",
+    "contact": {
+      "title": "Want to support LNB?",
+      "lede": "Tell us what you can offer and we will find the right fit: prizes, food, equipment or game keys.",
+      "button": "Get in touch"
     }
   }
 }
