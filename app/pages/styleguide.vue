@@ -75,6 +75,8 @@ const email = ref('alex@gmail.com');
 const linkCode = ref([1, 9, 6, 0]);
 const notify = ref(true);
 const reminders = ref(true);
+const notifyDemo = ref(true);
+const reminderDemo = ref([60]);
 
 const tabs: TabsItem[] = [{ label: 'Upcoming' }, { label: 'My events' }, { label: 'Past' }];
 
@@ -542,8 +544,7 @@ function showToast() {
       <h2 class="text-2xl font-bold">Home intro</h2>
       <p class="max-w-2xl text-muted">
         The home hero when no event is planned (<code>HomeIntro</code>): what the association does,
-        on the fallback with the scattered icons. The sign-in button shows signed out only. The
-        notification button waits for Push.
+        on the fallback with the scattered icons. The sign-in button shows signed out only.
       </p>
       <div class="overflow-hidden rounded-lg">
         <HomeIntro />
@@ -570,6 +571,77 @@ function showToast() {
         <div v-for="panel in panels" :key="panel.label" class="flex flex-col gap-2">
           <span class="text-sm text-muted">{{ panel.label }}</span>
           <EventsRegistrationPanel :event="panel.event" />
+        </div>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Notifications</h2>
+      <p class="max-w-2xl text-muted">
+        Push notifications, about events only. The prompt is a bottom sheet offered after a
+        registration (<code>PushPrePrompt</code>), the settings are one card on /account
+        (<code>PushSettings</code>), and managers confirm every action that notifies people.
+        Switches are controls, so they use the action red when on.
+      </p>
+      <div class="grid items-start gap-10 lg:grid-cols-2">
+        <div class="flex flex-col gap-4 rounded-lg bg-elevated p-6">
+          <div class="flex items-center gap-4">
+            <IconTile icon="i-lucide-bell" />
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold text-highlighted">Notifications on this device</p>
+              <p class="text-sm text-muted">{{ notifyDemo ? 'On' : 'Off' }}</p>
+            </div>
+            <USwitch v-model="notifyDemo" aria-label="Notifications on this device" />
+          </div>
+          <div class="flex items-center gap-4 border-t border-default pt-3">
+            <div class="min-w-0 flex-1">
+              <p class="font-medium text-highlighted">Reminders</p>
+              <p class="text-sm text-muted">Before events you registered for</p>
+            </div>
+            <USwitch :model-value="true" aria-label="Reminders" />
+          </div>
+          <div class="flex items-baseline gap-3 border-t border-default pt-3">
+            <span class="font-display text-2xl text-highlighted tabular-nums">3</span>
+            <span class="text-muted">Received in the last 7 days</span>
+          </div>
+        </div>
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-wrap gap-2" role="group" aria-label="Reminders">
+            <UButton
+              v-for="minutes in [15, 60, 180, 1440]"
+              :key="minutes"
+              size="md"
+              :color="reminderDemo.includes(minutes) ? 'secondary' : 'neutral'"
+              :variant="reminderDemo.includes(minutes) ? 'subtle' : 'soft'"
+              :aria-pressed="reminderDemo.includes(minutes)"
+              :label="`${minutes} min`"
+              @click="
+                reminderDemo = reminderDemo.includes(minutes)
+                  ? reminderDemo.filter((m) => m !== minutes)
+                  : [...reminderDemo, minutes]
+              "
+            />
+          </div>
+          <UAlert
+            color="warning"
+            variant="subtle"
+            icon="i-lucide-triangle-alert"
+            description="4 of them already received 3 or more this week. Nothing is blocked."
+          />
+          <UAlert
+            color="neutral"
+            variant="subtle"
+            icon="i-lucide-circle-check"
+            description="Nobody is over the weekly limit of 3."
+          />
+          <div class="flex gap-3 rounded-lg bg-accented p-3">
+            <img src="/logo.svg" alt="" class="size-9 shrink-0 rounded-md dark:hidden" />
+            <img src="/logo-dark.svg" alt="" class="hidden size-9 shrink-0 rounded-md dark:block" />
+            <div>
+              <p class="font-semibold text-highlighted">Smash night starts in 1 hour</p>
+              <p class="text-sm text-muted">Friday 24 October at 20:00, Room 2.04.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>

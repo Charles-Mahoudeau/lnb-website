@@ -33,7 +33,8 @@ server/               Nitro server, picked up by Nuxt automatically
                       docs/mods.md), users (accounts, for admins), avatars (profile photos),
                       admin-audit and admin-overview (the admin log and Overview), events/
                       (see docs/events.md: admin, public, registrations, rooms, types, images,
-                      bde, markdown, and rules.ts for the pure rules), later teams, files, push
+                      bde, push, markdown, and rules.ts for the pure rules), push/ (see docs/push.md:
+                      queue, deliver, reminders, subscriptions, settings, stats), later teams, files
   db/
     index.ts          Drizzle client (node-postgres), and the Tx and Db types
     schema/           Drizzle tables, one file per domain. auth.ts is generated.
@@ -41,7 +42,8 @@ server/               Nitro server, picked up by Nuxt automatically
     seed.ts           (planned)
   tasks/              scheduled jobs, timed in nuxt.config.ts: events/bde-sync (every minute),
                       warden/close-stale-sessions, users/delete-inactive, users/prune-avatars and
-                      events/prune-images (every night at 03:00), later event reminders
+                      events/prune-images and push/prune (every night at 03:00), push/deliver (every minute,
+                      with the event reminders)
   plugins/            Nitro plugins: migrate.ts applies pending migrations at startup (its state feeds /api/health), avatars.ts
                       gives server/lib/ the avatars service
   utils/              auth guards (requireUser, requireAdmin, requireWardenAdmin,
