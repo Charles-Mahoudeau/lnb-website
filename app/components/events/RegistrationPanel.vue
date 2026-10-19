@@ -22,6 +22,9 @@ const phase = computed(() => eventPhase(props.event));
 const paused = computed(() => !isEnabled('events.registration'));
 const canChange = computed(() => phase.value === 'upcoming' && !props.event.cancelled);
 const pending = ref(false);
+const push = usePush();
+// Offered once, right after a registration or joining the waitlist.
+const askPush = ref(false);
 
 const signInLink = computed(() => ({ path: '/sign-in', query: { redirect: route.fullPath } }));
 const schools = computed(() => eventSchools(props.event.schools, locale.value));
@@ -78,6 +81,9 @@ async function onJoin() {
       color: 'success',
       icon: 'i-lucide-circle-check',
     });
+    askPush.value = await push.shouldAsk();
+    // The sheet says it all, and the toast would cover its buttons.
+    if (askPush.value) toast.clear();
   } catch (error) {
     const problem = error instanceof EventError ? error.problem : 'failed';
     toast.add({
@@ -112,6 +118,7 @@ async function onCancel() {
 
 <template>
   <section class="flex flex-col gap-4 rounded-lg bg-elevated p-5">
+    <PushPrePrompt v-model:open="askPush" />
     <template v-if="event.cancelled">
       <UBadge
         class="self-start"

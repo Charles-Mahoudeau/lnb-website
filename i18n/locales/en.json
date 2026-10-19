@@ -353,7 +353,8 @@
       "events": "Events",
       "eventRooms": "Rooms",
       "eventTypes": "Event types",
-      "eventList": "All events"
+      "eventList": "All events",
+      "push": "Push notifications"
     },
     "cancel": "Cancel",
     "roles": {
@@ -880,7 +881,17 @@
         "sameEmbedHelp": "Turn it off to pick another image for Discord, X and the BDE website.",
         "bdeSync": "Publish on the BDE website too",
         "bdeSyncHelp": "Its S’inscrire button sends students here. A draft stays hidden there, and a cancelled event comes down.",
-        "bdeOff": "Not set up: the site needs the token the BDE office gives (BDE_API_TOKEN)."
+        "bdeOff": "Not set up: the site needs the token the BDE office gives (BDE_API_TOKEN).",
+        "reminders": "Reminders",
+        "remindersHelp": "Sent to registered people only, before the start. Pick as many as you need, or none.",
+        "reminderOffsets": {
+          "15": "15 minutes before",
+          "60": "1 hour before",
+          "180": "3 hours before",
+          "1440": "1 day before",
+          "2880": "2 days before",
+          "10080": "1 week before"
+        }
       },
       "preview": {
         "title": "Preview",
@@ -951,7 +962,68 @@
         "nextTry": "Next try at {time}, after {count} failed tries.",
         "retry": "Try again",
         "retried": "Sent again"
+      },
+      "push": {
+        "recipients": "No one will be notified. | This will notify 1 person. | This will notify {count} people.",
+        "concerned": "{audience} people are concerned. The others have this kind of notification off, or no device.",
+        "overCap": "{count} of them already received {cap} or more this week. Nothing is blocked.",
+        "underCap": "Nobody is over the weekly limit of {cap}.",
+        "preview": "What people will see",
+        "unknown": "The number of people couldn’t be counted. You can still continue.",
+        "back": "Back",
+        "announce": "Announce event",
+        "announced": "Announced",
+        "announceTitle": "Send a notification about {name}?",
+        "announceBody": "Accounts of the schools this event is open to, who follow new events, get it. It goes out once, from 08:00 in Paris.",
+        "announceSubmit": "Send notification",
+        "announceDone": "Notification queued",
+        "rescheduleTitle": "Save the new start time?",
+        "rescheduleBody": "Everyone on this event, registered or on the waitlist, is told it moved.",
+        "capacityTitle": "Save the new capacity?",
+        "capacityBody": "People on the waitlist get the new places.",
+        "saveSubmit": "Save and notify",
+        "addWillNotify": "{name} will be notified.",
+        "addWontNotify": "{name} won’t be notified: no device, or this kind of notification is off."
       }
+    },
+    "push": {
+      "title": "Push notifications",
+      "week": "Notifications sent this week",
+      "max": "Most received by one person",
+      "subs": "People with notifications on",
+      "ofAccounts": "of {count} accounts",
+      "limit": "weekly limit: {cap}",
+      "warn": "{count} people received more than {cap} notifications this week. Nothing is blocked. Check what was sent before announcing more.",
+      "byKind": "By type this week",
+      "kinds": {
+        "newEvent": "New events",
+        "reminder": "Reminders",
+        "spot": "Waitlist places",
+        "cancelled": "Cancelled events",
+        "rescheduled": "Moved events"
+      },
+      "subscribers": "People with notifications on",
+      "name": "Name",
+      "school": "School",
+      "categories": "Categories",
+      "devices": "Devices",
+      "since": "Since",
+      "last7": "Last 7 days",
+      "all": "All 4",
+      "some": "{count} of 4",
+      "none": "None",
+      "managersSee": "Events managers see the counts and the confirmations, not the list of people.",
+      "settings": "Settings",
+      "cap": "Weekly limit before a warning",
+      "capHelp": "Only used for warnings and counts. It never blocks a notification.",
+      "silence": "After “Not now”, ask again after",
+      "silence7": "7 days",
+      "silence30": "30 days",
+      "silenceNever": "Never",
+      "save": "Save settings",
+      "saved": "Settings saved",
+      "loadFailed": "The notifications overview couldn’t be loaded. Check your connection, then reload the page.",
+      "empty": "Nobody has turned notifications on yet."
     }
   },
   "wardenAdmin": {
@@ -1391,6 +1463,59 @@
         "title": "New time: {name}",
         "body": "It now starts on {date} at {time}."
       }
+    },
+    "prompt": {
+      "title": "Stay in the loop on your events",
+      "intro": "We only send notifications about events. No ads, no news. About 3 a week at most.",
+      "gets": [
+        "A reminder before an event you registered for",
+        "A place opens for you on a waitlist",
+        "An event you’re on is cancelled or moved"
+      ],
+      "yes": "Notify me",
+      "later": "Not now",
+      "enabled": "Notifications are on for this device",
+      "snoozedDays": "We won’t ask again for {days} days. You can turn notifications on in your account.",
+      "snoozedNever": "We won’t ask again. You can turn notifications on in your account.",
+      "denied": "Notifications weren’t allowed. You can change that in your browser’s site settings.",
+      "failed": "Notifications couldn’t be turned on. Check your connection, then try again from your account."
+    },
+    "settings": {
+      "title": "Notifications",
+      "intro": "Only about events. No ads. About 3 a week at most.",
+      "master": "Notifications on this device",
+      "on": "On",
+      "off": "Off",
+      "kinds": {
+        "newEvents": {
+          "label": "New events",
+          "description": "When the BDE announces an event"
+        },
+        "reminders": {
+          "label": "Reminders",
+          "description": "Before events you registered for"
+        },
+        "spots": {
+          "label": "Waitlist places",
+          "description": "When a place opens for you, or a manager adds you"
+        },
+        "changes": {
+          "label": "Changes to my events",
+          "description": "Cancelled or moved events"
+        }
+      },
+      "devices": "Your devices",
+      "thisDevice": "This device",
+      "remove": "Remove",
+      "removed": "Device removed",
+      "since": "Since {date}",
+      "received": "Received in the last 7 days",
+      "adminSees": "Admins can see that you turned notifications on.",
+      "blocked": "Your browser blocks notifications for this site. Allow them in the site settings of your browser, then come back here.",
+      "ios": "On iPhone, add LNB to your home screen first: tap Share, then Add to Home Screen. Open LNB from its icon to turn notifications on.",
+      "unsupported": "This browser can’t receive notifications. Try another browser or device.",
+      "disabled": "Notifications are switched off for now. Your choices are kept.",
+      "failed": "That didn’t work. Check your connection, then try again."
     }
   }
 }

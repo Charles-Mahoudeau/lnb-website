@@ -68,6 +68,8 @@ useSeoMeta({ title: () => t('account.title'), robots: 'noindex' });
       </div>
     </section>
 
+    <PushSettings />
+
     <UButton
       color="neutral"
       variant="soft"

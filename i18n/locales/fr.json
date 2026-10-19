@@ -353,7 +353,8 @@
       "events": "Événements",
       "eventRooms": "Salles",
       "eventTypes": "Types d’événements",
-      "eventList": "Tous les événements"
+      "eventList": "Tous les événements",
+      "push": "Notifications push"
     },
     "cancel": "Annuler",
     "roles": {
@@ -880,7 +881,17 @@
         "sameEmbedHelp": "Désactivez-le pour choisir une autre image pour Discord, X et le site du BDE.",
         "bdeSync": "Publier aussi sur le site du BDE",
         "bdeSyncHelp": "Son bouton S’inscrire renvoie ici. Un brouillon y reste masqué, et un événement annulé en est retiré.",
-        "bdeOff": "Pas configuré : il faut le jeton que donne le bureau du BDE (BDE_API_TOKEN)."
+        "bdeOff": "Pas configuré : il faut le jeton que donne le bureau du BDE (BDE_API_TOKEN).",
+        "reminders": "Rappels",
+        "remindersHelp": "Envoyés uniquement aux personnes inscrites, avant le début. Choisissez-en autant que nécessaire, ou aucun.",
+        "reminderOffsets": {
+          "15": "15 minutes avant",
+          "60": "1 heure avant",
+          "180": "3 heures avant",
+          "1440": "1 jour avant",
+          "2880": "2 jours avant",
+          "10080": "1 semaine avant"
+        }
       },
       "preview": {
         "title": "Aperçu",
@@ -951,7 +962,68 @@
         "nextTry": "Prochain essai à {time}, après {count} essais ratés.",
         "retry": "Réessayer",
         "retried": "Renvoyé"
+      },
+      "push": {
+        "recipients": "Personne ne sera notifié. | Cela notifiera 1 personne. | Cela notifiera {count} personnes.",
+        "concerned": "{audience} personnes sont concernées. Les autres ont ce type de notification désactivé, ou aucun appareil.",
+        "overCap": "{count} d’entre elles ont déjà reçu {cap} notifications ou plus cette semaine. Rien n’est bloqué.",
+        "underCap": "Personne ne dépasse la limite hebdomadaire de {cap}.",
+        "preview": "Ce que verront les gens",
+        "unknown": "Le nombre de personnes n’a pas pu être compté. Vous pouvez quand même continuer.",
+        "back": "Retour",
+        "announce": "Annoncer l’événement",
+        "announced": "Annoncé",
+        "announceTitle": "Envoyer une notification pour {name} ?",
+        "announceBody": "Les comptes des écoles ouvertes à cet événement qui suivent les nouveaux événements la reçoivent. Elle part une seule fois, à partir de 08:00 à Paris.",
+        "announceSubmit": "Envoyer la notification",
+        "announceDone": "Notification mise en file",
+        "rescheduleTitle": "Enregistrer la nouvelle heure de début ?",
+        "rescheduleBody": "Tous les participants, inscrits ou en liste d’attente, sont prévenus du changement.",
+        "capacityTitle": "Enregistrer la nouvelle capacité ?",
+        "capacityBody": "Les personnes en liste d’attente obtiennent les nouvelles places.",
+        "saveSubmit": "Enregistrer et notifier",
+        "addWillNotify": "{name} sera notifié.",
+        "addWontNotify": "{name} ne sera pas notifié : aucun appareil, ou ce type de notification est désactivé."
       }
+    },
+    "push": {
+      "title": "Notifications push",
+      "week": "Notifications envoyées cette semaine",
+      "max": "Maximum reçu par une personne",
+      "subs": "Personnes avec les notifications activées",
+      "ofAccounts": "sur {count} comptes",
+      "limit": "limite hebdomadaire : {cap}",
+      "warn": "{count} personnes ont reçu plus de {cap} notifications cette semaine. Rien n’est bloqué. Vérifiez ce qui a été envoyé avant d’en annoncer d’autres.",
+      "byKind": "Par type cette semaine",
+      "kinds": {
+        "newEvent": "Nouveaux événements",
+        "reminder": "Rappels",
+        "spot": "Places en liste d’attente",
+        "cancelled": "Événements annulés",
+        "rescheduled": "Événements déplacés"
+      },
+      "subscribers": "Personnes avec les notifications activées",
+      "name": "Nom",
+      "school": "École",
+      "categories": "Catégories",
+      "devices": "Appareils",
+      "since": "Depuis",
+      "last7": "7 derniers jours",
+      "all": "Les 4",
+      "some": "{count} sur 4",
+      "none": "Aucune",
+      "managersSee": "Les responsables d’événements voient les nombres et les confirmations, pas la liste des personnes.",
+      "settings": "Réglages",
+      "cap": "Limite hebdomadaire avant avertissement",
+      "capHelp": "Sert seulement aux avertissements et aux nombres. Ne bloque jamais une notification.",
+      "silence": "Après « Plus tard », redemander après",
+      "silence7": "7 jours",
+      "silence30": "30 jours",
+      "silenceNever": "Jamais",
+      "save": "Enregistrer les réglages",
+      "saved": "Réglages enregistrés",
+      "loadFailed": "L’aperçu des notifications n’a pas pu être chargé. Vérifiez votre connexion, puis rechargez la page.",
+      "empty": "Personne n’a encore activé les notifications."
     }
   },
   "wardenAdmin": {
@@ -1391,6 +1463,59 @@
         "title": "Nouvel horaire : {name}",
         "body": "Il commence maintenant le {date} à {time}."
       }
+    },
+    "prompt": {
+      "title": "Restez au courant de vos événements",
+      "intro": "On n’envoie des notifications que pour les événements. Pas de pub, pas d’actualités. Environ 3 par semaine au maximum.",
+      "gets": [
+        "Un rappel avant un événement où vous êtes inscrit",
+        "Une place se libère pour vous sur une liste d’attente",
+        "Un événement où vous êtes inscrit est annulé ou déplacé"
+      ],
+      "yes": "Me notifier",
+      "later": "Plus tard",
+      "enabled": "Les notifications sont activées sur cet appareil",
+      "snoozedDays": "On ne redemandera pas avant {days} jours. Vous pouvez activer les notifications dans votre compte.",
+      "snoozedNever": "On ne redemandera pas. Vous pouvez activer les notifications dans votre compte.",
+      "denied": "Les notifications n’ont pas été autorisées. Vous pouvez changer cela dans les réglages du site de votre navigateur.",
+      "failed": "Les notifications n’ont pas pu être activées. Vérifiez votre connexion, puis réessayez depuis votre compte."
+    },
+    "settings": {
+      "title": "Notifications",
+      "intro": "Seulement pour les événements. Pas de pub. Environ 3 par semaine au maximum.",
+      "master": "Notifications sur cet appareil",
+      "on": "Activées",
+      "off": "Désactivées",
+      "kinds": {
+        "newEvents": {
+          "label": "Nouveaux événements",
+          "description": "Quand le BDE annonce un événement"
+        },
+        "reminders": {
+          "label": "Rappels",
+          "description": "Avant les événements où vous êtes inscrit"
+        },
+        "spots": {
+          "label": "Places en liste d’attente",
+          "description": "Quand une place se libère pour vous, ou qu’un responsable vous ajoute"
+        },
+        "changes": {
+          "label": "Changements de mes événements",
+          "description": "Événements annulés ou déplacés"
+        }
+      },
+      "devices": "Vos appareils",
+      "thisDevice": "Cet appareil",
+      "remove": "Retirer",
+      "removed": "Appareil retiré",
+      "since": "Depuis le {date}",
+      "received": "Reçues ces 7 derniers jours",
+      "adminSees": "Les admins peuvent voir que vous avez activé les notifications.",
+      "blocked": "Votre navigateur bloque les notifications pour ce site. Autorisez-les dans les réglages du site de votre navigateur, puis revenez ici.",
+      "ios": "Sur iPhone, ajoutez d’abord LNB à votre écran d’accueil : touchez Partager, puis Sur l’écran d’accueil. Ouvrez LNB depuis son icône pour activer les notifications.",
+      "unsupported": "Ce navigateur ne peut pas recevoir de notifications. Essayez un autre navigateur ou appareil.",
+      "disabled": "Les notifications sont désactivées pour le moment. Vos choix sont conservés.",
+      "failed": "Ça n’a pas marché. Vérifiez votre connexion, puis réessayez."
     }
   }
 }
