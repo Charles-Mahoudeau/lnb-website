@@ -2,6 +2,7 @@ import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import AdminPush from '~/components/admin/Push.vue';
+import PushPrePrompt from '~/components/push/PrePrompt.vue';
 import PushSettings from '~/components/push/Settings.vue';
 
 import type { PushOverview, PushStatusView } from '#shared/schemas/push';
@@ -134,5 +135,39 @@ describe('admin push', () => {
     expect(text).toContain('87');
     expect(text).not.toContain('Camille Martin');
     expect(text).toContain('Events managers see the counts and the confirmations');
+  });
+});
+
+function stubScreen(desktop: boolean) {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    matches: desktop && query.includes('min-width'),
+    media: query,
+    addEventListener: () => undefined,
+    removeEventListener: () => undefined,
+  }));
+}
+
+describe('notification prompt', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    document.body.innerHTML = '';
+  });
+
+  it('is a dialog with right-aligned buttons on desktop', async () => {
+    stubScreen(true);
+    await mountSuspended(PushPrePrompt, { props: { open: true }, attachTo: document.body });
+    await nextTick();
+    const text = document.body.textContent;
+    expect(text).toContain('Stay in the loop on your events');
+    expect(text).toContain('Notify me');
+    expect(document.body.querySelector('[data-vaul-drawer]')).toBeNull();
+  });
+
+  it('is a bottom sheet on phones', async () => {
+    stubScreen(false);
+    await mountSuspended(PushPrePrompt, { props: { open: true }, attachTo: document.body });
+    await nextTick();
+    expect(document.body.textContent).toContain('Notify me');
+    expect(document.body.querySelector('[data-vaul-drawer]')).not.toBeNull();
   });
 });

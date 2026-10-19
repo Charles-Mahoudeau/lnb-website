@@ -578,10 +578,10 @@ function showToast() {
     <section class="flex flex-col gap-6">
       <h2 class="text-2xl font-bold">Notifications</h2>
       <p class="max-w-2xl text-muted">
-        Push notifications, about events only. The prompt is a bottom sheet offered after a
-        registration (<code>PushPrePrompt</code>), the settings are one card on /account
-        (<code>PushSettings</code>), and managers confirm every action that notifies people.
-        Switches are controls, so they use the action red when on.
+        Push notifications, about events only. The prompt is a bottom sheet on phones and a dialog
+        on desktop, offered after a registration (<code>PushPrePrompt</code>), the settings are one
+        card on /account (<code>PushSettings</code>), and managers confirm every action that
+        notifies people. Switches are controls, so they use the action red when on.
       </p>
       <div class="grid items-start gap-10 lg:grid-cols-2">
         <div class="flex flex-col gap-4 rounded-lg bg-elevated p-6">

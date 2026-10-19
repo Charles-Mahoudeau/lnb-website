@@ -1,7 +1,10 @@
 <script setup lang="ts">
-// Our own question, before the browser's: a bottom sheet offered right after a registration.
-// Only "Notify me" triggers the browser's prompt, since that one can't be asked twice. "Not now",
-// or dismissing the sheet, keeps it quiet on this device for as long as the admin chose.
+import { UDrawer, UModal } from '#components';
+
+// Our own question, before the browser's: a bottom sheet on phones and a centered dialog on
+// desktop, offered right after a registration. Only "Notify me" triggers the browser's prompt,
+// since that one can't be asked twice. "Not now", or dismissing it, keeps it quiet on this device
+// for as long as the admin chose.
 const open = defineModel<boolean>('open', { default: false });
 
 const { t } = useI18n();
@@ -10,6 +13,21 @@ const push = usePush();
 
 const GETS = ['0', '1', '2'] as const;
 let answered = false;
+
+// `sm` and up, like Tailwind's breakpoint. The server and a phone render the sheet.
+const desktop = ref(false);
+onMounted(() => {
+  const query = window.matchMedia('(min-width: 40rem)');
+  desktop.value = query.matches;
+  query.addEventListener('change', (event) => (desktop.value = event.matches));
+});
+
+const container = computed(() => (desktop.value ? UModal : UDrawer));
+const containerProps = computed(() =>
+  desktop.value
+    ? { close: false }
+    : { direction: 'bottom' as const, ui: { content: 'mx-auto max-w-lg' } },
+);
 
 async function yes() {
   answered = true;
@@ -39,7 +57,7 @@ function later() {
   });
 }
 
-// Swiping the sheet away or pressing Escape counts as "Not now", without the toast.
+// Swiping the sheet away, clicking outside or pressing Escape counts as "Not now", without the toast.
 watch(open, (isOpen) => {
   if (isOpen) {
     answered = false;
@@ -50,10 +68,10 @@ watch(open, (isOpen) => {
 </script>
 
 <template>
-  <UDrawer
+  <component
+    :is="container"
     v-model:open="open"
-    direction="bottom"
-    :ui="{ content: 'mx-auto max-w-lg' }"
+    v-bind="containerProps"
     :title="t('push.prompt.title')"
     :description="t('push.prompt.intro')"
   >
@@ -66,10 +84,15 @@ watch(open, (isOpen) => {
       </ul>
     </template>
     <template #footer>
-      <div class="flex flex-col gap-2">
-        <UButton block :label="t('push.prompt.yes')" :loading="push.pending.value" @click="yes" />
+      <div class="flex w-full flex-col gap-2 sm:flex-row-reverse sm:justify-start sm:gap-3">
         <UButton
-          block
+          :block="!desktop"
+          :label="t('push.prompt.yes')"
+          :loading="push.pending.value"
+          @click="yes"
+        />
+        <UButton
+          :block="!desktop"
           color="neutral"
           variant="ghost"
           :label="t('push.prompt.later')"
@@ -77,5 +100,5 @@ watch(open, (isOpen) => {
         />
       </div>
     </template>
-  </UDrawer>
+  </component>
 </template>

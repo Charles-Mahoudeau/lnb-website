@@ -33,7 +33,7 @@ The limit (3 by default, an admin setting) is not enforced. `/admin/push` shows 
 - Events call the queue from `registrations.promote` and `add`, and from `admin.update` and `admin.cancel` through `events/push.ts`. The announcement is `POST /api/admin/events/:id/announce`.
 - Text comes from `push.message.*` in the locale files, in the language saved on each device (kept up to date from `/account`). A tag per event makes the latest notification replace the earlier ones.
 - `public/sw.js` is the service worker: it shows the notification and opens the event page on tap. It caches nothing.
-- The browser side is `usePush` (`app/composables/usePush.ts`). `PushPrePrompt` is the bottom sheet offered after a registration or joining the waitlist, `PushSettings` is the card on `/account`.
+- The browser side is `usePush` (`app/composables/usePush.ts`). `PushPrePrompt` is offered after a registration or joining the waitlist: a bottom sheet on phones, a centered dialog on desktop, `PushSettings` is the card on `/account`.
 
 ## Asking
 
