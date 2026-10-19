@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { DEFAULT_REMINDER_OFFSETS, reminderOffsets } from './push.ts';
 import { SCHOOLS } from '../utils/schools.ts';
 
 // Event contracts, shared by the routes and the pages. See docs/events.md.
@@ -32,6 +33,8 @@ export const EVENT_PROBLEMS = [
   'imageNotFound',
   'providerUnavailable',
   'bdeUnavailable',
+  'alreadyAnnounced',
+  'notAnnounceable',
 ] as const;
 export type EventProblem = (typeof EVENT_PROBLEMS)[number];
 
@@ -214,6 +217,9 @@ export const eventBody = z
     registrationClosesAt: dateInput.nullable().describe('Null: open until the start.'),
     price: z.int().min(0).max(1000).nullable().describe('Whole euros, informational. Null: free.'),
     hidden: z.boolean().describe('A draft: only events managers see it.'),
+    reminderOffsets: reminderOffsets
+      .default(DEFAULT_REMINDER_OFFSETS)
+      .describe('Minutes before the start when registered people get a reminder notification.'),
     bdeSync: z.boolean().describe('Publish the event on the BDE website too.'),
     banner: eventImageInput.nullable().default(null).describe('Null: no art.'),
     embed: eventImageInput
@@ -311,6 +317,8 @@ export const eventAdminView = eventAdminRow.extend({
   registrationOpensAt: isoDate.nullable(),
   registrationClosesAt: isoDate.nullable(),
   price: z.number().nullable(),
+  reminderOffsets: z.array(z.number()),
+  announcedAt: isoDate.nullable().describe('When the new-event notification was sent.'),
   bde: z.object({
     attempts: z.number(),
     nextAttemptAt: isoDate.nullable(),

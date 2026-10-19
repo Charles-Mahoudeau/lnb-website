@@ -7,6 +7,7 @@ import { adminAuditService } from '~~/server/services/admin-audit';
 
 import { bdeSyncService } from './bde';
 import { eventImageService } from './images';
+import { eventPushService } from './push';
 import { eventRegistrationService } from './registrations';
 import { roomView } from './rooms';
 import { shiftDate } from './rules';
@@ -21,6 +22,7 @@ import type {
   EventBody,
   EventDuplicateBody,
 } from '#shared/schemas/events';
+import { DEFAULT_REMINDER_OFFSETS } from '#shared/schemas/push';
 
 // Events, for events managers: the admin list, and creating, editing, cancelling, deleting and
 // duplicating events. Every change is written to admin_audit. See docs/events.md.
@@ -65,6 +67,8 @@ function adminView(row: SelectedEvent): EventAdminView {
     registrationOpensAt: e.registrationOpensAt?.toISOString() ?? null,
     registrationClosesAt: e.registrationClosesAt?.toISOString() ?? null,
     price: e.price,
+    reminderOffsets: e.reminderOffsets,
+    announcedAt: e.announcedAt?.toISOString() ?? null,
     bde: {
       attempts: e.bdeAttempts,
       nextAttemptAt: e.bdeNextAttemptAt?.toISOString() ?? null,
@@ -159,6 +163,7 @@ function columns(body: EventBody) {
     registrationClosesAt: optionalDate(body.registrationClosesAt),
     price: body.price,
     hidden: body.hidden,
+    reminderOffsets: [...(body.reminderOffsets ?? DEFAULT_REMINDER_OFFSETS)].sort((a, b) => b - a),
     bdeSync: body.bdeSync,
   };
 }
@@ -197,10 +202,13 @@ async function update(input: { actorId: string; id: string; body: EventBody }): 
     const current = await lockEvent(tx, input.id);
     if (current.cancelledAt) refuse(409, 'cancelled');
     await checkChoices(tx, input.body, current);
+    const cols = columns(input.body);
     await tx
       .update(event)
-      .set({ ...columns(input.body), ...images })
+      .set({ ...cols, ...images })
       .where(eq(event.id, input.id));
+    // A new start time tells everyone on the event, and the old reminders are dropped.
+    await eventPushService.onRescheduled(tx, current, cols.startsAt);
     // More places, or no limit any more: the waitlist moves up at once.
     await eventRegistrationService.promoteAfterChange(tx, input.id);
     await adminAuditService.record(tx, {
@@ -232,6 +240,7 @@ async function cancel(input: { actorId: string; id: string }): Promise<void> {
       targetUserId: null,
       data: { eventId: row.id, name: row.name },
     });
+    await eventPushService.onCancelled(tx, row.id);
     // A cancelled event comes down from the BDE website.
     await bdeSyncService.markPending(tx, row.id);
   });
@@ -285,6 +294,7 @@ async function duplicate(input: {
         registrationOpensAt: shiftDate(source.registrationOpensAt, source.startsAt, startsAt),
         registrationClosesAt: shiftDate(source.registrationClosesAt, source.startsAt, startsAt),
         price: source.price,
+        reminderOffsets: source.reminderOffsets,
         hidden: true,
         bannerKey: source.bannerKey,
         bannerFocusX: source.bannerFocusX,

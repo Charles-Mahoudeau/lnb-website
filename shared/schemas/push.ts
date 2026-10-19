@@ -123,3 +123,8 @@ export const pushImpactView = z.object({
   weeklyCap: z.number(),
 });
 export type PushImpactView = z.infer<typeof pushImpactView>;
+
+/** POST /api/admin/events/:id/announce */
+export const pushAnnounced = z.object({
+  recipients: z.number().describe('Notifications queued. They go out from 08:00 in Paris.'),
+});

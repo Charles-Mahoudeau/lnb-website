@@ -768,7 +768,9 @@
         "imageUnreachable": "L’image n’a pas pu être téléchargée. Vérifiez que le lien est un lien https public vers une image.",
         "imageNotFound": "Cette image n’est plus sur le serveur. Choisissez-la à nouveau.",
         "providerUnavailable": "SteamGridDB ne répond pas. Réessayez dans un moment, ou envoyez une image.",
-        "bdeUnavailable": "Le site du BDE est injoignable, l’événement ne peut donc pas en être retiré. Réessayez plus tard, ou annulez-le plutôt."
+        "bdeUnavailable": "Le site du BDE est injoignable, l’événement ne peut donc pas en être retiré. Réessayez plus tard, ou annulez-le plutôt.",
+        "alreadyAnnounced": "La notification de nouvel événement a déjà été envoyée. Elle ne part qu’une fois.",
+        "notAnnounceable": "Seul un événement publié, pas commencé et pas annulé peut être annoncé."
       },
       "new": "Nouvel événement",
       "create": "Créer l’événement",

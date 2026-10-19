@@ -201,6 +201,8 @@ function sampleAdmin(overrides: Partial<EventAdminView>): EventAdminView {
     registrationOpensAt: null,
     registrationClosesAt: null,
     price: null,
+    reminderOffsets: [60],
+    announcedAt: null,
     bde: {
       attempts: 0,
       nextAttemptAt: null,

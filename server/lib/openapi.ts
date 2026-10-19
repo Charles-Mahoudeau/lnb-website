@@ -6,6 +6,7 @@ import * as events from '../../shared/schemas/events.ts';
 import * as flags from '../../shared/schemas/flags.ts';
 import { linkApproveBody, linkApproveResult } from '../../shared/schemas/link.ts';
 import * as mods from '../../shared/schemas/mods.ts';
+import * as push from '../../shared/schemas/push.ts';
 import * as warden from '../../shared/schemas/warden.ts';
 
 // The OpenAPI document behind the API reference at /api/docs. Schemas come from the shared Zod
@@ -88,6 +89,12 @@ const requestSchemas = {
   EventRegistrationAddBody: events.eventRegistrationAddBody,
   EventImageImportBody: events.eventImageImportBody,
   EventImageInput: events.eventImageInput,
+  PushSubscribeBody: push.pushSubscribeBody,
+  PushUnsubscribeBody: push.pushUnsubscribeBody,
+  PushLocaleBody: push.pushLocaleBody,
+  PushPreferencesPatch: push.pushPreferencesPatch,
+  PushSettings: push.pushSettings,
+  PushImpactBody: push.pushImpactBody,
 };
 
 const responseSchemas = {
@@ -156,6 +163,12 @@ const responseSchemas = {
   BdeSettings: events.bdeSettings,
   ProviderGames: events.providerGames,
   ProviderImages: events.providerImages,
+  PushStatus: push.pushStatusView,
+  PushPreferences: push.pushPreferences,
+  PushOverview: push.pushOverview,
+  PushSubscriberList: push.pushSubscriberList,
+  PushImpact: push.pushImpactView,
+  PushAnnounced: push.pushAnnounced,
 };
 
 const TAGS = {
@@ -172,6 +185,8 @@ const TAGS = {
   modsAdmin: 'Mod list: admins',
   events: 'Events',
   eventsAdmin: 'Events: managers',
+  push: 'Push notifications',
+  pushAdmin: 'Push: admins',
   auth: 'Auth',
   authDevice: 'Auth: device authorization',
 };
@@ -1521,6 +1536,131 @@ const routes: RouteDoc[] = [
     created: true,
     problems: [{ status: 404, problems: ['notFound'] }],
   },
+  {
+    method: 'get',
+    path: '/api/push/status',
+    tag: TAGS.push,
+    summary: 'My notification settings',
+    description:
+      "The caller's four switches, devices, how many notifications they received in the last 7 days, and the VAPID public key to subscribe with. `configured` is false when push is off or the server has no keys.",
+    access: 'user',
+    response: push.pushStatusView,
+  },
+  {
+    method: 'post',
+    path: '/api/push/subscription',
+    tag: TAGS.push,
+    summary: 'Turn notifications on for this browser',
+    description:
+      "Saves what the browser's `PushManager.subscribe()` returned, with the language to write notifications in. Again from the same browser: updates it.",
+    access: 'user',
+    body: push.pushSubscribeBody,
+    noContent: true,
+    problems: [{ status: 503, problems: ['disabled'] }],
+  },
+  {
+    method: 'delete',
+    path: '/api/push/subscription',
+    tag: TAGS.push,
+    summary: 'Turn notifications off for this browser',
+    description: 'Always works, even while push is switched off.',
+    access: 'user',
+    body: push.pushUnsubscribeBody,
+    noContent: true,
+  },
+  {
+    method: 'patch',
+    path: '/api/push/subscription',
+    tag: TAGS.push,
+    summary: 'Change the language of this browser’s notifications',
+    access: 'user',
+    body: push.pushLocaleBody,
+    noContent: true,
+  },
+  {
+    method: 'delete',
+    path: '/api/push/devices/{id}',
+    tag: TAGS.push,
+    summary: 'Remove one of my devices',
+    access: 'user',
+    params: z.object({ id: z.coerce.number().int().positive() }),
+    noContent: true,
+  },
+  {
+    method: 'patch',
+    path: '/api/push/preferences',
+    tag: TAGS.push,
+    summary: 'Choose which notifications I get',
+    description: 'New events, reminders, waitlist spots and changes to my events. On every device.',
+    access: 'user',
+    body: push.pushPreferencesPatch,
+    response: push.pushPreferences,
+  },
+  {
+    method: 'get',
+    path: '/api/admin/push/overview',
+    tag: TAGS.pushAdmin,
+    summary: 'Notifications this week',
+    description:
+      'Counts only, so events managers can read it too: sent in the last 7 days, the most one person received, and how many went over the weekly limit. The limit only warns, it never blocks.',
+    access: 'eventsManager',
+    response: push.pushOverview,
+  },
+  {
+    method: 'get',
+    path: '/api/admin/push/subscribers',
+    tag: TAGS.pushAdmin,
+    summary: 'Who turned notifications on',
+    access: 'admin',
+    response: push.pushSubscriberList,
+  },
+  {
+    method: 'get',
+    path: '/api/admin/push/settings',
+    tag: TAGS.pushAdmin,
+    summary: 'Push settings',
+    access: 'admin',
+    response: push.pushSettings,
+  },
+  {
+    method: 'patch',
+    path: '/api/admin/push/settings',
+    tag: TAGS.pushAdmin,
+    summary: 'Change the push settings',
+    description:
+      'The weekly limit that triggers warnings, and how many days the prompt stays quiet after "Not now" (null: never ask again).',
+    access: 'admin',
+    body: push.pushSettings,
+    response: push.pushSettings,
+  },
+  {
+    method: 'post',
+    path: '/api/admin/events/{id}/push-impact',
+    tag: TAGS.pushAdmin,
+    summary: 'What an action would notify',
+    description:
+      'For the confirmation before announcing, cancelling, moving, raising the capacity or adding someone. Writes nothing. Nothing is blocked by the weekly limit.',
+    access: 'eventsManager',
+    params: events.eventIdParams,
+    body: push.pushImpactBody,
+    response: push.pushImpactView,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/events/{id}/announce',
+    tag: TAGS.pushAdmin,
+    summary: 'Announce an event',
+    description:
+      'Queues the new-event notification for followers in the schools the event is open to. Once per event, and only for a published event that has not started or been cancelled. It goes out from 08:00 in Paris.',
+    access: 'eventsManager',
+    params: events.eventIdParams,
+    response: push.pushAnnounced,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['notAnnounceable', 'alreadyAnnounced'] },
+    ],
+  },
 ];
 
 const ACCESS: Record<Access, { security?: OpenApiObject[]; note?: string; errors: Problem[] }> = {
@@ -1812,6 +1952,15 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
         name: TAGS.modsAdmin,
         description: 'The Mods section of the admin area, `/admin/mods`.',
       },
+      {
+        name: TAGS.push,
+        description:
+          'Notifications about events only, from the notification settings on `/account`. See `docs/push.md`.',
+      },
+      {
+        name: TAGS.pushAdmin,
+        description: 'The Push section of the admin area, `/admin/push`, and the confirmations.',
+      },
       { name: TAGS.auth, description: AUTH_TAG_DESCRIPTION },
       {
         name: TAGS.authDevice,
@@ -1824,6 +1973,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       { name: 'Auth', tags: [TAGS.auth, TAGS.authDevice] },
       { name: 'Warden', tags: [TAGS.wardenServer, TAGS.wardenPlayer, TAGS.wardenAdmin] },
       { name: 'Minecraft', tags: [TAGS.mods, TAGS.modsAdmin] },
+      { name: 'Push', tags: [TAGS.push, TAGS.pushAdmin] },
     ],
     paths,
     components: {

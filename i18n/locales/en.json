@@ -768,7 +768,9 @@
         "imageUnreachable": "The image couldn’t be downloaded. Check that the link is a public https link to an image.",
         "imageNotFound": "This image is gone from the server. Pick it again.",
         "providerUnavailable": "SteamGridDB isn’t answering. Try again in a moment, or upload an image.",
-        "bdeUnavailable": "The BDE website can’t be reached, so the event can’t come down there. Try again later, or cancel it instead."
+        "bdeUnavailable": "The BDE website can’t be reached, so the event can’t come down there. Try again later, or cancel it instead.",
+        "alreadyAnnounced": "This event already had its new-event notification. It goes out once.",
+        "notAnnounceable": "Only a published event that hasn’t started or been cancelled can be announced."
       },
       "new": "New event",
       "create": "Create the event",

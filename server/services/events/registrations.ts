@@ -6,6 +6,7 @@ import type { Tx } from '~~/server/db';
 import { event, eventRegistration, user } from '~~/server/db/schema';
 import type { EventRegistrationStatus } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
+import { pushQueueService } from '~~/server/services/push/queue';
 
 import { placesToPromote, registrationState } from './rules';
 import { refuse } from './shared';
@@ -58,6 +59,14 @@ async function promote(tx: Tx, row: EventRow, now = new Date()): Promise<string[
         next.map((r) => r.id),
       ),
     );
+  // They hear about it in the same transaction, so a place is never given silently.
+  const registrationOf = new Map(next.map((r) => [r.userId, r.id]));
+  await pushQueueService.enqueue(tx, {
+    kind: 'spot',
+    eventId: row.id,
+    userIds: next.map((r) => r.userId),
+    dedupe: (userId) => `spot:${String(registrationOf.get(userId))}`,
+  });
   return next.map((r) => r.userId);
 }
 
@@ -175,6 +184,12 @@ async function add(input: {
         addedByUserId: input.actorId,
       });
     }
+    // A manager giving someone a place counts as a place opening for them.
+    await pushQueueService.enqueue(tx, {
+      kind: 'spot',
+      eventId: row.id,
+      userIds: [input.userId],
+    });
     await adminAuditService.record(tx, {
       action: 'event.registrationAdd',
       actorUserId: input.actorId,
