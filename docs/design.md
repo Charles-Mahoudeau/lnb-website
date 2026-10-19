@@ -31,7 +31,7 @@ Three custom palettes, wired into Nuxt UI as `neutral: 'night'`, `primary: 'crim
 - **Deep crimson only marks actions**: the main button, links, focus rings, errors and destructive actions. Never use red on large surfaces, backgrounds, banners, cards or decoration.
 - **Dusk violet is the second accent, and it never marks an action.** It brings color to these places only:
   - the big date numbers in event lists (`text-secondary`, the month stays muted);
-  - icons in small tinted tiles: activities, menu items, admin overview items (the `IconTile` component, `bg-secondary/15 text-secondary`);
+  - icons in small tinted tiles: activities, menu items, admin overview items, team poles (the `IconTile` component, `bg-secondary/15 text-secondary`);
   - the scattered activity icons on an event hero or the sign-in banner without banner art (see Imagery);
   - the current page in navigation menus (header and admin sidebar) and the selected tab (Nuxt UI's `secondary` color, set globally in `app.config.ts`).
 
@@ -82,6 +82,15 @@ Three custom palettes, wired into Nuxt UI as `neutral: 'night'`, `primary: 'crim
 - Events without a banner fall back to `bg-banner-fallback`: a flat night navy tinted with dusk violet, the same in both modes. No scrim on it and no gradient. On the agenda thumbnails and the next-event card it carries the corner mark (`EventsArtFallback`): the event type's icon, large, faint (`text-secondary`, 25% strength), tilted and cropped by the bottom right corner. It's one icon, never a pattern or a grid, and it stays decorative. The other fallback graphic is the scattered icons on the home hero and the sign-in banner.
 - The logo is a black fox on a grey moon: `public/logo.svg`. On dark backgrounds use `public/logo-dark.svg`: the same drawing with a night-100 fox on a night-600 moon (night-700 shadow and craters) and night-950 details. When the night palette changes, update these fills too. A pure white fox on the light moon lacked contrast, and pure white glared, so keep these colors. Show them with `dark:hidden` and `hidden dark:block`, as in the header. Don't recolor the logo red. `public/favicon.ico` (16, 32 and 48 px) and the notification icons (`public/notification-icon.png`, `notification-badge.png`) are rendered from `logo.svg`: regenerate them when the logo changes.
 - Minecraft skin heads come from `/api/warden/heads/:uuid` (the server fetches and caches them, never hotlinked). Show them with the `pixelated` utility so the 8-pixel faces stay sharp, at 28, 40 or 56 px, with `rounded-sm`.
+
+## Team page
+
+Original mock (not code to port): [team page mocks](https://claude.ai/artifact/PnX6ZUX1qHQimSQajeSXcb), proposal B, "Bureau first". The role under a name stays muted: the second accent isn't for text.
+
+- The featured pole (the bureau) is a raised band (`bg-elevated`, 12 px) with one column per person: a 64 px photo, the name in the display font, the role, a short bio and the school badge. Photos are 96 px, so don't show them larger.
+- The other poles are columns on the page background: the pole's `IconTile` and name, one line on what it does, then people as 36 px avatar, name and role. No cards around them.
+- Every photo is the account's profile photo, and an account without one gets its tinted initials like everywhere else.
+- "Join the team" is a raised band at the end with the one solid red button of the page. It shows only with a link set and its flag on.
 
 ## Notifications
 
