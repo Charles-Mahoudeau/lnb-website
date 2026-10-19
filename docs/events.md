@@ -65,7 +65,7 @@ Later, not built yet: notifications (promotion from the waitlist, reminders) onc
 
 - `/events` lists upcoming events by month, opening on the next one as a larger card (`EventsNextCard`), with a Past tab and filters by type and school. Events under way count as upcoming, and cancelled ones stay listed with a badge.
 - `/events/<id>` shows the banner with the type, name, date and room, then the description beside the registration panel (above it on phones). It sets OG and Twitter tags from the embed image and the start of the description, and offers an `.ics` file (`/api/events/<id>/calendar.ics`).
-- The home hero shows the next event, the home agenda the 5 after it, and the sign-in banner the next one. `events.home` turns the home part off, and `events` the whole feature.
+- The home hero shows the next event, the home agenda the 5 after it, and the sign-in banner the next one. With no upcoming event the home page shows an intro hero instead, and the last 3 past events as "Recent events" either way. `events.home` turns the home part off, and `events` the whole feature.
 - Descriptions are rendered by `server/services/events/markdown.ts` and styled with the `event-prose` utility.
 
 ## Data
