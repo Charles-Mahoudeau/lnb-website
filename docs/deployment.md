@@ -12,7 +12,7 @@ Add **one** persistent storage in Coolify (Application â†’ Persistent Storage â†
 | ------------------ | ----------------------------------- |
 | `lnb-website-data` | `/app/.data`                        |
 
-`/app` is the working directory of Coolify's default Nixpacks build. If the app gets a Dockerfile, or the build pack changes, use that image's `WORKDIR` followed by `/.data`. To check, open the container's terminal in Coolify and run `pwd`, then `ls -a`: `.data` appears after the first upload.
+`/app` is the working directory of Coolify's default Nixpacks build. If the app gets a Dockerfile, or the build pack changes, use that image's `WORKDIR` followed by `/.data`. To check, open the container's terminal in Coolify and run `pwd`: that is the directory that holds `.data`. The folder doesn't exist in a fresh container, because the app creates it on the first write, and `ls` hides dotfiles (use `ls -a`). The volume mount creates it by itself, so there is nothing to create by hand.
 
 One mount on `.data` covers every storage below, and any storage added later, so a new one needs no change in Coolify. Mounting each folder separately only adds places to forget.
 
