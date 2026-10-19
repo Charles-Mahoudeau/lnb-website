@@ -61,7 +61,7 @@ async function subscribers(now = new Date()): Promise<PushSubscriberRow[]> {
       name: user.name,
       tenantId: user.tenantId,
       devices: count(pushSubscription.id),
-      since: sql<Date>`min(${pushSubscription.createdAt})`,
+      since: sql`min(${pushSubscription.createdAt})`.mapWith(pushSubscription.createdAt),
       preference: pushPreference,
     })
     .from(pushSubscription)
@@ -87,7 +87,7 @@ async function subscribers(now = new Date()): Promise<PushSubscriberRow[]> {
       changes: row.preference?.changes ?? true,
     },
     devices: row.devices,
-    since: new Date(row.since).toISOString(),
+    since: row.since.toISOString(),
     receivedLast7Days: receivedBy.get(row.userId) ?? 0,
   }));
 }
