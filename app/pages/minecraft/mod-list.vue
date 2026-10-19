@@ -12,6 +12,7 @@ const { t } = useI18n();
 const toast = useToast();
 const overlay = useOverlay();
 const route = useRoute();
+const router = useRouter();
 const { isEnabled } = useFlags();
 
 useSeoMeta({ title: () => t('mods.title'), description: () => t('mods.lede') });
@@ -19,7 +20,10 @@ useSeoMeta({ title: () => t('mods.title'), description: () => t('mods.lede') });
 const modList = useModList();
 const { data, error, refresh } = await modList.page;
 
-const tab = ref<'official' | 'suggestion'>('official');
+const tab = computed<'official' | 'suggestion'>({
+  get: () => (route.query.tab === 'suggestion' ? 'suggestion' : 'official'),
+  set: (value) => void router.replace({ query: { ...route.query, tab: value } }),
+});
 const sort = ref<'top' | 'new'>('top');
 
 const tabs = computed<TabsItem[]>(() => [

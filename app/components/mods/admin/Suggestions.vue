@@ -10,8 +10,13 @@ import type { ModAdminRow } from '#shared/schemas/mods';
 const { t, locale } = useI18n();
 const toast = useToast();
 const overlay = useOverlay();
+const route = useRoute();
+const router = useRouter();
 
-const view = ref<'visible' | 'removed'>('visible');
+const view = computed<'visible' | 'removed'>({
+  get: () => (route.query.tab === 'removed' ? 'removed' : 'visible'),
+  set: (value) => void router.replace({ query: { ...route.query, tab: value } }),
+});
 const { data, status, refresh } = await useModAdminList('suggestion', view);
 
 const tabs = computed<TabsItem[]>(() => [
