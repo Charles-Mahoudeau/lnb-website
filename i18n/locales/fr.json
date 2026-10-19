@@ -1515,7 +1515,8 @@
       "ios": "Sur iPhone, ajoutez d’abord LNB à votre écran d’accueil : touchez Partager, puis Sur l’écran d’accueil. Ouvrez LNB depuis son icône pour activer les notifications.",
       "unsupported": "Ce navigateur ne peut pas recevoir de notifications. Essayez un autre navigateur ou appareil.",
       "disabled": "Les notifications sont désactivées pour le moment. Vos choix sont conservés.",
-      "failed": "Ça n’a pas marché. Vérifiez votre connexion, puis réessayez."
+      "failed": "Ça n’a pas marché. Vérifiez votre connexion, puis réessayez.",
+      "notConfigured": "Les notifications ne sont pas encore configurées sur ce serveur. Demandez à un admin d’ajouter les clés push."
     }
   }
 }

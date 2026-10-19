@@ -32,7 +32,8 @@ const needsHomeScreen = computed(() => mounted.value && push.needsHomeScreen());
 const locked = computed(
   () => !push.canSubscribe.value || blocked.value || unsupported.value || needsHomeScreen.value,
 );
-const switchedOff = computed(() => !!status.value && !status.value.configured);
+const switchedOff = computed(() => !!status.value && !status.value.enabled);
+const notConfigured = computed(() => !!status.value?.enabled && !status.value.configured);
 
 function fail() {
   toast.add({ title: t('push.settings.failed'), color: 'error', icon: 'i-lucide-circle-alert' });
@@ -96,6 +97,13 @@ function since(iso: string) {
       variant="subtle"
       icon="i-lucide-info"
       :description="t('push.settings.disabled')"
+    />
+    <UAlert
+      v-else-if="notConfigured"
+      color="neutral"
+      variant="subtle"
+      icon="i-lucide-info"
+      :description="t('push.settings.notConfigured')"
     />
     <UAlert
       v-else-if="blocked"

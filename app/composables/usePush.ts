@@ -29,7 +29,9 @@ export function usePush() {
   // Forwards the visitor's cookies when this runs during server rendering.
   const requestFetch = useRequestFetch();
 
-  const available = computed(() => isEnabled('push') && !!status.value?.configured);
+  const available = computed(
+    () => isEnabled('push') && !!status.value?.enabled && status.value.configured,
+  );
   const canSubscribe = computed(() => available.value && isEnabled('push.subscribe'));
 
   /** Whether this browser can receive web push at all. */

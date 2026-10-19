@@ -110,7 +110,8 @@ async function status(userId: string, enabled: boolean): Promise<PushStatusView>
     .orderBy(desc(pushSubscription.createdAt));
   const settings = await pushSettingsService.get();
   return {
-    configured: enabled && pushConfigured(),
+    enabled,
+    configured: pushConfigured(),
     publicKey: pushConfigured() ? (pushEnv().VAPID_PUBLIC_KEY ?? null) : null,
     preferences: await preferencesOf(userId),
     devices: devices.map((device) => ({

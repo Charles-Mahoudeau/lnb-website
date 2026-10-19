@@ -49,11 +49,11 @@ Never cold. The sheet appears right after a registration, and the settings are a
 
 ## Setup
 
-| Variable            | Required | Notes                                                                                          |
-| ------------------- | -------- | ---------------------------------------------------------------------------------------------- |
-| `VAPID_PUBLIC_KEY`  | No       | Generate the pair once with `npx web-push generate-vapid-keys`.                                |
-| `VAPID_PRIVATE_KEY` | No       | Stays on the server. Without the three variables, push is off and `/account` says so.          |
-| `VAPID_SUBJECT`     | No       | A `mailto:` or `https:` address the push services can reach, such as `mailto:bde@example.com`. |
+| Variable            | Required | Notes                                                                                                             |
+| ------------------- | -------- | ----------------------------------------------------------------------------------------------------------------- |
+| `VAPID_PUBLIC_KEY`  | No       | Generate the pair once with `npx web-push generate-vapid-keys`.                                                   |
+| `VAPID_PRIVATE_KEY` | No       | Stays on the server. Without the three variables, push is off and `/account` says it is not set up on the server. |
+| `VAPID_SUBJECT`     | No       | A `mailto:` or `https:` address the push services can reach, such as `mailto:bde@example.com`.                    |
 
 Keep the same keys for good: changing them cuts every device off.
 

@@ -1542,7 +1542,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.push,
     summary: 'My notification settings',
     description:
-      "The caller's four switches, devices, how many notifications they received in the last 7 days, and the VAPID public key to subscribe with. `configured` is false when push is off or the server has no keys.",
+      "The caller's four switches, devices, how many notifications they received in the last 7 days, and the VAPID public key to subscribe with. `enabled` is false while an admin has switched push off, `configured` is false when the server has no VAPID keys.",
     access: 'user',
     response: push.pushStatusView,
   },

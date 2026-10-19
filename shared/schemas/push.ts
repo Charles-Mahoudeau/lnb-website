@@ -57,7 +57,8 @@ export type PushDeviceView = z.infer<typeof pushDeviceView>;
 
 /** GET /api/push/status */
 export const pushStatusView = z.object({
-  configured: z.boolean().describe('False when the server has no VAPID keys, or push is off.'),
+  enabled: z.boolean().describe('False while an admin has switched push off.'),
+  configured: z.boolean().describe('False when the server has no VAPID keys.'),
   publicKey: z.string().nullable().describe('The VAPID public key for PushManager.subscribe().'),
   preferences: pushPreferences,
   devices: z.array(pushDeviceView),

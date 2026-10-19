@@ -1515,7 +1515,8 @@
       "ios": "On iPhone, add LNB to your home screen first: tap Share, then Add to Home Screen. Open LNB from its icon to turn notifications on.",
       "unsupported": "This browser can’t receive notifications. Try another browser or device.",
       "disabled": "Notifications are switched off for now. Your choices are kept.",
-      "failed": "That didn’t work. Check your connection, then try again."
+      "failed": "That didn’t work. Check your connection, then try again.",
+      "notConfigured": "Notifications aren’t set up on this server yet. Ask an admin to add the push keys."
     }
   }
 }

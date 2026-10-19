@@ -10,6 +10,7 @@ const preferences = { newEvents: true, reminders: true, spots: false, changes: t
 
 function status(overrides: Partial<PushStatusView> = {}): PushStatusView {
   return {
+    enabled: true,
     configured: true,
     publicKey: 'key',
     preferences,
@@ -75,9 +76,17 @@ describe('notification settings', () => {
   });
 
   it('says so when push is switched off', async () => {
-    current = status({ configured: false });
+    current = status({ enabled: false });
     const page = await mountSuspended(PushSettings);
     expect(page.text()).toContain('Notifications are switched off for now.');
+  });
+
+  it('says so when the server has no keys, instead of blaming an admin', async () => {
+    current = status({ configured: false, publicKey: null });
+    const page = await mountSuspended(PushSettings);
+    const text = page.text();
+    expect(text).toContain('Notifications aren’t set up on this server yet.');
+    expect(text).not.toContain('switched off');
   });
 });
 
