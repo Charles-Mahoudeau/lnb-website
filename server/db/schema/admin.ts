@@ -31,7 +31,17 @@ export type AdminAuditAction =
   | 'eventType.create'
   | 'eventType.update'
   /** The push settings, with `data.weeklyCap` and `data.silenceDays`. */
-  | 'push.settings';
+  | 'push.settings'
+  /** Poles of the team page. `data.id` and `data.name`. */
+  | 'teamPole.create'
+  | 'teamPole.update'
+  | 'teamPole.delete'
+  /** Members of the team page. The target is that account. `data.poleId`. */
+  | 'teamMember.add'
+  | 'teamMember.update'
+  | 'teamMember.remove'
+  /** The team page settings, with `data.joinUrl`. */
+  | 'team.settings';
 
 // Rows outlive the accounts they name: a deleted actor or target becomes null, so the log keeps
 // what happened without keeping who it happened to.

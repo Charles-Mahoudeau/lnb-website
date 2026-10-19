@@ -117,6 +117,13 @@ function describe(entry: AdminAuditView): string {
     case 'eventType.create':
     case 'eventType.update':
     case 'push.settings':
+    case 'teamPole.create':
+    case 'teamPole.update':
+    case 'teamPole.delete':
+    case 'teamMember.add':
+    case 'teamMember.update':
+    case 'teamMember.remove':
+    case 'team.settings':
       return t(`admin.overview.log.${entry.action.replace('.', '_')}`, {
         actor,
         target,

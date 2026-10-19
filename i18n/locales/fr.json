@@ -19,7 +19,8 @@
     "mods": "Mods",
     "modsDescription": "Votes et propositions pour les mods du serveur",
     "wardenDescription": "Ton compte Minecraft associé et ton adresse de serveur",
-    "events": "Événements"
+    "events": "Événements",
+    "team": "L’équipe"
   },
   "home": {
     "intro": {
@@ -46,7 +47,8 @@
       "title": "Serveur Minecraft",
       "lede": "Le serveur de l’association, avec des mods choisis par vote."
     },
-    "allEvents": "Tous les événements"
+    "allEvents": "Tous les événements",
+    "teamLink": "Rencontrer l’équipe"
   },
   "events": {
     "attendees": {
@@ -171,7 +173,13 @@
     "myEvents": "Mes événements",
     "allMyEvents": "Tous mes événements",
     "noEvents": "Vous n’êtes inscrit à aucun événement à venir.",
-    "seeEvents": "Voir les événements"
+    "seeEvents": "Voir les événements",
+    "team": {
+      "title": "Page de l’équipe",
+      "lede": "Vous êtes sur la page de l’équipe. Votre nom, votre école et votre photo de profil y sont visibles par tout le monde.",
+      "switch": "M’afficher sur la page de l’équipe",
+      "saved": "Enregistré"
+    }
   },
   "link": {
     "title": "Associer une application",
@@ -354,7 +362,8 @@
       "eventRooms": "Salles",
       "eventTypes": "Types d’événements",
       "eventList": "Tous les événements",
-      "push": "Notifications push"
+      "push": "Notifications push",
+      "team": "Équipe"
     },
     "cancel": "Annuler",
     "roles": {
@@ -470,7 +479,14 @@
         "eventType_create": "{actor} a ajouté le type d’événement {name}.",
         "eventType_update": "{actor} a modifié le type d’événement {name}.",
         "event_registrationAdd": "{actor} a inscrit {target} à {name}.",
-        "event_registrationRemove": "{actor} a retiré {target} de {name}."
+        "event_registrationRemove": "{actor} a retiré {target} de {name}.",
+        "teamPole_create": "{actor} a ajouté le pôle {name}.",
+        "teamPole_update": "{actor} a modifié le pôle {name}.",
+        "teamPole_delete": "{actor} a supprimé le pôle {name}.",
+        "teamMember_add": "{actor} a ajouté {target} à l’équipe.",
+        "teamMember_update": "{actor} a modifié {target} dans l’équipe.",
+        "teamMember_remove": "{actor} a retiré {target} de l’équipe.",
+        "team_settings": "{actor} a modifié les réglages de la page de l’équipe."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page."
     },
@@ -710,6 +726,14 @@
         "jobs_pushPrune": {
           "label": "Nettoyage du journal des notifications",
           "description": "La suppression de la nuit des notifications de plus de 90 jours et des appareils morts."
+        },
+        "team": {
+          "label": "Page de l’équipe",
+          "description": "La page publique de l’équipe et son lien dans le pied de page. Les admins peuvent toujours gérer l’équipe."
+        },
+        "team_join": {
+          "label": "Bouton « Rejoindre l’équipe »",
+          "description": "Le bouton en bas de la page de l’équipe. Le lien enregistré est conservé."
         }
       }
     },
@@ -1037,6 +1061,90 @@
       "quietFrom": "De",
       "quietUntil": "jusqu’à",
       "quietEmpty": "Choisissez deux heures différentes."
+    },
+    "team": {
+      "title": "Équipe",
+      "note": "Les personnes apparaissent sur la page publique de l’équipe avec leur nom, leur école et leur photo de profil. Demandez leur accord avant de les ajouter.",
+      "addPole": "Ajouter un pôle",
+      "addMember": "Ajouter un membre",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "remove": "Retirer",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "empty": "Aucun pôle pour l’instant. Ajoutez le premier, par exemple le bureau.",
+      "noMembers": "Aucun membre dans ce pôle pour l’instant.",
+      "featured": "À la une",
+      "badges": {
+        "hidden": "Masqué",
+        "hiddenBySelf": "Masqué par la personne",
+        "banned": "Banni"
+      },
+      "join": {
+        "title": "Lien pour rejoindre",
+        "help": "Là où mène le bouton « Rejoindre l’équipe », par exemple un formulaire ou une invitation Discord. Il doit commencer par https://. Laissez vide pour masquer le bouton.",
+        "label": "Lien",
+        "save": "Enregistrer le lien",
+        "saved": "Lien enregistré",
+        "flagOff": "Le bouton est désactivé dans les options de fonctionnalités."
+      },
+      "pole": {
+        "addTitle": "Ajouter un pôle",
+        "editTitle": "Modifier le pôle",
+        "nameEn": "Nom en anglais",
+        "nameFr": "Nom en français",
+        "descriptionEn": "Description en anglais",
+        "descriptionFr": "Description en français",
+        "icon": "Icône",
+        "featured": "Pôle à la une",
+        "featuredHelp": "Il devient le grand bandeau en haut de la page. Un seul pôle est à la une.",
+        "add": "Ajouter le pôle",
+        "save": "Enregistrer le pôle",
+        "added": "Pôle ajouté",
+        "saved": "Pôle enregistré",
+        "deleted": "Pôle supprimé",
+        "deleteTitle": "Supprimer ce pôle ?",
+        "deleteLede": "Seul un pôle vide peut être supprimé."
+      },
+      "member": {
+        "addTitle": "Ajouter un membre",
+        "editTitle": "Modifier le membre",
+        "account": "Compte",
+        "search": "Rechercher par nom ou e-mail",
+        "noResults": "Aucun compte trouvé.",
+        "pole": "Pôle",
+        "roleEn": "Rôle en anglais",
+        "roleFr": "Rôle en français",
+        "bioEn": "Présentation en anglais",
+        "bioFr": "Présentation en français",
+        "bioHelp": "Facultatif. Affichée sous le nom dans le pôle à la une.",
+        "visible": "Affiché sur le site",
+        "add": "Ajouter le membre",
+        "save": "Enregistrer le membre",
+        "added": "Membre ajouté",
+        "saved": "Membre enregistré",
+        "removed": "Membre retiré"
+      },
+      "icons": {
+        "landmark": "Bâtiment",
+        "calendar": "Calendrier",
+        "pickaxe": "Pioche",
+        "megaphone": "Mégaphone",
+        "code": "Code",
+        "gamepad-2": "Manette",
+        "trophy": "Trophée",
+        "palette": "Palette",
+        "camera": "Appareil photo",
+        "users": "Personnes"
+      },
+      "errors": {
+        "poleNotFound": "Ce pôle n’existe plus. Rechargez la page.",
+        "memberNotFound": "Ce membre n’est plus dans l’équipe. Rechargez la page.",
+        "userNotFound": "Ce compte n’existe plus.",
+        "alreadyMember": "Ce compte est déjà dans l’équipe.",
+        "hasMembers": "Déplacez ou retirez d’abord les membres de ce pôle.",
+        "failed": "Le changement n’a pas été enregistré. Vérifiez votre connexion et réessayez."
+      }
     }
   },
   "wardenAdmin": {
@@ -1530,6 +1638,16 @@
       "disabled": "Les notifications sont désactivées pour le moment. Vos choix sont conservés.",
       "failed": "Ça n’a pas marché. Vérifiez votre connexion, puis réessayez.",
       "notConfigured": "Les notifications ne sont pas encore configurées sur ce serveur. Demandez à un admin d’ajouter les clés push."
+    }
+  },
+  "team": {
+    "title": "L’équipe LNB",
+    "lede": "Des étudiants d’Epitech, d’e-artsup et de l’ISEG qui organisent les soirées, les tournois, les jeux IRL et le serveur Minecraft. Venez nous dire bonjour au prochain événement.",
+    "empty": "L’équipe apparaîtra bientôt ici.",
+    "join": {
+      "title": "Envie de participer à l’organisation de LNB ?",
+      "lede": "Dites-nous sur quoi vous aimeriez travailler.",
+      "button": "Rejoindre l’équipe"
     }
   }
 }

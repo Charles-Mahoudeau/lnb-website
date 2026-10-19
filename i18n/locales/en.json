@@ -19,7 +19,8 @@
     "mods": "Mods",
     "modsDescription": "Votes and suggestions for the server’s mods",
     "wardenDescription": "Your linked Minecraft account and server address",
-    "events": "Events"
+    "events": "Events",
+    "team": "Team"
   },
   "home": {
     "intro": {
@@ -46,7 +47,8 @@
       "title": "Minecraft server",
       "lede": "The association’s server, with mods picked by vote."
     },
-    "allEvents": "All events"
+    "allEvents": "All events",
+    "teamLink": "Meet the team"
   },
   "events": {
     "attendees": {
@@ -171,7 +173,13 @@
     "myEvents": "My events",
     "allMyEvents": "All my events",
     "noEvents": "You haven’t registered to an upcoming event.",
-    "seeEvents": "See the events"
+    "seeEvents": "See the events",
+    "team": {
+      "title": "Team page",
+      "lede": "You’re on the team page. Your name, school and profile photo are visible to everyone there.",
+      "switch": "Show me on the team page",
+      "saved": "Saved"
+    }
   },
   "link": {
     "title": "Link an app",
@@ -354,7 +362,8 @@
       "eventRooms": "Rooms",
       "eventTypes": "Event types",
       "eventList": "All events",
-      "push": "Push notifications"
+      "push": "Push notifications",
+      "team": "Team"
     },
     "cancel": "Cancel",
     "roles": {
@@ -470,7 +479,14 @@
         "eventType_create": "{actor} added the event type {name}.",
         "eventType_update": "{actor} changed the event type {name}.",
         "event_registrationAdd": "{actor} registered {target} for {name}.",
-        "event_registrationRemove": "{actor} removed {target} from {name}."
+        "event_registrationRemove": "{actor} removed {target} from {name}.",
+        "teamPole_create": "{actor} added the team pole {name}.",
+        "teamPole_update": "{actor} changed the team pole {name}.",
+        "teamPole_delete": "{actor} deleted the team pole {name}.",
+        "teamMember_add": "{actor} added {target} to the team.",
+        "teamMember_update": "{actor} changed {target} on the team.",
+        "teamMember_remove": "{actor} removed {target} from the team.",
+        "team_settings": "{actor} changed the team page settings."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page."
     },
@@ -710,6 +726,14 @@
         "jobs_pushPrune": {
           "label": "Prune notification log",
           "description": "The nightly removal of notifications older than 90 days and of dead devices."
+        },
+        "team": {
+          "label": "Team page",
+          "description": "The public team page and its footer link. Admins can still manage the team."
+        },
+        "team_join": {
+          "label": "Join the team button",
+          "description": "The button at the bottom of the team page. The saved link stays."
         }
       }
     },
@@ -1037,6 +1061,90 @@
       "quietFrom": "From",
       "quietUntil": "until",
       "quietEmpty": "Pick two different hours."
+    },
+    "team": {
+      "title": "Team",
+      "note": "People appear on the public team page with their name, school and profile photo. Ask for their agreement before adding them.",
+      "addPole": "Add a pole",
+      "addMember": "Add a member",
+      "edit": "Edit",
+      "delete": "Delete",
+      "remove": "Remove",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "empty": "No pole yet. Add the first one, such as the bureau.",
+      "noMembers": "No member in this pole yet.",
+      "featured": "Featured",
+      "badges": {
+        "hidden": "Hidden",
+        "hiddenBySelf": "Hidden by themselves",
+        "banned": "Banned"
+      },
+      "join": {
+        "title": "Join link",
+        "help": "Where the “Join the team” button leads, such as a form or a Discord invite. It must start with https://. Leave it empty to hide the button.",
+        "label": "Link",
+        "save": "Save link",
+        "saved": "Link saved",
+        "flagOff": "The button is switched off in the feature flags."
+      },
+      "pole": {
+        "addTitle": "Add a pole",
+        "editTitle": "Edit pole",
+        "nameEn": "Name in English",
+        "nameFr": "Name in French",
+        "descriptionEn": "Description in English",
+        "descriptionFr": "Description in French",
+        "icon": "Icon",
+        "featured": "Featured pole",
+        "featuredHelp": "It becomes the large band at the top of the page. Only one pole is featured.",
+        "add": "Add pole",
+        "save": "Save pole",
+        "added": "Pole added",
+        "saved": "Pole saved",
+        "deleted": "Pole deleted",
+        "deleteTitle": "Delete this pole?",
+        "deleteLede": "Only an empty pole can be deleted."
+      },
+      "member": {
+        "addTitle": "Add a member",
+        "editTitle": "Edit member",
+        "account": "Account",
+        "search": "Search by name or email",
+        "noResults": "No account found.",
+        "pole": "Pole",
+        "roleEn": "Role in English",
+        "roleFr": "Role in French",
+        "bioEn": "Bio in English",
+        "bioFr": "Bio in French",
+        "bioHelp": "Optional. Shown under the name on the featured pole.",
+        "visible": "Shown on the site",
+        "add": "Add member",
+        "save": "Save member",
+        "added": "Member added",
+        "saved": "Member saved",
+        "removed": "Member removed"
+      },
+      "icons": {
+        "landmark": "Building",
+        "calendar": "Calendar",
+        "pickaxe": "Pickaxe",
+        "megaphone": "Megaphone",
+        "code": "Code",
+        "gamepad-2": "Controller",
+        "trophy": "Trophy",
+        "palette": "Palette",
+        "camera": "Camera",
+        "users": "People"
+      },
+      "errors": {
+        "poleNotFound": "This pole no longer exists. Reload the page.",
+        "memberNotFound": "This member is no longer on the team. Reload the page.",
+        "userNotFound": "This account no longer exists.",
+        "alreadyMember": "This account is already on the team.",
+        "hasMembers": "Move or remove the members of this pole first.",
+        "failed": "The change wasn’t saved. Check your connection and try again."
+      }
     }
   },
   "wardenAdmin": {
@@ -1530,6 +1638,16 @@
       "disabled": "Notifications are switched off for now. Your choices are kept.",
       "failed": "That didn’t work. Check your connection, then try again.",
       "notConfigured": "Notifications aren’t set up on this server yet. Ask an admin to add the push keys."
+    }
+  },
+  "team": {
+    "title": "The LNB team",
+    "lede": "Students from Epitech, e-artsup and ISEG who run the evenings, tournaments, IRL games and the Minecraft server. Come say hi at the next event.",
+    "empty": "The team will show up here soon.",
+    "join": {
+      "title": "Want to help run LNB?",
+      "lede": "Tell us what you would like to work on.",
+      "button": "Join the team"
     }
   }
 }
