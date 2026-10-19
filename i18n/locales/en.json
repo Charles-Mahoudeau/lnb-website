@@ -3,6 +3,15 @@
     "name": "La Nuit Blanche",
     "description": "Student events for Epitech, e-artsup and ISEG."
   },
+  "footer": {
+    "about": "Evenings, tournaments, video games, board games and other events, run by students.",
+    "site": "The site",
+    "project": "The project",
+    "studentOffice": "Student office website",
+    "sourceCode": "Source code",
+    "apiReference": "API reference",
+    "legal": "© {year} {name}. Free software under the AGPL-3.0 license."
+  },
   "language": "Language",
   "nav": {
     "home": "Home",

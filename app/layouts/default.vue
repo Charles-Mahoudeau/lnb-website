@@ -109,10 +109,6 @@ const navItems = computed<NavigationMenuItem[]>(() => {
       <slot />
     </UMain>
 
-    <UFooter>
-      <template #left>
-        <p class="text-sm text-muted">© {{ new Date().getFullYear() }} {{ t('site.name') }}</p>
-      </template>
-    </UFooter>
+    <SiteFooter />
   </div>
 </template>

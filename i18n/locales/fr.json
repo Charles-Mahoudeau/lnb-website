@@ -3,6 +3,15 @@
     "name": "La Nuit Blanche",
     "description": "Des événements étudiants pour Epitech, e-artsup et ISEG."
   },
+  "footer": {
+    "about": "Des soirées, des tournois, des jeux vidéo, des jeux de société et d’autres événements, organisés par des étudiants.",
+    "site": "Le site",
+    "project": "Le projet",
+    "studentOffice": "Site du BDE",
+    "sourceCode": "Code source",
+    "apiReference": "Référence de l’API",
+    "legal": "© {year} {name}. Logiciel libre sous licence AGPL-3.0."
+  },
   "language": "Langue",
   "nav": {
     "home": "Accueil",
