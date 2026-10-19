@@ -49,10 +49,8 @@ const full = (event: EventSummary) =>
             :to="`/events/${event.id}`"
             class="flex flex-col gap-4 rounded-lg bg-elevated p-2.5 hover:bg-accented/50 sm:flex-row sm:items-center sm:pe-4"
           >
-            <!-- Without art, the empty thumbnail would take a whole row on phones. -->
             <div
               class="relative aspect-video shrink-0 overflow-hidden rounded-sm bg-banner-fallback sm:w-40"
-              :class="!event.images && 'max-sm:hidden'"
             >
               <img
                 v-if="event.images"
@@ -60,6 +58,7 @@ const full = (event: EventSummary) =>
                 alt=""
                 class="absolute inset-0 size-full object-cover"
               />
+              <EventsArtFallback v-else :icon="event.type.icon" />
             </div>
             <div class="flex min-w-0 flex-1 items-center gap-4">
               <div

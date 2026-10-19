@@ -3,7 +3,7 @@ import type { EventSummary } from '#shared/schemas/events';
 
 // The next event, opening its month in the agenda: larger, with its art, how soon it is, the
 // places taken and a way in. Not a link as a whole: it holds its own links and buttons. Without
-// art it drops the image column, rather than showing a large empty block.
+// art the image column holds the corner mark of its event type.
 const props = defineProps<{ event: EventSummary }>();
 
 const { t, locale } = useI18n();
@@ -29,15 +29,17 @@ const ratio = computed(() =>
 <template>
   <article class="grid overflow-hidden rounded-lg bg-elevated md:grid-cols-12">
     <div
-      v-if="event.images"
-      class="relative aspect-video bg-banner-fallback md:col-span-7 md:aspect-auto md:min-h-64"
+      class="relative aspect-video overflow-hidden bg-banner-fallback md:col-span-7 md:aspect-auto md:min-h-64"
     >
-      <img :src="event.images.thumb" alt="" class="absolute inset-0 size-full object-cover" />
+      <img
+        v-if="event.images"
+        :src="event.images.thumb"
+        alt=""
+        class="absolute inset-0 size-full object-cover"
+      />
+      <EventsArtFallback v-else :icon="event.type.icon" size="lg" />
     </div>
-    <div
-      class="flex min-w-0 flex-col items-start gap-4 p-5 sm:p-6"
-      :class="event.images ? 'md:col-span-5' : 'md:col-span-12'"
-    >
+    <div class="flex min-w-0 flex-col items-start gap-4 p-5 sm:p-6 md:col-span-5">
       <UBadge
         :label="soon"
         :icon="event.cancelled ? 'i-lucide-circle-x' : 'i-lucide-calendar-clock'"

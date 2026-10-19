@@ -80,6 +80,7 @@ const summary = computed(() => {
           class="absolute inset-0 size-full object-cover"
           :style="{ objectPosition: position(banner) }"
         />
+        <EventsArtFallback v-else-if="type" :icon="type.icon" size="xs" />
       </div>
       <div class="flex min-w-0 flex-col">
         <span class="truncate text-sm font-bold text-highlighted">{{ name }}</span>
