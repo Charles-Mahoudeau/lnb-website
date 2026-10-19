@@ -12,10 +12,12 @@ The mod list at `/minecraft/mod-list` lets members vote on the mods of the LNB M
 - Each account can have `maxSuggestions` suggestions in the list (5 by default). Removed ones count; withdrawn and promoted ones free a slot.
 - Moderation happens after a suggestion appears. Admins can:
   - **Add it to the official list**: it keeps its votes and its proposer.
+  - **Edit** any mod, in either tab: change the reason, even to nothing (people can't do that), and change who gets the credit, or credit nobody. The new proposer's own vote on it is cleared, since nobody votes on their own suggestion.
+  - **Convert** any mod to a Modrinth or CurseForge mod, or to a manual one, in place. The votes, proposer, reason, tab and status stay. The details are replaced, and a Modrinth or CurseForge mod is checked like a new one (it must exist, fit the server and not be in the list already). Converting to a manual mod keeps the current icon unless an icon URL is given.
   - **Remove it** with a reason. It's hidden from the list, but stays in the table: the mod can't be suggested again, and it still counts toward the proposer's limit. The proposer sees the reason under their suggestions until they dismiss it. Admins can restore it.
 - Removing an official mod deletes it with its votes. It can then be added or suggested again.
 - A deleted account's votes go with it. Its suggestions stay, credited to a former member.
-- Every admin change is written to `warden_audit` (`mod.add`, `mod.promote`, `mod.remove`, `mod.restore`, `mod.delete`, `modSettings.update`) and shows in Warden's activity log. These actions aren't sent to the Minecraft server.
+- Every admin change is written to `warden_audit` (`mod.add`, `mod.edit`, `mod.convert`, `mod.promote`, `mod.remove`, `mod.restore`, `mod.delete`, `modSettings.update`) and shows in Warden's activity log. These actions aren't sent to the Minecraft server.
 
 ## Sources
 

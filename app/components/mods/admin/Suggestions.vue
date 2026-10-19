@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { TableColumn, TabsItem } from '@nuxt/ui';
+import type { DropdownMenuItem, TableColumn, TabsItem } from '@nuxt/ui';
 
-import { ModsAdminRemoveModal } from '#components';
+import { ModsAdminConvertModal, ModsAdminEditModal, ModsAdminRemoveModal } from '#components';
 
 import type { ModAdminRow } from '#shared/schemas/mods';
 
@@ -46,6 +46,31 @@ const columns = computed<TableColumn<ModAdminRow>[]>(() => [
 ]);
 
 const removeModal = overlay.create(ModsAdminRemoveModal);
+const editModal = overlay.create(ModsAdminEditModal);
+const convertModal = overlay.create(ModsAdminConvertModal);
+
+function menu(row: ModAdminRow): DropdownMenuItem[] {
+  return [
+    {
+      label: t('admin.mods.suggestions.edit'),
+      icon: 'i-lucide-pencil',
+      onSelect: () => {
+        void editModal.open({ mod: row }).result.then(async (saved) => {
+          if (saved === true) await refresh();
+        });
+      },
+    },
+    {
+      label: t('admin.mods.suggestions.convert'),
+      icon: 'i-lucide-repeat',
+      onSelect: () => {
+        void convertModal.open({ mod: row }).result.then(async (done) => {
+          if (done === true) await refresh();
+        });
+      },
+    },
+  ];
+}
 
 async function run(action: () => Promise<unknown>, success: string) {
   try {
@@ -117,6 +142,15 @@ async function onRemove(row: ModAdminRow) {
         </template>
         <template #actions-cell="{ row }">
           <div v-if="view === 'visible'" class="flex flex-col items-end gap-2">
+            <UDropdownMenu :items="menu(row.original)">
+              <UButton
+                size="md"
+                color="neutral"
+                variant="ghost"
+                icon="i-lucide-ellipsis"
+                :aria-label="t('admin.mods.more')"
+              />
+            </UDropdownMenu>
             <UButton
               size="md"
               color="neutral"

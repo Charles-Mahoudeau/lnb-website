@@ -220,6 +220,8 @@ export const WARDEN_AUDIT_ACTIONS = [
   // The mod list (docs/mods.md), run by the same staff. Not sent to the Minecraft server.
   'mod.add',
   'mod.promote',
+  'mod.edit',
+  'mod.convert',
   'mod.remove',
   'mod.restore',
   'mod.delete',

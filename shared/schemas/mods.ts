@@ -195,6 +195,32 @@ export const modAddBody = z.discriminatedUnion('source', [
 ]);
 export type ModAddBody = z.input<typeof modAddBody>;
 
+/**
+ * Body of PATCH /api/minecraft/admin/mods/{id}. Admins can clear the reason, which a person
+ * can't, and can credit another account or nobody.
+ */
+export const modAdminPatchBody = z
+  .object({
+    reason: z
+      .string()
+      .trim()
+      .max(REASON_MAX)
+      .nullable()
+      .transform((value) => value || null)
+      .describe('Empty or null removes the text.'),
+    proposerUserId: z.string().min(1).max(64).nullable().describe('Null credits nobody.'),
+  })
+  .partial()
+  .refine((body) => Object.keys(body).length > 0, 'nothing to change');
+export type ModAdminPatchBody = z.input<typeof modAdminPatchBody>;
+
+/**
+ * Body of POST /api/minecraft/admin/mods/{id}/convert: the same shapes as adding a mod. The
+ * votes, the proposer, the reason and the tab stay.
+ */
+export const modConvertBody = modAddBody;
+export type ModConvertBody = ModAddBody;
+
 /** Body of POST /api/minecraft/admin/mods/{id}/remove. Shown to the person who suggested it. */
 export const modRemoveBody = z.object({ reason: z.string().trim().min(3).max(300) });
 export type ModRemoveBody = z.infer<typeof modRemoveBody>;

@@ -474,6 +474,7 @@
         "save": "Save settings",
         "saved": "Settings saved"
       },
+      "more": "More actions",
       "official": {
         "add": "Add mod",
         "empty": "No official mods yet. Add one, or promote a suggestion.",
@@ -484,6 +485,8 @@
         "down": "Down",
         "added": "Added",
         "fromSuggestion": "From a suggestion",
+        "edit": "Edit",
+        "convert": "Convert",
         "openPage": "Open page",
         "remove": "Remove",
         "removeTitle": "Remove {name} from the official list?",
@@ -514,11 +517,32 @@
         "reason": "Reason",
         "formerMember": "Former member",
         "removedReason": "Removed: {reason}",
+        "edit": "Edit",
+        "convert": "Convert",
         "promote": "Add to official list",
         "promoted": "Added to the official list",
         "remove": "Remove",
         "restore": "Restore",
         "restored": "Suggestion restored"
+      },
+      "edit": {
+        "title": "Edit {name}",
+        "lede": "Change the reason or who gets the credit. The votes stay.",
+        "reason": "Reason",
+        "reasonHelp": "Shown with the suggestion. Leave it empty to remove the text.",
+        "proposer": "Suggested by",
+        "proposerHelp": "Search by name or email. Their own vote on this mod is cleared.",
+        "nobody": "Nobody",
+        "clearProposer": "Credit nobody",
+        "submit": "Save",
+        "saved": "Mod updated"
+      },
+      "convert": {
+        "title": "Convert {name}",
+        "lede": "It’s a {source} mod now. Pick its new source: the votes, the proposer and the reason stay, and the details are replaced.",
+        "iconHelp": "Optional. Leave it empty to keep the current icon.",
+        "submit": "Convert mod",
+        "done": "Mod converted"
       },
       "removeModal": {
         "title": "Remove {name}?",
@@ -978,6 +1002,8 @@
       "linkCancel": "Cancelled a link code for {username}",
       "modAdd": "Added the mod {name}",
       "modPromote": "Added {name} to the official list",
+      "modEdit": "Edited {name}",
+      "modConvert": "Changed the source of {name}",
       "modRemove": "Removed the suggestion {name}",
       "modRestore": "Restored the suggestion {name}",
       "modDelete": "Removed {name} from the official list",

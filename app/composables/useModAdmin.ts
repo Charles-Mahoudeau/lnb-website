@@ -1,10 +1,13 @@
 import type {
   ModAddBody,
+  ModAdminPatchBody,
   ModAdminRow,
+  ModConvertBody,
   ModListName,
   ModSettingsPatchBody,
   ModSettingsView,
 } from '#shared/schemas/mods';
+import type { WardenUserOption } from '#shared/schemas/warden';
 
 // The Mods section of the admin area. Writes throw a ModError with the API's problem.
 
@@ -44,6 +47,11 @@ const post = (id: number, action: string, body?: object) =>
 export const modAdminActions = {
   add: (body: ModAddBody) =>
     call(() => $fetch<{ id: number }>('/api/minecraft/admin/mods', { method: 'POST', body })),
+  edit: (id: number, body: ModAdminPatchBody) =>
+    call(() => $fetch(`/api/minecraft/admin/mods/${String(id)}`, { method: 'PATCH', body })),
+  convert: (id: number, body: ModConvertBody) => post(id, 'convert', body),
+  searchUsers: (q: string) =>
+    call(() => $fetch<WardenUserOption[]>('/api/warden/admin/users', { query: { q } })),
   promote: (id: number) => post(id, 'promote'),
   remove: (id: number, reason: string) => post(id, 'remove', { reason }),
   restore: (id: number) => post(id, 'restore'),

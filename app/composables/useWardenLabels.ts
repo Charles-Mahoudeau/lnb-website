@@ -60,6 +60,8 @@ export function useWardenLabels() {
         );
       case 'mod.add':
       case 'mod.promote':
+      case 'mod.edit':
+      case 'mod.convert':
       case 'mod.remove':
       case 'mod.restore':
       case 'mod.delete': {

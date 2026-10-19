@@ -28,7 +28,7 @@ function toView(row: ModRow, viewerId: string | undefined, votes: Map<number, nu
     score: row.up - row.down,
     up: row.up,
     down: row.down,
-    suggested: row.reason !== null,
+    suggested: row.list === 'suggestion' || row.promotedAt !== null,
     proposerName: row.proposerName ? shortName(row.proposerName) : null,
     reason: row.reason,
     createdAt: row.createdAt.toISOString(),

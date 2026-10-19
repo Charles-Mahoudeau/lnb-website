@@ -474,6 +474,7 @@
         "save": "Enregistrer les réglages",
         "saved": "Réglages enregistrés"
       },
+      "more": "Plus d’actions",
       "official": {
         "add": "Ajouter un mod",
         "empty": "Aucun mod officiel pour l’instant. Ajoutez-en un, ou promouvez une proposition.",
@@ -484,6 +485,8 @@
         "down": "Contre",
         "added": "Ajouté",
         "fromSuggestion": "Issu d’une proposition",
+        "edit": "Modifier",
+        "convert": "Convertir",
         "openPage": "Ouvrir la page",
         "remove": "Retirer",
         "removeTitle": "Retirer {name} de la liste officielle ?",
@@ -514,11 +517,32 @@
         "reason": "Raison",
         "formerMember": "Ancien membre",
         "removedReason": "Retirée : {reason}",
+        "edit": "Modifier",
+        "convert": "Convertir",
         "promote": "Ajouter à la liste officielle",
         "promoted": "Ajouté à la liste officielle",
         "remove": "Retirer",
         "restore": "Rétablir",
         "restored": "Proposition rétablie"
+      },
+      "edit": {
+        "title": "Modifier {name}",
+        "lede": "Changez la raison ou la personne créditée. Les votes restent.",
+        "reason": "Raison",
+        "reasonHelp": "Affichée avec la proposition. Laissez vide pour retirer le texte.",
+        "proposer": "Proposé par",
+        "proposerHelp": "Recherchez par nom ou e-mail. Son propre vote sur ce mod est effacé.",
+        "nobody": "Personne",
+        "clearProposer": "Ne créditer personne",
+        "submit": "Enregistrer",
+        "saved": "Mod modifié"
+      },
+      "convert": {
+        "title": "Convertir {name}",
+        "lede": "C’est actuellement un mod {source}. Choisissez sa nouvelle source : les votes, la personne et la raison restent, et les détails sont remplacés.",
+        "iconHelp": "Facultatif. Laissez vide pour garder l’icône actuelle.",
+        "submit": "Convertir le mod",
+        "done": "Mod converti"
       },
       "removeModal": {
         "title": "Retirer {name} ?",
@@ -978,6 +1002,8 @@
       "linkCancel": "A annulé un code de liaison pour {username}",
       "modAdd": "Mod {name} ajouté",
       "modPromote": "{name} ajouté à la liste officielle",
+      "modEdit": "{name} modifié",
+      "modConvert": "Source de {name} changée",
       "modRemove": "Proposition {name} retirée",
       "modRestore": "Proposition {name} rétablie",
       "modDelete": "{name} retiré de la liste officielle",

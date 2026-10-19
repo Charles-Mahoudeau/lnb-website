@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import type { TableColumn } from '@nuxt/ui';
+import type { DropdownMenuItem, TableColumn } from '@nuxt/ui';
 
-import { ModsAdminAddModal, WardenConfirmModal } from '#components';
+import {
+  ModsAdminAddModal,
+  ModsAdminConvertModal,
+  ModsAdminEditModal,
+  WardenConfirmModal,
+} from '#components';
 
 import type { ModAdminRow } from '#shared/schemas/mods';
 
@@ -37,7 +42,32 @@ const columns = computed<TableColumn<ModAdminRow>[]>(() => [
 ]);
 
 const addModal = overlay.create(ModsAdminAddModal);
+const editModal = overlay.create(ModsAdminEditModal);
+const convertModal = overlay.create(ModsAdminConvertModal);
 const confirmModal = overlay.create(WardenConfirmModal);
+
+async function onEdit(row: ModAdminRow) {
+  if ((await editModal.open({ mod: row }).result) === true) await refresh();
+}
+
+async function onConvert(row: ModAdminRow) {
+  if ((await convertModal.open({ mod: row }).result) === true) await refresh();
+}
+
+function menu(row: ModAdminRow): DropdownMenuItem[] {
+  return [
+    {
+      label: t('admin.mods.official.edit'),
+      icon: 'i-lucide-pencil',
+      onSelect: () => void onEdit(row),
+    },
+    {
+      label: t('admin.mods.official.convert'),
+      icon: 'i-lucide-repeat',
+      onSelect: () => void onConvert(row),
+    },
+  ];
+}
 
 async function onAdd() {
   if ((await addModal.open().result) === true) await refresh();
@@ -110,6 +140,15 @@ await list;
             target="_blank"
             :label="t('admin.mods.official.openPage')"
           />
+          <UDropdownMenu :items="menu(row.original)">
+            <UButton
+              size="md"
+              color="neutral"
+              variant="outline"
+              icon="i-lucide-ellipsis"
+              :aria-label="t('admin.mods.more')"
+            />
+          </UDropdownMenu>
           <UButton
             size="md"
             color="error"
