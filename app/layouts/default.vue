@@ -91,10 +91,10 @@ const navItems = computed<NavigationMenuItem[]>(() => {
         <AccountMenu v-if="user" :user="user" />
         <UButton
           v-else
-          color="primary"
+          color="neutral"
           variant="outline"
           size="lg"
-          icon="i-lucide-log-in"
+          icon="i-lucide-user"
           :label="t('auth.signIn')"
           :to="signInLink"
         />
