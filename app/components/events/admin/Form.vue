@@ -5,6 +5,7 @@ import { EventsAdminImagePicker, EventsAdminRoomModal } from '#components';
 
 import { eventBody, EVENT_DESCRIPTION_MAX, EVENT_NAME_MAX } from '#shared/schemas/events';
 import type { EventAdminView, EventBody, EventRegistrationRow } from '#shared/schemas/events';
+import { DEFAULT_REMINDER_OFFSETS, REMINDER_PRESETS } from '#shared/schemas/push';
 import { isoToParisLocal, parisLocalToIso } from '#shared/utils/paris-time';
 
 // The event form: every section on one page, beside a preview of how the event will look. Times
@@ -50,8 +51,15 @@ const state = reactive({
   banner: initial?.banner ?? null,
   embed: initial?.embed ?? null,
   hidden: initial?.hidden ?? true,
+  reminderOffsets: initial?.reminderOffsets ?? [...DEFAULT_REMINDER_OFFSETS],
   bdeSync: initial?.bdeSync ?? false,
 });
+
+function toggleReminder(minutes: number) {
+  state.reminderOffsets = state.reminderOffsets.includes(minutes)
+    ? state.reminderOffsets.filter((m) => m !== minutes)
+    : [...state.reminderOffsets, minutes];
+}
 
 // A new start fills an empty end with start + 3 h.
 watch(
@@ -79,6 +87,7 @@ function body(): EventBody {
     registrationClosesAt: parisLocalToIso(state.registrationClosesAt),
     price: typeof state.price === 'number' ? state.price : null,
     hidden: state.hidden,
+    reminderOffsets: state.reminderOffsets,
     bdeSync: state.bdeSync,
     banner: state.banner && {
       key: state.banner.key,
@@ -340,6 +349,29 @@ const preview = computed(() => ({
             <template #trailing><span class="text-muted">€</span></template>
           </UInput>
         </UFormField>
+      </section>
+
+      <section class="flex flex-col gap-4 rounded-lg bg-elevated p-5">
+        <div class="flex flex-col gap-1">
+          <h2 class="text-lg font-bold text-highlighted">{{ t('admin.events.form.reminders') }}</h2>
+          <p class="text-sm text-muted">{{ t('admin.events.form.remindersHelp') }}</p>
+        </div>
+        <div
+          class="flex flex-wrap gap-2"
+          role="group"
+          :aria-label="t('admin.events.form.reminders')"
+        >
+          <UButton
+            v-for="minutes in REMINDER_PRESETS"
+            :key="minutes"
+            size="md"
+            :color="state.reminderOffsets.includes(minutes) ? 'secondary' : 'neutral'"
+            :variant="state.reminderOffsets.includes(minutes) ? 'subtle' : 'soft'"
+            :aria-pressed="state.reminderOffsets.includes(minutes)"
+            :label="t(`admin.events.form.reminderOffsets.${minutes}`)"
+            @click="toggleReminder(minutes)"
+          />
+        </div>
       </section>
 
       <section class="flex flex-col gap-5 rounded-lg bg-elevated p-5">

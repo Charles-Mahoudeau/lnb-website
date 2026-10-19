@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { EventAdminView, EventUserOption } from '#shared/schemas/events';
+import type { PushImpactView } from '#shared/schemas/push';
 
 // Registers an account by hand, found by name or email. Past the limit, the manager has to say
 // so. Closes with true once added.
@@ -14,6 +15,16 @@ const results = ref<EventUserOption[]>([]);
 const picked = ref<EventUserOption>();
 const force = ref(false);
 const pending = ref(false);
+
+// Adding someone sends them a notification, if they have it on: say so once they're picked.
+const { impact: countImpact } = useEventPush();
+const notified = ref<PushImpactView | null>(null);
+watch(picked, async (person) => {
+  notified.value = null;
+  if (!person) return;
+  const counted = await countImpact(props.event.id, { action: 'add', userId: person.userId });
+  if (picked.value === person) notified.value = counted;
+});
 const full = computed(
   () => props.event.capacity !== null && props.event.counts.registered >= props.event.capacity,
 );
@@ -85,6 +96,24 @@ async function onAdd() {
             class="w-full"
           />
         </UFormField>
+        <UAlert
+          v-if="picked && notified"
+          :color="notified.overCap > 0 ? 'warning' : 'neutral'"
+          variant="subtle"
+          :icon="notified.recipients > 0 ? 'i-lucide-bell' : 'i-lucide-bell-off'"
+          :description="
+            notified.recipients > 0
+              ? t('admin.events.push.addWillNotify', { name: picked.name }) +
+                (notified.overCap > 0
+                  ? ' ' +
+                    t('admin.events.push.overCap', {
+                      count: notified.overCap,
+                      cap: notified.weeklyCap,
+                    })
+                  : '')
+              : t('admin.events.push.addWontNotify', { name: picked.name })
+          "
+        />
         <UCheckbox
           v-if="full"
           v-model="force"

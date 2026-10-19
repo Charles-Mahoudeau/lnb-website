@@ -68,6 +68,9 @@ const items = computed<NavigationMenuItem[][]>(() => [
           },
         ]
       : []),
+    ...(isEventsManager(user.value?.role)
+      ? [{ label: t('admin.nav.push'), icon: 'i-lucide-bell', to: '/admin/push' }]
+      : []),
     ...(isWardenAdmin(user.value?.role) ? wardenItems.value : []),
   ],
 ]);

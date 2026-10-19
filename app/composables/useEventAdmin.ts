@@ -16,6 +16,7 @@ import type {
   EventTypeView,
 } from '#shared/schemas/events';
 import { EVENT_PROBLEMS } from '#shared/schemas/events';
+import type { PushImpactBody, PushImpactView } from '#shared/schemas/push';
 
 // The Events section of the admin area. Writes throw an EventError with the API's problem.
 
@@ -109,6 +110,10 @@ export const eventActions = {
     call(() =>
       $fetch(`${base(id)}/registrations/${encodeURIComponent(userId)}`, { method: 'DELETE' }),
     ),
+  pushImpact: (id: string, body: PushImpactBody) =>
+    call(() => $fetch<PushImpactView>(`${base(id)}/push-impact`, { method: 'POST', body })),
+  announce: (id: string) =>
+    call(() => $fetch<{ recipients: number }>(`${base(id)}/announce`, { method: 'POST' })),
   bdeRetry: (id: string) => call(() => $fetch(`${base(id)}/bde-sync`, { method: 'POST' })),
   searchUsers: (q: string) =>
     call(() => $fetch<{ items: EventUserOption[] }>('/api/admin/events/users', { query: { q } })),

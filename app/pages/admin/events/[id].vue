@@ -60,7 +60,44 @@ async function act(action: () => Promise<unknown>, success: string) {
   }
 }
 
+const { confirmPush } = useEventPush();
+
+// Saving can notify people: a new start tells everyone on the event, and more places give the
+// waitlist theirs. Say so first, with the numbers. Drafts and small edits save without a question.
+async function confirmSave(body: EventBody): Promise<boolean> {
+  const current = event.value;
+  if (!current || current.hidden) return true;
+  if (Date.parse(body.startsAt) !== Date.parse(current.startsAt)) {
+    const ok = await confirmPush({
+      eventId: id,
+      action: { action: 'reschedule', startsAt: body.startsAt },
+      title: t('admin.events.push.rescheduleTitle'),
+      description: t('admin.events.push.rescheduleBody'),
+      confirmLabel: t('admin.events.push.saveSubmit'),
+      cancelLabel: t('admin.events.push.back'),
+      skipIfNobody: true,
+    });
+    if (!ok) return false;
+  }
+  const raised =
+    current.counts.waitlist > 0 &&
+    (body.capacity === null || (current.capacity !== null && body.capacity > current.capacity));
+  if (raised) {
+    return confirmPush({
+      eventId: id,
+      action: { action: 'capacity', capacity: body.capacity },
+      title: t('admin.events.push.capacityTitle'),
+      description: t('admin.events.push.capacityBody'),
+      confirmLabel: t('admin.events.push.saveSubmit'),
+      cancelLabel: t('admin.events.push.back'),
+      skipIfNobody: true,
+    });
+  }
+  return true;
+}
+
 async function onSubmit(body: EventBody) {
+  if (!(await confirmSave(body))) return;
   if (await act(() => eventActions.update(id, body), t('admin.events.saved'))) await refresh();
 }
 
@@ -74,16 +111,44 @@ async function onDuplicate() {
 }
 
 async function onCancelEvent() {
-  const confirmed: unknown = await confirm.open({
+  const confirmed = await confirmPush({
+    eventId: id,
+    action: { action: 'cancel' },
     title: t('admin.events.cancelTitle', { name: event.value?.name }),
     description: t('admin.events.cancelBody'),
     confirmLabel: t('admin.events.cancelEvent'),
     cancelLabel: t('admin.events.keep'),
     destructive: true,
-  }).result;
-  if (confirmed === true && (await act(() => eventActions.cancel(id), t('admin.events.cancelled'))))
+  });
+  if (confirmed && (await act(() => eventActions.cancel(id), t('admin.events.cancelled'))))
     await refresh();
 }
+
+// Sends the new-event notification, once.
+async function onAnnounce() {
+  const confirmed = await confirmPush({
+    eventId: id,
+    action: { action: 'announce' },
+    title: t('admin.events.push.announceTitle', { name: event.value?.name }),
+    description: t('admin.events.push.announceBody'),
+    confirmLabel: t('admin.events.push.announceSubmit'),
+    cancelLabel: t('admin.events.push.back'),
+  });
+  if (
+    confirmed &&
+    (await act(() => eventActions.announce(id), t('admin.events.push.announceDone')))
+  )
+    await refresh();
+}
+
+const canAnnounce = computed(
+  () =>
+    !!event.value &&
+    !event.value.hidden &&
+    !event.value.cancelledAt &&
+    !event.value.announcedAt &&
+    Date.parse(event.value.startsAt) > Date.now(),
+);
 
 async function onDelete() {
   const confirmed: unknown = await confirm.open({
@@ -110,6 +175,17 @@ const menu = computed<DropdownMenuItem[][]>(() => [
       icon: 'i-lucide-copy',
       onSelect: () => void onDuplicate(),
     },
+    ...(event.value?.announcedAt
+      ? [{ label: t('admin.events.push.announced'), icon: 'i-lucide-bell-ring', disabled: true }]
+      : canAnnounce.value
+        ? [
+            {
+              label: t('admin.events.push.announce'),
+              icon: 'i-lucide-bell-ring',
+              onSelect: () => void onAnnounce(),
+            },
+          ]
+        : []),
   ],
   [
     ...(event.value?.cancelledAt
