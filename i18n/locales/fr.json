@@ -460,6 +460,8 @@
         "event_create": "{actor} a créé l’événement {name}.",
         "event_update": "{actor} a modifié l’événement {name}.",
         "event_cancel": "{actor} a annulé l’événement {name}.",
+        "event_announce": "{actor} a envoyé la notification du nouvel événement {name}.",
+        "push_settings": "{actor} a modifié les réglages des notifications push.",
         "event_delete": "{actor} a supprimé l’événement {name}.",
         "eventRoom_create": "{actor} a ajouté la salle {name}.",
         "eventRoom_update": "{actor} a modifié la salle {name}.",
@@ -674,6 +676,38 @@
         "events_bdeSync": {
           "label": "Envoi des événements au site du BDE",
           "description": "Les événements restent en attente, et partent quand c’est réactivé."
+        },
+        "push": {
+          "label": "Notifications push",
+          "description": "L’envoi des notifications et l’invitation à les autoriser. Les réglages restent visibles mais désactivés ; les notifications en file attendent."
+        },
+        "push_subscribe": {
+          "label": "Autoriser les notifications",
+          "description": "L’invitation après une inscription et l’interrupteur dans les réglages du compte. Les appareils déjà autorisés continuent de recevoir."
+        },
+        "push_newEvents": {
+          "label": "Notifications de nouvel événement",
+          "description": "L’annonce d’un nouvel événement. Rien n’est mis en file tant que c’est désactivé."
+        },
+        "push_reminders": {
+          "label": "Rappels d’événement",
+          "description": "Les rappels avant les événements où les gens sont inscrits."
+        },
+        "push_spots": {
+          "label": "Notifications de place en liste d’attente",
+          "description": "La notification quand une place se libère ou qu’un responsable ajoute quelqu’un."
+        },
+        "push_changes": {
+          "label": "Notifications de changement d’événement",
+          "description": "Les événements annulés ou déplacés."
+        },
+        "jobs_pushDeliver": {
+          "label": "Envoi des notifications",
+          "description": "La tâche de chaque minute qui met les rappels en file et envoie ce qui est dû."
+        },
+        "jobs_pushPrune": {
+          "label": "Nettoyage du journal des notifications",
+          "description": "La suppression de la nuit des notifications de plus de 90 jours et des appareils morts."
         }
       }
     },
@@ -1331,6 +1365,30 @@
       "body": "Les membres ont proposé 1 autre mod. Votez pour lui, ou proposez le vôtre. | Les membres ont proposé {count} autres mods. Votez pour eux, ou proposez le vôtre.",
       "bodyEmpty": "Les membres peuvent proposer d’autres mods. Soyez le premier à en proposer un.",
       "open": "Voir les propositions"
+    }
+  },
+  "push": {
+    "message": {
+      "newEvent": {
+        "title": "Nouvel événement : {name}",
+        "body": "{date} à {time}, {room}."
+      },
+      "reminder": {
+        "title": "{name} commence {relative}",
+        "body": "{date} à {time}, {room}."
+      },
+      "spot": {
+        "title": "Une place s’est libérée pour vous",
+        "body": "Vous avez une place pour {name}, le {date} à {time}."
+      },
+      "cancelled": {
+        "title": "Annulation : {name}",
+        "body": "L’événement du {date} n’aura pas lieu."
+      },
+      "rescheduled": {
+        "title": "Nouvel horaire : {name}",
+        "body": "Il commence maintenant le {date} à {time}."
+      }
     }
   }
 }

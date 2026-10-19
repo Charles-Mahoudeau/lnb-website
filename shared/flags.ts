@@ -31,11 +31,19 @@ export const FLAG_DEFINITIONS = [
   { key: 'events.registration', parent: 'events' },
   { key: 'events.imageSearch', parent: 'events' },
   { key: 'events.bdeSync', parent: 'events' },
+  { key: 'push' },
+  { key: 'push.subscribe', parent: 'push' },
+  { key: 'push.newEvents', parent: 'push' },
+  { key: 'push.reminders', parent: 'push' },
+  { key: 'push.spots', parent: 'push' },
+  { key: 'push.changes', parent: 'push' },
   { key: 'jobs' },
   { key: 'jobs.deleteInactive', parent: 'jobs' },
   { key: 'jobs.pruneAvatars', parent: 'jobs' },
   { key: 'jobs.pruneEventImages', parent: 'jobs' },
   { key: 'jobs.closeStaleSessions', parent: 'jobs' },
+  { key: 'jobs.pushDeliver', parent: 'jobs' },
+  { key: 'jobs.pushPrune', parent: 'jobs' },
 ] as const satisfies readonly FlagDefinition[];
 
 export type FlagKey = (typeof FLAG_DEFINITIONS)[number]['key'];

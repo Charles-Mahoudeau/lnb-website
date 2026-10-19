@@ -461,6 +461,8 @@
         "event_update": "{actor} edited the event {name}.",
         "event_cancel": "{actor} cancelled the event {name}.",
         "event_delete": "{actor} deleted the event {name}.",
+        "event_announce": "{actor} sent the new-event notification for {name}.",
+        "push_settings": "{actor} changed the push notification settings.",
         "eventRoom_create": "{actor} added the room {name}.",
         "eventRoom_update": "{actor} changed the room {name}.",
         "eventType_create": "{actor} added the event type {name}.",
@@ -674,6 +676,38 @@
         "events_bdeSync": {
           "label": "Pushing events to the BDE website",
           "description": "Events wait as pending, and are pushed when it’s back on."
+        },
+        "push": {
+          "label": "Push notifications",
+          "description": "Sending notifications and the prompt to allow them. Settings stay visible but off; queued notifications wait."
+        },
+        "push_subscribe": {
+          "label": "Allowing notifications",
+          "description": "The prompt after a registration and the switch in the account settings. Devices already allowed keep receiving."
+        },
+        "push_newEvents": {
+          "label": "New-event notifications",
+          "description": "Announcing a new event to followers. Nothing is queued while this is off."
+        },
+        "push_reminders": {
+          "label": "Event reminders",
+          "description": "Reminders before events people registered for."
+        },
+        "push_spots": {
+          "label": "Waitlist spot notifications",
+          "description": "The notification when a place opens, or a manager adds someone."
+        },
+        "push_changes": {
+          "label": "Event change notifications",
+          "description": "Cancelled and rescheduled events."
+        },
+        "jobs_pushDeliver": {
+          "label": "Send notifications",
+          "description": "The minute-by-minute job that queues reminders and sends what is due."
+        },
+        "jobs_pushPrune": {
+          "label": "Prune notification log",
+          "description": "The nightly removal of notifications older than 90 days and of dead devices."
         }
       }
     },
@@ -1331,6 +1365,30 @@
       "body": "Members suggested 1 more mod. Vote on it, or suggest your own. | Members suggested {count} more mods. Vote on them, or suggest your own.",
       "bodyEmpty": "Members can suggest more mods. Be the first to suggest one.",
       "open": "See the suggestions"
+    }
+  },
+  "push": {
+    "message": {
+      "newEvent": {
+        "title": "New event: {name}",
+        "body": "{date} at {time}, {room}."
+      },
+      "reminder": {
+        "title": "{name} starts {relative}",
+        "body": "{date} at {time}, {room}."
+      },
+      "spot": {
+        "title": "A place opened for you",
+        "body": "You have a place at {name} on {date} at {time}."
+      },
+      "cancelled": {
+        "title": "Cancelled: {name}",
+        "body": "The event on {date} no longer takes place."
+      },
+      "rescheduled": {
+        "title": "New time: {name}",
+        "body": "It now starts on {date} at {time}."
+      }
     }
   }
 }

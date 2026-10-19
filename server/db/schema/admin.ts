@@ -18,6 +18,8 @@ export type AdminAuditAction =
   | 'event.update'
   | 'event.cancel'
   | 'event.delete'
+  /** A manager sent the new-event notification. `data.eventId`, `data.name`, `data.recipients`. */
+  | 'event.announce'
   /** A manager registered someone by hand, or removed them. The target is that account. */
   | 'event.registrationAdd'
   | 'event.registrationRemove'
@@ -25,7 +27,9 @@ export type AdminAuditAction =
   | 'eventRoom.create'
   | 'eventRoom.update'
   | 'eventType.create'
-  | 'eventType.update';
+  | 'eventType.update'
+  /** The push settings, with `data.weeklyCap` and `data.silenceDays`. */
+  | 'push.settings';
 
 // Rows outlive the accounts they name: a deleted actor or target becomes null, so the log keeps
 // what happened without keeping who it happened to.
