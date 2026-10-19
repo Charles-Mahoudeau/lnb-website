@@ -30,6 +30,7 @@ const columns = computed(() => {
           { label: t('home.pastEvents'), to: '/events?tab=past' },
         ]
       : []),
+    ...(isEnabled('team') ? [{ label: t('nav.team'), to: '/team' }] : []),
   ];
   const minecraft: FooterLink[] = [
     ...(isEnabled('modList') ? [{ label: t('nav.mods'), to: '/minecraft/mod-list' }] : []),

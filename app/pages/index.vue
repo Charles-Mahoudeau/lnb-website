@@ -100,6 +100,13 @@ const showMinecraft = computed(() => showModList.value || canUseWarden.value);
                 <UBadge color="neutral" variant="soft" :label="school" />
               </li>
             </ul>
+            <ULink
+              v-if="isEnabled('team')"
+              to="/team"
+              class="font-semibold text-primary hover:underline"
+            >
+              {{ t('home.teamLink') }}
+            </ULink>
           </section>
 
           <section class="flex flex-col items-start gap-4 rounded-lg bg-elevated p-5">

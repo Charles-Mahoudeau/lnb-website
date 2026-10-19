@@ -8,6 +8,22 @@ const { isEnabled } = useFlags();
 // The events they registered to or wait for, still to come.
 const { data: myEvents } = await useMyEvents(!!user.value && isEnabled('events'));
 
+// Whether managers put this account on the team page, and its own switch for it.
+const toast = useToast();
+const { data: myTeam } = await useMyTeam(!!user.value && isEnabled('team'));
+async function changeShowOnTeam(showSelf: boolean) {
+  try {
+    myTeam.value = await setShowOnTeam(showSelf);
+    toast.add({ title: t('account.team.saved'), color: 'success', icon: 'i-lucide-circle-check' });
+  } catch {
+    toast.add({
+      title: t('admin.team.errors.failed'),
+      color: 'error',
+      icon: 'i-lucide-circle-alert',
+    });
+  }
+}
+
 // Kept in the lnb_locale cookie for now, like a first visit's browser language.
 async function changeLocale(code: string) {
   if (code === 'en' || code === 'fr') {
@@ -66,6 +82,19 @@ useSeoMeta({ title: () => t('account.title'), robots: 'noindex' });
           <UColorModeSelect class="w-full" />
         </UFormField>
       </div>
+    </section>
+
+    <section
+      v-if="isEnabled('team') && myTeam?.member"
+      class="flex w-full flex-col gap-4 rounded-lg bg-elevated p-6"
+    >
+      <h2 class="text-2xl font-bold text-highlighted">{{ t('account.team.title') }}</h2>
+      <p class="text-muted">{{ t('account.team.lede') }}</p>
+      <USwitch
+        :model-value="myTeam.showSelf"
+        :label="t('account.team.switch')"
+        @update:model-value="changeShowOnTeam"
+      />
     </section>
 
     <PushSettings />
