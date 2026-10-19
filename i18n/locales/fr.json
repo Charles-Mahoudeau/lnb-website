@@ -974,16 +974,18 @@
         "announce": "Annoncer l’événement",
         "announced": "Annoncé",
         "announceTitle": "Envoyer une notification pour {name} ?",
-        "announceBody": "Les comptes des écoles ouvertes à cet événement qui suivent les nouveaux événements la reçoivent. Elle part une seule fois, à partir de 08:00 à Paris.",
+        "announceBody": "Les comptes des écoles ouvertes à cet événement qui suivent les nouveaux événements la reçoivent. Elle part une seule fois.",
         "announceSubmit": "Envoyer la notification",
-        "announceDone": "Notification mise en file",
+        "announceDone": "Notification envoyée",
         "rescheduleTitle": "Enregistrer la nouvelle heure de début ?",
         "rescheduleBody": "Tous les participants, inscrits ou en liste d’attente, sont prévenus du changement.",
         "capacityTitle": "Enregistrer la nouvelle capacité ?",
         "capacityBody": "Les personnes en liste d’attente obtiennent les nouvelles places.",
         "saveSubmit": "Enregistrer et notifier",
         "addWillNotify": "{name} sera notifié.",
-        "addWontNotify": "{name} ne sera pas notifié : aucun appareil, ou ce type de notification est désactivé."
+        "addWontNotify": "{name} ne sera pas notifié : aucun appareil, ou ce type de notification est désactivé.",
+        "announceHeld": "Notification mise en file. Elle part le {date} à {time}, après les heures calmes.",
+        "heldUntil": "Il fait nuit à Paris (22:00 à 08:00) : elle partira le {date} à {time}, pas avant."
       }
     },
     "push": {

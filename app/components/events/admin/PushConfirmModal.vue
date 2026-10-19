@@ -18,7 +18,13 @@ withDefaults(
 );
 
 const emit = defineEmits<{ close: [confirmed: boolean] }>();
-const { t } = useI18n();
+
+const { t, locale } = useI18n();
+
+/** Held back, as announcements are at night: more than a minute from now. */
+function held(sendAt: string) {
+  return Date.parse(sendAt) - Date.now() > 60_000;
+}
 </script>
 
 <template>
@@ -36,6 +42,13 @@ const { t } = useI18n();
               {{ t('admin.events.push.concerned', { audience: impact.audience }) }}
             </p>
           </div>
+          <UAlert
+            v-if="impact.recipients > 0 && held(impact.sendAt)"
+            color="neutral"
+            variant="subtle"
+            icon="i-lucide-moon"
+            :description="t('admin.events.push.heldUntil', parisParts(impact.sendAt, locale))"
+          />
           <UAlert
             v-if="impact.recipients > 0"
             :color="impact.overCap > 0 ? 'warning' : 'neutral'"

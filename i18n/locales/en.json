@@ -974,16 +974,18 @@
         "announce": "Announce event",
         "announced": "Announced",
         "announceTitle": "Send a notification about {name}?",
-        "announceBody": "Accounts of the schools this event is open to, who follow new events, get it. It goes out once, from 08:00 in Paris.",
+        "announceBody": "Accounts of the schools this event is open to, who follow new events, get it. It goes out once.",
         "announceSubmit": "Send notification",
-        "announceDone": "Notification queued",
+        "announceDone": "Notification sent",
         "rescheduleTitle": "Save the new start time?",
         "rescheduleBody": "Everyone on this event, registered or on the waitlist, is told it moved.",
         "capacityTitle": "Save the new capacity?",
         "capacityBody": "People on the waitlist get the new places.",
         "saveSubmit": "Save and notify",
         "addWillNotify": "{name} will be notified.",
-        "addWontNotify": "{name} won’t be notified: no device, or this kind of notification is off."
+        "addWontNotify": "{name} won’t be notified: no device, or this kind of notification is off.",
+        "announceHeld": "Notification queued. It goes out on {date} at {time}, after quiet hours.",
+        "heldUntil": "It’s night in Paris (22:00 to 08:00): it will go out on {date} at {time}, not before."
       }
     },
     "push": {

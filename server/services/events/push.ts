@@ -7,6 +7,7 @@ import type { PushKind } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 import { buildMessage } from '~~/server/services/push/messages';
 import { pushQueueService } from '~~/server/services/push/queue';
+import { afterQuietHours } from '~~/server/services/push/rules';
 
 import { placesToPromote } from './rules';
 import { refuse } from './shared';
@@ -109,12 +110,16 @@ async function impact(eventId: string, body: PushImpactBody): Promise<PushImpact
   );
   return {
     ...(await pushQueueService.impact(kind, audience)),
+    sendAt: (kind === 'newEvent' ? afterQuietHours(new Date()) : new Date()).toISOString(),
     preview: { title: message.title, body: message.body },
   };
 }
 
 /** Sends the new-event notification, once, to followers in the schools the event is open to. */
-async function announce(input: { actorId: string; id: string }): Promise<{ recipients: number }> {
+async function announce(input: {
+  actorId: string;
+  id: string;
+}): Promise<{ recipients: number; sendAt: string }> {
   return db.transaction(async (tx) => {
     const [row] = await tx.select().from(event).where(eq(event.id, input.id)).for('update');
     if (!row) refuse(404, 'notFound');
@@ -133,7 +138,7 @@ async function announce(input: { actorId: string; id: string }): Promise<{ recip
       targetUserId: null,
       data: { eventId: row.id, name: row.name, recipients },
     });
-    return { recipients };
+    return { recipients, sendAt: afterQuietHours(new Date()).toISOString() };
   });
 }
 

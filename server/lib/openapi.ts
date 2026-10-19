@@ -1652,7 +1652,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.pushAdmin,
     summary: 'Announce an event',
     description:
-      'Queues the new-event notification for followers in the schools the event is open to. Once per event, and only for a published event that has not started or been cancelled. It goes out from 08:00 in Paris.',
+      'Queues the new-event notification for followers in the schools the event is open to. Once per event, and only for a published event that has not started or been cancelled. At night (22:00 to 08:00 in Paris) it waits for 08:00; `sendAt` says when.',
     access: 'eventsManager',
     params: events.eventIdParams,
     response: push.pushAnnounced,

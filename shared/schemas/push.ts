@@ -137,6 +137,9 @@ export const pushImpactView = z.object({
   audience: z.number().describe('People the action concerns, with or without notifications on.'),
   overCap: z.number().describe('Recipients who already received the weekly limit or more.'),
   weeklyCap: z.number(),
+  sendAt: z
+    .string()
+    .describe('When it would go out: now, or the morning after for an announcement at night.'),
   preview: z
     .object({ title: z.string(), body: z.string() })
     .describe('The notification as people will see it.'),
@@ -145,5 +148,8 @@ export type PushImpactView = z.infer<typeof pushImpactView>;
 
 /** POST /api/admin/events/:id/announce */
 export const pushAnnounced = z.object({
-  recipients: z.number().describe('Notifications queued. They go out from 08:00 in Paris.'),
+  recipients: z.number().describe('Notifications queued.'),
+  sendAt: z
+    .string()
+    .describe('When they go out: now, or 08:00 in Paris after quiet hours (22:00 to 08:00).'),
 });

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { parisParts } from '../../app/utils/paris-parts.ts';
 import { buildMessage, relativeOffset } from '../../server/services/push/messages.ts';
 import {
   afterQuietHours,
@@ -83,6 +84,14 @@ describe('reminders', () => {
     expect(reminderOffsets.safeParse([]).success).toBe(true);
     expect(reminderOffsets.safeParse([45]).success).toBe(false);
     expect(reminderOffsets.safeParse([60, 60]).success).toBe(false);
+  });
+});
+
+describe('when a held announcement goes out', () => {
+  it('names the morning in Paris time, in each language', () => {
+    const morning = afterQuietHours(new Date('2026-10-19T21:18:00Z')).toISOString();
+    expect(parisParts(morning, 'en')).toEqual({ date: 'Tuesday, October 20', time: '08:00' });
+    expect(parisParts(morning, 'fr')).toEqual({ date: 'mardi 20 octobre', time: '08:00' });
   });
 });
 

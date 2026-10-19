@@ -125,7 +125,7 @@ async function receivedByUser(userIds: string[], now = new Date()): Promise<Map<
 async function impact(
   kind: PushKind,
   audience: string[],
-): Promise<Omit<PushImpactView, 'preview'>> {
+): Promise<Omit<PushImpactView, 'preview' | 'sendAt'>> {
   const settings = await pushSettingsService.get();
   const recipients = (await allowed(kind)) ? await eligible(db, kind, audience) : [];
   const received = await receivedByUser(recipients);

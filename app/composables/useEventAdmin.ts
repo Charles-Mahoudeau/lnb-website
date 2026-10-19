@@ -113,7 +113,9 @@ export const eventActions = {
   pushImpact: (id: string, body: PushImpactBody) =>
     call(() => $fetch<PushImpactView>(`${base(id)}/push-impact`, { method: 'POST', body })),
   announce: (id: string) =>
-    call(() => $fetch<{ recipients: number }>(`${base(id)}/announce`, { method: 'POST' })),
+    call(() =>
+      $fetch<{ recipients: number; sendAt: string }>(`${base(id)}/announce`, { method: 'POST' }),
+    ),
   bdeRetry: (id: string) => call(() => $fetch(`${base(id)}/bde-sync`, { method: 'POST' })),
   searchUsers: (q: string) =>
     call(() => $fetch<{ items: EventUserOption[] }>('/api/admin/events/users', { query: { q } })),

@@ -12,7 +12,7 @@ definePageMeta({
   validate: (route) => eventIdParams.safeParse(route.params).success,
 });
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
@@ -41,11 +41,18 @@ const tabs = computed<TabsItem[]>(() => [
 
 const pending = ref(false);
 
-async function act(action: () => Promise<unknown>, success: string) {
+async function act(
+  action: () => Promise<unknown>,
+  success: string | ((result: unknown) => string),
+) {
   pending.value = true;
   try {
-    await action();
-    toast.add({ title: success, color: 'success', icon: 'i-lucide-circle-check' });
+    const result = await action();
+    toast.add({
+      title: typeof success === 'function' ? success(result) : success,
+      color: 'success',
+      icon: 'i-lucide-circle-check',
+    });
     return true;
   } catch (failure) {
     const problem = failure instanceof EventError ? failure.problem : 'failed';
@@ -134,11 +141,13 @@ async function onAnnounce() {
     confirmLabel: t('admin.events.push.announceSubmit'),
     cancelLabel: t('admin.events.push.back'),
   });
-  if (
-    confirmed &&
-    (await act(() => eventActions.announce(id), t('admin.events.push.announceDone')))
-  )
-    await refresh();
+  if (!confirmed) return;
+  const sent = (result: unknown) => {
+    const sendAt = (result as { sendAt: string }).sendAt;
+    if (Date.parse(sendAt) - Date.now() <= 60_000) return t('admin.events.push.announceDone');
+    return t('admin.events.push.announceHeld', parisParts(sendAt, locale.value));
+  };
+  if (await act(() => eventActions.announce(id), sent)) await refresh();
 }
 
 const canAnnounce = computed(
