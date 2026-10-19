@@ -23,7 +23,7 @@ The limit (3 by default, an admin setting) is not enforced. `/admin/push` shows 
 ## Timing
 
 - Reminders, waitlist spots, cancellations and moves go out at once, at their real time.
-- New-event announcements wait while it is night in Paris (22:00 to 08:00) and go out at 08:00.
+- New-event announcements wait during the quiet hours, and go out when they end. The default is 22:00 to 08:00 in Paris time. Admins change the two hours, or switch the quiet hours off, in `/admin/push`; with them off, announcements go out at once at any hour. The confirmation and the toast after announcing say when it will go out.
 - A moved or cancelled event drops its pending reminders. A reminder is dropped too if the person left the event before it went out, or the event has started.
 
 ## How it works
@@ -37,11 +37,11 @@ The limit (3 by default, an admin setting) is not enforced. `/admin/push` shows 
 
 ## Asking
 
-Never cold. The sheet appears right after a registration, and the settings are always on `/account`. Only "Notify me" triggers the browser's own prompt, which can't be asked twice. "Not now", or dismissing the sheet, stores a mark on that device (`lnb_push_snooze` in `localStorage`) for as long as the admin chose: 7 days, 30 days or never. iPhone only allows web push once the site is on the home screen, so `/account` shows how instead of the switch.
+Never cold. The sheet appears right after a registration, including for someone who switched notifications off on this device (the browser keeps the permission, so it doesn't prompt twice; only a blocked browser can't be asked), and the settings are always on `/account`. Only "Notify me" triggers the browser's own prompt, which can't be asked twice. "Not now", or dismissing the sheet, stores a mark on that device (`lnb_push_snooze` in `localStorage`) for as long as the admin chose: 7 days, 30 days or never. iPhone only allows web push once the site is on the home screen, so `/account` shows how instead of the switch.
 
 ## Admin
 
-`/admin/push`: counts for admins and events managers. Admins also see who turned notifications on (name, school, switches, devices, date, received in the last 7 days) and set the limit and the silence. Turning notifications on is visible to admins, and the settings card says so. Changes to the settings are written to `admin_audit` (`push.settings`), announcements as `event.announce`.
+`/admin/push`: counts for admins and events managers. Admins also see who turned notifications on (name, school, switches, devices, date, received in the last 7 days) and set the limit, the silence, and the quiet hours. Turning notifications on is visible to admins, and the settings card says so. Changes to the settings are written to `admin_audit` (`push.settings`), announcements as `event.announce`.
 
 ## Flags
 

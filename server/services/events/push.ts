@@ -7,7 +7,8 @@ import type { PushKind } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 import { buildMessage } from '~~/server/services/push/messages';
 import { pushQueueService } from '~~/server/services/push/queue';
-import { afterQuietHours } from '~~/server/services/push/rules';
+import { afterQuietHours, quietOf } from '~~/server/services/push/rules';
+import { pushSettingsService } from '~~/server/services/push/settings';
 
 import { placesToPromote } from './rules';
 import { refuse } from './shared';
@@ -110,7 +111,10 @@ async function impact(eventId: string, body: PushImpactBody): Promise<PushImpact
   );
   return {
     ...(await pushQueueService.impact(kind, audience)),
-    sendAt: (kind === 'newEvent' ? afterQuietHours(new Date()) : new Date()).toISOString(),
+    sendAt: (kind === 'newEvent'
+      ? afterQuietHours(new Date(), quietOf(await pushSettingsService.get()))
+      : new Date()
+    ).toISOString(),
     preview: { title: message.title, body: message.body },
   };
 }
@@ -138,7 +142,8 @@ async function announce(input: {
       targetUserId: null,
       data: { eventId: row.id, name: row.name, recipients },
     });
-    return { recipients, sendAt: afterQuietHours(new Date()).toISOString() };
+    const quiet = quietOf(await pushSettingsService.get());
+    return { recipients, sendAt: afterQuietHours(new Date(), quiet).toISOString() };
   });
 }
 

@@ -6,7 +6,7 @@ import { pushNotification, pushPreference, pushSubscription } from '~~/server/db
 import type { PushKind } from '~~/server/db/schema';
 import { flagService } from '~~/server/services/flags';
 
-import { WEEK_MS, afterQuietHours, countOverCap } from './rules';
+import { WEEK_MS, afterQuietHours, countOverCap, quietOf } from './rules';
 import { pushSettingsService } from './settings';
 
 import type { FlagKey } from '#shared/flags';
@@ -69,7 +69,10 @@ async function enqueue(tx: Db, input: Enqueue): Promise<number> {
   if (userIds.length === 0) return 0;
   const now = input.now ?? new Date();
   // Announcements wait for the morning. The rest is about now, so it goes out at once.
-  const sendAt = input.kind === 'newEvent' ? afterQuietHours(now) : now;
+  const sendAt =
+    input.kind === 'newEvent'
+      ? afterQuietHours(now, quietOf(await pushSettingsService.get()))
+      : now;
   const rows = await tx
     .insert(pushNotification)
     .values(

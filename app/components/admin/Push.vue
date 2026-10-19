@@ -27,11 +27,25 @@ const SILENCE = computed(() => [
   { label: t('admin.push.silenceNever'), value: 'never' },
 ]);
 
-const form = reactive({ weeklyCap: 3, silence: '30' });
+const form = reactive({
+  weeklyCap: 3,
+  silence: '30',
+  quietEnabled: true,
+  quietFrom: 22,
+  quietUntil: 8,
+});
+const HOURS = Array.from({ length: 24 }, (_, hour) => ({
+  label: `${String(hour).padStart(2, '0')}:00`,
+  value: hour,
+}));
+const quietEmpty = computed(() => form.quietEnabled && form.quietFrom === form.quietUntil);
 watchEffect(() => {
   if (!settings.value) return;
   form.weeklyCap = settings.value.weeklyCap;
   form.silence = settings.value.silenceDays === null ? 'never' : String(settings.value.silenceDays);
+  form.quietEnabled = settings.value.quietEnabled;
+  form.quietFrom = settings.value.quietFrom;
+  form.quietUntil = settings.value.quietUntil;
 });
 
 const saving = ref(false);
@@ -39,6 +53,9 @@ async function onSave() {
   const parsed = pushSettingsSchema.safeParse({
     weeklyCap: form.weeklyCap,
     silenceDays: form.silence === 'never' ? null : Number(form.silence),
+    quietEnabled: form.quietEnabled,
+    quietFrom: form.quietFrom,
+    quietUntil: form.quietUntil,
   });
   if (!parsed.success) return;
   saving.value = true;
@@ -188,8 +205,32 @@ function since(iso: string) {
         <UFormField :label="t('admin.push.silence')" name="silence">
           <URadioGroup v-model="form.silence" :items="SILENCE" orientation="horizontal" />
         </UFormField>
+        <div class="flex flex-col gap-3">
+          <USwitch
+            v-model="form.quietEnabled"
+            :label="t('admin.push.quiet')"
+            :description="t('admin.push.quietHelp')"
+          />
+          <UFormField
+            v-if="form.quietEnabled"
+            :error="quietEmpty ? t('admin.push.quietEmpty') : undefined"
+            name="quietUntil"
+          >
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="text-sm text-muted">{{ t('admin.push.quietFrom') }}</span>
+              <USelect v-model="form.quietFrom" :items="HOURS" class="w-28" />
+              <span class="text-sm text-muted">{{ t('admin.push.quietUntil') }}</span>
+              <USelect v-model="form.quietUntil" :items="HOURS" class="w-28" />
+            </div>
+          </UFormField>
+        </div>
         <div>
-          <UButton :loading="saving" :label="t('admin.push.save')" @click="onSave" />
+          <UButton
+            :loading="saving"
+            :disabled="quietEmpty"
+            :label="t('admin.push.save')"
+            @click="onSave"
+          />
         </div>
       </section>
     </template>

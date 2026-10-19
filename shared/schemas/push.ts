@@ -71,15 +71,32 @@ export const pushStatusView = z.object({
 export type PushStatusView = z.infer<typeof pushStatusView>;
 
 /** The admin settings. */
-export const pushSettings = z.object({
-  weeklyCap: z.int().min(1).max(50).describe('Notifications a week before an admin is warned.'),
-  silenceDays: z
-    .union([z.literal(7), z.literal(30), z.null()])
-    .describe('Days the prompt stays quiet after "Not now". Null: never ask again.'),
-});
+const hour = z.int().min(0).max(23);
+
+export const pushSettings = z
+  .object({
+    weeklyCap: z.int().min(1).max(50).describe('Notifications a week before an admin is warned.'),
+    silenceDays: z
+      .union([z.literal(7), z.literal(30), z.null()])
+      .describe('Days the prompt stays quiet after "Not now". Null: never ask again.'),
+    quietEnabled: z.boolean().describe('Hold new-event announcements at night.'),
+    quietFrom: hour.describe('The hour the quiet period starts, in Paris time.'),
+    quietUntil: hour.describe('The hour it ends, in Paris time.'),
+  })
+  .refine((settings) => !settings.quietEnabled || settings.quietFrom !== settings.quietUntil, {
+    path: ['quietUntil'],
+    message: 'quietEmpty',
+  });
+
 export type PushSettings = z.infer<typeof pushSettings>;
 
-export const PUSH_DEFAULT_SETTINGS: PushSettings = { weeklyCap: 3, silenceDays: 30 };
+export const PUSH_DEFAULT_SETTINGS: PushSettings = {
+  weeklyCap: 3,
+  silenceDays: 30,
+  quietEnabled: true,
+  quietFrom: 22,
+  quietUntil: 8,
+};
 
 /** GET /api/admin/push/overview: counts only, for events managers too. */
 export const pushOverview = z.object({

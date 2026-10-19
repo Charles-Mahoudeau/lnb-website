@@ -93,7 +93,7 @@ Original mock (not code to port): [push notifications mock](https://claude.ai/ar
 - **Switches** are on `bg-action` when on: they are controls, so red is allowed.
 - **A manager action that sends a notification asks first** in a dialog: the title says what happens, one line gives the exact number of people, a note says how many already received the weekly limit (a warning note, or a check when nobody is over), and a preview shows the notification as people will see it. Cancelling an event uses the outline destructive button, other actions the solid one. Nothing is ever blocked by the limit.
 - **Per-event reminders** are toggle chips (selected: dusk tint with a dusk border), 1 hour before pre-selected.
-- **Admin Push** reuses the admin patterns: three count tiles, the warning note when someone is over the limit, a by-type breakdown, a subscriber table (admins only) and a settings card. Events-managers see the counts only.
+- **Admin Push** reuses the admin patterns: three count tiles, the warning note when someone is over the limit, a by-type breakdown, a subscriber table (admins only) and a settings card: the weekly limit, the silence after "Not now", and the quiet hours (a switch, with a from and an until hour). Events-managers see the counts only.
 
 ## Motion
 

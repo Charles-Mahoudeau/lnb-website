@@ -1,5 +1,6 @@
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { defineComponent } from 'vue';
 
 import AdminPush from '~/components/admin/Push.vue';
 import PushPrePrompt from '~/components/push/PrePrompt.vue';
@@ -114,7 +115,13 @@ registerEndpoint('/api/admin/push/subscribers', () => ({
     },
   ],
 }));
-registerEndpoint('/api/admin/push/settings', () => ({ weeklyCap: 3, silenceDays: 30 }));
+registerEndpoint('/api/admin/push/settings', () => ({
+  weeklyCap: 3,
+  silenceDays: 30,
+  quietEnabled: true,
+  quietFrom: 22,
+  quietUntil: 8,
+}));
 
 describe('admin push', () => {
   it('warns about the weekly limit without blocking anything', async () => {
@@ -126,6 +133,7 @@ describe('admin push', () => {
     expect(text).toContain('Nothing is blocked.');
     expect(text).toContain('Camille Martin');
     expect(text).toContain('Weekly limit before a warning');
+    expect(text).toContain('Hold announcements at night');
   });
 
   it('gives events managers the counts only', async () => {
@@ -169,5 +177,87 @@ describe('notification prompt', () => {
     await nextTick();
     expect(document.body.textContent).toContain('Notify me');
     expect(document.body.querySelector('[data-vaul-drawer]')).not.toBeNull();
+  });
+});
+
+/** usePush needs a component around it, for the i18n it reads. */
+async function pushInComponent() {
+  let push!: ReturnType<typeof usePush>;
+  await mountSuspended(
+    defineComponent({
+      setup() {
+        push = usePush();
+        return () => null;
+      },
+    }),
+  );
+  return push;
+}
+
+describe('asking again', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  function browser(permission: NotificationPermission, subscribed: boolean) {
+    vi.stubGlobal('PushManager', class {});
+    vi.stubGlobal('Notification', { permission });
+    Object.defineProperty(navigator, 'serviceWorker', {
+      configurable: true,
+      value: {
+        getRegistration: () =>
+          Promise.resolve({
+            pushManager: {
+              getSubscription: () => Promise.resolve(subscribed ? { endpoint: 'e1' } : null),
+            },
+          }),
+      },
+    });
+  }
+
+  beforeEach(() => {
+    signIn(null);
+    current = status();
+    try {
+      localStorage.removeItem('lnb_push_snooze');
+    } catch {
+      // Nothing stored.
+    }
+  });
+
+  it('asks again after notifications were switched off here, since the permission stays granted', async () => {
+    browser('granted', false);
+    expect(await (await pushInComponent()).shouldAsk()).toBe(true);
+  });
+
+  it('asks a browser that was never asked', async () => {
+    browser('default', false);
+    expect(await (await pushInComponent()).shouldAsk()).toBe(true);
+  });
+
+  it('does not ask a blocked browser, which could not answer', async () => {
+    browser('denied', false);
+    expect(await (await pushInComponent()).shouldAsk()).toBe(false);
+  });
+
+  it('does not ask after "Not now", until the silence is over', async () => {
+    browser('granted', false);
+    const push = await pushInComponent();
+    await push.refresh();
+    push.snooze();
+    expect(await push.shouldAsk()).toBe(false);
+  });
+
+  it('does not ask a browser that already has notifications on', async () => {
+    browser('granted', true);
+    current = status({
+      devices: [
+        {
+          id: 1,
+          device: 'Firefox on Linux',
+          createdAt: '2026-10-12T10:00:00.000Z',
+          endpoint: 'e1',
+        },
+      ],
+    });
+    expect(await (await pushInComponent()).shouldAsk()).toBe(false);
   });
 });

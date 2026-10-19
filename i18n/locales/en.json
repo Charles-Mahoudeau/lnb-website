@@ -985,7 +985,7 @@
         "addWillNotify": "{name} will be notified.",
         "addWontNotify": "{name} won’t be notified: no device, or this kind of notification is off.",
         "announceHeld": "Notification queued. It goes out on {date} at {time}, after quiet hours.",
-        "heldUntil": "It’s night in Paris (22:00 to 08:00): it will go out on {date} at {time}, not before."
+        "heldUntil": "Quiet hours are on in Paris: it will go out on {date} at {time}, not before."
       }
     },
     "push": {
@@ -1025,7 +1025,12 @@
       "save": "Save settings",
       "saved": "Settings saved",
       "loadFailed": "The notifications overview couldn’t be loaded. Check your connection, then reload the page.",
-      "empty": "Nobody has turned notifications on yet."
+      "empty": "Nobody has turned notifications on yet.",
+      "quiet": "Hold announcements at night",
+      "quietHelp": "While on, a new-event announcement sent during the quiet hours waits for their end. Reminders, waitlist places, cancellations and moves are never held. Turn it off to send announcements at any hour.",
+      "quietFrom": "From",
+      "quietUntil": "until",
+      "quietEmpty": "Pick two different hours."
     }
   },
   "wardenAdmin": {

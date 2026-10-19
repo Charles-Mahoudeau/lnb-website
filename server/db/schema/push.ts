@@ -115,6 +115,10 @@ export const pushSetting = pgTable(
     weeklyCap: smallint('weekly_cap').default(3).notNull(),
     // Days the prompt stays quiet on a device after "Not now". Null: never ask again.
     silenceDays: integer('silence_days').default(30),
+    // Whole hours in Paris time. While on, new-event announcements wait until `until`.
+    quietEnabled: boolean('quiet_enabled').default(true).notNull(),
+    quietFrom: smallint('quiet_from').default(22).notNull(),
+    quietUntil: smallint('quiet_until').default(8).notNull(),
     updatedAt: timestamp('updated_at')
       .defaultNow()
       .$onUpdate(() => new Date())
@@ -122,6 +126,10 @@ export const pushSetting = pgTable(
   },
   (table) => [
     check('push_setting_single_row', sql`${table.id} = 1`),
+    check(
+      'push_setting_quiet_check',
+      sql`${table.quietFrom} BETWEEN 0 AND 23 AND ${table.quietUntil} BETWEEN 0 AND 23`,
+    ),
     check('push_setting_cap_check', sql`${table.weeklyCap} BETWEEN 1 AND 50`),
     check(
       'push_setting_silence_check',

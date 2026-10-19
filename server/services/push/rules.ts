@@ -1,12 +1,28 @@
 // Push rules with no database and no Nuxt imports, so unit tests can load them.
 
 const ZONE = 'Europe/Paris';
-/** New-event notifications wait while it's night in Paris: from 22:00 to 08:00. */
-export const QUIET_FROM_HOUR = 22;
-export const QUIET_UNTIL_HOUR = 8;
+
+export interface QuietHours {
+  enabled: boolean;
+  /** Whole hours in Paris time. From later than until means it runs over midnight. */
+  from: number;
+  until: number;
+}
+
+/** What an admin sees until they change it: new-event notifications wait from 22:00 to 08:00. */
+export const DEFAULT_QUIET: QuietHours = { enabled: true, from: 22, until: 8 };
 
 export const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const MINUTE_MS = 60_000;
+
+/** The quiet hours of the admin settings. */
+export function quietOf(settings: {
+  quietEnabled: boolean;
+  quietFrom: number;
+  quietUntil: number;
+}): QuietHours {
+  return { enabled: settings.quietEnabled, from: settings.quietFrom, until: settings.quietUntil };
+}
 
 function parisHour(date: Date): number {
   const hour = new Intl.DateTimeFormat('en-US', {
@@ -17,19 +33,22 @@ function parisHour(date: Date): number {
   return Number(hour);
 }
 
-export function inQuietHours(date: Date): boolean {
+export function inQuietHours(date: Date, quiet: QuietHours = DEFAULT_QUIET): boolean {
+  if (!quiet.enabled || quiet.from === quiet.until) return false;
   const hour = parisHour(date);
-  return hour >= QUIET_FROM_HOUR || hour < QUIET_UNTIL_HOUR;
+  return quiet.from < quiet.until
+    ? hour >= quiet.from && hour < quiet.until
+    : hour >= quiet.from || hour < quiet.until;
 }
 
 /**
- * When a quiet-hours notification may go out: now by day, 08:00 Paris time at night. Steps by
- * the minute so clock changes can't skew it.
+ * When a quiet-hours notification may go out: now by day, when the quiet period ends at night.
+ * Steps by the minute so clock changes can't skew it.
  */
-export function afterQuietHours(date: Date): Date {
-  if (!inQuietHours(date)) return date;
+export function afterQuietHours(date: Date, quiet: QuietHours = DEFAULT_QUIET): Date {
+  if (!inQuietHours(date, quiet)) return date;
   let at = new Date(Math.floor(date.getTime() / MINUTE_MS) * MINUTE_MS);
-  while (inQuietHours(at)) at = new Date(at.getTime() + MINUTE_MS);
+  while (inQuietHours(at, quiet)) at = new Date(at.getTime() + MINUTE_MS);
   return at;
 }
 

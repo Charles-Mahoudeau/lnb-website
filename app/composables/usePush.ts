@@ -202,7 +202,9 @@ export function usePush() {
       canSubscribe.value &&
       supported() &&
       !needsHomeScreen() &&
-      permission.value === 'default' &&
+      // Switching notifications off here leaves the permission granted: ask again, and the
+      // browser won't prompt twice. Only a blocked browser can't be asked.
+      permission.value !== 'denied' &&
       !enabledHere.value &&
       !snoozed()
     );

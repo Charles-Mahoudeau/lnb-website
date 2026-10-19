@@ -1628,7 +1628,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.pushAdmin,
     summary: 'Change the push settings',
     description:
-      'The weekly limit that triggers warnings, and how many days the prompt stays quiet after "Not now" (null: never ask again).',
+      'The weekly limit that triggers warnings, how many days the prompt stays quiet after "Not now" (null: never ask again), and the quiet hours that hold new-event announcements: a switch and a from and an until hour in Paris time.',
     access: 'admin',
     body: push.pushSettings,
     response: push.pushSettings,

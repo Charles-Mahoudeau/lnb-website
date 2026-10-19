@@ -985,7 +985,7 @@
         "addWillNotify": "{name} sera notifié.",
         "addWontNotify": "{name} ne sera pas notifié : aucun appareil, ou ce type de notification est désactivé.",
         "announceHeld": "Notification mise en file. Elle part le {date} à {time}, après les heures calmes.",
-        "heldUntil": "Il fait nuit à Paris (22:00 à 08:00) : elle partira le {date} à {time}, pas avant."
+        "heldUntil": "Les heures calmes sont actives à Paris : elle partira le {date} à {time}, pas avant."
       }
     },
     "push": {
@@ -1025,7 +1025,12 @@
       "save": "Enregistrer les réglages",
       "saved": "Réglages enregistrés",
       "loadFailed": "L’aperçu des notifications n’a pas pu être chargé. Vérifiez votre connexion, puis rechargez la page.",
-      "empty": "Personne n’a encore activé les notifications."
+      "empty": "Personne n’a encore activé les notifications.",
+      "quiet": "Retenir les annonces la nuit",
+      "quietHelp": "Quand c’est activé, l’annonce d’un nouvel événement envoyée pendant les heures calmes attend leur fin. Les rappels, places en liste d’attente, annulations et changements ne sont jamais retenus. Désactivez pour envoyer les annonces à toute heure.",
+      "quietFrom": "De",
+      "quietUntil": "jusqu’à",
+      "quietEmpty": "Choisissez deux heures différentes."
     }
   },
   "wardenAdmin": {

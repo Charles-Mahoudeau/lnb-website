@@ -7,7 +7,9 @@ import {
   countOverCap,
   deviceName,
   dueReminderOffsets,
+  DEFAULT_QUIET,
   inQuietHours,
+  quietOf,
   nextPushAttempt,
   pushTtl,
   reminderKey,
@@ -50,6 +52,44 @@ describe('quiet hours', () => {
     expect(afterQuietHours(new Date('2026-10-24T23:00:00Z')).toISOString()).toBe(
       '2026-10-25T07:00:00.000Z',
     );
+  });
+});
+
+describe('configurable quiet hours', () => {
+  it('can be switched off, and then nothing is held', () => {
+    const off = { ...DEFAULT_QUIET, enabled: false };
+    const night = new Date('2026-10-19T22:30:00Z'); // 00:30 in Paris
+    expect(inQuietHours(night, off)).toBe(false);
+    expect(afterQuietHours(night, off)).toBe(night);
+  });
+
+  it('holds until the configured end, over midnight or not', () => {
+    // 23:00 to 09:00, over midnight: held at 00:30 until 09:00 Paris.
+    const late = { enabled: true, from: 23, until: 9 };
+    expect(afterQuietHours(new Date('2026-10-19T22:30:00Z'), late).toISOString()).toBe(
+      '2026-10-20T07:00:00.000Z',
+    );
+    // 13:00 to 15:00, within one day: a lunch break.
+    const lunch = { enabled: true, from: 13, until: 15 };
+    expect(inQuietHours(new Date('2026-10-19T11:30:00Z'), lunch)).toBe(true); // 13:30
+    expect(inQuietHours(new Date('2026-10-19T08:00:00Z'), lunch)).toBe(false); // 10:00
+    expect(afterQuietHours(new Date('2026-10-19T11:30:00Z'), lunch).toISOString()).toBe(
+      '2026-10-19T13:00:00.000Z',
+    );
+  });
+
+  it('holds nothing when the two hours are the same', () => {
+    expect(
+      inQuietHours(new Date('2026-10-19T22:30:00Z'), { enabled: true, from: 8, until: 8 }),
+    ).toBe(false);
+  });
+
+  it('reads the admin settings', () => {
+    expect(quietOf({ quietEnabled: false, quietFrom: 1, quietUntil: 2 })).toEqual({
+      enabled: false,
+      from: 1,
+      until: 2,
+    });
   });
 });
 
@@ -202,10 +242,18 @@ describe('push schemas', () => {
   });
 
   it('limits the settings to what the admin page offers', () => {
-    expect(pushSettings.safeParse({ weeklyCap: 3, silenceDays: 7 }).success).toBe(true);
-    expect(pushSettings.safeParse({ weeklyCap: 3, silenceDays: null }).success).toBe(true);
-    expect(pushSettings.safeParse({ weeklyCap: 3, silenceDays: 14 }).success).toBe(false);
-    expect(pushSettings.safeParse({ weeklyCap: 0, silenceDays: 7 }).success).toBe(false);
+    const ok = { weeklyCap: 3, silenceDays: 7, quietEnabled: true, quietFrom: 22, quietUntil: 8 };
+    expect(pushSettings.safeParse(ok).success).toBe(true);
+    expect(pushSettings.safeParse({ ...ok, silenceDays: null }).success).toBe(true);
+    expect(pushSettings.safeParse({ ...ok, silenceDays: 14 }).success).toBe(false);
+    expect(pushSettings.safeParse({ ...ok, weeklyCap: 0 }).success).toBe(false);
+    expect(pushSettings.safeParse({ ...ok, quietFrom: 24 }).success).toBe(false);
+  });
+
+  it('refuses quiet hours that start and end together, unless they are off', () => {
+    const base = { weeklyCap: 3, silenceDays: 30, quietFrom: 8, quietUntil: 8 };
+    expect(pushSettings.safeParse({ ...base, quietEnabled: true }).success).toBe(false);
+    expect(pushSettings.safeParse({ ...base, quietEnabled: false }).success).toBe(true);
   });
 
   it('asks for the extra detail an impact check needs', () => {
