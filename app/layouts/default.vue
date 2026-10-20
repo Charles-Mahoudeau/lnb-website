@@ -54,6 +54,12 @@ const navItems = computed<NavigationMenuItem[]>(() => {
     ...(isEnabled('events')
       ? [{ label: t('nav.events'), icon: 'i-lucide-calendar', to: '/events' }]
       : []),
+    ...(isEnabled('team')
+      ? [{ label: t('nav.team'), icon: 'i-lucide-users-round', to: '/team' }]
+      : []),
+    ...(isEnabled('partners')
+      ? [{ label: t('nav.partners'), icon: 'i-lucide-handshake', to: '/partners' }]
+      : []),
     // No menu when every page in it is off.
     ...(minecraft.length
       ? [
