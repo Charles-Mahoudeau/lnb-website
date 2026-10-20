@@ -44,6 +44,11 @@ const items = computed<NavigationMenuItem[][]>(() => [
           { label: t('admin.nav.users'), icon: 'i-lucide-users', to: '/admin/users' },
           { label: t('admin.nav.team'), icon: 'i-lucide-users-round', to: '/admin/team' },
           { label: t('admin.nav.partners'), icon: 'i-lucide-handshake', to: '/admin/partners' },
+          {
+            label: t('admin.nav.shortLinks'),
+            icon: 'i-lucide-link',
+            to: '/admin/short-links',
+          },
           { label: t('admin.nav.flags'), icon: 'i-lucide-toggle-right', to: '/admin/flags' },
         ],
       ]
