@@ -8,7 +8,10 @@ const i18nHead = useLocaleHead();
 const uiLocales = { en, fr };
 const uiLocale = computed(() => uiLocales[locale.value]);
 
+// Pages set a bare title; the home page keeps the full site name.
 useHead({
+  titleTemplate: (title) =>
+    !title || title === t('site.name') ? t('site.name') : `LNB · ${title}`,
   link: () => [
     { rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
     { rel: 'icon', href: '/logo.svg', type: 'image/svg+xml' },
