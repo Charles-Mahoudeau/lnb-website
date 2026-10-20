@@ -49,16 +49,42 @@ const navItems = computed<NavigationMenuItem[]>(() => {
         ]
       : []),
   ];
+  const about: NavigationMenuItem[] = [
+    ...(isEnabled('team')
+      ? [
+          {
+            label: t('nav.team'),
+            description: t('nav.teamDescription'),
+            icon: 'i-lucide-users-round',
+            to: '/team',
+          },
+        ]
+      : []),
+    ...(isEnabled('partners')
+      ? [
+          {
+            label: t('nav.partners'),
+            description: t('nav.partnersDescription'),
+            icon: 'i-lucide-handshake',
+            to: '/partners',
+          },
+        ]
+      : []),
+  ];
   return [
     { label: t('nav.home'), icon: 'i-lucide-house', to: localePath('index'), exact: true },
     ...(isEnabled('events')
       ? [{ label: t('nav.events'), icon: 'i-lucide-calendar', to: '/events' }]
       : []),
-    ...(isEnabled('team')
-      ? [{ label: t('nav.team'), icon: 'i-lucide-users-round', to: '/team' }]
-      : []),
-    ...(isEnabled('partners')
-      ? [{ label: t('nav.partners'), icon: 'i-lucide-handshake', to: '/partners' }]
+    ...(about.length
+      ? [
+          {
+            label: t('nav.about'),
+            icon: 'i-lucide-info',
+            active: route.path === '/team' || route.path === '/partners',
+            children: about,
+          },
+        ]
       : []),
     // No menu when every page in it is off.
     ...(minecraft.length

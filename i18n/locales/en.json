@@ -21,7 +21,10 @@
     "wardenDescription": "Your linked Minecraft account and server address",
     "events": "Events",
     "team": "Team",
-    "partners": "Partners"
+    "partners": "Partners",
+    "about": "About",
+    "teamDescription": "The people who run LNB",
+    "partnersDescription": "Sponsors, game partners and prize partners"
   },
   "home": {
     "intro": {

@@ -21,7 +21,10 @@
     "wardenDescription": "Ton compte Minecraft associé et ton adresse de serveur",
     "events": "Événements",
     "team": "L’équipe",
-    "partners": "Partenaires"
+    "partners": "Partenaires",
+    "about": "À propos",
+    "teamDescription": "Les personnes qui font tourner LNB",
+    "partnersDescription": "Sponsors, partenaires de jeu et partenaires de lots"
   },
   "home": {
     "intro": {
