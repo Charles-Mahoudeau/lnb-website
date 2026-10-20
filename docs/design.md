@@ -103,6 +103,15 @@ Original mock (not code to port): [partners page mocks](https://claude.ai/artifa
 - The end of the page is a raised band like the team page's: "Want to support LNB?" with the one solid red button, shown only with a contact link set and its flag on.
 - Admin: one raised section per kind, a row per partner with its logo on the plate, the name, the description cut to one line, a "Hidden" badge, the up and down arrows, an edit button and a switch. Order is set with arrows, as on the team page, never by dragging.
 
+## Short links
+
+Original mock (not code to port): [short links admin mock](https://claude.ai/artifact/1ovR7Yb7L5igxsFFQ8DNS1), layout A, "Table and drawer".
+
+- Admin list: a table on one raised section (`bg-elevated`), a search field, then rows separated by dividers: the short URL in semibold with its name muted below, who can open it with a globe (anyone) or lock icon in muted text, clicks and people as tabular numbers, a switch and a ghost copy button. A row opens the link's page. "New link" is the one solid red button of the page.
+- The form is a side drawer (`USlideover`), never a page, so the table keeps its place. The choice of who can open a link is three cards, selected with the second accent (dusk tint and border, `color="secondary"`), and schools are toggle chips like the push reminders.
+- The link page shows its numbers as four count tiles, a stacked bar chart with a faint grid (signed in in the highlight color, not signed in in the dimmed one, one scale, no color beyond text tokens), then school bars and the people who clicked as rows with tinted avatars. The delete button is the outline destructive one.
+- The page a visitor sees when a link can't be followed (`/short-link`) is one short standalone moment, so it is centered: an `IconTile`, a title, one line and one button. Sign-in is the solid red one, anything else is outline.
+
 ## Notifications
 
 Original mock (not code to port): [push notifications mock](https://claude.ai/artifact/B9QVfPJbgPRYARQ1hjmN6A), bottom sheet (phones) and one-card settings. The desktop dialog came after, from the same content.
