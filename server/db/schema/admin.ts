@@ -46,7 +46,13 @@ export type AdminAuditAction =
   | 'partner.update'
   | 'partner.delete'
   /** The partners page settings, with `data.contactUrl`. */
-  | 'partners.settings';
+  | 'partners.settings'
+  /** Short links, with `data.id` (the short ID) and `data.name`. */
+  | 'shortLink.create'
+  | 'shortLink.update'
+  | 'shortLink.delete'
+  /** An admin downloaded who clicked a link. */
+  | 'shortLink.export';
 
 // Rows outlive the accounts they name: a deleted actor or target becomes null, so the log keeps
 // what happened without keeping who it happened to.

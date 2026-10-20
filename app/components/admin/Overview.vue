@@ -128,6 +128,10 @@ function describe(entry: AdminAuditView): string {
     case 'partner.update':
     case 'partner.delete':
     case 'partners.settings':
+    case 'shortLink.create':
+    case 'shortLink.update':
+    case 'shortLink.delete':
+    case 'shortLink.export':
       return t(`admin.overview.log.${entry.action.replace('.', '_')}`, {
         actor,
         target,

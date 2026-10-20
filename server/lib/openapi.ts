@@ -8,6 +8,7 @@ import { linkApproveBody, linkApproveResult } from '../../shared/schemas/link.ts
 import * as mods from '../../shared/schemas/mods.ts';
 import * as partners from '../../shared/schemas/partners.ts';
 import * as push from '../../shared/schemas/push.ts';
+import * as shortLinks from '../../shared/schemas/short-links.ts';
 import * as team from '../../shared/schemas/team.ts';
 import * as warden from '../../shared/schemas/warden.ts';
 
@@ -101,6 +102,8 @@ const requestSchemas = {
   PartnerPatchBody: partners.partnerPatchBody,
   PartnerMoveBody: partners.partnerMoveBody,
   PartnerSettingsBody: partners.partnerSettingsBody,
+  ShortLinkBody: shortLinks.shortLinkBody,
+  ShortLinkPatchBody: shortLinks.shortLinkPatchBody,
   TeamMePatch: team.teamMePatch,
   TeamPoleBody: team.teamPoleBody,
   TeamPolePatchBody: team.teamPolePatchBody,
@@ -186,6 +189,9 @@ const responseSchemas = {
   PartnersAdmin: partners.partnerAdminView,
   PartnerLogo: partners.partnerLogoView,
   PartnerSettings: partners.partnerSettingsView,
+  ShortLinksAdmin: shortLinks.shortLinkList,
+  ShortLinkDetail: shortLinks.shortLinkDetail,
+  ShortLinkPublic: shortLinks.shortLinkPublic,
   TeamPublic: team.teamPublicView,
   TeamMe: team.teamMeView,
   TeamAdmin: team.teamAdminView,
@@ -213,6 +219,8 @@ const TAGS = {
   teamAdmin: 'Team: admins',
   partners: 'Partners',
   partnersAdmin: 'Partners: admins',
+  shortLinks: 'Short links',
+  shortLinksAdmin: 'Short links: admins',
   auth: 'Auth',
   authDevice: 'Auth: device authorization',
 };
@@ -1658,6 +1666,90 @@ const routes: RouteDoc[] = [
     access: 'admin',
     body: push.pushSettings,
     response: push.pushSettings,
+  },
+  {
+    method: 'get',
+    path: '/api/short-links/{shortId}',
+    tag: TAGS.shortLinks,
+    summary: 'What a short link needs from a visitor',
+    description:
+      'For the page shown when `/r/{shortId}` can’t be followed: whether the link is available, who can open it and the names of the allowed schools. It never returns the destination. `state: off` covers an unknown, turned-off or switched-off link. The link itself is `GET /r/{shortId}` (outside `/api`): a 302 to the destination after the access check, or to `/short-link` with the reason. Link previews and crawlers are redirected but not counted.',
+    access: 'public',
+    params: shortLinks.shortLinkPublicParams,
+    response: shortLinks.shortLinkPublic,
+  },
+  {
+    method: 'get',
+    path: '/api/admin/short-links',
+    tag: TAGS.shortLinksAdmin,
+    summary: 'The short links',
+    description: 'Every short link, newest first, with its clicks and the people who clicked.',
+    access: 'admin',
+    response: shortLinks.shortLinkList,
+  },
+  {
+    method: 'post',
+    path: '/api/admin/short-links',
+    tag: TAGS.shortLinksAdmin,
+    summary: 'Create a short link',
+    description:
+      'An empty `shortId` gets a random one. `access: schools` needs at least one school. Recording who clicks needs sign-in, so `access: any` can’t.',
+    access: 'admin',
+    body: shortLinks.shortLinkBody,
+    response: z.object({ id: z.uuid(), shortId: z.string() }),
+    created: true,
+    problems: [{ status: 409, problems: ['shortIdTaken'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/admin/short-links/{id}',
+    tag: TAGS.shortLinksAdmin,
+    summary: 'A short link with its statistics',
+    description:
+      'Clicks per day for 30 days, and for links that record clicks, the people by school and the people who clicked last.',
+    access: 'admin',
+    params: shortLinks.shortLinkIdParams,
+    response: shortLinks.shortLinkDetail,
+    problems: [{ status: 404, problems: ['shortLinkNotFound'] }],
+  },
+  {
+    method: 'patch',
+    path: '/api/admin/short-links/{id}',
+    tag: TAGS.shortLinksAdmin,
+    summary: 'Change a short link',
+    description:
+      'The short ID can’t change, so printed links keep working. Turning access to `any` stops recording who clicks. Clicks already recorded stay.',
+    access: 'admin',
+    params: shortLinks.shortLinkIdParams,
+    body: shortLinks.shortLinkPatchBody,
+    noContent: true,
+    problems: [{ status: 404, problems: ['shortLinkNotFound'] }],
+  },
+  {
+    method: 'delete',
+    path: '/api/admin/short-links/{id}',
+    tag: TAGS.shortLinksAdmin,
+    summary: 'Delete a short link',
+    description: 'Its clicks go with it.',
+    access: 'admin',
+    params: shortLinks.shortLinkIdParams,
+    noContent: true,
+    problems: [{ status: 404, problems: ['shortLinkNotFound'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/admin/short-links/{id}/export',
+    tag: TAGS.shortLinksAdmin,
+    summary: 'Download who clicked',
+    description:
+      'A CSV with the date, name, email and school of each click on a link that records clicks. It is written to the admin log.',
+    access: 'admin',
+    params: shortLinks.shortLinkIdParams,
+    response: {
+      description: 'A CSV file.',
+      content: { 'text/csv': { schema: { type: 'string' } } },
+    },
+    problems: [{ status: 404, problems: ['shortLinkNotFound'] }],
   },
   {
     method: 'get',

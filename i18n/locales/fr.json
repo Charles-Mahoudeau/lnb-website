@@ -365,7 +365,8 @@
       "eventList": "Tous les événements",
       "push": "Notifications push",
       "team": "Équipe",
-      "partners": "Partenaires"
+      "partners": "Partenaires",
+      "shortLinks": "Liens courts"
     },
     "cancel": "Annuler",
     "roles": {
@@ -492,7 +493,11 @@
         "partner_create": "{actor} a ajouté le partenaire {name}.",
         "partner_update": "{actor} a modifié le partenaire {name}.",
         "partner_delete": "{actor} a supprimé le partenaire {name}.",
-        "partners_settings": "{actor} a modifié les réglages de la page des partenaires."
+        "partners_settings": "{actor} a modifié les réglages de la page des partenaires.",
+        "shortLink_create": "{actor} a créé le lien court {name}.",
+        "shortLink_update": "{actor} a modifié le lien court {name}.",
+        "shortLink_delete": "{actor} a supprimé le lien court {name}.",
+        "shortLink_export": "{actor} a téléchargé la liste des clics du lien court {name}."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page."
     },
@@ -752,6 +757,14 @@
         "jobs_prunePartnerLogos": {
           "label": "Nettoyage des logos de partenaires",
           "description": "La suppression nocturne des logos qu’aucun partenaire n’utilise."
+        },
+        "shortLinks": {
+          "label": "Liens courts",
+          "description": "Les liens /r/. Les visiteurs voient que le lien est désactivé. Les admins peuvent toujours les gérer."
+        },
+        "shortLinks_tracking": {
+          "label": "Enregistrement des clics par personne",
+          "description": "Les liens continuent de compter les clics mais n’enregistrent plus qui a cliqué. Les personnes déjà enregistrées restent."
         }
       }
     },
@@ -1217,6 +1230,112 @@
       },
       "deleteTitle": "Supprimer {name} ?",
       "deleteLede": "Le partenaire et son lien disparaissent de la page des partenaires. Cette action est irréversible."
+    },
+    "shortLinks": {
+      "title": "Liens courts",
+      "note": "Un lien court envoie les gens d’une adresse comme /r/lan-party vers une autre page. Il peut compter les clics, demander de se connecter ou rester réservé à certaines écoles.",
+      "add": "Nouveau lien",
+      "search": "Rechercher un lien",
+      "empty": "Aucun lien court pour l’instant. Créez le premier.",
+      "noMatch": "Aucun lien ne correspond à votre recherche.",
+      "edit": "Modifier",
+      "delete": "Supprimer le lien",
+      "deleted": "Lien supprimé",
+      "copy": "Copier le lien",
+      "copied": "Lien copié",
+      "off": "Désactivé",
+      "notRecorded": "Non enregistré",
+      "columns": {
+        "link": "Lien",
+        "access": "Qui peut l’ouvrir",
+        "clicks": "Clics",
+        "people": "Personnes",
+        "created": "Créé le",
+        "status": "Actif"
+      },
+      "access": {
+        "any": "Tout le monde",
+        "signed": "Connecté"
+      },
+      "deleteTitle": "Supprimer /r/{id} ?",
+      "deleteLede": "Le lien cesse de fonctionner et son historique de clics est supprimé. Cette action est irréversible.",
+      "form": {
+        "addTitle": "Nouveau lien",
+        "editTitle": "Modifier /r/{id}",
+        "destination": "Destination",
+        "destinationHelp": "La page où les gens arrivent. Elle doit commencer par https://.",
+        "shortId": "Lien court",
+        "shortIdHelp": "Lettres, chiffres et tirets. Laissez vide pour en obtenir un au hasard. Il ne pourra plus changer.",
+        "generate": "Générer",
+        "name": "Nom",
+        "nameHelp": "Visible uniquement par les admins.",
+        "access": "Qui peut l’ouvrir",
+        "schools": "Écoles",
+        "noSchool": "Choisissez au moins une école.",
+        "accessOptions": {
+          "any": {
+            "label": "Tout le monde",
+            "description": "Sans connexion. Les clics sont comptés, rien de plus."
+          },
+          "signed": {
+            "label": "Étudiants connectés",
+            "description": "Demande de se connecter, puis redirige."
+          },
+          "schools": {
+            "label": "Certaines écoles seulement",
+            "description": "Connecté, et issu des écoles choisies."
+          }
+        },
+        "record": "Enregistrer qui clique",
+        "recordHelp": "Garde le nom et l’école de chaque personne connectée qui l’ouvre. La page de connexion les en informe.",
+        "recordNeedsSignIn": "Nécessite une connexion. Sans elle, LNB ne fait que compter les clics.",
+        "recordFlagOff": "Désactivé dans les feature flags.",
+        "enabled": "Le lien est actif",
+        "enabledHelp": "Désactivé, le lien affiche une page indiquant qu’il ne fonctionne pas.",
+        "summary": {
+          "any": "Toute personne ayant le lien peut l’ouvrir, connectée ou non. Les clics sont comptés, personne n’est identifié.",
+          "signed": "Toute personne connectée avec un compte d’une école autorisée peut l’ouvrir. Les autres doivent d’abord se connecter.",
+          "schools": "Seuls les étudiants de {schools} peuvent l’ouvrir. Les autres voient une page qui le dit.",
+          "noSchool": "Choisissez au moins une école."
+        },
+        "create": "Créer le lien",
+        "save": "Enregistrer",
+        "created": "Lien créé",
+        "saved": "Lien enregistré"
+      },
+      "detail": {
+        "title": "Lien",
+        "access": {
+          "any": "Tout le monde peut l’ouvrir",
+          "signed": "Étudiants connectés"
+        },
+        "onlySchools": "Seulement {schools}",
+        "records": "Enregistre qui clique",
+        "countsOnly": "Comptage seulement",
+        "trackingOff": "L’enregistrement des clics par personne est désactivé dans les feature flags : les nouveaux clics sont comptés sans nom.",
+        "clicks": "Clics",
+        "people": "Personnes ayant cliqué",
+        "peopleNotRecorded": "Personnes, non enregistré",
+        "anonymous": "Clics sans connexion",
+        "refused": "Refusés, autre école",
+        "perDay": "Clics par jour",
+        "signedIn": "Connecté",
+        "notSignedIn": "Non connecté",
+        "chartLabel": "{count} clics sur les 30 derniers jours.",
+        "bySchool": "Par école",
+        "whoClicked": "Qui a cliqué",
+        "export": "Exporter en CSV",
+        "nobody": "Personne pour l’instant.",
+        "clickCount": "{count} clic | {count} clics",
+        "shown": "{shown} sur {total} affichés. Seuls les admins voient cette liste.",
+        "hintAny": "Tout le monde peut ouvrir ce lien sans se connecter, donc LNB ne fait que compter les clics. Pour savoir qui a cliqué, exigez une connexion et activez « Enregistrer qui clique ».",
+        "hintEnable": "Activez « Enregistrer qui clique » dans Modifier pour voir qui a ouvert ce lien."
+      },
+      "errors": {
+        "shortLinkNotFound": "Ce lien n’existe plus. Rechargez la page.",
+        "shortIdTaken": "Ce lien court est déjà utilisé. Choisissez-en un autre.",
+        "failed": "La modification n’a pas été enregistrée. Vérifiez votre connexion et réessayez."
+      }
     }
   },
   "wardenAdmin": {
@@ -1745,6 +1864,25 @@
       "title": "Vous voulez soutenir LNB ?",
       "lede": "Dites-nous ce que vous pouvez offrir et nous trouverons la meilleure façon de faire : lots, repas, matériel ou clés de jeux.",
       "button": "Nous contacter"
+    }
+  },
+  "shortLink": {
+    "home": "Retour à l’accueil",
+    "signIn": {
+      "title": "Connectez-vous pour ouvrir ce lien",
+      "any": "Ce lien est réservé aux étudiants d’Epitech, d’e-artsup et d’ISEG.",
+      "schools": "Ce lien est réservé aux étudiants de {schools}.",
+      "recorded": "LNB enregistre que vous l’avez ouvert.",
+      "button": "Se connecter avec Microsoft"
+    },
+    "wrongSchool": {
+      "title": "Ce lien n’est pas pour votre école",
+      "body": "Il est ouvert aux étudiants de {schools}.",
+      "yours": "Vous êtes connecté avec un compte {school}."
+    },
+    "off": {
+      "title": "Ce lien ne fonctionne plus",
+      "body": "Il a été désactivé, ou l’adresse contient une faute de frappe. Demandez un nouveau lien à la personne qui vous l’a envoyé."
     }
   }
 }

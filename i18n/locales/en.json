@@ -365,7 +365,8 @@
       "eventList": "All events",
       "push": "Push notifications",
       "team": "Team",
-      "partners": "Partners"
+      "partners": "Partners",
+      "shortLinks": "Short links"
     },
     "cancel": "Cancel",
     "roles": {
@@ -492,7 +493,11 @@
         "partner_create": "{actor} added the partner {name}.",
         "partner_update": "{actor} changed the partner {name}.",
         "partner_delete": "{actor} deleted the partner {name}.",
-        "partners_settings": "{actor} changed the partners page settings."
+        "partners_settings": "{actor} changed the partners page settings.",
+        "shortLink_create": "{actor} created the short link {name}.",
+        "shortLink_update": "{actor} changed the short link {name}.",
+        "shortLink_delete": "{actor} deleted the short link {name}.",
+        "shortLink_export": "{actor} downloaded who clicked the short link {name}."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page."
     },
@@ -752,6 +757,14 @@
         "jobs_prunePartnerLogos": {
           "label": "Pruning partner logos",
           "description": "The nightly removal of logos no partner uses."
+        },
+        "shortLinks": {
+          "label": "Short links",
+          "description": "The /r/ links. Visitors see that the link is off. Admins can still manage them."
+        },
+        "shortLinks_tracking": {
+          "label": "Recording who clicks",
+          "description": "Links keep counting clicks but stop recording who clicked. People already recorded stay."
         }
       }
     },
@@ -1217,6 +1230,112 @@
       },
       "deleteTitle": "Delete {name}?",
       "deleteLede": "The partner and its link disappear from the partners page. This can’t be undone."
+    },
+    "shortLinks": {
+      "title": "Short links",
+      "note": "A short link sends people from /r/lan-party, for example, to another page. It can count clicks, ask people to sign in, or stay inside some schools.",
+      "add": "New link",
+      "search": "Search links",
+      "empty": "No short link yet. Create the first one.",
+      "noMatch": "No link matches your search.",
+      "edit": "Edit",
+      "delete": "Delete link",
+      "deleted": "Link deleted",
+      "copy": "Copy link",
+      "copied": "Link copied",
+      "off": "Off",
+      "notRecorded": "Not recorded",
+      "columns": {
+        "link": "Link",
+        "access": "Who can open it",
+        "clicks": "Clicks",
+        "people": "People",
+        "created": "Created",
+        "status": "On"
+      },
+      "access": {
+        "any": "Anyone",
+        "signed": "Signed in"
+      },
+      "deleteTitle": "Delete /r/{id}?",
+      "deleteLede": "The link stops working and its click history is deleted. This can’t be undone.",
+      "form": {
+        "addTitle": "New link",
+        "editTitle": "Edit /r/{id}",
+        "destination": "Destination",
+        "destinationHelp": "Where people end up. It must start with https://.",
+        "shortId": "Short link",
+        "shortIdHelp": "Letters, numbers and dashes. Leave it empty to get a random one. It can’t change later.",
+        "generate": "Generate",
+        "name": "Name",
+        "nameHelp": "Only admins see it.",
+        "access": "Who can open it",
+        "schools": "Schools",
+        "noSchool": "Pick at least one school.",
+        "accessOptions": {
+          "any": {
+            "label": "Anyone",
+            "description": "No sign-in. Clicks are counted, nothing else."
+          },
+          "signed": {
+            "label": "Signed-in students",
+            "description": "Asks people to sign in, then redirects."
+          },
+          "schools": {
+            "label": "Some schools only",
+            "description": "Signed in, and from the schools you pick."
+          }
+        },
+        "record": "Record who clicks",
+        "recordHelp": "Keeps the name and school of each signed-in person who opens it. The sign-in page tells them.",
+        "recordNeedsSignIn": "Needs sign-in. Without it LNB only counts clicks.",
+        "recordFlagOff": "Switched off in the feature flags.",
+        "enabled": "Link is on",
+        "enabledHelp": "When off, the link shows a page saying it doesn’t work.",
+        "summary": {
+          "any": "Anyone with the link can open it, signed in or not. Clicks are counted, nobody is identified.",
+          "signed": "Anyone signed in with an allowed school account can open it. Everyone else is asked to sign in first.",
+          "schools": "Only students of {schools} can open it. Others see a page that says so.",
+          "noSchool": "Pick at least one school."
+        },
+        "create": "Create link",
+        "save": "Save changes",
+        "created": "Link created",
+        "saved": "Link saved"
+      },
+      "detail": {
+        "title": "Link",
+        "access": {
+          "any": "Anyone can open it",
+          "signed": "Signed-in students"
+        },
+        "onlySchools": "Only {schools}",
+        "records": "Records who clicks",
+        "countsOnly": "Counts only",
+        "trackingOff": "Recording who clicks is switched off in the feature flags, so new clicks are counted without names.",
+        "clicks": "Clicks",
+        "people": "People who clicked",
+        "peopleNotRecorded": "People, not recorded",
+        "anonymous": "Clicks without sign-in",
+        "refused": "Refused, wrong school",
+        "perDay": "Clicks per day",
+        "signedIn": "Signed in",
+        "notSignedIn": "Not signed in",
+        "chartLabel": "{count} clicks over the last 30 days.",
+        "bySchool": "By school",
+        "whoClicked": "Who clicked",
+        "export": "Export CSV",
+        "nobody": "Nobody yet.",
+        "clickCount": "{count} click | {count} clicks",
+        "shown": "Showing {shown} of {total}. Only admins see this list.",
+        "hintAny": "Anyone can open this link without signing in, so LNB only counts clicks. To see who clicked, require sign-in and turn on “Record who clicks”.",
+        "hintEnable": "Turn on “Record who clicks” in Edit to see which people opened this link."
+      },
+      "errors": {
+        "shortLinkNotFound": "This link no longer exists. Reload the page.",
+        "shortIdTaken": "This short link is already used. Pick another one.",
+        "failed": "The change wasn’t saved. Check your connection and try again."
+      }
     }
   },
   "wardenAdmin": {
@@ -1745,6 +1864,25 @@
       "title": "Want to support LNB?",
       "lede": "Tell us what you can offer and we will find the right fit: prizes, food, equipment or game keys.",
       "button": "Get in touch"
+    }
+  },
+  "shortLink": {
+    "home": "Back to the home page",
+    "signIn": {
+      "title": "Sign in to open this link",
+      "any": "This link is for students of Epitech, e-artsup and ISEG.",
+      "schools": "This link is for students of {schools}.",
+      "recorded": "LNB records that you opened it.",
+      "button": "Sign in with Microsoft"
+    },
+    "wrongSchool": {
+      "title": "This link isn’t for your school",
+      "body": "It’s open to {schools} students.",
+      "yours": "You are signed in with your {school} account."
+    },
+    "off": {
+      "title": "This link doesn’t work any more",
+      "body": "It was turned off, or the address has a typo. Ask the person who shared it for a new one."
     }
   }
 }
