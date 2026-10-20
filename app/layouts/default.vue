@@ -76,16 +76,6 @@ const navItems = computed<NavigationMenuItem[]>(() => {
     ...(isEnabled('events')
       ? [{ label: t('nav.events'), icon: 'i-lucide-calendar', to: '/events' }]
       : []),
-    ...(about.length
-      ? [
-          {
-            label: t('nav.about'),
-            icon: 'i-lucide-info',
-            active: route.path === '/team' || route.path === '/partners',
-            children: about,
-          },
-        ]
-      : []),
     // No menu when every page in it is off.
     ...(minecraft.length
       ? [
@@ -94,6 +84,16 @@ const navItems = computed<NavigationMenuItem[]>(() => {
             icon: 'i-lucide-blocks',
             active: route.path.startsWith('/minecraft/'),
             children: minecraft,
+          },
+        ]
+      : []),
+    ...(about.length
+      ? [
+          {
+            label: t('nav.about'),
+            icon: 'i-lucide-info',
+            active: route.path === '/team' || route.path === '/partners',
+            children: about,
           },
         ]
       : []),
