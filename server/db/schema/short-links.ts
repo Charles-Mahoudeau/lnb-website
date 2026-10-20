@@ -12,14 +12,14 @@ import {
 
 import { user } from './auth';
 
-// The short links at /r/:shortId. See docs/short-links.md.
+// The short links at /go/:shortId. See docs/short-links.md.
 
 /** A short link. `access` is one of LINK_ACCESS (shared/schemas/short-links.ts). */
 export const shortLink = pgTable(
   'short_link',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    // The path after /r/, lowercase and unique.
+    // The path after /go/, lowercase and unique.
     shortId: text('short_id').notNull().unique(),
     // Only admins see it.
     name: text('name').notNull(),

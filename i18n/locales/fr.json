@@ -760,7 +760,7 @@
         },
         "shortLinks": {
           "label": "Liens courts",
-          "description": "Les liens /r/. Les visiteurs voient que le lien est désactivé. Les admins peuvent toujours les gérer."
+          "description": "Les liens /go/. Les visiteurs voient que le lien est désactivé. Les admins peuvent toujours les gérer."
         },
         "shortLinks_tracking": {
           "label": "Enregistrement des clics par personne",
@@ -1233,7 +1233,7 @@
     },
     "shortLinks": {
       "title": "Liens courts",
-      "note": "Un lien court envoie les gens d’une adresse comme /r/lan-party vers une autre page. Il peut compter les clics, demander de se connecter ou rester réservé à certaines écoles.",
+      "note": "Un lien court envoie les gens d’une adresse comme /go/lan-party vers une autre page. Il peut compter les clics, demander de se connecter ou rester réservé à certaines écoles.",
       "add": "Nouveau lien",
       "search": "Rechercher un lien",
       "empty": "Aucun lien court pour l’instant. Créez le premier.",
@@ -1257,11 +1257,11 @@
         "any": "Tout le monde",
         "signed": "Connecté"
       },
-      "deleteTitle": "Supprimer /r/{id} ?",
+      "deleteTitle": "Supprimer /go/{id} ?",
       "deleteLede": "Le lien cesse de fonctionner et son historique de clics est supprimé. Cette action est irréversible.",
       "form": {
         "addTitle": "Nouveau lien",
-        "editTitle": "Modifier /r/{id}",
+        "editTitle": "Modifier /go/{id}",
         "destination": "Destination",
         "destinationHelp": "La page où les gens arrivent. Elle doit commencer par https://.",
         "shortId": "Lien court",

@@ -17,8 +17,8 @@ const errorMessage = computed(() => {
 });
 
 if (user.value) {
-  // A short link (/r/...) is a server route, so the router can't take it.
-  await navigateTo(redirect.value, { replace: true, external: redirect.value.startsWith('/r/') });
+  // A short link (/go/...) is a server route, so the router can't take it.
+  await navigateTo(redirect.value, { replace: true, external: redirect.value.startsWith('/go/') });
 }
 
 // The banner shows the next event, so the page isn't empty while people sign in.

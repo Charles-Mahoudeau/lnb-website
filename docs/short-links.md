@@ -1,6 +1,6 @@
 # Short links
 
-Admins make short links of the form `<site>/r/<shortId>` that send people to another page. A link can count clicks, ask people to sign in, stay inside some schools, and record who clicked. They are managed at `/admin/short-links` (site admins only), and are switched off as a whole by the `shortLinks` flag.
+Admins make short links of the form `<site>/go/<shortId>` that send people to another page. A link can count clicks, ask people to sign in, stay inside some schools, and record who clicked. They are managed at `/admin/short-links` (site admins only), and are switched off as a whole by the `shortLinks` flag.
 
 Original mock (not code to port): [short links admin mock](https://claude.ai/artifact/1ovR7Yb7L5igxsFFQ8DNS1), layout A, "Table and drawer".
 
@@ -14,11 +14,11 @@ Each link has one of three `access` values:
 | `signed`  | Anyone signed in. Sign-in is already limited to the three schools.                |
 | `schools` | Signed-in students whose Microsoft tenant ID is in the link's list (`tenantIds`). |
 
-The check is `decideAccess` in `shared/utils/short-links.ts`. A signed-out visitor to a locked link is sent to `/short-link?state=signIn`, whose button leads to `/sign-in?redirect=/r/<id>`, so they land on the destination after signing in. A student from another school is sent to `/short-link?state=wrongSchool`. An unknown, turned-off or flag-off link goes to `state=off`. The destination is never in those pages or in `GET /api/short-links/:shortId`.
+The check is `decideAccess` in `shared/utils/short-links.ts`. A signed-out visitor to a locked link is sent to `/short-link?state=signIn`, whose button leads to `/sign-in?redirect=/go/<id>`, so they land on the destination after signing in. A student from another school is sent to `/short-link?state=wrongSchool`. An unknown, turned-off or flag-off link goes to `state=off`. The destination is never in those pages or in `GET /api/short-links/:shortId`.
 
 ## The redirect
 
-`GET /r/:shortId` is a server route (`server/routes/r/[shortId].get.ts`), outside `/api`, so it isn't in the API reference (the `/api/short-links/{shortId}` entry describes it). It answers 302 with `Cache-Control: no-store` and `Referrer-Policy: no-referrer`. IDs are lowercase letters, numbers and single dashes, 2 to 40 characters, and unique. An empty ID at creation gets 6 random characters from an alphabet without look-alikes. The ID can't change afterwards, so printed links keep working.
+`GET /go/:shortId` is a server route (`server/routes/go/[shortId].get.ts`), outside `/api`, so it isn't in the API reference (the `/api/short-links/{shortId}` entry describes it). It answers 302 with `Cache-Control: no-store` and `Referrer-Policy: no-referrer`. IDs are lowercase letters, numbers and single dashes, 2 to 40 characters, and unique. An empty ID at creation gets 6 random characters from an alphabet without look-alikes. The ID can't change afterwards, so printed links keep working.
 
 Destinations are `https://` only.
 
@@ -43,7 +43,7 @@ One `short_link_click` row per followed link, with the time, whether the visitor
 
 ## Flags
 
-`shortLinks` switches `/r/` off (visitors see the "doesn't work any more" page, admins still manage links). `shortLinks.tracking` only stops recording who clicked.
+`shortLinks` switches `/go/` off (visitors see the "doesn't work any more" page, admins still manage links). `shortLinks.tracking` only stops recording who clicked.
 
 ## API
 

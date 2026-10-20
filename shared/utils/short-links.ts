@@ -1,4 +1,4 @@
-// Pure rules of the short links (/r/:id). See docs/short-links.md.
+// Pure rules of the short links (/go/:id). See docs/short-links.md.
 
 export const SHORT_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 

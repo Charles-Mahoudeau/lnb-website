@@ -5,7 +5,7 @@ import { getAuthSession } from '~~/server/utils/auth';
 
 import { shortLinkPublicParams } from '#shared/schemas/short-links';
 
-// The short link itself: /r/<shortId>. Not under /api, so it isn't in the API reference.
+// The short link itself: /go/<shortId>. Not under /api, so it isn't in the API reference.
 // A visitor who can't follow it lands on /short-link with the reason.
 function redirect(location: string): Response {
   return new Response(null, {

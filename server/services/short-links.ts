@@ -19,7 +19,7 @@ import { schoolForTenant } from '#shared/utils/schools';
 import { decideAccess, isPreviewRequest, randomShortId } from '#shared/utils/short-links';
 import type { GateDecision, LinkAccess } from '#shared/utils/short-links';
 
-// The short links at /r/:shortId: an admin makes one, and following it redirects after the
+// The short links at /go/:shortId: an admin makes one, and following it redirects after the
 // access check, counting the click and, when the link says so, who clicked. See docs/short-links.md.
 
 type Row = typeof shortLink.$inferSelect;

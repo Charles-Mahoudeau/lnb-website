@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ShortLinkPublic } from '#shared/schemas/short-links';
 
-// Where /r/<id> sends a visitor who can't follow the link yet: signed out, from another school,
+// Where /go/<id> sends a visitor who can't follow the link yet: signed out, from another school,
 // or the link is off. The destination never shows here.
 definePageMeta({ auth: false });
 
@@ -61,7 +61,7 @@ useSeoMeta({ title: () => t(`shortLink.${state.value}.title`), robots: 'noindex'
       </p>
       <UButton
         v-if="state === 'signIn'"
-        :to="{ path: '/sign-in', query: { redirect: `/r/${id}` } }"
+        :to="{ path: '/sign-in', query: { redirect: `/go/${id}` } }"
         size="lg"
         :label="t('shortLink.signIn.button')"
       />

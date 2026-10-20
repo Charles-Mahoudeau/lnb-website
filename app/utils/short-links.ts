@@ -7,5 +7,5 @@ export function schoolNames(tenantIds: readonly string[]): string[] {
 
 /** The full short URL, from the site's origin. */
 export function shortUrl(baseUrl: string, shortId: string): string {
-  return `${baseUrl.replace(/\/$/, '')}/r/${shortId}`;
+  return `${baseUrl.replace(/\/$/, '')}/go/${shortId}`;
 }

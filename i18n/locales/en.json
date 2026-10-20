@@ -760,7 +760,7 @@
         },
         "shortLinks": {
           "label": "Short links",
-          "description": "The /r/ links. Visitors see that the link is off. Admins can still manage them."
+          "description": "The /go/ links. Visitors see that the link is off. Admins can still manage them."
         },
         "shortLinks_tracking": {
           "label": "Recording who clicks",
@@ -1233,7 +1233,7 @@
     },
     "shortLinks": {
       "title": "Short links",
-      "note": "A short link sends people from /r/lan-party, for example, to another page. It can count clicks, ask people to sign in, or stay inside some schools.",
+      "note": "A short link sends people from /go/lan-party, for example, to another page. It can count clicks, ask people to sign in, or stay inside some schools.",
       "add": "New link",
       "search": "Search links",
       "empty": "No short link yet. Create the first one.",
@@ -1257,11 +1257,11 @@
         "any": "Anyone",
         "signed": "Signed in"
       },
-      "deleteTitle": "Delete /r/{id}?",
+      "deleteTitle": "Delete /go/{id}?",
       "deleteLede": "The link stops working and its click history is deleted. This can’t be undone.",
       "form": {
         "addTitle": "New link",
-        "editTitle": "Edit /r/{id}",
+        "editTitle": "Edit /go/{id}",
         "destination": "Destination",
         "destinationHelp": "Where people end up. It must start with https://.",
         "shortId": "Short link",

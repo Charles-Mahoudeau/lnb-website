@@ -128,7 +128,7 @@ async function onSubmit() {
               class="min-w-0 flex-1"
             >
               <template #leading>
-                <span class="text-sm text-muted">/r/</span>
+                <span class="text-sm text-muted">/go/</span>
               </template>
             </UInput>
             <UButton

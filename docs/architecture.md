@@ -28,14 +28,14 @@ server/               Nitro server, picked up by Nuxt automatically
   api/                handlers of 5 to 10 lines: guard, validate, call a service, return
     auth/[...all].ts  Better Auth's routes under /api/auth
     docs.get.ts       the API reference (Scalar), from openapi.json.get.ts
-  routes/r/           the short links, /r/<shortId> (outside /api, so not in the API reference)
+  routes/go/           the short links, /go/<shortId> (outside /api, so not in the API reference)
   services/           business rules, one file per domain: links (app link codes), warden/
                       (Minecraft link, see docs/warden.md), mods/ (the mod list, see
                       docs/mods.md), users (accounts, for admins), avatars (profile photos),
                       admin-audit and admin-overview (the admin log and Overview), events/
                       (see docs/events.md: admin, public, registrations, rooms, types, images,
                       bde, push, markdown, and rules.ts for the pure rules), push/ (see docs/push.md:
-                      queue, deliver, reminders, subscriptions, settings, stats), team (the team page, see docs/team.md), partners (the partners page and its logos, see docs/partners.md), short-links (the /r/ links and their clicks, see docs/short-links.md), later event teams, files
+                      queue, deliver, reminders, subscriptions, settings, stats), team (the team page, see docs/team.md), partners (the partners page and its logos, see docs/partners.md), short-links (the /go/ links and their clicks, see docs/short-links.md), later event teams, files
   db/
     index.ts          Drizzle client (node-postgres), and the Tx and Db types
     schema/           Drizzle tables, one file per domain. auth.ts is generated.

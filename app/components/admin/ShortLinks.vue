@@ -98,7 +98,7 @@ async function onToggle(link: ShortLinkListItem, enabled: boolean) {
                   :to="`/admin/short-links/${link.id}`"
                   class="block truncate font-semibold text-highlighted hover:underline"
                 >
-                  /r/{{ link.shortId }}
+                  /go/{{ link.shortId }}
                 </NuxtLink>
                 <span class="block truncate text-sm text-muted">{{ link.name }}</span>
               </td>

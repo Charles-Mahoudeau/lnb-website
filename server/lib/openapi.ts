@@ -1673,7 +1673,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.shortLinks,
     summary: 'What a short link needs from a visitor',
     description:
-      'For the page shown when `/r/{shortId}` can’t be followed: whether the link is available, who can open it and the names of the allowed schools. It never returns the destination. `state: off` covers an unknown, turned-off or switched-off link. The link itself is `GET /r/{shortId}` (outside `/api`): a 302 to the destination after the access check, or to `/short-link` with the reason. Link previews and crawlers are redirected but not counted.',
+      'For the page shown when `/go/{shortId}` can’t be followed: whether the link is available, who can open it and the names of the allowed schools. It never returns the destination. `state: off` covers an unknown, turned-off or switched-off link. The link itself is `GET /go/{shortId}` (outside `/api`): a 302 to the destination after the access check, or to `/short-link` with the reason. Link previews and crawlers are redirected but not counted.',
     access: 'public',
     params: shortLinks.shortLinkPublicParams,
     response: shortLinks.shortLinkPublic,
