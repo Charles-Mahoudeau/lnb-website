@@ -112,3 +112,12 @@ export function catalogIconPath(url: string | null): string | null {
     ? `/api/minecraft/mods/catalog-icon?src=${encodeURIComponent(url)}`
     : null;
 }
+
+/** The text details of a mod that differ from what its source says now. */
+export function changedDetails(
+  current: { name: string; summary: string; pageUrl: string },
+  project: { name: string; summary: string; pageUrl: string },
+): ('name' | 'summary' | 'pageUrl')[] {
+  const fields = ['name', 'summary', 'pageUrl'] as const;
+  return fields.filter((field) => current[field].trim() !== project[field].trim());
+}

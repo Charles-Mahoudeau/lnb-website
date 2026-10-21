@@ -71,8 +71,19 @@ async function get(key: string): Promise<{ type: string; bytes: Buffer } | undef
   return icon ? { type: icon.type, bytes: Buffer.from(icon.data, 'base64') } : undefined;
 }
 
+/**
+ * Whether the icon at the URL differs from the stored one. An icon that can't be downloaded
+ * counts as the same, so a source being down never looks like a change.
+ */
+async function differs(key: string | null, url: string): Promise<boolean> {
+  const next = await download(url);
+  if (!next) return false;
+  const current = key ? await storage().getItem(key) : null;
+  return current?.data !== next.data;
+}
+
 async function remove(key: string | null): Promise<void> {
   if (key) await storage().removeItem(key);
 }
 
-export const modIconService = { save, get, remove, catalog };
+export const modIconService = { save, get, remove, catalog, differs };

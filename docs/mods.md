@@ -15,9 +15,10 @@ The mod list at `/minecraft/mod-list` lets members vote on the mods of the LNB M
   - **Edit** any mod, in either tab: change the reason, even to nothing (people can't do that), and change who gets the credit, or credit nobody. The new proposer's own vote on it is cleared, since nobody votes on their own suggestion.
   - **Convert** any mod to a Modrinth or CurseForge mod, or to a manual one, in place. The votes, proposer, reason, tab and status stay. The details are replaced, and a Modrinth or CurseForge mod is checked like a new one (it must exist, fit the server and not be in the list already). Converting to a manual mod keeps the current icon unless an icon URL is given.
   - **Remove it** with a reason. It's hidden from the list, but stays in the table: the mod can't be suggested again, and it still counts toward the proposer's limit. The proposer sees the reason under their suggestions until they dismiss it. Admins can restore it.
+- **Refresh metadata** (a button on both admin tabs) fetches the mods of the tab again from Modrinth or CurseForge. A dialog checks them one by one, then lists the differences in the name, summary, page link and icon, each with a checkbox. Nothing is saved until the admin applies the ticked ones. Applying fetches the source again, so the saved values never come from the browser. Mods added by hand have no source and are skipped. A mod the source no longer has, or that no longer has a file for the server's version and loader, is flagged in the review but never changed or removed. A source that can't be reached flags the mod and leaves it as it is. The icon counts as changed when the downloaded image differs from the stored one.
 - Removing an official mod deletes it with its votes. It can then be added or suggested again.
 - A deleted account's votes go with it. Its suggestions stay, credited to a former member.
-- Every admin change is written to `warden_audit` (`mod.add`, `mod.edit`, `mod.convert`, `mod.promote`, `mod.remove`, `mod.restore`, `mod.delete`, `modSettings.update`) and shows in Warden's activity log. These actions aren't sent to the Minecraft server.
+- Every admin change is written to `warden_audit` (`mod.add`, `mod.edit`, `mod.convert`, `mod.refresh`, `mod.promote`, `mod.remove`, `mod.restore`, `mod.delete`, `modSettings.update`) and shows in Warden's activity log. These actions aren't sent to the Minecraft server.
 
 ## Sources
 
@@ -26,7 +27,7 @@ Search goes through the site (`GET /api/minecraft/mods/search`), so visitors nev
 - **Modrinth** comes first. Compatibility comes from each search hit's game versions and categories, which include the loaders.
 - **CurseForge** fills in mods that aren't on Modrinth, matched by name or slug. Its search is filtered to the server's version and loader. It's only used when `CURSEFORGE_API_KEY` is set (from [console.curseforge.com](https://console.curseforge.com)). Without it, search is Modrinth only.
 - Searches are cached for an hour per query, version and loader, and limited to 20 a minute per account, in memory.
-- When a mod is added, its project is fetched again from the source, so the name, summary, page and compatibility can't be forged by the client. They're stored once and never refreshed.
+- When a mod is added, its project is fetched again from the source, so the name, summary, page and compatibility can't be forged by the client. They're stored once, and only an admin's refresh (see above) updates them.
 - Admins can also add a mod by hand, for mods on neither source: a name, a summary, an https page URL, and an optional icon URL.
 
 Icons are downloaded once, when the mod is added (PNG, JPEG, WebP or GIF, up to 512 KB), and kept in the `mod-icons` Nitro storage (`.data/mod-icons`). The page shows them from `/api/minecraft/mods/:id/icon`, cached for a year. A mod without an icon shows its initials on a plain tile. Search results' icons go through the site as well, from `/api/minecraft/mods/catalog-icon`, which only fetches from `cdn.modrinth.com` and `media.forgecdn.net` and caches each icon for a day, so nothing is hotlinked and the route can't fetch anything else.

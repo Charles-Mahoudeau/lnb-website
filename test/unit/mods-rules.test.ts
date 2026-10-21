@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   catalogIconPath,
+  changedDetails,
   createRateLimiter,
   isCatalogIconUrl,
   isCompatible,
@@ -133,5 +134,20 @@ describe('mod list contracts', () => {
         iconUrl: 'file:///etc/passwd',
       }).success,
     ).toBe(false);
+  });
+});
+
+describe('changedDetails', () => {
+  const stored = { name: 'Sodium', summary: 'Fast.', pageUrl: 'https://modrinth.com/mod/sodium' };
+
+  it('lists the text details that differ', () => {
+    expect(changedDetails(stored, { ...stored, summary: 'Faster.' })).toEqual(['summary']);
+    expect(
+      changedDetails(stored, { ...stored, name: 'Sodium 2', pageUrl: 'https://x.test' }),
+    ).toEqual(['name', 'pageUrl']);
+  });
+
+  it('ignores surrounding whitespace', () => {
+    expect(changedDetails(stored, { ...stored, summary: ' Fast. ' })).toEqual([]);
   });
 });

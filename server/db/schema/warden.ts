@@ -222,6 +222,7 @@ export const WARDEN_AUDIT_ACTIONS = [
   'mod.promote',
   'mod.edit',
   'mod.convert',
+  'mod.refresh',
   'mod.remove',
   'mod.restore',
   'mod.delete',

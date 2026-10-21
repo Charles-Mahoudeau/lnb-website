@@ -225,6 +225,38 @@ export type ModConvertBody = ModAddBody;
 export const modRemoveBody = z.object({ reason: z.string().trim().min(3).max(300) });
 export type ModRemoveBody = z.infer<typeof modRemoveBody>;
 
+/** The details of a mod that a refresh from its source can update. */
+export const MOD_REFRESH_FIELDS = ['name', 'summary', 'pageUrl', 'icon'] as const;
+export const modRefreshField = z.enum(MOD_REFRESH_FIELDS);
+export type ModRefreshField = z.infer<typeof modRefreshField>;
+
+export const modRefreshChange = z.object({
+  field: modRefreshField,
+  from: z.string().nullable().describe('The stored value. For the icon, its URL on this site.'),
+  to: z
+    .string()
+    .nullable()
+    .describe("The source's value. For the icon, its URL on this site, through the proxy."),
+});
+export type ModRefreshChange = z.infer<typeof modRefreshChange>;
+
+export const modRefreshCheck = z.object({
+  status: z
+    .enum(['changed', 'unchanged', 'gone'])
+    .describe("`gone`: the source doesn't have the project any more."),
+  changes: z.array(modRefreshChange),
+  compatible: z
+    .boolean()
+    .describe('Whether the project still runs on the server version and loader.'),
+});
+export type ModRefreshCheck = z.infer<typeof modRefreshCheck>;
+
+/** Body of POST /api/minecraft/admin/mods/{id}/refresh: the changes the admin accepted. */
+export const modRefreshBody = z.object({
+  fields: z.array(modRefreshField).min(1).max(MOD_REFRESH_FIELDS.length),
+});
+export type ModRefreshBody = z.infer<typeof modRefreshBody>;
+
 /** Why a mod list request was refused, in `data.problem`. */
 export const MOD_PROBLEMS = [
   'closed',
@@ -237,6 +269,7 @@ export const MOD_PROBLEMS = [
   'notFound',
   'notSuggestion',
   'notOfficial',
+  'manual',
   'rateLimited',
   'sourceUnavailable',
 ] as const;
