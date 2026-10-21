@@ -27,7 +27,7 @@
     "@nuxtjs/i18n": "^10.6.0",
     "better-auth": "^1.7.7",
     "drizzle-orm": "^0.45.4",
-    "markdown-it": "^14.3.2",
+    "markdown-it": "^14.3.3",
     "nuxt": "^4.6.1",
     "pg": "^8.23.1",
     "sharp": "^0.35.5",
