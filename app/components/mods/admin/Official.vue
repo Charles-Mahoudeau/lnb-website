@@ -5,6 +5,7 @@ import {
   ModsAdminAddModal,
   ModsAdminConvertModal,
   ModsAdminEditModal,
+  ModsAdminRefreshModal,
   WardenConfirmModal,
 } from '#components';
 
@@ -45,6 +46,7 @@ const addModal = overlay.create(ModsAdminAddModal);
 const editModal = overlay.create(ModsAdminEditModal);
 const convertModal = overlay.create(ModsAdminConvertModal);
 const confirmModal = overlay.create(WardenConfirmModal);
+const refreshModal = overlay.create(ModsAdminRefreshModal);
 
 async function onEdit(row: ModAdminRow) {
   if ((await editModal.open({ mod: row }).result) === true) await refresh();
@@ -71,6 +73,10 @@ function menu(row: ModAdminRow): DropdownMenuItem[] {
 
 async function onAdd() {
   if ((await addModal.open().result) === true) await refresh();
+}
+
+async function onRefresh() {
+  if ((await refreshModal.open({ rows: data.value?.items ?? [] }).result) === true) await refresh();
 }
 
 async function onRemove(row: ModAdminRow) {
@@ -100,7 +106,7 @@ async function onRemove(row: ModAdminRow) {
   await refresh();
 }
 
-defineExpose({ onAdd });
+defineExpose({ onAdd, onRefresh });
 await list;
 </script>
 

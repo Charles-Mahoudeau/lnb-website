@@ -62,6 +62,7 @@ export function useWardenLabels() {
       case 'mod.promote':
       case 'mod.edit':
       case 'mod.convert':
+      case 'mod.refresh':
       case 'mod.remove':
       case 'mod.restore':
       case 'mod.delete': {

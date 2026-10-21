@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import type { DropdownMenuItem, TableColumn, TabsItem } from '@nuxt/ui';
 
-import { ModsAdminConvertModal, ModsAdminEditModal, ModsAdminRemoveModal } from '#components';
+import {
+  ModsAdminConvertModal,
+  ModsAdminEditModal,
+  ModsAdminRefreshModal,
+  ModsAdminRemoveModal,
+} from '#components';
 
 import type { ModAdminRow } from '#shared/schemas/mods';
 
@@ -53,6 +58,11 @@ const columns = computed<TableColumn<ModAdminRow>[]>(() => [
 const removeModal = overlay.create(ModsAdminRemoveModal);
 const editModal = overlay.create(ModsAdminEditModal);
 const convertModal = overlay.create(ModsAdminConvertModal);
+const refreshModal = overlay.create(ModsAdminRefreshModal);
+
+async function onRefresh() {
+  if ((await refreshModal.open({ rows: data.value?.items ?? [] }).result) === true) await refresh();
+}
 
 function menu(row: ModAdminRow): DropdownMenuItem[] {
   return [
@@ -104,6 +114,13 @@ async function onRemove(row: ModAdminRow) {
     <div class="flex flex-wrap items-center justify-between gap-3">
       <UTabs v-model="view" :items="tabs" :content="false" class="w-auto" />
       <p class="max-w-xl text-sm text-muted">{{ t('admin.mods.suggestions.lede') }}</p>
+      <UButton
+        color="neutral"
+        variant="soft"
+        icon="i-lucide-refresh-cw"
+        :label="t('admin.mods.refresh.button')"
+        @click="onRefresh"
+      />
     </div>
     <div class="rounded-lg bg-elevated p-2">
       <UTable

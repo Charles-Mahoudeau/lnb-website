@@ -4,6 +4,8 @@ import type {
   ModAdminRow,
   ModConvertBody,
   ModListName,
+  ModRefreshCheck,
+  ModRefreshField,
   ModSettingsPatchBody,
   ModSettingsView,
 } from '#shared/schemas/mods';
@@ -50,6 +52,9 @@ export const modAdminActions = {
   edit: (id: number, body: ModAdminPatchBody) =>
     call(() => $fetch(`/api/minecraft/admin/mods/${String(id)}`, { method: 'PATCH', body })),
   convert: (id: number, body: ModConvertBody) => post(id, 'convert', body),
+  checkRefresh: (id: number) =>
+    call(() => $fetch<ModRefreshCheck>(`/api/minecraft/admin/mods/${String(id)}/refresh`)),
+  applyRefresh: (id: number, fields: ModRefreshField[]) => post(id, 'refresh', { fields }),
   searchUsers: (q: string) =>
     call(() => $fetch<WardenUserOption[]>('/api/warden/admin/users', { query: { q } })),
   promote: (id: number) => post(id, 'promote'),
