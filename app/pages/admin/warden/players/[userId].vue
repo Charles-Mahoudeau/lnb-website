@@ -226,6 +226,7 @@ function dateTime(iso: string) {
             @click="onUnban(data.player, activeBan.id)"
           />
           <UButton
+            v-else
             color="error"
             variant="outline"
             :label="t('wardenAdmin.player.ban')"
