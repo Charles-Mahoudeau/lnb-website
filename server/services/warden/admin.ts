@@ -4,6 +4,7 @@ import { db } from '~~/server/db';
 import {
   minecraftAccount,
   user,
+  wardenAccountTransfer,
   wardenAppeal,
   wardenAudit,
   wardenBan,
@@ -29,6 +30,7 @@ import type {
   WardenPlayerDetail,
   WardenPlayerRow,
   WardenSettingsView,
+  WardenTransferView,
   WardenUserOption,
 } from '#shared/schemas/warden';
 import { canLinkFromSchool, getLinkApp } from '#shared/utils/link-apps';
@@ -62,6 +64,7 @@ async function players(query: {
       email: user.email,
       tenantId: user.tenantId,
       role: user.role,
+      transferredPlaytimeSeconds: wardenPlayer.transferredPlaytimeSeconds,
     })
     .from(wardenPlayer)
     .innerJoin(user, eq(user.id, wardenPlayer.userId))
@@ -134,9 +137,25 @@ async function players(query: {
         .where(and(inArray(wardenBan.userId, ids), isNull(wardenBan.revokedAt)))
     : [];
 
+  const transfers = ids.length
+    ? await db
+        .select({ from: wardenAccountTransfer.fromUserId, to: wardenAccountTransfer.toUserId })
+        .from(wardenAccountTransfer)
+        .where(
+          and(
+            isNull(wardenAccountTransfer.dismissedAt),
+            or(
+              inArray(wardenAccountTransfer.fromUserId, ids),
+              inArray(wardenAccountTransfer.toUserId, ids),
+            ),
+          ),
+        )
+    : [];
+
   const now = new Date();
   const items = page.map((row): WardenPlayerRow => {
     const own = accounts.filter((a) => a.userId === row.userId);
+    const linked = own.filter((a) => a.unlinkedAt === null);
     const ban = bans.find((b) => b.userId === row.userId && isBanActive(b, now));
     const lastSeen = own
       .map((a) => a.lastSeenAt)
@@ -149,14 +168,17 @@ async function players(query: {
       email: row.email,
       school: schoolForTenant(row.tenantId) ?? null,
       wardenAdmin: isWardenAdmin(row.role),
-      accounts: own.map((a) => ({
+      accounts: linked.map((a) => ({
         uuid: a.uuid,
         username: a.username,
         online: sessions.some((s) => s.minecraftUuid === a.uuid && isOnline(s, now.getTime())),
       })),
       ban: ban ? { id: ban.id, expiresAt: ban.expiresAt?.toISOString() ?? null } : null,
       lastSeenAt: lastSeen?.toISOString() ?? null,
-      playtimeSeconds: own.reduce((sum, a) => sum + a.playtimeSeconds, 0),
+      // Accounts the player unlinked or lost to a takeover keep counting.
+      playtimeSeconds:
+        own.reduce((sum, a) => sum + a.playtimeSeconds, 0) + row.transferredPlaytimeSeconds,
+      transferWarning: transfers.some((t) => t.from === row.userId || t.to === row.userId),
     };
   });
   const last = page.at(-1);
@@ -212,10 +234,18 @@ async function player(userId: string): Promise<WardenPlayerDetail> {
     .where(eq(wardenNote.userId, userId))
     .orderBy(desc(wardenNote.createdAt));
   const audit = await auditEntries({ userId, limit: 50 });
+  const transfers = await db
+    .select()
+    .from(wardenAccountTransfer)
+    .where(
+      or(eq(wardenAccountTransfer.fromUserId, userId), eq(wardenAccountTransfer.toUserId, userId)),
+    )
+    .orderBy(desc(wardenAccountTransfer.createdAt));
   const names = await namesOf(db, [
     ...bans.flatMap(banNameIds),
     ...appeals.map((a) => a.decidedByUserId),
     ...notes.map((n) => n.authorUserId),
+    ...transfers.flatMap((t) => [t.fromUserId, t.toUserId, t.dismissedByUserId]),
   ]);
 
   return {
@@ -238,6 +268,25 @@ async function player(userId: string): Promise<WardenPlayerDetail> {
       return { ...banView(ban, names), appeal: appeal ? appealView(appeal, names) : null };
     }),
     notes: notes.map((note) => noteView(note, names)),
+    transfers: transfers.map((t): WardenTransferView => {
+      const direction = t.toUserId === userId ? 'in' : 'out';
+      const otherId = direction === 'in' ? t.fromUserId : t.toUserId;
+      return {
+        id: t.id,
+        username: t.username,
+        createdAt: t.createdAt.toISOString(),
+        direction,
+        other: { userId: otherId, name: names.get(otherId) ?? null },
+        dismissed: t.dismissedAt
+          ? {
+              at: t.dismissedAt.toISOString(),
+              by: t.dismissedByUserId
+                ? { userId: t.dismissedByUserId, name: names.get(t.dismissedByUserId) ?? '' }
+                : null,
+            }
+          : null,
+      };
+    }),
     sessions: await wardenPlayerService.sessions(userId),
     audit: audit.items,
   };
@@ -380,12 +429,50 @@ async function searchUsers(q: string): Promise<WardenUserOption[]> {
     .map(({ userId, name, email, image }) => ({ userId, name, email, image }));
 }
 
+/** Dismisses the warning about an account takeover, for both players. */
+async function dismissTransfer(input: { transferId: string; actor: WardenActor }) {
+  await db.transaction(async (tx) => {
+    const [transfer] = await tx
+      .update(wardenAccountTransfer)
+      .set({
+        dismissedAt: new Date(),
+        dismissedByUserId: input.actor.source === 'system' ? null : input.actor.userId,
+      })
+      .where(
+        and(
+          eq(wardenAccountTransfer.id, input.transferId),
+          isNull(wardenAccountTransfer.dismissedAt),
+        ),
+      )
+      .returning();
+    if (!transfer) {
+      const [known] = await tx
+        .select({ id: wardenAccountTransfer.id })
+        .from(wardenAccountTransfer)
+        .where(eq(wardenAccountTransfer.id, input.transferId));
+      refuse(known ? 409 : 404, known ? 'alreadyDismissed' : 'notFound');
+    }
+    await wardenAuditService.record(tx, {
+      action: 'transfer.dismiss',
+      actor: input.actor,
+      targetUserId: transfer.toUserId,
+      targetMinecraftUuid: transfer.minecraftUuid,
+      data: {
+        transferId: transfer.id,
+        username: transfer.username,
+        fromUserId: transfer.fromUserId,
+      },
+    });
+  });
+}
+
 export const wardenAdminService = {
   searchUsers,
   players,
   player,
   setMaxAccounts,
   setWardenAdmin,
+  dismissTransfer,
   audit: auditEntries,
   settings,
   updateSettings,

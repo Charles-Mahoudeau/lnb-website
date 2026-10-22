@@ -877,6 +877,21 @@ const routes: RouteDoc[] = [
   },
   {
     method: 'post',
+    path: '/api/warden/admin/transfers/{transferId}/dismiss',
+    tag: TAGS.wardenAdmin,
+    summary: 'Dismiss an account takeover warning',
+    description:
+      'A takeover is when a player links a Minecraft account that another player had unlinked. The warning shows on both players in the admin until one admin dismisses it. Players never see it. Recorded as `transfer.dismiss`.',
+    access: 'wardenAdmin',
+    params: warden.wardenTransferParams,
+    noContent: true,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['alreadyDismissed'] },
+    ],
+  },
+  {
+    method: 'post',
     path: '/api/warden/admin/bans/{banId}/revoke',
     tag: TAGS.wardenAdmin,
     summary: 'Revoke a ban',

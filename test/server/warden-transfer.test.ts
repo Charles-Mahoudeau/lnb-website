@@ -10,6 +10,7 @@ import {
   wardenSession,
 } from '~~/server/db/schema';
 import { offlineUuid } from '~~/server/lib/minecraft';
+import { wardenAdminService } from '~~/server/services/warden/admin';
 import { wardenClientService } from '~~/server/services/warden/client';
 import { wardenDeviceService } from '~~/server/services/warden/devices';
 import { wardenPlayerService } from '~~/server/services/warden/players';
@@ -217,5 +218,77 @@ describe('taking over an unlinked account', () => {
       .from(wardenAccountTransfer)
       .where(eq(wardenAccountTransfer.minecraftUuid, offlineUuid(username)));
     expect(transfers).toHaveLength(1);
+  });
+});
+
+describe('the warning for admins', () => {
+  const admin = { source: 'web', userId: 'unused' } as const;
+
+  async function takeover() {
+    const { owner, username } = await unlinkedAccount();
+    const taker = await player();
+    await join(taker.client, username, true);
+    const [transfer] = await db
+      .select()
+      .from(wardenAccountTransfer)
+      .where(eq(wardenAccountTransfer.minecraftUuid, offlineUuid(username)));
+    const actor = { ...admin, userId: taker.id };
+    return { owner, taker, username, transfer: transfer!, actor };
+  }
+
+  it('flags both players in the list, with the right playtime', async () => {
+    const { owner, taker } = await takeover();
+    const rows = new Map(
+      (await wardenAdminService.players({ q: 'Transfer', status: 'all' })).items.map((r) => [
+        r.userId,
+        r,
+      ]),
+    );
+    expect(rows.get(owner.id)).toMatchObject({
+      transferWarning: true,
+      playtimeSeconds: 3600,
+      accounts: [],
+    });
+    expect(rows.get(taker.id)).toMatchObject({ transferWarning: true, playtimeSeconds: 0 });
+  });
+
+  it('shows the takeover on both pages, from each side', async () => {
+    const { owner, taker, username, transfer } = await takeover();
+    const inbound = (await wardenAdminService.player(taker.id)).transfers;
+    expect(inbound).toEqual([
+      expect.objectContaining({ id: transfer.id, username, direction: 'in', dismissed: null }),
+    ]);
+    expect(inbound[0]?.other.userId).toBe(owner.id);
+    const outbound = (await wardenAdminService.player(owner.id)).transfers;
+    expect(outbound[0]).toMatchObject({ direction: 'out', other: { userId: taker.id } });
+  });
+
+  it('is dismissed for both players at once, and audited', async () => {
+    const { owner, taker, transfer, actor } = await takeover();
+    await wardenAdminService.dismissTransfer({ transferId: transfer.id, actor });
+    for (const id of [owner.id, taker.id]) {
+      const detail = await wardenAdminService.player(id);
+      expect(detail.transfers[0]?.dismissed).toMatchObject({ by: { userId: taker.id } });
+    }
+    const rows = await wardenAdminService.players({ q: 'Transfer', status: 'all' });
+    expect(rows.items.find((r) => r.userId === owner.id)?.transferWarning).toBe(false);
+    const [entry] = await db
+      .select()
+      .from(wardenAudit)
+      .where(
+        and(eq(wardenAudit.action, 'transfer.dismiss'), eq(wardenAudit.targetUserId, taker.id)),
+      );
+    expect(entry?.data).toMatchObject({ transferId: transfer.id, fromUserId: owner.id });
+  });
+
+  it('refuses to dismiss twice or an unknown transfer', async () => {
+    const { transfer, actor } = await takeover();
+    await wardenAdminService.dismissTransfer({ transferId: transfer.id, actor });
+    await expect(
+      wardenAdminService.dismissTransfer({ transferId: transfer.id, actor }),
+    ).rejects.toMatchObject({ statusCode: 409, data: { problem: 'alreadyDismissed' } });
+    await expect(
+      wardenAdminService.dismissTransfer({ transferId: crypto.randomUUID(), actor }),
+    ).rejects.toMatchObject({ statusCode: 404 });
   });
 });

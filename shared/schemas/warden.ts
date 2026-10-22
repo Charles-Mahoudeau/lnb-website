@@ -391,9 +391,31 @@ export const wardenPlayerRow = z.object({
   ban: z.object({ id: z.string(), expiresAt: isoDate.nullable() }).nullable(),
   lastSeenAt: isoDate.nullable(),
   playtimeSeconds: z.number(),
+  transferWarning: z
+    .boolean()
+    .describe(
+      'A takeover of a Minecraft account involving the player that no admin dismissed yet.',
+    ),
 });
 export type WardenPlayerRow = z.infer<typeof wardenPlayerRow>;
 export const wardenPlayerPage = wardenPage(wardenPlayerRow);
+
+/** A Minecraft account unlinked by one player and linked by another, as one of them sees it. */
+export const wardenTransferView = z.object({
+  id: z.uuid(),
+  username: z.string(),
+  createdAt: isoDate,
+  direction: z
+    .enum(['in', 'out'])
+    .describe('`in` when the player took the account over, `out` when they lost it.'),
+  other: z.object({ userId: z.string(), name: z.string().nullable() }),
+  dismissed: z
+    .object({ at: isoDate, by: z.object({ userId: z.string(), name: z.string() }).nullable() })
+    .nullable(),
+});
+export type WardenTransferView = z.infer<typeof wardenTransferView>;
+
+export const wardenTransferParams = z.object({ transferId: z.uuid() });
 
 export const wardenAuditView = z.object({
   id: z.number(),
@@ -431,6 +453,7 @@ export const wardenPlayerDetail = z.object({
   devices: z.array(wardenDeviceView),
   bans: z.array(wardenBanView.extend({ appeal: wardenAppealView.nullable() })),
   notes: z.array(wardenNoteView),
+  transfers: z.array(wardenTransferView),
   sessions: wardenSessionPage,
   audit: z.array(wardenAuditView),
 });
@@ -514,6 +537,7 @@ export const WARDEN_PROBLEMS = [
   'issuerNotAllowed',
   'appealExists',
   'appealClosed',
+  'alreadyDismissed',
   'schoolNotAllowed',
   'invalidCursor',
   'slowDown',
