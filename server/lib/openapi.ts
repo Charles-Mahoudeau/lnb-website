@@ -55,6 +55,7 @@ type OpenApiObject = Record<string, unknown>;
 const requestSchemas = {
   AdminRolesBody: admin.adminRolesBody,
   AdminBanBody: admin.adminBanBody,
+  AdminBulkBody: admin.adminBulkBody,
   FlagPatchBody: flags.flagPatchBody,
   LinkApproveBody: linkApproveBody,
   WardenIssuer: warden.wardenIssuer,
@@ -119,6 +120,7 @@ const responseSchemas = {
   AdminAuditView: admin.adminAuditView,
   AdminUserRow: admin.adminUserRow,
   AdminUserPage: admin.adminUserPage,
+  AdminBulkResult: admin.adminBulkResult,
   FlagStates: flags.flagStates,
   AdminFlagList: flags.adminFlagList,
   LinkApproveResult: linkApproveResult,
@@ -356,6 +358,18 @@ const routes: RouteDoc[] = [
     query: admin.adminUsersQuery,
     response: admin.adminUserPage,
     problems: [{ status: 400, problems: ['invalidCursor'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/users/bulk',
+    tag: TAGS.admin,
+    summary: 'Act on many accounts',
+    description:
+      "Signs out, bans, unbans, deletes or changes the Warden-admin or events-manager role of many accounts, picked by ID or by the Users list's filters. The rules of the single-account routes apply to each account, and one that can't take the action is skipped, not failed: admins and the caller for `ban` and `delete`, accounts not banned for `unban`, accounts that already have the role (or lack it) for `roles`. Every change is logged as for a single account. With `dryRun`, nothing changes and the result says who the action would apply to.",
+    access: 'admin',
+    body: admin.adminBulkBody,
+    response: admin.adminBulkResult,
+    problems: [{ status: 400, problems: ['tooMany'] }],
   },
   {
     method: 'put',

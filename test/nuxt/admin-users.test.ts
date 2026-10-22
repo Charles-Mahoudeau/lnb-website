@@ -35,6 +35,7 @@ const page: AdminUserPage = {
     row({ userId: 'u3', name: 'Léa Roux', inactive: true, lastSignInAt: null }),
   ],
   nextCursor: null,
+  total: 3,
 };
 registerEndpoint('/api/admin/users', () => page);
 

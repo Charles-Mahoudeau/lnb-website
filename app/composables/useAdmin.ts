@@ -1,6 +1,8 @@
 import { ADMIN_PROBLEMS } from '#shared/schemas/admin';
 import type {
   AdminBanBody,
+  AdminBulkBody,
+  AdminBulkResult,
   AdminOverview,
   AdminProblem,
   AdminRolesBody,
@@ -49,5 +51,8 @@ export function useAdminUserActions() {
     unban: (userId: string) => call(() => $fetch(`${base(userId)}/unban`, { method: 'POST' })),
     signOut: (userId: string) => call(() => $fetch(`${base(userId)}/sign-out`, { method: 'POST' })),
     remove: (userId: string) => call(() => $fetch(base(userId), { method: 'DELETE' })),
+    /** One action on many accounts. With `dryRun`, counts who it would apply to. */
+    bulk: (body: AdminBulkBody) =>
+      call(() => $fetch<AdminBulkResult>('/api/admin/users/bulk', { method: 'POST', body })),
   };
 }

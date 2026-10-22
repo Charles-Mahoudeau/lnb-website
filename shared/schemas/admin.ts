@@ -14,6 +14,9 @@ export const ADMIN_PROBLEMS = [
   'targetIsAdmin',
   'notBanned',
   'invalidCursor',
+  'tooMany',
+  'alreadyBanned',
+  'unchanged',
 ] as const;
 export type AdminProblem = (typeof ADMIN_PROBLEMS)[number];
 
@@ -66,7 +69,9 @@ export const adminUserRow = z.object({
 });
 export type AdminUserRow = z.infer<typeof adminUserRow>;
 
-export const adminUserPage = page(adminUserRow);
+export const adminUserPage = page(adminUserRow).extend({
+  total: z.number().describe('Every account matching the filters, across pages.'),
+});
 export type AdminUserPage = z.infer<typeof adminUserPage>;
 
 /** PUT /api/admin/users/:userId/roles */
@@ -88,6 +93,61 @@ export const adminBanBody = z.object({
     .describe('Null for a permanent ban.'),
 });
 export type AdminBanBody = z.infer<typeof adminBanBody>;
+
+/** The most accounts one bulk action takes, picked by hand or by filters. */
+export const ADMIN_BULK_MAX = 2000;
+const ADMIN_BULK_IDS_MAX = 500;
+
+/** The filters of the Users list, without its cursor. */
+export const adminUsersFilters = adminUsersQuery.omit({ cursor: true });
+export type AdminUsersFilters = z.input<typeof adminUsersFilters>;
+
+/** POST /api/admin/users/bulk */
+export const adminBulkBody = z
+  .object({
+    action: z.enum(['signOut', 'ban', 'unban', 'delete', 'roles']),
+    selection: z
+      .union([
+        z.object({
+          userIds: z.array(z.string().min(1).max(64)).min(1).max(ADMIN_BULK_IDS_MAX),
+        }),
+        z.object({ filters: adminUsersFilters }),
+      ])
+      .describe(
+        `Either accounts picked by ID (up to ${String(ADMIN_BULK_IDS_MAX)}), or every account matching the filters (up to ${String(ADMIN_BULK_MAX)}).`,
+      ),
+    dryRun: z
+      .boolean()
+      .default(false)
+      .describe('Only count who the action would apply to, and change nothing.'),
+    ban: adminBanBody.optional().describe('Required for `ban`, unless `dryRun`.'),
+    roles: z
+      .object({
+        role: z.enum(['warden-admin', 'events-manager']),
+        mode: z.enum(['add', 'remove']),
+      })
+      .optional()
+      .describe('Required for `roles`. The admin role is never changed in bulk.'),
+  })
+  .refine((body) => body.action !== 'roles' || body.roles, { path: ['roles'] })
+  .refine((body) => body.action !== 'ban' || body.dryRun || body.ban, { path: ['ban'] });
+export type AdminBulkBody = z.input<typeof adminBulkBody>;
+
+export const adminBulkResult = z.object({
+  total: z.number().describe('Accounts selected.'),
+  applied: z.number().describe('Accounts the action applied to, or would apply to for `dryRun`.'),
+  skipped: z.number().describe('Accounts left as they are.'),
+  skippedUsers: z
+    .array(
+      z.object({
+        userId: z.string(),
+        name: z.string().nullable().describe('Null when the account no longer exists.'),
+        problem: z.enum(ADMIN_PROBLEMS).or(z.literal('failed')),
+      }),
+    )
+    .describe('The first 20 skipped accounts, with why.'),
+});
+export type AdminBulkResult = z.infer<typeof adminBulkResult>;
 
 /** One admin change, for the Overview. A deleted account shows as a null actor or target. */
 export const adminAuditView = z.object({

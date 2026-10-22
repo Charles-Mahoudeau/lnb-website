@@ -2,8 +2,10 @@ import {
   and,
   asc,
   eq,
+  count,
   gt,
   ilike,
+  inArray,
   isNotNull,
   isNull,
   lt,
@@ -20,13 +22,19 @@ import { session, user, wardenBan } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 import { eventRegistrationService } from '~~/server/services/events/registrations';
 
+import { ADMIN_BULK_MAX } from '#shared/schemas/admin';
 import type {
   AdminBanBody,
+  AdminBulkBody,
+  AdminBulkResult,
   AdminProblem,
   AdminRolesBody,
   AdminUserPage,
   AdminUserRow,
+  AdminUsersFilters,
 } from '#shared/schemas/admin';
+import { bulkProblem } from '#shared/utils/bulk-users';
+import type { BulkTarget } from '#shared/utils/bulk-users';
 import {
   ADMIN_ROLE,
   EVENTS_MANAGER_ROLE,
@@ -63,6 +71,21 @@ function banActiveWhere(now: Date) {
   return and(eq(user.banned, true), or(isNull(user.banExpires), gt(user.banExpires, now)));
 }
 
+// Roles are a comma-separated list, so match a whole name.
+const roleMatch = (name: string) =>
+  sql`${name} = any(string_to_array(replace(coalesce(${user.role}, ''), ' ', ''), ','))`;
+
+function filterWhere(query: AdminUsersFilters, now: Date) {
+  const search = query.q ? `%${query.q.replace(/[\\%_]/g, '\\$&')}%` : undefined;
+  return and(
+    search ? or(ilike(user.name, search), ilike(user.email, search)) : undefined,
+    query.tenantId ? eq(user.tenantId, query.tenantId) : undefined,
+    !query.role || query.role === 'any' ? undefined : roleMatch(query.role),
+    query.status === 'banned' ? banActiveWhere(now) : undefined,
+    query.status === 'inactive' ? lt(lastActive, inactiveBefore(now)) : undefined,
+  );
+}
+
 /** Accounts, by name, 50 per page. */
 async function list(query: {
   q?: string;
@@ -73,38 +96,34 @@ async function list(query: {
 }): Promise<AdminUserPage> {
   const now = new Date();
   const after = query.cursor ? decodeCursor(query.cursor) : undefined;
-  const search = query.q ? `%${query.q.replace(/[\\%_]/g, '\\$&')}%` : undefined;
-  // Roles are a comma-separated list, so match a whole name.
-  const roleMatch = (name: string) =>
-    sql`${name} = any(string_to_array(replace(coalesce(${user.role}, ''), ' ', ''), ','))`;
+  const where = filterWhere(query, now);
 
-  const rows = await db
-    .select({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      image: user.image,
-      tenantId: user.tenantId,
-      role: user.role,
-      createdAt: user.createdAt,
-      lastSignInAt: user.lastSignInAt,
-      banned: user.banned,
-      banReason: user.banReason,
-      banExpires: user.banExpires,
-    })
-    .from(user)
-    .where(
-      and(
-        search ? or(ilike(user.name, search), ilike(user.email, search)) : undefined,
-        query.tenantId ? eq(user.tenantId, query.tenantId) : undefined,
-        query.role === 'any' ? undefined : roleMatch(query.role),
-        query.status === 'banned' ? banActiveWhere(now) : undefined,
-        query.status === 'inactive' ? lt(lastActive, inactiveBefore(now)) : undefined,
-        after ? sql`(${user.name}, ${user.id}) > (${after.name}, ${after.id})` : undefined,
-      ),
-    )
-    .orderBy(asc(user.name), asc(user.id))
-    .limit(PAGE_SIZE + 1);
+  const [rows, [matching]] = await Promise.all([
+    db
+      .select({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        image: user.image,
+        tenantId: user.tenantId,
+        role: user.role,
+        createdAt: user.createdAt,
+        lastSignInAt: user.lastSignInAt,
+        banned: user.banned,
+        banReason: user.banReason,
+        banExpires: user.banExpires,
+      })
+      .from(user)
+      .where(
+        and(
+          where,
+          after ? sql`(${user.name}, ${user.id}) > (${after.name}, ${after.id})` : undefined,
+        ),
+      )
+      .orderBy(asc(user.name), asc(user.id))
+      .limit(PAGE_SIZE + 1),
+    db.select({ total: count() }).from(user).where(where),
+  ]);
 
   const cutoff = inactiveBefore(now);
   const items = rows.slice(0, PAGE_SIZE).map((row): AdminUserRow => ({
@@ -128,6 +147,7 @@ async function list(query: {
   return {
     items,
     nextCursor: rows.length > PAGE_SIZE && last ? encodeCursor(last.name, last.userId) : null,
+    total: matching?.total ?? 0,
   };
 }
 
@@ -265,6 +285,101 @@ async function remove(input: { actorId: string; userId: string }) {
 }
 
 /**
+ * One action on many accounts, picked by ID or by the Users list's filters. Each account is
+ * handled on its own through the single-account functions above, so every rule and audit row
+ * stays the same, and an account that can't take the action is skipped instead of stopping the
+ * rest. With dryRun, only counts who would be affected.
+ */
+async function bulk(input: { actorId: string; body: AdminBulkBody }): Promise<AdminBulkResult> {
+  const { actorId, body } = input;
+  const now = new Date();
+  const columns = {
+    id: user.id,
+    name: user.name,
+    role: user.role,
+    banned: user.banned,
+    banExpires: user.banExpires,
+  };
+  let targets: (BulkTarget & { name: string })[];
+  const skipped: AdminBulkResult['skippedUsers'] = [];
+  let skippedCount = 0;
+  const skip = (
+    userId: string,
+    name: string | null,
+    problem: AdminBulkResult['skippedUsers'][number]['problem'],
+  ) => {
+    skippedCount += 1;
+    if (skipped.length < 20) skipped.push({ userId, name, problem });
+  };
+
+  if ('userIds' in body.selection) {
+    const ids = [...new Set(body.selection.userIds)];
+    targets = await db.select(columns).from(user).where(inArray(user.id, ids));
+    const found = new Set(targets.map((row) => row.id));
+    for (const id of ids) if (!found.has(id)) skip(id, null, 'notFound');
+  } else {
+    targets = await db
+      .select(columns)
+      .from(user)
+      .where(filterWhere(body.selection.filters, now))
+      .orderBy(asc(user.name), asc(user.id))
+      .limit(ADMIN_BULK_MAX + 1);
+    if (targets.length > ADMIN_BULK_MAX) refuse(400, 'tooMany');
+  }
+  const total = targets.length + skippedCount;
+
+  let applied = 0;
+  for (const target of targets) {
+    const problem = bulkProblem(body, actorId, target, now);
+    if (problem) {
+      skip(target.id, target.name, problem);
+      continue;
+    }
+    if (!body.dryRun) {
+      try {
+        await applyBulk(actorId, body, target);
+      } catch (error) {
+        const found = (error as { data?: { problem?: AdminProblem } }).data?.problem;
+        skip(target.id, target.name, found ?? 'failed');
+        continue;
+      }
+    }
+    applied += 1;
+  }
+  return { total, applied, skipped: skippedCount, skippedUsers: skipped };
+}
+
+async function applyBulk(actorId: string, body: AdminBulkBody, target: BulkTarget) {
+  const userId = target.id;
+  switch (body.action) {
+    case 'signOut':
+      return signOut({ actorId, userId });
+    case 'ban':
+      // Validated by the route: a real run always has its ban.
+      return ban({ actorId, userId, ban: body.ban as AdminBanBody });
+    case 'unban':
+      return unban({ actorId, userId });
+    case 'delete':
+      return remove({ actorId, userId });
+    case 'roles': {
+      const change = body.roles as NonNullable<AdminBulkBody['roles']>;
+      const on = change.mode === 'add';
+      return setRoles({
+        actorId,
+        userId,
+        roles: {
+          admin: isAdmin(target.role),
+          wardenAdmin:
+            change.role === 'warden-admin' ? on : hasRole(target.role, WARDEN_ADMIN_ROLE),
+          eventsManager:
+            change.role === 'events-manager' ? on : hasRole(target.role, EVENTS_MANAGER_ROLE),
+        },
+      });
+    }
+  }
+}
+
+/**
  * Deletes accounts with no sign-in for 24 months, as the plan requires. Run every night by
  * tasks/users/delete-inactive.ts. Accounts with a site or Warden ban in force are kept: deleting
  * them would let a banned person come back with a fresh account. Returns how many were deleted.
@@ -311,4 +426,13 @@ async function deleteInactive(now = new Date()): Promise<number> {
   });
 }
 
-export const usersService = { list, setRoles, ban, unban, signOut, remove, deleteInactive };
+export const usersService = {
+  list,
+  setRoles,
+  ban,
+  unban,
+  signOut,
+  remove,
+  bulk,
+  deleteInactive,
+};
