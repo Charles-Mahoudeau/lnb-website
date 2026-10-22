@@ -13,6 +13,7 @@ import type {
   WardenAccountView,
   WardenDeviceView,
   WardenPlayerDetail,
+  WardenTransferView,
 } from '#shared/schemas/warden';
 
 definePageMeta({ wardenAdmins: true });
@@ -56,7 +57,7 @@ async function run(action: () => Promise<unknown>, success: string) {
     toast.add({ title: success, color: 'success', icon: 'i-lucide-circle-check' });
   } catch (failure) {
     const problem = failure instanceof WardenError ? failure.problem : 'failed';
-    const known = ['notFound', 'notBanned', 'notLinked'];
+    const known = ['notFound', 'notBanned', 'notLinked', 'alreadyDismissed'];
     toast.add({
       title: t(`wardenAdmin.errors.${known.includes(problem) ? problem : 'failed'}`),
       color: 'error',
@@ -138,6 +139,10 @@ async function onUnlink(player: WardenPlayerDetail['player'], account: WardenAcc
   ) {
     await run(() => admin.unlink(account.uuid), t('wardenAdmin.player.unlinked'));
   }
+}
+
+async function onDismissTransfer(transfer: WardenTransferView) {
+  await run(() => admin.dismissTransfer(transfer.id), t('wardenAdmin.player.transfers.done'));
 }
 
 const moreItems = computed<DropdownMenuItem[]>(() => {
@@ -252,6 +257,76 @@ function dateTime(iso: string) {
 
       <div class="grid items-start gap-10 lg:grid-cols-3">
         <div class="flex min-w-0 flex-col gap-10 lg:col-span-2">
+          <section v-if="data.transfers.length" class="flex flex-col gap-4">
+            <h2 class="text-2xl font-medium text-highlighted">
+              {{ t('wardenAdmin.player.transfers.title') }}
+            </h2>
+            <UAlert
+              v-if="data.transfers.some((transfer) => !transfer.dismissed)"
+              color="warning"
+              variant="subtle"
+              icon="i-lucide-triangle-alert"
+              :description="t('wardenAdmin.player.transfers.hint')"
+            />
+            <ul class="flex flex-col divide-y divide-default rounded-lg bg-elevated">
+              <li
+                v-for="transfer in data.transfers"
+                :key="transfer.id"
+                class="flex flex-wrap items-center gap-4 px-5 py-4"
+              >
+                <div class="flex min-w-0 flex-1 basis-60 flex-col gap-1.5">
+                  <span class="flex flex-wrap items-center gap-2 font-semibold text-highlighted">
+                    <i18n-t
+                      :keypath="`wardenAdmin.player.transfers.${transfer.direction}`"
+                      tag="span"
+                    >
+                      <template #username>{{ transfer.username }}</template>
+                      <template #name>
+                        <NuxtLink
+                          :to="`/admin/warden/players/${transfer.other.userId}`"
+                          class="text-primary hover:underline"
+                        >
+                          {{ transfer.other.name ?? transfer.other.userId }}
+                        </NuxtLink>
+                      </template>
+                    </i18n-t>
+                    <UBadge
+                      v-if="!transfer.dismissed"
+                      color="warning"
+                      variant="subtle"
+                      size="sm"
+                      :label="t('wardenAdmin.player.transfers.pending')"
+                    />
+                  </span>
+                  <span class="text-sm text-muted tabular-nums">
+                    {{ dateTime(transfer.createdAt) }}
+                    <template v-if="transfer.dismissed">
+                      ,
+                      {{
+                        transfer.dismissed.by
+                          ? t('wardenAdmin.player.transfers.dismissed', {
+                              date: dateTime(transfer.dismissed.at),
+                              actor: transfer.dismissed.by.name,
+                            })
+                          : t('wardenAdmin.player.transfers.dismissedNobody', {
+                              date: dateTime(transfer.dismissed.at),
+                            })
+                      }}
+                    </template>
+                  </span>
+                </div>
+                <UButton
+                  v-if="!transfer.dismissed"
+                  color="neutral"
+                  variant="soft"
+                  size="md"
+                  :label="t('wardenAdmin.player.transfers.dismiss')"
+                  @click="onDismissTransfer(transfer)"
+                />
+              </li>
+            </ul>
+          </section>
+
           <section class="flex flex-col gap-4">
             <div class="flex flex-wrap items-baseline justify-between gap-3">
               <h2 class="text-2xl font-medium text-highlighted">
@@ -507,12 +582,7 @@ function dateTime(iso: string) {
             </dd>
             <dt class="text-muted">{{ t('wardenAdmin.player.totalPlaytime') }}</dt>
             <dd class="text-right text-highlighted tabular-nums">
-              {{
-                formatWardenDuration(
-                  data.accounts.reduce((sum, account) => sum + account.playtimeSeconds, 0),
-                  locale,
-                )
-              }}
+              {{ formatWardenDuration(data.player.playtimeSeconds, locale) }}
             </dd>
             <dt class="text-muted">{{ t('wardenAdmin.player.nameInGame') }}</dt>
             <dd class="text-right text-highlighted">

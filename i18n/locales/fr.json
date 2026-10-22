@@ -288,7 +288,7 @@
       "pastNames": "Anciens pseudos",
       "unlink": "Délier",
       "unlinkTitle": "Délier {username} ?",
-      "unlinkBody": "Son temps de jeu et ses sessions sont supprimés, et il ne peut plus se connecter avant d’être lié à nouveau. N’importe qui pourra alors le lier à son compte LNB.",
+      "unlinkBody": "Il ne peut plus se connecter avant d’être lié à nouveau. Ton temps de jeu dessus est conservé si tu le lies à nouveau. N’importe qui peut le lier à son compte LNB d’ici là.",
       "unlinkCancel": "Annuler",
       "unlinked": "Délié",
       "howTo": "Pour lier un autre compte, rejoins le serveur avec ce compte depuis le mod, et accepte quand le mod le demande.",
@@ -1493,6 +1493,11 @@
       "bannedUntil": "Banni jusqu’au {date}",
       "playing": "En jeu",
       "wardenAdmin": "Admin Warden",
+      "transfer": {
+        "in": "A repris un compte",
+        "out": "Compte repris",
+        "both": "Reprises de compte"
+      },
       "next": "Page suivante",
       "first": "Première page",
       "empty": "Aucun joueur ne correspond. Essaie un autre nom, ou retire les filtres.",
@@ -1537,7 +1542,9 @@
         "linkCancel": "Codes annulés",
         "deviceLink": "Appareils associés",
         "deviceDeny": "Appareils refusés",
-        "deviceRevoke": "Appareils révoqués"
+        "deviceRevoke": "Appareils révoqués",
+        "linkTransfer": "Reprises de compte",
+        "transferDismiss": "Reprises ignorées"
       }
     },
     "sources": {
@@ -1580,7 +1587,9 @@
       "modSettingsUpdate": "Réglages de la liste de mods modifiés",
       "deviceLink": "A associé l’appareil {device}",
       "deviceDeny": "A refusé d’associer l’appareil {device}",
-      "deviceRevoke": "A révoqué l’appareil {device}"
+      "deviceRevoke": "A révoqué l’appareil {device}",
+      "linkTransfer": "A repris {username} à un autre joueur",
+      "transferDismiss": "A ignoré l’avertissement sur {username}"
     },
     "actors": {
       "console": "Console",
@@ -1620,7 +1629,7 @@
       "noModeration": "Aucun bannissement ni note pour l’instant.",
       "noAccounts": "Aucun compte Minecraft lié.",
       "unlinkTitle": "Délier {username} de {name} ?",
-      "unlinkBody": "Son temps de jeu et ses sessions sont supprimés, et il est expulsé du serveur s’il joue.",
+      "unlinkBody": "Son temps de jeu et ses sessions sont conservés, et il est expulsé du serveur s’il joue. Le joueur peut le lier à nouveau. Si quelqu’un d’autre le lie, il le reprend et les admins reçoivent un avertissement.",
       "unlinked": "Délié",
       "roleOnTitle": "Nommer {name} admin Warden ?",
       "roleOnBody": "Il pourra bannir, débannir et avertir des joueurs ici et en jeu, et voir le journal d’activité.",
@@ -1634,7 +1643,18 @@
       "noDevices": "Aucun appareil connecté.",
       "revokeDeviceTitle": "Révoquer {device} de {name} ?",
       "revokeDeviceBody": "L’appareil est déconnecté tout de suite, y compris s’il est en train de jouer. Le joueur peut l’associer de nouveau.",
-      "deviceRevoked": "Appareil révoqué"
+      "deviceRevoked": "Appareil révoqué",
+      "transfers": {
+        "title": "Reprises de compte",
+        "in": "A repris {username} de {name}",
+        "out": "{name} a repris {username}",
+        "pending": "À vérifier",
+        "dismiss": "Ignorer",
+        "dismissed": "Ignoré le {date} par {actor}",
+        "dismissedNobody": "Ignoré le {date}",
+        "done": "Reprise ignorée",
+        "hint": "Le compte a été délié, puis lié par quelqu’un d’autre. Sur ce serveur, un pseudo ne prouve rien : vérifie qu’il ne s’agit pas d’une usurpation. Les joueurs ne voient pas ceci."
+      }
     },
     "timeline": {
       "banFor": "Banni pour {length}",
@@ -1710,7 +1730,8 @@
       "notFound": "Ce joueur ou ce bannissement n’existe plus. Recharge la page.",
       "notBanned": "Ce joueur n’est plus banni. Recharge la page.",
       "appealClosed": "Un autre admin a déjà répondu à cette contestation. Recharge la page.",
-      "notLinked": "Ce compte n’est plus lié. Recharge la page."
+      "notLinked": "Ce compte n’est plus lié. Recharge la page.",
+      "alreadyDismissed": "Un autre admin l’a déjà ignoré. Recharge la page."
     }
   },
   "mods": {

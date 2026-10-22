@@ -113,6 +113,14 @@ async function open(row: WardenPlayerRow) {
                 size="sm"
                 :label="t('wardenAdmin.players.wardenAdmin')"
               />
+              <UBadge
+                v-if="row.original.transferWarning"
+                color="warning"
+                variant="subtle"
+                size="sm"
+                icon="i-lucide-arrow-left-right"
+                :label="t(`wardenAdmin.players.transfer.${row.original.transferWarning}`)"
+              />
             </span>
             <span class="text-sm text-muted">{{ row.original.email }}</span>
           </div>

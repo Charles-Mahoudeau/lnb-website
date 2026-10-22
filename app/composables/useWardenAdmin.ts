@@ -105,5 +105,7 @@ export function useWardenAdminPlayer(userId: string) {
     revokeDevice: (deviceId: string) =>
       call(() => $fetch(`${base}/devices/${deviceId}`, { method: 'DELETE' })),
     unlink: (uuid: string) => call(() => $fetch(`${base}/accounts/${uuid}`, { method: 'DELETE' })),
+    dismissTransfer: (transferId: string) =>
+      call(() => $fetch(`/api/warden/admin/transfers/${transferId}/dismiss`, { method: 'POST' })),
   };
 }

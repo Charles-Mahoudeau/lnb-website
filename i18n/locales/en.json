@@ -288,7 +288,7 @@
       "pastNames": "Earlier names",
       "unlink": "Unlink",
       "unlinkTitle": "Unlink {username}?",
-      "unlinkBody": "Its playtime and sessions are deleted, and it can’t join until it’s linked again. Anyone can then link it to their LNB account.",
+      "unlinkBody": "It can’t join until it’s linked again. Your playtime on it is kept if you link it again. Anyone can link it to their LNB account in the meantime.",
       "unlinkCancel": "Cancel",
       "unlinked": "Unlinked",
       "howTo": "To link another account, join the server with it from the mod, and agree when the mod asks.",
@@ -1493,6 +1493,11 @@
       "bannedUntil": "Banned until {date}",
       "playing": "Playing now",
       "wardenAdmin": "Warden admin",
+      "transfer": {
+        "in": "Took over an account",
+        "out": "Account taken over",
+        "both": "Account takeovers"
+      },
       "next": "Next page",
       "first": "First page",
       "empty": "No players match. Try another name, or clear the filters.",
@@ -1537,7 +1542,9 @@
         "linkCancel": "Cancelled codes",
         "deviceLink": "Device links",
         "deviceDeny": "Device denials",
-        "deviceRevoke": "Device revocations"
+        "deviceRevoke": "Device revocations",
+        "linkTransfer": "Takeovers",
+        "transferDismiss": "Dismissed takeovers"
       }
     },
     "sources": {
@@ -1580,7 +1587,9 @@
       "modSettingsUpdate": "Mod list settings changed",
       "deviceLink": "Linked the device {device}",
       "deviceDeny": "Refused to link the device {device}",
-      "deviceRevoke": "Revoked the device {device}"
+      "deviceRevoke": "Revoked the device {device}",
+      "linkTransfer": "Took over {username} from another player",
+      "transferDismiss": "Dismissed the warning about {username}"
     },
     "actors": {
       "console": "Console",
@@ -1620,7 +1629,7 @@
       "noModeration": "No bans or notes yet.",
       "noAccounts": "No Minecraft account linked.",
       "unlinkTitle": "Unlink {username} from {name}?",
-      "unlinkBody": "Its playtime and sessions are deleted, and it’s kicked from the server if it’s playing.",
+      "unlinkBody": "Its playtime and sessions stay, and it’s kicked from the server if it’s playing. The player can link it again. If someone else links it, they take it over and admins get a warning about it.",
       "unlinked": "Unlinked",
       "roleOnTitle": "Make {name} a Warden admin?",
       "roleOnBody": "They can ban, unban and warn players from here and in-game, and see the activity log.",
@@ -1634,7 +1643,18 @@
       "noDevices": "No devices signed in.",
       "revokeDeviceTitle": "Revoke {device} of {name}?",
       "revokeDeviceBody": "The device is signed out right away, and disconnected if it’s playing. The player can link it again.",
-      "deviceRevoked": "Device revoked"
+      "deviceRevoked": "Device revoked",
+      "transfers": {
+        "title": "Account takeovers",
+        "in": "Took over {username} from {name}",
+        "out": "{name} took over {username}",
+        "pending": "To review",
+        "dismiss": "Dismiss",
+        "dismissed": "Dismissed on {date} by {actor}",
+        "dismissedNobody": "Dismissed on {date}",
+        "done": "Takeover dismissed",
+        "hint": "The account was unlinked, then linked by someone else. The username proves nothing on this server, so check it isn’t an impersonation. Players don’t see this."
+      }
     },
     "timeline": {
       "banFor": "Banned for {length}",
@@ -1710,7 +1730,8 @@
       "notFound": "This player or ban doesn’t exist anymore. Reload the page.",
       "notBanned": "This player isn’t banned anymore. Reload the page.",
       "appealClosed": "Another admin already answered this appeal. Reload the page.",
-      "notLinked": "This account isn’t linked anymore. Reload the page."
+      "notLinked": "This account isn’t linked anymore. Reload the page.",
+      "alreadyDismissed": "Another admin already dismissed this. Reload the page."
     }
   },
   "mods": {
