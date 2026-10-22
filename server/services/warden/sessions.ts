@@ -8,13 +8,12 @@ import {
   wardenSession,
 } from '~~/server/db/schema';
 import type { WardenSessionEndReason } from '~~/server/db/schema';
-import { uuidMatchesAccount } from '~~/server/lib/minecraft';
+import { uuidMatchesUsername } from '~~/server/lib/minecraft';
 
 import { wardenLinkService } from './links';
 import { wardenModerationService } from './moderation';
 import { wardenPlayerService } from './players';
 import { SESSION_TIMEOUT_MS, shortName } from './rules';
-import { wardenSettingsService } from './settings';
 import { refuse } from './shared';
 import type { Tx } from './shared';
 
@@ -27,9 +26,8 @@ import { isWardenAdmin, WARDEN_ADMIN_ROLE } from '#shared/utils/roles';
  * An account that isn't linked gets a link code, bound to the player when the token is theirs.
  */
 async function login(body: WardenLoginBody): Promise<WardenLogin> {
-  if (!uuidMatchesAccount(body)) refuse(400, 'invalidUuid');
+  if (!uuidMatchesUsername(body)) refuse(400, 'invalidUuid');
   return db.transaction(async (tx) => {
-    const settings = await wardenSettingsService.get(tx);
     const player = await wardenPlayerService.findByToken(body.token, tx);
     const [account] = await tx
       .select()
@@ -37,11 +35,10 @@ async function login(body: WardenLoginBody): Promise<WardenLogin> {
       .where(eq(minecraftAccount.uuid, body.uuid));
 
     if (!account) {
-      if (body.cracked && !settings.allowCracked) return denied('crackedNotAllowed');
       const ban = player && (await wardenModerationService.activeBan(player.userId, tx));
       if (ban) return denied('banned', ban);
       const link = await wardenLinkService.create(
-        { uuid: body.uuid, username: body.username, cracked: body.cracked, token: body.token },
+        { uuid: body.uuid, username: body.username, token: body.token },
         { tx },
       );
       return { ...denied('notLinked'), link };
@@ -49,8 +46,6 @@ async function login(body: WardenLoginBody): Promise<WardenLogin> {
 
     if (!player) return denied('unknownToken');
     if (account.userId !== player.userId) return denied('linkedElsewhere');
-    if (account.cracked !== body.cracked) return denied('crackedMismatch');
-    if (account.cracked && !settings.allowCracked) return denied('crackedNotAllowed');
     const app = getLinkApp('warden');
     if (app && !canLinkFromSchool(app, player.tenantId)) return denied('schoolNotAllowed');
     const ban = await wardenModerationService.activeBan(player.userId, tx);

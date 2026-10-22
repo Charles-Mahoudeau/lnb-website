@@ -285,8 +285,6 @@
     "accounts": {
       "title": "Minecraft accounts",
       "count": "{used} out of {max} account linked | {used} out of {max} accounts linked",
-      "premium": "Premium account",
-      "cracked": "Cracked account",
       "playing": "Playing now",
       "playtime": "Playtime",
       "lastSeen": "Last seen",
@@ -1533,6 +1531,7 @@
       "identityHidden": "Name hidden in-game",
       "linkRequest": "Made a link code for {username}",
       "linkCancel": "Cancelled a link code for {username}",
+      "uuidCollision": "{username} kept its old UUID: the offline one is already linked",
       "modAdd": "Added the mod {name}",
       "modPromote": "Added {name} to the official list",
       "modEdit": "Edited {name}",
@@ -1551,8 +1550,6 @@
     "settings": {
       "maxAccounts": "Accounts per player",
       "maxAccountsHelp": "How many Minecraft accounts each player can link. A player’s own limit wins over this one.",
-      "allowCracked": "Allow cracked accounts",
-      "allowCrackedHelp": "Accounts not bought from Mojang. When off, they can’t link or join.",
       "save": "Save settings",
       "saved": "Settings saved"
     },

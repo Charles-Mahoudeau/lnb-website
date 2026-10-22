@@ -38,7 +38,6 @@ export type WardenIssuer = z.infer<typeof wardenIssuer>;
 export const wardenLinkRequestBody = z.object({
   uuid: minecraftUuid,
   username: minecraftUsername,
-  cracked: z.boolean(),
   token: serverTokenInput
     .optional()
     .describe("From the player's address. An unknown token just leaves the request unbound."),
@@ -71,7 +70,6 @@ const wardenLimit = z.object({ used: z.number(), max: z.number() });
 export const wardenLinkPreview = z.object({
   uuid: z.string(),
   username: z.string(),
-  cracked: z.boolean(),
   limit: wardenLimit,
 });
 export type WardenLinkPreview = z.infer<typeof wardenLinkPreview>;
@@ -81,7 +79,6 @@ export const wardenLoginBody = z.object({
   token: serverTokenInput,
   uuid: minecraftUuid,
   username: minecraftUsername,
-  cracked: z.boolean(),
 });
 export type WardenLoginBody = z.infer<typeof wardenLoginBody>;
 
@@ -90,8 +87,6 @@ export const WARDEN_DENY_REASONS = [
   'notLinked',
   'linkedElsewhere',
   'banned',
-  'crackedNotAllowed',
-  'crackedMismatch',
   'schoolNotAllowed',
 ] as const;
 
@@ -274,14 +269,15 @@ export const wardenBanParams = z.object({ banId: z.uuid() });
 export const wardenAccountView = z.object({
   uuid: z.string(),
   username: z.string(),
-  cracked: z.boolean(),
   linkedAt: isoDate,
   lastSeenAt: isoDate.nullable(),
   online: z.boolean(),
   playtimeSeconds: z.number(),
   pastUsernames: z
     .array(z.object({ username: z.string(), firstSeenAt: isoDate }))
-    .describe('Earlier usernames, newest first, without the current one.'),
+    .describe(
+      'Earlier usernames, newest first, without the current one. The server runs in offline mode, so the UUID comes from the username and a username can no longer change: this is kept for the accounts that had one.',
+    ),
 });
 export type WardenAccountView = z.infer<typeof wardenAccountView>;
 
@@ -369,7 +365,7 @@ export const wardenServerPlayer = z.object({
   name: z.string(),
   school: z.string().nullable(),
   roles: z.array(z.string()),
-  accounts: z.array(z.object({ uuid: z.string(), username: z.string(), cracked: z.boolean() })),
+  accounts: z.array(z.object({ uuid: z.string(), username: z.string() })),
   activeBan: z
     .object({ id: z.string(), reason: z.string(), expiresAt: isoDate.nullable() })
     .nullable(),
@@ -392,9 +388,7 @@ export const wardenPlayerRow = z.object({
   email: z.string(),
   school: z.string().nullable(),
   wardenAdmin: z.boolean(),
-  accounts: z.array(
-    z.object({ uuid: z.string(), username: z.string(), cracked: z.boolean(), online: z.boolean() }),
-  ),
+  accounts: z.array(z.object({ uuid: z.string(), username: z.string(), online: z.boolean() })),
   ban: z.object({ id: z.string(), expiresAt: isoDate.nullable() }).nullable(),
   lastSeenAt: isoDate.nullable(),
   playtimeSeconds: z.number(),
@@ -461,7 +455,6 @@ export const wardenAuditQuery = z.object({
 
 export const wardenSettingsView = z.object({
   defaultMaxAccounts: z.number(),
-  allowCracked: z.boolean(),
 });
 export type WardenSettingsView = z.infer<typeof wardenSettingsView>;
 
@@ -469,7 +462,6 @@ export type WardenSettingsView = z.infer<typeof wardenSettingsView>;
 export const wardenSettingsPatchBody = z
   .object({
     defaultMaxAccounts: z.number().int().min(0).max(20),
-    allowCracked: z.boolean(),
   })
   .partial();
 
@@ -516,7 +508,6 @@ export const wardenUserCodeParams = z.object({ userCode: z.string().regex(/^\d{6
 export const WARDEN_PROBLEMS = [
   'invalidUuid',
   'alreadyLinked',
-  'crackedNotAllowed',
   'banned',
   'notFound',
   'notLinked',

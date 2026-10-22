@@ -151,7 +151,6 @@ async function players(query: {
       accounts: own.map((a) => ({
         uuid: a.uuid,
         username: a.username,
-        cracked: a.cracked,
         online: sessions.some((s) => s.minecraftUuid === a.uuid && isOnline(s, now.getTime())),
       })),
       ban: ban ? { id: ban.id, expiresAt: ban.expiresAt?.toISOString() ?? null } : null,
@@ -347,10 +346,7 @@ async function updateSettings(input: {
       .update(wardenSettings)
       .set({ ...input.patch, updatedAt: new Date(), updatedByUserId: input.actor.userId })
       .where(eq(wardenSettings.id, 1))
-      .returning({
-        defaultMaxAccounts: wardenSettings.defaultMaxAccounts,
-        allowCracked: wardenSettings.allowCracked,
-      });
+      .returning({ defaultMaxAccounts: wardenSettings.defaultMaxAccounts });
     // The resulting settings too, so a replayed event carries the values of that time.
     await wardenAuditService.record(tx, {
       action: 'settings.update',

@@ -11,6 +11,21 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # The `db` tests run services against a real PostgreSQL, in a database of their own.
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: lnb
+          POSTGRES_PASSWORD: lnb
+          POSTGRES_DB: lnb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U lnb -d lnb"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v7
 
@@ -26,6 +41,8 @@ jobs:
       - run: pnpm format:check
       - run: pnpm typecheck
       - run: pnpm test
+        env:
+          DATABASE_URL: postgres://lnb:lnb@localhost:5432/lnb
       - run: pnpm build
       - run: pnpm audit --prod
 

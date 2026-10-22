@@ -34,6 +34,8 @@ export function useWardenLabels() {
         return t('wardenAdmin.actions.linkRequest', { username: text('username') });
       case 'link.cancel':
         return t('wardenAdmin.actions.linkCancel', { username: text('username') });
+      case 'uuid.collision':
+        return t('wardenAdmin.actions.uuidCollision', { username: text('username') });
       case 'ban':
         return text('expiresAt')
           ? t('wardenAdmin.actions.banFor', {

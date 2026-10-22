@@ -1,11 +1,11 @@
 <script setup lang="ts">
-// The settings tab: the default account limit and whether cracked accounts may play.
+// The settings tab: the default account limit.
 const { t } = useI18n();
 const toast = useToast();
 const { settings, save } = useWardenSettings();
 const { data, refresh } = await settings;
 
-const state = reactive({ defaultMaxAccounts: 1, allowCracked: true });
+const state = reactive({ defaultMaxAccounts: 1 });
 watch(
   data,
   (value) => {
@@ -54,16 +54,6 @@ async function onSave() {
         class="w-36"
       />
     </div>
-    <USeparator />
-    <USwitch
-      v-model="state.allowCracked"
-      :label="t('wardenAdmin.settings.allowCracked')"
-      :description="t('wardenAdmin.settings.allowCrackedHelp')"
-      :ui="{
-        root: 'flex-row-reverse justify-between gap-6',
-        label: 'font-semibold text-highlighted',
-      }"
-    />
     <div>
       <UButton type="submit" :label="t('wardenAdmin.settings.save')" :loading="pending" />
     </div>

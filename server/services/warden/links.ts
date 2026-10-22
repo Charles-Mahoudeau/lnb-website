@@ -11,13 +11,12 @@ import {
   wardenPlayer,
 } from '~~/server/db/schema';
 import { generateDeviceCode, generateLinkCode } from '~~/server/lib/link-codes';
-import { uuidMatchesAccount } from '~~/server/lib/minecraft';
+import { uuidMatchesUsername } from '~~/server/lib/minecraft';
 import { wardenEnv } from '~~/server/lib/warden-env';
 
 import { wardenAuditService } from './audit';
 import { wardenModerationService } from './moderation';
 import { wardenPlayerService } from './players';
-import { wardenSettingsService } from './settings';
 import { refuse } from './shared';
 import type { Tx } from './shared';
 
@@ -62,11 +61,8 @@ async function create(
   body: WardenLinkRequestBody,
   options: { tx?: Tx } = {},
 ): Promise<WardenLinkRequest> {
-  if (!uuidMatchesAccount(body)) refuse(400, 'invalidUuid');
+  if (!uuidMatchesUsername(body)) refuse(400, 'invalidUuid');
   const run = async (tx: Tx) => {
-    const settings = await wardenSettingsService.get(tx);
-    if (body.cracked && !settings.allowCracked) refuse(403, 'crackedNotAllowed');
-
     const [linked] = await tx
       .select({ uuid: minecraftAccount.uuid })
       .from(minecraftAccount)
@@ -86,7 +82,6 @@ async function create(
         expiresAt: deviceCode.expiresAt,
         boundUserId: wardenLinkRequest.boundUserId,
         username: wardenLinkRequest.username,
-        cracked: wardenLinkRequest.cracked,
       })
       .from(wardenLinkRequest)
       .innerJoin(deviceCode, eq(deviceCode.id, wardenLinkRequest.deviceCodeId))
@@ -99,12 +94,7 @@ async function create(
       )
       .orderBy(desc(wardenLinkRequest.createdAt))
       .limit(1);
-    if (
-      pending &&
-      pending.boundUserId === boundUserId &&
-      pending.username === body.username &&
-      pending.cracked === body.cracked
-    ) {
+    if (pending && pending.boundUserId === boundUserId && pending.username === body.username) {
       return toResponse(pending);
     }
 
@@ -116,7 +106,6 @@ async function create(
         deviceCodeId: code.id,
         minecraftUuid: body.uuid,
         username: body.username,
-        cracked: body.cracked,
         boundUserId,
       })
       .returning({ id: wardenLinkRequest.id });
@@ -174,7 +163,6 @@ async function preview(input: { actorId: string; userCode: string }): Promise<Wa
     .select({
       uuid: wardenLinkRequest.minecraftUuid,
       username: wardenLinkRequest.username,
-      cracked: wardenLinkRequest.cracked,
     })
     .from(wardenLinkRequest)
     .innerJoin(deviceCode, eq(deviceCode.id, wardenLinkRequest.deviceCodeId))
@@ -205,9 +193,6 @@ async function approve(
   if (!request) return 'unknown';
   if (request.boundUserId && request.boundUserId !== input.actorId) return 'wrongAccount';
 
-  const settings = await wardenSettingsService.get(tx);
-  if (request.cracked && !settings.allowCracked) return 'unknown';
-
   // Lock the player row, so two approvals at once can't both pass the limit.
   await wardenPlayerService.ensure(tx, input.actorId);
   await tx
@@ -229,7 +214,6 @@ async function approve(
     uuid: request.minecraftUuid,
     userId: input.actorId,
     username: request.username,
-    cracked: request.cracked,
   });
   await tx
     .insert(minecraftUsername)
@@ -243,7 +227,7 @@ async function approve(
     actor: { source: 'web', userId: input.actorId },
     targetUserId: input.actorId,
     targetMinecraftUuid: request.minecraftUuid,
-    data: { requestId: request.id, username: request.username, cracked: request.cracked },
+    data: { requestId: request.id, username: request.username },
   });
   return undefined;
 }

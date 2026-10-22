@@ -23,9 +23,6 @@ const { t, locale } = useI18n();
         />
       </div>
       <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted">
-        <span>{{
-          account.cracked ? t('warden.accounts.cracked') : t('warden.accounts.premium')
-        }}</span>
         <span>
           {{ t('warden.accounts.playtime') }}
           <span class="text-default tabular-nums">

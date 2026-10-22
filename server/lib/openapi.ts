@@ -453,7 +453,7 @@ const routes: RouteDoc[] = [
     response: warden.wardenLinkRequest,
     problems: [
       { status: 400, problems: ['invalidUuid'] },
-      { status: 403, problems: ['crackedNotAllowed', 'banned'] },
+      { status: 403, problems: ['banned'] },
       { status: 409, problems: ['alreadyLinked'] },
     ],
   },
@@ -474,7 +474,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.wardenServer,
     summary: 'Let a player join',
     description:
-      "Called when a player joins through `<token>.mc.bde-teknantes.fr`. `allowed` opens a session. `denied` comes with a reason, and with a link request bound to the player for `notLinked`. `linkedElsewhere`: the account belongs to another LNB account than the token's. `crackedMismatch`: the account was linked as premium and now joins as cracked, or the other way round.",
+      "Called when a player joins through `<token>.mc.bde-teknantes.fr`. `allowed` opens a session. `denied` comes with a reason, and with a link request bound to the player for `notLinked`. `linkedElsewhere`: the account belongs to another LNB account than the token's.",
     access: 'wardenServer',
     body: warden.wardenLoginBody,
     response: warden.wardenLogin,
@@ -672,7 +672,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.wardenPlayer,
     summary: 'Skin head',
     description:
-      "The account's skin head, 64 px, for linked accounts and pending link requests only. Fetched from Crafatar (or mc-heads.net) and cached for a day, so visitors never contact these services. Cracked accounts get Steve.",
+      "The account's skin head, 64 px, for linked accounts and pending link requests only. Fetched from Crafatar (or mc-heads.net) and cached for a day, so visitors never contact these services. The server runs in offline mode, so every account gets Steve.",
     access: 'public',
     params: warden.wardenUuidParams,
     response: {

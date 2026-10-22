@@ -21,24 +21,18 @@ async function download(url: string): Promise<string | undefined> {
 }
 
 /**
- * The head as base64 PNG, from Crafatar, or mc-heads.net when Crafatar is down. Cracked
- * accounts have no skin with Mojang, so they get Steve. Cached for a day, refreshed in the
- * background after that.
+ * The head as base64 PNG. The server runs in offline mode, so no account has a skin with Mojang,
+ * and every account gets Steve. Cached for a day, refreshed in the background after that.
  */
 const fetchHead = defineCachedFunction(
-  async (uuid: string, cracked: boolean): Promise<string | undefined> => {
-    if (cracked) return download(`https://mc-heads.net/avatar/MHF_Steve/${SIZE}`);
-    return (
-      (await download(`https://crafatar.com/avatars/${uuid}?size=${SIZE}&overlay`)) ??
-      (await download(`https://mc-heads.net/avatar/${uuid}/${SIZE}`))
-    );
-  },
+  async (): Promise<string | undefined> =>
+    download(`https://mc-heads.net/avatar/MHF_Steve/${SIZE}`),
   {
     name: 'head',
     base: 'warden-heads',
     maxAge: 24 * 60 * 60,
     swr: true,
-    getKey: (uuid: string, cracked: boolean) => `${uuid}-${cracked ? 'cracked' : 'premium'}`,
+    getKey: () => 'steve',
     // A failed download isn't cached, so the next view tries again.
     validate: (entry) => typeof entry.value === 'string',
   },
@@ -48,26 +42,25 @@ const fetchHead = defineCachedFunction(
  * Whether the UUID is one the site knows: a linked account, or one in a pending link request.
  * Other UUIDs get no head, so this isn't an open proxy.
  */
-async function known(uuid: string): Promise<{ cracked: boolean } | undefined> {
+async function known(uuid: string): Promise<boolean> {
   const [account] = await db
-    .select({ cracked: minecraftAccount.cracked })
+    .select({ uuid: minecraftAccount.uuid })
     .from(minecraftAccount)
     .where(eq(minecraftAccount.uuid, uuid));
-  if (account) return account;
+  if (account) return true;
   const [request] = await db
-    .select({ cracked: wardenLinkRequest.cracked })
+    .select({ id: wardenLinkRequest.id })
     .from(wardenLinkRequest)
     .innerJoin(deviceCode, eq(deviceCode.id, wardenLinkRequest.deviceCodeId))
     .where(and(eq(wardenLinkRequest.minecraftUuid, uuid), gt(deviceCode.expiresAt, new Date())))
     .limit(1);
-  return request;
+  return request !== undefined;
 }
 
 /** The PNG head of a known account, or undefined. */
 async function get(uuid: string): Promise<Buffer | undefined> {
-  const account = await known(uuid);
-  if (!account) return undefined;
-  const base64 = await fetchHead(uuid, account.cracked);
+  if (!(await known(uuid))) return undefined;
+  const base64 = await fetchHead();
   return base64 ? Buffer.from(base64, 'base64') : undefined;
 }
 

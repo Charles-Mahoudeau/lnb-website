@@ -108,7 +108,6 @@ async function accounts(dbx: Db, userId: string): Promise<WardenAccountView[]> {
   return rows.map((row) => ({
     uuid: row.uuid,
     username: row.username,
-    cracked: row.cracked,
     linkedAt: row.linkedAt.toISOString(),
     lastSeenAt: row.lastSeenAt?.toISOString() ?? null,
     online: open.some((s) => s.minecraftUuid === row.uuid && isOnline(s, now)),
@@ -326,7 +325,7 @@ async function lookup(uuid: string): Promise<WardenServerPlayer> {
     name: owner.name,
     school: schoolForTenant(owner.tenantId) ?? null,
     roles: isWardenAdmin(owner.role) ? [WARDEN_ADMIN_ROLE] : [],
-    accounts: list.map(({ uuid, username, cracked }) => ({ uuid, username, cracked })),
+    accounts: list.map(({ uuid, username }) => ({ uuid, username })),
     activeBan: ban
       ? { id: ban.id, reason: ban.reason, expiresAt: ban.expiresAt?.toISOString() ?? null }
       : null,

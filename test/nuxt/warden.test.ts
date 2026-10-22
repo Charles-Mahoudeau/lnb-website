@@ -18,7 +18,6 @@ function me(overrides: Partial<WardenMe> = {}): WardenMe {
       {
         uuid: '069a79f4-44e9-4726-a5be-fca90e38aaf5',
         username: 'Renard_Lunaire',
-        cracked: false,
         linkedAt: '2026-10-02T12:00:00.000Z',
         lastSeenAt: '2026-10-15T12:00:00.000Z',
         online: true,
@@ -51,7 +50,6 @@ describe('/minecraft/warden', () => {
     const text = page.text();
     expect(text).toContain('Renard_Lunaire');
     expect(text).toContain('Playing now');
-    expect(text).toContain('Premium account');
     expect(text).toContain('1 out of 1 account linked');
     expect(page.find('.nametag').text()).toContain('Alex L.');
     expect(text).not.toContain('abcdefghijklmnopqrstuvwxyz');

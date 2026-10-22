@@ -36,7 +36,11 @@ export const wardenPlayer = pgTable('warden_player', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-/** The primary key makes a Minecraft account belong to one LNB account at most. */
+/**
+ * The primary key makes a Minecraft account belong to one LNB account at most. The server runs
+ * in offline mode, so the UUID is derived from the username, case-sensitively (see
+ * server/lib/minecraft.ts), and a username proves nothing by itself.
+ */
 export const minecraftAccount = pgTable(
   'minecraft_account',
   {
@@ -45,7 +49,6 @@ export const minecraftAccount = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
     username: text('username').notNull(),
-    cracked: boolean('cracked').notNull(),
     linkedAt: timestamp('linked_at').defaultNow().notNull(),
     lastSeenAt: timestamp('last_seen_at'),
     playtimeSeconds: bigint('playtime_seconds', { mode: 'number' }).default(0).notNull(),
@@ -83,7 +86,6 @@ export const wardenLinkRequest = pgTable(
       .references(() => deviceCode.id, { onDelete: 'cascade' }),
     minecraftUuid: uuid('minecraft_uuid').notNull(),
     username: text('username').notNull(),
-    cracked: boolean('cracked').notNull(),
     // Set when the server knew the player from their address: only they can link it.
     boundUserId: text('bound_user_id').references(() => user.id, { onDelete: 'cascade' }),
     // The admin who made the code by hand on the admin panel. Null for codes from the server.
@@ -217,6 +219,8 @@ export const WARDEN_AUDIT_ACTIONS = [
   'role.set',
   'settings.update',
   'identity.update',
+  // Written by the migration to offline UUIDs, for premium accounts it couldn't move.
+  'uuid.collision',
   // The mod list (docs/mods.md), run by the same staff. Not sent to the Minecraft server.
   'mod.add',
   'mod.promote',
@@ -261,7 +265,6 @@ export const wardenSettings = pgTable(
   {
     id: smallint('id').primaryKey().default(1),
     defaultMaxAccounts: smallint('default_max_accounts').default(1).notNull(),
-    allowCracked: boolean('allow_cracked').default(true).notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
     updatedByUserId: text('updated_by_user_id').references(() => user.id, {
       onDelete: 'set null',

@@ -285,8 +285,6 @@
     "accounts": {
       "title": "Comptes Minecraft",
       "count": "{used} sur {max} compte lié | {used} sur {max} comptes liés",
-      "premium": "Compte premium",
-      "cracked": "Compte cracké",
       "playing": "En jeu",
       "playtime": "Temps de jeu",
       "lastSeen": "Vu",
@@ -1533,6 +1531,7 @@
       "identityHidden": "Nom masqué en jeu",
       "linkRequest": "A créé un code de liaison pour {username}",
       "linkCancel": "A annulé un code de liaison pour {username}",
+      "uuidCollision": "{username} garde son ancien UUID : l’UUID hors ligne est déjà lié",
       "modAdd": "Mod {name} ajouté",
       "modPromote": "{name} ajouté à la liste officielle",
       "modEdit": "{name} modifié",
@@ -1551,8 +1550,6 @@
     "settings": {
       "maxAccounts": "Comptes par joueur",
       "maxAccountsHelp": "Combien de comptes Minecraft chaque joueur peut lier. La limite propre à un joueur passe avant celle-ci.",
-      "allowCracked": "Autoriser les comptes crackés",
-      "allowCrackedHelp": "Les comptes non achetés chez Mojang. Désactivé, ils ne peuvent ni se lier ni se connecter.",
       "save": "Enregistrer",
       "saved": "Réglages enregistrés"
     },

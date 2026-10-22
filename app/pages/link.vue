@@ -175,13 +175,6 @@ onMounted(() => {
                 <span class="font-semibold break-all text-highlighted">
                   {{ step.warden.username }}
                 </span>
-                <span class="text-sm text-muted">
-                  {{
-                    step.warden.cracked
-                      ? t('warden.accounts.cracked')
-                      : t('warden.accounts.premium')
-                  }}
-                </span>
               </div>
             </div>
             <div class="flex flex-col gap-2">

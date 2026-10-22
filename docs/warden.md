@@ -62,7 +62,6 @@ Creates a link code for a Minecraft account.
 {
   "uuid": "069a79f4-44e9-4726-a5be-fca90e38aaf5",
   "username": "Notch",
-  "cracked": false,
   "token": "optional, from the host name"
 }
 ```
@@ -188,16 +187,16 @@ Server-Sent Events. Each event's `id` is its audit log ID. Send `Last-Event-ID` 
 
 ## Player routes
 
-| Route                                     | What it does                                                                                                                                                                                                                                                               |
-| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET /api/warden/me`                      | The `/minecraft/warden` page: server address, the limit (`used`, `max`), linked accounts with last seen, online state, playtime and past usernames, the active ban and its appeal, the history of bans and warnings (without staff names), and the first page of sessions. |
-| `PATCH /api/warden/me`                    | `{ "showRealName": true }`                                                                                                                                                                                                                                                 |
-| `POST /api/warden/me/token`               | Regenerates the token and returns `{ "serverUrl": "..." }`.                                                                                                                                                                                                                |
-| `DELETE /api/warden/me/accounts/:uuid`    | Unlinks an account, and kicks it if it's online.                                                                                                                                                                                                                           |
-| `GET /api/warden/me/sessions`             | Recent sessions, newest first.                                                                                                                                                                                                                                             |
-| `POST /api/warden/me/bans/:banId/appeal`  | `{ "body": "..." }`. Once per ban, while it's active.                                                                                                                                                                                                                      |
-| `GET /api/warden/link-requests/:userCode` | For `/link`: the Minecraft account behind a code the player has claimed, and their limit.                                                                                                                                                                                  |
-| `GET /api/warden/heads/:uuid`             | The account's skin head (64 px PNG), for linked accounts and pending link requests only. The site fetches it from Crafatar, or mc-heads.net when Crafatar is down, and caches it for a day, so visitors never contact these services. Cracked accounts get Steve.          |
+| Route                                     | What it does                                                                                                                                                                                                                                                                                      |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/warden/me`                      | The `/minecraft/warden` page: server address, the limit (`used`, `max`), linked accounts with last seen, online state, playtime and past usernames, the active ban and its appeal, the history of bans and warnings (without staff names), and the first page of sessions.                        |
+| `PATCH /api/warden/me`                    | `{ "showRealName": true }`                                                                                                                                                                                                                                                                        |
+| `POST /api/warden/me/token`               | Regenerates the token and returns `{ "serverUrl": "..." }`.                                                                                                                                                                                                                                       |
+| `DELETE /api/warden/me/accounts/:uuid`    | Unlinks an account, and kicks it if it's online.                                                                                                                                                                                                                                                  |
+| `GET /api/warden/me/sessions`             | Recent sessions, newest first.                                                                                                                                                                                                                                                                    |
+| `POST /api/warden/me/bans/:banId/appeal`  | `{ "body": "..." }`. Once per ban, while it's active.                                                                                                                                                                                                                                             |
+| `GET /api/warden/link-requests/:userCode` | For `/link`: the Minecraft account behind a code the player has claimed, and their limit.                                                                                                                                                                                                         |
+| `GET /api/warden/heads/:uuid`             | The account's skin head (64 px PNG), for linked accounts and pending link requests only. The site fetches it from Crafatar, or mc-heads.net when Crafatar is down, and caches it for a day, so visitors never contact these services. Every account gets Steve, since the server is offline-mode. |
 
 New problems on `/link` for Warden codes: `accountLimitReached`, `minecraftAccountTaken`, `wrongAccount` (the code is bound to another player).
 
@@ -218,7 +217,7 @@ New problems on `/link` for Warden codes: `accountLimitReached`, `minecraftAccou
 | `GET /api/warden/admin/users?q=`                          | Players of Warden's schools, by name or email, for pickers such as the mod editor's.                 |
 | `POST /api/warden/admin/appeals/:id/decision`             | `{ "accept": true, "response": "..." }`. Accepting lifts the ban.                                    |
 | `GET /api/warden/admin/audit?userId=&action=&source=`     | The audit log.                                                                                       |
-| `GET` and `PATCH /api/warden/admin/settings`              | `{ "defaultMaxAccounts": 1, "allowCracked": true }`                                                  |
+| `GET` and `PATCH /api/warden/admin/settings`              | `{ "defaultMaxAccounts": 1 }`                                                                        |
 
 ## Environment
 
