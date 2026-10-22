@@ -112,6 +112,16 @@ Original mock (not code to port): [short links admin mock](https://claude.ai/art
 - The link page shows its numbers as four count tiles, a stacked bar chart with a faint grid (signed in in the highlight color, not signed in in the dimmed one, one scale, no color beyond text tokens), then school bars and the people who clicked as rows with tinted avatars. The delete button is the outline destructive one.
 - The page a visitor sees when a link can't be followed (`/short-link`) is one short standalone moment, so it is centered: an `IconTile`, a title, one line and one button. Sign-in is the solid red one, anything else is outline.
 
+## Bulk actions on accounts
+
+Original mock (not code to port): [bulk user actions mock](https://claude.ai/artifact/5q2dgNm9pWCd9eLTHxrb3L), proposal A, "Floating bar".
+
+- The Users table has a checkbox column. The header checkbox ticks the page (indeterminate when only some rows are ticked), and shift-click ticks a range. Ticked rows take a faint second-accent tint (`bg-secondary/10`), because selection is state, not an action.
+- Once the whole page is ticked and more accounts match, a line in the second-accent tint on top of the table offers "Select all N matching the filters", and then "Select only this page". Changing a filter clears the selection.
+- A bar rises at the bottom of the screen, centered, as soon as one account is ticked (`AdminUsersBulkBar`). It is a floating layer, so it gets the shadow, and the table and its filters never move. It holds the count, Sign out, Ban (outline destructive), Unban, a More menu (Change roles, Delete accounts in the destructive color) and a ghost clear button. Below `sm` the labels drop and only icons stay. No solid red button: nothing in it is the main action.
+- Every action asks first (`AdminBulkModal`). The dialog asks the server who the action applies to, says "Applies to N of M selected", and lists who is skipped and why. Ban asks one reason and length for the group, roles asks add or remove and the role, delete asks to type the count. Ban and delete confirm with the outline destructive button, the others with the solid one.
+- The result is one toast, such as "Banned 3 accounts" with "2 were left as they are".
+
 ## Notifications
 
 Original mock (not code to port): [push notifications mock](https://claude.ai/artifact/B9QVfPJbgPRYARQ1hjmN6A), bottom sheet (phones) and one-card settings. The desktop dialog came after, from the same content.

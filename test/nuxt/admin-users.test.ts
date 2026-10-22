@@ -50,4 +50,21 @@ describe('admin users list', () => {
     expect(text).toContain('Inactive for 24 months');
     expect(text).toContain('Never');
   });
+
+  it('shows the bulk bar once accounts are ticked, and hides it on clear', async () => {
+    const list = await mountSuspended(AdminUsers);
+    expect(list.find('[role="toolbar"]').exists()).toBe(false);
+    const boxes = list.findAll('button[role="checkbox"]');
+    // The header checkbox, then one per account.
+    expect(boxes).toHaveLength(4);
+
+    await boxes[1]!.trigger('click');
+    expect(list.find('[role="toolbar"]').text()).toContain('1 selected');
+
+    await boxes[0]!.trigger('click');
+    expect(list.find('[role="toolbar"]').text()).toContain('3 selected');
+
+    await list.get('[aria-label="Clear selection"]').trigger('click');
+    expect(list.find('[role="toolbar"]').exists()).toBe(false);
+  });
 });

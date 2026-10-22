@@ -415,7 +415,76 @@
       "empty": "Aucun compte ne correspond. Essayez un autre nom, ou retirez les filtres.",
       "loadFailed": "Les comptes n’ont pas pu être chargés. Vérifiez votre connexion, puis rechargez la page.",
       "next": "Page suivante",
-      "first": "Première page"
+      "first": "Première page",
+      "bulk": {
+        "selected": "1 sélectionné | {n} sélectionnés",
+        "clear": "Désélectionner",
+        "toolbar": "Actions sur les comptes sélectionnés",
+        "selectPage": "Sélectionner cette page",
+        "selectRow": "Sélectionner {name}",
+        "pageSelected": "Les {n} comptes de cette page sont sélectionnés.",
+        "selectAll": "Sélectionner les {total} comptes correspondant aux filtres",
+        "allSelected": "Les {total} comptes correspondant aux filtres sont sélectionnés, sur toutes les pages.",
+        "pageOnly": "Sélectionner seulement cette page",
+        "more": "Plus",
+        "signOut": "Déconnecter",
+        "ban": "Bannir",
+        "unban": "Débannir",
+        "roles": "Changer les rôles…",
+        "delete": "Supprimer les comptes…",
+        "modal": {
+          "title": {
+            "signOut": "Déconnecter 1 compte ? | Déconnecter {n} comptes ?",
+            "ban": "Bannir 1 compte du site | Bannir {n} comptes du site",
+            "unban": "Lever le bannissement de 1 compte ? | Lever le bannissement de {n} comptes ?",
+            "delete": "Supprimer 1 compte ? | Supprimer {n} comptes ?",
+            "roles": "Changer les rôles de 1 compte | Changer les rôles de {n} comptes"
+          },
+          "body": {
+            "signOut": "Toutes les sessions prennent fin, sur tous les appareils. Ces personnes peuvent se reconnecter avec Microsoft.",
+            "ban": "Elles ne peuvent plus se connecter jusqu’à la fin du bannissement, et leurs sessions prennent fin maintenant. Le même motif et la même durée s’appliquent à toutes.",
+            "unban": "Elles peuvent se reconnecter tout de suite.",
+            "delete": "Leurs comptes et tout ce qu’ils contiennent sont supprimés, données Warden comprises. Impossible de revenir en arrière.",
+            "roles": "Les autres rôles ne changent pas. Le rôle admin ne se change pas ici."
+          },
+          "checking": "Vérification des comptes concernés…",
+          "checkFailed": "Impossible de vérifier les comptes concernés. Ferme cette fenêtre et réessaie.",
+          "applies": "S’applique à {applied} comptes sur {total} sélectionnés.",
+          "nobody": "Aucun compte de la sélection ne peut subir cette action.",
+          "everyone": "La sélection regroupe tous les comptes correspondant aux filtres, sur toutes les pages.",
+          "skipped": "{n} laissés tels quels",
+          "skippedMore": "et {n} de plus",
+          "reason": {
+            "self": "C’est toi",
+            "targetIsAdmin": "Admin : retire d’abord le rôle",
+            "alreadyBanned": "Déjà banni",
+            "notBanned": "Pas banni",
+            "unchanged": "Rien à changer",
+            "notFound": "N’existe plus",
+            "failed": "Échec"
+          },
+          "add": "Ajouter un rôle",
+          "remove": "Retirer un rôle",
+          "typeCount": "Tape {n} pour confirmer",
+          "confirm": {
+            "signOut": "Déconnecter 1 compte | Déconnecter {n} comptes",
+            "ban": "Bannir 1 compte | Bannir {n} comptes",
+            "unban": "Débannir 1 compte | Débannir {n} comptes",
+            "delete": "Supprimer 1 compte | Supprimer {n} comptes",
+            "roles": "Enregistrer pour 1 compte | Enregistrer pour {n} comptes"
+          }
+        },
+        "done": {
+          "signOut": "1 compte déconnecté | {n} comptes déconnectés",
+          "ban": "1 compte banni | {n} comptes bannis",
+          "unban": "1 compte débanni | {n} comptes débannis",
+          "delete": "1 compte supprimé | {n} comptes supprimés",
+          "roles": "Rôles de 1 compte mis à jour | Rôles de {n} comptes mis à jour",
+          "none": "Rien n’a changé",
+          "skipped": "{n} ont été laissés tels quels."
+        },
+        "failed": "L’action n’a pas abouti. Recharge la page et réessaie."
+      }
     },
     "banModal": {
       "title": "Bannir {name} du site",

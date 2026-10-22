@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import type { DropdownMenuItem, TableColumn } from '@nuxt/ui';
 
-import { AdminBanModal, AdminRolesModal, WardenConfirmModal } from '#components';
+import { AdminBanModal, AdminBulkModal, AdminRolesModal, WardenConfirmModal } from '#components';
 
-import type { AdminRolesBody, AdminUserRow, AdminUsersQuery } from '#shared/schemas/admin';
+import type {
+  AdminBulkBody,
+  AdminRolesBody,
+  AdminUserRow,
+  AdminUsersQuery,
+} from '#shared/schemas/admin';
 
 // Every account: search, filter and page through them, and act on one from its row menu.
 const { t, locale } = useI18n();
@@ -27,6 +32,12 @@ const status = ref<Status>(
 // Cursors of the pages before this one, to go back to the first page.
 const cursors = ref<string[]>([]);
 
+// The accounts ticked, kept across pages. `allMatching` stands for every account matching the
+// filters, on every page, and the filters changing clears both: nobody is acted on unseen.
+const selected = ref(new Map<string, AdminUserRow>());
+const allMatching = ref(false);
+let lastTicked: string | undefined;
+
 function filters(): AdminUsersQuery {
   return {
     q: search.value || undefined,
@@ -37,16 +48,23 @@ function filters(): AdminUsersQuery {
 }
 
 const query = ref<AdminUsersQuery>(filters());
+function clearSelection() {
+  selected.value = new Map();
+  allMatching.value = false;
+  lastTicked = undefined;
+}
 let timer: ReturnType<typeof setTimeout> | undefined;
 watch(search, () => {
   clearTimeout(timer);
   timer = setTimeout(() => {
     cursors.value = [];
+    clearSelection();
     query.value = filters();
   }, 250);
 });
 watch([school, role, status], () => {
   cursors.value = [];
+  clearSelection();
   query.value = filters();
 });
 
@@ -79,7 +97,52 @@ const statusItems = computed(() => [
   { label: t('admin.users.status.inactive'), value: 'inactive' },
 ]);
 
+const items = computed(() => data.value?.items ?? []);
+const total = computed(() => data.value?.total ?? 0);
+const selectedCount = computed(() => (allMatching.value ? total.value : selected.value.size));
+const pageTicked = computed(
+  () => items.value.length > 0 && items.value.every((row) => selected.value.has(row.userId)),
+);
+const pageSome = computed(
+  () => !pageTicked.value && items.value.some((row) => selected.value.has(row.userId)),
+);
+// Offered once the whole page is ticked and more accounts match than the page holds.
+const canSelectAll = computed(() => pageTicked.value && total.value > items.value.length);
+
+function isTicked(row: AdminUserRow) {
+  return allMatching.value || selected.value.has(row.userId);
+}
+
+function tickPage(value: boolean) {
+  allMatching.value = false;
+  for (const row of items.value) {
+    if (value) selected.value.set(row.userId, row);
+    else selected.value.delete(row.userId);
+  }
+}
+
+// Shift-click ticks every row between this one and the last one ticked.
+function tickRow(row: AdminUserRow, value: boolean, range: boolean) {
+  if (allMatching.value) {
+    // Leaving "all matching" keeps the page, so unticking one row means "this page without it".
+    allMatching.value = false;
+    for (const item of items.value) selected.value.set(item.userId, item);
+  }
+  const rows = items.value;
+  const from = lastTicked ? rows.findIndex((item) => item.userId === lastTicked) : -1;
+  const to = rows.findIndex((item) => item.userId === row.userId);
+  const span = range && from >= 0 ? rows.slice(Math.min(from, to), Math.max(from, to) + 1) : [row];
+  for (const item of span) {
+    if (value) selected.value.set(item.userId, item);
+    else selected.value.delete(item.userId);
+  }
+  lastTicked = row.userId;
+}
+
+const shiftHeld = ref(false);
+
 const columns = computed<TableColumn<AdminUserRow>[]>(() => [
+  { id: 'select', meta: { class: { th: 'w-11 pr-0', td: 'w-11 pr-0' } } },
   { accessorKey: 'name', header: t('admin.users.user') },
   { accessorKey: 'school', header: t('admin.users.school') },
   { id: 'roles', header: t('admin.users.roles') },
@@ -89,6 +152,7 @@ const columns = computed<TableColumn<AdminUserRow>[]>(() => [
 ]);
 
 const modals = {
+  bulk: overlay.create(AdminBulkModal),
   confirm: overlay.create(WardenConfirmModal),
   ban: overlay.create(AdminBanModal),
   roles: overlay.create(AdminRolesModal),
@@ -180,6 +244,50 @@ async function onDelete(row: AdminUserRow) {
   }
 }
 
+async function onBulk(action: AdminBulkBody['action']) {
+  const selection: AdminBulkBody['selection'] = allMatching.value
+    ? {
+        filters: {
+          q: query.value.q,
+          tenantId: query.value.tenantId,
+          role: query.value.role,
+          status: query.value.status,
+        },
+      }
+    : { userIds: [...selected.value.keys()] };
+  const extra: unknown = await modals.bulk.open({
+    action,
+    selection,
+    people: allMatching.value
+      ? []
+      : [...selected.value.values()].map((row) => ({ userId: row.userId, name: row.name })),
+  }).result;
+  if (!extra || typeof extra !== 'object') return;
+  try {
+    const result = await actions.bulk({
+      action,
+      selection,
+      ...(extra as Pick<AdminBulkBody, 'ban' | 'roles'>),
+    });
+    toast.add({
+      title: t(`admin.users.bulk.done.${action}`, result.applied),
+      description: result.skipped
+        ? t('admin.users.bulk.done.skipped', { n: result.skipped })
+        : undefined,
+      color: 'success',
+      icon: 'i-lucide-circle-check',
+    });
+  } catch {
+    toast.add({
+      title: t('admin.users.bulk.failed'),
+      color: 'error',
+      icon: 'i-lucide-circle-alert',
+    });
+  }
+  clearSelection();
+  await refresh();
+}
+
 function rowItems(row: AdminUserRow): DropdownMenuItem[][] {
   // Admins can't ban or delete themselves or another admin: the role goes first.
   const protectedRow = row.admin || row.userId === me.value?.id;
@@ -223,7 +331,7 @@ function rowItems(row: AdminUserRow): DropdownMenuItem[][] {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-4" :class="{ 'pb-20': selectedCount > 0 }">
     <div class="flex flex-wrap gap-3">
       <UInput
         v-model="search"
@@ -262,13 +370,52 @@ function rowItems(row: AdminUserRow): DropdownMenuItem[][] {
     />
 
     <div v-else class="overflow-hidden rounded-lg bg-elevated">
+      <div
+        v-if="allMatching || canSelectAll"
+        class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-secondary/15 px-4 py-2 text-sm"
+      >
+        <span class="tabular-nums">
+          {{
+            allMatching
+              ? t('admin.users.bulk.allSelected', { total })
+              : t('admin.users.bulk.pageSelected', { n: items.length })
+          }}
+        </span>
+        <UButton
+          color="secondary"
+          variant="link"
+          size="md"
+          :label="
+            allMatching
+              ? t('admin.users.bulk.pageOnly')
+              : t('admin.users.bulk.selectAll', { total })
+          "
+          @click="allMatching = !allMatching"
+        />
+      </div>
       <UTable
-        :data="data?.items ?? []"
+        :data="items"
         :columns="columns"
+        :meta="{ class: { tr: (row) => (isTicked(row.original) ? 'bg-secondary/10' : '') } }"
         :loading="loadState === 'pending'"
         :empty="t('admin.users.empty')"
         class="tabular-nums"
       >
+        <template #select-header>
+          <UCheckbox
+            :model-value="allMatching || pageTicked ? true : pageSome ? 'indeterminate' : false"
+            :aria-label="t('admin.users.bulk.selectPage')"
+            @update:model-value="tickPage($event === true)"
+          />
+        </template>
+        <template #select-cell="{ row }">
+          <UCheckbox
+            :model-value="isTicked(row.original)"
+            :aria-label="t('admin.users.bulk.selectRow', { name: row.original.name })"
+            @click.capture="shiftHeld = $event.shiftKey"
+            @update:model-value="tickRow(row.original, $event === true, shiftHeld)"
+          />
+        </template>
         <template #name-cell="{ row }">
           <div class="flex items-center gap-3">
             <UAvatar
@@ -376,5 +523,12 @@ function rowItems(row: AdminUserRow): DropdownMenuItem[][] {
         />
       </div>
     </div>
+
+    <AdminUsersBulkBar
+      v-if="selectedCount > 0"
+      :count="selectedCount"
+      @act="onBulk"
+      @clear="clearSelection"
+    />
   </div>
 </template>

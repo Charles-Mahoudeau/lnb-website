@@ -415,7 +415,76 @@
       "empty": "No accounts match. Try another name, or clear the filters.",
       "loadFailed": "The accounts couldn’t be loaded. Check your connection, then reload the page.",
       "next": "Next page",
-      "first": "First page"
+      "first": "First page",
+      "bulk": {
+        "selected": "{n} selected",
+        "clear": "Clear selection",
+        "toolbar": "Actions on the selected accounts",
+        "selectPage": "Select this page",
+        "selectRow": "Select {name}",
+        "pageSelected": "All {n} accounts on this page are selected.",
+        "selectAll": "Select all {total} matching the filters",
+        "allSelected": "All {total} accounts matching the filters are selected, on every page.",
+        "pageOnly": "Select only this page",
+        "more": "More",
+        "signOut": "Sign out",
+        "ban": "Ban",
+        "unban": "Unban",
+        "roles": "Change roles…",
+        "delete": "Delete accounts…",
+        "modal": {
+          "title": {
+            "signOut": "Sign out 1 account? | Sign out {n} accounts?",
+            "ban": "Ban 1 account from the site | Ban {n} accounts from the site",
+            "unban": "Lift the site ban of 1 account? | Lift the site ban of {n} accounts?",
+            "delete": "Delete 1 account? | Delete {n} accounts?",
+            "roles": "Change the roles of 1 account | Change the roles of {n} accounts"
+          },
+          "body": {
+            "signOut": "Every session ends, on every device. They can sign in again with Microsoft.",
+            "ban": "They can’t sign in until the ban ends, and every session they have ends now. The same reason and length apply to all of them.",
+            "unban": "They can sign in again right away.",
+            "delete": "Their accounts and everything in them are deleted, Warden data included. This can’t be undone.",
+            "roles": "Other roles stay as they are. The admin role can’t be changed here."
+          },
+          "checking": "Checking who this applies to…",
+          "checkFailed": "We couldn’t check who this applies to. Close this window and try again.",
+          "applies": "Applies to {applied} of {total} selected.",
+          "nobody": "Nobody in the selection can take this action.",
+          "everyone": "The selection is everyone matching the filters, on every page.",
+          "skipped": "{n} left as they are",
+          "skippedMore": "and {n} more",
+          "reason": {
+            "self": "That’s you",
+            "targetIsAdmin": "Admin: remove the role first",
+            "alreadyBanned": "Already banned",
+            "notBanned": "Not banned",
+            "unchanged": "Nothing to change",
+            "notFound": "No longer exists",
+            "failed": "Didn’t work"
+          },
+          "add": "Add a role",
+          "remove": "Remove a role",
+          "typeCount": "Type {n} to confirm",
+          "confirm": {
+            "signOut": "Sign out 1 account | Sign out {n} accounts",
+            "ban": "Ban 1 account | Ban {n} accounts",
+            "unban": "Unban 1 account | Unban {n} accounts",
+            "delete": "Delete 1 account | Delete {n} accounts",
+            "roles": "Save for 1 account | Save for {n} accounts"
+          }
+        },
+        "done": {
+          "signOut": "Signed out 1 account | Signed out {n} accounts",
+          "ban": "Banned 1 account | Banned {n} accounts",
+          "unban": "Unbanned 1 account | Unbanned {n} accounts",
+          "delete": "Deleted 1 account | Deleted {n} accounts",
+          "roles": "Updated the roles of 1 account | Updated the roles of {n} accounts",
+          "none": "Nothing changed",
+          "skipped": "{n} were left as they are."
+        },
+        "failed": "The action didn’t go through. Reload the page and try again."
+      }
     },
     "banModal": {
       "title": "Ban {name} from the site",
