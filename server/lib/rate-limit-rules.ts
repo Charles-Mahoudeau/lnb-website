@@ -11,8 +11,8 @@ export interface RateRule {
 
 // Epitech campuses share one public IP, and an event can put a hundred people on it. The IP
 // ceilings are only there to stop floods; the tighter limits below are per account.
-const API_PER_IP: RateRule = { name: 'api', points: 1500, windowSeconds: 60, by: 'ip' };
-const GO_PER_IP: RateRule = { name: 'go', points: 120, windowSeconds: 60, by: 'ip' };
+const API_PER_IP: RateRule = { name: 'api', points: 3000, windowSeconds: 60, by: 'ip' };
+const GO_PER_IP: RateRule = { name: 'go', points: 240, windowSeconds: 60, by: 'ip' };
 // One caller, the Minecraft server: heartbeats, logins and events from a single IP.
 const WARDEN_SERVER_PER_IP: RateRule = {
   name: 'warden-server',
