@@ -45,6 +45,7 @@ server/               Nitro server, picked up by Nuxt automatically
                       warden/close-stale-sessions, users/delete-inactive, users/prune-avatars and
                       events/prune-images and partners/prune-logos and push/prune (every night at 03:00), push/deliver (every minute,
                       with the event reminders)
+  middleware/         rate-limit.ts (see docs/rate-limiting.md)
   plugins/            Nitro plugins: migrate.ts applies pending migrations at startup (its state feeds /api/health), avatars.ts
                       gives server/lib/ the avatars service
   utils/              auth guards (requireUser, requireAdmin, requireWardenAdmin,
@@ -55,6 +56,7 @@ server/               Nitro server, picked up by Nuxt automatically
     auth-env.ts       auth environment variables, validated with Zod
     tenants.ts        AUTH_ALLOWED_TENANTS parsing and checks
     avatars.ts        moves the Microsoft photo to storage, through the service the plugin sets
+    rate-limit.ts     the limiter (rate-limiter-flexible), rate-limit-rules.ts the table of limits
     openapi.ts        the OpenAPI document: one entry per route, schemas from shared/schemas/
     site.ts           absolute URLs on this site, from BETTER_AUTH_URL
     *-env.ts          one Zod-checked reader per domain: mods, warden, images, bde

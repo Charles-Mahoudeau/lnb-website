@@ -2332,6 +2332,10 @@ The API of the La Nuit Blanche website. Everything is JSON unless a route says o
 
 To try a route that needs a session from this page, sign in on the site in the same browser first.
 
+## Rate limits
+
+Every route under \`/api\` is limited per IP, and writes are also limited per account. A caller that goes over gets \`429\` with a \`Retry-After\` header (seconds) and the problem \`rateLimited\`. \`/api/auth/*\` has its own limits, and \`/api/health\` has none.
+
 ## Conventions
 
 - Dates are ISO 8601 strings in UTC. UUIDs are written with dashes.
