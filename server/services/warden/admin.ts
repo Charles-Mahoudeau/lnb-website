@@ -47,6 +47,12 @@ function activeBanWhere() {
   );
 }
 
+function transferWarning(gained: boolean, lost: boolean): WardenPlayerRow['transferWarning'] {
+  if (gained && lost) return 'both';
+  if (gained) return 'in';
+  return lost ? 'out' : null;
+}
+
 /** Players for the admin panel, by name, 50 per page. */
 async function players(query: {
   q?: string;
@@ -178,7 +184,10 @@ async function players(query: {
       // Accounts the player unlinked or lost to a takeover keep counting.
       playtimeSeconds:
         own.reduce((sum, a) => sum + a.playtimeSeconds, 0) + row.transferredPlaytimeSeconds,
-      transferWarning: transfers.some((t) => t.from === row.userId || t.to === row.userId),
+      transferWarning: transferWarning(
+        transfers.some((t) => t.to === row.userId),
+        transfers.some((t) => t.from === row.userId),
+      ),
     };
   });
   const last = page.at(-1);
@@ -260,6 +269,7 @@ async function player(userId: string): Promise<WardenPlayerDetail> {
       maxAccounts: row.warden?.maxAccounts ?? null,
       defaultMaxAccounts: (await wardenSettingsService.get()).defaultMaxAccounts,
       limit: await wardenPlayerService.limit(db, userId),
+      playtimeSeconds: await wardenPlayerService.totalPlaytime(db, userId),
     },
     accounts: await wardenPlayerService.accounts(db, userId),
     devices: await wardenDeviceService.list(db, userId),

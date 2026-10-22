@@ -392,9 +392,10 @@ export const wardenPlayerRow = z.object({
   lastSeenAt: isoDate.nullable(),
   playtimeSeconds: z.number(),
   transferWarning: z
-    .boolean()
+    .enum(['in', 'out', 'both'])
+    .nullable()
     .describe(
-      'A takeover of a Minecraft account involving the player that no admin dismissed yet.',
+      'Set while an admin has not dismissed a takeover of a Minecraft account involving the player: `in` for one they took over, `out` for one they lost, `both` for each.',
     ),
 });
 export type WardenPlayerRow = z.infer<typeof wardenPlayerRow>;
@@ -448,6 +449,9 @@ export const wardenPlayerDetail = z.object({
       .number()
       .describe('The global limit, which applies when maxAccounts is null.'),
     limit: wardenLimit,
+    playtimeSeconds: z
+      .number()
+      .describe('All the playtime, on accounts the player unlinked or lost to a takeover too.'),
   }),
   accounts: z.array(wardenAccountView),
   devices: z.array(wardenDeviceView),

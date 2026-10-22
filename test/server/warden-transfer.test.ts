@@ -245,11 +245,11 @@ describe('the warning for admins', () => {
       ]),
     );
     expect(rows.get(owner.id)).toMatchObject({
-      transferWarning: true,
+      transferWarning: 'out',
       playtimeSeconds: 3600,
       accounts: [],
     });
-    expect(rows.get(taker.id)).toMatchObject({ transferWarning: true, playtimeSeconds: 0 });
+    expect(rows.get(taker.id)).toMatchObject({ transferWarning: 'in', playtimeSeconds: 0 });
   });
 
   it('shows the takeover on both pages, from each side', async () => {
@@ -271,7 +271,7 @@ describe('the warning for admins', () => {
       expect(detail.transfers[0]?.dismissed).toMatchObject({ by: { userId: taker.id } });
     }
     const rows = await wardenAdminService.players({ q: 'Transfer', status: 'all' });
-    expect(rows.items.find((r) => r.userId === owner.id)?.transferWarning).toBe(false);
+    expect(rows.items.find((r) => r.userId === owner.id)?.transferWarning).toBeNull();
     const [entry] = await db
       .select()
       .from(wardenAudit)
