@@ -15,7 +15,6 @@ const wardenItems = computed<NavigationMenuItem[]>(() => [
     children: [
       { label: t('admin.nav.players'), to: '/admin/warden/players' },
       { label: t('admin.nav.appeals'), to: '/admin/warden/appeals' },
-      { label: t('admin.nav.linking'), to: '/admin/warden/linking' },
       { label: t('admin.nav.activity'), to: '/admin/warden/activity' },
       { label: t('admin.nav.settings'), to: '/admin/warden/settings' },
     ],

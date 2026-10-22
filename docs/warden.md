@@ -9,7 +9,7 @@ Warden links Minecraft accounts to LNB accounts and tells the LNB Minecraft serv
 - Warden is open to the schools listed for the `warden` app in `shared/utils/link-apps.ts` (Epitech for now).
 - Each player has a personal server address, `<token>.mc.bde-teknantes.fr`. The token names their LNB account. Every login needs it, and for cracked accounts it's the only proof of identity. The player can regenerate it at any time, which signs out their online sessions.
 - Bans apply to the LNB account, so they cover all of its Minecraft accounts. There is at most one active ban per player. A new ban replaces the active one. Warden bans are separate from site bans.
-- Every change (link, link code made or cancelled by an admin, unlink, new token, ban, unban, appeal, note, warning, limit, role, settings) is written to the audit log with who did it, when, and from where (the site, the Minecraft server, or the system).
+- Every change (link, unlink, new token, ban, unban, appeal, note, warning, limit, role, settings) is written to the audit log with who did it, when, and from where (the site, the Minecraft server, or the system).
 - No IP addresses are stored. Session history is kept with the account and deleted with it. Players' first name and initial show in-game under their username by default. They can hide it from `/minecraft/warden`.
 
 ## Flows
@@ -203,26 +203,22 @@ New problems on `/link` for Warden codes: `accountLimitReached`, `minecraftAccou
 
 ## Admin routes
 
-| Route                                                     | What it does                                                                                                                                                                                                                |
-| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET /api/warden/admin/players?q=&status=`                | Players, searched by name, email or Minecraft username. `status`: `all`, `banned`, `online`.                                                                                                                                |
-| `GET /api/warden/admin/players/:userId`                   | One player: accounts, username history, bans, notes, sessions and audit trail.                                                                                                                                              |
-| `PATCH /api/warden/admin/players/:userId`                 | `{ "maxAccounts": 3 }`, or `null` to use the global limit.                                                                                                                                                                  |
-| `PUT /api/warden/admin/players/:userId/role`              | `{ "wardenAdmin": true }`. Site admins only.                                                                                                                                                                                |
-| `POST /api/warden/admin/players/:userId/token`            | Regenerates the player's token, for a leaked address.                                                                                                                                                                       |
-| `DELETE /api/warden/admin/players/:userId/accounts/:uuid` | Unlinks an account.                                                                                                                                                                                                         |
-| `POST /api/warden/admin/players/:userId/bans`             | `{ "reason": "...", "durationSeconds": 86400 }`                                                                                                                                                                             |
-| `POST /api/warden/admin/bans/:banId/revoke`               | `{ "reason": "optional" }`                                                                                                                                                                                                  |
-| `POST /api/warden/admin/players/:userId/notes`            | `{ "kind": "note", "body": "..." }`. A `note` stays private, and a `warning` is shown to the player.                                                                                                                        |
-| `GET /api/warden/admin/appeals?status=`                   | Appeals, with their ban.                                                                                                                                                                                                    |
-| `GET /api/warden/admin/minecraft/:username?cracked=`      | The account a username names: its UUID from Mojang for premium accounts, or worked out from the name for cracked ones, and who linked it, if anyone. Problems: `unknownMinecraftUsername` (404), `mojangUnavailable` (502). |
-| `POST /api/warden/admin/link-requests`                    | `{ "username": "jeb_", "cracked": false, "userId": "optional" }`. Makes a link code by hand, for a player who can't get one from the server. With `userId`, only that player can use it.                                    |
-| `GET /api/warden/admin/link-requests`                     | Codes made by hand in the last 7 days, with who made them, who they're for and whether they were used.                                                                                                                      |
-| `DELETE /api/warden/admin/link-requests/:id`              | Cancels a code made by hand while it's still waiting. Problem: `linkRequestClosed` (409).                                                                                                                                   |
-| `GET /api/warden/admin/users?q=`                          | Players of Warden's schools, by name or email, to make a code for.                                                                                                                                                          |
-| `POST /api/warden/admin/appeals/:id/decision`             | `{ "accept": true, "response": "..." }`. Accepting lifts the ban.                                                                                                                                                           |
-| `GET /api/warden/admin/audit?userId=&action=&source=`     | The audit log.                                                                                                                                                                                                              |
-| `GET` and `PATCH /api/warden/admin/settings`              | `{ "defaultMaxAccounts": 1, "allowCracked": true }`                                                                                                                                                                         |
+| Route                                                     | What it does                                                                                         |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `GET /api/warden/admin/players?q=&status=`                | Players, searched by name, email or Minecraft username. `status`: `all`, `banned`, `online`.         |
+| `GET /api/warden/admin/players/:userId`                   | One player: accounts, username history, bans, notes, sessions and audit trail.                       |
+| `PATCH /api/warden/admin/players/:userId`                 | `{ "maxAccounts": 3 }`, or `null` to use the global limit.                                           |
+| `PUT /api/warden/admin/players/:userId/role`              | `{ "wardenAdmin": true }`. Site admins only.                                                         |
+| `POST /api/warden/admin/players/:userId/token`            | Regenerates the player's token, for a leaked address.                                                |
+| `DELETE /api/warden/admin/players/:userId/accounts/:uuid` | Unlinks an account.                                                                                  |
+| `POST /api/warden/admin/players/:userId/bans`             | `{ "reason": "...", "durationSeconds": 86400 }`                                                      |
+| `POST /api/warden/admin/bans/:banId/revoke`               | `{ "reason": "optional" }`                                                                           |
+| `POST /api/warden/admin/players/:userId/notes`            | `{ "kind": "note", "body": "..." }`. A `note` stays private, and a `warning` is shown to the player. |
+| `GET /api/warden/admin/appeals?status=`                   | Appeals, with their ban.                                                                             |
+| `GET /api/warden/admin/users?q=`                          | Players of Warden's schools, by name or email, for pickers such as the mod editor's.                 |
+| `POST /api/warden/admin/appeals/:id/decision`             | `{ "accept": true, "response": "..." }`. Accepting lifts the ban.                                    |
+| `GET /api/warden/admin/audit?userId=&action=&source=`     | The audit log.                                                                                       |
+| `GET` and `PATCH /api/warden/admin/settings`              | `{ "defaultMaxAccounts": 1, "allowCracked": true }`                                                  |
 
 ## Environment
 

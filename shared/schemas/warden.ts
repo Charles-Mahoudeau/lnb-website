@@ -497,48 +497,7 @@ export const wardenEvent = z.discriminatedUnion('type', [
 ]);
 export type WardenEvent = z.infer<typeof wardenEvent>;
 
-/** GET /api/warden/admin/minecraft/:username?cracked=: the account a username names. */
-export const wardenMinecraftLookupParams = z.object({ username: minecraftUsername });
-export const wardenMinecraftLookupQuery = z.object({
-  cracked: z.enum(['true', 'false']).transform((value) => value === 'true'),
-});
-
-export const wardenMinecraftLookup = z.object({
-  uuid: z.string(),
-  username: z.string().describe('As Mojang spells it, for premium accounts.'),
-  cracked: z.boolean(),
-  linkedTo: z
-    .object({ userId: z.string(), name: z.string() })
-    .nullable()
-    .describe('The LNB player who already linked it, if anyone.'),
-});
-export type WardenMinecraftLookup = z.infer<typeof wardenMinecraftLookup>;
-
-/** Body of POST /api/warden/admin/link-requests: a link code made by hand. */
-export const wardenManualLinkBody = z.object({
-  username: minecraftUsername,
-  cracked: z.boolean(),
-  userId: z.string().min(1).max(64).optional().describe('Only this LNB player can use the code.'),
-});
-export type WardenManualLinkBody = z.infer<typeof wardenManualLinkBody>;
-
-const userRef = z.object({ userId: z.string(), name: z.string() });
-
-export const wardenManualLinkView = z.object({
-  id: z.string(),
-  userCode: z.string(),
-  createdAt: isoDate,
-  expiresAt: isoDate,
-  verificationUriComplete: z.string(),
-  account: z.object({ uuid: z.string(), username: z.string(), cracked: z.boolean() }),
-  for: userRef.nullable(),
-  by: userRef.nullable(),
-  status: z.enum(['pending', 'linked', 'expired', 'cancelled', 'denied']),
-  linkedBy: userRef.nullable().describe('Who linked the account, once linked.'),
-});
-export type WardenManualLinkView = z.infer<typeof wardenManualLinkView>;
-
-/** GET /api/warden/admin/users?q=: LNB players to make a code for. */
+/** GET /api/warden/admin/users?q=: LNB players of Warden's schools, for admin pickers. */
 export const wardenUserSearchQuery = z.object({
   q: z.string().trim().min(1).max(100).describe('Name or email.'),
 });
@@ -567,8 +526,5 @@ export const WARDEN_PROBLEMS = [
   'appealClosed',
   'schoolNotAllowed',
   'invalidCursor',
-  'unknownMinecraftUsername',
-  'mojangUnavailable',
-  'linkRequestClosed',
 ] as const;
 export type WardenProblem = (typeof WARDEN_PROBLEMS)[number];

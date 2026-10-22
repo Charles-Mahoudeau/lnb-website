@@ -28,7 +28,9 @@ import type {
   WardenPlayerDetail,
   WardenPlayerRow,
   WardenSettingsView,
+  WardenUserOption,
 } from '#shared/schemas/warden';
+import { canLinkFromSchool, getLinkApp } from '#shared/utils/link-apps';
 import { isAdmin, isWardenAdmin, WARDEN_ADMIN_ROLE, withRole } from '#shared/utils/roles';
 import { schoolForTenant } from '#shared/utils/schools';
 
@@ -359,7 +361,30 @@ async function updateSettings(input: {
   });
 }
 
+/** LNB players of Warden's schools, by name or email, for admin pickers (such as the mod editor). */
+async function searchUsers(q: string): Promise<WardenUserOption[]> {
+  const pattern = `%${q.replace(/[\\%_]/g, '\\$&')}%`;
+  const app = getLinkApp('warden');
+  const rows = await db
+    .select({
+      userId: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+      tenantId: user.tenantId,
+    })
+    .from(user)
+    .where(or(ilike(user.name, pattern), ilike(user.email, pattern)))
+    .orderBy(user.name)
+    .limit(20);
+  return rows
+    .filter((row) => app && canLinkFromSchool(app, row.tenantId))
+    .slice(0, 8)
+    .map(({ userId, name, email, image }) => ({ userId, name, email, image }));
+}
+
 export const wardenAdminService = {
+  searchUsers,
   players,
   player,
   setMaxAccounts,

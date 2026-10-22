@@ -3,9 +3,6 @@ import type {
   WardenAuditView,
   WardenBanBody,
   WardenBanView,
-  WardenManualLinkBody,
-  WardenManualLinkView,
-  WardenMinecraftLookup,
   WardenNoteBody,
   WardenNoteView,
   WardenPage,
@@ -13,7 +10,6 @@ import type {
   WardenPlayerRow,
   WardenPlayersQuery,
   WardenSettingsView,
-  WardenUserOption,
 } from '#shared/schemas/warden';
 
 // The Warden admin panel's data and actions. Writes throw a WardenError with the API's problem.
@@ -108,34 +104,5 @@ export function useWardenAdminPlayer(userId: string) {
       call(() => $fetch(`${base}/role`, { method: 'PUT', body: { wardenAdmin } })),
     regenerateToken: () => call(() => $fetch(`${base}/token`, { method: 'POST' })),
     unlink: (uuid: string) => call(() => $fetch(`${base}/accounts/${uuid}`, { method: 'DELETE' })),
-  };
-}
-
-/** Link codes made by hand: looking accounts up, making, cancelling, and the recent ones. */
-export function useWardenManualLinks() {
-  const recent = useFetch<WardenManualLinkView[]>('/api/warden/admin/link-requests', {
-    key: 'warden-admin-link-requests',
-  });
-  return {
-    recent,
-    lookup: (username: string, cracked: boolean) =>
-      call(() =>
-        $fetch<WardenMinecraftLookup>(
-          `/api/warden/admin/minecraft/${encodeURIComponent(username)}`,
-          {
-            query: { cracked: String(cracked) },
-          },
-        ),
-      ),
-    searchUsers: (q: string) =>
-      call(() => $fetch<WardenUserOption[]>('/api/warden/admin/users', { query: { q } })),
-    create: (body: WardenManualLinkBody) =>
-      call(() =>
-        $fetch<WardenManualLinkView>('/api/warden/admin/link-requests', { method: 'POST', body }),
-      ),
-    cancel: (id: string) =>
-      call(() =>
-        $fetch<WardenManualLinkView>(`/api/warden/admin/link-requests/${id}`, { method: 'DELETE' }),
-      ),
   };
 }

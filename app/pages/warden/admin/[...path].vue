@@ -7,7 +7,7 @@ definePageMeta({
     const path = ([] as string[]).concat(params.path ?? []).filter(Boolean);
     if (path.length) return { path: `/admin/warden/${path.join('/')}`, query: {} };
     const tab = String(to.query.tab ?? '');
-    const tabs = ['players', 'appeals', 'linking', 'activity', 'settings'];
+    const tabs = ['players', 'appeals', 'activity', 'settings'];
     return { path: `/admin/warden/${tabs.includes(tab) ? tab : 'players'}`, query: {} };
   },
 });

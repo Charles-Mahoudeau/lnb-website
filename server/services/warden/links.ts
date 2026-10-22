@@ -55,14 +55,12 @@ function toResponse(row: {
 }
 
 /**
- * Creates a link code for a Minecraft account. From the Minecraft server, a known token binds it
- * to that player, and a pending request for the same account is returned again. From the admin
- * panel, `createdByUserId` names the admin and `boundUserId` the player it's for, if any, and
- * each call makes a new code.
+ * Creates a link code for a Minecraft account. A known token binds it to that player, and a
+ * pending request for the same account is returned again.
  */
 async function create(
   body: WardenLinkRequestBody,
-  options: { tx?: Tx; boundUserId?: string; createdByUserId?: string } = {},
+  options: { tx?: Tx } = {},
 ): Promise<WardenLinkRequest> {
   if (!uuidMatchesAccount(body)) refuse(400, 'invalidUuid');
   const run = async (tx: Tx) => {
@@ -75,11 +73,8 @@ async function create(
       .where(eq(minecraftAccount.uuid, body.uuid));
     if (linked) refuse(409, 'alreadyLinked');
 
-    const bound =
-      !options.boundUserId && body.token
-        ? await wardenPlayerService.findByToken(body.token, tx)
-        : undefined;
-    const boundUserId = options.boundUserId ?? bound?.userId ?? null;
+    const bound = body.token ? await wardenPlayerService.findByToken(body.token, tx) : undefined;
+    const boundUserId = bound?.userId ?? null;
     if (boundUserId && (await wardenModerationService.activeBan(boundUserId, tx))) {
       refuse(403, 'banned');
     }
@@ -105,7 +100,6 @@ async function create(
       .orderBy(desc(wardenLinkRequest.createdAt))
       .limit(1);
     if (
-      !options.createdByUserId &&
       pending &&
       pending.boundUserId === boundUserId &&
       pending.username === body.username &&
@@ -124,7 +118,6 @@ async function create(
         username: body.username,
         cracked: body.cracked,
         boundUserId,
-        createdByUserId: options.createdByUserId ?? null,
       })
       .returning({ id: wardenLinkRequest.id });
     return toResponse({ id: request!.id, userCode: code.userCode, expiresAt, boundUserId });
