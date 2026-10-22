@@ -30,6 +30,10 @@ export const wardenPlayer = pgTable('warden_player', {
   showRealName: boolean('show_real_name').default(true).notNull(),
   // Overrides warden_settings.default_max_accounts when set.
   maxAccounts: smallint('max_accounts'),
+  // Playtime of accounts that another player took over, so the previous owner keeps their total.
+  transferredPlaytimeSeconds: bigint('transferred_playtime_seconds', { mode: 'number' })
+    .default(0)
+    .notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
@@ -49,6 +53,9 @@ export const minecraftAccount = pgTable(
     linkedAt: timestamp('linked_at').defaultNow().notNull(),
     lastSeenAt: timestamp('last_seen_at'),
     playtimeSeconds: bigint('playtime_seconds', { mode: 'number' }).default(0).notNull(),
+    // Set when the player unlinks the account. The row stays, with its sessions and playtime, and
+    // the player can link it again. Another player who links it takes it over (wardenAccountTransfer).
+    unlinkedAt: timestamp('unlinked_at'),
   },
   (table) => [index('minecraft_account_user_id_idx').on(table.userId)],
 );
@@ -141,6 +148,35 @@ export const wardenPresence = pgTable('warden_presence', {
     .references(() => user.id, { onDelete: 'cascade' }),
   expiresAt: timestamp('expires_at').notNull(),
 });
+
+/**
+ * A Minecraft account that one player unlinked and another linked. The server runs in offline
+ * mode, so a username proves nothing and a takeover can be an impersonation. Admins see it as a
+ * warning on both players until one of them dismisses it. Players never see it.
+ */
+export const wardenAccountTransfer = pgTable(
+  'warden_account_transfer',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    minecraftUuid: uuid('minecraft_uuid').notNull(),
+    username: text('username').notNull(),
+    fromUserId: text('from_user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    toUserId: text('to_user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    dismissedAt: timestamp('dismissed_at'),
+    dismissedByUserId: text('dismissed_by_user_id').references(() => user.id, {
+      onDelete: 'set null',
+    }),
+  },
+  (table) => [
+    index('warden_account_transfer_from_idx').on(table.fromUserId),
+    index('warden_account_transfer_to_idx').on(table.toUserId),
+  ],
+);
 
 export type WardenSessionEndReason = 'quit' | 'kicked' | 'timeout';
 
@@ -249,6 +285,9 @@ export const WARDEN_AUDIT_ACTIONS = [
   'link.request',
   'link.cancel',
   'unlink',
+  // Another player linked an account that was unlinked, and then dismissing the warning about it.
+  'link.transfer',
+  'transfer.dismiss',
   'token.rotate',
   // A device of the LNB Warden mod (docs/warden.md): linked from /link, denied there, or revoked.
   'device.link',
