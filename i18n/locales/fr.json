@@ -354,6 +354,7 @@
       "modList": "Liste de mods",
       "modSuggestions": "Propositions",
       "flags": "Fonctionnalités",
+      "rateLimit": "Limitation de débit",
       "events": "Événements",
       "eventRooms": "Salles",
       "eventTypes": "Types d’événements",
@@ -534,6 +535,7 @@
         "deleteInactive": "Le nettoyage de la nuit a supprimé 1 compte sans connexion depuis 24 mois. | Le nettoyage de la nuit a supprimé {count} comptes sans connexion depuis 24 mois.",
         "flagOn": "{actor} a activé {name}.",
         "flagOff": "{actor} a coupé {name}.",
+        "rateLimitMode": "{actor} a réglé la limitation de débit sur {mode}.",
         "event_create": "{actor} a créé l’événement {name}.",
         "event_update": "{actor} a modifié l’événement {name}.",
         "event_cancel": "{actor} a annulé l’événement {name}.",
@@ -690,6 +692,32 @@
         "submit": "Retirer la proposition",
         "done": "Proposition retirée"
       }
+    },
+    "rateLimit": {
+      "title": "Limitation de débit",
+      "lede": "Choisis ce que le site doit faire maintenant. Le changement s’applique en quelques secondes et apparaît dans la vue d’ensemble.",
+      "modes": {
+        "normal": {
+          "label": "Normal",
+          "description": "Toutes les limites comme prévu."
+        },
+        "event": {
+          "label": "Soirée d’événement",
+          "description": "Pour une salle pleine sur un seul Wi-Fi. Les limites par adresse IP sont multipliées par {factor}. Les limites par compte restent."
+        },
+        "off": {
+          "label": "Désactivée",
+          "description": "Aucune limite. Utile pour tester, puis repasse en normal."
+        }
+      },
+      "offTitle": "La limitation de débit est désactivée",
+      "offDescription": "Rien ne ralentit les inondations ni les abus de l’API et des liens courts. Repasse en Normal quand tu as fini.",
+      "backToNormal": "Repasser en Normal",
+      "changed": "Limitation de débit : {mode}",
+      "changedBy": "Dernier changement par {name}, {date}.",
+      "unaffected": "La connexion, les tickets de connexion et la recherche de mods gardent leurs propres limites dans tous les modes.",
+      "failed": "Ça n’a pas marché. Vérifie ta connexion, puis réessaie.",
+      "loadFailed": "Le mode de limitation de débit n’a pas pu être chargé. Vérifie ta connexion, puis recharge la page."
     },
     "flags": {
       "lede": "Coupe une fonctionnalité pour l’arrêter aussitôt, sans déploiement. Couper une fonctionnalité coupe aussi ses parties. Les changements sont notés dans la vue d’ensemble.",

@@ -100,6 +100,11 @@ function describe(entry: AdminAuditView): string {
         actor,
         name: t(`admin.flags.items.${flagMessageKey(entry.data.key as FlagKey)}.label`),
       });
+    case 'rateLimit.mode':
+      return t('admin.overview.log.rateLimitMode', {
+        actor,
+        mode: t(`admin.rateLimit.modes.${String(entry.data.mode)}.label`),
+      });
     case 'users.deleteInactive': {
       const deleted = Number(entry.data.count ?? 0);
       return t('admin.overview.log.deleteInactive', { count: deleted }, deleted);

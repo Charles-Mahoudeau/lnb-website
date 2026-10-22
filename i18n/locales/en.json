@@ -354,6 +354,7 @@
       "modList": "Mod list",
       "modSuggestions": "Suggestions",
       "flags": "Feature flags",
+      "rateLimit": "Rate limiting",
       "events": "Events",
       "eventRooms": "Rooms",
       "eventTypes": "Event types",
@@ -534,6 +535,7 @@
         "deleteInactive": "The nightly cleanup deleted 1 account with no sign-in for 24 months. | The nightly cleanup deleted {count} accounts with no sign-in for 24 months.",
         "flagOn": "{actor} switched {name} on.",
         "flagOff": "{actor} switched {name} off.",
+        "rateLimitMode": "{actor} set rate limiting to {mode}.",
         "event_create": "{actor} created the event {name}.",
         "event_update": "{actor} edited the event {name}.",
         "event_cancel": "{actor} cancelled the event {name}.",
@@ -690,6 +692,32 @@
         "submit": "Remove suggestion",
         "done": "Suggestion removed"
       }
+    },
+    "rateLimit": {
+      "title": "Rate limiting",
+      "lede": "Pick what the site should do right now. A change applies within seconds and is logged on the Overview.",
+      "modes": {
+        "normal": {
+          "label": "Normal",
+          "description": "Every limit as written."
+        },
+        "event": {
+          "label": "Event night",
+          "description": "For a full room on one Wi-Fi. The limits per IP address are multiplied by {factor}. The limits per account stay."
+        },
+        "off": {
+          "label": "Off",
+          "description": "No limits at all. Use it to test, then switch back."
+        }
+      },
+      "offTitle": "Rate limiting is off",
+      "offDescription": "Nothing slows down floods or abuse of the API and the short links. Switch back to Normal when you are done.",
+      "backToNormal": "Back to Normal",
+      "changed": "Rate limiting: {mode}",
+      "changedBy": "Last changed by {name}, {date}.",
+      "unaffected": "Sign-in, join tickets and the mod search keep their own limits in every mode.",
+      "failed": "That didn’t work. Check your connection, then try again.",
+      "loadFailed": "The rate limiting mode couldn’t be loaded. Check your connection, then reload the page."
     },
     "flags": {
       "lede": "Switch a feature off to stop it at once, without a deploy. Turning a feature off also turns off its parts. Changes are logged on the Overview.",

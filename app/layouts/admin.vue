@@ -49,6 +49,11 @@ const items = computed<NavigationMenuItem[][]>(() => [
             to: '/admin/short-links',
           },
           { label: t('admin.nav.flags'), icon: 'i-lucide-toggle-right', to: '/admin/flags' },
+          {
+            label: t('admin.nav.rateLimit'),
+            icon: 'i-lucide-gauge',
+            to: '/admin/rate-limit',
+          },
         ],
       ]
     : []),
