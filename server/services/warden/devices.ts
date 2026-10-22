@@ -5,6 +5,7 @@ import { user, wardenDevice, wardenSession } from '~~/server/db/schema';
 
 import { wardenAuditService } from './audit';
 import { DEVICE_LIFETIME_MS, generateDeviceToken, hashSecret, shouldTouchDevice } from './rules';
+import { refuse } from './shared';
 import type { Db, Tx, WardenActor } from './shared';
 
 import type { WardenDeviceView } from '#shared/schemas/warden';
@@ -106,4 +107,10 @@ async function revoke(
   return true;
 }
 
-export const wardenDeviceService = { create, authenticate, list, revoke };
+/** Revokes a device in its own transaction, for the routes. A 404 when there is no such active device. */
+async function revokeOrFail(input: { deviceId: string; userId: string; actor: WardenActor }) {
+  const revoked = await db.transaction((tx) => revoke(tx, input));
+  if (!revoked) refuse(404, 'notFound');
+}
+
+export const wardenDeviceService = { create, authenticate, list, revoke, revokeOrFail };

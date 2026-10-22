@@ -86,11 +86,12 @@ describe('device tokens', () => {
     expect(await wardenDeviceService.authenticate(token)).toBeUndefined();
     const listed = await wardenDeviceService.list(db, OWNER);
     expect(listed.map((d) => d.id)).not.toContain(device.id);
-    const [audit] = await db
+    const audit = await db
       .select()
       .from(wardenAudit)
       .where(eq(wardenAudit.action, 'device.revoke'));
-    expect(audit?.targetUserId).toBe(OWNER);
+    const mine = audit.find((a) => (a.data as { deviceId?: string }).deviceId === device.id);
+    expect(mine?.targetUserId).toBe(OWNER);
   });
 
   it('lists the open sessions of the revoked device in the audit row', async () => {

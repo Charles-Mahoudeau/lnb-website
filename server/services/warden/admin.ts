@@ -15,6 +15,7 @@ import {
 import type { WardenAuditAction, WardenSource } from '~~/server/db/schema';
 
 import { wardenAuditService } from './audit';
+import { wardenDeviceService } from './devices';
 import { wardenPlayerService } from './players';
 import { isBanActive, isOnline, SESSION_TIMEOUT_MS } from './rules';
 import { wardenSettingsService } from './settings';
@@ -232,6 +233,7 @@ async function player(userId: string): Promise<WardenPlayerDetail> {
       limit: await wardenPlayerService.limit(db, userId),
     },
     accounts: await wardenPlayerService.accounts(db, userId),
+    devices: await wardenDeviceService.list(db, userId),
     bans: bans.map((ban) => {
       const appeal = appeals.find((a) => a.banId === ban.id);
       return { ...banView(ban, names), appeal: appeal ? appealView(appeal, names) : null };

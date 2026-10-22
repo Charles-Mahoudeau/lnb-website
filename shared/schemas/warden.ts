@@ -359,6 +359,17 @@ export const wardenSessionView = z.object({
 export type WardenSessionView = z.infer<typeof wardenSessionView>;
 export const wardenSessionPage = wardenPage(wardenSessionView);
 
+/** A device of the LNB Warden mod, as the player sees it on /minecraft/warden. */
+export const wardenDeviceView = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  createdAt: z.iso.datetime(),
+  lastUsedAt: z.iso.datetime(),
+  expiresAt: z.iso.datetime(),
+});
+export type WardenDeviceView = z.infer<typeof wardenDeviceView>;
+export const wardenDeviceList = z.array(wardenDeviceView);
+
 /** GET /api/warden/me: everything the /warden page shows. */
 export const wardenMe = z.object({
   serverUrl: z.string(),
@@ -468,6 +479,7 @@ export const wardenPlayerDetail = z.object({
     limit: wardenLimit,
   }),
   accounts: z.array(wardenAccountView),
+  devices: z.array(wardenDeviceView),
   bans: z.array(wardenBanView.extend({ appeal: wardenAppealView.nullable() })),
   notes: z.array(wardenNoteView),
   sessions: wardenSessionPage,
@@ -503,6 +515,11 @@ export const wardenSettingsPatchBody = z
   })
   .partial();
 
+export const wardenUserDeviceParams = z.object({
+  userId: z.string().min(1).max(64),
+  deviceId: z.uuid(),
+});
+
 export const wardenUserAccountParams = z.object({
   userId: z.string().min(1).max(64),
   uuid: minecraftUuid,
@@ -514,7 +531,7 @@ export const wardenEvent = z.discriminatedUnion('type', [
     type: z.literal('kick'),
     data: z.object({
       uuids: z.array(z.string()),
-      reason: z.enum(['banned', 'unlinked', 'tokenRotated']),
+      reason: z.enum(['banned', 'unlinked', 'tokenRotated', 'deviceRevoked']),
       ban: banSummary.optional(),
     }),
   }),
@@ -560,12 +577,48 @@ export const WARDEN_PROBLEMS = [
 ] as const;
 export type WardenProblem = (typeof WARDEN_PROBLEMS)[number];
 
-/** A device of the LNB Warden mod, as the player sees it on /minecraft/warden. */
-export const wardenDeviceView = z.object({
-  id: z.uuid(),
-  name: z.string(),
-  createdAt: z.iso.datetime(),
-  lastUsedAt: z.iso.datetime(),
-  expiresAt: z.iso.datetime(),
+/** GET /api/warden/client/me: what the mod shows. */
+export const wardenClientMe = z.object({
+  user: z.object({
+    id: z.string(),
+    name: z.string(),
+    shortName: z.string().describe('Such as "Charles M.".'),
+    showRealName: z.boolean(),
+  }),
+  accounts: z.array(
+    z.object({
+      uuid: z.string(),
+      username: z.string(),
+      linkedAt: isoDate,
+      lastSeenAt: isoDate.nullable(),
+      online: z.boolean(),
+      playtimeSeconds: z.number(),
+    }),
+  ),
+  limit: wardenLimit,
+  activeBan: banSummary.nullable(),
+  device: z.object({ id: z.uuid(), name: z.string(), expiresAt: isoDate }),
 });
-export type WardenDeviceView = z.infer<typeof wardenDeviceView>;
+export type WardenClientMe = z.infer<typeof wardenClientMe>;
+
+/** Body of POST /api/warden/client/join-tickets. */
+export const wardenJoinTicketBody = z.object({
+  nonce: z
+    .string()
+    .regex(/^[A-Za-z0-9_-]{43}$/)
+    .describe('32 random bytes in base64url, without padding. The server sees it back at login.'),
+  username: z.string().regex(/^\w{3,16}$/),
+  link: z
+    .boolean()
+    .describe('Whether the player agreed to link this account if it is not linked yet.'),
+});
+export type WardenJoinTicketBody = z.infer<typeof wardenJoinTicketBody>;
+
+export const wardenJoinTicket = z.object({
+  ticket: z.string().describe('Single use. The mod sends it to the Minecraft server.'),
+  expiresAt: isoDate,
+});
+export type WardenJoinTicket = z.infer<typeof wardenJoinTicket>;
+
+/** Body of PUT /api/warden/client/presence. */
+export const wardenPresenceBody = z.object({ state: z.literal('menu') });
