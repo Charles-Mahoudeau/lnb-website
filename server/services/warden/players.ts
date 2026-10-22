@@ -51,7 +51,7 @@ async function limit(dbx: Db, userId: string): Promise<{ used: number; max: numb
   const [linked] = await dbx
     .select({ used: count() })
     .from(minecraftAccount)
-    .where(eq(minecraftAccount.userId, userId));
+    .where(and(eq(minecraftAccount.userId, userId), isNull(minecraftAccount.unlinkedAt)));
   const settings = await wardenSettingsService.get(dbx);
   return {
     used: linked?.used ?? 0,
@@ -64,7 +64,7 @@ async function accounts(dbx: Db, userId: string): Promise<WardenAccountView[]> {
   const rows = await dbx
     .select()
     .from(minecraftAccount)
-    .where(eq(minecraftAccount.userId, userId))
+    .where(and(eq(minecraftAccount.userId, userId), isNull(minecraftAccount.unlinkedAt)))
     .orderBy(asc(minecraftAccount.linkedAt));
   if (rows.length === 0) return [];
   const uuids = rows.map((row) => row.uuid);
@@ -93,6 +93,22 @@ async function accounts(dbx: Db, userId: string): Promise<WardenAccountView[]> {
       .filter((n) => n.minecraftUuid === row.uuid && n.username !== row.username)
       .map((n) => ({ username: n.username, firstSeenAt: n.firstSeenAt.toISOString() })),
   }));
+}
+
+/**
+ * All the playtime the player earned, on accounts they have unlinked too, and on accounts that
+ * another player has since taken over.
+ */
+async function totalPlaytime(dbx: Db, userId: string): Promise<number> {
+  const [own] = await dbx
+    .select({ seconds: sql`coalesce(sum(${minecraftAccount.playtimeSeconds}), 0)`.mapWith(Number) })
+    .from(minecraftAccount)
+    .where(eq(minecraftAccount.userId, userId));
+  const [player] = await dbx
+    .select({ seconds: wardenPlayer.transferredPlaytimeSeconds })
+    .from(wardenPlayer)
+    .where(eq(wardenPlayer.userId, userId));
+  return (own?.seconds ?? 0) + (player?.seconds ?? 0);
 }
 
 /** The past bans and the warnings a player sees on /warden, newest first. */
@@ -155,7 +171,7 @@ async function me(actor: { id: string; name: string; tenantId: string }): Promis
       limit: await limit(tx, actor.id),
       accounts: list,
       totals: {
-        playtimeSeconds: list.reduce((sum, a) => sum + a.playtimeSeconds, 0),
+        playtimeSeconds: await totalPlaytime(tx, actor.id),
         lastSeenAt: lastSeen ?? null,
       },
       activeBan: ban
@@ -188,12 +204,22 @@ async function setShowRealName(actor: { id: string; tenantId: string }, showReal
   });
 }
 
-/** Unlinks a Minecraft account. Its sessions and username history go with it. */
+/**
+ * Unlinks a Minecraft account. The account stays with its sessions and playtime, so the player
+ * can link it again, and so a player who links it later takes it over (see the login).
+ */
 async function unlink(input: { userId: string; uuid: string; actor: WardenActor }) {
   return db.transaction(async (tx) => {
     const [removed] = await tx
-      .delete(minecraftAccount)
-      .where(and(eq(minecraftAccount.uuid, input.uuid), eq(minecraftAccount.userId, input.userId)))
+      .update(minecraftAccount)
+      .set({ unlinkedAt: new Date() })
+      .where(
+        and(
+          eq(minecraftAccount.uuid, input.uuid),
+          eq(minecraftAccount.userId, input.userId),
+          isNull(minecraftAccount.unlinkedAt),
+        ),
+      )
       .returning({ username: minecraftAccount.username });
     if (!removed) refuse(404, 'notLinked');
     const auditId = await wardenAuditService.record(tx, {
@@ -285,7 +311,7 @@ async function lookup(uuid: string): Promise<WardenServerPlayer> {
       ? { id: ban.id, reason: ban.reason, expiresAt: ban.expiresAt?.toISOString() ?? null }
       : null,
     warnings: warnings?.count ?? 0,
-    playtimeSeconds: list.reduce((sum, a) => sum + a.playtimeSeconds, 0),
+    playtimeSeconds: await totalPlaytime(db, owner.userId),
   };
 }
 
@@ -294,6 +320,7 @@ export const wardenPlayerService = {
   ensure,
   limit,
   accounts,
+  totalPlaytime,
   history,
   me,
   setShowRealName,

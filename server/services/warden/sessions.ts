@@ -5,6 +5,7 @@ import {
   minecraftAccount,
   minecraftUsername,
   user,
+  wardenAccountTransfer,
   wardenDevice,
   wardenJoinTicket,
   wardenNote,
@@ -61,14 +62,17 @@ async function login(body: WardenLoginBody): Promise<WardenLogin> {
       .select()
       .from(minecraftAccount)
       .where(eq(minecraftAccount.uuid, body.uuid));
-    if (account && account.userId !== player.userId) return denied('linkedElsewhere');
+    // An unlinked account has no owner for now: its last owner can link it again, and another
+    // player can take it over.
+    const detached = account?.unlinkedAt != null;
+    if (account && account.userId !== player.userId && !detached) return denied('linkedElsewhere');
 
     let linked = false;
-    if (!account) {
+    if (!account || detached) {
       if (!ticket.link) {
         return denied('notLinked', { limit: await wardenPlayerService.limit(tx, player.userId) });
       }
-      const result = await linkAccount(tx, { userId: player.userId, body });
+      const result = await linkAccount(tx, { userId: player.userId, body, existing: account });
       if (result.problem) return denied(result.problem, { limit: result.limit });
       account = result.account;
       linked = true;
@@ -148,8 +152,20 @@ async function useTicket(tx: Tx, body: WardenLoginBody) {
   return device ? ticket : undefined;
 }
 
-/** Links the account to the player, unless the player is at their limit. */
-async function linkAccount(tx: Tx, input: { userId: string; body: WardenLoginBody }) {
+/**
+ * Links the account to the player, unless the player is at their limit. An existing account is an
+ * unlinked one: linking it again keeps its history, and linking it as another player takes it over.
+ * The sessions stay with the previous owner, who also keeps the playtime in their total, and the
+ * account starts again at no playtime for the new one. Admins get a warning about the takeover.
+ */
+async function linkAccount(
+  tx: Tx,
+  input: {
+    userId: string;
+    body: WardenLoginBody;
+    existing: typeof minecraftAccount.$inferSelect | undefined;
+  },
+) {
   // Lock the player row, so two logins at once can't both pass the limit.
   await wardenPlayerService.ensure(tx, input.userId);
   await tx
@@ -162,6 +178,89 @@ async function linkAccount(tx: Tx, input: { userId: string; body: WardenLoginBod
   if (limit.used >= limit.max) {
     return { problem: 'accountLimitReached' as const, limit, account: undefined };
   }
+  const actor = {
+    source: 'minecraft',
+    userId: input.userId,
+    minecraft: { uuid: input.body.uuid, username: input.body.username },
+  } as const;
+
+  if (input.existing) {
+    const { existing } = input;
+    const sameOwner = existing.userId === input.userId;
+    if (!sameOwner) {
+      // Sessions the server never closed would add their time to the new owner.
+      await closeSessions(tx, {
+        where: and(eq(wardenSession.minecraftUuid, existing.uuid), isNull(wardenSession.endedAt)),
+        reason: 'timeout',
+        at: 'lastHeartbeat',
+      });
+    }
+    const [current] = await tx
+      .select()
+      .from(minecraftAccount)
+      .where(eq(minecraftAccount.uuid, existing.uuid))
+      .for('update');
+    // Linked or taken over by someone else between the login's check and now.
+    if (!current || current.unlinkedAt === null || current.userId !== existing.userId) {
+      return { problem: 'linkedElsewhere' as const, limit: undefined, account: undefined };
+    }
+    const [account] = await tx
+      .update(minecraftAccount)
+      .set(
+        sameOwner
+          ? { unlinkedAt: null }
+          : {
+              userId: input.userId,
+              username: input.body.username,
+              linkedAt: new Date(),
+              lastSeenAt: null,
+              playtimeSeconds: 0,
+              unlinkedAt: null,
+            },
+      )
+      .where(eq(minecraftAccount.uuid, existing.uuid))
+      .returning();
+    if (sameOwner) {
+      await wardenAuditService.record(tx, {
+        action: 'link',
+        actor,
+        targetUserId: input.userId,
+        targetMinecraftUuid: existing.uuid,
+        data: { username: existing.username, relinked: true },
+      });
+      return { problem: undefined, limit: undefined, account: account! };
+    }
+    await wardenPlayerService.ensure(tx, existing.userId);
+    await tx
+      .update(wardenPlayer)
+      .set({
+        transferredPlaytimeSeconds: sql`${wardenPlayer.transferredPlaytimeSeconds} + ${current.playtimeSeconds}`,
+      })
+      .where(eq(wardenPlayer.userId, existing.userId));
+    const [transfer] = await tx
+      .insert(wardenAccountTransfer)
+      .values({
+        minecraftUuid: existing.uuid,
+        username: input.body.username,
+        fromUserId: existing.userId,
+        toUserId: input.userId,
+      })
+      .returning({ id: wardenAccountTransfer.id });
+    await wardenAuditService.record(tx, {
+      action: 'link.transfer',
+      actor,
+      targetUserId: input.userId,
+      targetMinecraftUuid: existing.uuid,
+      data: {
+        username: input.body.username,
+        fromUserId: existing.userId,
+        transferId: transfer!.id,
+        playtimeSeconds: current.playtimeSeconds,
+      },
+    });
+    return { problem: undefined, limit: undefined, account: account! };
+  }
+
   const [account] = await tx
     .insert(minecraftAccount)
     .values({ uuid: input.body.uuid, userId: input.userId, username: input.body.username })
@@ -175,11 +274,7 @@ async function linkAccount(tx: Tx, input: { userId: string; body: WardenLoginBod
     .values({ minecraftUuid: account.uuid, username: input.body.username });
   await wardenAuditService.record(tx, {
     action: 'link',
-    actor: {
-      source: 'minecraft',
-      userId: input.userId,
-      minecraft: { uuid: account.uuid, username: account.username },
-    },
+    actor: { ...actor, minecraft: { uuid: account.uuid, username: account.username } },
     targetUserId: input.userId,
     targetMinecraftUuid: account.uuid,
     data: { username: account.username },

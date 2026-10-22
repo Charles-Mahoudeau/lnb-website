@@ -56,7 +56,7 @@ async function serverActor(dbx: Db, issuer: WardenIssuer | undefined): Promise<W
     .select({ userId: user.id, role: user.role })
     .from(minecraftAccount)
     .innerJoin(user, eq(user.id, minecraftAccount.userId))
-    .where(eq(minecraftAccount.uuid, issuer.uuid));
+    .where(and(eq(minecraftAccount.uuid, issuer.uuid), isNull(minecraftAccount.unlinkedAt)));
   if (!staff || !isWardenAdmin(staff.role)) refuse(403, 'issuerNotAllowed');
   return { source: 'minecraft', userId: staff.userId, minecraft: issuer };
 }
