@@ -6,12 +6,13 @@ Warden links Minecraft accounts to LNB accounts and tells the LNB Minecraft serv
 
 - An LNB account can link several Minecraft accounts, up to its limit. The limit is a global setting (1 by default), and admins can override it for one player.
 - A Minecraft account, identified by its UUID, belongs to at most one LNB account.
+- Unlinking keeps the account: its sessions and playtime stay, it only stops counting as linked (`unlinked_at`), and it stops counting against the limit. The same player can link it again and get their history back. See "Account takeovers".
 - Warden is open to the schools listed for the `warden` app in `shared/utils/link-apps.ts` (Epitech for now).
 - The Minecraft server is mod-only and runs in offline mode. A Minecraft account's UUID is the offline UUID of its username, `UUID.nameUUIDFromBytes("OfflinePlayer:" + username)`, and usernames are case-sensitive. The site checks this on every login.
 - The LNB Warden mod proves who the player is. It holds a device token, created when the player approves the device on `/link`, and asks the site for a single-use join ticket before each join. The player can revoke a device at any time from `/minecraft/warden`, which signs out its online sessions.
 - Bans apply to the LNB account, so they cover all of its Minecraft accounts. There is at most one active ban per player. A new ban replaces the active one. Warden bans are separate from site bans.
-- Every change (link, unlink, device link, denial and revocation, ban, unban, appeal, note, warning, limit, role, settings) is written to the audit log with who did it, when, and from where (the site, the Minecraft server, or the system).
-- No IP addresses are stored. Session history is kept with the account and deleted with it. Players' first name and initial show in-game under their username by default. They can hide it from `/minecraft/warden`.
+- Every change (link, unlink, account takeover, device link, denial and revocation, ban, unban, appeal, note, warning, limit, role, settings) is written to the audit log with who did it, when, and from where (the site, the Minecraft server, or the system).
+- No IP addresses are stored. Session history is kept with the account and deleted with it, also after an unlink. Players' first name and initial show in-game under their username by default. They can hide it from `/minecraft/warden`.
 
 ## Flows
 
@@ -91,9 +92,9 @@ The checks run in this order:
 3. The player's school is no longer allowed: `schoolNotAllowed`.
 4. An active ban: `banned`, with `ban`. This comes before linking.
 5. The account is linked to another LNB account: `linkedElsewhere`.
-6. Not linked, and the ticket says `link: false`: `notLinked`, with `limit`.
+6. Not linked (never linked, or unlinked by anyone), and the ticket says `link: false`: `notLinked`, with `limit`.
 7. Not linked, `link: true`, and the limit is reached: `accountLimitReached`, with `limit`.
-8. Not linked, `link: true`: the account is linked, with an audit entry.
+8. Not linked, `link: true`: the account is linked, with an audit entry. An unlinked account that belonged to this player keeps its history. One that belonged to another player is taken over (see below).
 9. A session is opened, recording the device: `allowed`.
 
 Allowed:
@@ -192,7 +193,7 @@ Server-Sent Events. Each event's `id` is its audit log ID. Send `Last-Event-ID` 
 | `PATCH /api/warden/me`                    | `{ "showRealName": true }`                                                                                                                                                                                                                                              |
 | `GET /api/warden/me/devices`              | The player's active devices: `id`, `name`, `createdAt`, `lastUsedAt`, `expiresAt`.                                                                                                                                                                                      |
 | `DELETE /api/warden/me/devices/:id`       | Revokes a device (204) and kicks its online sessions.                                                                                                                                                                                                                   |
-| `DELETE /api/warden/me/accounts/:uuid`    | Unlinks an account, and kicks it if it's online.                                                                                                                                                                                                                        |
+| `DELETE /api/warden/me/accounts/:uuid`    | Unlinks an account (its playtime and sessions stay), and kicks it if it's online.                                                                                                                                                                                       |
 | `GET /api/warden/me/sessions`             | Recent sessions, newest first.                                                                                                                                                                                                                                          |
 | `POST /api/warden/me/bans/:banId/appeal`  | `{ "body": "..." }`. Once per ban, while it's active.                                                                                                                                                                                                                   |
 | `GET /api/warden/link-requests/:userCode` | For `/link`: the device behind a code the player has claimed, `{ "kind": "device", "deviceName": "..." }`.                                                                                                                                                              |
@@ -208,6 +209,7 @@ Server-Sent Events. Each event's `id` is its audit log ID. Send `Last-Event-ID` 
 | `PUT /api/warden/admin/players/:userId/role`                 | `{ "wardenAdmin": true }`. Site admins only.                                                         |
 | `DELETE /api/warden/admin/players/:userId/devices/:deviceId` | Revokes one of the player's devices.                                                                 |
 | `DELETE /api/warden/admin/players/:userId/accounts/:uuid`    | Unlinks an account.                                                                                  |
+| `POST /api/warden/admin/transfers/:transferId/dismiss`       | Dismisses the warning about an account takeover, for both players (204, `alreadyDismissed` 409).     |
 | `POST /api/warden/admin/players/:userId/bans`                | `{ "reason": "...", "durationSeconds": 86400 }`                                                      |
 | `POST /api/warden/admin/bans/:banId/revoke`                  | `{ "reason": "optional" }`                                                                           |
 | `POST /api/warden/admin/players/:userId/notes`               | `{ "kind": "note", "body": "..." }`. A `note` stays private, and a `warning` is shown to the player. |
@@ -216,6 +218,18 @@ Server-Sent Events. Each event's `id` is its audit log ID. Send `Last-Event-ID` 
 | `POST /api/warden/admin/appeals/:id/decision`                | `{ "accept": true, "response": "..." }`. Accepting lifts the ban.                                    |
 | `GET /api/warden/admin/audit?userId=&action=&source=`        | The audit log.                                                                                       |
 | `GET` and `PATCH /api/warden/admin/settings`                 | `{ "defaultMaxAccounts": 1 }`                                                                        |
+
+## Account takeovers
+
+The server is in offline mode, so a username proves nothing: an unlinked account's UUID can be linked by anyone who picks the same username. When a player links an account that another player unlinked:
+
+- The account moves to the new player and starts again at no playtime, with the new player's username and link date.
+- The sessions stay with the previous owner (`warden_session.user_id`). The account's playtime is added to `warden_player.transferred_playtime_seconds`, so the previous owner's total stays the same.
+- The takeover is recorded in `warden_account_transfer` and in the audit log (`link.transfer`, on the new player, with the previous one's ID). It counts against the new player's limit like any link.
+- Admins see a warning pill in the Players list on both players ("Took over an account", "Account taken over", or "Account takeovers" when both), and the takeovers on each player's page. Any Warden admin can dismiss a takeover, for both players (`transfer.dismiss`). The pill goes away when none is left to review, and the takeover stays on the page.
+- Players never see any of this, in the site, the mod or the API. Their unlink dialog only says the playtime is kept if they link the account again.
+
+A link by the same player is not a takeover.
 
 ## Environment
 
