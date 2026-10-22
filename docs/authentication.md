@@ -61,11 +61,11 @@ After that, site admins manage accounts on `/admin/users`, through `/api/admin/u
 
 ## Linking apps
 
-Apps link to an account with a 6-digit code, through Better Auth's device authorization plugin ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628)). Warden, the Minecraft link, works differently: its server creates the codes, and linking gives no token. See `docs/warden.md`. For other apps:
+Apps link to an account with a 6-digit code, through Better Auth's device authorization plugin ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628)). Warden, the Minecraft mod, works differently: the mod creates its own codes (`POST /api/warden/client/link-requests`), and linking gives it a device token that only works on `/api/warden/client/**` (`Authorization: Bearer`, the `wardenClient` scheme). See `docs/warden.md`. For other apps:
 
 1. The app calls `POST /api/auth/device/code` with its `client_id`. It gets a `device_code`, a 6-digit `user_code` that lasts 10 minutes, and `verification_uri_complete` (`/link?user_code=…`). `/link` reads the code from `?code=`, and still accepts Better Auth's `?user_code=`.
 2. The person enters the code on `/link`, signed in. Checking it (`GET /api/auth/device`) claims it for them. The page then shows the app, the code and what the app receives, and they choose Link or Cancel.
-3. Link calls `POST /api/link/approve` (`server/services/links.ts`). Better Auth's own `/device/approve` is disabled, so the school and redirect rules below can't be skipped.
+3. Link calls `POST /api/link/approve` (`server/services/links.ts`). Better Auth's own `/device/approve` and `/device/deny` are disabled (Cancel calls `POST /api/link/deny`), so the school and redirect rules below can't be skipped.
 4. The app gets its access token in one of two ways:
    - It polls `POST /api/auth/device/token` every 5 seconds until the code is approved.
    - Or it opens `/link?code=…&redirect_uri=…&state=…`. Once linked, the browser goes to `redirect_uri` with `access_token`, `token_type`, `expires_in` and `state` in the query. The code is used up there, so an app that takes this path must not poll.
@@ -76,7 +76,7 @@ Apps are listed in `shared/utils/link-apps.ts`. To add one, add its ID and name 
 - `schools`: the tenant IDs of the schools whose students can link it. Students from other schools see a page that says so, and their code is refused, so the app gets `access_denied`.
 - `redirectAfterLink`: where to send people once linked when the link has no `redirect_uri`. A path on this site (Warden uses `/minecraft/warden`) or a full URL. It's set in code, so it isn't checked against `redirectUris`.
 - `redirectUris`: the only addresses `redirect_uri` may use, matched on origin and path. Loopback addresses (`127.0.0.1`, `[::1]`, `localhost`) match on any port, for apps that listen on the person's own device ([RFC 8252](https://datatracker.ietf.org/doc/html/rfc8252#section-7.3)). Apps should send a random `state` and check it comes back, so that no other page can hand them a token.
-- `issuedByServer`: the app's own server creates its codes and decides what linking does, as Warden does (see `docs/warden.md`). Better Auth's `/device/code` and `/device/token` refuse the app, and linking gives no token: `/api/link/approve` runs the app's linking, then sends the person to `redirectAfterLink`.
+- `issuedByServer`: the app creates its codes through its own routes and decides what linking does, as Warden does (see `docs/warden.md`). Better Auth's `/device/code` and `/device/token` refuse the app, and linking gives no token: `/api/link/approve` runs the app's linking, then sends the person to `redirectAfterLink`.
 
 `GET /api/auth/device` is limited to 5 tries per 10 minutes per IP, since there are only a million codes. Better Auth applies its rate limits in production only.
 

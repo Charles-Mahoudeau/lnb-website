@@ -49,7 +49,7 @@ server/               Nitro server, picked up by Nuxt automatically
   plugins/            Nitro plugins: migrate.ts applies pending migrations at startup (its state feeds /api/health), avatars.ts
                       gives server/lib/ the avatars service
   utils/              auth guards (requireUser, requireAdmin, requireWardenAdmin,
-                      requireEventsManager, requireWardenServer), body and
+                      requireEventsManager, requireWardenServer, requireWardenClient), body and
                       params validation (parseBody, parseParams, parseQuery), later typed errors
   lib/                code without Nuxt imports, loaded by the Better Auth CLI too:
     auth.ts           Better Auth setup: Microsoft provider, tenant allowlist, admin plugin

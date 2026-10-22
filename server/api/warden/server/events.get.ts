@@ -7,7 +7,7 @@ import { wardenEventService } from '~~/server/services/warden/events';
 const POLL_MS = 1000;
 const PING_MS = 25_000;
 
-// Server-Sent Events for the Minecraft server: kicks, unbans, links and settings, numbered with
+// Server-Sent Events for the Minecraft server: kicks, unbans and settings, numbered with
 // audit log IDs. Send Last-Event-ID when reconnecting to get the events you missed.
 export default defineEventHandler(async (event) => {
   requireWardenServer(event);
