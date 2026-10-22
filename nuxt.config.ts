@@ -45,6 +45,8 @@ export default defineNuxtConfig({
   nitro: {
     // Scheduled jobs in server/tasks/.
     experimental: { tasks: true },
+    // Service tests against a real database load server code, so the server tsconfig checks them.
+    typescript: { tsConfig: { include: ['../test/server/**/*'] } },
     hooks: {
       // The startup migration plugin (server/plugins/migrate.ts) reads the SQL files at runtime.
       compiled: (nitro) => {

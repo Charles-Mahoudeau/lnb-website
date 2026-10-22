@@ -519,3 +519,13 @@ export const WARDEN_PROBLEMS = [
   'invalidCursor',
 ] as const;
 export type WardenProblem = (typeof WARDEN_PROBLEMS)[number];
+
+/** A device of the LNB Warden mod, as the player sees it on /minecraft/warden. */
+export const wardenDeviceView = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  createdAt: z.iso.datetime(),
+  lastUsedAt: z.iso.datetime(),
+  expiresAt: z.iso.datetime(),
+});
+export type WardenDeviceView = z.infer<typeof wardenDeviceView>;

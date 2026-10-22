@@ -102,6 +102,79 @@ export const wardenLinkRequest = pgTable(
   ],
 );
 
+/**
+ * One install of the LNB Warden mod, signed in to an LNB account. Only the SHA-256 of its bearer
+ * token is stored. The expiry slides: using the device pushes it 90 days out.
+ */
+export const wardenDevice = pgTable(
+  'warden_device',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull().unique(),
+    name: text('name').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    lastUsedAt: timestamp('last_used_at').defaultNow().notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    revokedAt: timestamp('revoked_at'),
+  },
+  (table) => [index('warden_device_user_id_idx').on(table.userId)],
+);
+
+/**
+ * The mod's request to be linked. The six-digit code is a Better Auth device code (client
+ * "warden"), so /link claims and expires it like any other, and its status is the code's. The
+ * device is created on the first poll after approval, which is also the only time its token is
+ * shown.
+ */
+export const wardenDeviceRequest = pgTable('warden_device_request', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  deviceCodeId: text('device_code_id')
+    .notNull()
+    .unique()
+    .references(() => deviceCode.id, { onDelete: 'cascade' }),
+  deviceName: text('device_name').notNull(),
+  pollSecretHash: text('poll_secret_hash').notNull(),
+  // Set when the token was handed over. Later polls answer "expired".
+  redeemedAt: timestamp('redeemed_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+/** A one-minute, single-use proof that a device asked to join as a given username. */
+export const wardenJoinTicket = pgTable(
+  'warden_join_ticket',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    ticketHash: text('ticket_hash').notNull().unique(),
+    deviceId: uuid('device_id')
+      .notNull()
+      .references(() => wardenDevice.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    nonce: text('nonce').notNull(),
+    username: text('username').notNull(),
+    link: boolean('link').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    usedAt: timestamp('used_at'),
+  },
+  (table) => [index('warden_join_ticket_expires_at_idx').on(table.expiresAt)],
+);
+
+/** A device sitting in the Minecraft menu. It counts for three minutes after the last PUT. */
+export const wardenPresence = pgTable('warden_presence', {
+  deviceId: uuid('device_id')
+    .primaryKey()
+    .references(() => wardenDevice.id, { onDelete: 'cascade' }),
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  expiresAt: timestamp('expires_at').notNull(),
+});
+
 export type WardenSessionEndReason = 'quit' | 'kicked' | 'timeout';
 
 /** One stay on the Minecraft server, from login to quit (or the last heartbeat). */
@@ -115,6 +188,8 @@ export const wardenSession = pgTable(
     userId: text('user_id')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
+    // The device that logged in. Revoking it ends the session.
+    deviceId: uuid('device_id').references(() => wardenDevice.id, { onDelete: 'set null' }),
     startedAt: timestamp('started_at').defaultNow().notNull(),
     lastHeartbeatAt: timestamp('last_heartbeat_at').defaultNow().notNull(),
     endedAt: timestamp('ended_at'),
@@ -208,6 +283,10 @@ export const WARDEN_AUDIT_ACTIONS = [
   'link.cancel',
   'unlink',
   'token.rotate',
+  // A device of the LNB Warden mod (docs/warden.md): linked from /link, denied there, or revoked.
+  'device.link',
+  'device.deny',
+  'device.revoke',
   'ban',
   'unban',
   'ban.expire',

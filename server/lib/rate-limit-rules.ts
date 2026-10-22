@@ -21,6 +21,23 @@ const WARDEN_SERVER_PER_IP: RateRule = {
   by: 'ip',
 };
 
+// The mod before it has a device (link requests) and with one (join tickets, presence). The
+// device limits are per device and live in the handlers; this is the IP ceiling.
+const WARDEN_CLIENT_PER_IP: RateRule = {
+  name: 'warden-client',
+  points: 600,
+  windowSeconds: 60,
+  by: 'ip',
+};
+// Asking to link is open to anyone, so it is limited more tightly. A campus shares one IP, so
+// this is higher than a single person needs.
+const WARDEN_LINK_REQUEST: RateRule = {
+  name: 'warden-link-request',
+  points: 30,
+  windowSeconds: 600,
+  by: 'ip',
+};
+
 const SENSITIVE_WRITE: RateRule = {
   name: 'write-sensitive',
   points: 10,
@@ -51,6 +68,11 @@ export function rulesFor(method: string, path: string): RateRule[] {
   // Better Auth has its own limits (docs/authentication.md), and the health check must answer.
   if (path.startsWith('/api/auth/') || path === '/api/health') return [];
   if (path.startsWith('/api/warden/server/')) return [WARDEN_SERVER_PER_IP];
+  if (path.startsWith('/api/warden/client/')) {
+    return method.toUpperCase() === 'POST' && path === '/api/warden/client/link-requests'
+      ? [WARDEN_CLIENT_PER_IP, WARDEN_LINK_REQUEST]
+      : [WARDEN_CLIENT_PER_IP];
+  }
 
   const rules = [API_PER_IP];
   if (!MUTATING.has(method.toUpperCase())) return rules;

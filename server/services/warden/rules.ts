@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 
 // Warden's pure rules, without database or Nuxt imports, so plain unit tests can load them.
 
@@ -40,4 +40,26 @@ export function shortName(name: string): string {
   const [first = '', ...rest] = name.trim().split(/\s+/);
   const last = rest.at(-1);
   return last ? `${first} ${last.charAt(0).toUpperCase()}.` : first;
+}
+
+/** Prefix of a device token, so a leaked one is easy to spot and revoke. */
+export const DEVICE_TOKEN_PREFIX = 'lnbw_';
+/** A device unused for this long is signed out. Using it pushes the expiry out again. */
+export const DEVICE_LIFETIME_MS = 90 * 24 * 60 * 60 * 1000;
+/** Using a device writes its last use and expiry at most this often. */
+export const DEVICE_TOUCH_INTERVAL_MS = 60 * 60 * 1000;
+
+/** `lnbw_` and 32 random bytes in base64url (256 bits). Shown once, stored as a hash. */
+export function generateDeviceToken(): string {
+  return DEVICE_TOKEN_PREFIX + randomBytes(32).toString('base64url');
+}
+
+/** What the database stores for a secret that is only compared, never shown again. */
+export function hashSecret(secret: string): string {
+  return createHash('sha256').update(secret).digest('hex');
+}
+
+/** Whether the device's last use is old enough to be written again. */
+export function shouldTouchDevice(lastUsedAt: Date, now = Date.now()): boolean {
+  return now - lastUsedAt.getTime() >= DEVICE_TOUCH_INTERVAL_MS;
 }

@@ -18,7 +18,7 @@ export default defineConfig({
         },
       },
       {
-        // Services against a real PostgreSQL, in a throwaway database (test/db/README in
+        // Services against a real PostgreSQL, in a throwaway database (test/db and test/server, see
         // docs/architecture.md). Needs `docker compose up -d`, like the dev server.
         resolve: {
           alias: {
@@ -28,7 +28,7 @@ export default defineConfig({
         },
         test: {
           name: 'db',
-          include: ['test/db/**/*.test.ts'],
+          include: ['test/db/**/*.test.ts', 'test/server/**/*.test.ts'],
           environment: 'node',
           globalSetup: ['test/db/global-setup.ts'],
           env: { DATABASE_URL: testDatabaseUrl('lnb_test') },

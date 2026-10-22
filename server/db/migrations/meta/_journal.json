@@ -113,6 +113,13 @@
       "when": 1792686523614,
       "tag": "0015_warden_offline_accounts",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1792687068419,
+      "tag": "0016_warden_devices",
+      "breakpoints": true
     }
   ]
 }

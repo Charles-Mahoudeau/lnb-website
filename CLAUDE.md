@@ -24,7 +24,7 @@ The target file structure and the server and client rules are in `docs/architect
 - `pnpm lint` / `pnpm lint:fix`: ESLint (`@nuxt/eslint`, stylistic rules off)
 - `pnpm format` / `pnpm format:check`: Prettier, which owns all formatting
 - `pnpm typecheck`: `nuxt typecheck` (vue-tsc)
-- `pnpm test`: all Vitest projects. `unit` (`test/unit/**`, plain Node), `nuxt` (`test/nuxt/**`, Nuxt runtime with `mountSuspended`) and `db` (`test/db/**`, needs the Compose PostgreSQL running; it creates its own `lnb_test` database)
+- `pnpm test`: all Vitest projects. `unit` (`test/unit/**`, plain Node), `nuxt` (`test/nuxt/**`, Nuxt runtime with `mountSuspended`) and `db` (`test/db/**` and `test/server/**`, needs the Compose PostgreSQL running; it creates its own `lnb_test` database)
 - Single test: `pnpm vitest run test/nuxt/app.test.ts`, or `pnpm vitest run -t "shows the site name"`. Use `--project unit` or `--project nuxt` to pick one project.
 
 CI (`.github/workflows/ci.yml`) runs lint, format check, typecheck, tests, build, `pnpm audit --prod` and gitleaks. Audit exceptions and security overrides live in `pnpm-workspace.yaml`, each with its reason. Re-check them when Nuxt is bumped.

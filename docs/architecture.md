@@ -74,7 +74,8 @@ public/               static files served as-is
 test/
   unit/               plain Node tests (Vitest project "unit")
   nuxt/               tests that need the Nuxt runtime (Vitest project "nuxt")
-  db/                 tests against a real PostgreSQL database (Vitest project "db"), migrations included
+  db/                 migration tests against a real PostgreSQL database (Vitest project "db")
+  server/             service tests against the same database (also project "db")
 docs/                 project documentation
 .github/workflows/    CI
 ```
