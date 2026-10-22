@@ -72,7 +72,7 @@ function onContinue() {
       step.value = { name: 'schoolNotAllowed', appId };
       return;
     }
-    // Warden codes carry a Minecraft account: show it, and the slot it takes.
+    // Warden codes carry a device, or a Minecraft account and the slot it takes: show it.
     const warden = appId === 'warden' ? await linkCode.wardenPreview(code.value) : undefined;
     step.value = { name: 'confirm', appId, warden };
   });
@@ -155,7 +155,11 @@ onMounted(() => {
 
       <template v-else-if="step.name === 'confirm'">
         <h1 class="text-4xl font-bold text-highlighted">
-          {{ t('link.confirm.title', { app: appName }) }}
+          {{
+            step.warden?.kind === 'device'
+              ? t('link.warden.deviceTitle', { app: appName, device: step.warden.deviceName })
+              : t('link.confirm.title', { app: appName })
+          }}
         </h1>
 
         <div class="flex w-full flex-col gap-4 rounded-lg bg-elevated p-5 text-left">
@@ -166,7 +170,7 @@ onMounted(() => {
               {{ spacedCode }}
             </span>
           </p>
-          <template v-if="step.warden">
+          <template v-if="step.warden?.kind === 'minecraft'">
             <USeparator />
             <div class="flex items-center gap-4">
               <WardenMinecraftHead :uuid="step.warden.uuid" size="lg" />
@@ -244,7 +248,9 @@ onMounted(() => {
             icon="i-lucide-link"
             :label="t('link.confirm.link')"
             :loading="pending"
-            :disabled="!!step.warden && step.warden.limit.used >= step.warden.limit.max"
+            :disabled="
+              step.warden?.kind === 'minecraft' && step.warden.limit.used >= step.warden.limit.max
+            "
             @click="onLink(step.appId)"
           />
           <UButton

@@ -66,13 +66,51 @@ export type WardenLinkRequestStatus = z.infer<typeof wardenLinkRequestStatus>['s
 
 const wardenLimit = z.object({ used: z.number(), max: z.number() });
 
-/** The Minecraft account behind a code, for the /link page. */
-export const wardenLinkPreview = z.object({
-  uuid: z.string(),
-  username: z.string(),
-  limit: wardenLimit,
-});
+/** What a code stands for, for the /link page. */
+export const wardenLinkPreview = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.literal('minecraft'),
+    uuid: z.string(),
+    username: z.string(),
+    limit: wardenLimit,
+  }),
+  z.object({
+    kind: z.literal('device'),
+    deviceName: z.string().describe('The name the mod gave its device.'),
+  }),
+]);
 export type WardenLinkPreview = z.infer<typeof wardenLinkPreview>;
+
+/** Body of POST /api/warden/client/link-requests. */
+export const wardenClientLinkRequestBody = z.object({
+  deviceName: z.string().trim().min(1).max(64).describe('Shown on /link, such as "Laptop".'),
+});
+export type WardenClientLinkRequestBody = z.infer<typeof wardenClientLinkRequestBody>;
+
+export const wardenClientLinkRequest = z.object({
+  requestId: z.uuid(),
+  pollSecret: z.string().describe('Proves the poller made the request. Shown once.'),
+  userCode: z.string().describe('The 6-digit code the player enters on /link.'),
+  verificationUri: z.string(),
+  verificationUriComplete: z.string().describe('/link with the code filled in.'),
+  expiresAt: isoDate,
+  expiresIn: z.number().describe('Seconds until the code expires.'),
+  interval: z.number().describe('Seconds to wait between two polls.'),
+});
+export type WardenClientLinkRequest = z.infer<typeof wardenClientLinkRequest>;
+
+export const wardenClientPollBody = z.object({ pollSecret: z.string().min(1).max(200) });
+
+export const wardenClientPoll = z.discriminatedUnion('status', [
+  z.object({ status: z.enum(['pending', 'denied', 'expired']) }),
+  z.object({
+    status: z.literal('approved'),
+    token: z.string().describe('The device token. Shown once: later polls answer "expired".'),
+    expiresAt: isoDate,
+    user: z.object({ id: z.string(), name: z.string() }),
+  }),
+]);
+export type WardenClientPoll = z.infer<typeof wardenClientPoll>;
 
 /** Body of POST /api/warden/server/login. */
 export const wardenLoginBody = z.object({
@@ -517,6 +555,8 @@ export const WARDEN_PROBLEMS = [
   'appealClosed',
   'schoolNotAllowed',
   'invalidCursor',
+  'slowDown',
+  'rateLimited',
 ] as const;
 export type WardenProblem = (typeof WARDEN_PROBLEMS)[number];
 

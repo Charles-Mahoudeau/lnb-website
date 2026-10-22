@@ -53,11 +53,14 @@ export function useLinkCode() {
   }
 
   async function deny(code: string) {
-    const { error } = await authClient().device.deny({ userCode: code });
-    if (error) throw fromAuthClient(error);
+    try {
+      await $fetch('/api/link/deny', { method: 'POST', body: { userCode: code } });
+    } catch (error) {
+      throw fromApi(error);
+    }
   }
 
-  /** The Minecraft account behind a Warden code the user just checked, and their slots. */
+  /** What a Warden code the user just checked stands for: a device, or a Minecraft account and their slots. */
   async function wardenPreview(code: string): Promise<WardenLinkPreview> {
     try {
       return await $fetch<WardenLinkPreview>(`/api/warden/link-requests/${code}`);

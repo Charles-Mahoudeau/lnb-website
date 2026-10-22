@@ -23,9 +23,9 @@ export interface LinkApp {
 // authorization). An app sends its ID as `client_id`, and codes from any other ID are refused.
 // The app's description is under `link.apps.<id>` in the locale files.
 export const LINK_APPS: Readonly<Record<string, LinkApp>> = {
-  // Minecraft accounts, linked from codes the Minecraft server creates. See docs/warden.md.
+  // The LNB Warden Minecraft mod: its devices link with a code. See docs/warden.md.
   warden: {
-    name: 'Warden',
+    name: 'LNB Warden',
     schools: ['901cb4ca-b862-4029-9306-e5cd0f6d9f86'], // Epitech
     redirectAfterLink: '/minecraft/warden',
     issuedByServer: true,

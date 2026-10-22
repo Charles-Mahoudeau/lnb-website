@@ -4,6 +4,7 @@ import { createError } from 'nuxt/server';
 import { db } from '~~/server/db';
 import { deviceCode } from '~~/server/db/schema';
 import { auth } from '~~/server/lib/auth';
+import { wardenDeviceLinkService } from '~~/server/services/warden/device-links';
 import { wardenLinkService } from '~~/server/services/warden/links';
 
 import type { LinkApproveBody, LinkProblem } from '#shared/schemas/link';
@@ -49,6 +50,12 @@ async function approve(input: {
     }
 
     if (app.issuedByServer) {
+      const device = await wardenDeviceLinkService.decide(tx, {
+        actorId: actor.id,
+        deviceCodeId: code.id,
+        decision: 'approved',
+      });
+      if (device.handled) return { path: app.redirectAfterLink };
       const problem = await wardenLinkService.approve(tx, {
         actorId: actor.id,
         deviceCodeId: code.id,
@@ -87,4 +94,31 @@ async function approve(input: {
   return { redirectTo: isPath ? `${url.pathname}${url.search}` : url.toString() };
 }
 
-export const linkService = { approve };
+/**
+ * Denies a link code for the signed-in user. Replaces Better Auth's /device/deny (disabled in
+ * server/lib/auth.ts) so the denial of a Warden device is audited like its approval.
+ */
+async function deny(input: { actor: { id: string }; userCode: string }): Promise<void> {
+  await db.transaction(async (tx) => {
+    const [code] = await tx
+      .select()
+      .from(deviceCode)
+      .where(eq(deviceCode.userCode, input.userCode))
+      .for('update');
+    if (!code || code.userId !== input.actor.id || !getLinkApp(code.clientId)) {
+      refuse(400, 'unknown');
+    }
+    if (code.expiresAt < new Date()) refuse(400, 'expired');
+    if (code.status !== 'pending') refuse(400, 'used');
+    const device = await wardenDeviceLinkService.decide(tx, {
+      actorId: input.actor.id,
+      deviceCodeId: code.id,
+      decision: 'denied',
+    });
+    if (!device.handled) {
+      await tx.update(deviceCode).set({ status: 'denied' }).where(eq(deviceCode.id, code.id));
+    }
+  });
+}
+
+export const linkService = { approve, deny };

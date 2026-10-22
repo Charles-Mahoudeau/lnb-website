@@ -213,7 +213,7 @@
     },
     "apps": {
       "warden": {
-        "description": "Warden associe ton compte Minecraft à ton compte LNB."
+        "description": "LNB Warden est le mod Minecraft du serveur LNB. Une fois associé, il connecte cet appareil avec ton compte LNB, et tes comptes Minecraft y sont liés quand tu rejoins le serveur."
       }
     },
     "errors": {
@@ -235,7 +235,8 @@
     "warden": {
       "account": "Compte Minecraft",
       "slots": "Cela utilise ton unique emplacement de compte. | Cela utilise un de tes {max} emplacements de compte.",
-      "identity": "Ton prénom et l’initiale de ton nom, affichés en jeu sous ton pseudo sauf si tu les masques"
+      "identity": "Ton prénom et l’initiale de ton nom, affichés en jeu sous ton pseudo sauf si tu les masques",
+      "deviceTitle": "Associer {app} ({device}) à ton compte ?"
     }
   },
   "warden": {
@@ -755,6 +756,10 @@
         "warden_serverApi": {
           "label": "API du serveur Minecraft",
           "description": "Ce qu’appelle le plugin Warden sur le serveur Minecraft. Le plugin reçoit une erreur 503 tant que c’est coupé."
+        },
+        "warden_clientApi": {
+          "label": "API du mod",
+          "description": "Ce que le mod LNB Warden appelle : liaison d’un appareil, tickets de connexion et présence. Le mod reçoit un 503 tant que c’est désactivé."
         },
         "appLinking": {
           "label": "Liaison d’applications",

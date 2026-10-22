@@ -10,6 +10,10 @@ export const linkApproveBody = z.object({
 
 export type LinkApproveBody = z.infer<typeof linkApproveBody>;
 
+/** Body of POST /api/link/deny, sent by the /link page. */
+export const linkDenyBody = z.object({ userCode: z.string().regex(/^\d{6}$/) });
+export type LinkDenyBody = z.infer<typeof linkDenyBody>;
+
 /** Response of POST /api/link/approve. */
 export const linkApproveResult = z.object({
   redirectTo: z.string().optional().describe('Where to send the person once linked, if anywhere.'),

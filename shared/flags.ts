@@ -23,6 +23,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'warden.linking', parent: 'warden' },
   { key: 'warden.appeals', parent: 'warden' },
   { key: 'warden.serverApi', parent: 'warden' },
+  { key: 'warden.clientApi', parent: 'warden' },
   { key: 'appLinking' },
   { key: 'avatars' },
   { key: 'avatars.microsoftPhoto', parent: 'avatars' },

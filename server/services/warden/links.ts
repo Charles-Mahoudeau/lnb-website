@@ -1,5 +1,3 @@
-import { randomUUID } from 'node:crypto';
-
 import { and, desc, eq, gt } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
@@ -10,11 +8,17 @@ import {
   wardenLinkRequest,
   wardenPlayer,
 } from '~~/server/db/schema';
-import { generateDeviceCode, generateLinkCode } from '~~/server/lib/link-codes';
 import { uuidMatchesUsername } from '~~/server/lib/minecraft';
 import { wardenEnv } from '~~/server/lib/warden-env';
 
 import { wardenAuditService } from './audit';
+import {
+  insertDeviceCode,
+  LINK_CODE_LIFETIME_SECONDS as EXPIRES_IN_SECONDS,
+  POLL_INTERVAL_SECONDS,
+  WARDEN_CLIENT_ID as CLIENT_ID,
+} from './codes';
+import { wardenDeviceLinkService } from './device-links';
 import { wardenModerationService } from './moderation';
 import { wardenPlayerService } from './players';
 import { refuse } from './shared';
@@ -27,10 +31,6 @@ import type {
   WardenLinkRequestBody,
   WardenLinkRequestStatus,
 } from '#shared/schemas/warden';
-
-const CLIENT_ID = 'warden';
-const EXPIRES_IN_SECONDS = 10 * 60;
-const POLL_INTERVAL_SECONDS = 5;
 
 function toResponse(row: {
   id: string;
@@ -114,29 +114,6 @@ async function create(
   return options.tx ? run(options.tx) : db.transaction(run);
 }
 
-/** A Better Auth device code for Warden, so /link claims and expires it like any other. */
-async function insertDeviceCode(tx: Tx, expiresAt: Date) {
-  // A million codes: retry on the rare clash with a live one, inside a savepoint.
-  for (let attempt = 0; attempt < 5; attempt++) {
-    const values = {
-      id: randomUUID(),
-      deviceCode: generateDeviceCode(),
-      userCode: generateLinkCode(),
-      expiresAt,
-      status: 'pending',
-      pollingInterval: POLL_INTERVAL_SECONDS * 1000,
-      clientId: CLIENT_ID,
-    };
-    const inserted = await tx
-      .insert(deviceCode)
-      .values(values)
-      .onConflictDoNothing()
-      .returning({ id: deviceCode.id });
-    if (inserted.length) return values;
-  }
-  throw new Error('Could not find a free link code');
-}
-
 /** Where a link request stands, for the Minecraft server. */
 async function status(
   id: string,
@@ -159,6 +136,8 @@ async function status(
 
 /** The Minecraft account behind a code the user has claimed on /link. */
 async function preview(input: { actorId: string; userCode: string }): Promise<WardenLinkPreview> {
+  const device = await wardenDeviceLinkService.preview(input);
+  if (device) return device;
   const [row] = await db
     .select({
       uuid: wardenLinkRequest.minecraftUuid,
@@ -174,7 +153,7 @@ async function preview(input: { actorId: string; userCode: string }): Promise<Wa
       ),
     );
   if (!row) refuse(404, 'notFound');
-  return { ...row, limit: await wardenPlayerService.limit(db, input.actorId) };
+  return { kind: 'minecraft', ...row, limit: await wardenPlayerService.limit(db, input.actorId) };
 }
 
 /**

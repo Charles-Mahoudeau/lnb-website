@@ -4,7 +4,7 @@ import * as admin from '../../shared/schemas/admin.ts';
 import { avatarParams } from '../../shared/schemas/avatars.ts';
 import * as events from '../../shared/schemas/events.ts';
 import * as flags from '../../shared/schemas/flags.ts';
-import { linkApproveBody, linkApproveResult } from '../../shared/schemas/link.ts';
+import { linkApproveBody, linkApproveResult, linkDenyBody } from '../../shared/schemas/link.ts';
 import * as mods from '../../shared/schemas/mods.ts';
 import * as partners from '../../shared/schemas/partners.ts';
 import * as push from '../../shared/schemas/push.ts';
@@ -20,7 +20,8 @@ import * as warden from '../../shared/schemas/warden.ts';
 type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
 
 /** Who may call a route. */
-type Access = 'public' | 'user' | 'wardenAdmin' | 'eventsManager' | 'admin' | 'wardenServer';
+type Access =
+  'public' | 'user' | 'wardenAdmin' | 'eventsManager' | 'admin' | 'wardenServer' | 'wardenClient';
 
 interface Problem {
   status: number;
@@ -58,8 +59,11 @@ const requestSchemas = {
   AdminBulkBody: admin.adminBulkBody,
   FlagPatchBody: flags.flagPatchBody,
   LinkApproveBody: linkApproveBody,
+  LinkDenyBody: linkDenyBody,
   WardenIssuer: warden.wardenIssuer,
   WardenLinkRequestBody: warden.wardenLinkRequestBody,
+  WardenClientLinkRequestBody: warden.wardenClientLinkRequestBody,
+  WardenClientPollBody: warden.wardenClientPollBody,
   WardenLoginBody: warden.wardenLoginBody,
   WardenHeartbeatBody: warden.wardenHeartbeatBody,
   WardenSessionEndBody: warden.wardenSessionEndBody,
@@ -124,6 +128,8 @@ const responseSchemas = {
   AdminFlagList: flags.adminFlagList,
   LinkApproveResult: linkApproveResult,
   WardenLinkRequest: warden.wardenLinkRequest,
+  WardenClientLinkRequest: warden.wardenClientLinkRequest,
+  WardenClientPoll: warden.wardenClientPoll,
   WardenLinkRequestStatus: warden.wardenLinkRequestStatus,
   WardenLinkPreview: warden.wardenLinkPreview,
   WardenLogin: warden.wardenLogin,
@@ -208,6 +214,7 @@ const TAGS = {
   admin: 'Admin',
   flags: 'Feature flags',
   wardenServer: 'Warden: Minecraft server',
+  wardenClient: 'Warden: clients',
   wardenPlayer: 'Warden: players',
   wardenAdmin: 'Warden: admins',
   mods: 'Mod list',
@@ -301,6 +308,18 @@ const routes: RouteDoc[] = [
         problems: ['accountLimitReached', 'minecraftAccountTaken', 'wrongAccount'],
       },
     ],
+  },
+  {
+    method: 'post',
+    path: '/api/link/deny',
+    tag: TAGS.link,
+    summary: 'Deny a link code',
+    description:
+      "Refuses the code the signed-in account claimed, so the app stops waiting. Replaces Better Auth's `/device/deny`, so the denial of a Warden device is recorded like its approval.",
+    access: 'user',
+    body: linkDenyBody,
+    noContent: true,
+    problems: [{ status: 400, problems: ['unknown', 'expired', 'used'] }],
   },
 
   // Admin
@@ -467,6 +486,34 @@ const routes: RouteDoc[] = [
     params: warden.wardenIdParams,
     response: warden.wardenLinkRequestStatus,
     problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  // Warden: clients (the LNB Warden mod)
+  {
+    method: 'post',
+    path: '/api/warden/client/link-requests',
+    tag: TAGS.wardenClient,
+    summary: 'Ask to link a device',
+    description:
+      'Starts linking a device to an LNB account. The mod shows `userCode`, or opens `verificationUriComplete`; the player approves or denies it on `/link`, and the mod polls with `pollSecret`. The code is 6 digits, valid for 10 minutes and single use. Limited per IP.',
+    access: 'public',
+    body: warden.wardenClientLinkRequestBody,
+    response: warden.wardenClientLinkRequest,
+  },
+  {
+    method: 'post',
+    path: '/api/warden/client/link-requests/{id}/poll',
+    tag: TAGS.wardenClient,
+    summary: 'Poll a device link request',
+    description:
+      'Answers `pending`, `denied` or `expired`, or once approved `approved` with the device `token`, exactly once: the device is created then, and later polls answer `expired`. An approved request can be collected for 5 minutes after its code expired. A wrong `pollSecret` looks like an unknown request. Polling more often than `interval` seconds gets a 429 `slowDown`.',
+    access: 'public',
+    params: warden.wardenIdParams,
+    body: warden.wardenClientPollBody,
+    response: warden.wardenClientPoll,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 429, problems: ['slowDown'] },
+    ],
   },
   {
     method: 'post',
@@ -660,7 +707,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.wardenPlayer,
     summary: 'Preview a link code',
     description:
-      'For `/link`: the Minecraft account behind a code the player has claimed, and their limit.',
+      'For `/link`: what a Warden code the player has claimed stands for. `kind: "device"` is a device of the LNB Warden mod, with the name it gave. `kind: "minecraft"` is a Minecraft account and the player’s limit.',
     access: 'user',
     params: warden.wardenUserCodeParams,
     response: warden.wardenLinkPreview,
@@ -2093,6 +2140,14 @@ const ACCESS: Record<Access, { security?: OpenApiObject[]; note?: string; errors
     security: [{ wardenServer: [] }],
     errors: [{ status: 401, problems: [] }],
   },
+  wardenClient: {
+    security: [{ wardenClient: [] }],
+    note: 'A device token, accepted on `/api/warden/client/**` only. Unknown, expired and revoked tokens get a 401. A device whose owner’s school can’t use Warden gets a 403 `schoolNotAllowed`.',
+    errors: [
+      { status: 401, problems: [] },
+      { status: 403, problems: ['schoolNotAllowed'] },
+    ],
+  },
 };
 
 const STATUS_TEXT: Record<number, string> = {
@@ -2271,6 +2326,7 @@ The API of the La Nuit Blanche website. Everything is JSON unless a route says o
 | Signed-in users | The site session cookie, set by signing in with Microsoft on \`/sign-in\` |
 | Admins | The same cookie, on an account with the \`admin\` or \`warden-admin\` role |
 | The Minecraft server | \`Authorization: Bearer <WARDEN_SERVER_SECRET>\` |
+| The LNB Warden mod | \`Authorization: Bearer <device token>\`, on \`/api/warden/client/*\` only |
 
 To try a route that needs a session from this page, sign in on the site in the same browser first.
 
@@ -2342,6 +2398,11 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       { name: TAGS.link, description: 'Linking apps to an account with a 6-digit code.' },
       { name: TAGS.admin, description: 'The admin area at `/admin`. Site admins only.' },
       { name: TAGS.wardenServer, description: 'Called by the LNB Minecraft server only.' },
+      {
+        name: TAGS.wardenClient,
+        description:
+          'Called by the LNB Warden mod, on a player’s computer. The link requests need no token, the rest need the device’s.',
+      },
       { name: TAGS.wardenPlayer, description: 'The `/minecraft/warden` and `/link` pages.' },
       {
         name: TAGS.wardenAdmin,
@@ -2371,7 +2432,10 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
     'x-tagGroups': [
       { name: 'Site', tags: [TAGS.health, TAGS.link, TAGS.admin, TAGS.reference] },
       { name: 'Auth', tags: [TAGS.auth, TAGS.authDevice] },
-      { name: 'Warden', tags: [TAGS.wardenServer, TAGS.wardenPlayer, TAGS.wardenAdmin] },
+      {
+        name: 'Warden',
+        tags: [TAGS.wardenServer, TAGS.wardenClient, TAGS.wardenPlayer, TAGS.wardenAdmin],
+      },
       { name: 'Minecraft', tags: [TAGS.mods, TAGS.modsAdmin] },
       { name: 'Push', tags: [TAGS.push, TAGS.pushAdmin] },
     ],
@@ -2395,6 +2459,12 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
           type: 'http',
           scheme: 'bearer',
           description: 'The Minecraft server, with `WARDEN_SERVER_SECRET`.',
+        },
+        wardenClient: {
+          type: 'http',
+          scheme: 'bearer',
+          description:
+            'A device of the LNB Warden mod: `lnbw_` and 32 random bytes in base64url, from `POST /api/warden/client/link-requests/{id}/poll`. Its expiry slides: using it pushes it 90 days out.',
         },
       },
     },

@@ -117,11 +117,13 @@ export const auth = betterAuth({
   },
 
   // Profiles come from Microsoft. Users can't edit them, and especially not tenantId.
-  // Link codes are approved by POST /api/link/approve instead, which checks the app's schools.
+  // Link codes are approved by POST /api/link/approve and denied by POST /api/link/deny instead:
+  // the first checks the app's schools, and both write the audit log of Warden devices.
   // Better Auth's OpenAPI schema is merged into ours (server/openapi/), so it isn't served here.
   disabledPaths: [
     '/update-user',
     '/device/approve',
+    '/device/deny',
     '/open-api/generate-schema',
     ...adminPluginPaths,
   ],
