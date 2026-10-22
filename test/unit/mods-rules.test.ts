@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import {
   catalogIconPath,
   changedDetails,
-  createRateLimiter,
   isCatalogIconUrl,
   isCompatible,
   mergeCatalogResults,
@@ -93,17 +92,6 @@ describe('suggestionsLeft', () => {
     expect(suggestionsLeft(5, 5)).toBe(0);
     // An admin lowered the limit below what someone already has.
     expect(suggestionsLeft(2, 4)).toBe(0);
-  });
-});
-
-describe('createRateLimiter', () => {
-  it('allows the limit per window, per key', () => {
-    const allow = createRateLimiter(2, 1000);
-    expect(allow('a', 0)).toBe(true);
-    expect(allow('a', 10)).toBe(true);
-    expect(allow('a', 20)).toBe(false);
-    expect(allow('b', 20)).toBe(true);
-    expect(allow('a', 1000)).toBe(true);
   });
 });
 

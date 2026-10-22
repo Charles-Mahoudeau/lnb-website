@@ -62,28 +62,6 @@ export function suggestionsLeft(max: number, used: number): number {
   return Math.max(0, max - used);
 }
 
-/**
- * A fixed-window limiter kept in memory, per key. The site runs as one process, so this is
- * enough without Redis. Returns whether the call is allowed.
- */
-export function createRateLimiter(limit: number, windowMs: number) {
-  const windows = new Map<string, { start: number; count: number }>();
-  return function allow(key: string, now = Date.now()): boolean {
-    const window = windows.get(key);
-    if (!window || now - window.start >= windowMs) {
-      // Drop old windows now and then, so the map doesn't grow forever.
-      if (windows.size > 10_000) {
-        for (const [k, w] of windows) if (now - w.start >= windowMs) windows.delete(k);
-      }
-      windows.set(key, { start: now, count: 1 });
-      return true;
-    }
-    if (window.count >= limit) return false;
-    window.count++;
-    return true;
-  };
-}
-
 /** The hosts Modrinth and CurseForge serve mod icons from. */
 const CATALOG_ICON_HOSTS = new Set(['cdn.modrinth.com', 'media.forgecdn.net']);
 

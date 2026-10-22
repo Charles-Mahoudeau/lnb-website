@@ -4,13 +4,14 @@ import { db } from '~~/server/db';
 import type { Db } from '~~/server/db';
 import { isUniqueViolation } from '~~/server/db/errors';
 import { mod } from '~~/server/db/schema';
+import { createLimiter } from '~~/server/lib/rate-limit';
 import { wardenModerationService } from '~~/server/services/warden/moderation';
 
 import { CatalogUnavailableError, modCatalog } from './catalog';
 import type { CatalogProject } from './catalog';
 import { modIconService } from './icons';
 import { suggestionsUsed } from './list';
-import { catalogIconPath, createRateLimiter } from './rules';
+import { catalogIconPath } from './rules';
 import { modSettingsService } from './settings';
 import { refuse } from './shared';
 
@@ -19,11 +20,11 @@ import type { ModCatalogSource, ModSearchResult } from '#shared/schemas/mods';
 // Search, and what people do with their own suggestions.
 
 /** 20 searches a minute per account: enough to type, not enough to scrape. */
-const allowSearch = createRateLimiter(20, 60_000);
+const allowSearch = createLimiter(20, 60);
 
 /** Catalog results, each marked with whether it can be added. */
 async function search(input: { actorId: string; query: string }): Promise<ModSearchResult[]> {
-  if (!allowSearch(input.actorId)) refuse(429, 'rateLimited');
+  if (!(await allowSearch(input.actorId)).allowed) refuse(429, 'rateLimited');
   const settings = await modSettingsService.get();
   let projects: CatalogProject[];
   try {
