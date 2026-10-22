@@ -161,6 +161,7 @@ export const adminAuditView = z.object({
     'user.delete',
     'users.deleteInactive',
     'flag.update',
+    'rateLimit.mode',
     'event.create',
     'event.update',
     'event.cancel',

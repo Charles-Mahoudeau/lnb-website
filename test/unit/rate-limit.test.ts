@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { rulesFor } from '../../server/lib/rate-limit-rules.ts';
+import { rulesFor, rulesForMode } from '../../server/lib/rate-limit-rules.ts';
 import { createLimiter } from '../../server/lib/rate-limit.ts';
 
 const names = (method: string, path: string) => rulesFor(method, path).map((rule) => rule.name);
@@ -45,5 +45,27 @@ describe('rulesFor', () => {
       'warden-client',
       'warden-link-request',
     ]);
+  });
+});
+
+describe('rulesForMode', () => {
+  it('keeps the table as is in normal mode', () => {
+    expect(rulesForMode('normal', 'POST', '/api/events')).toEqual(rulesFor('POST', '/api/events'));
+  });
+
+  it('applies no rule when off', () => {
+    expect(rulesForMode('off', 'POST', '/api/events')).toEqual([]);
+    expect(rulesForMode('off', 'GET', '/go/abc')).toEqual([]);
+  });
+
+  it('multiplies the per-IP ceilings in event mode and leaves per-account limits', () => {
+    const [ip, account] = rulesForMode('event', 'POST', '/api/events');
+    expect(ip).toMatchObject({ name: 'api:event', points: 15000, by: 'ip' });
+    expect(account).toMatchObject({ name: 'write', points: 60, by: 'user' });
+  });
+
+  it('does not loosen the link request limit', () => {
+    const rules = rulesForMode('event', 'POST', '/api/warden/client/link-requests');
+    expect(rules.find((rule) => rule.name === 'warden-link-request')?.points).toBe(30);
   });
 });

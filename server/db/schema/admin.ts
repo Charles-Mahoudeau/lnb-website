@@ -11,6 +11,8 @@ export type AdminAuditAction =
   | 'user.delete'
   /** A feature flag switched, with `data.key` and `data.enabled`. */
   | 'flag.update'
+  /** The rate limiting mode changed, with `data.mode`. */
+  | 'rateLimit.mode'
   /** The nightly cleanup of inactive accounts, with `data.count`. No actor and no target. */
   | 'users.deleteInactive'
   /** Events, by events managers. `data.eventId` and `data.name`. */

@@ -8,6 +8,7 @@ import { linkApproveBody, linkApproveResult, linkDenyBody } from '../../shared/s
 import * as mods from '../../shared/schemas/mods.ts';
 import * as partners from '../../shared/schemas/partners.ts';
 import * as push from '../../shared/schemas/push.ts';
+import * as rateLimit from '../../shared/schemas/rate-limit.ts';
 import * as shortLinks from '../../shared/schemas/short-links.ts';
 import * as team from '../../shared/schemas/team.ts';
 import * as warden from '../../shared/schemas/warden.ts';
@@ -58,6 +59,7 @@ const requestSchemas = {
   AdminBanBody: admin.adminBanBody,
   AdminBulkBody: admin.adminBulkBody,
   FlagPatchBody: flags.flagPatchBody,
+  RateLimitModeBody: rateLimit.rateLimitModeBody,
   LinkApproveBody: linkApproveBody,
   LinkDenyBody: linkDenyBody,
   WardenIssuer: warden.wardenIssuer,
@@ -127,6 +129,7 @@ const responseSchemas = {
   AdminBulkResult: admin.adminBulkResult,
   FlagStates: flags.flagStates,
   AdminFlagList: flags.adminFlagList,
+  AdminRateLimit: rateLimit.adminRateLimit,
   LinkApproveResult: linkApproveResult,
   WardenClientLinkRequest: warden.wardenClientLinkRequest,
   WardenClientPoll: warden.wardenClientPoll,
@@ -360,6 +363,26 @@ const routes: RouteDoc[] = [
     params: flags.flagParams,
     body: flags.flagPatchBody,
     response: flags.adminFlagList,
+  },
+  {
+    method: 'get',
+    path: '/api/admin/rate-limit',
+    tag: TAGS.admin,
+    summary: 'Rate limiting mode',
+    description: 'The mode (`normal`, `event` or `off`), who last changed it and when.',
+    access: 'admin',
+    response: rateLimit.adminRateLimit,
+  },
+  {
+    method: 'put',
+    path: '/api/admin/rate-limit',
+    tag: TAGS.admin,
+    summary: 'Set the rate limiting mode',
+    description:
+      '`event` multiplies the per-IP ceilings by 5 and keeps the per-account limits. `off` applies no limit. Takes effect at once on this instance and within 10 seconds on the others.',
+    access: 'admin',
+    body: rateLimit.rateLimitModeBody,
+    response: rateLimit.adminRateLimit,
   },
   {
     method: 'get',

@@ -1,5 +1,8 @@
 // Which limits apply to a request. Pure, so the table is easy to test and to change.
 
+import { EVENT_IP_MULTIPLIER } from '../../shared/rate-limit.ts';
+import type { RateLimitMode } from '../../shared/rate-limit.ts';
+
 export interface RateRule {
   /** Names the counter. One rule, one counter per key. */
   name: string;
@@ -80,4 +83,20 @@ export function rulesFor(method: string, path: string): RateRule[] {
   if (HEAVY.some((pattern) => pattern.test(path))) return [...rules, HEAVY_WRITE];
   if (ADMIN_PREFIXES.some((prefix) => path.startsWith(prefix))) return [...rules, ADMIN_WRITE];
   return [...rules, WRITE];
+}
+
+/**
+ * The rules for a request under a mode. Event mode multiplies the per-IP ceilings, since a room
+ * shares one IP, but not the link-request limit, which exists against abuse. Per-account limits
+ * stay. Off applies none.
+ */
+export function rulesForMode(mode: RateLimitMode, method: string, path: string): RateRule[] {
+  if (mode === 'off') return [];
+  const rules = rulesFor(method, path);
+  if (mode === 'normal') return rules;
+  return rules.map((rule) =>
+    rule.by === 'ip' && rule !== WARDEN_LINK_REQUEST
+      ? { ...rule, name: `${rule.name}:event`, points: rule.points * EVENT_IP_MULTIPLIER }
+      : rule,
+  );
 }

@@ -1,7 +1,8 @@
 import { createError, defineEventHandler } from 'nuxt/server';
 
 import { createLimiter } from '~~/server/lib/rate-limit';
-import { rulesFor } from '~~/server/lib/rate-limit-rules';
+import { rulesFor, rulesForMode } from '~~/server/lib/rate-limit-rules';
+import { rateLimitModeService } from '~~/server/services/rate-limit-mode';
 import { getAuthSession } from '~~/server/utils/auth';
 import { clientIp } from '~~/server/utils/client-ip';
 
@@ -10,7 +11,11 @@ import { clientIp } from '~~/server/utils/client-ip';
 const limiters = new Map<string, ReturnType<typeof createLimiter>>();
 
 export default defineEventHandler(async (event) => {
-  const rules = rulesFor(event.req.method, new URL(event.req.url, 'http://localhost').pathname);
+  const { method, url } = event.req;
+  const path = new URL(url, 'http://localhost').pathname;
+  // Routes that are never limited (health, auth, pages) don't wait for the mode.
+  if (rulesFor(method, path).length === 0) return;
+  const rules = rulesForMode(await rateLimitModeService.current(), method, path);
   if (rules.length === 0) return;
 
   const ip = clientIp(event);

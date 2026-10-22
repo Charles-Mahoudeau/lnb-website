@@ -127,6 +127,13 @@
       "when": 1792688371142,
       "tag": "0017_warden_mod_only",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1792699805757,
+      "tag": "0018_rate_limit_setting",
+      "breakpoints": true
     }
   ]
 }
