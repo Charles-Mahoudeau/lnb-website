@@ -521,6 +521,13 @@
       "seeAccounts": "See the accounts",
       "bans": "1 account is banned from the site | {n} accounts are banned from the site",
       "bansDetail": "They can’t sign in until their ban ends.",
+      "rateLimit": {
+        "event": "Rate limiting is in Event night mode",
+        "eventDetail": "The limits per IP address are 5 times higher. Switch back to Normal after the event.",
+        "off": "Rate limiting is off",
+        "offDetail": "Nothing slows down floods or abuse of the API and the short links.",
+        "change": "Change the mode"
+      },
       "recent": "Recent admin changes",
       "noChanges": "No changes yet. Role changes, bans and deletions show up here.",
       "deletedAdmin": "A deleted admin",

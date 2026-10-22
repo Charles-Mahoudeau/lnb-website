@@ -521,6 +521,13 @@
       "seeAccounts": "Voir les comptes",
       "bans": "1 compte est banni du site | {n} comptes sont bannis du site",
       "bansDetail": "Ils ne peuvent pas se connecter avant la fin de leur bannissement.",
+      "rateLimit": {
+        "event": "La limitation de débit est en mode Soirée d’événement",
+        "eventDetail": "Les limites par adresse IP sont 5 fois plus hautes. Repasse en Normal après l’événement.",
+        "off": "La limitation de débit est désactivée",
+        "offDetail": "Rien ne ralentit les inondations ni les abus de l’API et des liens courts.",
+        "change": "Changer le mode"
+      },
       "recent": "Derniers changements",
       "noChanges": "Aucun changement pour l’instant. Les rôles, bannissements et suppressions apparaîtront ici.",
       "deletedAdmin": "Un admin supprimé",

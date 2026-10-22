@@ -11,7 +11,8 @@ const { data, error } = await useAdminOverview();
 interface Attention {
   key: string;
   icon: string;
-  warning: boolean;
+  /** `warning` for what is risky, `success` for what is on purpose and fine, else neutral. */
+  tone: 'warning' | 'success' | 'neutral';
   title: string;
   detail: string;
   to: string;
@@ -26,7 +27,7 @@ const attention = computed<Attention[]>(() => {
     items.push({
       key: 'appeals',
       icon: 'i-lucide-message-square',
-      warning: true,
+      tone: 'warning',
       title: t('admin.overview.appeals', overview.appeals.pending),
       detail: overview.appeals.oldestAt
         ? t('admin.overview.appealsOldest', {
@@ -37,11 +38,23 @@ const attention = computed<Attention[]>(() => {
       action: t('admin.overview.reviewAppeals'),
     });
   }
+  if (overview.rateLimitMode !== 'normal') {
+    const off = overview.rateLimitMode === 'off';
+    items.push({
+      key: 'rateLimit',
+      icon: off ? 'i-lucide-shield-off' : 'i-lucide-party-popper',
+      tone: off ? 'warning' : 'success',
+      title: t(`admin.overview.rateLimit.${overview.rateLimitMode}`),
+      detail: t(`admin.overview.rateLimit.${overview.rateLimitMode}Detail`),
+      to: '/admin/rate-limit',
+      action: t('admin.overview.rateLimit.change'),
+    });
+  }
   if (overview.inactiveAccounts) {
     items.push({
       key: 'inactive',
       icon: 'i-lucide-clock',
-      warning: false,
+      tone: 'neutral',
       title: t('admin.overview.inactive', overview.inactiveAccounts),
       detail: t('admin.overview.inactiveDetail'),
       to: '/admin/users?status=inactive',
@@ -52,7 +65,7 @@ const attention = computed<Attention[]>(() => {
     items.push({
       key: 'bans',
       icon: 'i-lucide-ban',
-      warning: false,
+      tone: 'neutral',
       title: t('admin.overview.bans', overview.siteBans),
       detail: t('admin.overview.bansDetail'),
       to: '/admin/users?status=banned',
@@ -165,8 +178,11 @@ function describe(entry: AdminAuditView): string {
           class="flex flex-wrap items-center gap-4 rounded-lg bg-elevated px-4 py-3"
         >
           <span
-            v-if="item.warning"
-            class="grid size-9 shrink-0 place-items-center rounded-md bg-warning/10 text-warning"
+            v-if="item.tone !== 'neutral'"
+            class="grid size-9 shrink-0 place-items-center rounded-md"
+            :class="
+              item.tone === 'warning' ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'
+            "
           >
             <UIcon :name="item.icon" class="size-5" />
           </span>

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { RATE_LIMIT_MODES } from '../rate-limit.ts';
 import { SCHOOLS } from '../utils/schools.ts';
 
 // Admin contracts, shared by the /api/admin routes and the /admin pages.
@@ -205,6 +206,9 @@ export const adminOverview = z.object({
   }),
   inactiveAccounts: z.number().describe('Accounts with no sign-in for 24 months.'),
   siteBans: z.number().describe('Site bans in force.'),
+  rateLimitMode: z
+    .enum(RATE_LIMIT_MODES)
+    .describe('Rate limiting mode; `normal` needs no attention.'),
   recent: z.array(adminAuditView).describe('The 10 latest admin changes, newest first.'),
 });
 export type AdminOverview = z.infer<typeof adminOverview>;
