@@ -11,11 +11,10 @@ import {
   wardenPlayer,
   wardenSession,
 } from '~~/server/db/schema';
-import { wardenEnv } from '~~/server/lib/warden-env';
 
 import { wardenAuditService } from './audit';
 import { wardenModerationService } from './moderation';
-import { generateServerToken, isBanActive, isOnline, resolveMaxAccounts, shortName } from './rules';
+import { isBanActive, isOnline, resolveMaxAccounts, shortName } from './rules';
 import { wardenSettingsService } from './settings';
 import { refuse } from './shared';
 import type { Db, WardenActor } from './shared';
@@ -29,40 +28,18 @@ import type {
   WardenServerPlayer,
   WardenSessionView,
 } from '#shared/schemas/warden';
-import { isServerToken } from '#shared/schemas/warden';
 import { canLinkFromSchool, getLinkApp } from '#shared/utils/link-apps';
 import { isWardenAdmin, WARDEN_ADMIN_ROLE } from '#shared/utils/roles';
 import { schoolForTenant } from '#shared/utils/schools';
 
-export function serverUrl(token: string): string {
-  return `${token}.${wardenEnv().WARDEN_SERVER_HOST}`;
-}
-
-/** The player's Warden row, created with a token on first need. */
+/** The player's Warden row, created on first need. */
 async function ensure(dbx: Db, userId: string) {
   await dbx
     .insert(wardenPlayer)
-    .values({ userId, serverToken: generateServerToken() })
+    .values({ userId })
     .onConflictDoNothing({ target: wardenPlayer.userId });
   const [row] = await dbx.select().from(wardenPlayer).where(eq(wardenPlayer.userId, userId));
   return row!;
-}
-
-/** The LNB user whose address carries this token, or undefined. */
-async function findByToken(token: string, dbx: Db = db) {
-  if (!isServerToken(token)) return undefined;
-  const [row] = await dbx
-    .select({
-      userId: user.id,
-      name: user.name,
-      tenantId: user.tenantId,
-      role: user.role,
-      showRealName: wardenPlayer.showRealName,
-    })
-    .from(wardenPlayer)
-    .innerJoin(user, eq(user.id, wardenPlayer.userId))
-    .where(eq(wardenPlayer.serverToken, token));
-  return row;
 }
 
 /** How many accounts the player has linked, and may link. */
@@ -173,8 +150,6 @@ async function me(actor: { id: string; name: string; tenantId: string }): Promis
       .sort()
       .at(-1);
     return {
-      serverUrl: serverUrl(player.serverToken),
-      tokenRotatedAt: player.tokenRotatedAt.toISOString(),
       showRealName: player.showRealName,
       shortName: shortName(actor.name),
       limit: await limit(tx, actor.id),
@@ -210,26 +185,6 @@ async function setShowRealName(actor: { id: string; tenantId: string }, showReal
       targetUserId: actor.id,
       data: { showRealName },
     });
-  });
-}
-
-/** Gives the player a new address. The old one stops working at once. */
-async function rotateToken(input: { userId: string; actor: WardenActor }) {
-  return db.transaction(async (tx) => {
-    await ensure(tx, input.userId);
-    const [player] = await tx
-      .update(wardenPlayer)
-      .set({ serverToken: generateServerToken(), tokenRotatedAt: new Date() })
-      .where(eq(wardenPlayer.userId, input.userId))
-      .returning({ serverToken: wardenPlayer.serverToken });
-    // Online players joined with the old address: the server kicks them on the event.
-    const uuids = (await accounts(tx, input.userId)).map((a) => a.uuid);
-    const auditId = await wardenAuditService.record(tx, {
-      action: 'token.rotate',
-      actor: input.actor,
-      targetUserId: input.userId,
-    });
-    return { serverUrl: serverUrl(player!.serverToken), uuids, auditId };
   });
 }
 
@@ -337,13 +292,11 @@ async function lookup(uuid: string): Promise<WardenServerPlayer> {
 export const wardenPlayerService = {
   lookup,
   ensure,
-  findByToken,
   limit,
   accounts,
   history,
   me,
   setShowRealName,
-  rotateToken,
   unlink,
   sessions,
 };

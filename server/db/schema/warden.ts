@@ -26,9 +26,6 @@ export const wardenPlayer = pgTable('warden_player', {
   userId: text('user_id')
     .primaryKey()
     .references(() => user.id, { onDelete: 'cascade' }),
-  // The label in <token>.mc.bde-teknantes.fr. Kept as is so /minecraft/warden can always show it.
-  serverToken: text('server_token').notNull().unique(),
-  tokenRotatedAt: timestamp('token_rotated_at').defaultNow().notNull(),
   // Shown by default: it helps people at events know who they play with. Hiding it asks first.
   showRealName: boolean('show_real_name').default(true).notNull(),
   // Overrides warden_settings.default_max_accounts when set.
@@ -69,36 +66,6 @@ export const minecraftUsername = pgTable(
   },
   (table) => [
     uniqueIndex('minecraft_username_uuid_username_uidx').on(table.minecraftUuid, table.username),
-  ],
-);
-
-/**
- * The Minecraft account behind a Warden link code. The code itself is a Better Auth device code
- * (client "warden"), so /link claims and expires it like any other. Its status is the code's.
- */
-export const wardenLinkRequest = pgTable(
-  'warden_link_request',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    deviceCodeId: text('device_code_id')
-      .notNull()
-      .unique()
-      .references(() => deviceCode.id, { onDelete: 'cascade' }),
-    minecraftUuid: uuid('minecraft_uuid').notNull(),
-    username: text('username').notNull(),
-    // Set when the server knew the player from their address: only they can link it.
-    boundUserId: text('bound_user_id').references(() => user.id, { onDelete: 'cascade' }),
-    // The admin who made the code by hand on the admin panel. Null for codes from the server.
-    createdByUserId: text('created_by_user_id').references(() => user.id, { onDelete: 'set null' }),
-    // Set when an admin cancels a code they made. The device code is denied at the same time.
-    cancelledAt: timestamp('cancelled_at'),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-  },
-  (table) => [
-    index('warden_link_request_minecraft_uuid_idx').on(table.minecraftUuid),
-    index('warden_link_request_created_by_idx')
-      .on(table.createdAt)
-      .where(sql`${table.createdByUserId} is not null`),
   ],
 );
 

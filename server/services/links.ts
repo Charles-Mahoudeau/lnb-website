@@ -5,7 +5,6 @@ import { db } from '~~/server/db';
 import { deviceCode } from '~~/server/db/schema';
 import { auth } from '~~/server/lib/auth';
 import { wardenDeviceLinkService } from '~~/server/services/warden/device-links';
-import { wardenLinkService } from '~~/server/services/warden/links';
 
 import type { LinkApproveBody, LinkProblem } from '#shared/schemas/link';
 import { canLinkFromSchool, getLinkApp, isAllowedRedirect } from '#shared/utils/link-apps';
@@ -18,8 +17,9 @@ function refuse(status: number, problem: LinkProblem): never {
  * Approves a link code for the signed-in user. Replaces Better Auth's /device/approve
  * (disabled in server/lib/auth.ts) so the app's school and redirect rules can't be skipped.
  *
- * Apps whose own server creates the codes (Warden) get no token: approving runs the app's own
- * linking, then sends the person to the app's redirectAfterLink.
+ * Apps that handle linking themselves (Warden devices, which collect their token by polling their
+ * own API) get no token here: approving records the decision, then sends the person to the app's
+ * redirectAfterLink.
  *
  * Otherwise, the redirect is the app's redirect_uri if the link had one, else the app's
  * redirectAfterLink.
@@ -55,12 +55,7 @@ async function approve(input: {
         deviceCodeId: code.id,
         decision: 'approved',
       });
-      if (device.handled) return { path: app.redirectAfterLink };
-      const problem = await wardenLinkService.approve(tx, {
-        actorId: actor.id,
-        deviceCodeId: code.id,
-      });
-      if (problem) refuse(problem === 'unknown' ? 400 : 409, problem);
+      if (!device.handled) refuse(400, 'unknown');
       return { path: app.redirectAfterLink };
     }
 

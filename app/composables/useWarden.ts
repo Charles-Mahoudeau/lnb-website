@@ -1,5 +1,6 @@
 import type {
   WardenAppealView,
+  WardenDeviceView,
   WardenMe,
   WardenPage,
   WardenProblem,
@@ -40,10 +41,16 @@ export function useWarden(options: { immediate?: boolean } = {}) {
     immediate: options.immediate ?? true,
   });
 
+  const devices = useFetch<WardenDeviceView[]>('/api/warden/me/devices', {
+    key: 'warden-devices',
+    immediate: options.immediate ?? true,
+  });
+
   return {
     me,
-    regenerateToken: () =>
-      call(() => $fetch<{ serverUrl: string }>('/api/warden/me/token', { method: 'POST' })),
+    devices,
+    revokeDevice: (id: string) =>
+      call(() => $fetch(`/api/warden/me/devices/${id}`, { method: 'DELETE' })),
     unlink: (uuid: string) =>
       call(() => $fetch(`/api/warden/me/accounts/${uuid}`, { method: 'DELETE' })),
     setShowRealName: (showRealName: boolean) =>

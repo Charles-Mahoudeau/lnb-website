@@ -16,9 +16,7 @@ const EVENT_ACTIONS = [
   'ban',
   'unban',
   'unlink',
-  'token.rotate',
   'device.revoke',
-  'link',
   'settings.update',
 ] as const satisfies readonly WardenAuditAction[];
 
@@ -78,27 +76,11 @@ async function toEvent(row: typeof wardenAudit.$inferSelect): Promise<WardenEven
       return row.targetMinecraftUuid
         ? { type: 'kick', data: { uuids: [row.targetMinecraftUuid], reason: 'unlinked' } }
         : undefined;
-    case 'token.rotate':
-      return {
-        type: 'kick',
-        data: { uuids: await accountsOf(row.targetUserId), reason: 'tokenRotated' },
-      };
     case 'device.revoke': {
       // The sessions the device had open, kept in the audit row when it was revoked.
       const uuids = Array.isArray(data.uuids) ? (data.uuids as string[]) : [];
       return uuids.length ? { type: 'kick', data: { uuids, reason: 'deviceRevoked' } } : undefined;
     }
-    case 'link':
-      return row.targetMinecraftUuid && row.targetUserId
-        ? {
-            type: 'link',
-            data: {
-              requestId: typeof data.requestId === 'string' ? data.requestId : null,
-              uuid: row.targetMinecraftUuid,
-              userId: row.targetUserId,
-            },
-          }
-        : undefined;
     case 'settings.update': {
       const settings = data.settings as WardenSettingsView | undefined;
       return { type: 'settings', data: settings ?? (await wardenSettingsService.get()) };

@@ -60,6 +60,12 @@ export function useWardenLabels() {
             ? 'wardenAdmin.actions.identityShown'
             : 'wardenAdmin.actions.identityHidden',
         );
+      case 'device.link':
+      case 'device.deny':
+      case 'device.revoke': {
+        const key = entry.action.replace(/\.(\w)/g, (_, c: string) => c.toUpperCase());
+        return t(`wardenAdmin.actions.${key}`, { device: text('deviceName') });
+      }
       case 'mod.add':
       case 'mod.promote':
       case 'mod.edit':

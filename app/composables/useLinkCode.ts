@@ -60,7 +60,7 @@ export function useLinkCode() {
     }
   }
 
-  /** What a Warden code the user just checked stands for: a device, or a Minecraft account and their slots. */
+  /** The device behind a Warden code the user just checked. */
   async function wardenPreview(code: string): Promise<WardenLinkPreview> {
     try {
       return await $fetch<WardenLinkPreview>(`/api/warden/link-requests/${code}`);

@@ -2,22 +2,33 @@ import { describe, expect, it } from 'vitest';
 
 import {
   isBanActive,
-  generateServerToken,
+  generateDeviceToken,
+  hashSecret,
+  shouldTouchDevice,
   resolveMaxAccounts,
   isOnline,
   SESSION_TIMEOUT_MS,
   shortName,
 } from '../../server/services/warden/rules.ts';
-import { isServerToken } from '../../shared/schemas/warden.ts';
 
-describe('server tokens', () => {
-  it('are 26 lowercase base32 characters, a valid DNS label', () => {
-    for (let i = 0; i < 50; i++) {
-      const token = generateServerToken();
-      expect(token).toMatch(/^[a-z2-7]{26}$/);
-      expect(isServerToken(token)).toBe(true);
-    }
-    expect(isServerToken('Not-A-Token')).toBe(false);
+describe('device tokens', () => {
+  it('are lnbw_ and 32 random bytes in base64url', () => {
+    const tokens = new Set(Array.from({ length: 50 }, () => generateDeviceToken()));
+    expect(tokens.size).toBe(50);
+    for (const token of tokens) expect(token).toMatch(/^lnbw_[\w-]{43}$/);
+  });
+
+  it('hash to a SHA-256 hex string that differs per secret', () => {
+    expect(hashSecret('abc')).toBe(
+      'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+    );
+    expect(hashSecret('abd')).not.toBe(hashSecret('abc'));
+  });
+
+  it('are written to the database at most once an hour', () => {
+    const now = Date.now();
+    expect(shouldTouchDevice(new Date(now - 59 * 60_000), now)).toBe(false);
+    expect(shouldTouchDevice(new Date(now - 60 * 60_000), now)).toBe(true);
   });
 });
 

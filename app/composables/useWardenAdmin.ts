@@ -102,7 +102,8 @@ export function useWardenAdminPlayer(userId: string) {
       call(() => $fetch(base, { method: 'PATCH', body: { maxAccounts } })),
     setWardenAdmin: (wardenAdmin: boolean) =>
       call(() => $fetch(`${base}/role`, { method: 'PUT', body: { wardenAdmin } })),
-    regenerateToken: () => call(() => $fetch(`${base}/token`, { method: 'POST' })),
+    revokeDevice: (deviceId: string) =>
+      call(() => $fetch(`${base}/devices/${deviceId}`, { method: 'DELETE' })),
     unlink: (uuid: string) => call(() => $fetch(`${base}/accounts/${uuid}`, { method: 'DELETE' })),
   };
 }

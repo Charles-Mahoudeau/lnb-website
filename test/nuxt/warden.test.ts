@@ -3,14 +3,12 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import WardenPage from '~/pages/minecraft/warden.vue';
 
-import type { WardenMe } from '#shared/schemas/warden';
+import type { WardenDeviceView, WardenMe } from '#shared/schemas/warden';
 
 const EPITECH = '901cb4ca-b862-4029-9306-e5cd0f6d9f86';
 
 function me(overrides: Partial<WardenMe> = {}): WardenMe {
   return {
-    serverUrl: 'abcdefghijklmnopqrstuvwxyz.mc.bde-teknantes.fr',
-    tokenRotatedAt: '2026-10-15T12:00:00.000Z',
     showRealName: true,
     shortName: 'Alex L.',
     limit: { used: 1, max: 1 },
@@ -36,12 +34,17 @@ function me(overrides: Partial<WardenMe> = {}): WardenMe {
 let current = me();
 registerEndpoint('/api/warden/me', () => current);
 
+let devices: WardenDeviceView[] = [];
+registerEndpoint('/api/warden/me/devices', () => devices);
+
 const session = { user: { id: 'u1', name: 'Alex Laurent', tenantId: EPITECH }, session: {} };
 registerEndpoint('/api/auth/get-session', () => session);
 
 describe('/minecraft/warden', () => {
   beforeEach(() => {
     clearNuxtData('warden-me');
+    clearNuxtData('warden-devices');
+    devices = [];
   });
 
   it('shows the linked account, its state and the nametag', async () => {
@@ -52,7 +55,27 @@ describe('/minecraft/warden', () => {
     expect(text).toContain('Playing now');
     expect(text).toContain('1 out of 1 account linked');
     expect(page.find('.nametag').text()).toContain('Alex L.');
-    expect(text).not.toContain('abcdefghijklmnopqrstuvwxyz');
+  });
+
+  it('lists the devices and explains the mod when there is none', async () => {
+    current = me();
+    const empty = await mountSuspended(WardenPage);
+    expect(empty.text()).toContain('Link the LNB Warden mod');
+
+    clearNuxtData('warden-devices');
+    devices = [
+      {
+        id: 'd1',
+        name: 'Gaming laptop',
+        createdAt: '2026-10-02T12:00:00.000Z',
+        lastUsedAt: '2026-10-15T12:00:00.000Z',
+        expiresAt: '2027-01-13T12:00:00.000Z',
+      },
+    ];
+    const page = await mountSuspended(WardenPage);
+    expect(page.text()).toContain('Gaming laptop');
+    expect(page.text()).toContain('Revoke');
+    expect(page.text()).not.toContain('Link the LNB Warden mod');
   });
 
   it('shows an active ban and offers an appeal', async () => {

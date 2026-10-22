@@ -2,10 +2,6 @@ import { z } from 'zod';
 
 const schema = z.object({
   WARDEN_SERVER_SECRET: z.string().min(32),
-  // Player addresses are <token>.<host>, so the host needs a wildcard DNS record.
-  WARDEN_SERVER_HOST: z
-    .string()
-    .regex(/^(?:[a-z0-9-]+\.)+[a-z]{2,}$/, 'a lowercase host name, such as mc.bde-teknantes.fr'),
   BETTER_AUTH_URL: z.url(),
 });
 

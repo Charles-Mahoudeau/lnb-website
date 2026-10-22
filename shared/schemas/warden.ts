@@ -12,19 +12,6 @@ export const minecraftUuid = z
 
 export const minecraftUsername = z.string().regex(/^\w{3,16}$/);
 
-/** The label in <token>.mc.bde-teknantes.fr: 26 characters of lowercase base32. */
-export const SERVER_TOKEN_LENGTH = 26;
-const SERVER_TOKEN_PATTERN = new RegExp(`^[a-z2-7]{${String(SERVER_TOKEN_LENGTH)}}$`);
-export function isServerToken(value: string): boolean {
-  return SERVER_TOKEN_PATTERN.test(value);
-}
-
-/**
- * A token as the server read it from the player's address. Anything goes: a malformed token is
- * an unknown one, and the player should hear that rather than get a 400.
- */
-export const serverTokenInput = z.string().max(253);
-
 /** A date in responses: an ISO 8601 string in UTC. */
 const isoDate = z.string().meta({ format: 'date-time' });
 
@@ -34,51 +21,13 @@ export const wardenIssuer = z
   .describe("Minecraft staff behind the action. Without one, it's the console.");
 export type WardenIssuer = z.infer<typeof wardenIssuer>;
 
-/** Body of POST /api/warden/server/link-requests. */
-export const wardenLinkRequestBody = z.object({
-  uuid: minecraftUuid,
-  username: minecraftUsername,
-  token: serverTokenInput
-    .optional()
-    .describe("From the player's address. An unknown token just leaves the request unbound."),
-});
-export type WardenLinkRequestBody = z.infer<typeof wardenLinkRequestBody>;
-
-export const wardenLinkRequest = z.object({
-  requestId: z.string(),
-  userCode: z.string().describe('The 6-digit code the player enters on /link.'),
-  expiresAt: isoDate,
-  expiresIn: z.number().describe('Seconds until the code expires.'),
-  interval: z.number().describe('Seconds to wait between two status checks.'),
-  verificationUri: z.string(),
-  verificationUriComplete: z.string().describe('/link with the code filled in.'),
-  boundToUser: z
-    .boolean()
-    .describe('Only the player whose token came with the request can use it.'),
-});
-export type WardenLinkRequest = z.infer<typeof wardenLinkRequest>;
-
-export const wardenLinkRequestStatus = z.object({
-  status: z.enum(['pending', 'approved', 'denied', 'expired']),
-  userId: z.string().nullable().describe('Set once approved.'),
-});
-export type WardenLinkRequestStatus = z.infer<typeof wardenLinkRequestStatus>['status'];
-
 const wardenLimit = z.object({ used: z.number(), max: z.number() });
 
-/** What a code stands for, for the /link page. */
-export const wardenLinkPreview = z.discriminatedUnion('kind', [
-  z.object({
-    kind: z.literal('minecraft'),
-    uuid: z.string(),
-    username: z.string(),
-    limit: wardenLimit,
-  }),
-  z.object({
-    kind: z.literal('device'),
-    deviceName: z.string().describe('The name the mod gave its device.'),
-  }),
-]);
+/** What a Warden code stands for, for the /link page: a device of the mod. */
+export const wardenLinkPreview = z.object({
+  kind: z.literal('device'),
+  deviceName: z.string().describe('The name the mod gave its device.'),
+});
 export type WardenLinkPreview = z.infer<typeof wardenLinkPreview>;
 
 /** Body of POST /api/warden/client/link-requests. */
@@ -114,18 +63,21 @@ export type WardenClientPoll = z.infer<typeof wardenClientPoll>;
 
 /** Body of POST /api/warden/server/login. */
 export const wardenLoginBody = z.object({
-  token: serverTokenInput,
-  uuid: minecraftUuid,
+  ticket: z.string().max(200).describe('From `POST /api/warden/client/join-tickets`.'),
+  nonce: z.string().max(200).describe('The nonce the ticket was made for.'),
+  uuid: minecraftUuid.describe('The offline UUID of `username`.'),
   username: minecraftUsername,
 });
 export type WardenLoginBody = z.infer<typeof wardenLoginBody>;
 
+/** In the order the server checks them. */
 export const WARDEN_DENY_REASONS = [
-  'unknownToken',
-  'notLinked',
-  'linkedElsewhere',
-  'banned',
+  'invalidTicket',
   'schoolNotAllowed',
+  'banned',
+  'linkedElsewhere',
+  'notLinked',
+  'accountLimitReached',
 ] as const;
 
 const banSummary = z.object({ reason: z.string(), expiresAt: isoDate.nullable() });
@@ -134,6 +86,7 @@ export const wardenLogin = z.discriminatedUnion('result', [
   z.object({
     result: z.literal('allowed'),
     sessionId: z.string(),
+    linked: z.boolean().describe('Whether this login linked the account.'),
     player: z.object({
       userId: z.string(),
       displayName: z
@@ -150,8 +103,10 @@ export const wardenLogin = z.discriminatedUnion('result', [
   z.object({
     result: z.literal('denied'),
     reason: z.enum(WARDEN_DENY_REASONS),
-    ban: banSummary.optional(),
-    link: wardenLinkRequest.optional().describe('For notLinked: a code to link the account.'),
+    ban: banSummary.optional().describe('For `banned`.'),
+    limit: wardenLimit
+      .optional()
+      .describe('For `notLinked` and `accountLimitReached`: accounts linked and allowed.'),
   }),
 ]);
 export type WardenLogin = z.infer<typeof wardenLogin>;
@@ -372,8 +327,6 @@ export const wardenDeviceList = z.array(wardenDeviceView);
 
 /** GET /api/warden/me: everything the /warden page shows. */
 export const wardenMe = z.object({
-  serverUrl: z.string(),
-  tokenRotatedAt: isoDate,
   showRealName: z.boolean(),
   shortName: z
     .string()
@@ -399,9 +352,6 @@ export type WardenMe = z.infer<typeof wardenMe>;
 
 /** Body of PATCH /api/warden/me. */
 export const wardenMePatchBody = z.object({ showRealName: z.boolean() });
-
-/** POST /api/warden/me/token: the player's new address. */
-export const wardenServerUrl = z.object({ serverUrl: z.string() });
 
 /** ?cursor= on lists: the opaque value of the previous page's nextCursor. */
 export const wardenCursorQuery = z.object({
@@ -468,7 +418,6 @@ export const wardenPlayerDetail = z.object({
     admin: z.boolean(),
     wardenAdmin: z.boolean(),
     showRealName: z.boolean(),
-    tokenRotatedAt: isoDate.nullable(),
     maxAccounts: z
       .number()
       .nullable()
@@ -531,15 +480,11 @@ export const wardenEvent = z.discriminatedUnion('type', [
     type: z.literal('kick'),
     data: z.object({
       uuids: z.array(z.string()),
-      reason: z.enum(['banned', 'unlinked', 'tokenRotated', 'deviceRevoked']),
+      reason: z.enum(['banned', 'unlinked', 'deviceRevoked']),
       ban: banSummary.optional(),
     }),
   }),
   z.object({ type: z.literal('unban'), data: z.object({ uuids: z.array(z.string()) }) }),
-  z.object({
-    type: z.literal('link'),
-    data: z.object({ requestId: z.string().nullable(), uuid: z.string(), userId: z.string() }),
-  }),
   z.object({ type: z.literal('settings'), data: wardenSettingsView }),
 ]);
 export type WardenEvent = z.infer<typeof wardenEvent>;
@@ -562,7 +507,6 @@ export const wardenUserCodeParams = z.object({ userCode: z.string().regex(/^\d{6
 /** Why a Warden request was refused, in `data.problem`. */
 export const WARDEN_PROBLEMS = [
   'invalidUuid',
-  'alreadyLinked',
   'banned',
   'notFound',
   'notLinked',

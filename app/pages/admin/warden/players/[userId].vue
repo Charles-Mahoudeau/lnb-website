@@ -9,7 +9,11 @@ import {
   WardenConfirmModal,
 } from '#components';
 
-import type { WardenAccountView, WardenPlayerDetail } from '#shared/schemas/warden';
+import type {
+  WardenAccountView,
+  WardenDeviceView,
+  WardenPlayerDetail,
+} from '#shared/schemas/warden';
 
 definePageMeta({ wardenAdmins: true });
 
@@ -98,14 +102,15 @@ async function onLimit(player: WardenPlayerDetail['player']) {
   await run(() => admin.setMaxAccounts(maxAccounts), t('wardenAdmin.limitModal.done'));
 }
 
-async function onRegenerate(player: WardenPlayerDetail['player']) {
+async function onRevokeDevice(player: WardenPlayerDetail['player'], device: WardenDeviceView) {
   if (
     await ask(
-      t('wardenAdmin.player.regenerateTitle', { name: player.name }),
-      t('wardenAdmin.player.regenerateBody'),
+      t('wardenAdmin.player.revokeDeviceTitle', { device: device.name, name: player.name }),
+      t('wardenAdmin.player.revokeDeviceBody'),
+      true,
     )
   ) {
-    await run(admin.regenerateToken, t('wardenAdmin.player.regenerated'));
+    await run(() => admin.revokeDevice(device.id), t('wardenAdmin.player.deviceRevoked'));
   }
 }
 
@@ -143,11 +148,6 @@ const moreItems = computed<DropdownMenuItem[]>(() => {
       label: t('wardenAdmin.player.limit'),
       icon: 'i-lucide-hash',
       onSelect: () => void onLimit(player),
-    },
-    {
-      label: t('wardenAdmin.player.regenerate'),
-      icon: 'i-lucide-rotate-cw',
-      onSelect: () => void onRegenerate(player),
     },
     ...(isSiteAdmin.value && !player.admin
       ? [
@@ -278,6 +278,48 @@ function dateTime(iso: string) {
               />
             </div>
             <p v-else class="text-muted">{{ t('wardenAdmin.player.noAccounts') }}</p>
+          </section>
+
+          <section class="flex flex-col gap-4">
+            <h2 class="text-2xl font-medium text-highlighted">
+              {{ t('wardenAdmin.player.devices') }}
+            </h2>
+            <ul
+              v-if="data.devices.length"
+              class="flex flex-col divide-y divide-default rounded-lg bg-elevated"
+            >
+              <li
+                v-for="device in data.devices"
+                :key="device.id"
+                class="flex flex-wrap items-center gap-4 px-5 py-4"
+              >
+                <div class="flex min-w-0 flex-1 basis-60 flex-col gap-1.5">
+                  <span class="font-semibold break-all text-highlighted">{{ device.name }}</span>
+                  <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted">
+                    <span>
+                      {{ t('warden.devices.linkedOn') }}
+                      <span class="text-default">
+                        {{ formatWardenDate(device.createdAt, locale) }}
+                      </span>
+                    </span>
+                    <span>
+                      {{ t('warden.devices.lastUsed') }}
+                      <span class="text-default">
+                        {{ formatWardenRelative(device.lastUsedAt, locale) }}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+                <UButton
+                  color="neutral"
+                  variant="ghost"
+                  size="md"
+                  :label="t('warden.devices.revoke')"
+                  @click="onRevokeDevice(data.player, device)"
+                />
+              </li>
+            </ul>
+            <p v-else class="text-muted">{{ t('wardenAdmin.player.noDevices') }}</p>
           </section>
 
           <section class="flex flex-col gap-4">
@@ -477,14 +519,6 @@ function dateTime(iso: string) {
                 data.player.showRealName
                   ? t('wardenAdmin.player.shown')
                   : t('wardenAdmin.player.hidden')
-              }}
-            </dd>
-            <dt class="text-muted">{{ t('wardenAdmin.player.addressCreated') }}</dt>
-            <dd class="text-right text-highlighted">
-              {{
-                data.player.tokenRotatedAt
-                  ? formatWardenDate(data.player.tokenRotatedAt, locale)
-                  : t('wardenAdmin.player.noAddress')
               }}
             </dd>
             <dt class="text-muted">{{ t('wardenAdmin.player.wardenAdmin') }}</dt>

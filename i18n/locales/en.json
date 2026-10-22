@@ -18,7 +18,7 @@
     "minecraft": "Minecraft",
     "mods": "Mods",
     "modsDescription": "Votes and suggestions for the server’s mods",
-    "wardenDescription": "Your linked Minecraft account and server address",
+    "wardenDescription": "Your linked Minecraft account and devices",
     "events": "Events",
     "team": "Team",
     "partners": "Partners",
@@ -223,25 +223,20 @@
       "tooManyAttempts": "Too many tries. Wait 10 minutes, then enter the code again.",
       "failed": "The code couldn’t be checked. Check your connection, then try again.",
       "schoolNotAllowed": "This app isn’t open to your school.",
-      "invalidRedirect": "The link from this app has an address it isn’t allowed to use. Enter the code by hand instead.",
-      "accountLimitReached": "You've linked as many Minecraft accounts as you can. Unlink one on the Warden page first.",
-      "minecraftAccountTaken": "This Minecraft account is already linked to an LNB account.",
-      "wrongAccount": "This code is for another LNB account. Join the server with your own address to get a code for yours."
+      "invalidRedirect": "The link from this app has an address it isn’t allowed to use. Enter the code by hand instead."
     },
     "schoolNotAllowed": {
       "title": "{app} isn’t open to your school",
       "lede": "{app} is only for {schools} students, and your account is from {school}. The code was refused, so you can close {app}."
     },
     "warden": {
-      "account": "Minecraft account",
-      "slots": "This uses your only account slot. | This uses one of your {max} account slots.",
       "identity": "Your first name and last initial, shown in-game under your username unless you hide it",
       "deviceTitle": "Link {app} ({device}) to your account?"
     }
   },
   "warden": {
     "title": "Warden",
-    "lede": "Your Minecraft accounts on the LNB server, and the address you join it with.",
+    "lede": "Your Minecraft accounts on the LNB server, and the devices you play from.",
     "loadFailed": "Your Warden status couldn’t be loaded. Check your connection, then reload the page.",
     "schoolNotAllowed": {
       "title": "Warden isn’t open to your school yet",
@@ -267,21 +262,20 @@
       "cancel": "Cancel",
       "toast": "Appeal sent"
     },
-    "address": {
-      "title": "Your server address",
-      "help": "Add it as a server in Minecraft. It’s yours alone: anyone who has it can join as you, so keep it to yourself.",
-      "label": "Your server address",
-      "show": "Show",
-      "hide": "Hide",
-      "copy": "Copy",
-      "copied": "Address copied",
-      "copyFailed": "The address couldn’t be copied. Show it, then copy it by hand.",
-      "created": "Created on {date}",
-      "regenerate": "Regenerate",
-      "regenerateTitle": "Regenerate your address?",
-      "regenerateBody": "Your current address stops working right away, and you’re disconnected if you’re playing. Use the new address in Minecraft after this.",
-      "keep": "Keep this address",
-      "regenerated": "New address ready"
+    "devices": {
+      "title": "Your devices",
+      "help": "The server only takes players who join with the LNB Warden mod. The mod signs in once with your LNB account, and each device where you did stays signed in until you revoke it, or for 90 days without use.",
+      "linkedOn": "Linked on",
+      "lastUsed": "Last used",
+      "revoke": "Revoke",
+      "revokeTitle": "Revoke {name}?",
+      "revokeBody": "This device is signed out right away, and disconnected if it’s playing. Link it again from the mod to use it.",
+      "revokeCancel": "Keep this device",
+      "revoked": "Device revoked",
+      "empty": {
+        "title": "Link the LNB Warden mod",
+        "body": "Install the LNB Warden mod, then choose to sign in from it. The mod shows a 6-digit code to enter on the link page, and your device appears here."
+      }
     },
     "accounts": {
       "title": "Minecraft accounts",
@@ -297,11 +291,11 @@
       "unlinkBody": "Its playtime and sessions are deleted, and it can’t join until it’s linked again. Anyone can then link it to their LNB account.",
       "unlinkCancel": "Cancel",
       "unlinked": "Unlinked",
-      "howTo": "To link another account, join {host} with it. The server gives you a 6-digit code to enter on the link page.",
+      "howTo": "To link another account, join the server with it from the mod, and agree when the mod asks.",
       "full": "You’ve linked as many accounts as you can. Unlink one to link another.",
       "empty": {
         "title": "Link your Minecraft account",
-        "body": "Join {host} in Minecraft. The server gives you a 6-digit code: enter it on the link page, and your account appears here.",
+        "body": "Join the server from the LNB Warden mod with this account, and agree to link it when the mod asks. It appears here afterwards.",
         "limit": "You can link {max} account. | You can link {max} accounts."
       }
     },
@@ -747,7 +741,7 @@
         },
         "warden_linking": {
           "label": "Account linking",
-          "description": "Linking and unlinking a Minecraft account, and the server address token."
+          "description": "Linking and unlinking a Minecraft account, linking devices of the mod, and revoking them."
         },
         "warden_appeals": {
           "label": "Ban appeals",
@@ -1505,7 +1499,10 @@
         "roleSet": "Roles",
         "settingsUpdate": "Settings",
         "linkRequest": "Manual codes",
-        "linkCancel": "Cancelled codes"
+        "linkCancel": "Cancelled codes",
+        "deviceLink": "Device links",
+        "deviceDeny": "Device denials",
+        "deviceRevoke": "Device revocations"
       }
     },
     "sources": {
@@ -1545,7 +1542,10 @@
       "modRemove": "Removed the suggestion {name}",
       "modRestore": "Restored the suggestion {name}",
       "modDelete": "Removed {name} from the official list",
-      "modSettingsUpdate": "Mod list settings changed"
+      "modSettingsUpdate": "Mod list settings changed",
+      "deviceLink": "Linked the device {device}",
+      "deviceDeny": "Refused to link the device {device}",
+      "deviceRevoke": "Revoked the device {device}"
     },
     "actors": {
       "console": "Console",
@@ -1564,7 +1564,6 @@
       "addNote": "Add a note",
       "more": "More actions",
       "limit": "Change account limit",
-      "regenerate": "Regenerate address",
       "makeAdmin": "Make Warden admin",
       "removeAdmin": "Remove Warden admin",
       "accounts": "Minecraft accounts",
@@ -1579,8 +1578,6 @@
       "nameInGame": "Name in-game",
       "shown": "Shown",
       "hidden": "Hidden",
-      "addressCreated": "Address created",
-      "noAddress": "Not created yet",
       "wardenAdmin": "Warden admin",
       "yes": "Yes",
       "no": "No",
@@ -1590,9 +1587,6 @@
       "unlinkTitle": "Unlink {username} from {name}?",
       "unlinkBody": "Its playtime and sessions are deleted, and it’s kicked from the server if it’s playing.",
       "unlinked": "Unlinked",
-      "regenerateTitle": "Regenerate {name}’s address?",
-      "regenerateBody": "Their current address stops working right away, and they’re disconnected if they’re playing. They’ll find the new one on their Warden page.",
-      "regenerated": "New address created",
       "roleOnTitle": "Make {name} a Warden admin?",
       "roleOnBody": "They can ban, unban and warn players from here and in-game, and see the activity log.",
       "roleOffTitle": "Remove {name} as Warden admin?",
@@ -1600,7 +1594,12 @@
       "roleChanged": "Role updated",
       "cancel": "Cancel",
       "confirm": "Confirm",
-      "loadFailed": "This player couldn’t be loaded. Check your connection, then reload the page."
+      "loadFailed": "This player couldn’t be loaded. Check your connection, then reload the page.",
+      "devices": "Devices",
+      "noDevices": "No devices signed in.",
+      "revokeDeviceTitle": "Revoke {device} of {name}?",
+      "revokeDeviceBody": "The device is signed out right away, and disconnected if it’s playing. The player can link it again.",
+      "deviceRevoked": "Device revoked"
     },
     "timeline": {
       "banFor": "Banned for {length}",

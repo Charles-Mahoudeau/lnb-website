@@ -18,7 +18,7 @@
     "minecraft": "Minecraft",
     "mods": "Mods",
     "modsDescription": "Votes et propositions pour les mods du serveur",
-    "wardenDescription": "Ton compte Minecraft associé et ton adresse de serveur",
+    "wardenDescription": "Ton compte Minecraft lié et tes appareils",
     "events": "Événements",
     "team": "L’équipe",
     "partners": "Partenaires",
@@ -223,25 +223,20 @@
       "tooManyAttempts": "Trop d’essais. Attends 10 minutes, puis saisis à nouveau le code.",
       "failed": "Le code n’a pas pu être vérifié. Vérifie ta connexion, puis réessaie.",
       "schoolNotAllowed": "Cette application n’est pas ouverte à ton école.",
-      "invalidRedirect": "Le lien de cette application utilise une adresse qui ne lui est pas autorisée. Saisis plutôt le code à la main.",
-      "accountLimitReached": "Tu as lié autant de comptes Minecraft que possible. Délie-en un sur la page Warden d’abord.",
-      "minecraftAccountTaken": "Ce compte Minecraft est déjà lié à un compte LNB.",
-      "wrongAccount": "Ce code est pour un autre compte LNB. Rejoins le serveur avec ta propre adresse pour obtenir un code pour le tien."
+      "invalidRedirect": "Le lien de cette application utilise une adresse qui ne lui est pas autorisée. Saisis plutôt le code à la main."
     },
     "schoolNotAllowed": {
       "title": "{app} n’est pas ouvert à ton école",
       "lede": "{app} est réservé aux étudiants de {schools}, et ton compte vient de {school}. Le code a été refusé, tu peux fermer {app}."
     },
     "warden": {
-      "account": "Compte Minecraft",
-      "slots": "Cela utilise ton unique emplacement de compte. | Cela utilise un de tes {max} emplacements de compte.",
       "identity": "Ton prénom et l’initiale de ton nom, affichés en jeu sous ton pseudo sauf si tu les masques",
       "deviceTitle": "Associer {app} ({device}) à ton compte ?"
     }
   },
   "warden": {
     "title": "Warden",
-    "lede": "Tes comptes Minecraft sur le serveur de LNB, et l’adresse pour le rejoindre.",
+    "lede": "Tes comptes Minecraft sur le serveur LNB, et les appareils depuis lesquels tu joues.",
     "loadFailed": "Ton statut Warden n’a pas pu être chargé. Vérifie ta connexion, puis recharge la page.",
     "schoolNotAllowed": {
       "title": "Warden n’est pas encore ouvert à ton école",
@@ -267,21 +262,20 @@
       "cancel": "Annuler",
       "toast": "Contestation envoyée"
     },
-    "address": {
-      "title": "Ton adresse de serveur",
-      "help": "Ajoute-la comme serveur dans Minecraft. Elle n’est qu’à toi : n’importe qui l’ayant peut se connecter à ta place, alors garde-la pour toi.",
-      "label": "Ton adresse de serveur",
-      "show": "Afficher",
-      "hide": "Masquer",
-      "copy": "Copier",
-      "copied": "Adresse copiée",
-      "copyFailed": "L’adresse n’a pas pu être copiée. Affiche-la, puis copie-la à la main.",
-      "created": "Créée le {date}",
-      "regenerate": "Régénérer",
-      "regenerateTitle": "Régénérer ton adresse ?",
-      "regenerateBody": "Ton adresse actuelle cesse de fonctionner tout de suite, et tu es déconnecté si tu joues. Utilise ensuite la nouvelle adresse dans Minecraft.",
-      "keep": "Garder cette adresse",
-      "regenerated": "Nouvelle adresse prête"
+    "devices": {
+      "title": "Tes appareils",
+      "help": "Le serveur n’accepte que les joueurs qui se connectent avec le mod LNB Warden. Le mod se connecte une fois avec ton compte LNB, et chaque appareil où tu l’as fait reste connecté jusqu’à ce que tu le révoques, ou 90 jours sans utilisation.",
+      "linkedOn": "Associé le",
+      "lastUsed": "Dernière utilisation",
+      "revoke": "Révoquer",
+      "revokeTitle": "Révoquer {name} ?",
+      "revokeBody": "Cet appareil est déconnecté tout de suite, y compris s’il est en train de jouer. Associe-le de nouveau depuis le mod pour l’utiliser.",
+      "revokeCancel": "Garder cet appareil",
+      "revoked": "Appareil révoqué",
+      "empty": {
+        "title": "Associe le mod LNB Warden",
+        "body": "Installe le mod LNB Warden, puis choisis de te connecter depuis le mod. Il affiche un code à 6 chiffres à saisir sur la page d’association, et ton appareil apparaît ici."
+      }
     },
     "accounts": {
       "title": "Comptes Minecraft",
@@ -297,11 +291,11 @@
       "unlinkBody": "Son temps de jeu et ses sessions sont supprimés, et il ne peut plus se connecter avant d’être lié à nouveau. N’importe qui pourra alors le lier à son compte LNB.",
       "unlinkCancel": "Annuler",
       "unlinked": "Délié",
-      "howTo": "Pour lier un autre compte, rejoins {host} avec. Le serveur te donne un code à 6 chiffres à saisir sur la page de liaison.",
+      "howTo": "Pour lier un autre compte, rejoins le serveur avec ce compte depuis le mod, et accepte quand le mod le demande.",
       "full": "Tu as lié autant de comptes que possible. Délie-en un pour en lier un autre.",
       "empty": {
         "title": "Lie ton compte Minecraft",
-        "body": "Rejoins {host} dans Minecraft. Le serveur te donne un code à 6 chiffres : saisis-le sur la page de liaison, et ton compte apparaît ici.",
+        "body": "Rejoins le serveur depuis le mod LNB Warden avec ce compte, et accepte de le lier quand le mod le demande. Il apparaît ici ensuite.",
         "limit": "Tu peux lier {max} compte. | Tu peux lier {max} comptes."
       }
     },
@@ -747,7 +741,7 @@
         },
         "warden_linking": {
           "label": "Liaison de compte",
-          "description": "Lier et délier un compte Minecraft, et le jeton de l’adresse du serveur."
+          "description": "Lier et délier un compte Minecraft, associer les appareils du mod et les révoquer."
         },
         "warden_appeals": {
           "label": "Appels de bannissement",
@@ -1505,7 +1499,10 @@
         "roleSet": "Rôles",
         "settingsUpdate": "Réglages",
         "linkRequest": "Codes manuels",
-        "linkCancel": "Codes annulés"
+        "linkCancel": "Codes annulés",
+        "deviceLink": "Appareils associés",
+        "deviceDeny": "Appareils refusés",
+        "deviceRevoke": "Appareils révoqués"
       }
     },
     "sources": {
@@ -1545,7 +1542,10 @@
       "modRemove": "Proposition {name} retirée",
       "modRestore": "Proposition {name} rétablie",
       "modDelete": "{name} retiré de la liste officielle",
-      "modSettingsUpdate": "Réglages de la liste de mods modifiés"
+      "modSettingsUpdate": "Réglages de la liste de mods modifiés",
+      "deviceLink": "A associé l’appareil {device}",
+      "deviceDeny": "A refusé d’associer l’appareil {device}",
+      "deviceRevoke": "A révoqué l’appareil {device}"
     },
     "actors": {
       "console": "Console",
@@ -1564,7 +1564,6 @@
       "addNote": "Ajouter une note",
       "more": "Plus d’actions",
       "limit": "Changer la limite de comptes",
-      "regenerate": "Régénérer l’adresse",
       "makeAdmin": "Nommer admin Warden",
       "removeAdmin": "Retirer admin Warden",
       "accounts": "Comptes Minecraft",
@@ -1579,8 +1578,6 @@
       "nameInGame": "Nom en jeu",
       "shown": "Affiché",
       "hidden": "Masqué",
-      "addressCreated": "Adresse créée",
-      "noAddress": "Pas encore créée",
       "wardenAdmin": "Admin Warden",
       "yes": "Oui",
       "no": "Non",
@@ -1590,9 +1587,6 @@
       "unlinkTitle": "Délier {username} de {name} ?",
       "unlinkBody": "Son temps de jeu et ses sessions sont supprimés, et il est expulsé du serveur s’il joue.",
       "unlinked": "Délié",
-      "regenerateTitle": "Régénérer l’adresse de {name} ?",
-      "regenerateBody": "Son adresse actuelle cesse de fonctionner tout de suite, et il est déconnecté s’il joue. Il trouvera la nouvelle sur sa page Warden.",
-      "regenerated": "Nouvelle adresse créée",
       "roleOnTitle": "Nommer {name} admin Warden ?",
       "roleOnBody": "Il pourra bannir, débannir et avertir des joueurs ici et en jeu, et voir le journal d’activité.",
       "roleOffTitle": "Retirer {name} des admins Warden ?",
@@ -1600,7 +1594,12 @@
       "roleChanged": "Rôle mis à jour",
       "cancel": "Annuler",
       "confirm": "Confirmer",
-      "loadFailed": "Ce joueur n’a pas pu être chargé. Vérifie ta connexion, puis recharge la page."
+      "loadFailed": "Ce joueur n’a pas pu être chargé. Vérifie ta connexion, puis recharge la page.",
+      "devices": "Appareils",
+      "noDevices": "Aucun appareil connecté.",
+      "revokeDeviceTitle": "Révoquer {device} de {name} ?",
+      "revokeDeviceBody": "L’appareil est déconnecté tout de suite, y compris s’il est en train de jouer. Le joueur peut l’associer de nouveau.",
+      "deviceRevoked": "Appareil révoqué"
     },
     "timeline": {
       "banFor": "Banni pour {length}",

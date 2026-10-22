@@ -72,7 +72,7 @@ function onContinue() {
       step.value = { name: 'schoolNotAllowed', appId };
       return;
     }
-    // Warden codes carry a device, or a Minecraft account and the slot it takes: show it.
+    // Warden codes carry the name of the device to link: show it.
     const warden = appId === 'warden' ? await linkCode.wardenPreview(code.value) : undefined;
     step.value = { name: 'confirm', appId, warden };
   });
@@ -156,7 +156,7 @@ onMounted(() => {
       <template v-else-if="step.name === 'confirm'">
         <h1 class="text-4xl font-bold text-highlighted">
           {{
-            step.warden?.kind === 'device'
+            step.warden
               ? t('link.warden.deviceTitle', { app: appName, device: step.warden.deviceName })
               : t('link.confirm.title', { app: appName })
           }}
@@ -170,41 +170,6 @@ onMounted(() => {
               {{ spacedCode }}
             </span>
           </p>
-          <template v-if="step.warden?.kind === 'minecraft'">
-            <USeparator />
-            <div class="flex items-center gap-4">
-              <WardenMinecraftHead :uuid="step.warden.uuid" size="lg" />
-              <div class="flex min-w-0 flex-col gap-0.5">
-                <span class="text-sm text-muted">{{ t('link.warden.account') }}</span>
-                <span class="font-semibold break-all text-highlighted">
-                  {{ step.warden.username }}
-                </span>
-              </div>
-            </div>
-            <div class="flex flex-col gap-2">
-              <div class="flex gap-1.5" aria-hidden="true">
-                <span
-                  v-for="slot in step.warden.limit.max"
-                  :key="slot"
-                  :class="[
-                    'h-2 w-6 rounded-full',
-                    slot <= step.warden.limit.used
-                      ? 'bg-inverted/40'
-                      : slot === step.warden.limit.used + 1
-                        ? 'bg-action'
-                        : 'bg-accented',
-                  ]"
-                />
-              </div>
-              <span class="text-sm text-muted">
-                {{
-                  step.warden.limit.used < step.warden.limit.max
-                    ? t('link.warden.slots', { max: step.warden.limit.max }, step.warden.limit.max)
-                    : t('link.errors.accountLimitReached')
-                }}
-              </span>
-            </div>
-          </template>
           <USeparator />
           <div class="flex flex-col gap-3">
             <span class="text-sm text-muted">
@@ -248,9 +213,6 @@ onMounted(() => {
             icon="i-lucide-link"
             :label="t('link.confirm.link')"
             :loading="pending"
-            :disabled="
-              step.warden?.kind === 'minecraft' && step.warden.limit.used >= step.warden.limit.max
-            "
             @click="onLink(step.appId)"
           />
           <UButton

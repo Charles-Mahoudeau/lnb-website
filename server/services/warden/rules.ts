@@ -2,15 +2,6 @@ import { createHash, randomBytes } from 'node:crypto';
 
 // Warden's pure rules, without database or Nuxt imports, so plain unit tests can load them.
 
-/** Length of the label in <token>.mc.bde-teknantes.fr. Mirrors SERVER_TOKEN_LENGTH in shared/schemas/warden.ts. */
-const TOKEN_LENGTH = 26;
-const BASE32 = 'abcdefghijklmnopqrstuvwxyz234567';
-
-/** 26 characters of lowercase base32 (130 bits), so it's a valid DNS label. */
-export function generateServerToken(): string {
-  return Array.from(randomBytes(TOKEN_LENGTH), (byte) => BASE32[byte & 31]).join('');
-}
-
 /** A player's own limit wins over the global one. */
 export function resolveMaxAccounts(override: number | null | undefined, global: number): number {
   return override ?? global;

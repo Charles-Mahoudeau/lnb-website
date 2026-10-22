@@ -1,8 +1,8 @@
-import { and, eq, gt } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { defineCachedFunction } from 'nitropack/runtime';
 
 import { db } from '~~/server/db';
-import { deviceCode, minecraftAccount, wardenLinkRequest } from '~~/server/db/schema';
+import { minecraftAccount } from '~~/server/db/schema';
 
 // Skin heads are fetched by the site and cached in Nitro storage (the warden-heads mount in
 // nuxt.config.ts), so visitors never contact a skin service and the services aren't hit per view.
@@ -38,23 +38,13 @@ const fetchHead = defineCachedFunction(
   },
 );
 
-/**
- * Whether the UUID is one the site knows: a linked account, or one in a pending link request.
- * Other UUIDs get no head, so this isn't an open proxy.
- */
+/** Whether the UUID is a linked account. Other UUIDs get no head, so this isn't an open proxy. */
 async function known(uuid: string): Promise<boolean> {
   const [account] = await db
     .select({ uuid: minecraftAccount.uuid })
     .from(minecraftAccount)
     .where(eq(minecraftAccount.uuid, uuid));
-  if (account) return true;
-  const [request] = await db
-    .select({ id: wardenLinkRequest.id })
-    .from(wardenLinkRequest)
-    .innerJoin(deviceCode, eq(deviceCode.id, wardenLinkRequest.deviceCodeId))
-    .where(and(eq(wardenLinkRequest.minecraftUuid, uuid), gt(deviceCode.expiresAt, new Date())))
-    .limit(1);
-  return request !== undefined;
+  return account !== undefined;
 }
 
 /** The PNG head of a known account, or undefined. */

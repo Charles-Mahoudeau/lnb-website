@@ -9,7 +9,6 @@ const OWNER = 'link-owner';
 
 beforeAll(async () => {
   process.env.WARDEN_SERVER_SECRET = 'x'.repeat(40);
-  process.env.WARDEN_SERVER_HOST = 'mc.example.com';
   process.env.BETTER_AUTH_URL = 'https://lnb.example.com';
   await db
     .insert(user)

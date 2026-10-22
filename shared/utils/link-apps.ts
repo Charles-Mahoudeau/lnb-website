@@ -13,8 +13,8 @@ export interface LinkApp {
    */
   redirectAfterLink?: string;
   /**
-   * The app's own server creates its codes and handles what linking means, so Better Auth's
-   * /device/code and /device/token refuse it and linking gives no token. Warden works this way.
+   * The app creates its codes on its own API and handles what linking means, so Better Auth's
+   * /device/code and /device/token refuse it and linking gives no token here. Warden works this way.
    */
   issuedByServer?: boolean;
 }

@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { WardenAppealModal, WardenConfirmModal } from '#components';
 
-import type { WardenAccountView, WardenSessionView } from '#shared/schemas/warden';
+import type {
+  WardenAccountView,
+  WardenDeviceView,
+  WardenSessionView,
+} from '#shared/schemas/warden';
 
 definePageMeta({ flag: 'warden' });
 
@@ -24,9 +28,7 @@ const schools = computed(() =>
 
 const warden = useWarden({ immediate: eligible.value });
 const { data: me, error, refresh } = await warden.me;
-
-// The host players join to link an account: the address without the player's own label.
-const host = computed(() => me.value?.serverUrl.split('.').slice(1).join('.') ?? '');
+const { data: devices, refresh: refreshDevices } = await warden.devices;
 const confirmModal = overlay.create(WardenConfirmModal);
 const appealModal = overlay.create(WardenAppealModal);
 
@@ -60,14 +62,17 @@ async function run(action: () => Promise<unknown>, success: string) {
   }
 }
 
-async function onRegenerate() {
+async function onRevoke(device: WardenDeviceView) {
   const confirmed = await ask({
-    title: t('warden.address.regenerateTitle'),
-    description: t('warden.address.regenerateBody'),
-    confirmLabel: t('warden.address.regenerate'),
-    cancelLabel: t('warden.address.keep'),
+    title: t('warden.devices.revokeTitle', { name: device.name }),
+    description: t('warden.devices.revokeBody'),
+    confirmLabel: t('warden.devices.revoke'),
+    cancelLabel: t('warden.devices.revokeCancel'),
+    destructive: true,
   });
-  if (confirmed) await run(warden.regenerateToken, t('warden.address.regenerated'));
+  if (!confirmed) return;
+  await run(() => warden.revokeDevice(device.id), t('warden.devices.revoked'));
+  await refreshDevices();
 }
 
 async function onUnlink(account: WardenAccountView) {
@@ -167,11 +172,7 @@ const firstUsername = computed(() => me.value?.accounts[0]?.username ?? 'Steve')
         @appeal="onAppeal(me.activeBan.id)"
       />
 
-      <WardenServerAddress
-        :server-url="me.serverUrl"
-        :token-rotated-at="me.tokenRotatedAt"
-        @regenerate="onRegenerate"
-      />
+      <WardenDevices :devices="devices ?? []" @revoke="onRevoke" />
 
       <section class="flex flex-col gap-4" aria-labelledby="warden-accounts">
         <div class="flex flex-wrap items-baseline justify-between gap-3">
@@ -195,7 +196,7 @@ const firstUsername = computed(() => me.value?.accounts[0]?.username ?? 'Steve')
           <h3 class="text-xl font-medium text-highlighted">
             {{ t('warden.accounts.empty.title') }}
           </h3>
-          <p class="max-w-md text-muted">{{ t('warden.accounts.empty.body', { host }) }}</p>
+          <p class="max-w-md text-muted">{{ t('warden.accounts.empty.body') }}</p>
           <p class="text-sm text-muted">
             {{ t('warden.accounts.empty.limit', { max: me.limit.max }, me.limit.max) }}
           </p>
@@ -215,7 +216,7 @@ const firstUsername = computed(() => me.value?.accounts[0]?.username ?? 'Steve')
             <span>
               {{
                 me.limit.used < me.limit.max
-                  ? t('warden.accounts.howTo', { host })
+                  ? t('warden.accounts.howTo')
                   : t('warden.accounts.full')
               }}
             </span>

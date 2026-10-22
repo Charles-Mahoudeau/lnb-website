@@ -28,10 +28,6 @@ export const LINK_PROBLEMS = [
   'invalidRedirect',
   'tooManyAttempts',
   'failed',
-  // Warden only: the account limit, an account someone already linked, or a code for another player.
-  'accountLimitReached',
-  'minecraftAccountTaken',
-  'wrongAccount',
 ] as const;
 
 export type LinkProblem = (typeof LINK_PROBLEMS)[number];

@@ -61,7 +61,6 @@ const requestSchemas = {
   LinkApproveBody: linkApproveBody,
   LinkDenyBody: linkDenyBody,
   WardenIssuer: warden.wardenIssuer,
-  WardenLinkRequestBody: warden.wardenLinkRequestBody,
   WardenClientLinkRequestBody: warden.wardenClientLinkRequestBody,
   WardenClientPollBody: warden.wardenClientPollBody,
   WardenJoinTicketBody: warden.wardenJoinTicketBody,
@@ -129,14 +128,12 @@ const responseSchemas = {
   FlagStates: flags.flagStates,
   AdminFlagList: flags.adminFlagList,
   LinkApproveResult: linkApproveResult,
-  WardenLinkRequest: warden.wardenLinkRequest,
   WardenClientLinkRequest: warden.wardenClientLinkRequest,
   WardenClientPoll: warden.wardenClientPoll,
   WardenClientMe: warden.wardenClientMe,
   WardenJoinTicket: warden.wardenJoinTicket,
   WardenDeviceView: warden.wardenDeviceView,
   WardenDeviceList: warden.wardenDeviceList,
-  WardenLinkRequestStatus: warden.wardenLinkRequestStatus,
   WardenLinkPreview: warden.wardenLinkPreview,
   WardenLogin: warden.wardenLogin,
   WardenHeartbeat: warden.wardenHeartbeat,
@@ -150,7 +147,6 @@ const responseSchemas = {
   WardenSessionView: warden.wardenSessionView,
   WardenSessionPage: warden.wardenSessionPage,
   WardenMe: warden.wardenMe,
-  WardenServerUrl: warden.wardenServerUrl,
   WardenServerPlayer: warden.wardenServerPlayer,
   WardenPlayerRow: warden.wardenPlayerRow,
   WardenPlayerPage: warden.wardenPlayerPage,
@@ -309,10 +305,6 @@ const routes: RouteDoc[] = [
     problems: [
       { status: 400, problems: ['unknown', 'expired', 'used', 'invalidRedirect'] },
       { status: 403, problems: ['schoolNotAllowed'] },
-      {
-        status: 409,
-        problems: ['accountLimitReached', 'minecraftAccountTaken', 'wrongAccount'],
-      },
     ],
   },
   {
@@ -465,34 +457,6 @@ const routes: RouteDoc[] = [
     ],
   },
 
-  // Warden: Minecraft server
-  {
-    method: 'post',
-    path: '/api/warden/server/link-requests',
-    tag: TAGS.wardenServer,
-    summary: 'Create a link code',
-    description:
-      'Creates a 6-digit code for a Minecraft account, which the player enters on `/link`. With a valid `token`, the request is bound to that player: only they can use it. A pending request for the same UUID is returned again instead of a new code. Codes last 10 minutes.',
-    access: 'wardenServer',
-    body: warden.wardenLinkRequestBody,
-    response: warden.wardenLinkRequest,
-    problems: [
-      { status: 400, problems: ['invalidUuid'] },
-      { status: 403, problems: ['banned'] },
-      { status: 409, problems: ['alreadyLinked'] },
-    ],
-  },
-  {
-    method: 'get',
-    path: '/api/warden/server/link-requests/{id}',
-    tag: TAGS.wardenServer,
-    summary: 'Check a link code',
-    description: 'Poll this, or wait for the `link` event.',
-    access: 'wardenServer',
-    params: warden.wardenIdParams,
-    response: warden.wardenLinkRequestStatus,
-    problems: [{ status: 404, problems: ['notFound'] }],
-  },
   // Warden: clients (the LNB Warden mod)
   {
     method: 'post',
@@ -572,13 +536,14 @@ const routes: RouteDoc[] = [
     access: 'wardenClient',
     noContent: true,
   },
+  // Warden: Minecraft server
   {
     method: 'post',
     path: '/api/warden/server/login',
     tag: TAGS.wardenServer,
     summary: 'Let a player join',
     description:
-      "Called when a player joins through `<token>.mc.bde-teknantes.fr`. `allowed` opens a session. `denied` comes with a reason, and with a link request bound to the player for `notLinked`. `linkedElsewhere`: the account belongs to another LNB account than the token's.",
+      'Called when a player joins, with the `ticket` their mod got from `POST /api/warden/client/join-tickets`. The server runs in offline mode, so `uuid` must be the offline UUID of `username` (`UUID.nameUUIDFromBytes(("OfflinePlayer:" + username).getBytes(UTF_8))`, case-sensitive), else the answer is a 400 `invalidUuid`. The ticket is used up whatever the outcome. Checks, in order, each stopping with `denied` and its `reason`: `invalidTicket` (unknown, used, expired, another `nonce` or `username`, or its device revoked or expired), `schoolNotAllowed`, `banned` (with `ban`, checked before linking), `linkedElsewhere` (the account belongs to another LNB account), `notLinked` (with `limit`, when the ticket did not ask to link), `accountLimitReached` (with `limit`, when it did). Otherwise the account is linked if the ticket asked to (`linked` is true, recorded as `link`), and `allowed` opens a session for the device.',
     access: 'wardenServer',
     body: warden.wardenLoginBody,
     response: warden.wardenLogin,
@@ -712,16 +677,6 @@ const routes: RouteDoc[] = [
     problems: [{ status: 403, problems: ['schoolNotAllowed'] }],
   },
   {
-    method: 'post',
-    path: '/api/warden/me/token',
-    tag: TAGS.wardenPlayer,
-    summary: 'Get a new server address',
-    description: 'Regenerates the token in the address, which signs out the online sessions.',
-    access: 'user',
-    response: warden.wardenServerUrl,
-    problems: [{ status: 403, problems: ['schoolNotAllowed'] }],
-  },
-  {
     method: 'delete',
     path: '/api/warden/me/accounts/{uuid}',
     tag: TAGS.wardenPlayer,
@@ -786,7 +741,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.wardenPlayer,
     summary: 'Preview a link code',
     description:
-      'For `/link`: what a Warden code the player has claimed stands for. `kind: "device"` is a device of the LNB Warden mod, with the name it gave. `kind: "minecraft"` is a Minecraft account and the player’s limit.',
+      'For `/link`: the device of the LNB Warden mod behind a code the player has claimed, with the name it gave.',
     access: 'user',
     params: warden.wardenUserCodeParams,
     response: warden.wardenLinkPreview,
@@ -798,7 +753,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.wardenPlayer,
     summary: 'Skin head',
     description:
-      "The account's skin head, 64 px, for linked accounts and pending link requests only. Fetched from Crafatar (or mc-heads.net) and cached for a day, so visitors never contact these services. The server runs in offline mode, so every account gets Steve.",
+      "The account's skin head, 64 px, for linked accounts only. Fetched from Crafatar (or mc-heads.net) and cached for a day, so visitors never contact these services. The server runs in offline mode, so every account gets Steve.",
     access: 'public',
     params: warden.wardenUuidParams,
     response: {
@@ -851,16 +806,6 @@ const routes: RouteDoc[] = [
     body: warden.wardenRoleBody,
     noContent: true,
     problems: [{ status: 404, problems: ['notFound'] }],
-  },
-  {
-    method: 'post',
-    path: '/api/warden/admin/players/{userId}/token',
-    tag: TAGS.wardenAdmin,
-    summary: "Regenerate a player's address",
-    description: 'For a leaked address. Signs out their online sessions.',
-    access: 'wardenAdmin',
-    params: warden.wardenUserParams,
-    noContent: true,
   },
   {
     method: 'delete',
