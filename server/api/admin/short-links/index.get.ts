@@ -4,6 +4,6 @@ import { siteUrl } from '~~/server/lib/site';
 import { shortLinkService } from '~~/server/services/short-links';
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event);
+  await requireEventsManager(event);
   return shortLinkService.listAdmin(siteUrl('/'));
 });

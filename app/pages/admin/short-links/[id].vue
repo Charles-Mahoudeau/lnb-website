@@ -1,4 +1,6 @@
 <script setup lang="ts">
+definePageMeta({ eventsManagers: true });
+
 const { t } = useI18n();
 const route = useRoute();
 const id = String(route.params.id);

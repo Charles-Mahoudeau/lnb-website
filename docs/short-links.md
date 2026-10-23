@@ -1,6 +1,6 @@
 # Short links
 
-Admins make short links of the form `<site>/go/<shortId>` that send people to another page. A link can count clicks, ask people to sign in, stay inside some schools, and record who clicked. They are managed at `/admin/short-links` (site admins only), and are switched off as a whole by the `shortLinks` flag.
+Events managers and admins make short links of the form `<site>/go/<shortId>` that send people to another page. A link can count clicks, ask people to sign in, stay inside some schools, and record who clicked. They are managed at `/admin/short-links` (events managers and site admins), and are switched off as a whole by the `shortLinks` flag.
 
 Original mock (not code to port): [short links admin mock](https://claude.ai/artifact/1ovR7Yb7L5igxsFFQ8DNS1), layout A, "Table and drawer".
 
@@ -36,18 +36,18 @@ One `short_link_click` row per followed link, with the time, whether the visitor
 ## Admin
 
 - The list is a table: the short URL and name, who can open it, clicks, people (only for links that record), created, a switch, and copy. Rows open the link's page; "New link" and "Edit" open the form in a drawer.
-- The form: destination, short ID with "Generate", a name only admins see, who can open it (three cards, then the school buttons for `schools`), "Record who clicks" (disabled without sign-in or with the flag off), "Link is on", and a plain-words summary of who can open it.
+- The form: destination, short ID with "Generate", a name only managers see, who can open it (three cards, then the school buttons for `schools`), "Record who clicks" (disabled without sign-in or with the flag off), "Link is on", and a plain-words summary of who can open it.
 - The link page: the short URL, two badges (who can open it, records or counts only), four counts (clicks, people, clicks without sign-in, refused for the wrong school), clicks per day for 30 Paris days (stacked: signed in and not), and, for links that record: people by school, and the 50 people who clicked last. "Export CSV" lists date, name, email and school for every recorded click.
 - The export hands out names and emails, so it writes `shortLink.export` to the admin log. Creating, changing and deleting write `shortLink.create`, `.update` and `.delete`, shown on the Overview.
 - Cells starting with `=`, `+`, `-` or `@` get a quote in the CSV, so a spreadsheet can't run a name.
 
 ## Flags
 
-`shortLinks` switches `/go/` off (visitors see the "doesn't work any more" page, admins still manage links). `shortLinks.tracking` only stops recording who clicked.
+`shortLinks` switches `/go/` off (visitors see the "doesn't work any more" page, managers still manage links). `shortLinks.tracking` only stops recording who clicked.
 
 ## API
 
-The routes are in the API reference under "Short links" and "Short links: admins". Problem codes: `shortLinkNotFound`, `shortIdTaken`.
+The routes are in the API reference under "Short links" and "Short links: managers". Problem codes: `shortLinkNotFound`, `shortIdTaken`.
 
 ## Tests
 

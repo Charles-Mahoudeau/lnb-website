@@ -233,7 +233,7 @@ const TAGS = {
   partners: 'Partners',
   partnersAdmin: 'Partners: admins',
   shortLinks: 'Short links',
-  shortLinksAdmin: 'Short links: admins',
+  shortLinksAdmin: 'Short links: managers',
   auth: 'Auth',
   authDevice: 'Auth: device authorization',
 };
@@ -1796,7 +1796,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.shortLinksAdmin,
     summary: 'The short links',
     description: 'Every short link, newest first, with its clicks and the people who clicked.',
-    access: 'admin',
+    access: 'eventsManager',
     response: shortLinks.shortLinkList,
   },
   {
@@ -1806,7 +1806,7 @@ const routes: RouteDoc[] = [
     summary: 'Create a short link',
     description:
       'An empty `shortId` gets a random one. `access: schools` needs at least one school. Recording who clicks needs sign-in, so `access: any` can’t.',
-    access: 'admin',
+    access: 'eventsManager',
     body: shortLinks.shortLinkBody,
     response: z.object({ id: z.uuid(), shortId: z.string() }),
     created: true,
@@ -1819,7 +1819,7 @@ const routes: RouteDoc[] = [
     summary: 'A short link with its statistics',
     description:
       'Clicks per day for 30 days, and for links that record clicks, the people by school and the people who clicked last.',
-    access: 'admin',
+    access: 'eventsManager',
     params: shortLinks.shortLinkIdParams,
     response: shortLinks.shortLinkDetail,
     problems: [{ status: 404, problems: ['shortLinkNotFound'] }],
@@ -1831,7 +1831,7 @@ const routes: RouteDoc[] = [
     summary: 'Change a short link',
     description:
       'The short ID can’t change, so printed links keep working. Turning access to `any` stops recording who clicks. Clicks already recorded stay.',
-    access: 'admin',
+    access: 'eventsManager',
     params: shortLinks.shortLinkIdParams,
     body: shortLinks.shortLinkPatchBody,
     noContent: true,
@@ -1843,7 +1843,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.shortLinksAdmin,
     summary: 'Delete a short link',
     description: 'Its clicks go with it.',
-    access: 'admin',
+    access: 'eventsManager',
     params: shortLinks.shortLinkIdParams,
     noContent: true,
     problems: [{ status: 404, problems: ['shortLinkNotFound'] }],
@@ -1855,7 +1855,7 @@ const routes: RouteDoc[] = [
     summary: 'Download who clicked',
     description:
       'A CSV with the date, name, email and school of each click on a link that records clicks. It is written to the admin log.',
-    access: 'admin',
+    access: 'eventsManager',
     params: shortLinks.shortLinkIdParams,
     response: {
       description: 'A CSV file.',
