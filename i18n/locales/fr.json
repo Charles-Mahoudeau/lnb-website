@@ -896,7 +896,7 @@
         },
         "shortLinks": {
           "label": "Liens courts",
-          "description": "Les liens /go/. Les visiteurs voient que le lien est désactivé. Les admins peuvent toujours les gérer."
+          "description": "Les liens /go/. Les visiteurs voient que le lien est désactivé. Les gestionnaires peuvent toujours les gérer."
         },
         "shortLinks_tracking": {
           "label": "Enregistrement des clics par personne",
@@ -1404,7 +1404,7 @@
         "shortIdHelp": "Lettres, chiffres et tirets. Laissez vide pour en obtenir un au hasard. Il ne pourra plus changer.",
         "generate": "Générer",
         "name": "Nom",
-        "nameHelp": "Visible uniquement par les admins.",
+        "nameHelp": "Visible uniquement par les gestionnaires.",
         "access": "Qui peut l’ouvrir",
         "schools": "Écoles",
         "noSchool": "Choisissez au moins une école.",

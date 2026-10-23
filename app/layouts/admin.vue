@@ -2,7 +2,8 @@
 import type { NavigationMenuItem } from '@nuxt/ui';
 
 // The admin area (/admin): a sidebar instead of the public header. Each page renders an
-// AdminPage. Warden admins only see the Warden and Mods sections, events managers only Events.
+// AdminPage. Warden admins only see the Warden and Mods sections, events managers only Events,
+// Push and Short links.
 const { t } = useI18n();
 const { user, school } = useAuth();
 const route = useRoute();
@@ -43,11 +44,6 @@ const items = computed<NavigationMenuItem[][]>(() => [
           { label: t('admin.nav.users'), icon: 'i-lucide-users', to: '/admin/users' },
           { label: t('admin.nav.team'), icon: 'i-lucide-users-round', to: '/admin/team' },
           { label: t('admin.nav.partners'), icon: 'i-lucide-handshake', to: '/admin/partners' },
-          {
-            label: t('admin.nav.shortLinks'),
-            icon: 'i-lucide-link',
-            to: '/admin/short-links',
-          },
           { label: t('admin.nav.flags'), icon: 'i-lucide-toggle-right', to: '/admin/flags' },
           {
             label: t('admin.nav.rateLimit'),
@@ -80,7 +76,10 @@ const items = computed<NavigationMenuItem[][]>(() => [
         ]
       : []),
     ...(isEventsManager(user.value?.role)
-      ? [{ label: t('admin.nav.push'), icon: 'i-lucide-bell', to: '/admin/push' }]
+      ? [
+          { label: t('admin.nav.push'), icon: 'i-lucide-bell', to: '/admin/push' },
+          { label: t('admin.nav.shortLinks'), icon: 'i-lucide-link', to: '/admin/short-links' },
+        ]
       : []),
     ...(isWardenAdmin(user.value?.role) ? wardenItems.value : []),
   ],

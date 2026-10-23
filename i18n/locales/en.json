@@ -896,7 +896,7 @@
         },
         "shortLinks": {
           "label": "Short links",
-          "description": "The /go/ links. Visitors see that the link is off. Admins can still manage them."
+          "description": "The /go/ links. Visitors see that the link is off. Managers can still manage them."
         },
         "shortLinks_tracking": {
           "label": "Recording who clicks",
@@ -1404,7 +1404,7 @@
         "shortIdHelp": "Letters, numbers and dashes. Leave it empty to get a random one. It can’t change later.",
         "generate": "Generate",
         "name": "Name",
-        "nameHelp": "Only admins see it.",
+        "nameHelp": "Only managers see it.",
         "access": "Who can open it",
         "schools": "Schools",
         "noSchool": "Pick at least one school.",

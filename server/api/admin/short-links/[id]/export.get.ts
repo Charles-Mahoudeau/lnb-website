@@ -6,9 +6,9 @@ import { shortLinkIdParams } from '#shared/schemas/short-links';
 
 // Names and emails, so it is logged. Not cached anywhere.
 export default defineEventHandler(async (event) => {
-  const admin = await requireAdmin(event);
+  const manager = await requireEventsManager(event);
   const { id } = parseParams(event, shortLinkIdParams);
-  const { name, csv } = await shortLinkService.exportClicks({ actorId: admin.id, id });
+  const { name, csv } = await shortLinkService.exportClicks({ actorId: manager.id, id });
   return new Response(csv, {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
