@@ -390,6 +390,7 @@
       "allRed": "Tout en rouge",
       "colours": "Couleurs",
       "tabs": {
+        "template": "Modèle",
         "content": "Contenu",
         "style": "Style",
         "qr": "QR code"

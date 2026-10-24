@@ -57,7 +57,7 @@ Poster art, collage photos and treated art live in the events image storage. The
 
 - Sidebar: "Posters" under Events. The event page's menu has "Make a poster", which opens `/admin/posters/new?event=<id>`.
 - The library is a grid of live thumbnails (no stored images), with search, filters (upcoming, past, standalone), and Duplicate and Delete in each card's menu.
-- The editor: the template strip on top, the preview, and an inspector with Content, Style and QR tabs.
+- The editor: the preview, sized to stay fully in view, and an inspector with Template, Content, Style and QR tabs that scrolls on its own (beside the preview on wide screens, below it on narrow ones). The page itself doesn't scroll.
 - Creating, changing, duplicating and deleting write `poster.create`, `.update` and `.delete` to the admin log.
 
 ## API
