@@ -38,9 +38,8 @@ const qrLabel = computed(() => props.poster.content.qrLabel ?? print('qrLabel'))
       :max-height="footer ? 184 : 232"
       class="poster-title"
     />
+    <p v-if="footer" class="poster-footer">{{ footer }}</p>
   </div>
-
-  <p v-if="footer" class="poster-footer">{{ footer }}</p>
 
   <div class="poster-rule" />
 
@@ -110,11 +109,7 @@ const qrLabel = computed(() => props.poster.content.qrLabel ?? print('qrLabel'))
 }
 
 .poster-footer {
-  position: absolute;
-  top: 862px;
-  right: 48px;
-  left: 48px;
-  margin: 0;
+  margin: 4px 0 0 4px;
   overflow: hidden;
   color: var(--poster-muted);
   font-size: 18px;
