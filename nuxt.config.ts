@@ -17,7 +17,8 @@ export default defineNuxtConfig({
 
   fonts: {
     defaults: {
-      weights: [400, 500, 600, 700],
+      // 900 is for the poster titles (app/components/posters/).
+      weights: [400, 500, 600, 700, 900],
     },
   },
 

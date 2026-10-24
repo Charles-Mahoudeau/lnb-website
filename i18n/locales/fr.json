@@ -339,6 +339,10 @@
     }
   },
   "admin": {
+    "posters": {
+      "title": "Affiches",
+      "loadFailed": "Impossible de charger cette affiche."
+    },
     "title": "Admin",
     "menu": "Admin",
     "backToSite": "Retour au site",
@@ -1989,6 +1993,12 @@
     "off": {
       "title": "Ce lien ne fonctionne plus",
       "body": "Il a été désactivé, ou l’adresse contient une faute de frappe. Demandez un nouveau lien à la personne qui vous l’a envoyé."
+    }
+  },
+  "posters": {
+    "print": {
+      "qrLabel": "Inscriptions par ici",
+      "qrPlaceholder": "QR code après l’enregistrement"
     }
   }
 }
