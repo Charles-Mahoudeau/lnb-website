@@ -2,6 +2,7 @@ import { and, count, desc, eq, inArray } from 'drizzle-orm';
 import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
+import type { Tx } from '~~/server/db';
 import {
   event,
   eventRoom,
@@ -16,6 +17,7 @@ import { adminAuditService } from '~~/server/services/admin-audit';
 import { shortLinkService } from '~~/server/services/short-links';
 
 import type { PosterBody, PosterProblem, PosterView } from '#shared/schemas/posters';
+import { resolvePoster } from '#shared/utils/posters';
 import type {
   PosterEventSource,
   PosterLocale,
@@ -49,9 +51,9 @@ function eventPage(eventId: string): string {
   return siteUrl(`/events/${eventId}`);
 }
 
-async function eventInfo(ids: string[]): Promise<Map<string, EventInfo>> {
+async function eventInfo(ids: string[], tx: Tx | typeof db = db): Promise<Map<string, EventInfo>> {
   if (ids.length === 0) return new Map();
-  const rows = await db
+  const rows = await tx
     .select({ event, room: eventRoom, type: eventType })
     .from(event)
     .innerJoin(eventRoom, eq(eventRoom.id, event.roomId))
@@ -304,4 +306,18 @@ async function remove(input: { actorId: string; id: string }): Promise<void> {
   });
 }
 
-export const posterService = { list, get, create, update, duplicate, remove };
+/**
+ * Before an event is deleted: writes what each of its posters shows into its overrides, so the
+ * poster keeps showing it, now standalone.
+ */
+async function freezeForEvent(tx: Tx, eventId: string): Promise<void> {
+  const info = (await eventInfo([eventId], tx)).get(eventId);
+  if (!info) return;
+  const rows = await tx.select().from(poster).where(eq(poster.eventId, eventId));
+  for (const row of rows) {
+    const { fields } = resolvePoster(row.overrides, info.source, row.locale as PosterLocale);
+    await tx.update(poster).set({ overrides: fields, eventId: null }).where(eq(poster.id, row.id));
+  }
+}
+
+export const posterService = { list, get, create, update, duplicate, remove, freezeForEvent };

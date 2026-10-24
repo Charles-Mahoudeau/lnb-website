@@ -4,6 +4,7 @@ import { db } from '~~/server/db';
 import type { Tx } from '~~/server/db';
 import { event, eventRegistration, eventRoom, eventType } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
+import { posterService } from '~~/server/services/posters';
 
 import { bdeSyncService } from './bde';
 import { eventImageService } from './images';
@@ -260,6 +261,7 @@ async function remove(input: { actorId: string; id: string }): Promise<void> {
       if (registration) refuse(409, 'hasRegistrations');
     }
     await bdeSyncService.removeBeforeDelete(current);
+    await posterService.freezeForEvent(tx, input.id);
     await tx.delete(event).where(eq(event.id, input.id));
     await adminAuditService.record(tx, {
       action: 'event.delete',

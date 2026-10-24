@@ -188,4 +188,31 @@ describe('posters', () => {
     expect(items.length).toBeGreaterThan(0);
     expect(items.every((p) => typeof p.updatedAt === 'string')).toBe(true);
   });
+
+  it('keeps what it showed when its event is deleted', async () => {
+    const [source] = await db.select().from(event).where(eq(event.id, eventId));
+    const [doomed] = await db
+      .insert(event)
+      .values({ ...source!, id: undefined, name: 'Doomed night', createdAt: undefined })
+      .returning();
+    const { id } = await posterService.create({
+      actorId: MANAGER,
+      body: body({ eventId: doomed!.id, overrides: { title: 'Doomed\nnight' } }),
+    });
+    // What the event's deletion does (eventAdminService.remove), without its storage.
+    await db.transaction(async (tx) => {
+      await posterService.freezeForEvent(tx, doomed!.id);
+      await tx.delete(event).where(eq(event.id, doomed!.id));
+    });
+    const view = await posterService.get(id);
+    expect(view.event).toBeNull();
+    expect(view.overrides).toEqual({
+      title: 'Doomed\nnight',
+      kicker: 'Tournoi affiche',
+      startsAt: '2026-12-17T18:30:00.000Z',
+      place: 'Poster room, Nantes',
+      schools: [EPITECH],
+      art: null,
+    });
+  });
 });
