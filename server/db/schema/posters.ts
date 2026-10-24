@@ -11,7 +11,8 @@ import type { PosterOverrides } from '../../../shared/utils/posters';
 
 /**
  * A saved poster. Event fields follow `eventId` unless pinned in `overrides`. When the event is
- * deleted, the poster keeps what it showed: the values are written into `overrides` first.
+ * deleted, the poster keeps what it showed: the values are written into `overrides` first. A
+ * treatment is made from the art when it is shown (eventImageService.treated).
  */
 export const poster = pgTable(
   'poster',
@@ -26,8 +27,6 @@ export const poster = pgTable(
     locale: text('locale').notNull().default('fr'),
     overrides: jsonb('overrides').$type<PosterOverrides>().default({}).notNull(),
     content: jsonb('content').$type<PosterContent>().notNull(),
-    // The treated art, a key in the event-images storage. Null without a treatment.
-    treatedKey: text('treated_key'),
     // The QR code's link. Kept when the poster is deleted, and shared by its duplicates.
     shortLinkId: uuid('short_link_id').references(() => shortLink.id, { onDelete: 'set null' }),
     createdBy: text('created_by').references(() => user.id, { onDelete: 'set null' }),

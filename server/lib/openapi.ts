@@ -1892,6 +1892,21 @@ const routes: RouteDoc[] = [
   },
   {
     method: 'get',
+    path: '/api/admin/posters/art',
+    tag: TAGS.postersAdmin,
+    summary: 'Treated art',
+    description:
+      'A stored image as the background of an Art title poster: duotone (navy to the tint), dark medium or dark strong. Made on first use, then kept.',
+    access: 'eventsManager',
+    query: posters.posterArtQuery,
+    response: {
+      description: 'A WebP image.',
+      content: { 'image/webp': { schema: { type: 'string', format: 'binary' } } },
+    },
+    problems: [{ status: 404, problems: ['imageNotFound'] }],
+  },
+  {
+    method: 'get',
     path: '/api/admin/posters/{id}',
     tag: TAGS.postersAdmin,
     summary: 'A poster',

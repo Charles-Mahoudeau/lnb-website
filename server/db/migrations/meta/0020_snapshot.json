@@ -1,5 +1,5 @@
 {
-  "id": "4f097d55-501e-48d9-b0b4-7e09d6758282",
+  "id": "ad8a6d5c-4986-4d0f-8315-e50310a6ab14",
   "prevId": "6607c919-138f-4854-9c60-4c11df29fdbd",
   "version": "7",
   "dialect": "postgresql",
@@ -1760,12 +1760,6 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true
-        },
-        "treated_key": {
-          "name": "treated_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         },
         "short_link_id": {
           "name": "short_link_id",

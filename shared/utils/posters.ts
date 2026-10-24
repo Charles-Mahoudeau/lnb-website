@@ -88,6 +88,17 @@ export function allColors(accent: PosterAccent): PosterColors {
   ) as PosterColors;
 }
 
+/** Where the art is served: as stored, or treated for an Art title poster. */
+export function posterArtUrl(
+  key: string,
+  treatment: PosterTreatment | null,
+  tint: PosterAccent,
+): string {
+  if (!treatment) return `/api/media/${key}`;
+  const tone = treatment === 'duotone' ? `&tint=${tint}` : '';
+  return `/api/admin/posters/art?key=${key}&treatment=${treatment}${tone}`;
+}
+
 const EMPTY: PosterFields = {
   title: '',
   kicker: '',

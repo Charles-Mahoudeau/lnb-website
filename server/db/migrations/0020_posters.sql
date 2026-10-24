@@ -7,7 +7,6 @@ CREATE TABLE "poster" (
 	"locale" text DEFAULT 'fr' NOT NULL,
 	"overrides" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"content" jsonb NOT NULL,
-	"treated_key" text,
 	"short_link_id" uuid,
 	"created_by" text,
 	"updated_by" text,
