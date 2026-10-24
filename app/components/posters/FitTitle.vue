@@ -2,8 +2,15 @@
 // A title that keeps the line breaks it was given and shrinks, from `max` down to `min` pixels,
 // until its longest line fits the width and all its lines fit `maxHeight`. When it can't fit even
 // at `min` (an event's long name, with no breaks yet), it also wraps at spaces and shrinks again.
-// Font, line height and letter spacing come from the template's class.
-const props = defineProps<{ text: string; max: number; min: number; maxHeight: number }>();
+// Font, line height and letter spacing come from the template's class. With `lines`, each line is
+// its own span (`.poster-fit-line`), for templates that style lines one by one.
+const props = defineProps<{
+  text: string;
+  max: number;
+  min: number;
+  maxHeight: number;
+  lines?: boolean;
+}>();
 
 const el = useTemplateRef<HTMLElement>('el');
 const size = ref(props.max);
@@ -73,8 +80,14 @@ defineExpose({ size });
     ref="el"
     class="poster-fit-title"
     :style="{ fontSize: `${size}px`, whiteSpace: wrap ? 'pre-line' : 'pre' }"
-    v-text="text"
-  />
+  >
+    <template v-if="props.lines">
+      <span v-for="(line, index) in text.split('\n')" :key="index" class="poster-fit-line">{{
+        line
+      }}</span>
+    </template>
+    <template v-else>{{ text }}</template>
+  </h1>
 </template>
 
 <style scoped>

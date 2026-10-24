@@ -32,7 +32,7 @@ const templates = {
   banner: resolveComponent('PostersTemplatesBanner'),
   artTitle: resolveComponent('PostersTemplatesArtTitle'),
   ticket: resolveComponent('PostersTemplatesTicket'),
-  labels: resolveComponent('PostersTemplatesBanner'),
+  labels: resolveComponent('PostersTemplatesLabels'),
   collage: resolveComponent('PostersTemplatesBanner'),
   badge: resolveComponent('PostersTemplatesBanner'),
 };
