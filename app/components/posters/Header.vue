@@ -18,7 +18,10 @@ const props = defineProps<{ schools: string[] }>();
           :src="SCHOOL_LOGOS[tid].src"
           :alt="schoolForTenant(tid)"
           class="poster-school-logo"
-          :style="{ width: `${SCHOOL_LOGOS[tid].width}px` }"
+          :style="{
+            width: `${SCHOOL_LOGOS[tid].width}px`,
+            height: `${SCHOOL_LOGOS[tid].height}px`,
+          }"
         />
         <span v-else class="poster-school-name">{{ schoolForTenant(tid) }}</span>
       </template>
@@ -63,7 +66,6 @@ const props = defineProps<{ schools: string[] }>();
 }
 
 .poster-school-logo {
-  height: 30px;
   object-fit: contain;
 }
 

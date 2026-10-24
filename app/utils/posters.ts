@@ -116,10 +116,24 @@ export function posterBodyOf(view: PosterView): PosterBody {
  * School logos for the poster header, by tenant ID, from public/posters/schools/. A school
  * without one gets its name in type.
  */
-export const SCHOOL_LOGOS: Readonly<Record<string, { src: string; width: number }>> = {
-  '901cb4ca-b862-4029-9306-e5cd0f6d9f86': { src: '/posters/schools/epitech.svg', width: 124 },
-  '791f2edf-38ab-4c6c-b323-ea94dd988fde': { src: '/posters/schools/e-artsup.svg', width: 141 },
-  '8dab9574-4b8e-4eec-8e5e-791d6835fdea': { src: '/posters/schools/iseg.svg', width: 30 },
+export const SCHOOL_LOGOS: Readonly<
+  Record<string, { src: string; width: number; height: number }>
+> = {
+  '901cb4ca-b862-4029-9306-e5cd0f6d9f86': {
+    src: '/posters/schools/epitech.svg',
+    width: 124,
+    height: 30,
+  },
+  '791f2edf-38ab-4c6c-b323-ea94dd988fde': {
+    src: '/posters/schools/e-artsup.svg',
+    width: 123,
+    height: 26,
+  },
+  '8dab9574-4b8e-4eec-8e5e-791d6835fdea': {
+    src: '/posters/schools/iseg.svg',
+    width: 40,
+    height: 40,
+  },
 };
 
 /** The art as shown: stored, or treated for an Art title poster. */
