@@ -207,6 +207,7 @@ const responseSchemas = {
   ShortLinkPublic: shortLinks.shortLinkPublic,
   PosterView: posters.posterView,
   PosterList: posters.posterList,
+  PosterEvent: posters.posterEvent,
   TeamPublic: team.teamPublicView,
   TeamMe: team.teamMeView,
   TeamAdmin: team.teamAdminView,
@@ -1889,6 +1890,16 @@ const routes: RouteDoc[] = [
     response: posters.posterCreated,
     created: true,
     problems: [{ status: 400, problems: ['eventNotFound', 'qrUrlNeeded'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/admin/posters/events',
+    tag: TAGS.postersAdmin,
+    summary: 'Events for a poster',
+    description:
+      'The events a poster can follow, soonest first: those not over, or over for less than 30 days. Each comes with the values a poster takes from it, drafts and cancelled events included.',
+    access: 'eventsManager',
+    response: posters.posterEventList,
   },
   {
     method: 'get',

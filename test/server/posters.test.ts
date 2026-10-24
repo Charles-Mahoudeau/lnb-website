@@ -189,6 +189,32 @@ describe('posters', () => {
     expect(items.every((p) => typeof p.updatedAt === 'string')).toBe(true);
   });
 
+  it('offers events not over, or over for less than 30 days', async () => {
+    const [source] = await db.select().from(event).where(eq(event.id, eventId));
+    const ended = (days: number) => new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const [recent, old] = await db
+      .insert(event)
+      .values(
+        [10, 60].map((days) => ({
+          ...source!,
+          id: undefined,
+          name: `Ended ${String(days)} days ago`,
+          startsAt: ended(days + 1),
+          endsAt: ended(days),
+          createdAt: undefined,
+        })),
+      )
+      .returning();
+    const ids = (await posterService.events()).map((e) => e.id);
+    expect(ids).toContain(eventId);
+    expect(ids).toContain(recent!.id);
+    expect(ids).not.toContain(old!.id);
+    // Soonest first.
+    expect(ids.indexOf(recent!.id)).toBeLessThan(ids.indexOf(eventId));
+    const choice = (await posterService.events()).find((e) => e.id === eventId);
+    expect(choice?.source.typeNameEn).toBe('Poster tournament');
+  });
+
   it('keeps what it showed when its event is deleted', async () => {
     const [source] = await db.select().from(event).where(eq(event.id, eventId));
     const [doomed] = await db

@@ -1,4 +1,4 @@
-import { and, count, desc, eq, inArray } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gt, inArray } from 'drizzle-orm';
 import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
@@ -16,7 +16,7 @@ import { siteUrl } from '~~/server/lib/site';
 import { adminAuditService } from '~~/server/services/admin-audit';
 import { shortLinkService } from '~~/server/services/short-links';
 
-import type { PosterBody, PosterProblem, PosterView } from '#shared/schemas/posters';
+import type { PosterBody, PosterEvent, PosterProblem, PosterView } from '#shared/schemas/posters';
 import { resolvePoster } from '#shared/utils/posters';
 import type {
   PosterEventSource,
@@ -149,6 +149,23 @@ async function get(id: string): Promise<PosterView> {
   const [row] = await select().where(eq(poster.id, id));
   if (!row) refuse(404, 'posterNotFound');
   return (await views([row]))[0]!;
+}
+
+/** How long after its end an event can still get a poster, for a late print. */
+const EVENT_CHOICE_GRACE_MS = 30 * 24 * 60 * 60 * 1000;
+
+/** The events a poster can follow: not over, or over for less than 30 days. Soonest first. */
+async function events(now = new Date()): Promise<PosterEvent[]> {
+  const rows = await db
+    .select({ id: event.id })
+    .from(event)
+    .where(gt(event.endsAt, new Date(now.getTime() - EVENT_CHOICE_GRACE_MS)))
+    .orderBy(asc(event.startsAt));
+  const info = await eventInfo(rows.map((r) => r.id));
+  return rows.flatMap(({ id }) => {
+    const found = info.get(id);
+    return found ? [{ id, ...found }] : [];
+  });
 }
 
 async function checkEvent(eventId: string | null): Promise<void> {
@@ -320,4 +337,13 @@ async function freezeForEvent(tx: Tx, eventId: string): Promise<void> {
   }
 }
 
-export const posterService = { list, get, create, update, duplicate, remove, freezeForEvent };
+export const posterService = {
+  list,
+  get,
+  events,
+  create,
+  update,
+  duplicate,
+  remove,
+  freezeForEvent,
+};

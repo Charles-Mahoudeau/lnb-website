@@ -98,6 +98,19 @@ export const posterEventSource = z.object({
   banner: eventImageInput.nullable(),
 });
 
+/** An event a poster can follow, with its values. */
+export const posterEvent = z.object({
+  id: z.uuid(),
+  endsAt: isoDate,
+  draft: z.boolean(),
+  cancelled: z.boolean(),
+  source: posterEventSource.describe('The values the poster follows.'),
+});
+export type PosterEvent = z.infer<typeof posterEvent>;
+
+/** GET /api/admin/posters/events */
+export const posterEventList = z.object({ items: z.array(posterEvent) });
+
 export const posterView = z.object({
   id: z.uuid(),
   name: z.string(),
@@ -106,14 +119,7 @@ export const posterView = z.object({
   locale: z.enum(POSTER_LOCALES),
   overrides: posterOverrides,
   content: posterContent,
-  event: z
-    .object({
-      id: z.uuid(),
-      endsAt: isoDate,
-      draft: z.boolean(),
-      cancelled: z.boolean(),
-      source: posterEventSource.describe('The values the poster follows.'),
-    })
+  event: posterEvent
     .nullable()
     .describe('Null: a standalone poster, or one whose event was deleted.'),
   qr: z
