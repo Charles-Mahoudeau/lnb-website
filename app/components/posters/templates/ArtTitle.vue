@@ -110,7 +110,7 @@ const fill = computed(() =>
 
 .poster-footer {
   max-width: 560px;
-  margin: -6px 0 0 4px;
+  margin: -40px 0 0 4px;
   font-family: var(--poster-display);
   font-size: 26px;
   font-weight: 500;
