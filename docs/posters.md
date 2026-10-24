@@ -38,7 +38,7 @@ Each poster has its own language, French by default. The month, weekday, time ("
 
 ## QR code
 
-The QR code is a [short link](short-links.md), made at the first save when the QR is on: named `Poster: <name>`, open to anyone, without recording who clicks. It leads to the event's page (`/events/<id>`) or any `https://` address. Changing the target in the editor updates the link. The editor shows the short URL, its click count and a link to its page in Short links.
+The QR code is a [short link](short-links.md), made at the first save when the QR is on: named `Poster: <name>`, open to anyone, without recording who clicks. Its ID is random unless one is typed in the QR tab before that save (`qrShortId` in the body, ignored once the link exists, since an ID can't change). A taken ID is refused with `shortIdTaken`. It leads to the event's page (`/events/<id>`) or any `https://` address. Changing the target in the editor updates the link. The editor shows the short URL, its click count and a link to its page in Short links.
 
 - Deleting a poster keeps its link, so printed posters keep working. A duplicated poster reuses it.
 - A poster with the QR on and nowhere to send it (no event, no address) is refused with `qrUrlNeeded`.
@@ -62,7 +62,7 @@ Poster art, collage photos and treated art live in the events image storage. The
 
 ## API
 
-The routes are in the API reference under "Posters: managers". Problem codes: `posterNotFound`, `eventNotFound`, `qrUrlNeeded`.
+The routes are in the API reference under "Posters: managers". Problem codes: `posterNotFound`, `eventNotFound`, `qrUrlNeeded`, `shortIdTaken`.
 
 ## Tests
 

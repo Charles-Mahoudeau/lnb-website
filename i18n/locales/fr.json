@@ -465,7 +465,9 @@
         "copy": "Copier le lien",
         "copied": "Lien copié",
         "scans": "scans",
-        "notYet": "Le lien court est créé à l’enregistrement.",
+        "random": "Aléatoire",
+        "generate": "Générer",
+        "shortIdHelp": "Lettres, chiffres et tirets. Laissez vide pour en obtenir un au hasard. Il ne peut plus changer une fois l’affiche enregistrée.",
         "leadsTo": "Mène vers",
         "eventPage": "La page de l’événement",
         "otherLink": "Un autre lien",
@@ -483,6 +485,8 @@
         "posterNotFound": "Cette affiche n’existe plus.",
         "eventNotFound": "Cet événement n’existe plus. Choisissez-en un autre.",
         "qrUrlNeeded": "Une affiche sans événement a besoin d’une adresse pour son QR code, ou désactivez le QR code.",
+        "shortIdInvalid": "Un lien court compte de 2 à 40 lettres, chiffres et tirets simples.",
+        "shortIdTaken": "Ce lien court est déjà pris. Choisissez-en un autre dans l’onglet QR code.",
         "invalid": "Vérifiez les champs en surbrillance.",
         "failed": "Une erreur est survenue. Réessayez."
       }

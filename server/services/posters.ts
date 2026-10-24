@@ -207,7 +207,7 @@ async function syncLink(input: {
   const { id } = await shortLinkService.create({
     actorId: input.actorId,
     body: {
-      shortId: '',
+      shortId: body.qrShortId ?? '',
       name: `Poster: ${body.name}`.slice(0, 80),
       destinationUrl: target,
       access: 'any',
