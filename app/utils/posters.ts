@@ -159,6 +159,7 @@ export function posterDate(iso: string, locale: PosterLocale) {
   return {
     day: part({ day: 'numeric' }),
     month: part({ month: 'long' }),
+    monthShort: part({ month: 'short' }),
     when: `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)}, ${time}`,
   };
 }
