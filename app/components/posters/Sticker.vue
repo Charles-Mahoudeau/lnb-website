@@ -14,15 +14,14 @@ const props = defineProps<{ lines: [string, string, string] }>();
 
 <style scoped>
 .poster-sticker {
-  --size: 168px;
   position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 2px;
-  width: var(--size);
-  height: var(--size);
+  width: var(--size, 168px);
+  height: var(--size, 168px);
   padding: 16px;
   border-radius: 9999px;
   background: var(--poster-sticker);
@@ -33,13 +32,13 @@ const props = defineProps<{ lines: [string, string, string] }>();
 }
 
 .poster-big {
-  font-size: calc(var(--size) / 6);
+  font-size: calc(var(--size, 168px) / 6);
   font-weight: 700;
   line-height: 1;
 }
 
 .poster-small {
-  font-size: calc(var(--size) / 12);
+  font-size: calc(var(--size, 168px) / 12);
   font-weight: 500;
   line-height: 1.2;
 }
