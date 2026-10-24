@@ -98,6 +98,10 @@ const fill = computed(() =>
 }
 
 .poster-title-art {
+  /* The art only paints inside the box, and the tight line height cuts ascenders and descenders
+     (the dot of an i, the tail of a g): the padding gives them room, the margin takes it back. */
+  padding-block: 0.12em 0.3em;
+  margin-block: -0.12em -0.3em;
   background-size: cover;
   background-clip: text;
   color: transparent;
