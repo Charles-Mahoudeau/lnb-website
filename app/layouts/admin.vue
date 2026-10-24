@@ -71,6 +71,7 @@ const items = computed<NavigationMenuItem[][]>(() => [
               },
               { label: t('admin.nav.eventRooms'), to: '/admin/events/rooms' },
               { label: t('admin.nav.eventTypes'), to: '/admin/events/types' },
+              { label: t('admin.nav.posters'), to: '/admin/posters' },
             ],
           },
         ]

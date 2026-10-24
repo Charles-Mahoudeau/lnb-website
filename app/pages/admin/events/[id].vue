@@ -197,6 +197,11 @@ const menu = computed<DropdownMenuItem[][]>(() => [
       icon: 'i-lucide-copy',
       onSelect: () => void onDuplicate(),
     },
+    {
+      label: t('admin.posters.makeFromEvent'),
+      icon: 'i-lucide-image',
+      to: `/admin/posters/new?event=${id}`,
+    },
     ...(event.value?.announcedAt
       ? [
           { label: t('admin.events.push.announced'), icon: 'i-lucide-bell-ring', disabled: true },

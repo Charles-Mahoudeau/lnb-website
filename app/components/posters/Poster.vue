@@ -6,22 +6,16 @@ import type { PosterAccent } from '#shared/utils/posters';
 // Scale it from the outside with a transform.
 const props = defineProps<{ poster: PosterRender }>();
 
-const ACCENT: Record<PosterAccent, string> = { violet: '#5b49c9', red: '#a51f33' };
-const STICKER: Record<PosterAccent, string> = { violet: '#5b49c9', red: '#b82238' };
-const TAPE: Record<PosterAccent, string> = {
-  violet: 'rgba(169, 155, 255, 0.6)',
-  red: 'rgba(242, 92, 112, 0.55)',
-};
-
 const colors = computed(() => {
   const c = props.poster.content.colors;
+  const of = (accent: PosterAccent) => POSTER_ACCENT_COLORS[accent];
   return {
-    '--poster-kicker': ACCENT[c.kicker],
-    '--poster-date': ACCENT[c.date],
-    '--poster-label': ACCENT[c.label],
-    '--poster-strap': ACCENT[c.strap],
-    '--poster-tape': TAPE[c.tape],
-    '--poster-sticker': STICKER[c.sticker],
+    '--poster-kicker': of(c.kicker).ink,
+    '--poster-date': of(c.date).ink,
+    '--poster-label': of(c.label).ink,
+    '--poster-strap': of(c.strap).ink,
+    '--poster-tape': of(c.tape).tape,
+    '--poster-sticker': of(c.sticker).sticker,
   };
 });
 

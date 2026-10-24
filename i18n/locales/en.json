@@ -341,7 +341,146 @@
   "admin": {
     "posters": {
       "title": "Posters",
-      "loadFailed": "This poster couldn’t be loaded."
+      "lede": "Shared by everyone who manages events.",
+      "loadFailed": "This poster couldn’t be loaded.",
+      "new": "New poster",
+      "create": "Create the poster",
+      "save": "Save",
+      "created": "Poster created",
+      "saved": "Poster saved",
+      "downloadPng": "Download PNG",
+      "print": "Print or save as PDF",
+      "printSaveFirst": "Save first: the PDF is made from the saved poster.",
+      "pngFailed": "The PNG couldn’t be made. Try again, or print to PDF.",
+      "search": "Search by name or event",
+      "filters": {
+        "upcoming": "Upcoming events",
+        "past": "Past",
+        "standalone": "Standalone"
+      },
+      "empty": "No poster here yet.",
+      "noMatch": "No poster matches.",
+      "more": "More actions",
+      "card": {
+        "noEvent": "No event",
+        "draft": "Event is a draft",
+        "cancelled": "Event cancelled",
+        "standalone": "Standalone"
+      },
+      "duplicate": "Duplicate",
+      "duplicateTitle": "Duplicate the poster",
+      "duplicateLede": "The copy prints the same QR code.",
+      "copyName": "{name} (copy)",
+      "duplicated": "Poster duplicated",
+      "delete": "Delete",
+      "deleteTitle": "Delete {name}?",
+      "deleteBody": "Its short link stays, so printed copies keep working.",
+      "keep": "Keep it",
+      "deleted": "Poster deleted",
+      "makeFromEvent": "Make a poster",
+      "templates": {
+        "banner": "Banner",
+        "artTitle": "Art title",
+        "ticket": "Ticket",
+        "labels": "Labels",
+        "collage": "Collage",
+        "badge": "Badge"
+      },
+      "allViolet": "All violet",
+      "allRed": "All red",
+      "colours": "Colours",
+      "tabs": {
+        "content": "Content",
+        "style": "Style",
+        "qr": "QR code"
+      },
+      "settings": "Poster settings",
+      "preview": "Preview",
+      "fields": {
+        "name": "Name in the library",
+        "nameHelp": "Only events managers see it.",
+        "event": "Event",
+        "noEvent": "No event (standalone)",
+        "searchEvents": "Search events",
+        "language": "Poster language",
+        "kicker": "Kicker",
+        "title": "Title",
+        "titleHelp": "Press Enter for a new line. The title shrinks to fit.",
+        "sticker": "Sticker",
+        "stickerLines": ["Sticker, first line", "Sticker, small line", "Sticker, last line"],
+        "stickerHelp": "Leave all three empty for no sticker.",
+        "startsAt": "Date and time",
+        "eventStartsAt": "The event starts {date}.",
+        "place": "Place",
+        "schools": "School logos",
+        "footer": "Footer line",
+        "optional": "Optional",
+        "art": "Art",
+        "changeArt": "Change art",
+        "moveFocus": "Move focus",
+        "noArt": "No art",
+        "removeArt": "Remove",
+        "artTitle": "Art for the poster",
+        "photos": "Collage photos",
+        "photosHelp": "Each photo is the main art with its own focus point, or another image.",
+        "photo": "Photo {n}",
+        "photoTitle": "Collage photo {n}",
+        "useArt": "Use the main art",
+        "treatment": "Art treatment",
+        "treatmentHelp": "Keeps the title readable when the art is busy or very light.",
+        "treatments": {
+          "none": "None",
+          "duotone": "Duotone",
+          "darkMedium": "Darker",
+          "darkStrong": "Much darker"
+        },
+        "colorsHelp": "Only the parts this template has are listed.",
+        "elements": {
+          "kicker": "Kicker",
+          "date": "Big date",
+          "label": "Label",
+          "strap": "Badge strap",
+          "tape": "Tape",
+          "sticker": "Sticker",
+          "tint": "Duotone tint"
+        },
+        "accents": {
+          "violet": "Violet",
+          "red": "Red"
+        }
+      },
+      "source": {
+        "fromEvent": "From event",
+        "pinned": "Pinned",
+        "reset": "Reset to event"
+      },
+      "qr": {
+        "show": "Show the QR code",
+        "link": "Short link",
+        "copy": "Copy the link",
+        "copied": "Link copied",
+        "scans": "scans",
+        "notYet": "The short link is made when you save.",
+        "leadsTo": "Leads to",
+        "eventPage": "The event page",
+        "otherLink": "Another link",
+        "url": "Address",
+        "urlHelp": "An https address. Printed copies follow it when it changes.",
+        "label": "Label",
+        "open": "Open in Short links"
+      },
+      "warnings": {
+        "draft": "This event is still a draft. The QR code leads to its page, which people can’t see until you publish the event.",
+        "cancelled": "This event is cancelled. The poster doesn’t say so.",
+        "shortLinksOff": "Short links are switched off in the feature flags, so printed QR codes won’t lead anywhere until they’re back on."
+      },
+      "errors": {
+        "posterNotFound": "This poster no longer exists.",
+        "eventNotFound": "This event no longer exists. Pick another one.",
+        "qrUrlNeeded": "A poster without an event needs an address for its QR code, or turn the QR code off.",
+        "invalid": "Check the highlighted fields.",
+        "failed": "Something went wrong. Try again."
+      }
     },
     "title": "Admin",
     "menu": "Admin",
@@ -366,7 +505,8 @@
       "push": "Push notifications",
       "team": "Team",
       "partners": "Partners",
-      "shortLinks": "Short links"
+      "shortLinks": "Short links",
+      "posters": "Posters"
     },
     "cancel": "Cancel",
     "roles": {
