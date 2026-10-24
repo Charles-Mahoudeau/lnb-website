@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // A title that keeps the line breaks it was given and shrinks, from `max` down to `min` pixels,
-// until its longest line fits the width and all its lines fit `maxHeight`. When it can't fit even
-// at `min` (an event's long name, with no breaks yet), it also wraps at spaces and shrinks again.
+// until its longest line fits the width and all its lines fit `maxHeight`. It also wraps at spaces
+// when that allows a larger size (an event's long name, with no breaks yet).
 // Font, line height and letter spacing come from the template's class. With `lines`, each line is
 // its own span (`.poster-fit-line`), for templates that style lines one by one.
 const props = defineProps<{
@@ -47,13 +47,16 @@ async function fit() {
     }
     return low;
   };
+  // Wrapping at spaces can allow a larger size than one line (a short height budget leaves a
+  // single long line small and the poster empty), so both are measured and the larger one wins.
   node.style.whiteSpace = 'pre';
   let best = largest();
-  const wraps = !fits(best);
-  if (wraps) {
-    node.style.whiteSpace = 'pre-line';
-    best = largest();
-  }
+  const oneLine = fits(best);
+  node.style.whiteSpace = 'pre-line';
+  const wrapped = largest();
+  const wraps = !oneLine || wrapped > best;
+  if (wraps) best = wrapped;
+  else node.style.whiteSpace = 'pre';
   node.style.fontSize = `${String(best)}px`;
   wrap.value = wraps;
   size.value = best;
