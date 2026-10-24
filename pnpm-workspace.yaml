@@ -12,6 +12,11 @@ overrides:
   # @scalar/api-reference (dev, for /api/docs) pulls ai 6.0.33, which @nuxt/ui then counts as its
   # optional peer, so it shows in the production tree (GHSA-866g-f22w-33x8).
   '@ai-sdk/provider-utils@<4.0.33': ^4.0.33
+  # undici 8 via nuxt and unifont (GHSA-4qv8-2p9j-2685 and others), undici 6 via @ai-sdk/provider-utils.
+  'undici@>=8 <8.12.2': ^8.12.2
+  'undici@<6.29.1': ^6.29.1
+  # nitropack's @rollup/plugin-terser (GHSA-m5mm-p8h7-m29v).
+  'serialize-javascript@<7.1.3': ^7.1.3
 
 auditConfig:
   # None of these reach the production server. Re-check them when Renovate bumps Nuxt.
