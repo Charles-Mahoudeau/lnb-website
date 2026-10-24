@@ -68,14 +68,16 @@ const resolved = computed(() => resolvePoster(state.overrides, source.value, sta
 const follows = computed(() => !!source.value);
 
 // The select menu takes '' for "no event".
+// The menu can't hold an empty value (it means "cleared"), so "no event" has its own.
+const NO_EVENT = 'none';
 const eventChoice = computed({
-  get: () => state.eventId ?? '',
+  get: () => state.eventId ?? NO_EVENT,
   set: (id: string) => {
-    state.eventId = id || null;
+    state.eventId = id && id !== NO_EVENT ? id : null;
   },
 });
 const eventItems = computed(() => [
-  { label: t('admin.posters.fields.noEvent'), value: '' },
+  { label: t('admin.posters.fields.noEvent'), value: NO_EVENT },
   ...events.value.map((e) => ({
     label: `${e.source.name}, ${formatEventDate(e.source.startsAt, uiLocale.value, { day: 'numeric', month: 'long' })}`,
     value: e.id,
