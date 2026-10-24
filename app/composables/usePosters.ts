@@ -1,4 +1,4 @@
-import type { PosterBody, PosterProblem, PosterView } from '#shared/schemas/posters';
+import type { PosterBody, PosterEvent, PosterProblem, PosterView } from '#shared/schemas/posters';
 import { POSTER_PROBLEMS } from '#shared/schemas/posters';
 
 // The Posters section of the admin area. Writes throw a PosterError with the API's problem.
@@ -24,6 +24,11 @@ async function call<T>(request: () => Promise<T>): Promise<T> {
 /** The whole library, last saved first. */
 export function usePosterList() {
   return useFetch<{ items: PosterView[] }>('/api/admin/posters', { key: 'poster-list' });
+}
+
+/** The events a poster can follow, with their values. */
+export function usePosterEvents() {
+  return useFetch<{ items: PosterEvent[] }>('/api/admin/posters/events', { key: 'poster-events' });
 }
 
 export function usePoster(id: string) {

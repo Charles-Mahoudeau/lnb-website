@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
-import { posterBody } from '../../shared/schemas/posters.ts';
-import { allColors, placeLine, resolvePoster } from '../../shared/utils/posters.ts';
+import en from '../../i18n/locales/en.json' with { type: 'json' };
+import fr from '../../i18n/locales/fr.json' with { type: 'json' };
+import { POSTER_PROBLEMS, posterBody } from '../../shared/schemas/posters.ts';
+import {
+  allColors,
+  placeLine,
+  POSTER_COLOR_ELEMENTS,
+  POSTER_TEMPLATES,
+  POSTER_TREATMENTS,
+  resolvePoster,
+} from '../../shared/utils/posters.ts';
 import type { PosterEventSource } from '../../shared/utils/posters.ts';
 
 const EPITECH = '901cb4ca-b862-4029-9306-e5cd0f6d9f86';
@@ -107,5 +116,28 @@ describe('posterBody', () => {
       false,
     );
     expect(posterBody.safeParse(body({ overrides: { schools: ['nope'] } })).success).toBe(false);
+  });
+});
+
+describe('poster messages', () => {
+  it('has a message for every problem, template, treatment and part, in both languages', () => {
+    for (const locale of [en, fr]) {
+      const posters = locale.admin.posters;
+      for (const problem of POSTER_PROBLEMS) expect(posters.errors[problem], problem).toBeTruthy();
+      for (const template of POSTER_TEMPLATES) expect(posters.templates[template]).toBeTruthy();
+      for (const treatment of POSTER_TREATMENTS)
+        expect(posters.fields.treatments[treatment]).toBeTruthy();
+      for (const element of POSTER_COLOR_ELEMENTS)
+        expect(posters.fields.elements[element]).toBeTruthy();
+    }
+  });
+
+  it('has the same keys in English and French', () => {
+    const keys = (value: unknown, prefix = ''): string[] =>
+      typeof value === 'object' && value !== null
+        ? Object.entries(value).flatMap(([k, v]) => keys(v, `${prefix}${k}.`))
+        : [prefix];
+    expect(keys(fr.admin.posters)).toEqual(keys(en.admin.posters));
+    expect(keys(fr.posters)).toEqual(keys(en.posters));
   });
 });

@@ -341,7 +341,150 @@
   "admin": {
     "posters": {
       "title": "Affiches",
-      "loadFailed": "Impossible de charger cette affiche."
+      "lede": "Partagées par tous ceux qui gèrent les événements.",
+      "loadFailed": "Impossible de charger cette affiche.",
+      "new": "Nouvelle affiche",
+      "create": "Créer l’affiche",
+      "save": "Enregistrer",
+      "created": "Affiche créée",
+      "saved": "Affiche enregistrée",
+      "downloadPng": "Télécharger en PNG",
+      "print": "Imprimer ou enregistrer en PDF",
+      "printSaveFirst": "Enregistrez d’abord : le PDF est fait à partir de l’affiche enregistrée.",
+      "pngFailed": "Impossible de faire le PNG. Réessayez, ou imprimez en PDF.",
+      "search": "Rechercher par nom ou événement",
+      "filters": {
+        "upcoming": "Événements à venir",
+        "past": "Passés",
+        "standalone": "Sans événement"
+      },
+      "empty": "Aucune affiche ici pour l’instant.",
+      "noMatch": "Aucune affiche ne correspond.",
+      "more": "Plus d’actions",
+      "card": {
+        "noEvent": "Sans événement",
+        "draft": "Événement en brouillon",
+        "cancelled": "Événement annulé",
+        "standalone": "Sans événement"
+      },
+      "duplicate": "Dupliquer",
+      "duplicateTitle": "Dupliquer l’affiche",
+      "duplicateLede": "La copie imprime le même QR code.",
+      "copyName": "{name} (copie)",
+      "duplicated": "Affiche dupliquée",
+      "delete": "Supprimer",
+      "deleteTitle": "Supprimer {name} ?",
+      "deleteBody": "Son lien court reste, donc les copies imprimées continuent de marcher.",
+      "keep": "La garder",
+      "deleted": "Affiche supprimée",
+      "makeFromEvent": "Faire une affiche",
+      "templates": {
+        "banner": "Bannière",
+        "artTitle": "Titre sur l’image",
+        "ticket": "Ticket",
+        "labels": "Étiquettes",
+        "collage": "Collage",
+        "badge": "Badge"
+      },
+      "allViolet": "Tout en violet",
+      "allRed": "Tout en rouge",
+      "colours": "Couleurs",
+      "tabs": {
+        "content": "Contenu",
+        "style": "Style",
+        "qr": "QR code"
+      },
+      "settings": "Réglages de l’affiche",
+      "preview": "Aperçu",
+      "fields": {
+        "name": "Nom dans la bibliothèque",
+        "nameHelp": "Seuls les gestionnaires d’événements le voient.",
+        "event": "Événement",
+        "noEvent": "Aucun (sans événement)",
+        "searchEvents": "Rechercher un événement",
+        "language": "Langue de l’affiche",
+        "kicker": "Surtitre",
+        "title": "Titre",
+        "titleHelp": "Entrée pour aller à la ligne. Le titre rétrécit pour tenir.",
+        "sticker": "Pastille",
+        "stickerLines": [
+          "Pastille, première ligne",
+          "Pastille, petite ligne",
+          "Pastille, dernière ligne"
+        ],
+        "stickerHelp": "Laissez les trois vides pour ne pas avoir de pastille.",
+        "startsAt": "Date et heure",
+        "eventStartsAt": "L’événement commence {date}.",
+        "place": "Lieu",
+        "schools": "Logos des écoles",
+        "footer": "Ligne du bas",
+        "optional": "Facultatif",
+        "art": "Image",
+        "changeArt": "Changer l’image",
+        "moveFocus": "Déplacer le point focal",
+        "noArt": "Pas d’image",
+        "removeArt": "Retirer",
+        "artTitle": "Image de l’affiche",
+        "photos": "Photos du collage",
+        "photosHelp": "Chaque photo reprend l’image principale avec son propre point focal, ou une autre image.",
+        "photo": "Photo {n}",
+        "photoTitle": "Photo {n} du collage",
+        "useArt": "Reprendre l’image principale",
+        "treatment": "Traitement de l’image",
+        "treatmentHelp": "Garde le titre lisible quand l’image est chargée ou très claire.",
+        "treatments": {
+          "none": "Aucun",
+          "duotone": "Bichromie",
+          "darkMedium": "Plus sombre",
+          "darkStrong": "Bien plus sombre"
+        },
+        "colorsHelp": "Seules les parties de ce modèle sont listées.",
+        "elements": {
+          "kicker": "Surtitre",
+          "date": "Grande date",
+          "label": "Étiquette",
+          "strap": "Bandeau du badge",
+          "tape": "Ruban adhésif",
+          "sticker": "Pastille",
+          "tint": "Teinte de la bichromie"
+        },
+        "accents": {
+          "violet": "Violet",
+          "red": "Rouge"
+        }
+      },
+      "source": {
+        "fromEvent": "De l’événement",
+        "pinned": "Fixé",
+        "reset": "Reprendre l’événement"
+      },
+      "qr": {
+        "show": "Afficher le QR code",
+        "link": "Lien court",
+        "copy": "Copier le lien",
+        "copied": "Lien copié",
+        "scans": "scans",
+        "notYet": "Le lien court est créé à l’enregistrement.",
+        "leadsTo": "Mène vers",
+        "eventPage": "La page de l’événement",
+        "otherLink": "Un autre lien",
+        "url": "Adresse",
+        "urlHelp": "Une adresse https. Les copies imprimées la suivent quand elle change.",
+        "label": "Texte",
+        "open": "Ouvrir dans Liens courts"
+      },
+      "warnings": {
+        "draft": "Cet événement est encore en brouillon. Le QR code mène à sa page, que personne ne voit tant que l’événement n’est pas publié.",
+        "cancelled": "Cet événement est annulé. L’affiche ne le dit pas.",
+        "shortLinksOff": "Les liens courts sont désactivés dans les fonctionnalités : les QR codes imprimés ne mèneront nulle part tant qu’ils ne sont pas réactivés."
+      },
+      "errors": {
+        "posterNotFound": "Cette affiche n’existe plus.",
+        "eventNotFound": "Cet événement n’existe plus. Choisissez-en un autre.",
+        "qrUrlNeeded": "Une affiche sans événement a besoin d’une adresse pour son QR code, ou désactivez le QR code.",
+        "invalid": "Vérifiez les champs en surbrillance.",
+        "failed": "Une erreur est survenue. Réessayez."
+      }
     },
     "title": "Admin",
     "menu": "Admin",
@@ -366,7 +509,8 @@
       "push": "Notifications push",
       "team": "Équipe",
       "partners": "Partenaires",
-      "shortLinks": "Liens courts"
+      "shortLinks": "Liens courts",
+      "posters": "Affiches"
     },
     "cancel": "Annuler",
     "roles": {

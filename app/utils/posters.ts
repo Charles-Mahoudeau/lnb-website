@@ -1,8 +1,10 @@
 import { formatEventDate } from './events';
 
-import type { PosterContent, PosterView } from '#shared/schemas/posters';
-import { posterArtUrl, resolvePoster } from '#shared/utils/posters';
+import type { PosterBody, PosterContent, PosterView } from '#shared/schemas/posters';
+import { allColors, posterArtUrl, resolvePoster } from '#shared/utils/posters';
 import type {
+  PosterAccent,
+  PosterColorElement,
   PosterFields,
   PosterImage,
   PosterLocale,
@@ -17,6 +19,18 @@ export const POSTER_WIDTH = 794;
 export const POSTER_HEIGHT = 1123;
 /** The PNG export's width, A4 at 300 dpi. */
 export const POSTER_PNG_WIDTH = 2480;
+
+/**
+ * The print colours of each accent, fixed in both color modes (docs/design.md, Posters). Most
+ * parts use `ink`; the sticker and the collage tape have their own.
+ */
+export const POSTER_ACCENT_COLORS: Record<
+  PosterAccent,
+  { ink: string; sticker: string; tape: string }
+> = {
+  violet: { ink: '#5b49c9', sticker: '#5b49c9', tape: 'rgba(169, 155, 255, 0.6)' },
+  red: { ink: '#a51f33', sticker: '#b82238', tape: 'rgba(242, 92, 112, 0.55)' },
+};
 
 /** Everything a template draws. */
 export interface PosterRender {
@@ -39,6 +53,62 @@ export function posterRenderOf(view: PosterView): PosterRender {
     fields,
     content: view.content,
     qrUrl: view.qr?.url ?? null,
+  };
+}
+
+/** The violet-or-red parts each template has, in the order the editor lists them. */
+const TEMPLATE_COLORS: Record<PosterTemplate, readonly PosterColorElement[]> = {
+  banner: ['kicker', 'date', 'sticker'],
+  artTitle: ['kicker', 'date', 'sticker'],
+  ticket: ['kicker', 'date', 'sticker'],
+  labels: ['label', 'date', 'sticker'],
+  collage: ['label', 'tape', 'date', 'sticker'],
+  badge: ['strap', 'kicker', 'date', 'sticker'],
+};
+
+/** The parts the editor offers a colour for. The duotone tint only shows with that treatment. */
+export function posterColorElements(
+  template: PosterTemplate,
+  treatment: PosterTreatment | null,
+): readonly PosterColorElement[] {
+  const elements = TEMPLATE_COLORS[template];
+  return template === 'artTitle' && treatment === 'duotone' ? [...elements, 'tint'] : elements;
+}
+
+/** What the poster editor gives the page around it, through a template ref. */
+export interface PosterEditorHandle {
+  /** Checks the poster, then emits it to save. */
+  submit: () => void;
+  png: () => Promise<Blob>;
+  /** Edited since it was loaded. */
+  dirty: boolean;
+  /** The name it would be saved under. */
+  name: string;
+}
+
+/** What a new poster starts with. */
+export function newPosterContent(): PosterContent {
+  return {
+    sticker: ['', '', ''],
+    footer: '',
+    qrEnabled: true,
+    qrLabel: null,
+    photos: [],
+    colors: allColors('violet'),
+  };
+}
+
+/** A saved poster as the body that saves it again. */
+export function posterBodyOf(view: PosterView): PosterBody {
+  return {
+    name: view.name,
+    eventId: view.event?.id ?? null,
+    template: view.template,
+    treatment: view.treatment,
+    locale: view.locale,
+    overrides: view.overrides,
+    content: view.content,
+    qrUrl: view.qr && !view.qr.followsEvent ? view.qr.destinationUrl : null,
   };
 }
 
@@ -100,7 +170,15 @@ export function posterSticker(content: PosterContent): [string, string, string] 
 
 /** Waits until a poster's fonts and images are ready, so a print or a capture shows them. */
 export async function posterReady(root: HTMLElement): Promise<void> {
-  if ('fonts' in document) await document.fonts.ready;
+  if ('fonts' in document) {
+    await Promise.all(
+      [...root.querySelectorAll<HTMLElement>('*')].map((el) => {
+        const style = getComputedStyle(el);
+        return document.fonts.load(`${style.fontWeight} 16px ${style.fontFamily}`);
+      }),
+    ).catch(() => undefined);
+    await document.fonts.ready;
+  }
   await Promise.all(
     [...root.querySelectorAll('img')].map((img) => img.decode().catch(() => undefined)),
   );
