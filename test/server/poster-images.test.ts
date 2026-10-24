@@ -37,9 +37,9 @@ describe('treated art', () => {
     const bytes = await eventImageService.treated(ART, 'duotone', 'red');
     const { data, info } = await sharp(bytes).raw().toBuffer({ resolveWithObject: true });
     expect(info.width).toBe(40);
-    // White becomes the red tint, give or take the WebP encoding.
-    expect(data[0]).toBeGreaterThan(0xa5 - 8);
-    expect(data[1]).toBeLessThan(0x1f + 8);
+    // White becomes the light red, give or take the WebP encoding.
+    expect(data[0]).toBeGreaterThan(0xf2 - 8);
+    expect(data[1]).toBeLessThan(0x5c + 8);
     expect(await storage.hasItem(treatedName(ART, 'duotone', 'red'))).toBe(true);
     expect(await eventImageService.treated(ART, 'duotone', 'red')).toEqual(bytes);
   });
