@@ -36,12 +36,11 @@ const code = computed(() => {
 
 <style scoped>
 .poster-card {
-  --size: 152px;
   display: flex;
   flex: none;
-  width: var(--size);
-  height: var(--size);
-  padding: calc(var(--size) / 19);
+  width: var(--size, 152px);
+  height: var(--size, 152px);
+  padding: calc(var(--size, 152px) / 19);
   border-radius: 9px;
   background: #ffffff;
 }
