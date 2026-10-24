@@ -141,6 +141,13 @@
       "when": 1792703046651,
       "tag": "0019_warden_account_transfers",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792800150401,
+      "tag": "0020_posters",
+      "breakpoints": true
     }
   ]
 }

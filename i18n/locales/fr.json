@@ -570,7 +570,10 @@
         "shortLink_create": "{actor} a créé le lien court {name}.",
         "shortLink_update": "{actor} a modifié le lien court {name}.",
         "shortLink_delete": "{actor} a supprimé le lien court {name}.",
-        "shortLink_export": "{actor} a téléchargé la liste des clics du lien court {name}."
+        "shortLink_export": "{actor} a téléchargé la liste des clics du lien court {name}.",
+        "poster_create": "{actor} a créé l’affiche {name}.",
+        "poster_update": "{actor} a modifié l’affiche {name}.",
+        "poster_delete": "{actor} a supprimé l’affiche {name}."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page."
     },
