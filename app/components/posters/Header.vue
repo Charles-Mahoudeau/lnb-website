@@ -62,7 +62,7 @@ const props = defineProps<{ schools: string[] }>();
 .poster-schools {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 18px;
 }
 
 .poster-school-logo {
