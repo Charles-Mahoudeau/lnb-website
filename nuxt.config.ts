@@ -42,6 +42,13 @@ export default defineNuxtConfig({
     compatibilityVersion: 5,
   },
 
+  experimental: {
+    // Compatibility mode 5 turns it off, and since Nuxt 4.6.2 Nitro's `#imports` is then empty:
+    // @nuxtjs/i18n's server runtime can't find `useRuntimeConfig` and the build fails. Server code
+    // still imports its helpers from `nuxt/server`. Drop this once i18n or Nuxt fixes it.
+    nitroAutoImports: true,
+  },
+
   nitro: {
     // Scheduled jobs in server/tasks/.
     experimental: { tasks: true },
