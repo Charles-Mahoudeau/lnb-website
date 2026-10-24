@@ -69,11 +69,13 @@ const fill = computed(() =>
 <style scoped>
 .poster-titles {
   position: absolute;
-  top: 140px;
+  top: 132px;
   right: 24px;
   left: 40px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  height: 500px;
   gap: 10px;
 }
 

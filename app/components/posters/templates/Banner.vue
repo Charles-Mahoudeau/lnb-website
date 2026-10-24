@@ -81,11 +81,13 @@ const qrLabel = computed(() => props.poster.content.qrLabel ?? print('qrLabel'))
 
 .poster-titles {
   position: absolute;
-  top: 624px;
+  top: 600px;
   right: 40px;
   left: 44px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  height: 312px;
   gap: 6px;
 }
 
