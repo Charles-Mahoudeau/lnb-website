@@ -33,7 +33,7 @@ const templates = {
   artTitle: resolveComponent('PostersTemplatesArtTitle'),
   ticket: resolveComponent('PostersTemplatesTicket'),
   labels: resolveComponent('PostersTemplatesLabels'),
-  collage: resolveComponent('PostersTemplatesBanner'),
+  collage: resolveComponent('PostersTemplatesCollage'),
   badge: resolveComponent('PostersTemplatesBanner'),
 };
 </script>
