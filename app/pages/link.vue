@@ -81,6 +81,12 @@ function onContinue() {
 function onLink(appId: string) {
   return run(async () => {
     const { redirectTo } = await linkCode.approve(code.value, redirect.value);
+    if (appId === 'warden') {
+      // /minecraft/warden keeps its data cached under these keys: drop it so the new device shows.
+      clearNuxtData(['warden-me', 'warden-devices']);
+      // The device is created when the mod next polls, a few seconds after this approval.
+      useState<number | null>('warden-linked-at').value = Date.now();
+    }
     step.value = { name: 'done', appId, redirecting: redirectTo !== undefined };
     toast.add({ title: t('link.done.toast'), color: 'success', icon: 'i-lucide-circle-check' });
     if (redirectTo) {

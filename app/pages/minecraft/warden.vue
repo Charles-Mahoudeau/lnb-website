@@ -29,6 +29,28 @@ const schools = computed(() =>
 const warden = useWarden({ immediate: eligible.value });
 const { data: me, error, refresh } = await warden.me;
 const { data: devices, refresh: refreshDevices } = await warden.devices;
+
+// Right after /link, the device only appears once the mod polls (every few seconds): look again
+// until it shows up.
+const linkedAt = useState<number | null>('warden-linked-at', () => null);
+const WAIT_FOR_DEVICE_MS = 20_000;
+const deviceCount = devices.value?.length ?? 0;
+onMounted(() => {
+  if (linkedAt.value === null) return;
+  const since = linkedAt.value;
+  linkedAt.value = null;
+  const timer = setInterval(() => {
+    void refreshDevices().then(() => {
+      if ((devices.value?.length ?? 0) > deviceCount || Date.now() - since > WAIT_FOR_DEVICE_MS) {
+        clearInterval(timer);
+      }
+    });
+  }, 2000);
+  onScopeDispose(() => {
+    clearInterval(timer);
+  });
+});
+
 const confirmModal = overlay.create(WardenConfirmModal);
 const appealModal = overlay.create(WardenAppealModal);
 
