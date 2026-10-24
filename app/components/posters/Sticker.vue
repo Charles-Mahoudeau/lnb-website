@@ -28,7 +28,7 @@ const props = defineProps<{ lines: [string, string, string] }>();
   color: #ffffff;
   font-family: var(--poster-display);
   text-align: center;
-  transform: rotate(-12deg);
+  transform: rotate(var(--rotate, -12deg));
 }
 
 .poster-big {
