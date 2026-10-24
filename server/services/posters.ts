@@ -13,7 +13,6 @@ import {
 } from '~~/server/db/schema';
 import { siteUrl } from '~~/server/lib/site';
 import { adminAuditService } from '~~/server/services/admin-audit';
-import { mediaUrl } from '~~/server/services/events/views';
 import { shortLinkService } from '~~/server/services/short-links';
 
 import type { PosterBody, PosterProblem, PosterView } from '#shared/schemas/posters';
@@ -112,7 +111,6 @@ async function views(rows: { poster: Row; updatedBy: string | null }[]): Promise
       name: p.name,
       template: p.template as PosterTemplate,
       treatment: p.treatment as PosterTreatment | null,
-      treatedUrl: p.treatedKey ? mediaUrl(p.treatedKey) : null,
       locale: p.locale as PosterLocale,
       overrides: p.overrides,
       content: p.content,

@@ -1,15 +1,18 @@
 import { createHash } from 'node:crypto';
 import { lookup } from 'node:dns/promises';
 
+import { eq } from 'drizzle-orm';
 import { useStorage } from 'nitropack/runtime';
 import sharp from 'sharp';
 import type { Sharp } from 'sharp';
 
 import { db } from '~~/server/db';
-import { event } from '~~/server/db/schema';
+import { event, poster } from '~~/server/db/schema';
 
 import { focalCrop, isPrivateAddress } from './rules';
 import { refuse } from './shared';
+
+import type { PosterAccent, PosterTreatment } from '#shared/utils/posters';
 
 // Event images, kept in Nitro storage (the event-images mount in nuxt.config.ts, on the VPS's
 // disk). Whatever comes in (an upload, a link, SteamGridDB) is decoded and re-encoded by sharp,
@@ -192,7 +195,90 @@ async function crops(banner: PickedImage, embed: PickedImage | null) {
   return { bannerCropKey, thumbCropKey, embedCropKey };
 }
 
-/** Removes files no event points to any more, after a day. Returns how many were removed. */
+/** Bumped when a treatment changes, so treated files are made again. */
+const TREATMENT_VERSION = '1';
+/** Wider art is scaled down: a poster is 2480 pixels wide at 300 dpi. */
+const TREAT_MAX_WIDTH = 2480;
+const NAVY = [0x0b, 0x0e, 0x27];
+const TINTS: Record<PosterAccent, number[]> = {
+  violet: [0x5b, 0x49, 0xc9],
+  red: [0xa5, 0x1f, 0x33],
+};
+
+/** Where the treated art is kept, from what it is made of. The tint only counts for duotone. */
+export function treatedName(key: string, treatment: PosterTreatment, tint: PosterAccent): string {
+  const tone = treatment === 'duotone' ? tint : 'none';
+  const hash = createHash('sha256').update(`${TREATMENT_VERSION}:${key}:${treatment}:${tone}`);
+  return `treated:${hash.digest('hex')}.webp`;
+}
+
+/**
+ * The art behind an Art title poster, treated: duotone maps dark to navy and light to the tint,
+ * the dark ones dim it. Made on first use, then kept.
+ */
+async function treated(
+  key: string,
+  treatment: PosterTreatment,
+  tint: PosterAccent,
+): Promise<Buffer> {
+  const name = treatedName(key, treatment, tint);
+  const kept = await storage().getItemRaw<Buffer>(name);
+  if (kept) return Buffer.from(kept);
+  const original = await storage().getItemRaw<Buffer>(key);
+  if (!original) refuse(404, 'imageNotFound');
+  const image = sharp(Buffer.from(original))
+    .resize({ width: TREAT_MAX_WIDTH, withoutEnlargement: true })
+    .flatten({ background: '#ffffff' });
+  let bytes: Buffer;
+  if (treatment === 'duotone') {
+    const { data, info } = await image.greyscale().raw().toBuffer({ resolveWithObject: true });
+    const to = TINTS[tint];
+    const pixels = info.width * info.height;
+    const out = Buffer.alloc(pixels * 3);
+    for (let i = 0; i < pixels; i++) {
+      const grey = data[i * info.channels]! / 255;
+      for (let c = 0; c < 3; c++)
+        out[i * 3 + c] = Math.round(NAVY[c]! + (to[c]! - NAVY[c]!) * grey);
+    }
+    bytes = await sharp(out, { raw: { width: info.width, height: info.height, channels: 3 } })
+      .webp({ quality: 85 })
+      .toBuffer();
+  } else {
+    bytes = await image
+      .modulate({ brightness: treatment === 'darkMedium' ? 0.6 : 0.4 })
+      .webp({ quality: 85 })
+      .toBuffer();
+  }
+  await storage().setItemRaw(name, bytes);
+  return bytes;
+}
+
+/** The files posters use: their art (pinned, or their event's banner), treated art and photos. */
+async function posterKeys(): Promise<string[]> {
+  const rows = await db
+    .select({
+      treatment: poster.treatment,
+      overrides: poster.overrides,
+      content: poster.content,
+      bannerKey: event.bannerKey,
+    })
+    .from(poster)
+    .leftJoin(event, eq(event.id, poster.eventId));
+  return rows.flatMap((row) => {
+    const art = row.overrides.art !== undefined ? row.overrides.art?.key : row.bannerKey;
+    const photos = row.content.photos.flatMap((photo) => (photo ? [photo.key] : []));
+    if (!art) return photos;
+    const treatedArt = row.treatment
+      ? [treatedName(art, row.treatment as PosterTreatment, row.content.colors.tint)]
+      : [];
+    return [art, ...treatedArt, ...photos];
+  });
+}
+
+/**
+ * Removes files no event or poster points to any more, after a day. Returns how many were
+ * removed.
+ */
 async function prune(now = new Date()): Promise<number> {
   const rows = await db
     .select({
@@ -203,7 +289,10 @@ async function prune(now = new Date()): Promise<number> {
       e: event.embedCropKey,
     })
     .from(event);
-  const used = new Set(rows.flatMap((row) => Object.values(row)).filter(Boolean));
+  const used = new Set([
+    ...rows.flatMap((row) => Object.values(row)).filter(Boolean),
+    ...(await posterKeys()),
+  ]);
   let removed = 0;
   for (const key of await storage().getKeys()) {
     if (used.has(key)) continue;
@@ -215,4 +304,4 @@ async function prune(now = new Date()): Promise<number> {
   return removed;
 }
 
-export const eventImageService = { ingest, importUrl, get, exists, crops, prune };
+export const eventImageService = { ingest, importUrl, get, exists, crops, treated, prune };

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { eventImageInput } from './events.ts';
+import { eventImageInput, imageKey } from './events.ts';
 import {
   POSTER_ACCENTS,
   POSTER_LOCALES,
@@ -103,7 +103,6 @@ export const posterView = z.object({
   name: z.string(),
   template: z.enum(POSTER_TEMPLATES),
   treatment: z.enum(POSTER_TREATMENTS).nullable(),
-  treatedUrl: z.string().nullable().describe('The treated art, when there is a treatment.'),
   locale: z.enum(POSTER_LOCALES),
   overrides: posterOverrides,
   content: posterContent,
@@ -134,4 +133,11 @@ export const posterView = z.object({
 export type PosterView = z.infer<typeof posterView>;
 
 export const posterList = z.object({ items: z.array(posterView) });
+
+/** GET /api/admin/posters/art */
+export const posterArtQuery = z.object({
+  key: imageKey,
+  treatment: z.enum(POSTER_TREATMENTS),
+  tint: accent.default('violet').describe('Duotone only.'),
+});
 export const posterCreated = z.object({ id: z.uuid() });
