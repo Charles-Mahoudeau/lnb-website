@@ -112,6 +112,17 @@ Original mock (not code to port): [short links admin mock](https://claude.ai/art
 - The link page shows its numbers as four count tiles, a stacked bar chart with a faint grid (signed in in the highlight color, not signed in in the dimmed one, one scale, no color beyond text tokens), then school bars and the people who clicked as rows with tinted avatars. The delete button is the outline destructive one.
 - The page a visitor sees when a link can't be followed (`/short-link`) is one short standalone moment, so it is centered: an `IconTile`, a title, one line and one button. Sign-in is the solid red one, anything else is outline.
 
+## Posters
+
+Original designs (not code to port): the [LNB posters canvas](https://claude.ai/artifact/Uv7NWsmRjuuxvtMisDxHR2), "Posters" page for the printed posters, "Editor" page for the admin (proposition B and the poster grid). See `docs/posters.md`.
+
+- **Posters are print, not the site.** They keep one light palette in both color modes, so they aren't built from the site's tokens or Tailwind classes. The colours are scoped CSS custom properties on `.poster` (`app/components/posters/Poster.vue`) and inline styles from `POSTER_ACCENT_COLORS` (`app/utils/posters.ts`); the ESLint rule's raw-palette ban doesn't apply to them, so don't move them into `main.css`.
+- Print palette: paper `#eff1fb`, ink `#0b0e27`, muted `#565c8c`, rule `#bcc2e2`, cards `#ffffff`. Accents: violet `#5b49c9` and red `#a51f33` for text, labels and straps; the sticker is `#5b49c9` or `#b82238`; collage tape is `rgba(169, 155, 255, 0.6)` or `rgba(242, 92, 112, 0.55)`; duotone maps the ink to `#a99bff` or `#f25c70`.
+- Every accent element picks violet or red on its own. Red on a poster is an accent like violet, not the site's "action" crimson: the action rule is for the site's interface.
+- Type: Unbounded 500, 700 and 900 for the header, kicker, title, date and sticker; Figtree for the rest. Titles are 900, tight (line height 0.86 to 0.95, letter spacing −0.04em), with their size fitted, never set by hand.
+- Editor: the preview comes first, scaled to fit, with a shadow like a sheet held up; the inspector on the right is a raised section (`bg-elevated`) with Content, Style and QR tabs; the template strip with live thumbnails sits on top. Fields that follow the event show a "From event" badge, and pinned ones a "Pinned" badge (primary) with a ghost "Reset to event". Colour rows are violet/red pairs with an "all violet / all red" button group. Save is the page's one solid red button.
+- Library: a grid of live poster thumbnails on raised cards, with the name, the date and template muted below, status badges (draft, cancelled, standalone) and a menu for Duplicate and Delete.
+
 ## Bulk actions on accounts
 
 Original mock (not code to port): [bulk user actions mock](https://claude.ai/artifact/5q2dgNm9pWCd9eLTHxrb3L), proposal A, "Floating bar".
