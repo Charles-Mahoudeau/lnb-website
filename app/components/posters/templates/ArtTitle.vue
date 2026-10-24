@@ -189,7 +189,7 @@ const fill = computed(() =>
   display: flex;
   flex: none;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   gap: 14px;
 }
 
@@ -198,7 +198,7 @@ const fill = computed(() =>
   font-size: 20px;
   font-weight: 600;
   line-height: 26px;
-  text-align: right;
+  text-align: center;
 }
 
 .poster-qr-card {
