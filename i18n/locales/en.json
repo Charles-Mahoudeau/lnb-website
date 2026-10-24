@@ -570,7 +570,10 @@
         "shortLink_create": "{actor} created the short link {name}.",
         "shortLink_update": "{actor} changed the short link {name}.",
         "shortLink_delete": "{actor} deleted the short link {name}.",
-        "shortLink_export": "{actor} downloaded who clicked the short link {name}."
+        "shortLink_export": "{actor} downloaded who clicked the short link {name}.",
+        "poster_create": "{actor} created the poster {name}.",
+        "poster_update": "{actor} changed the poster {name}.",
+        "poster_delete": "{actor} deleted the poster {name}."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page."
     },

@@ -54,7 +54,11 @@ export type AdminAuditAction =
   | 'shortLink.update'
   | 'shortLink.delete'
   /** An admin downloaded who clicked a link. */
-  | 'shortLink.export';
+  | 'shortLink.export'
+  /** Posters, by events managers. `data.id` and `data.name`. A duplicate also has `data.from`. */
+  | 'poster.create'
+  | 'poster.update'
+  | 'poster.delete';
 
 // Rows outlive the accounts they name: a deleted actor or target becomes null, so the log keeps
 // what happened without keeping who it happened to.

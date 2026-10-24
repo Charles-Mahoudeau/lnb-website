@@ -7,6 +7,7 @@ import * as flags from '../../shared/schemas/flags.ts';
 import { linkApproveBody, linkApproveResult, linkDenyBody } from '../../shared/schemas/link.ts';
 import * as mods from '../../shared/schemas/mods.ts';
 import * as partners from '../../shared/schemas/partners.ts';
+import * as posters from '../../shared/schemas/posters.ts';
 import * as push from '../../shared/schemas/push.ts';
 import * as rateLimit from '../../shared/schemas/rate-limit.ts';
 import * as shortLinks from '../../shared/schemas/short-links.ts';
@@ -204,6 +205,8 @@ const responseSchemas = {
   ShortLinksAdmin: shortLinks.shortLinkList,
   ShortLinkDetail: shortLinks.shortLinkDetail,
   ShortLinkPublic: shortLinks.shortLinkPublic,
+  PosterView: posters.posterView,
+  PosterList: posters.posterList,
   TeamPublic: team.teamPublicView,
   TeamMe: team.teamMeView,
   TeamAdmin: team.teamAdminView,
@@ -234,6 +237,7 @@ const TAGS = {
   partnersAdmin: 'Partners: admins',
   shortLinks: 'Short links',
   shortLinksAdmin: 'Short links: managers',
+  postersAdmin: 'Posters: managers',
   auth: 'Auth',
   authDevice: 'Auth: device authorization',
 };
@@ -1862,6 +1866,80 @@ const routes: RouteDoc[] = [
       content: { 'text/csv': { schema: { type: 'string' } } },
     },
     problems: [{ status: 404, problems: ['shortLinkNotFound'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/admin/posters',
+    tag: TAGS.postersAdmin,
+    summary: 'The posters',
+    description:
+      'Every poster, last saved first, with what it needs to be drawn: its pinned fields, the values of its event, and its QR short link with the clicks.',
+    access: 'eventsManager',
+    response: posters.posterList,
+  },
+  {
+    method: 'post',
+    path: '/api/admin/posters',
+    tag: TAGS.postersAdmin,
+    summary: 'Create a poster',
+    description:
+      "Fields missing from `overrides` follow the event. With the QR code on, a short link is made to `qrUrl`, or to the event's page when it is null. A standalone poster with the QR code on needs `qrUrl`. A treatment is kept only on Art title.",
+    access: 'eventsManager',
+    body: posters.posterBody,
+    response: posters.posterCreated,
+    created: true,
+    problems: [{ status: 400, problems: ['eventNotFound', 'qrUrlNeeded'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/admin/posters/{id}',
+    tag: TAGS.postersAdmin,
+    summary: 'A poster',
+    access: 'eventsManager',
+    params: posters.posterIdParams,
+    response: posters.posterView,
+    problems: [{ status: 404, problems: ['posterNotFound'] }],
+  },
+  {
+    method: 'put',
+    path: '/api/admin/posters/{id}',
+    tag: TAGS.postersAdmin,
+    summary: 'Save a poster',
+    description:
+      'Replaces the whole poster: the last save wins. A changed `qrUrl` moves its short link, which printed copies follow.',
+    access: 'eventsManager',
+    params: posters.posterIdParams,
+    body: posters.posterBody,
+    noContent: true,
+    problems: [
+      { status: 400, problems: ['eventNotFound', 'qrUrlNeeded'] },
+      { status: 404, problems: ['posterNotFound'] },
+    ],
+  },
+  {
+    method: 'delete',
+    path: '/api/admin/posters/{id}',
+    tag: TAGS.postersAdmin,
+    summary: 'Delete a poster',
+    description: 'Its short link stays, so printed copies keep working.',
+    access: 'eventsManager',
+    params: posters.posterIdParams,
+    noContent: true,
+    problems: [{ status: 404, problems: ['posterNotFound'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/posters/{id}/duplicate',
+    tag: TAGS.postersAdmin,
+    summary: 'Duplicate a poster',
+    description:
+      'A copy under a new name. It shares the short link, so both print the same QR code.',
+    access: 'eventsManager',
+    params: posters.posterIdParams,
+    body: posters.posterDuplicateBody,
+    response: posters.posterCreated,
+    created: true,
+    problems: [{ status: 404, problems: ['posterNotFound'] }],
   },
   {
     method: 'get',
