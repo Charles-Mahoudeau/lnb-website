@@ -34,7 +34,7 @@ const templates = {
   ticket: resolveComponent('PostersTemplatesTicket'),
   labels: resolveComponent('PostersTemplatesLabels'),
   collage: resolveComponent('PostersTemplatesCollage'),
-  badge: resolveComponent('PostersTemplatesBanner'),
+  badge: resolveComponent('PostersTemplatesBadge'),
 };
 </script>
 
