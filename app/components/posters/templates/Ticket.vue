@@ -34,7 +34,7 @@ const qrLabel = computed(() => props.poster.content.qrLabel ?? print('qrLabel'))
         :text="fields.title"
         :max="116"
         :min="48"
-        :max-height="footer ? 150 : 210"
+        :max-height="footer ? 170 : 210"
         class="poster-title"
       />
       <p v-if="footer" class="poster-footer">{{ footer }}</p>

@@ -35,7 +35,7 @@ const fill = computed(() =>
       :text="fields.title"
       :max="176"
       :min="64"
-      :max-height="footer ? 300 : 420"
+      :max-height="footer ? 356 : 420"
       class="poster-title"
       :class="{ 'poster-title-art': fill }"
       :style="fill"
