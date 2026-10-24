@@ -6,6 +6,7 @@ import { EventsAdminImagePicker } from '#components';
 import type { EventAdminView, EventSummary, EventView } from '#shared/schemas/events';
 import type { ModView } from '#shared/schemas/mods';
 import type { PartnerPublicKind } from '#shared/schemas/partners';
+import { allColors } from '#shared/utils/posters';
 
 // A living reference for docs/design.md, built from the real themed components.
 // Dev only (and in tests): it isn't part of the public site.
@@ -32,6 +33,50 @@ const colors = [
   { name: 'Text on banners', variable: '--color-on-banner', usage: 'text-on-banner' },
   { name: 'Success', variable: '--ui-success', usage: 'color="success"' },
   { name: 'Warning', variable: '--ui-warning', usage: 'color="warning"' },
+];
+
+// Posters with the edge cases that matter: a sticker, a long title with a footer, mixed colours.
+const posterBase: PosterRender = {
+  template: 'banner',
+  treatment: null,
+  locale: 'fr',
+  fields: {
+    title: 'Smash\nBros',
+    kicker: 'Tournoi',
+    startsAt: '2026-12-17T18:30:00.000Z',
+    place: 'Salle 4, Campus Nantes',
+    schools: ['901cb4ca-b862-4029-9306-e5cd0f6d9f86', '791f2edf-38ab-4c6c-b323-ea94dd988fde'],
+    art: null,
+  },
+  content: {
+    sticker: ['1v1', 'et', '2v2'],
+    footer: '',
+    qrEnabled: true,
+    qrLabel: null,
+    photos: [],
+    colors: allColors('violet'),
+  },
+  qrUrl: 'https://lnb.example.com/go/smash17',
+};
+const posterSamples: PosterRender[] = [
+  posterBase,
+  {
+    ...posterBase,
+    locale: 'en',
+    fields: { ...posterBase.fields, title: 'Werewolf\n& Among Us', kicker: 'Game night' },
+    content: {
+      ...posterBase.content,
+      sticker: ['', '', ''],
+      footer: 'Come and go as you like, like every LNB night.',
+      colors: allColors('red'),
+    },
+  },
+  {
+    ...posterBase,
+    fields: { ...posterBase.fields, startsAt: '2026-11-28T19:00:00.000Z' },
+    content: { ...posterBase.content, colors: { ...allColors('violet'), date: 'red' } },
+    qrUrl: null,
+  },
 ];
 
 // A suggestion as the mod list shows it, with your vote on it.
@@ -725,6 +770,23 @@ function showToast() {
           icon="i-lucide-image"
           label="Open the picker"
           @click="openPicker"
+        />
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Posters</h2>
+      <p class="max-w-2xl text-muted">
+        Print layouts at A4 (<code>PostersPoster</code>), shown scaled down with
+        <code>PostersPreview</code>. Their colours are print tokens, the same in both color modes:
+        violet or red per part, set from the poster.
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <PostersPreview
+          v-for="(sample, index) in posterSamples"
+          :key="index"
+          :poster="sample"
+          :width="280"
         />
       </div>
     </section>

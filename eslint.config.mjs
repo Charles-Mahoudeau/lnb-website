@@ -41,8 +41,9 @@ export default withNuxt(
         },
       ],
       // `dark` is the color mode class. On an element, it gives that subtree the dark tokens, as the
-      // home hero needs (docs/design.md, Imagery).
-      'better-tailwindcss/no-unknown-classes': ['error', { ignore: ['^dark$'] }],
+      // home hero needs (docs/design.md, Imagery). `poster-*` classes are the print layouts' own
+      // scoped CSS (app/components/posters/, docs/design.md, Posters).
+      'better-tailwindcss/no-unknown-classes': ['error', { ignore: ['^dark$', '^poster(?:-|$)'] }],
       'import/order': [
         'error',
         {

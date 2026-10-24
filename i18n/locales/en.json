@@ -339,6 +339,10 @@
     }
   },
   "admin": {
+    "posters": {
+      "title": "Posters",
+      "loadFailed": "This poster couldn’t be loaded."
+    },
     "title": "Admin",
     "menu": "Admin",
     "backToSite": "Back to the site",
@@ -1989,6 +1993,12 @@
     "off": {
       "title": "This link doesn’t work any more",
       "body": "It was turned off, or the address has a typo. Ask the person who shared it for a new one."
+    }
+  },
+  "posters": {
+    "print": {
+      "qrLabel": "Sign up here",
+      "qrPlaceholder": "QR code once saved"
     }
   }
 }
