@@ -24,8 +24,9 @@ import type {
   PosterTemplate,
 } from '#shared/utils/posters';
 
-// The poster editor (docs/posters.md): the preview first, the template strip above it, and the
-// settings in tabs beside it. Fields follow the event until edited. The page holds the actions:
+// The poster editor (docs/posters.md): the preview, always fully in view, and the settings in
+// tabs beside it (below it on narrow screens), which scroll on their own. Fields follow the event
+// until edited. The page holds the actions:
 // it calls submit(), png() and reads dirty through a template ref.
 const props = defineProps<{ poster?: PosterView; eventId?: string | null }>();
 const emit = defineEmits<{ submit: [body: PosterBody] }>();
@@ -186,6 +187,7 @@ const treatmentChoices = [null, ...POSTER_TREATMENTS] as const;
 
 const tab = ref('content');
 const tabs = computed<TabsItem[]>(() => [
+  { label: t('admin.posters.tabs.template'), value: 'template' },
   { label: t('admin.posters.tabs.content'), value: 'content' },
   { label: t('admin.posters.tabs.style'), value: 'style' },
   { label: t('admin.posters.tabs.qr'), value: 'qr' },
@@ -256,13 +258,23 @@ const render = computed<PosterRender>(() => ({
   qrUrl: qr.value?.url ?? null,
 }));
 
+const hasWarnings = computed(
+  () =>
+    Boolean(selected.value?.cancelled) ||
+    Boolean(selected.value?.draft && state.content.qrEnabled && qrTarget.value === 'event') ||
+    (state.content.qrEnabled && !isEnabled('shortLinks')),
+);
+
 const stage = useTemplateRef<HTMLElement>('stage');
 const previewWidth = ref(480);
 let observer: ResizeObserver | undefined;
 onMounted(() => {
   if (!stage.value) return;
+  // The poster fits the stage both ways, so it never needs scrolling to.
   observer = new ResizeObserver(([entry]) => {
-    if (entry) previewWidth.value = Math.min(572, Math.floor(entry.contentRect.width));
+    if (!entry) return;
+    const { width, height } = entry.contentRect;
+    previewWidth.value = Math.max(120, Math.floor(Math.min(width, (height * 794) / 1123)));
   });
   observer.observe(stage.value);
 });
@@ -285,78 +297,66 @@ function templateLabel(template: PosterTemplate) {
 </script>
 
 <template>
-  <form class="flex flex-col gap-6" @submit.prevent="submit">
-    <div class="flex flex-wrap items-center gap-2 border-b border-default pb-4">
-      <button
-        v-for="template in POSTER_TEMPLATES"
-        :key="template"
-        type="button"
-        class="flex items-center gap-2.5 rounded-md border-2 py-1.5 ps-1.5 pe-3 text-sm font-semibold"
-        :class="
-          state.template === template
-            ? 'border-primary bg-primary/15 text-primary'
-            : 'border-transparent bg-elevated text-muted hover:text-highlighted'
-        "
-        :aria-pressed="state.template === template"
-        @click="state.template = template"
-      >
-        <PostersPreview :poster="{ ...render, template }" :width="40" />
-        {{ templateLabel(template) }}
-      </button>
-      <span class="grow" />
-      <UFieldGroup :aria-label="t('admin.posters.colours')">
-        <UButton
-          v-for="accent in POSTER_ACCENTS"
-          :key="accent"
-          color="neutral"
-          :variant="allAccent === accent ? 'subtle' : 'outline'"
-          :label="t(accent === 'violet' ? 'admin.posters.allViolet' : 'admin.posters.allRed')"
-          @click="setAll(accent)"
-        />
-      </UFieldGroup>
-    </div>
+  <form class="flex min-h-0 flex-1 flex-col gap-6 lg:flex-row" @submit.prevent="submit">
+    <section
+      ref="stage"
+      :aria-label="t('admin.posters.preview')"
+      class="flex min-h-0 min-w-0 basis-2/5 items-start justify-center lg:flex-1 lg:basis-auto"
+    >
+      <PostersPreview :poster="render" :width="previewWidth" class="shadow-lg" />
+    </section>
 
-    <div class="flex flex-col gap-3">
-      <UAlert
-        v-if="selected?.cancelled"
-        color="error"
-        variant="subtle"
-        icon="i-lucide-circle-x"
-        :description="t('admin.posters.warnings.cancelled')"
-      />
-      <UAlert
-        v-else-if="selected?.draft && state.content.qrEnabled && qrTarget === 'event'"
-        color="warning"
-        variant="subtle"
-        icon="i-lucide-eye-off"
-        :description="t('admin.posters.warnings.draft')"
-      />
-      <UAlert
-        v-if="state.content.qrEnabled && !isEnabled('shortLinks')"
-        color="warning"
-        variant="subtle"
-        icon="i-lucide-link-2-off"
-        :description="t('admin.posters.warnings.shortLinksOff')"
-      />
-    </div>
+    <aside
+      :aria-label="t('admin.posters.settings')"
+      class="flex min-h-0 min-w-0 flex-1 flex-col rounded-lg bg-elevated lg:w-md lg:flex-none"
+    >
+      <UTabs v-model="tab" :items="tabs" :content="false" variant="link" class="shrink-0 px-5" />
 
-    <div class="flex flex-wrap items-start gap-6">
-      <section
-        :aria-label="t('admin.posters.preview')"
-        class="flex min-w-0 grow basis-96 justify-center"
-      >
-        <div ref="stage" class="flex w-full max-w-xl justify-center">
-          <PostersPreview :poster="render" :width="previewWidth" class="shadow-lg" />
+      <div class="min-h-0 flex-1 overflow-y-auto">
+        <div v-if="hasWarnings" class="flex flex-col gap-3 px-5 pt-5">
+          <UAlert
+            v-if="selected?.cancelled"
+            color="error"
+            variant="subtle"
+            icon="i-lucide-circle-x"
+            :description="t('admin.posters.warnings.cancelled')"
+          />
+          <UAlert
+            v-else-if="selected?.draft && state.content.qrEnabled && qrTarget === 'event'"
+            color="warning"
+            variant="subtle"
+            icon="i-lucide-eye-off"
+            :description="t('admin.posters.warnings.draft')"
+          />
+          <UAlert
+            v-if="state.content.qrEnabled && !isEnabled('shortLinks')"
+            color="warning"
+            variant="subtle"
+            icon="i-lucide-link-2-off"
+            :description="t('admin.posters.warnings.shortLinksOff')"
+          />
         </div>
-      </section>
 
-      <aside
-        :aria-label="t('admin.posters.settings')"
-        class="w-full min-w-0 shrink-0 rounded-lg bg-elevated lg:w-md"
-      >
-        <UTabs v-model="tab" :items="tabs" :content="false" variant="link" class="px-5" />
+        <div v-if="tab === 'template'" class="grid grid-cols-3 gap-3 p-5">
+          <button
+            v-for="template in POSTER_TEMPLATES"
+            :key="template"
+            type="button"
+            class="flex flex-col items-center gap-2 rounded-md border-2 p-2 text-sm font-semibold"
+            :class="
+              state.template === template
+                ? 'border-primary bg-primary/15 text-primary'
+                : 'border-transparent text-muted hover:bg-accented/40 hover:text-highlighted'
+            "
+            :aria-pressed="state.template === template"
+            @click="state.template = template"
+          >
+            <PostersPreview :poster="{ ...render, template }" :width="104" />
+            {{ templateLabel(template) }}
+          </button>
+        </div>
 
-        <div v-if="tab === 'content'" class="flex flex-col gap-4 p-5">
+        <div v-else-if="tab === 'content'" class="flex flex-col gap-4 p-5">
           <UFormField :label="t('admin.posters.fields.event')">
             <USelectMenu
               v-model="eventChoice"
@@ -581,6 +581,17 @@ function templateLabel(template: PosterTemplate) {
             :label="t('admin.posters.colours')"
             :help="t('admin.posters.fields.colorsHelp')"
           >
+            <UFieldGroup :aria-label="t('admin.posters.colours')" class="mb-2">
+              <UButton
+                v-for="accent in POSTER_ACCENTS"
+                :key="accent"
+                size="sm"
+                color="neutral"
+                :variant="allAccent === accent ? 'subtle' : 'outline'"
+                :label="t(accent === 'violet' ? 'admin.posters.allViolet' : 'admin.posters.allRed')"
+                @click="setAll(accent)"
+              />
+            </UFieldGroup>
             <ul class="flex flex-col divide-y divide-default">
               <li
                 v-for="element in colorElements"
@@ -683,7 +694,7 @@ function templateLabel(template: PosterTemplate) {
             {{ t('admin.posters.qr.open') }}
           </ULink>
         </div>
-      </aside>
-    </div>
+      </div>
+    </aside>
   </form>
 </template>
