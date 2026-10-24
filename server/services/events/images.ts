@@ -199,11 +199,14 @@ async function crops(banner: PickedImage, embed: PickedImage | null) {
 const TREATMENT_VERSION = '1';
 /** Wider art is scaled down: a poster is 2480 pixels wide at 300 dpi. */
 const TREAT_MAX_WIDTH = 2480;
+// Duotone maps black to navy and white to the light accent, as on the approved boards.
 const NAVY = [0x0b, 0x0e, 0x27];
 const TINTS: Record<PosterAccent, number[]> = {
-  violet: [0x5b, 0x49, 0xc9],
-  red: [0xa5, 0x1f, 0x33],
+  violet: [0xa9, 0x9b, 0xff],
+  red: [0xf2, 0x5c, 0x70],
 };
+/** The dark treatments, as `linear` factor and offset, measured on the approved boards. */
+const DIMS = { darkMedium: [0.72, 12], darkStrong: [0.63, 0] } as const;
 
 /** Where the treated art is kept, from what it is made of. The tint only counts for duotone. */
 export function treatedName(key: string, treatment: PosterTreatment, tint: PosterAccent): string {
@@ -244,10 +247,8 @@ async function treated(
       .webp({ quality: 85 })
       .toBuffer();
   } else {
-    bytes = await image
-      .modulate({ brightness: treatment === 'darkMedium' ? 0.6 : 0.4 })
-      .webp({ quality: 85 })
-      .toBuffer();
+    const [factor, offset] = DIMS[treatment];
+    bytes = await image.linear(factor, offset).webp({ quality: 85 }).toBuffer();
   }
   await storage().setItemRaw(name, bytes);
   return bytes;
