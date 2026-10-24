@@ -31,7 +31,7 @@ watch(
 const templates = {
   banner: resolveComponent('PostersTemplatesBanner'),
   artTitle: resolveComponent('PostersTemplatesArtTitle'),
-  ticket: resolveComponent('PostersTemplatesBanner'),
+  ticket: resolveComponent('PostersTemplatesTicket'),
   labels: resolveComponent('PostersTemplatesBanner'),
   collage: resolveComponent('PostersTemplatesBanner'),
   badge: resolveComponent('PostersTemplatesBanner'),
