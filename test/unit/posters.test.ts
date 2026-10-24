@@ -105,6 +105,13 @@ describe('posterBody', () => {
     expect(posterBody.safeParse(body({ qrUrl: 'http://example.com' })).success).toBe(false);
   });
 
+  it('takes a short link ID, empty for a random one, and refuses a malformed one', () => {
+    expect(posterBody.parse(body({ qrShortId: ' Smash-Cup ' })).qrShortId).toBe('smash-cup');
+    expect(posterBody.safeParse(body({ qrShortId: '' })).success).toBe(true);
+    expect(posterBody.safeParse(body({ qrShortId: 'no spaces' })).success).toBe(false);
+    expect(posterBody.safeParse(body({ qrShortId: 'x' })).success).toBe(false);
+  });
+
   it('refuses more than three collage photos', () => {
     const photo = { key: `${'b'.repeat(64)}.jpg`, focusX: 0.5, focusY: 0.5 };
     const content = { ...body().content, photos: [photo, photo, null, photo] };

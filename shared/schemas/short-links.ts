@@ -27,14 +27,17 @@ const destination = z
   .max(2000)
   .refine((value) => /^https:\/\/[^\s/]+\.[^\s/]+\S*$/.test(value));
 
+/** A short ID as typed when a link is made: empty for a random one. */
+export const shortIdInput = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .max(40)
+  .refine((value) => value === '' || (value.length >= 2 && SHORT_ID_PATTERN.test(value)))
+  .describe('Leave it empty to get a random one.');
+
 const fields = {
-  shortId: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .max(40)
-    .refine((value) => value === '' || (value.length >= 2 && SHORT_ID_PATTERN.test(value)))
-    .describe('Leave it empty to get a random one.'),
+  shortId: shortIdInput,
   name: z.string().trim().min(1).max(80),
   destinationUrl: destination,
   access: z.enum(LINK_ACCESS),

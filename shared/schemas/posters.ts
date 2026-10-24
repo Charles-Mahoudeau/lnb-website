@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { eventImageInput, imageKey } from './events.ts';
+import { shortIdInput } from './short-links.ts';
 import {
   POSTER_ACCENTS,
   POSTER_LOCALES,
@@ -12,7 +13,12 @@ import { SCHOOLS } from '../utils/schools.ts';
 
 // Poster contracts, shared by the routes and the pages. See docs/posters.md.
 
-export const POSTER_PROBLEMS = ['posterNotFound', 'eventNotFound', 'qrUrlNeeded'] as const;
+export const POSTER_PROBLEMS = [
+  'posterNotFound',
+  'eventNotFound',
+  'qrUrlNeeded',
+  'shortIdTaken',
+] as const;
 export type PosterProblem = (typeof POSTER_PROBLEMS)[number];
 
 const isoDate = z.string().meta({ format: 'date-time' });
@@ -82,6 +88,11 @@ export const posterBody = z.object({
   qrUrl: destination
     .nullable()
     .describe("Where the QR code leads. Null: the event's page, which a standalone poster lacks."),
+  qrShortId: shortIdInput
+    .optional()
+    .describe(
+      "The short link's ID, used only when the link is made, since it can't change afterwards. Empty: a random one.",
+    ),
 });
 export type PosterBody = z.input<typeof posterBody>;
 

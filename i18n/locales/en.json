@@ -461,7 +461,9 @@
         "copy": "Copy the link",
         "copied": "Link copied",
         "scans": "scans",
-        "notYet": "The short link is made when you save.",
+        "random": "Random",
+        "generate": "Generate",
+        "shortIdHelp": "Letters, numbers and dashes. Leave it empty to get a random one. It can’t change once the poster is saved.",
         "leadsTo": "Leads to",
         "eventPage": "The event page",
         "otherLink": "Another link",
@@ -479,6 +481,8 @@
         "posterNotFound": "This poster no longer exists.",
         "eventNotFound": "This event no longer exists. Pick another one.",
         "qrUrlNeeded": "A poster without an event needs an address for its QR code, or turn the QR code off.",
+        "shortIdInvalid": "A short link is 2 to 40 letters, numbers and single dashes.",
+        "shortIdTaken": "This short link is already used. Pick another one in the QR code tab.",
         "invalid": "Check the highlighted fields.",
         "failed": "Something went wrong. Try again."
       }

@@ -107,6 +107,21 @@ describe('posters', () => {
     expect(view.updatedBy).toBe('Poster Manager');
   });
 
+  it('makes its link with the chosen ID, refuses a taken one, and keeps it afterwards', async () => {
+    const chosen = `smash-${String(Date.now())}`;
+    const { id } = await posterService.create({
+      actorId: MANAGER,
+      body: body({ qrShortId: chosen }),
+    });
+    expect((await posterService.get(id)).qr?.shortId).toBe(chosen);
+    await expect(
+      posterService.create({ actorId: MANAGER, body: body({ qrShortId: chosen }) }),
+    ).rejects.toMatchObject({ data: { problem: 'shortIdTaken' } });
+    // The ID only counts when the link is made: it can't change afterwards.
+    await posterService.update({ actorId: MANAGER, id, body: body({ qrShortId: 'other-id' }) });
+    expect((await posterService.get(id)).qr?.shortId).toBe(chosen);
+  });
+
   it('makes no link while the QR code is off', async () => {
     const content = { ...body().content, qrEnabled: false };
     const { id } = await posterService.create({ actorId: MANAGER, body: body({ content }) });

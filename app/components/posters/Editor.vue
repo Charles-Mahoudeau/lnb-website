@@ -23,6 +23,7 @@ import type {
   PosterOverrides,
   PosterTemplate,
 } from '#shared/utils/posters';
+import { randomShortId } from '#shared/utils/short-links';
 
 // The poster editor (docs/posters.md): the preview, always fully in view, and the settings in
 // tabs beside it (below it on narrow screens), which scroll on their own. Fields follow the event
@@ -55,6 +56,8 @@ const start = JSON.parse(
 const state = reactive(start);
 const qrTarget = ref<'event' | 'other'>(saved?.qrUrl || !start.eventId ? 'other' : 'event');
 const qrUrl = ref(saved?.qrUrl ?? '');
+// The short link's ID, chosen until the link is made. Empty: a random one.
+const qrShortId = ref('');
 
 // The poster's own event stays offered even when it's too old for the list.
 const events = computed<PosterEvent[]>(() => {
@@ -209,6 +212,9 @@ const qrUrlInvalid = computed(
     qrUrl.value.trim() !== '' &&
     !posterBody.shape.qrUrl.safeParse(qrUrl.value.trim()).success,
 );
+const qrShortIdInvalid = computed(
+  () => !qr.value && !posterBody.shape.qrShortId.safeParse(qrShortId.value).success,
+);
 async function copyLink() {
   if (!qr.value) return;
   await navigator.clipboard.writeText(qr.value.url);
@@ -226,6 +232,7 @@ function body(): PosterBody {
       treatment: state.template === 'artTitle' ? state.treatment : null,
       content: { ...state.content, qrLabel: state.content.qrLabel?.trim() || null },
       qrUrl: qrTarget.value === 'other' || !state.eventId ? qrUrl.value.trim() || null : null,
+      qrShortId: qr.value ? undefined : qrShortId.value.trim() || undefined,
     }),
   ) as PosterBody;
 }
@@ -239,12 +246,19 @@ function submit() {
   if (!result.success || missingUrl) {
     const qrProblem =
       missingUrl || !!result.error?.issues.some((issue) => issue.path[0] === 'qrUrl');
+    const idProblem = !!result.error?.issues.some((issue) => issue.path[0] === 'qrShortId');
     toast.add({
-      title: t(qrProblem ? 'admin.posters.errors.qrUrlNeeded' : 'admin.posters.errors.invalid'),
+      title: t(
+        qrProblem
+          ? 'admin.posters.errors.qrUrlNeeded'
+          : idProblem
+            ? 'admin.posters.errors.shortIdInvalid'
+            : 'admin.posters.errors.invalid',
+      ),
       color: 'error',
       icon: 'i-lucide-circle-alert',
     });
-    if (qrProblem) tab.value = 'qr';
+    if (qrProblem || idProblem) tab.value = 'qr';
     return;
   }
   emit('submit', body());
@@ -643,7 +657,31 @@ function templateLabel(template: PosterTemplate) {
               <span class="font-display text-lg font-bold tabular-nums">{{ qr.clicks }}</span>
               <span class="text-sm text-muted">{{ t('admin.posters.qr.scans') }}</span>
             </div>
-            <p v-else class="text-sm text-muted">{{ t('admin.posters.qr.notYet') }}</p>
+            <UFormField
+              v-else
+              :label="t('admin.posters.qr.link')"
+              :help="t('admin.posters.qr.shortIdHelp')"
+              :error="qrShortIdInvalid ? t('admin.posters.errors.shortIdInvalid') : undefined"
+            >
+              <div class="flex gap-2">
+                <UInput
+                  v-model="qrShortId"
+                  :maxlength="40"
+                  :placeholder="t('admin.posters.qr.random')"
+                  class="min-w-0 flex-1"
+                >
+                  <template #leading>
+                    <span class="text-sm text-muted">/go/</span>
+                  </template>
+                </UInput>
+                <UButton
+                  color="neutral"
+                  variant="outline"
+                  :label="t('admin.posters.qr.generate')"
+                  @click="qrShortId = randomShortId()"
+                />
+              </div>
+            </UFormField>
             <UFormField :label="t('admin.posters.qr.leadsTo')">
               <div class="flex flex-wrap gap-2">
                 <UButton
