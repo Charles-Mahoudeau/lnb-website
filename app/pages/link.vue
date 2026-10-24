@@ -154,12 +154,15 @@ onMounted(() => {
       </template>
 
       <template v-else-if="step.name === 'confirm'">
-        <h1 class="text-4xl font-bold text-highlighted">
-          {{
-            step.warden
-              ? t('link.warden.deviceTitle', { app: appName, device: step.warden.deviceName })
-              : t('link.confirm.title', { app: appName })
-          }}
+        <h1 v-if="step.warden" class="text-2xl font-bold text-balance text-highlighted">
+          <i18n-t keypath="link.warden.deviceTitle" scope="global">
+            <template #device>
+              <span class="text-secondary">{{ step.warden.deviceName }}</span>
+            </template>
+          </i18n-t>
+        </h1>
+        <h1 v-else class="text-4xl font-bold text-highlighted">
+          {{ t('link.confirm.title', { app: appName }) }}
         </h1>
 
         <div class="flex w-full flex-col gap-4 rounded-lg bg-elevated p-5 text-left">

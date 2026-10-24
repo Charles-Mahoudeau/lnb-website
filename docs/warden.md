@@ -19,7 +19,7 @@ Warden links Minecraft accounts to LNB accounts and tells the LNB Minecraft serv
 ### Linking a device
 
 1. The mod calls `POST /api/warden/client/link-requests` with `{ "deviceName": "..." }` (1 to 64 characters). No authentication; limited per IP. The answer has `requestId`, `pollSecret`, `userCode` (6 digits), `verificationUri`, `verificationUriComplete`, `expiresAt`, `expiresIn` (600) and `interval` (5).
-2. The mod shows the code and address. The player opens `/link`, signs in, enters the code, and sees "Link LNB Warden (device name) to your account?" with Approve and Deny. The code is single use.
+2. The mod shows the code and address. The player opens `/link`, signs in, enters the code, and sees "Link (device name) to your account" with Approve and Deny. The code is single use.
 3. The mod calls `POST /api/warden/client/link-requests/:requestId/poll` with `{ "pollSecret": "..." }` no faster than every `interval` seconds (otherwise 429, `slowDown`). The answer is `{ "status": "pending | denied | expired" }`, or once approved `{ "status": "approved", "token": "lnbw_...", "expiresAt": "...", "user": { "id": "...", "name": "..." } }`.
 
 The token is returned exactly once. The device is created at that poll, and later polls answer `expired`. An approved request can be collected for 5 minutes after its code expires. A wrong `pollSecret` or an unknown ID is a 404. The poll secret is stored hashed.

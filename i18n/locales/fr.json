@@ -231,7 +231,7 @@
     },
     "warden": {
       "identity": "Ton prénom et l’initiale de ton nom, affichés en jeu sous ton pseudo sauf si tu les masques",
-      "deviceTitle": "Associer {app} ({device}) à ton compte ?"
+      "deviceTitle": "Associer {device} à ton compte"
     }
   },
   "warden": {

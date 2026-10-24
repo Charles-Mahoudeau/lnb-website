@@ -231,7 +231,7 @@
     },
     "warden": {
       "identity": "Your first name and last initial, shown in-game under your username unless you hide it",
-      "deviceTitle": "Link {app} ({device}) to your account?"
+      "deviceTitle": "Link {device} to your account"
     }
   },
   "warden": {
