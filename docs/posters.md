@@ -21,7 +21,7 @@ Each template is a component in `app/components/posters/templates/`, a fixed 794
 - **Art title treatments**: none, duotone (navy to the tint element's light accent), dark medium or dark strong. Sharp makes the treated file on first use (`GET /api/admin/posters/art`, `eventImageService.treated`) and keeps it in the uploads storage under a name hashed from the art, the treatment and the tint. Changing a treatment's maths means bumping `TREATMENT_VERSION`.
 - **Title**: line breaks are kept. `FitTitle` shrinks the title between the template's max and min sizes until its longest line fits the width and all lines fit the height. If it can't fit at the min size (an event's long name with no breaks), it also wraps at spaces. It measures in the final font, after loading it, and fits again when a font arrives late.
 - **Sticker**: three short lines (big, small, big). All three empty: no sticker.
-- **Schools**: the event's schools, editable. `SCHOOL_LOGOS` in `app/utils/posters.ts` maps a tenant ID to an SVG in `public/posters/schools/`. A school without one gets its name in type. The logos aren't in yet.
+- **Schools**: the event's schools, editable. `SCHOOL_LOGOS` in `app/utils/posters.ts` maps a tenant ID to an SVG in `public/posters/schools/`. A school without one gets its name in type. The logos are one-colour SVGs (dark ink, as the print palette's light paper needs).
 
 ## Following an event
 
