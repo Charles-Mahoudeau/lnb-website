@@ -515,7 +515,8 @@
       "team": "Équipe",
       "partners": "Partenaires",
       "shortLinks": "Liens courts",
-      "posters": "Affiches"
+      "posters": "Affiches",
+      "apiKeys": "Clés API"
     },
     "cancel": "Annuler",
     "roles": {
@@ -726,9 +727,16 @@
         "shortLink_export": "{actor} a téléchargé la liste des clics du lien court {name}.",
         "poster_create": "{actor} a créé l’affiche {name}.",
         "poster_update": "{actor} a modifié l’affiche {name}.",
-        "poster_delete": "{actor} a supprimé l’affiche {name}."
+        "poster_delete": "{actor} a supprimé l’affiche {name}.",
+        "apiKey_create": "{actor} a créé la clé API {name}.",
+        "apiKey_rotate": "{actor} a renouvelé la clé API {name}.",
+        "apiKey_revoke": "{actor} a révoqué la clé API {name}."
       },
-      "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page."
+      "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page.",
+      "apiKeysSoon": "1 clé API expire dans moins de 30 jours | {n} clés API expirent dans moins de 30 jours",
+      "apiKeysSoonDetail": "Renouvelez-les avant, sinon les intégrations qui les utilisent s’arrêteront.",
+      "seeApiKeys": "Voir les clés API",
+      "apiKeyActor": "La clé API {name}"
     },
     "mods": {
       "settings": {
@@ -1057,6 +1065,14 @@
         "shortLinks_tracking": {
           "label": "Enregistrement des clics par personne",
           "description": "Les liens continuent de compter les clics mais n’enregistrent plus qui a cliqué. Les personnes déjà enregistrées restent."
+        },
+        "apiKeys": {
+          "label": "Clés API",
+          "description": "Toutes les clés API cessent de fonctionner et répondent 503 : les intégrations sont coupées aussitôt. Les admins peuvent toujours gérer les clés."
+        },
+        "jobs_pruneApiKeys": {
+          "label": "Nettoyer les clés API",
+          "description": "La suppression des clés API qui ne fonctionnent plus depuis 90 jours, et des anciens compteurs d’appels."
         }
       }
     },
@@ -1627,6 +1643,144 @@
         "shortLinkNotFound": "Ce lien n’existe plus. Rechargez la page.",
         "shortIdTaken": "Ce lien court est déjà utilisé. Choisissez-en un autre.",
         "failed": "La modification n’a pas été enregistrée. Vérifiez votre connexion et réessayez."
+      }
+    },
+    "apiKeys": {
+      "title": "Clés API",
+      "note": "Une clé permet à une intégration, comme le site du BDE ou un bot, d’appeler l’API avec seulement les permissions que vous lui donnez. Chaque clé expire en moins d’un an.",
+      "add": "Nouvelle clé",
+      "search": "Rechercher une clé",
+      "empty": "Aucune clé API pour l’instant. Créez la première quand une intégration a besoin d’un accès.",
+      "noMatch": "Aucune clé ne correspond à votre recherche.",
+      "summary": "{usable} utilisables · {total} au total",
+      "never": "Jamais",
+      "offTitle": "Les clés API sont désactivées",
+      "offDescription": "Toutes les clés sont refusées avec une erreur 503 tant que le feature flag n’est pas rétabli.",
+      "columns": {
+        "key": "Clé",
+        "permissions": "Permissions",
+        "lastUsed": "Dernier usage",
+        "expires": "Expire",
+        "status": "Statut"
+      },
+      "statuses": {
+        "active": "Active",
+        "soon": "Expire bientôt",
+        "rotating": "En remplacement",
+        "expired": "Expirée",
+        "revoked": "Révoquée"
+      },
+      "more": "+{n}",
+      "groups": {
+        "events": {
+          "label": "Événements",
+          "description": "Événements masqués et inscriptions"
+        },
+        "links": {
+          "label": "Liens courts",
+          "description": "Les liens /go/"
+        },
+        "minecraft": {
+          "label": "Minecraft",
+          "description": "Joueurs Warden"
+        }
+      },
+      "permissions": {
+        "events_read_hidden": {
+          "label": "Lire les événements masqués",
+          "description": "Les brouillons et la vue admin de chaque événement. Les événements publics n’ont pas besoin de clé."
+        },
+        "registrations_read": {
+          "label": "Lire les inscriptions",
+          "description": "Qui est inscrit ou sur liste d’attente, avec e-mail et école."
+        },
+        "registrations_write": {
+          "label": "Inscrire des personnes",
+          "description": "Ajouter ou retirer l’inscription d’un compte. Elle ne dépasse jamais la limite d’un événement."
+        },
+        "links_read": {
+          "label": "Lire les liens courts",
+          "description": "Lister les liens avec leur nombre de clics, et voir les statistiques d’un lien."
+        },
+        "links_create": {
+          "label": "Créer des liens courts",
+          "description": "Créer un nouveau lien. Les liens existants restent intacts."
+        },
+        "warden_read": {
+          "label": "Lire les joueurs Warden",
+          "description": "Comptes Minecraft liés, bannissements et sessions d’un joueur."
+        }
+      },
+      "form": {
+        "title": "Nouvelle clé API",
+        "name": "Nom",
+        "namePlaceholder": "Bot Discord",
+        "nameHelp": "Dites ce qui utilise la clé. Il apparaît dans le journal admin.",
+        "description": "Description",
+        "optional": "facultatif",
+        "descriptionPlaceholder": "Ce qu’elle fait et qui s’en occupe",
+        "expires": "Expiration",
+        "expiresHelp": "Chaque clé expire. Vous pouvez la renouveler avant.",
+        "expiryChoices": {
+          "30": "Dans 30 jours",
+          "90": "Dans 90 jours",
+          "365": "Dans 1 an (maximum)"
+        },
+        "permissions": "Permissions",
+        "selected": "{n} sélectionnée(s)",
+        "selectAll": "Tout sélectionner",
+        "clear": "Effacer",
+        "blocked": "Une clé ne peut jamais bannir un compte, changer des rôles, supprimer des utilisateurs ni changer le mode de limitation de débit. Ces routes n’acceptent pas de clé.",
+        "create": "Créer la clé",
+        "created": "Clé créée"
+      },
+      "detail": {
+        "calls": "Appels, 7 jours",
+        "lastUsed": "Dernier usage",
+        "expires": "Expire",
+        "expired": "Expirée",
+        "rotatingEnds": "Fin de l’ancienne clé",
+        "revokedOn": "Arrêtée",
+        "permissions": "Permissions",
+        "routes": "Routes appelées, 7 derniers jours",
+        "noCalls": "Aucun appel ces 7 derniers jours.",
+        "created": "Créée le {date} par {name}",
+        "createdNoName": "Créée le {date}",
+        "soonNote": "Cette clé expire dans {days} jours. Renouvelez-la pour ne pas couper l’intégration.",
+        "rotatingNote": "Une clé plus récente l’a remplacée. Elle s’arrête le {date}.",
+        "loadFailed": "Cette clé n’a pas pu être chargée. Vérifiez votre connexion, puis réessayez."
+      },
+      "secret": {
+        "title": "Copiez votre clé maintenant",
+        "lede": "« {name} » a été créée.",
+        "ledeRotated": "La nouvelle clé de « {name} ». L’ancienne continue de fonctionner {days} jours de plus.",
+        "copy": "Copier",
+        "copied": "Copié",
+        "warning": "C’est la seule fois où la clé entière est affichée. LNB n’en garde qu’une empreinte, elle ne peut pas être retrouvée. Si vous la perdez, renouvelez la clé.",
+        "done": "Je l’ai enregistrée",
+        "usage": "Envoyez-la avec Authorization: Bearer suivi de la clé."
+      },
+      "rotate": {
+        "action": "Renouveler",
+        "title": "Renouveler « {name} » ?",
+        "lede": "Une nouvelle clé est créée avec les mêmes permissions et une nouvelle expiration à un an. L’ancienne clé continue de fonctionner pendant le chevauchement pour changer sans coupure.",
+        "overlap": "Garder l’ancienne clé active pendant",
+        "days": "1 jour | {n} jours",
+        "confirm": "Renouveler la clé"
+      },
+      "revoke": {
+        "action": "Révoquer",
+        "title": "Révoquer « {name} » ?",
+        "lede": "Elle s’arrête immédiatement et ne peut pas être réactivée. Tout ce qui l’utilise recevra une erreur 401 au prochain appel.",
+        "lastUsed": "Dernier usage {when}. Elle a fait {calls} appels ces 7 derniers jours.",
+        "neverUsed": "Elle n’a jamais été utilisée.",
+        "confirm": "Révoquer la clé",
+        "done": "Clé révoquée"
+      },
+      "errors": {
+        "apiKeyNotFound": "Cette clé n’existe plus. Rechargez la page.",
+        "apiKeyNotUsable": "Cette clé ne peut pas être renouvelée : elle est révoquée, expirée ou déjà remplacée.",
+        "failed": "Ça n’a pas fonctionné. Vérifiez votre connexion, puis réessayez."
       }
     }
   },

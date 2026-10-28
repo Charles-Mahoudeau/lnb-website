@@ -3,6 +3,7 @@ import { alias } from 'drizzle-orm/pg-core';
 
 import { db } from '~~/server/db';
 import { adminAudit, user, wardenAppeal } from '~~/server/db/schema';
+import { apiKeyService } from '~~/server/services/api-keys';
 import { rateLimitModeService } from '~~/server/services/rate-limit-mode';
 import { inactiveBefore } from '~~/server/services/users';
 
@@ -16,7 +17,7 @@ async function overview(): Promise<AdminOverview> {
   const actor = alias(user, 'actor');
   const target = alias(user, 'target');
 
-  const [appeals, inactive, bans, recent, rateLimitMode] = await Promise.all([
+  const [appeals, inactive, bans, recent, rateLimitMode, apiKeys] = await Promise.all([
     db
       .select({ pending: count(), oldestAt: sql<Date | null>`min(${wardenAppeal.createdAt})` })
       .from(wardenAppeal)
@@ -41,6 +42,7 @@ async function overview(): Promise<AdminOverview> {
       .orderBy(desc(adminAudit.id))
       .limit(10),
     rateLimitModeService.current(),
+    apiKeyService.overview(),
   ]);
 
   const oldest = appeals[0]?.oldestAt;
@@ -51,6 +53,7 @@ async function overview(): Promise<AdminOverview> {
     },
     inactiveAccounts: inactive[0]?.value ?? 0,
     siteBans: bans[0]?.value ?? 0,
+    apiKeysSoon: apiKeys.soon,
     rateLimitMode,
     recent: recent.map(({ entry, actorName, targetName }) => ({
       id: entry.id,

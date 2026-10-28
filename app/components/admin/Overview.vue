@@ -72,11 +72,26 @@ const attention = computed<Attention[]>(() => {
       action: t('admin.overview.seeAccounts'),
     });
   }
+  if (overview.apiKeysSoon) {
+    items.push({
+      key: 'apiKeys',
+      icon: 'i-lucide-key-round',
+      tone: 'warning',
+      title: t('admin.overview.apiKeysSoon', overview.apiKeysSoon),
+      detail: t('admin.overview.apiKeysSoonDetail'),
+      to: '/admin/api-keys',
+      action: t('admin.overview.seeApiKeys'),
+    });
+  }
   return items;
 });
 
 function describe(entry: AdminAuditView): string {
-  const actor = entry.actor?.name ?? t('admin.overview.deletedAdmin');
+  const apiKey = entry.data.apiKey as { name?: string } | undefined;
+  // A call made with an API key has no account behind it: name the key.
+  const actor = apiKey?.name
+    ? t('admin.overview.apiKeyActor', { name: apiKey.name })
+    : (entry.actor?.name ?? t('admin.overview.deletedAdmin'));
   const target = entry.target?.name ?? t('admin.overview.deletedAccount');
   switch (entry.action) {
     case 'user.roles': {
@@ -153,6 +168,9 @@ function describe(entry: AdminAuditView): string {
     case 'poster.create':
     case 'poster.update':
     case 'poster.delete':
+    case 'apiKey.create':
+    case 'apiKey.rotate':
+    case 'apiKey.revoke':
       return t(`admin.overview.log.${entry.action.replace('.', '_')}`, {
         actor,
         target,

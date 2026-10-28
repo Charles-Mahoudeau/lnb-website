@@ -511,7 +511,8 @@
       "team": "Team",
       "partners": "Partners",
       "shortLinks": "Short links",
-      "posters": "Posters"
+      "posters": "Posters",
+      "apiKeys": "API keys"
     },
     "cancel": "Cancel",
     "roles": {
@@ -722,9 +723,16 @@
         "shortLink_export": "{actor} downloaded who clicked the short link {name}.",
         "poster_create": "{actor} created the poster {name}.",
         "poster_update": "{actor} changed the poster {name}.",
-        "poster_delete": "{actor} deleted the poster {name}."
+        "poster_delete": "{actor} deleted the poster {name}.",
+        "apiKey_create": "{actor} created the API key {name}.",
+        "apiKey_rotate": "{actor} rotated the API key {name}.",
+        "apiKey_revoke": "{actor} revoked the API key {name}."
       },
-      "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page."
+      "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page.",
+      "apiKeysSoon": "1 API key expires within 30 days | {n} API keys expire within 30 days",
+      "apiKeysSoonDetail": "Rotate them before then, or the integrations using them stop working.",
+      "seeApiKeys": "See the API keys",
+      "apiKeyActor": "The API key {name}"
     },
     "mods": {
       "settings": {
@@ -1053,6 +1061,14 @@
         "shortLinks_tracking": {
           "label": "Recording who clicks",
           "description": "Links keep counting clicks but stop recording who clicked. People already recorded stay."
+        },
+        "apiKeys": {
+          "label": "API keys",
+          "description": "Every API key stops working and answers 503, so integrations are cut off at once. Admins can still manage keys."
+        },
+        "jobs_pruneApiKeys": {
+          "label": "Prune API keys",
+          "description": "The removal of API keys that stopped working 90 days ago, and of old call counts."
         }
       }
     },
@@ -1623,6 +1639,144 @@
         "shortLinkNotFound": "This link no longer exists. Reload the page.",
         "shortIdTaken": "This short link is already used. Pick another one.",
         "failed": "The change wasn’t saved. Check your connection and try again."
+      }
+    },
+    "apiKeys": {
+      "title": "API keys",
+      "note": "A key lets an integration, such as the BDE website or a bot, call the API with only the permissions you give it. Every key expires within a year.",
+      "add": "New key",
+      "search": "Search keys",
+      "empty": "No API key yet. Create the first one when an integration needs access.",
+      "noMatch": "No key matches your search.",
+      "summary": "{usable} usable · {total} in total",
+      "never": "Never",
+      "offTitle": "API keys are switched off",
+      "offDescription": "Every key is refused with a 503 until the feature flag is back on.",
+      "columns": {
+        "key": "Key",
+        "permissions": "Permissions",
+        "lastUsed": "Last used",
+        "expires": "Expires",
+        "status": "Status"
+      },
+      "statuses": {
+        "active": "Active",
+        "soon": "Expires soon",
+        "rotating": "Rotating out",
+        "expired": "Expired",
+        "revoked": "Revoked"
+      },
+      "more": "+{n}",
+      "groups": {
+        "events": {
+          "label": "Events",
+          "description": "Hidden events and who is registered"
+        },
+        "links": {
+          "label": "Short links",
+          "description": "The /go/ links"
+        },
+        "minecraft": {
+          "label": "Minecraft",
+          "description": "Warden players"
+        }
+      },
+      "permissions": {
+        "events_read_hidden": {
+          "label": "Read hidden events",
+          "description": "Drafts and the admin view of every event. Public events need no key."
+        },
+        "registrations_read": {
+          "label": "Read registrations",
+          "description": "Who is registered or on the waitlist, with their email and school."
+        },
+        "registrations_write": {
+          "label": "Register people",
+          "description": "Add or remove a registration for an account. It never goes past an event’s limit."
+        },
+        "links_read": {
+          "label": "Read short links",
+          "description": "List links with their click counts, and see one link’s statistics."
+        },
+        "links_create": {
+          "label": "Create short links",
+          "description": "Make a new link. Existing ones stay untouched."
+        },
+        "warden_read": {
+          "label": "Read Warden players",
+          "description": "Linked Minecraft accounts, bans and sessions of a player."
+        }
+      },
+      "form": {
+        "title": "New API key",
+        "name": "Name",
+        "namePlaceholder": "Discord bot",
+        "nameHelp": "Say what uses the key. It shows in the admin log.",
+        "description": "Description",
+        "optional": "optional",
+        "descriptionPlaceholder": "What it does and who looks after it",
+        "expires": "Expires",
+        "expiresHelp": "Every key expires. You can rotate it before then.",
+        "expiryChoices": {
+          "30": "In 30 days",
+          "90": "In 90 days",
+          "365": "In 1 year (maximum)"
+        },
+        "permissions": "Permissions",
+        "selected": "{n} selected",
+        "selectAll": "Select all",
+        "clear": "Clear",
+        "blocked": "Keys can never ban accounts, change roles, delete users or change the rate limiting mode. Those routes don’t accept a key.",
+        "create": "Create key",
+        "created": "Key created"
+      },
+      "detail": {
+        "calls": "Calls, 7 days",
+        "lastUsed": "Last used",
+        "expires": "Expires",
+        "expired": "Expired",
+        "rotatingEnds": "Old key ends",
+        "revokedOn": "Stopped",
+        "permissions": "Permissions",
+        "routes": "Routes called, last 7 days",
+        "noCalls": "No call in the last 7 days.",
+        "created": "Created {date} by {name}",
+        "createdNoName": "Created {date}",
+        "soonNote": "This key expires in {days} days. Rotate it so the integration isn’t cut off.",
+        "rotatingNote": "A newer key replaced this one. It stops working on {date}.",
+        "loadFailed": "This key couldn’t be loaded. Check your connection, then try again."
+      },
+      "secret": {
+        "title": "Copy your key now",
+        "lede": "“{name}” was created.",
+        "ledeRotated": "The new key for “{name}”. The old one keeps working for {days} more days.",
+        "copy": "Copy",
+        "copied": "Copied",
+        "warning": "This is the only time the whole key is shown. LNB keeps a hash, so it can’t be recovered. If you lose it, rotate the key.",
+        "done": "I’ve saved it",
+        "usage": "Send it as Authorization: Bearer followed by the key."
+      },
+      "rotate": {
+        "action": "Rotate",
+        "title": "Rotate “{name}”?",
+        "lede": "A new key is made with the same permissions and a new one-year expiry. The old key keeps working during the overlap so you can switch without downtime.",
+        "overlap": "Keep the old key working for",
+        "days": "1 day | {n} days",
+        "confirm": "Rotate key"
+      },
+      "revoke": {
+        "action": "Revoke",
+        "title": "Revoke “{name}”?",
+        "lede": "It stops working right away and can’t be turned back on. Anything using it gets a 401 on its next call.",
+        "lastUsed": "Last used {when}. It made {calls} calls in the last 7 days.",
+        "neverUsed": "It has never been used.",
+        "confirm": "Revoke key",
+        "done": "Key revoked"
+      },
+      "errors": {
+        "apiKeyNotFound": "This key no longer exists. Reload the page.",
+        "apiKeyNotUsable": "This key can’t be rotated: it is revoked, expired or already replaced.",
+        "failed": "That didn’t work. Check your connection, then try again."
       }
     }
   },

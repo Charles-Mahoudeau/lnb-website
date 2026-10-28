@@ -50,6 +50,7 @@ const items = computed<NavigationMenuItem[][]>(() => [
             icon: 'i-lucide-gauge',
             to: '/admin/rate-limit',
           },
+          { label: t('admin.nav.apiKeys'), icon: 'i-lucide-key-round', to: '/admin/api-keys' },
         ],
       ]
     : []),
