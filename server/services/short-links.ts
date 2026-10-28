@@ -176,7 +176,9 @@ async function detail(id: string): Promise<ShortLinkDetail> {
 }
 
 async function create(input: {
-  actorId: string;
+  /** Null when an API key acts: `actorData` then says which. */
+  actorId: string | null;
+  actorData?: Record<string, unknown>;
   body: ShortLinkBody;
 }): Promise<{ id: string; shortId: string }> {
   const { body } = input;
@@ -201,7 +203,7 @@ async function create(input: {
           action: 'shortLink.create',
           actorUserId: input.actorId,
           targetUserId: null,
-          data: { id: row!.shortId, name: row!.name },
+          data: { id: row!.shortId, name: row!.name, ...input.actorData },
         });
         return { id: row!.id, shortId: row!.shortId };
       });

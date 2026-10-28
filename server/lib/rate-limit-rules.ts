@@ -8,8 +8,8 @@ export interface RateRule {
   name: string;
   points: number;
   windowSeconds: number;
-  /** `user` falls back to the IP when nobody is signed in. */
-  by: 'ip' | 'user';
+  /** `user` falls back to the IP when nobody is signed in. `key` is an API key's id. */
+  by: 'ip' | 'user' | 'key';
 }
 
 // Epitech campuses share one public IP, and an event can put a hundred people on it. The IP
@@ -51,10 +51,19 @@ const HEAVY_WRITE: RateRule = { name: 'write-heavy', points: 20, windowSeconds: 
 const ADMIN_WRITE: RateRule = { name: 'write-admin', points: 240, windowSeconds: 60, by: 'user' };
 const WRITE: RateRule = { name: 'write', points: 60, windowSeconds: 60, by: 'user' };
 
+// Integrations send many calls from one address, so a key is limited by its own id and not by
+// IP. Reads and writes are counted apart.
+const API_KEY_READ: RateRule = { name: 'api-key-read', points: 600, windowSeconds: 60, by: 'key' };
+const API_KEY_WRITE: RateRule = { name: 'api-key-write', points: 60, windowSeconds: 60, by: 'key' };
+
 const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
-// Minting a token or approving an app link: rare for a person, valuable to an attacker.
-const SENSITIVE = [/^\/api\/link\/approve$/, /\/token$/];
+// Minting a token or a key, or approving an app link: rare for a person, valuable to an attacker.
+const SENSITIVE = [
+  /^\/api\/link\/approve$/,
+  /\/token$/,
+  /^\/api\/admin\/api-keys(\/[^/]+\/(rotate|revoke))?$/,
+];
 // Uploads, imports and fan-out (push, bulk actions): expensive for the server.
 const HEAVY = [
   /^\/api\/admin\/events\/images(\/import)?$/,
@@ -99,4 +108,24 @@ export function rulesForMode(mode: RateLimitMode, method: string, path: string):
       ? { ...rule, name: `${rule.name}:event`, points: rule.points * EVENT_IP_MULTIPLIER }
       : rule,
   );
+}
+
+/**
+ * Whether a request may carry an API key, so it is limited per key. The Better Auth routes, the
+ * health check and Warden's own callers (the server, the mod) have their own credentials.
+ */
+export function acceptsApiKey(path: string): boolean {
+  return (
+    path.startsWith('/api/') &&
+    !path.startsWith('/api/auth/') &&
+    path !== '/api/health' &&
+    !path.startsWith('/api/warden/server/') &&
+    !path.startsWith('/api/warden/client/')
+  );
+}
+
+/** The rules for a request that carries a valid API key. Off applies none. */
+export function rulesForApiKey(mode: RateLimitMode, method: string): RateRule[] {
+  if (mode === 'off') return [];
+  return [MUTATING.has(method.toUpperCase()) ? API_KEY_WRITE : API_KEY_READ];
 }

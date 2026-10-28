@@ -1,8 +1,14 @@
 import { createError, defineEventHandler } from 'nuxt/server';
 
 import { createLimiter } from '~~/server/lib/rate-limit';
-import { rulesFor, rulesForMode } from '~~/server/lib/rate-limit-rules';
+import {
+  acceptsApiKey,
+  rulesFor,
+  rulesForApiKey,
+  rulesForMode,
+} from '~~/server/lib/rate-limit-rules';
 import { rateLimitModeService } from '~~/server/services/rate-limit-mode';
+import { apiKeyOfRequest } from '~~/server/utils/api-key';
 import { getAuthSession } from '~~/server/utils/auth';
 import { clientIp } from '~~/server/utils/client-ip';
 
@@ -15,7 +21,12 @@ export default defineEventHandler(async (event) => {
   const path = new URL(url, 'http://localhost').pathname;
   // Routes that are never limited (health, auth, pages) don't wait for the mode.
   if (rulesFor(method, path).length === 0) return;
-  const rules = rulesForMode(await rateLimitModeService.current(), method, path);
+  const mode = await rateLimitModeService.current();
+  if (mode === 'off') return;
+  // A valid API key is limited by its own id, and not by IP or account. An unknown one is
+  // limited like any caller, and the route refuses it.
+  const apiKey = acceptsApiKey(path) ? await apiKeyOfRequest(event) : null;
+  const rules = apiKey ? rulesForApiKey(mode, method) : rulesForMode(mode, method, path);
   if (rules.length === 0) return;
 
   const ip = clientIp(event);
@@ -24,6 +35,7 @@ export default defineEventHandler(async (event) => {
 
   for (const rule of rules) {
     let key = ip;
+    if (rule.by === 'key' && apiKey) key = `key:${apiKey.id}`;
     if (rule.by === 'user') {
       userId ??= (await getAuthSession(event))?.user.id ?? null;
       if (userId) key = `user:${userId}`;

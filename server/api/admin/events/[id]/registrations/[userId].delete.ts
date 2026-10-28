@@ -5,9 +5,17 @@ import { eventRegistrationService } from '~~/server/services/events/registration
 import { eventRegistrationParams } from '#shared/schemas/events';
 
 export default defineEventHandler(async (event) => {
-  const manager = await requireEventsManager(event);
+  const actor = await requireAccess(event, {
+    permission: 'registrations:write',
+    user: requireEventsManager,
+  });
   const { id, userId } = parseParams(event, eventRegistrationParams);
-  await eventRegistrationService.remove({ actorId: manager.id, eventId: id, userId });
+  await eventRegistrationService.remove({
+    actorId: actorUserId(actor),
+    actorData: actorAuditData(actor),
+    eventId: id,
+    userId,
+  });
   setResponseStatus(event, 204);
   return null;
 });

@@ -5,9 +5,16 @@ import { shortLinkService } from '~~/server/services/short-links';
 import { shortLinkBody } from '#shared/schemas/short-links';
 
 export default defineEventHandler(async (event) => {
-  const manager = await requireEventsManager(event);
+  const actor = await requireAccess(event, {
+    permission: 'links:create',
+    user: requireEventsManager,
+  });
   const body = await parseBody(event, shortLinkBody);
-  const created = await shortLinkService.create({ actorId: manager.id, body });
+  const created = await shortLinkService.create({
+    actorId: actorUserId(actor),
+    actorData: actorAuditData(actor),
+    body,
+  });
   setResponseStatus(event, 201);
   return created;
 });

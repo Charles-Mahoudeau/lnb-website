@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
+import type { ApiKeyPermission } from '../../shared/api-keys.ts';
 import * as admin from '../../shared/schemas/admin.ts';
+import * as apiKeys from '../../shared/schemas/api-keys.ts';
 import { avatarParams } from '../../shared/schemas/avatars.ts';
 import * as events from '../../shared/schemas/events.ts';
 import * as flags from '../../shared/schemas/flags.ts';
@@ -37,6 +39,8 @@ interface RouteDoc {
   summary: string;
   description?: string;
   access: Access;
+  /** The API key permission that also lets a caller in (see `requireAccess`). */
+  key?: ApiKeyPermission;
   params?: z.ZodObject;
   query?: z.ZodObject;
   headers?: Record<string, OpenApiObject>;
@@ -57,6 +61,8 @@ type OpenApiObject = Record<string, unknown>;
 // responses as they're returned.
 const requestSchemas = {
   AdminRolesBody: admin.adminRolesBody,
+  ApiKeyBody: apiKeys.apiKeyBody,
+  ApiKeyRotateBody: apiKeys.apiKeyRotateBody,
   AdminBanBody: admin.adminBanBody,
   AdminBulkBody: admin.adminBulkBody,
   FlagPatchBody: flags.flagPatchBody,
@@ -202,6 +208,9 @@ const responseSchemas = {
   PartnersAdmin: partners.partnerAdminView,
   PartnerLogo: partners.partnerLogoView,
   PartnerSettings: partners.partnerSettingsView,
+  ApiKeyList: apiKeys.apiKeyList,
+  ApiKeyDetail: apiKeys.apiKeyDetail,
+  ApiKeyCreated: apiKeys.apiKeyCreated,
   ShortLinksAdmin: shortLinks.shortLinkList,
   ShortLinkDetail: shortLinks.shortLinkDetail,
   ShortLinkPublic: shortLinks.shortLinkPublic,
@@ -239,6 +248,7 @@ const TAGS = {
   shortLinks: 'Short links',
   shortLinksAdmin: 'Short links: managers',
   postersAdmin: 'Posters: managers',
+  apiKeysAdmin: 'API keys: admins',
   auth: 'Auth',
   authDevice: 'Auth: device authorization',
 };
@@ -797,6 +807,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.wardenAdmin,
     summary: 'List players',
     access: 'wardenAdmin',
+    key: 'warden:read',
     query: warden.wardenPlayersQuery,
     response: warden.wardenPlayerPage,
     problems: [{ status: 400, problems: ['invalidCursor'] }],
@@ -808,6 +819,7 @@ const routes: RouteDoc[] = [
     summary: 'One player',
     description: 'Accounts, username history, bans, notes, sessions and audit trail.',
     access: 'wardenAdmin',
+    key: 'warden:read',
     params: warden.wardenUserParams,
     response: warden.wardenPlayerDetail,
     problems: [{ status: 404, problems: ['notFound'] }],
@@ -1471,6 +1483,7 @@ const routes: RouteDoc[] = [
     summary: 'Registrations',
     description: 'Everyone registered, then the waitlist in order, with their email and school.',
     access: 'eventsManager',
+    key: 'registrations:read',
     params: events.eventIdParams,
     response: events.eventRegistrationList,
     problems: [{ status: 404, problems: ['notFound'] }],
@@ -1496,6 +1509,7 @@ const routes: RouteDoc[] = [
     description:
       "Registers an account by hand, whatever its school or the registration window. Past the limit it's refused with `full`, unless `force` is set. Someone on the waitlist is moved up.",
     access: 'eventsManager',
+    key: 'registrations:write',
     params: events.eventIdParams,
     body: events.eventRegistrationAddBody,
     noContent: true,
@@ -1511,6 +1525,7 @@ const routes: RouteDoc[] = [
     summary: 'Remove someone',
     description: 'Removes a registration or a waitlist place. The waitlist moves up.',
     access: 'eventsManager',
+    key: 'registrations:write',
     params: events.eventRegistrationParams,
     noContent: true,
     problems: [{ status: 404, problems: ['notFound', 'notRegistered'] }],
@@ -1603,6 +1618,7 @@ const routes: RouteDoc[] = [
     description:
       'One tab of the admin list: upcoming events soonest first, drafts and past events latest first.',
     access: 'eventsManager',
+    key: 'events:read-hidden',
     query: events.eventAdminQuery,
     response: events.eventAdminList,
   },
@@ -1623,6 +1639,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.eventsAdmin,
     summary: 'An event, for managers',
     access: 'eventsManager',
+    key: 'events:read-hidden',
     params: events.eventIdParams,
     response: events.eventAdminView,
     problems: [{ status: 404, problems: ['notFound'] }],
@@ -1802,6 +1819,7 @@ const routes: RouteDoc[] = [
     summary: 'The short links',
     description: 'Every short link, newest first, with its clicks and the people who clicked.',
     access: 'eventsManager',
+    key: 'links:read',
     response: shortLinks.shortLinkList,
   },
   {
@@ -1812,6 +1830,7 @@ const routes: RouteDoc[] = [
     description:
       'An empty `shortId` gets a random one. `access: schools` needs at least one school. Recording who clicks needs sign-in, so `access: any` can’t.',
     access: 'eventsManager',
+    key: 'links:create',
     body: shortLinks.shortLinkBody,
     response: z.object({ id: z.uuid(), shortId: z.string() }),
     created: true,
@@ -1825,6 +1844,7 @@ const routes: RouteDoc[] = [
     description:
       'Clicks per day for 30 days, and for links that record clicks, the people by school and the people who clicked last.',
     access: 'eventsManager',
+    key: 'links:read',
     params: shortLinks.shortLinkIdParams,
     response: shortLinks.shortLinkDetail,
     problems: [{ status: 404, problems: ['shortLinkNotFound'] }],
@@ -2282,6 +2302,68 @@ const routes: RouteDoc[] = [
       { status: 409, problems: ['notAnnounceable', 'notAnnouncedYet'] },
     ],
   },
+  // API keys
+  {
+    method: 'get',
+    path: '/api/admin/api-keys',
+    tag: TAGS.apiKeysAdmin,
+    summary: 'The API keys',
+    description:
+      'Every key, newest first, with its permissions, status and calls in the last 7 days. The secret is never returned again after it is made. `enabled` is false while the `apiKeys` flag is off.',
+    access: 'admin',
+    response: apiKeys.apiKeyList,
+  },
+  {
+    method: 'post',
+    path: '/api/admin/api-keys',
+    tag: TAGS.apiKeysAdmin,
+    summary: 'Create an API key',
+    description:
+      'A key has a name, at least one permission and an expiry within a year. The whole key is in `secret` of this answer and nowhere else: only a hash is kept.',
+    access: 'admin',
+    body: apiKeys.apiKeyBody,
+    response: apiKeys.apiKeyCreated,
+    created: true,
+  },
+  {
+    method: 'get',
+    path: '/api/admin/api-keys/{id}',
+    tag: TAGS.apiKeysAdmin,
+    summary: 'An API key with its usage',
+    description: 'The routes it called in the last 7 days, most called first.',
+    access: 'admin',
+    params: apiKeys.apiKeyIdParams,
+    response: apiKeys.apiKeyDetail,
+    problems: [{ status: 404, problems: ['apiKeyNotFound'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/api-keys/{id}/rotate',
+    tag: TAGS.apiKeysAdmin,
+    summary: 'Rotate an API key',
+    description:
+      'Makes a new key with the same name and permissions, valid for a year. The old key keeps working for `overlapDays`, then stops. A revoked, expired or already replaced key can’t be rotated.',
+    access: 'admin',
+    params: apiKeys.apiKeyIdParams,
+    body: apiKeys.apiKeyRotateBody,
+    response: apiKeys.apiKeyCreated,
+    created: true,
+    problems: [
+      { status: 404, problems: ['apiKeyNotFound'] },
+      { status: 409, problems: ['apiKeyNotUsable'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/api-keys/{id}/revoke',
+    tag: TAGS.apiKeysAdmin,
+    summary: 'Revoke an API key',
+    description: 'It stops working at once and can’t be turned back on.',
+    access: 'admin',
+    params: apiKeys.apiKeyIdParams,
+    noContent: true,
+    problems: [{ status: 404, problems: ['apiKeyNotFound'] }],
+  },
 ];
 
 const ACCESS: Record<Access, { security?: OpenApiObject[]; note?: string; errors: Problem[] }> = {
@@ -2423,6 +2505,12 @@ function errorResponses(route: RouteDoc) {
   if (route.body || route.query) add({ status: 400, problems: [] });
   if (route.params) add({ status: 404, problems: [] });
   ACCESS[route.access].errors.forEach(add);
+  // A key can be refused for lacking the permission, or because the `apiKeys` flag is off.
+  if (route.key) {
+    add({ status: 401, problems: [] });
+    add({ status: 403, problems: [] });
+    add({ status: 503, problems: ['disabled'] });
+  }
   route.problems?.forEach(add);
 
   return Object.fromEntries(
@@ -2458,9 +2546,18 @@ function operation(route: RouteDoc) {
   return {
     tags: [route.tag],
     summary: route.summary,
-    description: [route.description, access.note].filter(Boolean).join('\n\n') || undefined,
+    description:
+      [
+        route.description,
+        access.note,
+        route.key
+          ? `An API key holding \`${route.key}\` is accepted instead of a session (see Authentication).`
+          : undefined,
+      ]
+        .filter(Boolean)
+        .join('\n\n') || undefined,
     operationId: `${route.method}${route.path.replace(/[^a-z\d]+(.)?/gi, (_, c?: string) => c?.toUpperCase() ?? '')}`,
-    security: access.security,
+    security: route.key ? [...(access.security ?? []), { apiKey: [] }] : access.security,
     parameters: [
       ...parameters('path', route.params),
       ...parameters('query', route.query),
@@ -2480,6 +2577,13 @@ function operation(route: RouteDoc) {
       : undefined,
     responses: { ...success, ...errorResponses(route) },
   };
+}
+
+/** The routes that accept an API key, with the permission each requires. For the tests. */
+export function keyedRoutes(): { method: string; path: string; key: ApiKeyPermission }[] {
+  return routes.flatMap((route) =>
+    route.key ? [{ method: route.method, path: route.path, key: route.key }] : [],
+  );
 }
 
 /** The routes this document covers, as `METHOD /path`, for the coverage test. */
@@ -2503,6 +2607,7 @@ The API of the La Nuit Blanche website. Everything is JSON unless a route says o
 | --- | --- |
 | Signed-in users | The site session cookie, set by signing in with Microsoft on \`/sign-in\` |
 | Admins | The same cookie, on an account with the \`admin\` or \`warden-admin\` role |
+| Integrations (the BDE website, bots) | \`Authorization: Bearer lnb_…\`, an API key made by an admin, on the routes that list it |
 | The Minecraft server | \`Authorization: Bearer <WARDEN_SERVER_SECRET>\` |
 | The LNB Warden mod | \`Authorization: Bearer <device token>\`, on \`/api/warden/client/*\` only |
 
@@ -2510,7 +2615,7 @@ To try a route that needs a session from this page, sign in on the site in the s
 
 ## Rate limits
 
-Every route under \`/api\` is limited per IP, and writes are also limited per account. A caller that goes over gets \`429\` with a \`Retry-After\` header (seconds) and the problem \`rateLimited\`. \`/api/auth/*\` has its own limits, and \`/api/health\` has none.
+Every route under \`/api\` is limited per IP, and writes are also limited per account. A call with a valid API key is limited per key instead: 600 reads and 60 writes per minute. A caller that goes over gets \`429\` with a \`Retry-After\` header (seconds) and the problem \`rateLimited\`. \`/api/auth/*\` has its own limits, and \`/api/health\` has none.
 
 ## Conventions
 
@@ -2632,6 +2737,12 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
           name: 'better-auth.session_token',
           description:
             'The site session cookie. Over HTTPS it is named `__Secure-better-auth.session_token`.',
+        },
+        apiKey: {
+          type: 'http',
+          scheme: 'bearer',
+          description:
+            'An API key made in the admin area: `lnb_` and 40 characters. Each key has permissions and expires within a year. Only routes that list this scheme accept one.',
         },
         wardenServer: {
           type: 'http',

@@ -151,7 +151,9 @@ async function unregister(input: { userId: string; eventId: string }): Promise<v
  * refused, unless `force` registers them anyway.
  */
 async function add(input: {
-  actorId: string;
+  /** Null when an API key acts: `actorData` then says which. */
+  actorId: string | null;
+  actorData?: Record<string, unknown>;
   eventId: string;
   userId: string;
   force: boolean;
@@ -194,13 +196,19 @@ async function add(input: {
       action: 'event.registrationAdd',
       actorUserId: input.actorId,
       targetUserId: input.userId,
-      data: { eventId: row.id, name: row.name, force: full },
+      data: { eventId: row.id, name: row.name, force: full, ...input.actorData },
     });
   });
 }
 
 /** Removes someone from the event or its waitlist. The waitlist moves up. */
-async function remove(input: { actorId: string; eventId: string; userId: string }): Promise<void> {
+async function remove(input: {
+  /** Null when an API key acts: `actorData` then says which. */
+  actorId: string | null;
+  actorData?: Record<string, unknown>;
+  eventId: string;
+  userId: string;
+}): Promise<void> {
   await db.transaction(async (tx) => {
     const row = await lockEvent(tx, input.eventId);
     const [deleted] = await tx
@@ -213,7 +221,7 @@ async function remove(input: { actorId: string; eventId: string; userId: string 
       action: 'event.registrationRemove',
       actorUserId: input.actorId,
       targetUserId: input.userId,
-      data: { eventId: row.id, name: row.name },
+      data: { eventId: row.id, name: row.name, ...input.actorData },
     });
   });
 }

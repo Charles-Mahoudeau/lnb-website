@@ -5,7 +5,7 @@ import { eventRegistrationService } from '~~/server/services/events/registration
 import { eventIdParams } from '#shared/schemas/events';
 
 export default defineEventHandler(async (event) => {
-  await requireEventsManager(event);
+  await requireAccess(event, { permission: 'registrations:read', user: requireEventsManager });
   const { id } = parseParams(event, eventIdParams);
   return { items: await eventRegistrationService.list(id) };
 });
