@@ -2713,7 +2713,17 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       },
     ],
     'x-tagGroups': [
-      { name: 'Site', tags: [TAGS.health, TAGS.link, TAGS.admin, TAGS.reference] },
+      {
+        name: 'Site',
+        tags: [TAGS.health, TAGS.link, TAGS.users, TAGS.flags, TAGS.admin, TAGS.reference],
+      },
+      { name: 'Events', tags: [TAGS.events, TAGS.eventsAdmin, TAGS.postersAdmin] },
+      {
+        name: 'Team and partners',
+        tags: [TAGS.team, TAGS.teamAdmin, TAGS.partners, TAGS.partnersAdmin],
+      },
+      { name: 'Short links', tags: [TAGS.shortLinks, TAGS.shortLinksAdmin] },
+      { name: 'API keys', tags: [TAGS.apiKeysAdmin] },
       { name: 'Auth', tags: [TAGS.auth, TAGS.authDevice] },
       {
         name: 'Warden',

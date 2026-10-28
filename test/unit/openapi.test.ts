@@ -42,6 +42,17 @@ describe('OpenAPI document', () => {
     expect(documentedRoutes().sort()).toEqual(files.sort());
   });
 
+  it('puts every tag in a sidebar group, or Scalar hides its routes', () => {
+    const document = buildOpenApiDocument(authDocument);
+    const grouped = new Set(document['x-tagGroups'].flatMap((group) => group.tags));
+    const used = Object.values(document.paths).flatMap((operations) =>
+      Object.values(operations as Record<string, { tags?: string[] }>).flatMap(
+        (op) => op.tags ?? [],
+      ),
+    );
+    expect([...new Set(used)].filter((tag) => !grouped.has(tag))).toEqual([]);
+  });
+
   it('resolves every schema reference', () => {
     const document = buildOpenApiDocument(authDocument);
     const refs = JSON.stringify(document).matchAll(/"\$ref":"#\/components\/schemas\/([^"]+)"/g);
