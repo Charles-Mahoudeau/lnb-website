@@ -55,6 +55,10 @@ export type AdminAuditAction =
   | 'shortLink.delete'
   /** An admin downloaded who clicked a link. */
   | 'shortLink.export'
+  /** API keys. `data.id`, `data.name`. A rotation also has `data.newId`. */
+  | 'apiKey.create'
+  | 'apiKey.rotate'
+  | 'apiKey.revoke'
   /** Posters, by events managers. `data.id` and `data.name`. A duplicate also has `data.from`. */
   | 'poster.create'
   | 'poster.update'

@@ -38,6 +38,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'partners.contact', parent: 'partners' },
   { key: 'shortLinks' },
   { key: 'shortLinks.tracking', parent: 'shortLinks' },
+  { key: 'apiKeys' },
   { key: 'push' },
   { key: 'push.subscribe', parent: 'push' },
   { key: 'push.newEvents', parent: 'push' },
@@ -52,6 +53,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'jobs.closeStaleSessions', parent: 'jobs' },
   { key: 'jobs.pushDeliver', parent: 'jobs' },
   { key: 'jobs.pushPrune', parent: 'jobs' },
+  { key: 'jobs.pruneApiKeys', parent: 'jobs' },
 ] as const satisfies readonly FlagDefinition[];
 
 export type FlagKey = (typeof FLAG_DEFINITIONS)[number]['key'];

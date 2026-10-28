@@ -73,6 +73,7 @@ export default defineNuxtConfig({
         'events:prune-images',
         'partners:prune-logos',
         'push:prune',
+        'api-keys:prune',
       ],
     },
     // Skin heads fetched from Crafatar, cached on disk. See server/services/warden/heads.ts.

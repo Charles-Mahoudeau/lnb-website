@@ -194,6 +194,9 @@ export const adminAuditView = z.object({
     'poster.create',
     'poster.update',
     'poster.delete',
+    'apiKey.create',
+    'apiKey.rotate',
+    'apiKey.revoke',
   ]),
   actor: z.object({ userId: z.string(), name: z.string() }).nullable(),
   target: z.object({ userId: z.string(), name: z.string() }).nullable(),
@@ -209,6 +212,7 @@ export const adminOverview = z.object({
   }),
   inactiveAccounts: z.number().describe('Accounts with no sign-in for 24 months.'),
   siteBans: z.number().describe('Site bans in force.'),
+  apiKeysSoon: z.number().describe('API keys that expire within 30 days and were not replaced.'),
   rateLimitMode: z
     .enum(RATE_LIMIT_MODES)
     .describe('Rate limiting mode; `normal` needs no attention.'),
