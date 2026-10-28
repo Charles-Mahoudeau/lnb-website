@@ -31,3 +31,7 @@ Join tickets have their own limit of 10 per minute per device, kept in the handl
 - The client IP is the last `X-Forwarded-For` entry, the one Coolify's proxy added. Earlier entries are forged easily. Check that the proxy appends rather than keeps a client's header before trusting this in production.
 - Counters are in memory: the site is one container, and a deploy resets them. If it ever runs as several, switch `createLimiter` in `server/lib/rate-limit.ts` to `RateLimiterPostgres`.
 - A new route that mints a credential or does heavy work should be added to `SENSITIVE` or `HEAVY`.
+
+## API keys
+
+A request with a valid `Authorization: Bearer lnb_…` key (on a path that accepts keys: not `/api/auth/*`, `/api/health` or the Warden server and client APIs) is limited by the key's id with its own rules: `api-key-read` (600 per minute) and `api-key-write` (60 per minute). Event night mode doesn't change them, off mode applies none, and the call doesn't count against the per-IP `api` rule. An unknown key gets the normal rules and a 401. Managing keys (`/api/admin/api-keys`) is in the sensitive group. See `docs/api-keys.md`.
