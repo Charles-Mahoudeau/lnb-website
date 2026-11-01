@@ -739,6 +739,11 @@
         "title": "Settings",
         "open": "Voting and suggestions open",
         "openHelp": "When closed, the page stays visible but nobody can vote or suggest.",
+        "votingEnds": "Voting ends",
+        "votingEndsHelp": "Voting and suggestions close by themselves at this date and time (Paris time). Leave empty for no end. The list stays visible.",
+        "votingEndsClear": "Clear",
+        "showCountdown": "Show the countdown",
+        "showCountdownHelp": "Shows the time left on the mod page. Voting closes at the end date either way.",
         "maxSuggestions": "Suggestions per person",
         "maxSuggestionsHelp": "Removed suggestions count too. Withdrawn and promoted ones free a slot.",
         "gameVersion": "Minecraft version",
@@ -2047,6 +2052,20 @@
     "loadFailed": "The mod list couldn’t be loaded. Check your connection, then reload the page.",
     "bannedNotice": "You’re banned from the Minecraft server, so you can’t vote or suggest mods until the ban ends.",
     "cancel": "Cancel",
+    "countdown": {
+      "title": "Voting ends in",
+      "label": "Voting ends in {time}",
+      "days": "no days | 1 day | {n} days",
+      "hours": "no hours | 1 hour | {n} hours",
+      "minutes": "no minutes | 1 minute | {n} minutes",
+      "seconds": "no seconds | 1 second | {n} seconds",
+      "unit": {
+        "days": "days",
+        "hours": "hours",
+        "minutes": "minutes",
+        "seconds": "seconds"
+      }
+    },
     "status": {
       "open": "Voting open",
       "closed": "Voting closed",

@@ -8,8 +8,12 @@ const toast = useToast();
 const { settings, save } = useModSettings();
 const { data, refresh } = await settings;
 
-const state = reactive<ModSettingsView>({
+// The end is edited as a Paris wall-clock time, like the other dates in the admin.
+const state = reactive<ModSettingsView & { endsLocal: string }>({
   open: true,
+  votingEndsAt: null,
+  showCountdown: true,
+  endsLocal: '',
   maxSuggestions: 5,
   gameVersion: '1.21.1',
   loader: 'neoforge',
@@ -17,7 +21,9 @@ const state = reactive<ModSettingsView>({
 watch(
   data,
   (value) => {
-    if (value) Object.assign(state, value);
+    if (!value) return;
+    Object.assign(state, value);
+    state.endsLocal = value.votingEndsAt ? isoToParisLocal(value.votingEndsAt) : '';
   },
   { immediate: true },
 );
@@ -30,7 +36,10 @@ const pending = ref(false);
 async function onSave() {
   pending.value = true;
   try {
-    await save({ ...state });
+    const { endsLocal, ...rest } = state;
+    const votingEndsAt = endsLocal ? parisLocalToIso(endsLocal) : null;
+    if (endsLocal && !votingEndsAt) throw new ModError('failed');
+    await save({ ...rest, votingEndsAt });
     toast.add({
       title: t('admin.mods.settings.saved'),
       color: 'success',
@@ -57,6 +66,34 @@ async function onSave() {
       v-model="state.open"
       :label="t('admin.mods.settings.open')"
       :description="t('admin.mods.settings.openHelp')"
+      :ui="{
+        root: 'flex-row-reverse justify-between gap-6',
+        label: 'font-semibold text-highlighted',
+      }"
+    />
+    <USeparator />
+    <div class="flex flex-wrap items-center justify-between gap-6">
+      <div class="flex max-w-md flex-col gap-1">
+        <label for="mods-voting-ends" class="font-semibold text-highlighted">
+          {{ t('admin.mods.settings.votingEnds') }}
+        </label>
+        <span class="text-sm text-muted">{{ t('admin.mods.settings.votingEndsHelp') }}</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <UInput id="mods-voting-ends" v-model="state.endsLocal" type="datetime-local" />
+        <UButton
+          v-if="state.endsLocal"
+          color="neutral"
+          variant="ghost"
+          :label="t('admin.mods.settings.votingEndsClear')"
+          @click="state.endsLocal = ''"
+        />
+      </div>
+    </div>
+    <USwitch
+      v-model="state.showCountdown"
+      :label="t('admin.mods.settings.showCountdown')"
+      :description="t('admin.mods.settings.showCountdownHelp')"
       :ui="{
         root: 'flex-row-reverse justify-between gap-6',
         label: 'font-semibold text-highlighted',

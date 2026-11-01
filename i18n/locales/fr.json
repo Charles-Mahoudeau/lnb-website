@@ -743,6 +743,11 @@
         "title": "Réglages",
         "open": "Votes et propositions ouverts",
         "openHelp": "Fermés, la page reste visible mais personne ne peut voter ni proposer.",
+        "votingEnds": "Fin des votes",
+        "votingEndsHelp": "Les votes et les propositions se ferment d’eux-mêmes à cette date et cette heure (heure de Paris). Laissez vide pour ne pas fixer de fin. La liste reste visible.",
+        "votingEndsClear": "Effacer",
+        "showCountdown": "Afficher le compte à rebours",
+        "showCountdownHelp": "Affiche le temps restant sur la page des mods. Les votes se ferment à la date de fin dans tous les cas.",
         "maxSuggestions": "Propositions par personne",
         "maxSuggestionsHelp": "Les propositions retirées par l’équipe comptent aussi. Celles retirées par leur auteur ou ajoutées à la liste officielle libèrent une place.",
         "gameVersion": "Version de Minecraft",
@@ -2051,6 +2056,20 @@
     "loadFailed": "La liste de mods n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page.",
     "bannedNotice": "Vous êtes banni du serveur Minecraft : vous ne pouvez ni voter ni proposer de mods avant la fin du ban.",
     "cancel": "Annuler",
+    "countdown": {
+      "title": "Fin des votes dans",
+      "label": "Fin des votes dans {time}",
+      "days": "aucun jour | 1 jour | {n} jours",
+      "hours": "aucune heure | 1 heure | {n} heures",
+      "minutes": "aucune minute | 1 minute | {n} minutes",
+      "seconds": "aucune seconde | 1 seconde | {n} secondes",
+      "unit": {
+        "days": "jours",
+        "hours": "heures",
+        "minutes": "minutes",
+        "seconds": "secondes"
+      }
+    },
     "status": {
       "open": "Votes ouverts",
       "closed": "Votes fermés",

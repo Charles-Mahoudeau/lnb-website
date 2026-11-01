@@ -3,6 +3,7 @@ import type { TabsItem } from '@nuxt/ui';
 
 import { ModsReasonModal, ModsSuggestModal, WardenConfirmModal } from '#components';
 
+import { modListIsOpen } from '#shared/schemas/mods';
 import type { ModView } from '#shared/schemas/mods';
 
 // Public: anyone sees the list and the scores. Voting and suggesting need an account.
@@ -59,7 +60,23 @@ async function showSuggestions() {
 }
 
 const signedIn = computed(() => data.value?.me !== null);
-const open = computed(() => data.value?.settings.open ?? false);
+
+// Ticks once a second while an end is coming, so the countdown runs and the page closes itself
+// when it hits zero. The server checks the end on every vote, so the clock is only for show.
+const now = ref(Date.now());
+const endsAt = computed(() => data.value?.settings.votingEndsAt ?? null);
+if (import.meta.client) {
+  const timer = setInterval(() => {
+    now.value = Date.now();
+  }, 1000);
+  onScopeDispose(() => {
+    clearInterval(timer);
+  });
+}
+const open = computed(() => (data.value ? modListIsOpen(data.value.settings, now.value) : false));
+const showCountdown = computed(
+  () => open.value && !!endsAt.value && !!data.value?.settings.showCountdown,
+);
 
 /** Why the viewer can't vote or suggest, or null when they can. Signed out, they're sent to sign in. */
 const blocked = computed(() => {
@@ -192,6 +209,8 @@ async function onDismiss(id: number) {
     />
 
     <template v-else-if="data">
+      <ModsCountdown v-if="showCountdown && endsAt" :ends-at="endsAt" :now="now" />
+
       <UAlert
         v-if="data.me?.banned"
         color="warning"
