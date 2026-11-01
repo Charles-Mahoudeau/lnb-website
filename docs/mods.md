@@ -4,7 +4,9 @@ The mod list at `/minecraft/mod-list` lets members vote on the mods of the LNB M
 
 ## Rules
 
-- Anyone can see the page and the scores. Voting and suggesting need an account. A Warden ban in force blocks both, and so does closing the list in the settings.
+- Anyone can see the page and the scores. Voting and suggesting need an account. A Warden ban in force blocks both, and so does closing the list in the settings or passing its end date (see below).
+- **Voting end**: the settings can hold an end date and time (set in Paris time, stored in UTC). From then on voting and suggesting are closed, as if the list were closed by hand; the page stays visible and the scores are final. The server checks it on every vote and suggestion, so an open page can't vote after the end. Empty means no end. The switch still wins: with the list closed by hand, an end date in the future doesn't open it.
+- **Countdown**: while the list is open and an end is set, the page shows a "Voting ends in" band (raised surface, days when a day or more is left, hours, minutes, seconds; the numbers turn to the warning color under an hour). It runs on the visitor's clock and closes the page's controls at zero. A switch in the settings hides it without moving the end. Original mock (not code to port): [timer mocks](https://claude.ai/artifact/BxHeqhAR5YBWA6W5nVjJzK), proposition B, "Digit band".
 - A vote is +1 or −1, one per account and mod, and the score is their sum. Clicking your current vote clears it. Both tabs are votable. Nobody can vote on their own suggestion, even after it's promoted.
 - A mod appears once across both tabs, matched by its source and project ID. Mods added by hand have no project ID, so they aren't matched.
 - A mod must run on the server's Minecraft version and loader, from the settings, when it's added. Changing the settings doesn't check the mods already in the list again. A Fabric mod counts as running on Quilt; a Forge mod doesn't count as running on NeoForge.
@@ -41,7 +43,7 @@ Icons are downloaded once, when the mod is added (PNG, JPEG, WebP or GIF, up to 
 
 ## Data
 
-- `mod_list_settings`: one row with `open`, `max_suggestions`, `game_version` and `loader`.
+- `mod_list_settings`: one row with `open`, `voting_ends_at`, `show_countdown`, `max_suggestions`, `game_version` and `loader`.
 - `mod`: both tabs (`list` is `official` or `suggestion`), with `status` `visible` or `removed`, the source, the stored details, the proposer and reason, and the moderation fields.
 - `mod_vote`: one row per account and mod, with `value` −1 or 1. Clearing a vote deletes the row.
 
