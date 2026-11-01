@@ -29,6 +29,10 @@ export const modListSettings = pgTable(
     id: smallint('id').primaryKey().default(1),
     // Voting and suggesting. When closed, the page stays visible but read-only.
     open: boolean('open').default(true).notNull(),
+    // When voting and suggesting close by themselves. Null means no end.
+    votingEndsAt: timestamp('voting_ends_at'),
+    // Whether the page shows the time left. The end applies either way.
+    showCountdown: boolean('show_countdown').default(true).notNull(),
     maxSuggestions: smallint('max_suggestions').default(5).notNull(),
     // Mods are checked against these when they're added, not afterwards.
     gameVersion: text('game_version').default('1.21.1').notNull(),

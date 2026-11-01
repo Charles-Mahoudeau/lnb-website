@@ -15,6 +15,7 @@ import { catalogIconPath } from './rules';
 import { modSettingsService } from './settings';
 import { refuse } from './shared';
 
+import { modListIsOpen } from '#shared/schemas/mods';
 import type { ModCatalogSource, ModSearchResult } from '#shared/schemas/mods';
 
 // Search, and what people do with their own suggestions.
@@ -109,7 +110,7 @@ async function suggest(input: {
   reason: string;
 }): Promise<{ id: number }> {
   const before = await modSettingsService.get();
-  if (!before.open) refuse(409, 'closed');
+  if (!modListIsOpen(before)) refuse(409, 'closed');
   if (await wardenModerationService.activeBan(input.actorId)) refuse(403, 'banned');
   // Checked again in the transaction. This one saves a call to the source.
   if ((await suggestionsUsed(input.actorId)) >= before.maxSuggestions) refuse(409, 'limitReached');

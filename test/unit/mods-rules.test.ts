@@ -9,7 +9,13 @@ import {
   normalizeName,
   suggestionsLeft,
 } from '../../server/services/mods/rules.ts';
-import { modAddBody, modSuggestBody, modVoteBody } from '../../shared/schemas/mods.ts';
+import {
+  modAddBody,
+  modListIsOpen,
+  modSettingsPatchBody,
+  modSuggestBody,
+  modVoteBody,
+} from '../../shared/schemas/mods.ts';
 
 const server = { gameVersion: '1.21.1', loader: 'neoforge' } as const;
 
@@ -137,5 +143,34 @@ describe('changedDetails', () => {
 
   it('ignores surrounding whitespace', () => {
     expect(changedDetails(stored, { ...stored, summary: ' Fast. ' })).toEqual([]);
+  });
+});
+
+describe('modListIsOpen', () => {
+  const now = Date.parse('2026-11-16T12:00:00Z');
+
+  it('is open with no end', () => {
+    expect(modListIsOpen({ open: true, votingEndsAt: null }, now)).toBe(true);
+  });
+
+  it('is open until the end, and closed from it', () => {
+    expect(modListIsOpen({ open: true, votingEndsAt: '2026-11-16T12:00:01Z' }, now)).toBe(true);
+    expect(modListIsOpen({ open: true, votingEndsAt: '2026-11-16T12:00:00Z' }, now)).toBe(false);
+    expect(modListIsOpen({ open: true, votingEndsAt: '2026-11-15T12:00:00Z' }, now)).toBe(false);
+  });
+
+  it('stays closed when the switch is off, whatever the end says', () => {
+    expect(modListIsOpen({ open: false, votingEndsAt: null }, now)).toBe(false);
+    expect(modListIsOpen({ open: false, votingEndsAt: '2026-12-01T00:00:00Z' }, now)).toBe(false);
+  });
+});
+
+describe('modSettingsPatchBody', () => {
+  it('takes an end date, or null to clear it', () => {
+    expect(
+      modSettingsPatchBody.safeParse({ votingEndsAt: '2026-11-16T19:00:00.000Z' }).success,
+    ).toBe(true);
+    expect(modSettingsPatchBody.safeParse({ votingEndsAt: null }).success).toBe(true);
+    expect(modSettingsPatchBody.safeParse({ votingEndsAt: 'next week' }).success).toBe(false);
   });
 });

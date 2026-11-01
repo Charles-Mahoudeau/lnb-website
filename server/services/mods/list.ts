@@ -12,6 +12,7 @@ import { iconUrl, refuse } from './shared';
 import { modsWithVotes, voteCounts } from './views';
 import type { ModRow } from './views';
 
+import { modListIsOpen } from '#shared/schemas/mods';
 import type { ModListPage, ModView, ModVoteResult } from '#shared/schemas/mods';
 
 // The public page: both tabs, the viewer's votes, and voting.
@@ -96,7 +97,13 @@ async function page(viewerId: string | undefined): Promise<ModListPage> {
   }
 
   return {
-    settings: { open: settings.open, gameVersion: settings.gameVersion, loader: settings.loader },
+    settings: {
+      open: modListIsOpen(settings),
+      votingEndsAt: settings.votingEndsAt,
+      showCountdown: settings.showCountdown,
+      gameVersion: settings.gameVersion,
+      loader: settings.loader,
+    },
     official: views.filter((view) => view.list === 'official'),
     suggestions: views.filter((view) => view.list === 'suggestion'),
     me,
@@ -110,7 +117,7 @@ async function vote(input: {
   value: -1 | 0 | 1;
 }): Promise<ModVoteResult> {
   const settings = await modSettingsService.get();
-  if (!settings.open) refuse(409, 'closed');
+  if (!modListIsOpen(settings)) refuse(409, 'closed');
   if (await wardenModerationService.activeBan(input.actorId)) refuse(403, 'banned');
 
   return db.transaction(async (tx) => {

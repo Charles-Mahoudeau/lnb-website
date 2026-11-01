@@ -34,16 +34,31 @@ export const modIdParams = z.object({ id: z.coerce.number().int().positive() });
 
 export const modSettingsView = z.object({
   open: z.boolean().describe('Whether voting and suggesting are open.'),
+  votingEndsAt: isoDate
+    .nullable()
+    .describe('When voting and suggesting close by themselves. Null when there is no end.'),
+  showCountdown: z.boolean().describe('Whether the page shows the time left until the end.'),
   maxSuggestions: z.number().describe('Suggestions each person can have in the list.'),
   gameVersion: z.string().describe('The Minecraft version of the server, such as 1.21.1.'),
   loader: modLoader,
 });
 export type ModSettingsView = z.infer<typeof modSettingsView>;
 
+/** Whether voting and suggesting are open: the switch is on and the end, if any, hasn't passed. */
+export function modListIsOpen(
+  settings: Pick<ModSettingsView, 'open' | 'votingEndsAt'>,
+  now: number = Date.now(),
+): boolean {
+  if (!settings.open) return false;
+  return settings.votingEndsAt === null || Date.parse(settings.votingEndsAt) > now;
+}
+
 /** Body of PATCH /api/minecraft/admin/settings. */
 export const modSettingsPatchBody = z
   .object({
     open: z.boolean(),
+    votingEndsAt: z.iso.datetime().nullable(),
+    showCountdown: z.boolean(),
     maxSuggestions: z.number().int().min(0).max(50),
     gameVersion: z
       .string()

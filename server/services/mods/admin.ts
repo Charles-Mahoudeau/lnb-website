@@ -308,7 +308,18 @@ async function updateSettings(input: {
   await db.transaction(async (tx) => {
     await tx
       .update(modListSettings)
-      .set({ ...input.patch, updatedAt: new Date(), updatedByUserId: input.actor.userId })
+      .set({
+        ...input.patch,
+        // The patch carries the end as an ISO string, the column wants a date.
+        votingEndsAt:
+          input.patch.votingEndsAt === undefined
+            ? undefined
+            : input.patch.votingEndsAt === null
+              ? null
+              : new Date(input.patch.votingEndsAt),
+        updatedAt: new Date(),
+        updatedByUserId: input.actor.userId,
+      })
       .where(eq(modListSettings.id, 1));
     await wardenAuditService.record(tx, {
       action: 'modSettings.update',
