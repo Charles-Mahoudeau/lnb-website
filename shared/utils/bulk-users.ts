@@ -1,4 +1,4 @@
-import { EVENTS_MANAGER_ROLE, hasRole, isAdmin, WARDEN_ADMIN_ROLE } from './roles.ts';
+import { hasRole, isAdmin } from './roles.ts';
 import type { AdminBulkBody, AdminProblem } from '../schemas/admin.ts';
 
 // The rules of a bulk action on accounts (POST /api/admin/users/bulk): who it applies to and who
@@ -32,8 +32,10 @@ export function bulkProblem(
       if (target.id === actorId) return 'self';
       return isAdmin(target.role) ? 'targetIsAdmin' : null;
     case 'roles': {
-      const name = body.roles?.role === 'warden-admin' ? WARDEN_ADMIN_ROLE : EVENTS_MANAGER_ROLE;
-      return hasRole(target.role, name) === (body.roles?.mode === 'add') ? 'unchanged' : null;
+      // The role names in the body are the stored ones.
+      return hasRole(target.role, body.roles?.role ?? '') === (body.roles?.mode === 'add')
+        ? 'unchanged'
+        : null;
     }
   }
 }

@@ -4,6 +4,7 @@ import {
   canOpenAdmin,
   hasRole,
   isAdmin,
+  isEconomyAdmin,
   isEventsManager,
   isWardenAdmin,
   parseRoles,
@@ -32,6 +33,14 @@ describe('roles', () => {
     expect(canOpenAdmin('events-manager')).toBe(true);
     expect(canOpenAdmin('warden-admin')).toBe(true);
     expect(canOpenAdmin(null)).toBe(false);
+  });
+
+  it('makes site admins economy admins, and keeps the role apart', () => {
+    expect(isEconomyAdmin('admin')).toBe(true);
+    expect(isEconomyAdmin('economy-admin')).toBe(true);
+    expect(isEconomyAdmin('warden-admin')).toBe(false);
+    expect(isWardenAdmin('economy-admin')).toBe(false);
+    expect(canOpenAdmin('economy-admin')).toBe(true);
   });
 
   it('adds and removes a role', () => {

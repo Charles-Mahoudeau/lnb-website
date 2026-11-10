@@ -522,7 +522,8 @@
     "roles": {
       "admin": "Admin",
       "wardenAdmin": "Admin Warden",
-      "eventsManager": "Gestion des événements"
+      "eventsManager": "Gestion des événements",
+      "economyAdmin": "Gestion de l’économie"
     },
     "users": {
       "search": "Rechercher par nom ou e-mail",
@@ -655,7 +656,8 @@
       "self": "Vous ne pouvez pas retirer votre propre rôle admin. Demandez à un autre admin.",
       "wardenAdminHint": "La section Warden et la modération en jeu, rien d’autre.",
       "save": "Enregistrer les rôles",
-      "eventsManagerHint": "Les événements, salles, types et inscriptions, rien d’autre."
+      "eventsManagerHint": "Les événements, salles, types et inscriptions, rien d’autre.",
+      "economyAdminHint": "La section Économie : comptes, grand livre, ajustements et réglages, rien d’autre."
     },
     "errors": {
       "failed": "Ça n’a pas marché. Vérifiez votre connexion, puis réessayez.",

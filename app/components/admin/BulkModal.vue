@@ -216,6 +216,15 @@ const count = computed(() => preview.value?.total ?? props.people.length);
               :label="t('admin.roles.eventsManager')"
               @click="role = 'events-manager'"
             />
+            <UButton
+              type="button"
+              size="md"
+              color="neutral"
+              :variant="role === 'economy-admin' ? 'soft' : 'outline'"
+              :aria-pressed="role === 'economy-admin'"
+              :label="t('admin.roles.economyAdmin')"
+              @click="role = 'economy-admin'"
+            />
           </div>
         </template>
 

@@ -7,6 +7,8 @@ export const ADMIN_ROLE = 'admin';
 export const WARDEN_ADMIN_ROLE = 'warden-admin';
 /** Event organizers: events, rooms, types and registrations in the admin area, nothing else. */
 export const EVENTS_MANAGER_ROLE = 'events-manager';
+/** Economy staff: the Economy section of the admin area (see docs/economy.md), nothing else. */
+export const ECONOMY_ADMIN_ROLE = 'economy-admin';
 
 export function parseRoles(role: string | null | undefined): string[] {
   return (role ?? '')
@@ -33,9 +35,14 @@ export function isEventsManager(role: string | null | undefined): boolean {
   return isAdmin(role) || hasRole(role, EVENTS_MANAGER_ROLE);
 }
 
+/** Site admins are economy admins too. */
+export function isEconomyAdmin(role: string | null | undefined): boolean {
+  return isAdmin(role) || hasRole(role, ECONOMY_ADMIN_ROLE);
+}
+
 /** Whether the account can open some part of the admin area. */
 export function canOpenAdmin(role: string | null | undefined): boolean {
-  return isWardenAdmin(role) || isEventsManager(role);
+  return isWardenAdmin(role) || isEventsManager(role) || isEconomyAdmin(role);
 }
 
 /** The role list with `name` added or removed, or null for a plain user. */

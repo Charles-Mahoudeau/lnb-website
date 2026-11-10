@@ -417,7 +417,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.admin,
     summary: 'Act on many accounts',
     description:
-      "Signs out, bans, unbans, deletes or changes the Warden-admin or events-manager role of many accounts, picked by ID or by the Users list's filters. The rules of the single-account routes apply to each account, and one that can't take the action is skipped, not failed: admins and the caller for `ban` and `delete`, accounts not banned for `unban`, accounts that already have the role (or lack it) for `roles`. Every change is logged as for a single account. With `dryRun`, nothing changes and the result says who the action would apply to.",
+      "Signs out, bans, unbans, deletes or changes the Warden-admin, events-manager or economy-admin role of many accounts, picked by ID or by the Users list's filters. The rules of the single-account routes apply to each account, and one that can't take the action is skipped, not failed: admins and the caller for `ban` and `delete`, accounts not banned for `unban`, accounts that already have the role (or lack it) for `roles`. Every change is logged as for a single account. With `dryRun`, nothing changes and the result says who the action would apply to.",
     access: 'admin',
     body: admin.adminBulkBody,
     response: admin.adminBulkResult,
@@ -429,7 +429,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.admin,
     summary: "Set an account's roles",
     description:
-      "Sets `admin`, `warden-admin` and `events-manager` together. Admins can't remove their own admin role.",
+      "Sets `admin`, `warden-admin`, `events-manager` and `economy-admin` together. Admins can't remove their own admin role.",
     access: 'admin',
     params: admin.adminUserParams,
     body: admin.adminRolesBody,

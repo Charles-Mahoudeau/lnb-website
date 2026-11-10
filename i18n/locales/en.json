@@ -518,7 +518,8 @@
     "roles": {
       "admin": "Admin",
       "wardenAdmin": "Warden admin",
-      "eventsManager": "Events manager"
+      "eventsManager": "Events manager",
+      "economyAdmin": "Economy admin"
     },
     "users": {
       "search": "Search by name or email",
@@ -651,7 +652,8 @@
       "self": "You can’t remove your own admin role. Ask another admin.",
       "wardenAdminHint": "The Warden section and in-game moderation, nothing else.",
       "save": "Save roles",
-      "eventsManagerHint": "Events, rooms, types and registrations, nothing else."
+      "eventsManagerHint": "Events, rooms, types and registrations, nothing else.",
+      "economyAdminHint": "The Economy section: accounts, the ledger, adjustments and settings, nothing else."
     },
     "errors": {
       "failed": "That didn’t work. Check your connection, then try again.",
