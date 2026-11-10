@@ -4,6 +4,7 @@ import type { ApiKeyPermission } from '../../shared/api-keys.ts';
 import * as admin from '../../shared/schemas/admin.ts';
 import * as apiKeys from '../../shared/schemas/api-keys.ts';
 import { avatarParams } from '../../shared/schemas/avatars.ts';
+import * as economy from '../../shared/schemas/economy.ts';
 import * as events from '../../shared/schemas/events.ts';
 import * as flags from '../../shared/schemas/flags.ts';
 import { linkApproveBody, linkApproveResult, linkDenyBody } from '../../shared/schemas/link.ts';
@@ -25,7 +26,14 @@ type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
 
 /** Who may call a route. */
 type Access =
-  'public' | 'user' | 'wardenAdmin' | 'eventsManager' | 'admin' | 'wardenServer' | 'wardenClient';
+  | 'public'
+  | 'user'
+  | 'wardenAdmin'
+  | 'eventsManager'
+  | 'economyAdmin'
+  | 'admin'
+  | 'wardenServer'
+  | 'wardenClient';
 
 interface Problem {
   status: number;
@@ -69,6 +77,13 @@ const requestSchemas = {
   RateLimitModeBody: rateLimit.rateLimitModeBody,
   LinkApproveBody: linkApproveBody,
   LinkDenyBody: linkDenyBody,
+  EconomyCreateBody: economy.economyCreateBody,
+  EconomyMePatchBody: economy.economyMePatchBody,
+  EconomyInviteBody: economy.economyInviteBody,
+  EconomyTransferBody: economy.economyTransferBody,
+  EconomyAdjustBody: economy.economyAdjustBody,
+  EconomyFreezeBody: economy.economyFreezeBody,
+  EconomySettingsBody: economy.economySettingsBody,
   WardenIssuer: warden.wardenIssuer,
   WardenClientLinkRequestBody: warden.wardenClientLinkRequestBody,
   WardenClientPollBody: warden.wardenClientPollBody,
@@ -129,6 +144,20 @@ const requestSchemas = {
 };
 
 const responseSchemas = {
+  EconomyAccountView: economy.economyAccountView,
+  EconomyMe: economy.economyMe,
+  EconomyAccountDetail: economy.economyAccountDetail,
+  EconomyTransactionPage: economy.economyTransactionPage,
+  EconomyBaltop: economy.economyBaltop,
+  EconomyServerPlayer: economy.economyServerPlayer,
+  EconomyServerAccount: economy.economyServerAccount,
+  EconomyTransferResult: economy.economyTransferResult,
+  EconomyStats: economy.economyStats,
+  EconomyAdminAccountPage: economy.economyAdminAccountPage,
+  EconomyAdminAccountDetail: economy.economyAdminAccountDetail,
+  EconomyLedgerPage: economy.economyLedgerPage,
+  EconomySettingsView: economy.economySettingsView,
+  EconomyExport: economy.economyExport,
   AdminOverview: admin.adminOverview,
   AdminAuditView: admin.adminAuditView,
   AdminUserRow: admin.adminUserRow,
@@ -232,6 +261,9 @@ const TAGS = {
   admin: 'Admin',
   flags: 'Feature flags',
   wardenServer: 'Warden: Minecraft server',
+  economy: 'Economy: players',
+  economyServer: 'Economy: Minecraft server',
+  economyAdmin: 'Economy: admins',
   wardenClient: 'Warden: clients',
   wardenPlayer: 'Warden: players',
   wardenAdmin: 'Warden: admins',
@@ -2364,6 +2396,419 @@ const routes: RouteDoc[] = [
     noContent: true,
     problems: [{ status: 404, problems: ['apiKeyNotFound'] }],
   },
+  // ---- Economy (docs/economy.md) ----
+  {
+    method: 'get',
+    path: '/api/economy/server/players/{uuid}',
+    tag: TAGS.economyServer,
+    summary: "A player's accounts",
+    description:
+      'For the balance in the inventory and "My accounts": the personal account first (opened on first need, with the starting balance), then the shared accounts the player is in, and the account that pays by default.',
+    access: 'wardenServer',
+    params: economy.economyUuidParams,
+    response: economy.economyServerPlayer,
+    problems: [
+      { status: 403, problems: ['notEligible'] },
+      { status: 404, problems: ['notLinked'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'put',
+    path: '/api/economy/server/players/{uuid}/default-account',
+    tag: TAGS.economyServer,
+    summary: 'Pick the account that pays',
+    description:
+      'The account used when the player names none (`/pay`, shops). It must be one the player can spend from. `null` goes back to the personal account.',
+    access: 'wardenServer',
+    params: economy.economyUuidParams,
+    body: economy.economyServerDefaultBody,
+    response: economy.economyServerPlayer,
+    problems: [
+      { status: 404, problems: ['notLinked', 'notFound'] },
+      { status: 409, problems: ['notAllowed'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/economy/server/accounts/{handle}',
+    tag: TAGS.economyServer,
+    summary: 'A shared account',
+    description: 'For `/pay #handle` and casino machines. A leading `#` is accepted.',
+    access: 'wardenServer',
+    params: economy.economyHandleParams,
+    response: economy.economyServerAccount,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/economy/server/transfers',
+    tag: TAGS.economyServer,
+    summary: 'Move money',
+    description:
+      'A `/pay`, a bet or a casino payout, in one call. The paying player must be able to spend from the account (owner or member), and no side may be frozen or banned. Each call carries an `idempotencyKey`: sending it again returns the first result with `replayed: true`, and sending it with a different request is a 409 `idempotencyMismatch`.',
+    access: 'wardenServer',
+    body: economy.economyTransferBody,
+    response: economy.economyTransferResult,
+    problems: [
+      { status: 403, problems: ['notEligible', 'notAllowed'] },
+      { status: 404, problems: ['notLinked', 'notFound'] },
+      {
+        status: 409,
+        problems: ['insufficientFunds', 'frozen', 'closed', 'sameAccount', 'idempotencyMismatch'],
+      },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/economy/me',
+    tag: TAGS.economy,
+    summary: 'My bank',
+    description:
+      "The signed-in player's accounts, invitations and preferences. Opens the personal account on first visit when the player is eligible.",
+    access: 'user',
+    response: economy.economyMe,
+    problems: [{ status: 503, problems: ['disabled'] }],
+  },
+  {
+    method: 'patch',
+    path: '/api/economy/me',
+    tag: TAGS.economy,
+    summary: 'Change my bank preferences',
+    description: 'The account that pays by default, and leaving or joining the baltop.',
+    access: 'user',
+    body: economy.economyMePatchBody,
+    response: economy.economyMe,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['notAllowed'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/economy/baltop',
+    tag: TAGS.economy,
+    summary: 'The baltop',
+    description:
+      'The 50 richest players (first name and initial, or only the username when hidden) and the 20 richest shared accounts. Players who left the ranking are not in it.',
+    access: 'user',
+    response: economy.economyBaltop,
+    problems: [{ status: 503, problems: ['disabled'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/economy/accounts',
+    tag: TAGS.economy,
+    summary: 'Open a shared account',
+    description:
+      'The caller becomes its owner. Handles are unique, kept after closing, and some are reserved (`server`, `lnb`, `admin`, `staff`, `bank`, `system`).',
+    access: 'user',
+    body: economy.economyCreateBody,
+    response: economy.economyAccountDetail,
+    created: true,
+    problems: [
+      { status: 403, problems: ['notEligible'] },
+      { status: 409, problems: ['handleTaken', 'tooManyAccounts'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/economy/accounts/{accountId}',
+    tag: TAGS.economy,
+    summary: 'An account',
+    description: 'For its members. Owners also see the invitations waiting for an answer.',
+    access: 'user',
+    params: economy.economyAccountParams,
+    response: economy.economyAccountDetail,
+    problems: [{ status: 503, problems: ['disabled'] }],
+  },
+  {
+    method: 'patch',
+    path: '/api/economy/accounts/{accountId}',
+    tag: TAGS.economy,
+    summary: 'Rename a shared account',
+    description: 'Owners only. The handle never changes.',
+    access: 'user',
+    params: economy.economyAccountParams,
+    body: economy.economyRenameBody,
+    response: economy.economyAccountDetail,
+    problems: [
+      { status: 403, problems: ['notAllowed'] },
+      { status: 409, problems: ['personalAccount'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'delete',
+    path: '/api/economy/accounts/{accountId}',
+    tag: TAGS.economy,
+    summary: 'Close a shared account',
+    description: 'Owners only, once its balance is 0. Its handle stays taken.',
+    access: 'user',
+    params: economy.economyAccountParams,
+    noContent: true,
+    problems: [
+      { status: 403, problems: ['notAllowed'] },
+      { status: 409, problems: ['balanceNotZero', 'personalAccount'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/economy/accounts/{accountId}/transactions',
+    tag: TAGS.economy,
+    summary: "An account's history",
+    description: 'Newest first, 50 per page. Every member can read it, viewers included.',
+    access: 'user',
+    params: economy.economyAccountParams,
+    query: economy.economyCursorQuery,
+    response: economy.economyTransactionPage,
+    problems: [
+      { status: 400, problems: ['invalidCursor'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/economy/accounts/{accountId}/invitations',
+    tag: TAGS.economy,
+    summary: 'Invite a player',
+    description:
+      'Owners only, by a linked Minecraft username. The player joins once they accept on the site. Members and pending invitations count against the limit.',
+    access: 'user',
+    params: economy.economyAccountParams,
+    body: economy.economyInviteBody,
+    response: economy.economyAccountDetail,
+    problems: [
+      { status: 403, problems: ['notAllowed'] },
+      { status: 404, problems: ['playerNotFound'] },
+      {
+        status: 409,
+        problems: [
+          'notEligible',
+          'alreadyMember',
+          'alreadyInvited',
+          'tooManyMembers',
+          'personalAccount',
+        ],
+      },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'delete',
+    path: '/api/economy/accounts/{accountId}/invitations/{invitationId}',
+    tag: TAGS.economy,
+    summary: 'Cancel an invitation',
+    access: 'user',
+    params: economy.economyAccountInvitationParams,
+    response: economy.economyAccountDetail,
+    problems: [
+      { status: 403, problems: ['notAllowed'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'patch',
+    path: '/api/economy/accounts/{accountId}/members/{userId}',
+    tag: TAGS.economy,
+    summary: "Change a member's role",
+    description: 'Owners only. An account always keeps at least one owner.',
+    access: 'user',
+    params: economy.economyMemberParams,
+    body: economy.economyMemberRoleBody,
+    response: economy.economyAccountDetail,
+    problems: [
+      { status: 403, problems: ['notAllowed'] },
+      { status: 409, problems: ['lastOwner'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'delete',
+    path: '/api/economy/accounts/{accountId}/members/{userId}',
+    tag: TAGS.economy,
+    summary: 'Remove a member, or leave',
+    description:
+      'Owners remove anyone; a member removes themselves to leave. The last owner can’t go.',
+    access: 'user',
+    params: economy.economyMemberParams,
+    noContent: true,
+    problems: [
+      { status: 403, problems: ['notAllowed'] },
+      { status: 409, problems: ['lastOwner', 'personalAccount'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/economy/invitations/{invitationId}/accept',
+    tag: TAGS.economy,
+    summary: 'Accept an invitation',
+    access: 'user',
+    params: economy.economyInvitationParams,
+    response: economy.economyMe,
+    problems: [
+      { status: 403, problems: ['notEligible'] },
+      { status: 409, problems: ['tooManyMembers'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/economy/invitations/{invitationId}/decline',
+    tag: TAGS.economy,
+    summary: 'Decline an invitation',
+    access: 'user',
+    params: economy.economyInvitationParams,
+    response: economy.economyMe,
+    problems: [{ status: 503, problems: ['disabled'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/economy/admin/stats',
+    tag: TAGS.economyAdmin,
+    summary: 'Economy stats',
+    description:
+      'Money in circulation, created and destroyed per day, volume by kind, the distribution of wealth and the largest shared accounts. Closed days come from the nightly snapshot.',
+    access: 'economyAdmin',
+    query: economy.economyStatsQuery,
+    response: economy.economyStats,
+  },
+  {
+    method: 'get',
+    path: '/api/economy/admin/accounts',
+    tag: TAGS.economyAdmin,
+    summary: 'Accounts',
+    description: 'Every account, closed ones included, richest first, 50 per page.',
+    access: 'economyAdmin',
+    query: economy.economyAdminAccountsQuery,
+    response: economy.economyAdminAccountPage,
+    problems: [{ status: 400, problems: ['invalidCursor'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/economy/admin/accounts/{accountId}',
+    tag: TAGS.economyAdmin,
+    summary: 'An account',
+    access: 'economyAdmin',
+    params: economy.economyAccountParams,
+    response: economy.economyAdminAccountDetail,
+  },
+  {
+    method: 'get',
+    path: '/api/economy/admin/accounts/{accountId}/transactions',
+    tag: TAGS.economyAdmin,
+    summary: "An account's history",
+    access: 'economyAdmin',
+    params: economy.economyAccountParams,
+    query: economy.economyCursorQuery,
+    response: economy.economyTransactionPage,
+    problems: [{ status: 400, problems: ['invalidCursor'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/economy/admin/accounts/{accountId}/adjustments',
+    tag: TAGS.economyAdmin,
+    summary: 'Mint or burn',
+    description:
+      "Creates money on the account, or destroys some. Works on frozen accounts. The reason shows in the account's history as an adjustment from LNB, and in the audit log.",
+    access: 'economyAdmin',
+    params: economy.economyAccountParams,
+    body: economy.economyAdjustBody,
+    response: economy.economyAdminAccountDetail,
+    problems: [{ status: 409, problems: ['insufficientFunds', 'closed'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/economy/admin/accounts/{accountId}/freeze',
+    tag: TAGS.economyAdmin,
+    summary: 'Freeze or unfreeze',
+    description:
+      'A frozen account takes and gives nothing, except admin adjustments and reversals. A reason is required to freeze.',
+    access: 'economyAdmin',
+    params: economy.economyAccountParams,
+    body: economy.economyFreezeBody,
+    response: economy.economyAdminAccountDetail,
+    problems: [{ status: 409, problems: ['closed'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/economy/admin/transactions',
+    tag: TAGS.economyAdmin,
+    summary: 'The ledger',
+    description: 'Every transaction, newest first, 50 per page.',
+    access: 'economyAdmin',
+    query: economy.economyLedgerQuery,
+    response: economy.economyLedgerPage,
+    problems: [{ status: 400, problems: ['invalidCursor'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/economy/admin/transactions/{transactionId}/reverse',
+    tag: TAGS.economyAdmin,
+    summary: 'Reverse a transaction',
+    description:
+      'Writes a new transaction with the opposite lines. Each transaction can be reversed once, and a reversal can’t be reversed. Refused when an account no longer holds the money.',
+    access: 'economyAdmin',
+    params: economy.economyTransactionParams,
+    body: economy.economyReverseBody,
+    response: z.object({ reversalId: z.number() }),
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      {
+        status: 409,
+        problems: ['alreadyReversed', 'notReversible', 'insufficientFunds', 'closed'],
+      },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/economy/admin/settings',
+    tag: TAGS.economyAdmin,
+    summary: 'Economy settings',
+    access: 'economyAdmin',
+    response: economy.economySettingsView,
+  },
+  {
+    method: 'patch',
+    path: '/api/economy/admin/settings',
+    tag: TAGS.economyAdmin,
+    summary: 'Change the economy settings',
+    description:
+      'The starting balance (minted on each new personal account), how many shared accounts a player can own, and how many members one can have.',
+    access: 'economyAdmin',
+    body: economy.economySettingsBody,
+    response: economy.economySettingsView,
+  },
+  {
+    method: 'get',
+    path: '/api/economy/admin/export',
+    tag: TAGS.economyAdmin,
+    summary: 'Export the economy',
+    description: 'Every open account with its balance and members, to keep before a reset.',
+    access: 'admin',
+    response: economy.economyExport,
+  },
+  {
+    method: 'post',
+    path: '/api/economy/admin/reset',
+    tag: TAGS.economyAdmin,
+    summary: 'Reset the economy',
+    description:
+      'Deletes every account, the whole ledger and the daily stats. The settings stay. `confirm` must be the exact sentence.',
+    access: 'admin',
+    body: economy.economyResetBody,
+    noContent: true,
+    problems: [{ status: 400, problems: ['confirmMismatch'] }],
+  },
 ];
 
 const ACCESS: Record<Access, { security?: OpenApiObject[]; note?: string; errors: Problem[] }> = {
@@ -2383,6 +2828,14 @@ const ACCESS: Record<Access, { security?: OpenApiObject[]; note?: string; errors
   eventsManager: {
     security: [{ session: [] }],
     note: 'Events managers and site admins only.',
+    errors: [
+      { status: 401, problems: [] },
+      { status: 403, problems: [] },
+    ],
+  },
+  economyAdmin: {
+    security: [{ session: [] }],
+    note: 'Economy admins and site admins only.',
     errors: [
       { status: 401, problems: [] },
       { status: 403, problems: [] },
@@ -2682,6 +3135,20 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       { name: TAGS.admin, description: 'The admin area at `/admin`. Site admins only.' },
       { name: TAGS.wardenServer, description: 'Called by the LNB Minecraft server only.' },
       {
+        name: TAGS.economyServer,
+        description:
+          'Called by the LNB Minecraft server only, with `WARDEN_SERVER_SECRET`. Every money move goes through one call. See `docs/economy.md`.',
+      },
+      {
+        name: TAGS.economy,
+        description:
+          'The bank pages, `/minecraft/bank` and `/minecraft/baltop`, for signed-in players.',
+      },
+      {
+        name: TAGS.economyAdmin,
+        description: 'The Economy section of the admin area, `/admin/economy`.',
+      },
+      {
         name: TAGS.wardenClient,
         description:
           'Called by the LNB Warden mod, on a player’s computer. The link requests need no token, the rest need the device’s.',
@@ -2730,6 +3197,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
         tags: [TAGS.wardenServer, TAGS.wardenClient, TAGS.wardenPlayer, TAGS.wardenAdmin],
       },
       { name: 'Minecraft', tags: [TAGS.mods, TAGS.modsAdmin] },
+      { name: 'Economy', tags: [TAGS.economyServer, TAGS.economy, TAGS.economyAdmin] },
       { name: 'Push', tags: [TAGS.push, TAGS.pushAdmin] },
     ],
     paths,

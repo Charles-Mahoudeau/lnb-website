@@ -162,6 +162,13 @@
       "when": 1793545456495,
       "tag": "0022_mod-voting-end",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1794318971307,
+      "tag": "0023_economy",
+      "breakpoints": true
     }
   ]
 }

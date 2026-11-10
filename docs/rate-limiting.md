@@ -2,17 +2,18 @@
 
 One middleware, `server/middleware/rate-limit.ts`, limits `/api/**` and `/go/**` with [`rate-limiter-flexible`](https://github.com/animir/node-rate-limiter-flexible). The table of limits is `rulesFor` in `server/lib/rate-limit-rules.ts`; change numbers there.
 
-| Rule                  | Applies to                                                                        | Limit       | Per     |
-| --------------------- | --------------------------------------------------------------------------------- | ----------- | ------- |
-| `api`                 | every `/api` route except `/api/auth/*`, `/api/health` and `/api/warden/server/*` | 3000 / min  | IP      |
-| `go`                  | `/go/<id>`                                                                        | 240 / min   | IP      |
-| `warden-server`       | `/api/warden/server/*` (the Minecraft server)                                     | 1200 / min  | IP      |
-| `warden-client`       | `/api/warden/client/*` (the Warden mod)                                           | 600 / min   | IP      |
-| `warden-link-request` | `POST /api/warden/client/link-requests`                                           | 30 / 10 min | IP      |
-| `write`               | other POST, PUT, PATCH and DELETE                                                 | 60 / min    | account |
-| `write-admin`         | writes under `/api/admin`, `/api/minecraft/admin`, `/api/warden/admin`            | 240 / min   | account |
-| `write-heavy`         | uploads and imports, event announce and push impact, BDE sync, bulk user actions  | 20 / min    | account |
-| `write-sensitive`     | `/api/link/approve`, and any route ending in `/token`                             | 10 / min    | account |
+| Rule                  | Applies to                                                                                                 | Limit       | Per     |
+| --------------------- | ---------------------------------------------------------------------------------------------------------- | ----------- | ------- |
+| `api`                 | every `/api` route except `/api/auth/*`, `/api/health`, `/api/warden/server/*` and `/api/economy/server/*` | 3000 / min  | IP      |
+| `go`                  | `/go/<id>`                                                                                                 | 240 / min   | IP      |
+| `warden-server`       | `/api/warden/server/*` (the Minecraft server)                                                              | 1200 / min  | IP      |
+| `economy-server`      | `/api/economy/server/*` (the Minecraft server: balances, payments, bets)                                   | 3000 / min  | IP      |
+| `warden-client`       | `/api/warden/client/*` (the Warden mod)                                                                    | 600 / min   | IP      |
+| `warden-link-request` | `POST /api/warden/client/link-requests`                                                                    | 30 / 10 min | IP      |
+| `write`               | other POST, PUT, PATCH and DELETE                                                                          | 60 / min    | account |
+| `write-admin`         | writes under `/api/admin`, `/api/minecraft/admin`, `/api/warden/admin`, `/api/economy/admin`               | 240 / min   | account |
+| `write-heavy`         | uploads and imports, event announce and push impact, BDE sync, bulk user actions                           | 20 / min    | account |
+| `write-sensitive`     | `/api/link/approve`, and any route ending in `/token`                                                      | 10 / min    | account |
 
 ## Modes
 

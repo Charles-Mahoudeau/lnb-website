@@ -728,7 +728,14 @@
         "poster_delete": "{actor} deleted the poster {name}.",
         "apiKey_create": "{actor} created the API key {name}.",
         "apiKey_rotate": "{actor} rotated the API key {name}.",
-        "apiKey_revoke": "{actor} revoked the API key {name}."
+        "apiKey_revoke": "{actor} revoked the API key {name}.",
+        "economy_mint": "{actor} minted {amount} LNBits on {name}.",
+        "economy_burn": "{actor} burned {amount} LNBits from {name}.",
+        "economy_freeze": "{actor} froze the bank account {name}.",
+        "economy_unfreeze": "{actor} unfroze the bank account {name}.",
+        "economy_reverse": "{actor} reversed a transaction on {name}.",
+        "economy_settings": "{actor} changed the economy settings.",
+        "economy_reset": "{actor} reset the economy."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page.",
       "apiKeysSoon": "1 API key expires within 30 days | {n} API keys expire within 30 days",
@@ -1076,6 +1083,30 @@
         "jobs_pruneApiKeys": {
           "label": "Prune API keys",
           "description": "The removal of API keys that stopped working 90 days ago, and of old call counts."
+        },
+        "economy": {
+          "label": "Economy",
+          "description": "The bank pages, the baltop and every money move from the Minecraft server. Balances stay as they are. Admins can still manage accounts."
+        },
+        "economy_transfers": {
+          "label": "Transfers",
+          "description": "Payments, bets and payouts from the Minecraft server. Balances can still be read."
+        },
+        "economy_sharedAccounts": {
+          "label": "Shared accounts",
+          "description": "Opening shared accounts, inviting players and changing members. Existing accounts keep working."
+        },
+        "economy_baltop": {
+          "label": "Baltop",
+          "description": "The public ranking of the richest players and shared accounts."
+        },
+        "economy_serverApi": {
+          "label": "Minecraft server API",
+          "description": "Every economy call from the Minecraft server answers 503."
+        },
+        "jobs_economySnapshot": {
+          "label": "Economy stats",
+          "description": "The nightly save of the economy charts, and closing the bank accounts of deleted players."
         }
       }
     },
