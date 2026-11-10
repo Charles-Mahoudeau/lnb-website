@@ -145,6 +145,15 @@ Original mock (not code to port): [push notifications mock](https://claude.ai/ar
 - **Per-event reminders** are toggle chips (selected: dusk tint with a dusk border), 1 hour before pre-selected.
 - **Admin Push** reuses the admin patterns: three count tiles, the warning note when someone is over the limit, a by-type breakdown, a subscriber table (admins only) and a settings card: the weekly limit, the silence after "Not now", and the quiet hours (a switch, with a from and an until hour). Events-managers see the counts only.
 
+## Economy
+
+Original mocks (not code to port): [LNB economy mockups](https://claude.ai/artifact/NknF9Rx19oytWgpWoZYiuw): Bank proposal B, Baltop proposal B, Admin proposal A. See `docs/economy.md`.
+
+- **Amounts are text, never color.** Money in shows in the highlight color with a `+`, money out in muted text with a real minus sign (`−`). No green or red: red is for actions, and status colors are for state. Balances use the display font and tabular numbers.
+- **Bank** (`/minecraft/bank`): the accounts are a list on a raised surface beside the page; the chosen one takes the second accent, like a selected tab. The panel on the right shows the balance large, "Pays by default" as a switch, then pill tabs (History, Members, Settings). History is grouped by day, rows separated by dividers. "New shared account" is an outline button, and the solid red one is reserved for sending an invitation or opening the account in its dialog.
+- **Baltop** (`/minecraft/baltop`): the top three in a raised band with 56 px skin heads, then players and shared accounts side by side as ranked rows with 28 px heads. Your own row takes the faint second-accent tint. No medals, crowns or gold.
+- **Admin overview**: four count tiles, then the charts on raised sections. Charts use the text tokens only, like the short links chart: money created in the highlight color above a baseline, destroyed in the dimmed one below it, on one scale. Breakdowns are rows with neutral progress bars. Mint and burn are neutral soft buttons, Freeze the outline destructive one, and the only solid red is the confirmation inside the dialog.
+
 ## Motion
 
 - Motion answers user actions only: opening, expanding, confirming. Use Nuxt UI's built-in transitions.
