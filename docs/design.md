@@ -147,7 +147,7 @@ Original mock (not code to port): [push notifications mock](https://claude.ai/ar
 
 ## Economy
 
-Original mocks (not code to port): [LNB economy mockups](https://claude.ai/artifact/NknF9Rx19oytWgpWoZYiuw): Bank proposal B, Baltop proposal B, Admin proposal A. See `docs/economy.md`.
+The bank, the baltop and the Economy section of the admin area. See `docs/economy.md`.
 
 - **Amounts are text, never color.** Money in shows in the highlight color with a `+`, money out in muted text with a real minus sign (`−`). No green or red: red is for actions, and status colors are for state. Balances use the display font and tabular numbers.
 - **Bank** (`/minecraft/bank`): the accounts are a list on a raised surface beside the page; the chosen one takes the second accent, like a selected tab. The panel on the right shows the balance large, "Pays by default" as a switch, then pill tabs (History, Members, Settings). History is grouped by day, rows separated by dividers. "New shared account" is an outline button, and the solid red one is reserved for sending an invitation or opening the account in its dialog.
