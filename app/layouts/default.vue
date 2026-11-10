@@ -48,6 +48,28 @@ const navItems = computed<NavigationMenuItem[]>(() => {
           },
         ]
       : []),
+    // The bank needs a linked Minecraft account, so it follows Warden. The baltop is for anyone
+    // signed in.
+    ...(canUseWarden.value && isEnabled('economy')
+      ? [
+          {
+            label: t('economy.bank.title'),
+            description: t('nav.bankDescription'),
+            icon: 'i-lucide-landmark',
+            to: '/minecraft/bank',
+          },
+        ]
+      : []),
+    ...(user.value && isEnabled('economy.baltop')
+      ? [
+          {
+            label: t('economy.baltop.title'),
+            description: t('nav.baltopDescription'),
+            icon: 'i-lucide-trophy',
+            to: '/minecraft/baltop',
+          },
+        ]
+      : []),
   ];
   const about: NavigationMenuItem[] = [
     ...(isEnabled('team')

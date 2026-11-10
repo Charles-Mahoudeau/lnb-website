@@ -24,7 +24,9 @@
     "partners": "Partners",
     "about": "About",
     "teamDescription": "The people who run LNB",
-    "partnersDescription": "Sponsors, game partners and prize partners"
+    "partnersDescription": "Sponsors, game partners and prize partners",
+    "bankDescription": "Your LNBits and shared accounts",
+    "baltopDescription": "The richest players on the server"
   },
   "home": {
     "intro": {
@@ -2350,6 +2352,189 @@
     "print": {
       "qrLabel": "Sign up here",
       "qrPlaceholder": "QR code once saved"
+    }
+  },
+  "economy": {
+    "currency": "LNBits",
+    "cancel": "Cancel",
+    "loadFailed": "The bank couldn’t be loaded. Check your connection, then reload the page.",
+    "errors": {
+      "notFound": "That account no longer exists, or you’re not in it.",
+      "notEligible": "Link a Minecraft account through Warden first.",
+      "notLinked": "That Minecraft account isn’t linked to anyone.",
+      "playerNotFound": "No one has linked that Minecraft username. Check its exact spelling, capitals included.",
+      "insufficientFunds": "There isn’t enough money on the account.",
+      "frozen": "That account is frozen: no money goes in or out.",
+      "closed": "That account is closed.",
+      "notAllowed": "You can’t do that on this account.",
+      "sameAccount": "Pick two different accounts.",
+      "handleTaken": "That handle is taken. Pick another one.",
+      "tooManyAccounts": "You own as many shared accounts as you can. Close one first.",
+      "tooManyMembers": "The account is full. Remove a member or cancel an invitation first.",
+      "alreadyMember": "That player is already in the account.",
+      "alreadyInvited": "That player already has an invitation waiting.",
+      "lastOwner": "An account needs at least one owner. Make someone else owner first.",
+      "balanceNotZero": "Empty the account before closing it.",
+      "personalAccount": "Personal accounts can’t do that.",
+      "alreadyReversed": "That transaction was already reversed.",
+      "notReversible": "A reversal can’t be reversed.",
+      "idempotencyMismatch": "That request was already used for something else.",
+      "invalidCursor": "The list changed. Reload the page.",
+      "confirmMismatch": "Type the sentence exactly as shown.",
+      "failed": "That didn’t work. Check your connection, then try again."
+    },
+    "roles": {
+      "owner": "Owner",
+      "member": "Member",
+      "viewer": "Viewer"
+    },
+    "roleHints": {
+      "owner": "manages members and the account",
+      "member": "spends and sees the history",
+      "viewer": "sees the history only"
+    },
+    "kinds": {
+      "payment": "Payment",
+      "casino": "Casino",
+      "mint": "Mint",
+      "burn": "Burn",
+      "reversal": "Reversal"
+    },
+    "bank": {
+      "title": "Bank",
+      "lede": "Your LNBits, the same on every Minecraft account you’ve linked. Pay in the game with /pay, and pick here the account that pays.",
+      "create": "New shared account",
+      "createLimit": "You own the most shared accounts you can ({max}). | You own the most shared accounts you can ({max}).",
+      "defaultSaved": "Account that pays saved",
+      "notEligible": {
+        "title": "Link a Minecraft account first",
+        "lede": "The bank goes with your Minecraft account. Link one with Warden, then come back to see your LNBits.",
+        "action": "Link a Minecraft account"
+      }
+    },
+    "accounts": {
+      "title": "Your accounts",
+      "personal": "Personal account",
+      "personalHint": "Only you can spend from it",
+      "sharedHint": "#{handle}, {role}",
+      "sharedPanelHint": "#{handle}, {n} member, you’re {role} | #{handle}, {n} members, you’re {role}",
+      "paysByDefault": "Pays by default",
+      "paysByDefaultHint": "Used for /pay, shops and the auction house on all your Minecraft accounts",
+      "frozen": "Frozen",
+      "frozenHint": "An admin froze this account, or its owner is banned. No money goes in or out until it’s lifted.",
+      "rank": "#{rank} on the baltop"
+    },
+    "tabs": {
+      "history": "History",
+      "members": "Members",
+      "settings": "Settings"
+    },
+    "history": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "received": "Received from {who}",
+      "paid": "Paid {who}",
+      "startingBalance": "Starting balance",
+      "adjustment": "Adjustment from LNB",
+      "reversal": "Reversed by LNB",
+      "reversed": "Reversed",
+      "memo": "“{memo}”",
+      "more": "Show older",
+      "counterparty": {
+        "player": "a player",
+        "account": "an account",
+        "lnb": "LNB",
+        "deleted": "a deleted account",
+        "several": "several accounts"
+      },
+      "empty": {
+        "title": "Nothing here yet",
+        "body": "Payments show up here as soon as money comes in or goes out."
+      }
+    },
+    "invitations": {
+      "title": "1 invitation | {n} invitations",
+      "body": "{who} invited you to {account} as {role}.",
+      "bodyAnonymous": "You’re invited to {account} as {role}.",
+      "accept": "Accept",
+      "decline": "Decline",
+      "accepted": "You joined the account"
+    },
+    "members": {
+      "title": "1 member | {n} members",
+      "of": "of {max}",
+      "you": "(you)",
+      "roleOf": "Role of {name}",
+      "roleSaved": "Role saved",
+      "remove": "Remove",
+      "removeTitle": "Remove {name}?",
+      "removeBody": "They lose access to this account at once. You can invite them again later.",
+      "removed": "Member removed",
+      "pending": "Waiting for an answer",
+      "invitedAs": "Invited as {role}",
+      "cancelInvitation": "Cancel invitation",
+      "inviteTitle": "Invite someone",
+      "inviteLede": "They join once they accept on the site.",
+      "username": "Minecraft username",
+      "role": "Role",
+      "invite": "Send invitation",
+      "invited": "Invitation sent to {username}",
+      "full": "The account is full."
+    },
+    "settings": {
+      "hideFromBaltop": "Hide me from the baltop",
+      "hideFromBaltopHint": "Your balance stays the same, it just isn’t ranked. You can come back any time.",
+      "baltopHidden": "You’re hidden from the baltop",
+      "baltopShown": "You’re back on the baltop",
+      "name": "Name",
+      "handleFixed": "#{handle} never changes",
+      "rename": "Save name",
+      "renamed": "Name saved",
+      "closeHeading": "Close the account",
+      "closeHint": "Its handle stays taken, so nobody can pose as it later.",
+      "closeNotEmpty": "Empty the account before closing it.",
+      "close": "Close account",
+      "closeTitle": "Close {name}?",
+      "closeBody": "Every member loses it. This can’t be undone.",
+      "closed": "Account closed",
+      "leaveHeading": "Leave the account",
+      "leaveHint": "You stop seeing it and can no longer spend from it.",
+      "leave": "Leave account",
+      "leaveTitle": "Leave {name}?",
+      "leaveBody": "You’ll need a new invitation to come back.",
+      "left": "You left the account"
+    },
+    "create": {
+      "title": "New shared account",
+      "lede": "For a team, a shop or a casino. You’ll be its owner.",
+      "name": "Name",
+      "handle": "Handle",
+      "handleHelp": "Players pay it with /pay #handle. 3 to 24 lower-case letters, digits or dashes. It can’t change later.",
+      "submit": "Open account"
+    },
+    "baltop": {
+      "title": "Baltop",
+      "lede": "Who holds the most LNBits on the server right now.",
+      "ledeRank": "Who holds the most LNBits on the server right now. You’re {rank} with {balance}.",
+      "hide": "Hide me from the baltop",
+      "show": "Show me on the baltop",
+      "podium": "Top three",
+      "place": {
+        "1": "First",
+        "2": "Second",
+        "3": "Third"
+      },
+      "nameHidden": "Name hidden",
+      "players": "Players",
+      "shared": "Shared accounts",
+      "sharedHint": "#{handle}, {n} member | #{handle}, {n} members",
+      "onlyPodium": "Nobody else is ranked yet.",
+      "noShared": "No shared account yet.",
+      "footnote": "Players are ranked by their personal account. Players who hid their name show their username alone.",
+      "empty": {
+        "title": "Nobody is ranked yet",
+        "body": "The baltop fills up as players earn LNBits on the server."
+      }
     }
   }
 }
