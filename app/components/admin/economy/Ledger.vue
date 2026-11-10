@@ -177,13 +177,13 @@ async function onReverse(row: EconomyLedgerRow) {
               {{ formatLnbits(row.amount, locale) }}
             </td>
             <td class="px-4 py-2.5 text-right">
-              <UBadge
+              <span
                 v-if="row.reversedBy"
-                color="neutral"
-                variant="soft"
-                size="sm"
-                :label="t('economy.history.reversed')"
-              />
+                class="inline-flex h-8 items-center gap-1.5 px-2.5 text-sm font-medium text-muted"
+              >
+                <UIcon name="i-lucide-undo-2" class="size-4" />
+                {{ t('economy.history.reversed') }}
+              </span>
               <UButton
                 v-else-if="row.kind !== 'reversal'"
                 size="md"
