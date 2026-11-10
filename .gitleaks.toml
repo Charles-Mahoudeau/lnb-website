@@ -1,0 +1,8 @@
+# gitleaks (run in CI, see .github/workflows/ci.yml): the default rules, minus the docs and tests,
+# whose sample IDs and keys (UUIDs, idempotency keys) look like secrets but aren't.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Sample values in the docs and tests"
+paths = ['''^docs/''', '''^test/''']
