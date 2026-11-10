@@ -3,7 +3,7 @@ import type { NavigationMenuItem } from '@nuxt/ui';
 
 // The admin area (/admin): a sidebar instead of the public header. Each page renders an
 // AdminPage. Warden admins only see the Warden and Mods sections, events managers only Events,
-// Push and Short links.
+// Push and Short links, economy admins only Economy.
 const { t } = useI18n();
 const { user, school } = useAuth();
 const route = useRoute();
@@ -84,6 +84,21 @@ const items = computed<NavigationMenuItem[][]>(() => [
         ]
       : []),
     ...(isWardenAdmin(user.value?.role) ? wardenItems.value : []),
+    ...(isEconomyAdmin(user.value?.role)
+      ? [
+          {
+            label: t('admin.nav.economy'),
+            icon: 'i-lucide-landmark',
+            defaultOpen: true,
+            children: [
+              { label: t('admin.nav.economyOverview'), to: '/admin/economy', exact: true },
+              { label: t('admin.nav.economyAccounts'), to: '/admin/economy/accounts' },
+              { label: t('admin.nav.economyLedger'), to: '/admin/economy/ledger' },
+              { label: t('admin.nav.settings'), to: '/admin/economy/settings' },
+            ],
+          },
+        ]
+      : []),
   ],
 ]);
 </script>

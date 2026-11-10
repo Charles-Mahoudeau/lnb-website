@@ -514,7 +514,11 @@
       "partners": "Partners",
       "shortLinks": "Short links",
       "posters": "Posters",
-      "apiKeys": "API keys"
+      "apiKeys": "API keys",
+      "economy": "Economy",
+      "economyOverview": "Overview",
+      "economyAccounts": "Accounts",
+      "economyLedger": "Ledger"
     },
     "cancel": "Cancel",
     "roles": {
@@ -1817,6 +1821,157 @@
         "apiKeyNotFound": "This key no longer exists. Reload the page.",
         "apiKeyNotUsable": "This key can’t be rotated: it is revoked, expired or already replaced.",
         "failed": "That didn’t work. Check your connection, then try again."
+      }
+    },
+    "economy": {
+      "lede": "Money in circulation, what was created and destroyed, and how it moves between players.",
+      "loadFailed": "The economy couldn’t be loaded. Check your connection, then reload the page.",
+      "period": "Period",
+      "periods": {
+        "7d": "7 days",
+        "30d": "30 days",
+        "90d": "90 days",
+        "all": "All"
+      },
+      "tiles": {
+        "supply": "In circulation",
+        "supplySub": "{change} over the period",
+        "net": "Net created",
+        "netSub": "{minted} minted, {burned} burned",
+        "active": "Active players",
+        "activeSub": "Paid at least once",
+        "transactions": "Transactions",
+        "transactionsSub": "{moved} LNBits moved"
+      },
+      "charts": {
+        "supply": "Money in circulation",
+        "supplyLabel": "Money in circulation went from {from} to {to} LNBits.",
+        "flow": "Created and destroyed per day",
+        "flowLabel": "{minted} LNBits created and {burned} destroyed over the period."
+      },
+      "minted": "Minted",
+      "burned": "Burned",
+      "reasons": {
+        "title": "By reason",
+        "empty": "Nothing created or destroyed over the period.",
+        "mint": {
+          "startingBalance": "Minted: starting balances",
+          "adjustment": "Minted: adjustments",
+          "accountClosed": "Minted: closed accounts"
+        },
+        "burn": {
+          "startingBalance": "Burned: starting balances",
+          "adjustment": "Burned: adjustments",
+          "accountClosed": "Burned: deleted players"
+        }
+      },
+      "volume": {
+        "title": "Volume by kind",
+        "count": "in 1 transaction | in {n} transactions"
+      },
+      "wealth": {
+        "title": "Wealth distribution",
+        "top10": "held by the richest 10%",
+        "gini": "Gini, 0 is equal",
+        "histogramLabel": "Number of players per balance range",
+        "bucket": "1 player | {n} players"
+      },
+      "largest": "Largest shared accounts",
+      "noShared": "No shared account yet.",
+      "deletedAccount": "Deleted account",
+      "closed": "Closed",
+      "more": "Show more",
+      "accounts": {
+        "search": "Handle, name or player",
+        "kind": "Kind",
+        "allKinds": "All accounts",
+        "personal": "Personal",
+        "shared": "Shared",
+        "empty": "No account matches."
+      },
+      "account": {
+        "title": "Account",
+        "sharedSub": "#{handle}, shared account, opened {date}",
+        "personalSub": "{username}, personal account, opened {date}",
+        "active": "Active",
+        "banned": "Owner banned",
+        "frozenReason": "Frozen: {reason}",
+        "balance": "Balance",
+        "in30": "In, 30 days",
+        "out30": "Out, 30 days",
+        "members": "Members",
+        "history": "History"
+      },
+      "adjust": {
+        "title": "Adjust {name}",
+        "lede": "Mint creates LNBits on this account, burn destroys them. Its members see it as an adjustment from LNB, with your reason.",
+        "direction": "Mint or burn",
+        "mint": "Mint",
+        "burn": "Burn",
+        "amount": "Amount",
+        "reason": "Reason",
+        "reasonHelp": "Required. Members see it in their history, and it goes in the audit log.",
+        "after": "New balance",
+        "to": "to",
+        "submit": {
+          "mint": "Mint {amount} LNBits",
+          "burn": "Burn {amount} LNBits"
+        },
+        "done": {
+          "mint": "Minted {amount} LNBits",
+          "burn": "Burned {amount} LNBits"
+        }
+      },
+      "freeze": {
+        "title": "Freeze {name}?",
+        "lede": "No money goes in or out, except your adjustments and reversals. Members see that it’s frozen.",
+        "reason": "Reason",
+        "confirm": "Freeze",
+        "done": "Account frozen",
+        "lift": "Unfreeze",
+        "lifted": "Account unfrozen"
+      },
+      "reverse": {
+        "title": "Reverse this transaction?",
+        "lede": "A new transaction moves {amount} LNBits back. It’s refused if an account no longer holds the money.",
+        "reason": "Reason",
+        "confirm": "Reverse",
+        "done": "Transaction reversed"
+      },
+      "ledger": {
+        "search": "Search messages and reasons",
+        "kind": "Kind",
+        "allKinds": "All kinds",
+        "empty": "No transaction matches.",
+        "when": "When",
+        "from": "From",
+        "to": "To",
+        "amount": "Amount",
+        "after": "Balance after",
+        "counterparty": "With",
+        "actions": "Actions",
+        "by": "by {name}"
+      },
+      "settings": {
+        "startingBalance": "Starting balance",
+        "startingBalanceHelp": "Minted on each new personal account. 0 for none.",
+        "maxOwnedShared": "Shared accounts per player",
+        "maxOwnedSharedHelp": "How many shared accounts one player can own.",
+        "maxMembers": "Members per shared account",
+        "maxMembersHelp": "Pending invitations count too.",
+        "save": "Save settings",
+        "saved": "Settings saved"
+      },
+      "reset": {
+        "heading": "Reset the economy",
+        "lede": "Deletes every account, the whole ledger and the stats. The settings stay. Download the export first to keep a copy.",
+        "export": "Download the export",
+        "open": "Reset the economy",
+        "title": "Reset the economy?",
+        "warning": "Every balance goes back to zero and every shared account disappears. This can’t be undone.",
+        "type": "Type “{sentence}” to confirm",
+        "confirm": "Reset everything",
+        "done": "The economy was reset"
       }
     }
   },
