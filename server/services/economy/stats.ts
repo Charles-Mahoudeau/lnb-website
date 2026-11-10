@@ -151,7 +151,13 @@ async function stats(period: EconomyPeriod, now = new Date()): Promise<EconomySt
     db
       .select()
       .from(economyDailyStat)
-      .where(start ? gte(economyDailyStat.day, parisDay(start)) : undefined)
+      // Today is computed live, even if a snapshot of it exists.
+      .where(
+        and(
+          start ? gte(economyDailyStat.day, parisDay(start)) : undefined,
+          lt(economyDailyStat.day, today),
+        ),
+      )
       .orderBy(asc(economyDailyStat.day)),
     flowsByDay(db, todayStart, null),
     supplyNow(),
