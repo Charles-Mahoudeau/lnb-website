@@ -10,11 +10,13 @@ const { t } = useI18n();
 const admin = ref(props.roles.admin);
 const wardenAdmin = ref(props.roles.wardenAdmin);
 const eventsManager = ref(props.roles.eventsManager);
+const economyAdmin = ref(props.roles.economyAdmin);
 const changed = computed(
   () =>
     admin.value !== props.roles.admin ||
     wardenAdmin.value !== props.roles.wardenAdmin ||
-    eventsManager.value !== props.roles.eventsManager,
+    eventsManager.value !== props.roles.eventsManager ||
+    economyAdmin.value !== props.roles.economyAdmin,
 );
 </script>
 
@@ -38,6 +40,11 @@ const changed = computed(
           :label="t('admin.roles.eventsManager')"
           :description="t('admin.rolesModal.eventsManagerHint')"
         />
+        <USwitch
+          v-model="economyAdmin"
+          :label="t('admin.roles.economyAdmin')"
+          :description="t('admin.rolesModal.economyAdminHint')"
+        />
       </div>
     </template>
     <template #footer>
@@ -51,7 +58,7 @@ const changed = computed(
         <UButton
           :label="t('admin.rolesModal.save')"
           :disabled="!changed"
-          @click="emit('close', { admin, wardenAdmin, eventsManager })"
+          @click="emit('close', { admin, wardenAdmin, eventsManager, economyAdmin })"
         />
       </div>
     </template>

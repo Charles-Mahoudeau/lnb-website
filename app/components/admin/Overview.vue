@@ -100,6 +100,7 @@ function describe(entry: AdminAuditView): string {
         after?.admin ? t('admin.roles.admin') : null,
         after?.wardenAdmin ? t('admin.roles.wardenAdmin') : null,
         after?.eventsManager ? t('admin.roles.eventsManager') : null,
+        after?.economyAdmin ? t('admin.roles.economyAdmin') : null,
       ].filter(Boolean);
       return t('admin.overview.log.roles', {
         actor,

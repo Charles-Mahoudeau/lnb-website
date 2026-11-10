@@ -16,6 +16,7 @@ import { SIGN_IN_DISABLED, TENANT_NOT_ALLOWED } from '../../shared/utils/auth-er
 import { getLinkApp, LINK_CODE_LENGTH } from '../../shared/utils/link-apps';
 import {
   ADMIN_ROLE,
+  ECONOMY_ADMIN_ROLE,
   EVENTS_MANAGER_ROLE,
   hasRole,
   WARDEN_ADMIN_ROLE,
@@ -37,7 +38,7 @@ async function isExistingAdmin(email: unknown): Promise<boolean> {
   return hasRole(row?.role, ADMIN_ROLE);
 }
 
-// Warden admins and events managers get no Better Auth admin rights: their powers are our own
+// Warden admins, events managers and economy admins get no Better Auth admin rights: their powers are our own
 // routes, checked with requireWardenAdmin and requireEventsManager. See shared/utils/roles.ts.
 const ac = createAccessControl(defaultStatements);
 const roles = {
@@ -45,6 +46,7 @@ const roles = {
   [ADMIN_ROLE]: adminAc,
   [WARDEN_ADMIN_ROLE]: ac.newRole({ user: [], session: [] }),
   [EVENTS_MANAGER_ROLE]: ac.newRole({ user: [], session: [] }),
+  [ECONOMY_ADMIN_ROLE]: ac.newRole({ user: [], session: [] }),
 };
 
 // The admin plugin stays for its role and ban columns and for refusing banned sign-ins, but its

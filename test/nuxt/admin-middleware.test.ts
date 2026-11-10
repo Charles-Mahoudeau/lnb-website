@@ -39,6 +39,14 @@ describe('admin middleware', () => {
     expect(opens({})).toBe(false);
   });
 
+  it('lets economy admins into economy pages only', () => {
+    signIn('economy-admin');
+    expect(opens({ economyAdmins: true })).toBe(true);
+    expect(opens({ wardenAdmins: true })).toBe(false);
+    expect(opens({ eventsManagers: true })).toBe(false);
+    expect(opens({})).toBe(false);
+  });
+
   it('keeps Warden admins out of events pages', () => {
     signIn('warden-admin');
     expect(opens({ eventsManagers: true })).toBe(false);

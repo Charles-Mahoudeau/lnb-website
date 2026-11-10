@@ -37,6 +37,7 @@ import { bulkProblem } from '#shared/utils/bulk-users';
 import type { BulkTarget } from '#shared/utils/bulk-users';
 import {
   ADMIN_ROLE,
+  ECONOMY_ADMIN_ROLE,
   EVENTS_MANAGER_ROLE,
   hasRole,
   isAdmin,
@@ -90,7 +91,7 @@ function filterWhere(query: AdminUsersFilters, now: Date) {
 async function list(query: {
   q?: string;
   tenantId?: string;
-  role: 'any' | 'admin' | 'warden-admin' | 'events-manager';
+  role: 'any' | 'admin' | 'warden-admin' | 'events-manager' | 'economy-admin';
   status: 'all' | 'banned' | 'inactive';
   cursor?: string;
 }): Promise<AdminUserPage> {
@@ -135,6 +136,7 @@ async function list(query: {
     admin: isAdmin(row.role),
     wardenAdmin: hasRole(row.role, WARDEN_ADMIN_ROLE),
     eventsManager: hasRole(row.role, EVENTS_MANAGER_ROLE),
+    economyAdmin: hasRole(row.role, ECONOMY_ADMIN_ROLE),
     createdAt: row.createdAt.toISOString(),
     lastSignInAt: row.lastSignInAt?.toISOString() ?? null,
     inactive: (row.lastSignInAt ?? row.createdAt) < cutoff,
@@ -189,16 +191,19 @@ async function setRoles(input: { actorId: string; userId: string; roles: AdminRo
       admin: isAdmin(target.role),
       wardenAdmin: hasRole(target.role, WARDEN_ADMIN_ROLE),
       eventsManager: hasRole(target.role, EVENTS_MANAGER_ROLE),
+      economyAdmin: hasRole(target.role, ECONOMY_ADMIN_ROLE),
     };
     if (
       before.admin === input.roles.admin &&
       before.wardenAdmin === input.roles.wardenAdmin &&
-      before.eventsManager === input.roles.eventsManager
+      before.eventsManager === input.roles.eventsManager &&
+      before.economyAdmin === input.roles.economyAdmin
     )
       return;
     let role = withRole(target.role, ADMIN_ROLE, input.roles.admin);
     role = withRole(role, WARDEN_ADMIN_ROLE, input.roles.wardenAdmin);
     role = withRole(role, EVENTS_MANAGER_ROLE, input.roles.eventsManager);
+    role = withRole(role, ECONOMY_ADMIN_ROLE, input.roles.economyAdmin);
     await tx.update(user).set({ role }).where(eq(user.id, input.userId));
     await adminAuditService.record(tx, {
       action: 'user.roles',
@@ -373,6 +378,8 @@ async function applyBulk(actorId: string, body: AdminBulkBody, target: BulkTarge
             change.role === 'warden-admin' ? on : hasRole(target.role, WARDEN_ADMIN_ROLE),
           eventsManager:
             change.role === 'events-manager' ? on : hasRole(target.role, EVENTS_MANAGER_ROLE),
+          economyAdmin:
+            change.role === 'economy-admin' ? on : hasRole(target.role, ECONOMY_ADMIN_ROLE),
         },
       });
     }

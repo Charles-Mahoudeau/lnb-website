@@ -19,7 +19,7 @@ const { user: me } = useAuth();
 const actions = useAdminUserActions();
 
 type Status = 'all' | 'banned' | 'inactive';
-type Role = 'any' | 'admin' | 'warden-admin' | 'events-manager';
+type Role = 'any' | 'admin' | 'warden-admin' | 'events-manager' | 'economy-admin';
 
 // The Overview links here with ?status=inactive or ?status=banned.
 const initialStatus = String(route.query.status ?? '');
@@ -90,6 +90,7 @@ const roleItems = computed(() => [
   { label: t('admin.roles.admin'), value: 'admin' },
   { label: t('admin.roles.wardenAdmin'), value: 'warden-admin' },
   { label: t('admin.roles.eventsManager'), value: 'events-manager' },
+  { label: t('admin.roles.economyAdmin'), value: 'economy-admin' },
 ]);
 const statusItems = computed(() => [
   { label: t('admin.users.status.all'), value: 'all' },
@@ -188,7 +189,12 @@ async function run(action: () => Promise<unknown>, success: string) {
 async function onRoles(row: AdminUserRow) {
   const roles: unknown = await modals.roles.open({
     name: row.name,
-    roles: { admin: row.admin, wardenAdmin: row.wardenAdmin, eventsManager: row.eventsManager },
+    roles: {
+      admin: row.admin,
+      wardenAdmin: row.wardenAdmin,
+      eventsManager: row.eventsManager,
+      economyAdmin: row.economyAdmin,
+    },
     self: row.userId === me.value?.id,
   }).result;
   if (!roles || typeof roles !== 'object') return;
@@ -435,7 +441,12 @@ function rowItems(row: AdminUserRow): DropdownMenuItem[][] {
         </template>
         <template #roles-cell="{ row }">
           <div
-            v-if="row.original.admin || row.original.wardenAdmin || row.original.eventsManager"
+            v-if="
+              row.original.admin ||
+              row.original.wardenAdmin ||
+              row.original.eventsManager ||
+              row.original.economyAdmin
+            "
             class="flex flex-wrap gap-1"
           >
             <UBadge
@@ -458,6 +469,13 @@ function rowItems(row: AdminUserRow): DropdownMenuItem[][] {
               variant="soft"
               size="sm"
               :label="t('admin.roles.eventsManager')"
+            />
+            <UBadge
+              v-if="row.original.economyAdmin"
+              color="neutral"
+              variant="soft"
+              size="sm"
+              :label="t('admin.roles.economyAdmin')"
             />
           </div>
           <span v-else class="text-muted">{{ t('admin.users.noRole') }}</span>
