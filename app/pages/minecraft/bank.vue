@@ -4,7 +4,6 @@ import { EconomyCreateModal } from '#components';
 import type { EconomyAccountView } from '#shared/schemas/economy';
 
 // The player's bank (docs/economy.md): their accounts on the left, the chosen one on the right.
-// Proposal B of the economy mocks, "Account switcher".
 definePageMeta({ flag: 'economy' });
 
 const { t } = useI18n();

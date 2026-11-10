@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// The richest players and shared accounts (docs/economy.md). Proposal B of the economy mocks:
-// a band for the top three, then players and shared accounts side by side.
+// The richest players and shared accounts (docs/economy.md): a band for the top three, then
+// players and shared accounts side by side.
 definePageMeta({ flag: 'economy.baltop' });
 
 const { t, locale } = useI18n();

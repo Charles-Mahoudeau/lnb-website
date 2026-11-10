@@ -2,7 +2,7 @@
 import type { EconomyPeriod } from '#shared/schemas/economy';
 import { ECONOMY_PERIODS } from '#shared/schemas/economy';
 
-// The economy at a glance: proposal A of the economy mocks, "Stats first".
+// The economy at a glance: the numbers first, then the charts.
 const { t, locale } = useI18n();
 
 const period = ref<EconomyPeriod>('30d');
