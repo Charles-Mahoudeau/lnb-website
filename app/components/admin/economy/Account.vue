@@ -303,13 +303,13 @@ function counterparty(item: EconomyTransactionView): string {
                 {{ formatLnbits(item.balanceAfter, locale) }}
               </td>
               <td class="px-4 py-2.5 text-right">
-                <UBadge
+                <span
                   v-if="item.reversed"
-                  color="neutral"
-                  variant="soft"
-                  size="sm"
-                  :label="t('economy.history.reversed')"
-                />
+                  class="inline-flex h-8 items-center gap-1.5 px-2.5 text-sm font-medium text-muted"
+                >
+                  <UIcon name="i-lucide-undo-2" class="size-4" />
+                  {{ t('economy.history.reversed') }}
+                </span>
                 <UButton
                   v-else-if="item.kind !== 'reversal' && !data.closed"
                   size="md"
