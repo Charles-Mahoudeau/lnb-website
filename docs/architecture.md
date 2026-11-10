@@ -35,7 +35,7 @@ server/               Nitro server, picked up by Nuxt automatically
                       admin-audit and admin-overview (the admin log and Overview), events/
                       (see docs/events.md: admin, public, registrations, rooms, types, images,
                       bde, push, markdown, and rules.ts for the pure rules), push/ (see docs/push.md:
-                      queue, deliver, reminders, subscriptions, settings, stats), team (the team page, see docs/team.md), partners (the partners page and its logos, see docs/partners.md), short-links (the /go/ links and their clicks, see docs/short-links.md), api-keys (integration keys, see docs/api-keys.md; routes accept one through `requireAccess` in `server/utils/api-key.ts`), posters (see docs/posters.md), later event teams, files
+                      queue, deliver, reminders, subscriptions, settings, stats), team (the team page, see docs/team.md), partners (the partners page and its logos, see docs/partners.md), short-links (the /go/ links and their clicks, see docs/short-links.md), api-keys (integration keys, see docs/api-keys.md; routes accept one through `requireAccess` in `server/utils/api-key.ts`), posters (see docs/posters.md), economy/ (the Minecraft bank, see docs/economy.md: accounts, ledger, server, baltop, admin, stats, and rules.ts for the pure rules), later event teams, files
   db/
     index.ts          Drizzle client (node-postgres), and the Tx and Db types
     schema/           Drizzle tables, one file per domain. auth.ts is generated.
@@ -43,7 +43,7 @@ server/               Nitro server, picked up by Nuxt automatically
     seed.ts           (planned)
   tasks/              scheduled jobs, timed in nuxt.config.ts: events/bde-sync (every minute),
                       warden/close-stale-sessions, users/delete-inactive, users/prune-avatars and
-                      events/prune-images and partners/prune-logos and push/prune (every night at 03:00), push/deliver (every minute,
+                      events/prune-images and partners/prune-logos and push/prune and economy/snapshot (every night at 03:00), push/deliver (every minute,
                       with the event reminders)
   middleware/         rate-limit.ts (see docs/rate-limiting.md)
   plugins/            Nitro plugins: migrate.ts applies pending migrations at startup (its state feeds /api/health), avatars.ts
