@@ -183,6 +183,7 @@ export type EconomyMe = z.infer<typeof economyMe>;
 export const economyMemberView = z.object({
   userId: z.string(),
   name: z.string().nullable(),
+  uuid: z.string().nullable().describe('The main Minecraft account, for its head.'),
   username: z.string().nullable(),
   role: economyRole,
   joinedAt: isoDate,
@@ -192,6 +193,7 @@ export type EconomyMemberView = z.infer<typeof economyMemberView>;
 export const economyPendingInvitation = z.object({
   id: z.uuid(),
   name: z.string().nullable(),
+  uuid: z.string().nullable(),
   username: z.string().nullable(),
   role: economyRole,
   createdAt: isoDate,
@@ -239,6 +241,7 @@ export const economyBaltop = z.object({
     z.object({
       rank: z.number(),
       name: z.string().nullable().describe('First name and initial, or null when hidden.'),
+      uuid: z.string().nullable().describe('The main Minecraft account, for its head.'),
       username: z.string().nullable(),
       balance: z.number(),
       me: z.boolean(),

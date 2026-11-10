@@ -25,7 +25,8 @@ import type {
 export interface PlayerName {
   /** First name and initial, or null when the player hides it (Warden's `showRealName`). */
   name: string | null;
-  /** The linked Minecraft account seen last. */
+  /** The linked Minecraft account seen last, for its head. */
+  uuid: string | null;
   username: string | null;
   /** The full name, for admins. */
   fullName: string;
@@ -45,7 +46,11 @@ export async function playerNames(
       .leftJoin(wardenPlayer, eq(wardenPlayer.userId, user.id))
       .where(inArray(user.id, ids)),
     dbx
-      .select({ userId: minecraftAccount.userId, username: minecraftAccount.username })
+      .select({
+        userId: minecraftAccount.userId,
+        uuid: minecraftAccount.uuid,
+        username: minecraftAccount.username,
+      })
       .from(minecraftAccount)
       .where(and(inArray(minecraftAccount.userId, ids), isNull(minecraftAccount.unlinkedAt)))
       .orderBy(
@@ -53,16 +58,17 @@ export async function playerNames(
         desc(minecraftAccount.linkedAt),
       ),
   ]);
-  const usernames = new Map<string, string>();
+  const main = new Map<string, { uuid: string; username: string }>();
   for (const account of accounts) {
-    if (!usernames.has(account.userId)) usernames.set(account.userId, account.username);
+    if (!main.has(account.userId)) main.set(account.userId, account);
   }
   return new Map(
     people.map((person) => [
       person.id,
       {
         name: (person.showRealName ?? true) ? shortName(person.name) : null,
-        username: usernames.get(person.id) ?? null,
+        uuid: main.get(person.id)?.uuid ?? null,
+        username: main.get(person.id)?.username ?? null,
         fullName: person.name,
       },
     ]),

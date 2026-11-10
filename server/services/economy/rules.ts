@@ -1,6 +1,6 @@
 // Pure economy rules: no database, so they're easy to test. See docs/economy.md.
 
-import type { EconomyPeriod, EconomyRole } from '#shared/schemas/economy';
+import type { EconomyPeriod, EconomyRole } from '../../../shared/schemas/economy.ts';
 
 /** Owners and members spend. Viewers only read. */
 export function canSpend(role: EconomyRole | null | undefined): boolean {

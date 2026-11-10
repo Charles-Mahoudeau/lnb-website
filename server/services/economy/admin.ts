@@ -163,6 +163,7 @@ async function detail(accountId: string): Promise<EconomyAdminAccountDetail> {
     members: members.map((member) => ({
       userId: member.userId,
       name: names.get(member.userId)?.fullName ?? null,
+      uuid: names.get(member.userId)?.uuid ?? null,
       username: names.get(member.userId)?.username ?? null,
       role: member.role,
       joinedAt: member.joinedAt.toISOString(),
