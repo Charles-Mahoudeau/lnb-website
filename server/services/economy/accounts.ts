@@ -264,6 +264,7 @@ async function detail(userId: string, accountId: string): Promise<EconomyAccount
     members: members.map((member) => ({
       userId: member.userId,
       name: names.get(member.userId)?.name ?? null,
+      uuid: names.get(member.userId)?.uuid ?? null,
       username: names.get(member.userId)?.username ?? null,
       role: member.role,
       joinedAt: member.joinedAt.toISOString(),
@@ -271,6 +272,7 @@ async function detail(userId: string, accountId: string): Promise<EconomyAccount
     invitations: invitations.map((invitation) => ({
       id: invitation.id,
       name: names.get(invitation.userId)?.name ?? null,
+      uuid: names.get(invitation.userId)?.uuid ?? null,
       username: names.get(invitation.userId)?.username ?? null,
       role: invitation.role,
       createdAt: invitation.createdAt.toISOString(),

@@ -97,6 +97,7 @@ async function list(userId: string | null): Promise<EconomyBaltop> {
       return {
         rank: row.rank,
         name: name?.name ?? null,
+        uuid: name?.uuid ?? null,
         username: name?.username ?? null,
         balance: row.balance,
         me: row.ownerUserId === userId,
