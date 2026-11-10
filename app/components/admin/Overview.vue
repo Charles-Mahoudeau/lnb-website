@@ -134,6 +134,17 @@ function describe(entry: AdminAuditView): string {
         actor,
         mode: t(`admin.rateLimit.modes.${String(entry.data.mode)}.label`),
       });
+    case 'economy.adjust':
+      return t(
+        entry.data.direction === 'burn'
+          ? 'admin.overview.log.economy_burn'
+          : 'admin.overview.log.economy_mint',
+        {
+          actor,
+          name: typeof entry.data.name === 'string' ? entry.data.name : '',
+          amount: Number(entry.data.amount ?? 0).toLocaleString(locale.value),
+        },
+      );
     case 'users.deleteInactive': {
       const deleted = Number(entry.data.count ?? 0);
       return t('admin.overview.log.deleteInactive', { count: deleted }, deleted);
@@ -172,6 +183,11 @@ function describe(entry: AdminAuditView): string {
     case 'apiKey.create':
     case 'apiKey.rotate':
     case 'apiKey.revoke':
+    case 'economy.freeze':
+    case 'economy.unfreeze':
+    case 'economy.reverse':
+    case 'economy.settings':
+    case 'economy.reset':
       return t(`admin.overview.log.${entry.action.replace('.', '_')}`, {
         actor,
         target,

@@ -39,6 +39,11 @@ export const FLAG_DEFINITIONS = [
   { key: 'shortLinks' },
   { key: 'shortLinks.tracking', parent: 'shortLinks' },
   { key: 'apiKeys' },
+  { key: 'economy' },
+  { key: 'economy.transfers', parent: 'economy' },
+  { key: 'economy.sharedAccounts', parent: 'economy' },
+  { key: 'economy.baltop', parent: 'economy' },
+  { key: 'economy.serverApi', parent: 'economy' },
   { key: 'push' },
   { key: 'push.subscribe', parent: 'push' },
   { key: 'push.newEvents', parent: 'push' },
@@ -54,6 +59,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'jobs.pushDeliver', parent: 'jobs' },
   { key: 'jobs.pushPrune', parent: 'jobs' },
   { key: 'jobs.pruneApiKeys', parent: 'jobs' },
+  { key: 'jobs.economySnapshot', parent: 'jobs' },
 ] as const satisfies readonly FlagDefinition[];
 
 export type FlagKey = (typeof FLAG_DEFINITIONS)[number]['key'];

@@ -20,6 +20,7 @@ import { db } from '~~/server/db';
 import type { Db } from '~~/server/db';
 import { session, user, wardenBan } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
+import { economyAccountService } from '~~/server/services/economy/accounts';
 import { eventRegistrationService } from '~~/server/services/events/registrations';
 
 import { ADMIN_BULK_MAX } from '#shared/schemas/admin';
@@ -286,6 +287,8 @@ async function remove(input: { actorId: string; userId: string }) {
     await tx.delete(user).where(eq(user.id, input.userId));
     // Their registrations went with the account: the waitlists move up.
     await eventRegistrationService.promoteAll(tx);
+    // Their bank account is closed and its money destroyed; their shared accounts pass on.
+    await economyAccountService.sweepOrphans(tx);
   });
 }
 
@@ -422,6 +425,7 @@ async function deleteInactive(now = new Date()): Promise<number> {
       .returning({ id: user.id });
     if (deleted.length) {
       await eventRegistrationService.promoteAll(tx);
+      await economyAccountService.sweepOrphans(tx);
       await adminAuditService.record(tx, {
         action: 'users.deleteInactive',
         actorUserId: null,

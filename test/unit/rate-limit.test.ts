@@ -40,6 +40,11 @@ describe('rulesFor', () => {
   it('gives the short links and the Minecraft server their own ceiling', () => {
     expect(names('GET', '/go/lan')).toEqual(['go']);
     expect(names('POST', '/api/warden/server/sessions/heartbeat')).toEqual(['warden-server']);
+    expect(names('POST', '/api/economy/server/transfers')).toEqual(['economy-server']);
+    expect(names('POST', '/api/economy/admin/accounts/x/adjustments')).toEqual([
+      'api',
+      'write-admin',
+    ]);
     expect(names('PUT', '/api/warden/client/presence')).toEqual(['warden-client']);
     expect(names('POST', '/api/warden/client/link-requests')).toEqual([
       'warden-client',

@@ -24,6 +24,14 @@ const WARDEN_SERVER_PER_IP: RateRule = {
   by: 'ip',
 };
 
+// The Minecraft server again, for the economy: balances, /pay, bets and payouts.
+const ECONOMY_SERVER_PER_IP: RateRule = {
+  name: 'economy-server',
+  points: 3000,
+  windowSeconds: 60,
+  by: 'ip',
+};
+
 // The mod before it has a device (link requests) and with one (join tickets, presence). The
 // device limits are per device and live in the handlers; this is the IP ceiling.
 const WARDEN_CLIENT_PER_IP: RateRule = {
@@ -71,7 +79,12 @@ const HEAVY = [
   /^\/api\/admin\/events\/[^/]+\/(announce|announce-resend|push-impact|bde-sync)$/,
   /^\/api\/admin\/users\/bulk$/,
 ];
-const ADMIN_PREFIXES = ['/api/admin/', '/api/minecraft/admin/', '/api/warden/admin/'];
+const ADMIN_PREFIXES = [
+  '/api/admin/',
+  '/api/minecraft/admin/',
+  '/api/warden/admin/',
+  '/api/economy/admin/',
+];
 
 /** The rules for a request, all of which must pass. Empty when the route isn't limited here. */
 export function rulesFor(method: string, path: string): RateRule[] {
@@ -80,6 +93,7 @@ export function rulesFor(method: string, path: string): RateRule[] {
   // Better Auth has its own limits (docs/authentication.md), and the health check must answer.
   if (path.startsWith('/api/auth/') || path === '/api/health') return [];
   if (path.startsWith('/api/warden/server/')) return [WARDEN_SERVER_PER_IP];
+  if (path.startsWith('/api/economy/server/')) return [ECONOMY_SERVER_PER_IP];
   if (path.startsWith('/api/warden/client/')) {
     return method.toUpperCase() === 'POST' && path === '/api/warden/client/link-requests'
       ? [WARDEN_CLIENT_PER_IP, WARDEN_LINK_REQUEST]
@@ -120,6 +134,7 @@ export function acceptsApiKey(path: string): boolean {
     !path.startsWith('/api/auth/') &&
     path !== '/api/health' &&
     !path.startsWith('/api/warden/server/') &&
+    !path.startsWith('/api/economy/server/') &&
     !path.startsWith('/api/warden/client/')
   );
 }

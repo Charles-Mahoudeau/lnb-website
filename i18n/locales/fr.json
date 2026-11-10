@@ -732,7 +732,14 @@
         "poster_delete": "{actor} a supprimé l’affiche {name}.",
         "apiKey_create": "{actor} a créé la clé API {name}.",
         "apiKey_rotate": "{actor} a renouvelé la clé API {name}.",
-        "apiKey_revoke": "{actor} a révoqué la clé API {name}."
+        "apiKey_revoke": "{actor} a révoqué la clé API {name}.",
+        "economy_mint": "{actor} a créé {amount} LNBits sur {name}.",
+        "economy_burn": "{actor} a détruit {amount} LNBits de {name}.",
+        "economy_freeze": "{actor} a gelé le compte bancaire {name}.",
+        "economy_unfreeze": "{actor} a dégelé le compte bancaire {name}.",
+        "economy_reverse": "{actor} a annulé une transaction sur {name}.",
+        "economy_settings": "{actor} a modifié les réglages de l’économie.",
+        "economy_reset": "{actor} a remis l’économie à zéro."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page.",
       "apiKeysSoon": "1 clé API expire dans moins de 30 jours | {n} clés API expirent dans moins de 30 jours",
@@ -1080,6 +1087,30 @@
         "jobs_pruneApiKeys": {
           "label": "Nettoyer les clés API",
           "description": "La suppression des clés API qui ne fonctionnent plus depuis 90 jours, et des anciens compteurs d’appels."
+        },
+        "economy": {
+          "label": "Économie",
+          "description": "Les pages de la banque, le baltop et tous les mouvements d’argent du serveur Minecraft. Les soldes restent tels quels. Les admins peuvent toujours gérer les comptes."
+        },
+        "economy_transfers": {
+          "label": "Virements",
+          "description": "Les paiements, mises et gains envoyés par le serveur Minecraft. Les soldes restent lisibles."
+        },
+        "economy_sharedAccounts": {
+          "label": "Comptes partagés",
+          "description": "Ouvrir des comptes partagés, inviter des joueurs et changer les membres. Les comptes existants continuent de fonctionner."
+        },
+        "economy_baltop": {
+          "label": "Baltop",
+          "description": "Le classement public des joueurs et des comptes partagés les plus riches."
+        },
+        "economy_serverApi": {
+          "label": "API du serveur Minecraft",
+          "description": "Tous les appels du serveur Minecraft à l’économie répondent 503."
+        },
+        "jobs_economySnapshot": {
+          "label": "Stats de l’économie",
+          "description": "L’enregistrement nocturne des graphiques de l’économie, et la fermeture des comptes bancaires des joueurs supprimés."
         }
       }
     },
