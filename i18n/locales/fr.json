@@ -518,7 +518,11 @@
       "partners": "Partenaires",
       "shortLinks": "Liens courts",
       "posters": "Affiches",
-      "apiKeys": "Clés API"
+      "apiKeys": "Clés API",
+      "economy": "Économie",
+      "economyOverview": "Vue d’ensemble",
+      "economyAccounts": "Comptes",
+      "economyLedger": "Grand livre"
     },
     "cancel": "Annuler",
     "roles": {
@@ -1821,6 +1825,157 @@
         "apiKeyNotFound": "Cette clé n’existe plus. Rechargez la page.",
         "apiKeyNotUsable": "Cette clé ne peut pas être renouvelée : elle est révoquée, expirée ou déjà remplacée.",
         "failed": "Ça n’a pas fonctionné. Vérifiez votre connexion, puis réessayez."
+      }
+    },
+    "economy": {
+      "lede": "L’argent en circulation, ce qui a été créé et détruit, et comment il circule entre les joueurs.",
+      "loadFailed": "L’économie n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page.",
+      "period": "Période",
+      "periods": {
+        "7d": "7 jours",
+        "30d": "30 jours",
+        "90d": "90 jours",
+        "all": "Tout"
+      },
+      "tiles": {
+        "supply": "En circulation",
+        "supplySub": "{change} sur la période",
+        "net": "Création nette",
+        "netSub": "{minted} créés, {burned} détruits",
+        "active": "Joueurs actifs",
+        "activeSub": "Ont payé au moins une fois",
+        "transactions": "Transactions",
+        "transactionsSub": "{moved} LNBits échangés"
+      },
+      "charts": {
+        "supply": "Argent en circulation",
+        "supplyLabel": "L’argent en circulation est passé de {from} à {to} LNBits.",
+        "flow": "Créé et détruit par jour",
+        "flowLabel": "{minted} LNBits créés et {burned} détruits sur la période."
+      },
+      "minted": "Créé",
+      "burned": "Détruit",
+      "reasons": {
+        "title": "Par motif",
+        "empty": "Rien n’a été créé ni détruit sur la période.",
+        "mint": {
+          "startingBalance": "Créé : capitaux de départ",
+          "adjustment": "Créé : ajustements",
+          "accountClosed": "Créé : comptes fermés"
+        },
+        "burn": {
+          "startingBalance": "Détruit : capitaux de départ",
+          "adjustment": "Détruit : ajustements",
+          "accountClosed": "Détruit : joueurs supprimés"
+        }
+      },
+      "volume": {
+        "title": "Volume par type",
+        "count": "en 1 transaction | en {n} transactions"
+      },
+      "wealth": {
+        "title": "Répartition de la richesse",
+        "top10": "détenu par les 10 % les plus riches",
+        "gini": "Gini, 0 est l’égalité",
+        "histogramLabel": "Nombre de joueurs par tranche de solde",
+        "bucket": "1 joueur | {n} joueurs"
+      },
+      "largest": "Plus gros comptes partagés",
+      "noShared": "Aucun compte partagé pour l’instant.",
+      "deletedAccount": "Compte supprimé",
+      "closed": "Fermé",
+      "more": "Voir plus",
+      "accounts": {
+        "search": "Identifiant, nom ou joueur",
+        "kind": "Type",
+        "allKinds": "Tous les comptes",
+        "personal": "Perso",
+        "shared": "Partagé",
+        "empty": "Aucun compte ne correspond."
+      },
+      "account": {
+        "title": "Compte",
+        "sharedSub": "#{handle}, compte partagé, ouvert le {date}",
+        "personalSub": "{username}, compte perso, ouvert le {date}",
+        "active": "Actif",
+        "banned": "Propriétaire banni",
+        "frozenReason": "Gelé : {reason}",
+        "balance": "Solde",
+        "in30": "Entrées, 30 jours",
+        "out30": "Sorties, 30 jours",
+        "members": "Membres",
+        "history": "Historique"
+      },
+      "adjust": {
+        "title": "Ajuster {name}",
+        "lede": "Créer ajoute des LNBits sur ce compte, détruire en retire. Ses membres le voient comme un ajustement par LNB, avec votre motif.",
+        "direction": "Créer ou détruire",
+        "mint": "Créer",
+        "burn": "Détruire",
+        "amount": "Montant",
+        "reason": "Motif",
+        "reasonHelp": "Obligatoire. Les membres le voient dans leur historique, et il va dans le journal.",
+        "after": "Nouveau solde",
+        "to": "à",
+        "submit": {
+          "mint": "Créer {amount} LNBits",
+          "burn": "Détruire {amount} LNBits"
+        },
+        "done": {
+          "mint": "{amount} LNBits créés",
+          "burn": "{amount} LNBits détruits"
+        }
+      },
+      "freeze": {
+        "title": "Geler {name} ?",
+        "lede": "Aucun argent n’entre ni ne sort, sauf vos ajustements et annulations. Les membres voient qu’il est gelé.",
+        "reason": "Motif",
+        "confirm": "Geler",
+        "done": "Compte gelé",
+        "lift": "Dégeler",
+        "lifted": "Compte dégelé"
+      },
+      "reverse": {
+        "title": "Annuler cette transaction ?",
+        "lede": "Une nouvelle transaction renvoie {amount} LNBits. Elle est refusée si un compte n’a plus l’argent.",
+        "reason": "Motif",
+        "confirm": "Annuler la transaction",
+        "done": "Transaction annulée"
+      },
+      "ledger": {
+        "search": "Chercher dans les messages et motifs",
+        "kind": "Type",
+        "allKinds": "Tous les types",
+        "empty": "Aucune transaction ne correspond.",
+        "when": "Quand",
+        "from": "De",
+        "to": "Vers",
+        "amount": "Montant",
+        "after": "Solde après",
+        "counterparty": "Avec",
+        "actions": "Actions",
+        "by": "par {name}"
+      },
+      "settings": {
+        "startingBalance": "Capital de départ",
+        "startingBalanceHelp": "Créé sur chaque nouveau compte perso. 0 pour aucun.",
+        "maxOwnedShared": "Comptes partagés par joueur",
+        "maxOwnedSharedHelp": "Combien de comptes partagés un joueur peut posséder.",
+        "maxMembers": "Membres par compte partagé",
+        "maxMembersHelp": "Les invitations en attente comptent aussi.",
+        "save": "Enregistrer les réglages",
+        "saved": "Réglages enregistrés"
+      },
+      "reset": {
+        "heading": "Remettre l’économie à zéro",
+        "lede": "Supprime tous les comptes, tout le grand livre et les stats. Les réglages restent. Téléchargez l’export d’abord pour en garder une copie.",
+        "export": "Télécharger l’export",
+        "open": "Remettre à zéro",
+        "title": "Remettre l’économie à zéro ?",
+        "warning": "Tous les soldes repartent de zéro et tous les comptes partagés disparaissent. C’est définitif.",
+        "type": "Tapez « {sentence} » pour confirmer",
+        "confirm": "Tout remettre à zéro",
+        "done": "L’économie a été remise à zéro"
       }
     }
   },
