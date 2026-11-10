@@ -377,5 +377,8 @@ describe('stats', () => {
     const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
     expect(await economyStatsService.snapshot(tomorrow)).toBeGreaterThan(0);
     expect(await economyStatsService.snapshot(tomorrow)).toBe(0);
+    // A snapshot of today never shows twice.
+    const after = await economyStatsService.stats('all');
+    expect(new Set(after.days.map((day) => day.day)).size).toBe(after.days.length);
   });
 });
