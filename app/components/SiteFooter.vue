@@ -36,6 +36,12 @@ const columns = computed(() => {
   const minecraft: FooterLink[] = [
     ...(isEnabled('modList') ? [{ label: t('nav.mods'), to: '/minecraft/mod-list' }] : []),
     ...(canUseWarden.value ? [{ label: t('warden.title'), to: '/minecraft/warden' }] : []),
+    ...(canUseWarden.value && isEnabled('economy')
+      ? [{ label: t('economy.bank.title'), to: '/minecraft/bank' }]
+      : []),
+    ...(user.value && isEnabled('economy.baltop')
+      ? [{ label: t('economy.baltop.title'), to: '/minecraft/baltop' }]
+      : []),
   ];
   const project: FooterLink[] = [
     { label: t('footer.studentOffice'), to: 'https://bde-teknantes.fr/', external: true },

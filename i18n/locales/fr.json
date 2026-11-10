@@ -24,7 +24,9 @@
     "partners": "Partenaires",
     "about": "À propos",
     "teamDescription": "Les personnes qui font tourner LNB",
-    "partnersDescription": "Sponsors, partenaires de jeu et partenaires de lots"
+    "partnersDescription": "Sponsors, partenaires de jeu et partenaires de lots",
+    "bankDescription": "Vos LNBits et comptes partagés",
+    "baltopDescription": "Les joueurs les plus riches du serveur"
   },
   "home": {
     "intro": {
@@ -2354,6 +2356,189 @@
     "print": {
       "qrLabel": "Inscriptions par ici",
       "qrPlaceholder": "QR code après l’enregistrement"
+    }
+  },
+  "economy": {
+    "currency": "LNBits",
+    "cancel": "Annuler",
+    "loadFailed": "La banque n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page.",
+    "errors": {
+      "notFound": "Ce compte n’existe plus, ou vous n’en faites pas partie.",
+      "notEligible": "Liez d’abord un compte Minecraft avec Warden.",
+      "notLinked": "Ce compte Minecraft n’est lié à personne.",
+      "playerNotFound": "Personne n’a lié ce pseudo Minecraft. Vérifiez son orthographe exacte, majuscules comprises.",
+      "insufficientFunds": "Il n’y a pas assez d’argent sur le compte.",
+      "frozen": "Ce compte est gelé : aucun argent n’entre ni ne sort.",
+      "closed": "Ce compte est fermé.",
+      "notAllowed": "Vous ne pouvez pas faire ça sur ce compte.",
+      "sameAccount": "Choisissez deux comptes différents.",
+      "handleTaken": "Cet identifiant est déjà pris. Choisissez-en un autre.",
+      "tooManyAccounts": "Vous possédez déjà autant de comptes partagés que possible. Fermez-en un d’abord.",
+      "tooManyMembers": "Le compte est complet. Retirez un membre ou annulez une invitation d’abord.",
+      "alreadyMember": "Ce joueur fait déjà partie du compte.",
+      "alreadyInvited": "Ce joueur a déjà une invitation en attente.",
+      "lastOwner": "Un compte a besoin d’au moins un propriétaire. Nommez quelqu’un d’autre propriétaire d’abord.",
+      "balanceNotZero": "Videz le compte avant de le fermer.",
+      "personalAccount": "Les comptes perso ne peuvent pas faire ça.",
+      "alreadyReversed": "Cette transaction a déjà été annulée.",
+      "notReversible": "Une annulation ne peut pas être annulée.",
+      "idempotencyMismatch": "Cette requête a déjà servi pour autre chose.",
+      "invalidCursor": "La liste a changé. Rechargez la page.",
+      "confirmMismatch": "Tapez la phrase exactement comme elle est écrite.",
+      "failed": "Ça n’a pas marché. Vérifiez votre connexion, puis réessayez."
+    },
+    "roles": {
+      "owner": "Propriétaire",
+      "member": "Membre",
+      "viewer": "Lecteur"
+    },
+    "roleHints": {
+      "owner": "gère les membres et le compte",
+      "member": "dépense et voit l’historique",
+      "viewer": "voit l’historique seulement"
+    },
+    "kinds": {
+      "payment": "Paiement",
+      "casino": "Casino",
+      "mint": "Création",
+      "burn": "Destruction",
+      "reversal": "Annulation"
+    },
+    "bank": {
+      "title": "Banque",
+      "lede": "Vos LNBits, les mêmes sur tous les comptes Minecraft que vous avez liés. Payez en jeu avec /pay, et choisissez ici le compte qui paie.",
+      "create": "Nouveau compte partagé",
+      "createLimit": "Vous possédez le maximum de comptes partagés ({max}). | Vous possédez le maximum de comptes partagés ({max}).",
+      "defaultSaved": "Compte qui paie enregistré",
+      "notEligible": {
+        "title": "Liez d’abord un compte Minecraft",
+        "lede": "La banque va avec votre compte Minecraft. Liez-en un avec Warden, puis revenez voir vos LNBits.",
+        "action": "Lier un compte Minecraft"
+      }
+    },
+    "accounts": {
+      "title": "Vos comptes",
+      "personal": "Compte perso",
+      "personalHint": "Vous seul pouvez dépenser dessus",
+      "sharedHint": "#{handle}, {role}",
+      "sharedPanelHint": "#{handle}, {n} membre, vous êtes {role} | #{handle}, {n} membres, vous êtes {role}",
+      "paysByDefault": "Paie par défaut",
+      "paysByDefaultHint": "Utilisé pour /pay, les shops et l’HDV sur tous vos comptes Minecraft",
+      "frozen": "Gelé",
+      "frozenHint": "Un admin a gelé ce compte, ou son propriétaire est banni. Aucun argent n’entre ni ne sort tant que ce n’est pas levé.",
+      "rank": "#{rank} au baltop"
+    },
+    "tabs": {
+      "history": "Historique",
+      "members": "Membres",
+      "settings": "Réglages"
+    },
+    "history": {
+      "today": "Aujourd’hui",
+      "yesterday": "Hier",
+      "received": "Reçu de {who}",
+      "paid": "Payé à {who}",
+      "startingBalance": "Capital de départ",
+      "adjustment": "Ajustement par LNB",
+      "reversal": "Annulé par LNB",
+      "reversed": "Annulée",
+      "memo": "« {memo} »",
+      "more": "Voir plus ancien",
+      "counterparty": {
+        "player": "un joueur",
+        "account": "un compte",
+        "lnb": "LNB",
+        "deleted": "un compte supprimé",
+        "several": "plusieurs comptes"
+      },
+      "empty": {
+        "title": "Rien pour l’instant",
+        "body": "Les paiements s’affichent ici dès que de l’argent entre ou sort."
+      }
+    },
+    "invitations": {
+      "title": "1 invitation | {n} invitations",
+      "body": "{who} vous invite sur {account} en tant que {role}.",
+      "bodyAnonymous": "Vous êtes invité sur {account} en tant que {role}.",
+      "accept": "Accepter",
+      "decline": "Refuser",
+      "accepted": "Vous avez rejoint le compte"
+    },
+    "members": {
+      "title": "1 membre | {n} membres",
+      "of": "sur {max}",
+      "you": "(vous)",
+      "roleOf": "Rôle de {name}",
+      "roleSaved": "Rôle enregistré",
+      "remove": "Retirer",
+      "removeTitle": "Retirer {name} ?",
+      "removeBody": "Cette personne perd l’accès au compte tout de suite. Vous pourrez l’inviter de nouveau plus tard.",
+      "removed": "Membre retiré",
+      "pending": "En attente de réponse",
+      "invitedAs": "Invité en tant que {role}",
+      "cancelInvitation": "Annuler l’invitation",
+      "inviteTitle": "Inviter quelqu’un",
+      "inviteLede": "La personne rejoint le compte une fois qu’elle accepte sur le site.",
+      "username": "Pseudo Minecraft",
+      "role": "Rôle",
+      "invite": "Envoyer l’invitation",
+      "invited": "Invitation envoyée à {username}",
+      "full": "Le compte est complet."
+    },
+    "settings": {
+      "hideFromBaltop": "Me cacher du baltop",
+      "hideFromBaltopHint": "Votre solde ne change pas, il n’est simplement pas classé. Vous pouvez revenir à tout moment.",
+      "baltopHidden": "Vous êtes caché du baltop",
+      "baltopShown": "Vous êtes de retour au baltop",
+      "name": "Nom",
+      "handleFixed": "#{handle} ne change jamais",
+      "rename": "Enregistrer le nom",
+      "renamed": "Nom enregistré",
+      "closeHeading": "Fermer le compte",
+      "closeHint": "Son identifiant reste pris, pour que personne ne puisse se faire passer pour lui.",
+      "closeNotEmpty": "Videz le compte avant de le fermer.",
+      "close": "Fermer le compte",
+      "closeTitle": "Fermer {name} ?",
+      "closeBody": "Tous les membres le perdent. C’est définitif.",
+      "closed": "Compte fermé",
+      "leaveHeading": "Quitter le compte",
+      "leaveHint": "Vous ne le voyez plus et ne pouvez plus dépenser dessus.",
+      "leave": "Quitter le compte",
+      "leaveTitle": "Quitter {name} ?",
+      "leaveBody": "Il vous faudra une nouvelle invitation pour revenir.",
+      "left": "Vous avez quitté le compte"
+    },
+    "create": {
+      "title": "Nouveau compte partagé",
+      "lede": "Pour une équipe, un shop ou un casino. Vous en serez propriétaire.",
+      "name": "Nom",
+      "handle": "Identifiant",
+      "handleHelp": "Les joueurs le paient avec /pay #identifiant. De 3 à 24 lettres minuscules, chiffres ou tirets. Il ne pourra plus changer.",
+      "submit": "Ouvrir le compte"
+    },
+    "baltop": {
+      "title": "Baltop",
+      "lede": "Qui a le plus de LNBits sur le serveur en ce moment.",
+      "ledeRank": "Qui a le plus de LNBits sur le serveur en ce moment. Vous êtes {rank} avec {balance}.",
+      "hide": "Me cacher du baltop",
+      "show": "M’afficher au baltop",
+      "podium": "Les trois premiers",
+      "place": {
+        "1": "Premier",
+        "2": "Deuxième",
+        "3": "Troisième"
+      },
+      "nameHidden": "Nom masqué",
+      "players": "Joueurs",
+      "shared": "Comptes partagés",
+      "sharedHint": "#{handle}, {n} membre | #{handle}, {n} membres",
+      "onlyPodium": "Personne d’autre n’est classé pour l’instant.",
+      "noShared": "Aucun compte partagé pour l’instant.",
+      "footnote": "Les joueurs sont classés selon leur compte perso. Ceux qui masquent leur nom n’affichent que leur pseudo.",
+      "empty": {
+        "title": "Personne n’est encore classé",
+        "body": "Le baltop se remplit à mesure que les joueurs gagnent des LNBits sur le serveur."
+      }
     }
   }
 }
