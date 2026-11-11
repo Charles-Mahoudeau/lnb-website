@@ -10,6 +10,7 @@ import * as events from '../../shared/schemas/events.ts';
 import * as flags from '../../shared/schemas/flags.ts';
 import { linkApproveBody, linkApproveResult, linkDenyBody } from '../../shared/schemas/link.ts';
 import * as mods from '../../shared/schemas/mods.ts';
+import * as partnerEvents from '../../shared/schemas/partner-events.ts';
 import * as partners from '../../shared/schemas/partners.ts';
 import * as posters from '../../shared/schemas/posters.ts';
 import * as push from '../../shared/schemas/push.ts';
@@ -134,6 +135,7 @@ const requestSchemas = {
   PushSettings: push.pushSettings,
   PushImpactBody: push.pushImpactBody,
   PartnerBody: partners.partnerBody,
+  PartnerInterestBody: partnerEvents.partnerInterestBody,
   PartnerPatchBody: partners.partnerPatchBody,
   PartnerMoveBody: partners.partnerMoveBody,
   PartnerSettingsBody: partners.partnerSettingsBody,
@@ -248,6 +250,7 @@ const responseSchemas = {
   PushSubscriberList: push.pushSubscriberList,
   PushImpact: push.pushImpactView,
   PushAnnounced: push.pushAnnounced,
+  PartnerEvent: partnerEvents.partnerEventView,
   PartnersPublic: partners.partnerPublicView,
   PartnersAdmin: partners.partnerAdminView,
   PartnerLogo: partners.partnerLogoView,
@@ -291,6 +294,7 @@ const TAGS = {
   team: 'Team',
   teamAdmin: 'Team: admins',
   partners: 'Partners',
+  partnerEvents: 'Partner events',
   partnersAdmin: 'Partners: admins',
   shortLinks: 'Short links',
   shortLinksAdmin: 'Short links: managers',
@@ -2412,6 +2416,35 @@ const routes: RouteDoc[] = [
   },
   {
     method: 'get',
+    path: '/api/partner-events/{slug}',
+    tag: TAGS.partnerEvents,
+    summary: 'A partner event',
+    description:
+      'The page of an event another organization runs (such as Arena League University 2027): its links, date wording, hero art, and its games with their status, team sizes and the number of interested students. Signed-in students also get their own interest in `mine`; visitors get null. Behind the `partnerEvents` flag.',
+    access: 'public',
+    params: partnerEvents.partnerEventParams,
+    response: partnerEvents.partnerEventView,
+    problems: [{ status: 404, problems: ['partnerEventNotFound'] }],
+  },
+  {
+    method: 'put',
+    path: '/api/partner-events/{slug}/interest',
+    tag: TAGS.partnerEvents,
+    summary: 'Save my interest',
+    description:
+      'Replaces the signed-in student’s interest: the games listed are kept or added with their in-game name and rank, and the games left out are withdrawn. An empty `games` list withdraws everything, and needs no consent and stays possible while interest is paused. Saving needs `consent: true`, the agreement to share the data with the organizer. Behind the `partnerEvents` and `partnerEvents.interest` flags.',
+    access: 'user',
+    params: partnerEvents.partnerEventParams,
+    body: partnerEvents.partnerInterestBody,
+    response: partnerEvents.partnerEventView,
+    problems: [
+      { status: 400, problems: ['consentRequired'] },
+      { status: 404, problems: ['partnerEventNotFound'] },
+      { status: 409, problems: ['interestClosed', 'partnerEventClosed'] },
+    ],
+  },
+  {
+    method: 'get',
     path: '/api/partners/logos/{key}',
     tag: TAGS.partners,
     summary: 'A partner logo',
@@ -3568,7 +3601,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       { name: 'Events', tags: [TAGS.events, TAGS.eventsAdmin, TAGS.postersAdmin] },
       {
         name: 'Team and partners',
-        tags: [TAGS.team, TAGS.teamAdmin, TAGS.partners, TAGS.partnersAdmin],
+        tags: [TAGS.team, TAGS.teamAdmin, TAGS.partners, TAGS.partnersAdmin, TAGS.partnerEvents],
       },
       { name: 'Short links', tags: [TAGS.shortLinks, TAGS.shortLinksAdmin] },
       { name: 'API keys', tags: [TAGS.apiKeysAdmin] },

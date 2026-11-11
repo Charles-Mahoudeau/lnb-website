@@ -37,6 +37,8 @@ export const FLAG_DEFINITIONS = [
   { key: 'team.join', parent: 'team' },
   { key: 'partners' },
   { key: 'partners.contact', parent: 'partners' },
+  { key: 'partnerEvents' },
+  { key: 'partnerEvents.interest', parent: 'partnerEvents' },
   { key: 'shortLinks' },
   { key: 'shortLinks.tracking', parent: 'shortLinks' },
   { key: 'apiKeys' },
