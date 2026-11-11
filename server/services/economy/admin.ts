@@ -16,6 +16,7 @@ import { adminAuditService } from '~~/server/services/admin-audit';
 import { economyLedger } from './ledger';
 import { bannedUsers, decodeCursor, PAGE_SIZE, refuse } from './shared';
 import type { Tx } from './shared';
+import { economyStatsService } from './stats';
 import { accountTransactions, memberCounts, playerNames } from './views';
 
 import type {
@@ -29,6 +30,7 @@ import type {
   EconomyLedgerPage,
   EconomyLedgerQuery,
   EconomyLedgerSide,
+  EconomyPeriod,
   EconomyTransactionPage,
 } from '#shared/schemas/economy';
 import { ECONOMY_RESET_CONFIRM } from '#shared/schemas/economy';
@@ -176,6 +178,11 @@ async function detail(accountId: string): Promise<EconomyAdminAccountDetail> {
 async function transactions(accountId: string, cursor?: string): Promise<EconomyTransactionPage> {
   await requireAccount(accountId);
   return accountTransactions(accountId, cursor);
+}
+
+async function balanceHistory(accountId: string, period: EconomyPeriod) {
+  await requireAccount(accountId);
+  return economyStatsService.balanceHistory(accountId, period);
 }
 
 /** Creates or destroys money on an account, with a reason its members see. */
@@ -404,6 +411,7 @@ export const economyAdminService = {
   list,
   detail,
   transactions,
+  balanceHistory,
   adjust,
   freeze,
   reverse,

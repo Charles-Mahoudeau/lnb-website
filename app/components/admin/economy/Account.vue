@@ -251,6 +251,8 @@ function counterparty(item: EconomyTransactionView): string {
       </div>
     </div>
 
+    <EconomyBalanceSection :url="`/api/economy/admin/accounts/${id}/balance-history`" wide />
+
     <section class="flex flex-col gap-3">
       <h2 class="text-xl font-medium text-highlighted">{{ t('admin.economy.account.history') }}</h2>
       <p

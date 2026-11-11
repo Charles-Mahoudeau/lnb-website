@@ -138,6 +138,10 @@ const canCreate = computed(
           :rank="selected.kind === 'personal' ? me.rank : null"
           @default="(on) => onDefault(selected!, on)"
         />
+        <EconomyBalanceSection
+          :key="`balance-${selected.id}`"
+          :url="`/api/economy/accounts/${selected.id}/balance-history`"
+        />
         <EconomyAccountTabs
           :key="selected.id"
           :account="selected"

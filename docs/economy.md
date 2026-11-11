@@ -78,16 +78,17 @@ Under `/api/economy/server`, behind the `economy.serverApi` flag, limited to 300
 
 Under `/api/economy`, for signed-in players, behind the `economy` flag; creating, renaming and closing shared accounts, invitations and members also need `economy.sharedAccounts`, and the baltop `economy.baltop`.
 
-| Route                                                      | What it does                                                                                                                   |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `GET /me`, `PATCH /me`                                     | Accounts, invitations, the default account, the baltop opt-out and rank. `PATCH` sets `defaultAccountId` and `hideFromBaltop`. |
-| `GET /baltop`                                              | The 50 richest players and the 20 richest shared accounts, and the caller's place.                                             |
-| `POST /accounts`                                           | Opens a shared account, with the caller as owner.                                                                              |
-| `GET /accounts/:id`, `PATCH`, `DELETE`                     | An account with its members (owners also see pending invitations); renaming; closing.                                          |
-| `GET /accounts/:id/transactions`                           | The history, newest first, 50 per page. Viewers can read it.                                                                   |
-| `POST /accounts/:id/invitations`, `DELETE …/:invitationId` | Invites a linked Minecraft username, or cancels an invitation.                                                                 |
-| `PATCH /accounts/:id/members/:userId`, `DELETE`            | Changes a role, or removes a member (a member removes themselves to leave).                                                    |
-| `POST /invitations/:id/accept`, `…/decline`                | Answers an invitation.                                                                                                         |
+| Route                                                        | What it does                                                                                                                                                    |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /me`, `PATCH /me`                                       | Accounts, invitations, the default account, the baltop opt-out and rank. `PATCH` sets `defaultAccountId` and `hideFromBaltop`.                                  |
+| `GET /baltop`                                                | The 50 richest players and the 20 richest shared accounts, and the caller's place.                                                                              |
+| `POST /accounts`                                             | Opens a shared account, with the caller as owner.                                                                                                               |
+| `GET /accounts/:id`, `PATCH`, `DELETE`                       | An account with its members (owners also see pending invitations); renaming; closing.                                                                           |
+| `GET /accounts/:id/transactions`                             | The history, newest first, 50 per page. Viewers can read it.                                                                                                    |
+| `GET /accounts/:id/balance-history?period=7d\|30d\|90d\|all` | The balance at the end of each day (Paris time) with the money in and out that day, from the start of the period or the account's opening. Viewers can read it. |
+| `POST /accounts/:id/invitations`, `DELETE …/:invitationId`   | Invites a linked Minecraft username, or cancels an invitation.                                                                                                  |
+| `PATCH /accounts/:id/members/:userId`, `DELETE`              | Changes a role, or removes a member (a member removes themselves to leave).                                                                                     |
+| `POST /invitations/:id/accept`, `…/decline`                  | Answers an invitation.                                                                                                                                          |
 
 ## Admin routes
 
@@ -98,6 +99,7 @@ Under `/api/economy/admin`, for economy admins and site admins. Never behind a f
 | `GET /stats?period=7d\|30d\|90d\|all`                 | Money in circulation per day, minted and burned per day and by reason, volume by kind, active players, the distribution of wealth (top 10 % share, Gini, histogram) and the largest shared accounts.                                                |
 | `GET /accounts`, `GET /accounts/:id`                  | Every account, richest first, with a search; one account with its members and its flows over 30 days.                                                                                                                                               |
 | `GET /accounts/:id/transactions`                      | An account's history.                                                                                                                                                                                                                               |
+| `GET /accounts/:id/balance-history`                   | The same balance history, for any account.                                                                                                                                                                                                          |
 | `POST /accounts/:id/adjustments`                      | Mints or burns, with a reason the members see.                                                                                                                                                                                                      |
 | `POST /accounts/:id/freeze`                           | Freezes (a reason is required) or unfreezes.                                                                                                                                                                                                        |
 | `GET /transactions`, `POST /transactions/:id/reverse` | The whole ledger with filters; reversing a transaction, with a reason.                                                                                                                                                                              |
@@ -108,7 +110,7 @@ Closed days of the charts come from `economy_daily_stat`, written every night by
 
 ## Pages
 
-- `/minecraft/bank`: the player's accounts on the left, the chosen one on the right with its balance, "Pays by default", and History, Members and Settings tabs. Players without a linked Minecraft account are sent to Warden.
+- `/minecraft/bank`: the player's accounts on the left, the chosen one on the right with its balance, "Pays by default", its balance over time, and History, Members and Settings tabs. Players without a linked Minecraft account are sent to Warden.
 - `/minecraft/baltop`: the top three in a band, then players and shared accounts side by side. Players show as first name and initial (as in-game), then their username; those who hid their name in Warden show their username alone. Players can leave the ranking; shared accounts can't.
 - `/admin/economy`: Overview, Accounts (with each account's page), Ledger and Settings.
 
