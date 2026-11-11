@@ -1239,6 +1239,10 @@
           "label": "Shops",
           "description": "Les shops des joueurs en jeu : acheter, revendre et enregistrer un shop. Les shops cassés se ferment quand même."
         },
+        "economy_trades": {
+          "label": "Échanges",
+          "description": "La partie argent des échanges entre joueurs en jeu. Les échanges d’objets seuls marchent toujours."
+        },
         "jobs_economySnapshot": {
           "label": "Stats de l’économie",
           "description": "L’enregistrement nocturne des graphiques de l’économie, et la fermeture des comptes bancaires des joueurs supprimés."
@@ -2940,6 +2944,7 @@
       "payment": "Paiement",
       "casino": "Casino",
       "shop": "Shop",
+      "trade": "Échange",
       "mint": "Création",
       "burn": "Destruction",
       "reversal": "Annulation"

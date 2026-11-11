@@ -73,6 +73,7 @@ export const ECONOMY_TRANSACTION_KINDS = [
   'payment',
   'casino',
   'shop',
+  'trade',
   'mint',
   'burn',
   'reversal',
@@ -80,7 +81,7 @@ export const ECONOMY_TRANSACTION_KINDS = [
 export const economyTransactionKind = z.enum(ECONOMY_TRANSACTION_KINDS);
 export type EconomyTransactionKind = z.infer<typeof economyTransactionKind>;
 /** Kinds that move money between players, counted as volume. Mint, burn and reversals aren't. */
-export const ECONOMY_VOLUME_KINDS = ['payment', 'casino', 'shop'] as const;
+export const ECONOMY_VOLUME_KINDS = ['payment', 'casino', 'shop', 'trade'] as const;
 
 export const economyReason = z.enum(['startingBalance', 'adjustment', 'accountClosed']);
 export type EconomyReason = z.infer<typeof economyReason>;
@@ -352,6 +353,31 @@ export const economyTransferResult = z.object({
   to: transferSide,
 });
 export type EconomyTransferResult = z.infer<typeof economyTransferResult>;
+
+// Trades: two players swap items in the game, with money on either side or both.
+
+const tradeSide = z.object({
+  player: minecraftUuid,
+  account: economyAccountRef
+    .optional()
+    .describe(
+      "The account this player trades with: it pays when they give more money, and is paid when they give less. The player's default account without it.",
+    ),
+});
+
+export const economyTradeBody = z
+  .object({
+    idempotencyKey: z.uuid(),
+    from: tradeSide.describe('The player who gives more money.'),
+    to: tradeSide.describe('The other player.'),
+    amount: economyAmount.describe('What `from` gave minus what `to` gave.'),
+    memo: economyMemo.optional(),
+  })
+  .refine((body) => body.from.player !== body.to.player, {
+    path: ['to'],
+    message: 'two players',
+  });
+export type EconomyTradeBody = z.input<typeof economyTradeBody>;
 
 // Player shops: a block in the game selling one item for an account, and maybe buying it back.
 

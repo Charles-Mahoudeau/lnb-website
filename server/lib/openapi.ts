@@ -3260,6 +3260,26 @@ const routes: RouteDoc[] = [
   },
   {
     method: 'post',
+    path: '/api/economy/server/trades',
+    tag: TAGS.economyServer,
+    summary: 'The money part of a trade',
+    description:
+      "Two players swap items in the game, with money on either side. The server holds both sides aside and sends what one player gave minus what the other gave, from the account `from` trades with to the one `to` trades with (each player's default account when none is named). Two Minecraft accounts of the same person are `sameAccount`. Carries an `idempotencyKey`, as transfers do.",
+    access: 'wardenServer',
+    body: economy.economyTradeBody,
+    response: economy.economyTransferResult,
+    problems: [
+      { status: 403, problems: ['notEligible', 'notAllowed'] },
+      { status: 404, problems: ['notLinked', 'notFound'] },
+      {
+        status: 409,
+        problems: ['insufficientFunds', 'frozen', 'closed', 'sameAccount', 'idempotencyMismatch'],
+      },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'post',
     path: '/api/economy/server/shops',
     tag: TAGS.economyServer,
     summary: 'Register a shop',

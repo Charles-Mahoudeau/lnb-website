@@ -26,7 +26,8 @@ import { user } from './auth';
 export type EconomyAccountKind = 'personal' | 'shared';
 export type EconomyMemberRole = 'owner' | 'member' | 'viewer';
 /** What a transaction was. `mint` and `burn` create and destroy money; nothing else does. */
-export type EconomyTransactionKind = 'payment' | 'casino' | 'shop' | 'mint' | 'burn' | 'reversal';
+export type EconomyTransactionKind =
+  'payment' | 'casino' | 'shop' | 'trade' | 'mint' | 'burn' | 'reversal';
 /** Why money was created or destroyed. Null for the other kinds. */
 export type EconomyReason = 'startingBalance' | 'adjustment' | 'accountClosed';
 /** Where a transaction came from: the Minecraft server, the site, or the site on its own. */
