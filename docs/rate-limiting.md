@@ -12,6 +12,7 @@ One middleware, `server/middleware/rate-limit.ts`, limits `/api/**` and `/go/**`
 | `warden-link-request` | `POST /api/warden/client/link-requests`                                                                    | 30 / 10 min | IP      |
 | `write`               | other POST, PUT, PATCH and DELETE                                                                          | 60 / min    | account |
 | `write-admin`         | writes under `/api/admin`, `/api/minecraft/admin`, `/api/warden/admin`, `/api/economy/admin`               | 240 / min   | account |
+| `team-search`         | `GET /api/events/<id>/team-players` (finding players to invite to a team)                                  | 30 / min    | account |
 | `write-heavy`         | uploads and imports, event announce and push impact, BDE sync, bulk user actions                           | 20 / min    | account |
 | `write-sensitive`     | `/api/link/approve`, and any route ending in `/token`                                                      | 10 / min    | account |
 

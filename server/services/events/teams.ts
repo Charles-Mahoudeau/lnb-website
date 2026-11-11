@@ -19,7 +19,13 @@ import type {
   EventTeamsView,
   EventTeamView,
 } from '#shared/schemas/event-teams';
-import { cleanTeamName, isValidTeamName, teamNameKey, teamSize } from '#shared/utils/event-teams';
+import {
+  MAX_PENDING_REQUESTS,
+  cleanTeamName,
+  isValidTeamName,
+  teamNameKey,
+  teamSize,
+} from '#shared/utils/event-teams';
 import { schoolForTenant } from '#shared/utils/schools';
 
 // Teams in tournaments. Players register to the event as usual, then create a team or join one.
@@ -136,7 +142,7 @@ async function settle(tx: Tx, row: EventRow, now = new Date()): Promise<SettleRe
 }
 
 /** The team's captain's members, as the service needs them: the membership of one player. */
-async function membershipOf(tx: Tx, eventId: string, userId: string) {
+export async function membershipOf(tx: Tx, eventId: string, userId: string) {
   return tx
     .select({
       id: eventTeamMember.id,
@@ -148,7 +154,7 @@ async function membershipOf(tx: Tx, eventId: string, userId: string) {
     .where(and(eq(eventRegistration.eventId, eventId), eq(eventRegistration.userId, userId)));
 }
 
-async function registrationOf(tx: Tx, eventId: string, userId: string) {
+export async function registrationOf(tx: Tx, eventId: string, userId: string) {
   const [reg] = await tx
     .select({ id: eventRegistration.id, lookingHidden: eventRegistration.lookingHidden })
     .from(eventRegistration)
@@ -157,7 +163,7 @@ async function registrationOf(tx: Tx, eventId: string, userId: string) {
 }
 
 /** A team event players can act on: published, with teams, not cancelled. */
-async function teamEvent(tx: Tx, eventId: string): Promise<EventRow> {
+export async function teamEvent(tx: Tx, eventId: string): Promise<EventRow> {
   const row = await lockEvent(tx, eventId);
   if (row.hidden) refuse(404, 'notFound');
   if (!row.teamMode) refuse(409, 'notTeamEvent');
@@ -166,12 +172,12 @@ async function teamEvent(tx: Tx, eventId: string): Promise<EventRow> {
 }
 
 /** Players can join, invite and create teams until the registration window closes. */
-function assertRosterOpen(row: EventRow, now = new Date()): void {
+export function assertRosterOpen(row: EventRow, now = new Date()): void {
   if (isRosterLocked(row, now)) refuse(409, 'rosterLocked');
 }
 
 /** Players can leave, rename and disband until the event starts. */
-function assertNotStarted(row: EventRow, now = new Date()): void {
+export function assertNotStarted(row: EventRow, now = new Date()): void {
   if (now >= row.startsAt) refuse(409, 'started');
 }
 
@@ -195,7 +201,7 @@ async function checkName(tx: Tx, eventId: string, name: string, exceptTeamId?: s
 }
 
 /** A player joining a team drops their other waiting invitations and requests for the event. */
-async function cancelPendingFor(tx: Tx, eventId: string, userId: string): Promise<void> {
+export async function cancelPendingFor(tx: Tx, eventId: string, userId: string): Promise<void> {
   const teamIds = tx
     .select({ id: eventTeam.id })
     .from(eventTeam)
@@ -212,7 +218,7 @@ async function cancelPendingFor(tx: Tx, eventId: string, userId: string): Promis
     );
 }
 
-async function captainTeam(tx: Tx, eventId: string, teamId: string, userId: string) {
+export async function captainTeam(tx: Tx, eventId: string, teamId: string, userId: string) {
   const [team] = await tx
     .select()
     .from(eventTeam)
@@ -379,6 +385,32 @@ async function view(input: {
     .orderBy(asc(eventTeamMember.id));
   const byTeam = Map.groupBy(members, (m) => m.teamId);
 
+  // Pending invitations and requests: the captain sees those of their team, a player their own.
+  const pending = signedIn
+    ? await db
+        .select({
+          id: eventTeamInvite.id,
+          teamId: eventTeamInvite.teamId,
+          kind: eventTeamInvite.kind,
+          userId: user.id,
+          name: user.name,
+          image: user.image,
+          tenantId: user.tenantId,
+        })
+        .from(eventTeamInvite)
+        .innerJoin(eventTeam, eq(eventTeam.id, eventTeamInvite.teamId))
+        .innerJoin(user, eq(user.id, eventTeamInvite.userId))
+        .where(and(eq(eventTeam.eventId, row.id), eq(eventTeamInvite.status, 'pending')))
+        .orderBy(asc(eventTeamInvite.id))
+    : [];
+  const asPerson = (p: (typeof pending)[number]) => ({
+    id: p.id,
+    userId: p.userId,
+    name: p.name,
+    image: p.image,
+    school: schoolForTenant(p.tenantId) ?? null,
+  });
+
   const rank = { registered: 0, waitlist: 1, incomplete: 2 } as const;
   const sorted = teams.sort(
     (a, b) =>
@@ -407,6 +439,14 @@ async function view(input: {
         : null,
       mine: ms.some((m) => m.userId === input.userId),
       captain: team.captainUserId !== null && team.captainUserId === input.userId,
+      invited:
+        team.captainUserId === input.userId && input.userId
+          ? pending.filter((p) => p.teamId === team.id && p.kind === 'invite').map(asPerson)
+          : null,
+      requests:
+        team.captainUserId === input.userId && input.userId
+          ? pending.filter((p) => p.teamId === team.id && p.kind === 'request').map(asPerson)
+          : null,
     };
   });
 
@@ -444,6 +484,26 @@ async function view(input: {
           registered: mine !== undefined,
           lookingHidden: mine?.hidden ?? false,
           teamIds: teamViews.filter((t) => t.mine).map((t) => t.id),
+          invitations: pending
+            .filter((p) => p.kind === 'invite' && p.userId === input.userId)
+            .map((p) => {
+              const team = teams.find((t) => t.id === p.teamId)!;
+              const captain = members.find((m) => m.userId === team.captainUserId);
+              return {
+                id: p.id,
+                teamId: team.id,
+                teamName: team.name,
+                from: captain?.name ?? null,
+              };
+            }),
+          requestedTeamIds: pending
+            .filter((p) => p.kind === 'request' && p.userId === input.userId)
+            .map((p) => p.teamId),
+          requestsLeft: Math.max(
+            0,
+            MAX_PENDING_REQUESTS -
+              pending.filter((p) => p.kind === 'request' && p.userId === input.userId).length,
+          ),
         }
       : null,
   };
