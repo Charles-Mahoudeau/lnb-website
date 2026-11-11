@@ -3,6 +3,7 @@ import type { NavigationMenuItem, TableColumn, TabsItem } from '@nuxt/ui';
 
 import { EventsAdminImagePicker } from '#components';
 
+import type { EventTeamsView, EventTeamView } from '#shared/schemas/event-teams';
 import type { EventAdminView, EventSummary, EventView } from '#shared/schemas/events';
 import type { ModView } from '#shared/schemas/mods';
 import type { PartnerPublicKind } from '#shared/schemas/partners';
@@ -340,6 +341,61 @@ const sampleAgenda: EventSummary[] = [
   },
 ];
 
+// Teams of a tournament, as a captain, a member and a visitor see them.
+const sampleMembers = [
+  { userId: 'u1', name: 'Ada Lovelace', image: null, school: 'Epitech', captain: true },
+  { userId: 'u2', name: 'Grace Hopper', image: null, school: 'e-artsup', captain: false },
+];
+const sampleTeams: EventTeamView[] = [
+  {
+    id: '2b6f3c1e-2a4d-4c1b-9b7e-5f1c2d3e4a5b',
+    name: 'Night Owls',
+    status: 'registered',
+    position: null,
+    players: 3,
+    acceptsRequests: true,
+    members: sampleMembers,
+    mine: true,
+    captain: true,
+    invited: [{ id: 1, userId: 'u3', name: 'Linus Torvalds', image: null, school: 'ISEG' }],
+    requests: [{ id: 2, userId: 'u4', name: 'Margaret Hamilton', image: null, school: 'Epitech' }],
+  },
+  {
+    id: '3b6f3c1e-2a4d-4c1b-9b7e-5f1c2d3e4a5b',
+    name: 'Les Éclairs',
+    status: 'incomplete',
+    position: null,
+    players: 1,
+    acceptsRequests: true,
+    members: sampleMembers.slice(0, 1),
+    mine: false,
+    captain: false,
+    invited: null,
+    requests: null,
+  },
+  {
+    id: '4b6f3c1e-2a4d-4c1b-9b7e-5f1c2d3e4a5b',
+    name: 'Cold Start',
+    status: 'waitlist',
+    position: 2,
+    players: 3,
+    acceptsRequests: false,
+    members: null,
+    mine: false,
+    captain: false,
+    invited: null,
+    requests: null,
+  },
+];
+const sampleTeamsMe: EventTeamsView['me'] = {
+  registered: true,
+  lookingHidden: false,
+  teamIds: [sampleTeams[0]!.id],
+  invitations: [],
+  requested: [],
+  requestsLeft: 3,
+};
+
 type Registration = {
   name: string;
   school: string;
@@ -653,6 +709,29 @@ function showToast() {
           <EventsRegistrationPanel :event="panel.event" />
         </div>
       </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Tournament teams</h2>
+      <p class="max-w-2xl text-muted">
+        A team of a tournament (<code>EventsTeamsCard</code>): its name, how many players it has,
+        and where it stands. Your own team sits on a raised surface and carries the controls; the
+        captain also sees who was invited and who asks to join. Status colors only for state: a
+        place, the waitlist. Visitors see no player names.
+      </p>
+      <ul class="flex max-w-2xl flex-col gap-3">
+        <li v-for="team in sampleTeams" :key="team.id">
+          <EventsTeamsCard
+            event-id="0b6f3c1e-2a4d-4c1b-9b7e-5f1c2d3e4a5b"
+            :team="team"
+            :min="3"
+            :max="4"
+            editable
+            open
+            :me="sampleTeamsMe"
+          />
+        </li>
+      </ul>
     </section>
 
     <section class="flex flex-col gap-6">
