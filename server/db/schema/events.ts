@@ -203,6 +203,9 @@ export const eventTeam = pgTable(
     nameKey: text('name_key').notNull(),
     captainUserId: text('captain_user_id').references(() => user.id, { onDelete: 'set null' }),
     acceptsRequests: boolean('accepts_requests').default(true).notNull(),
+    // A manager validated it by hand or put it over the limits: it keeps its place until its
+    // size is valid on its own.
+    forced: boolean('forced').default(false).notNull(),
     status: text('status').$type<EventTeamStatus>().default('incomplete').notNull(),
     validatedAt: timestamp('validated_at'),
     createdAt: timestamp('created_at').defaultNow().notNull(),

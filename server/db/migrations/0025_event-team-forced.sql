@@ -1,0 +1,1 @@
+ALTER TABLE "event_team" ADD COLUMN "forced" boolean DEFAULT false NOT NULL;
