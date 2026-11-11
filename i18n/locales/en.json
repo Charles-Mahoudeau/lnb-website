@@ -1815,8 +1815,8 @@
         "teamsOpenHint": "Creating, inviting and joining. Leaving stays possible.",
         "hero": "Hero image",
         "heroHint": "Get the organizer’s agreement before using their visual.",
-        "upload": "Upload",
-        "uploaded": "Image uploaded. Save to use it.",
+        "choose": "Choose image",
+        "uploaded": "Image picked. Save to use it.",
         "endTitle": "End of the event",
         "openText": "Closing makes the page read-only and starts a 60-day countdown. After it, interest, teams, invitations and dates of birth are deleted. Accounts are untouched.",
         "closedText": "The event is closed. Everything is deleted on {date}. Reopen it to cancel the deletion.",
@@ -1840,7 +1840,8 @@
         "referent": "Referent for the organizer",
         "referentHint": "Fills the Manager sheet. Players never see it.",
         "upload": "Card art",
-        "uploaded": "Image uploaded. Save to use it."
+        "uploaded": "Image picked. Save to use it.",
+        "choose": "Choose image"
       },
       "referent": {
         "title": "Referent of {team}",

@@ -62,14 +62,4 @@ export const partnerEventAdminActions = {
         method: 'POST',
       }),
     ),
-  upload: (slug: string, file: File) => {
-    const form = new FormData();
-    form.append('file', file);
-    return call(() =>
-      $fetch<{ key: string; url: string }>(`/api/admin/partner-events/${slug}/art`, {
-        method: 'POST',
-        body: form,
-      }),
-    );
-  },
 };

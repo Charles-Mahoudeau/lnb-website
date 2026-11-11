@@ -358,8 +358,6 @@ export const partnerTeamReferentBody = z
   .strict();
 export type PartnerTeamReferentBody = z.input<typeof partnerTeamReferentBody>;
 
-export const partnerArtStored = z.object({ key: z.string(), url: z.string() });
-
 export const partnerAdminTeamParams = partnerEventParams.extend({ teamId: z.uuid() });
 
 const adminReferent = z.object({
