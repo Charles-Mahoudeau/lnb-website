@@ -33,7 +33,7 @@ import { economyTransferBody } from '#shared/schemas/economy';
 type TransferBody = ReturnType<typeof economyTransferBody.parse>;
 
 /** The LNB account behind a linked Minecraft account. */
-async function ownerOf(dbx: Db, uuid: string): Promise<string> {
+export async function ownerOf(dbx: Db, uuid: string): Promise<string> {
   const [account] = await dbx
     .select({ userId: minecraftAccount.userId })
     .from(minecraftAccount)
@@ -43,7 +43,7 @@ async function ownerOf(dbx: Db, uuid: string): Promise<string> {
 }
 
 /** The eligible player behind a Minecraft account, with their personal account opened. */
-async function player(tx: Tx, uuid: string) {
+export async function player(tx: Tx, uuid: string) {
   const userId = await ownerOf(tx, uuid);
   if (!(await economyAccountService.isEligible(tx, userId))) refuse(403, 'notEligible');
   const personal = await economyAccountService.ensurePersonal(tx, userId);
@@ -84,23 +84,17 @@ async function account(handle: string): Promise<EconomyServerAccount> {
 
 /** The same request always gives the same fingerprint, whatever the order of its keys. */
 function fingerprint(body: TransferBody): string {
-  const { idempotencyKey: _key, ...rest } = body;
-  const canonical = JSON.stringify({
-    from: { player: rest.from.player ?? null, account: rest.from.account ?? null },
-    to: { player: rest.to.player ?? null, account: rest.to.account ?? null },
-    amount: rest.amount,
-    kind: rest.kind,
-    memo: rest.memo ?? null,
+  return hashRequest({
+    from: { player: body.from.player ?? null, account: body.from.account ?? null },
+    to: { player: body.to.player ?? null, account: body.to.account ?? null },
+    amount: body.amount,
+    kind: body.kind,
+    memo: body.memo ?? null,
   });
-  return createHash('sha256').update(canonical).digest('hex');
 }
 
-/** The result of a transfer already made with this key, or nothing. */
-async function replay(
-  dbx: Db,
-  key: string,
-  print: string,
-): Promise<EconomyTransferResult | undefined> {
+/** A transaction already made with this key and its two sides, or nothing. */
+export async function previousByKey(dbx: Db, key: string, print: string) {
   const [existing] = await dbx
     .select({ id: economyTransaction.id, fingerprint: economyTransaction.fingerprint })
     .from(economyTransaction)
@@ -126,7 +120,12 @@ async function replay(
     amount: to.amount,
     from: { accountId: from.accountId, handle: from.handle, balance: from.balanceAfter ?? 0 },
     to: { accountId: to.accountId, handle: to.handle, balance: to.balanceAfter ?? 0 },
-  };
+  } satisfies EconomyTransferResult;
+}
+
+/** The SHA-256 of a request, to refuse the same key on a different one. */
+export function hashRequest(canonical: unknown): string {
+  return createHash('sha256').update(JSON.stringify(canonical)).digest('hex');
 }
 
 /**
@@ -137,7 +136,7 @@ async function replay(
 async function transfer(input: EconomyTransferBody): Promise<EconomyTransferResult> {
   const body = economyTransferBody.parse(input);
   const print = fingerprint(body);
-  const previous = await replay(db, body.idempotencyKey, print);
+  const previous = await previousByKey(db, body.idempotencyKey, print);
   if (previous) return previous;
 
   try {
@@ -193,7 +192,7 @@ async function transfer(input: EconomyTransferBody): Promise<EconomyTransferResu
   } catch (error) {
     // The same key sent twice at once: the second one lost the race, so answer like a retry.
     if (isUniqueViolation(error)) {
-      const raced = await replay(db, body.idempotencyKey, print);
+      const raced = await previousByKey(db, body.idempotencyKey, print);
       if (raced) return raced;
     }
     throw error;
