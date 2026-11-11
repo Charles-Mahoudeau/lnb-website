@@ -19,7 +19,7 @@ import { event } from './events';
 
 // Web Push to signed-in accounts, about events only. See docs/push.md.
 
-export type PushKind = 'newEvent' | 'reminder' | 'spot' | 'cancelled' | 'rescheduled';
+export type PushKind = 'newEvent' | 'reminder' | 'spot' | 'cancelled' | 'rescheduled' | 'team';
 export type PushStatus = 'pending' | 'sent' | 'failed' | 'skipped';
 
 /** One browser on one device that allowed notifications. Gone with the account. */
@@ -97,7 +97,7 @@ export const pushNotification = pgTable(
     index('push_notification_event_id_idx').on(table.eventId),
     check(
       'push_notification_kind_check',
-      sql`${table.kind} IN ('newEvent', 'reminder', 'spot', 'cancelled', 'rescheduled')`,
+      sql`${table.kind} IN ('newEvent', 'reminder', 'spot', 'cancelled', 'rescheduled', 'team')`,
     ),
     check(
       'push_notification_status_check',

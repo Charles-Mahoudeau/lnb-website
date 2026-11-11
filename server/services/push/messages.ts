@@ -11,6 +11,9 @@ const MESSAGES = { en: en.push.message, fr: fr.push.message } as const;
 const ZONE = 'Europe/Paris';
 const INTL_LOCALE: Record<PushLocale, string> = { en: 'en-GB', fr: 'fr-FR' };
 
+/** Why a team notification is sent: the key of its text under push.message.team. */
+export type TeamReason = keyof (typeof MESSAGES)['en']['team'];
+
 export interface PushEventInfo {
   id: string;
   name: string;
@@ -44,7 +47,7 @@ export function buildMessage(
   kind: PushKindName,
   locale: PushLocale,
   info: PushEventInfo,
-  params: { offset?: number } = {},
+  params: { offset?: number; reason?: TeamReason; team?: string; who?: string } = {},
 ): PushMessage {
   const intl = INTL_LOCALE[locale];
   const date = new Intl.DateTimeFormat(intl, {
@@ -65,8 +68,11 @@ export function buildMessage(
     date,
     time,
     relative: relativeOffset(params.offset ?? 60, locale),
+    team: params.team ?? '',
+    who: params.who ?? '',
   };
-  const template = MESSAGES[locale][kind];
+  const template =
+    kind === 'team' ? MESSAGES[locale].team[params.reason ?? 'invited'] : MESSAGES[locale][kind];
   return {
     title: fill(template.title, values),
     body: fill(template.body, values),

@@ -21,6 +21,7 @@ const KIND_FLAG: Record<PushKind, FlagKey> = {
   spot: 'push.spots',
   cancelled: 'push.changes',
   rescheduled: 'push.changes',
+  team: 'push.spots',
 };
 
 const KIND_PREFERENCE = {
@@ -29,6 +30,7 @@ const KIND_PREFERENCE = {
   spot: pushPreference.spots,
   cancelled: pushPreference.changes,
   rescheduled: pushPreference.changes,
+  team: pushPreference.spots,
 } as const;
 
 /** Whether the kind may be queued right now: the feature and the kind's own flag are on. */

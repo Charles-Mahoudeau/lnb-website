@@ -2465,6 +2465,36 @@
       "rescheduled": {
         "title": "New time: {name}",
         "body": "It now starts on {date} at {time}."
+      },
+      "team": {
+        "invited": {
+          "title": "{who} invited you to {team}",
+          "body": "Join the team for {name} on {date}."
+        },
+        "request": {
+          "title": "{who} wants to join {team}",
+          "body": "Answer their request for {name}."
+        },
+        "accepted": {
+          "title": "You’re in {team}",
+          "body": "Your request for {name} was accepted."
+        },
+        "declined": {
+          "title": "Request declined",
+          "body": "{team} can’t take you for {name}."
+        },
+        "validated": {
+          "title": "{team} is registered",
+          "body": "The team has a place at {name} on {date}."
+        },
+        "place": {
+          "title": "{team} got a place",
+          "body": "The team now has a place at {name} on {date}."
+        },
+        "waitlist": {
+          "title": "{team} is on the waiting list",
+          "body": "The team is complete, and waits for a place at {name}."
+        }
       }
     },
     "prompt": {
@@ -2500,12 +2530,13 @@
         },
         "spots": {
           "label": "Waitlist places",
-          "description": "When a place opens for you, or a manager adds you"
+          "description": "When a place opens for you or your team, a manager adds you, or a team invites you or answers"
         },
         "changes": {
           "label": "Changes to my events",
           "description": "Cancelled or moved events"
-        }
+        },
+        "team": "Team news"
       },
       "devices": "Your devices",
       "thisDevice": "This device",

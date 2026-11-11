@@ -183,6 +183,13 @@
       "when": 1794403049288,
       "tag": "0025_event-team-forced",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1794404102758,
+      "tag": "0026_push-team-kind",
+      "breakpoints": true
     }
   ]
 }

@@ -12,7 +12,14 @@ export const reminderOffsets = z
   .refine((offsets) => new Set(offsets).size === offsets.length)
   .describe('Minutes before the start. Empty: no reminder.');
 
-export const PUSH_KINDS = ['newEvent', 'reminder', 'spot', 'cancelled', 'rescheduled'] as const;
+export const PUSH_KINDS = [
+  'newEvent',
+  'reminder',
+  'spot',
+  'cancelled',
+  'rescheduled',
+  'team',
+] as const;
 export type PushKindName = (typeof PUSH_KINDS)[number];
 
 /** The four switches an account has: which kinds of notification it wants. */
