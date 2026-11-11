@@ -1,10 +1,12 @@
 import type {
   EconomyAccountDetail,
+  EconomyBalanceHistory,
   EconomyBaltop,
   EconomyCreateBody,
   EconomyInviteBody,
   EconomyMe,
   EconomyMePatchBody,
+  EconomyPeriod,
   EconomyProblem,
   EconomyRole,
   EconomyTransactionPage,
@@ -50,6 +52,17 @@ export function useEconomyHistory(accountId: Ref<string>) {
     () => `/api/economy/accounts/${accountId.value}/transactions`,
     { key: computed(() => `economy-history-${accountId.value}`) },
   );
+}
+
+/**
+ * An account's balance per day. `url` is the players' route or the admins' one, so the bank and
+ * the admin account page share the section.
+ */
+export function useEconomyBalanceHistory(url: Ref<string>, period: Ref<EconomyPeriod>) {
+  return useFetch<EconomyBalanceHistory>(url, {
+    key: computed(() => `economy-balance-${url.value}-${period.value}`),
+    query: { period },
+  });
 }
 
 export function useBaltop() {
