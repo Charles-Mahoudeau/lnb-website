@@ -2694,6 +2694,26 @@
         "title": "Personne n’est encore classé",
         "body": "Le baltop se remplit à mesure que les joueurs gagnent des LNBits sur le serveur."
       }
+    },
+    "balance": {
+      "title": "Évolution du solde",
+      "period": "Période",
+      "periods": {
+        "7d": "7 jours",
+        "30d": "30 jours",
+        "90d": "90 jours",
+        "all": "Tout"
+      },
+      "change": {
+        "7d": "{change} sur 7 jours",
+        "30d": "{change} sur 30 jours",
+        "90d": "{change} sur 90 jours",
+        "all": "{change} depuis l’ouverture du compte"
+      },
+      "legendBalance": "Solde",
+      "legendVolume": "Entrées et sorties par jour",
+      "chartLabel": "Le solde est passé de {from} à {to} LNBits sur la période.",
+      "dayLabel": "{day} : {balance} LNBits, {in} entrés, {out} sortis"
     }
   }
 }

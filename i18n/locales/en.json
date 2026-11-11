@@ -2690,6 +2690,26 @@
         "title": "Nobody is ranked yet",
         "body": "The baltop fills up as players earn LNBits on the server."
       }
+    },
+    "balance": {
+      "title": "Balance over time",
+      "period": "Period",
+      "periods": {
+        "7d": "7 days",
+        "30d": "30 days",
+        "90d": "90 days",
+        "all": "All"
+      },
+      "change": {
+        "7d": "{change} over 7 days",
+        "30d": "{change} over 30 days",
+        "90d": "{change} over 90 days",
+        "all": "{change} since the account opened"
+      },
+      "legendBalance": "Balance",
+      "legendVolume": "In and out per day",
+      "chartLabel": "The balance went from {from} to {to} LNBits over the period.",
+      "dayLabel": "{day}: {balance} LNBits, {in} in, {out} out"
     }
   }
 }
