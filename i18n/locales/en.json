@@ -1235,6 +1235,10 @@
           "label": "Shops",
           "description": "Player shops in the game: buying, selling back, and saving a shop. Shops that are broken still close."
         },
+        "economy_trades": {
+          "label": "Trades",
+          "description": "The money part of trades between players in the game. Trades with items only still work."
+        },
         "jobs_economySnapshot": {
           "label": "Economy stats",
           "description": "The nightly save of the economy charts, and closing the bank accounts of deleted players."
@@ -2936,6 +2940,7 @@
       "payment": "Payment",
       "casino": "Casino",
       "shop": "Shop",
+      "trade": "Trade",
       "mint": "Mint",
       "burn": "Burn",
       "reversal": "Reversal"
