@@ -1010,6 +1010,10 @@
           "label": "Event registration",
           "description": "Registering, joining the waitlist and cancelling. Pages stay, and managers can still add and remove people."
         },
+        "events_teams": {
+          "label": "Event teams",
+          "description": "Creating teams, invitations and requests to join in tournaments. Pages stay readable, and managers can still edit every team."
+        },
         "events_imageSearch": {
           "label": "Event image search",
           "description": "SteamGridDB in the event image picker. Uploads and links keep working."

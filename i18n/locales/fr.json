@@ -1014,6 +1014,10 @@
           "label": "Inscriptions aux événements",
           "description": "S’inscrire, rejoindre la liste d’attente et se désinscrire. Les pages restent, et les gestionnaires peuvent toujours ajouter et retirer des personnes."
         },
+        "events_teams": {
+          "label": "Équipes des événements",
+          "description": "Créer des équipes, inviter et demander à rejoindre une équipe dans les tournois. Les pages restent lisibles, et les gestionnaires peuvent toujours modifier chaque équipe."
+        },
         "events_imageSearch": {
           "label": "Recherche d’images d’événements",
           "description": "SteamGridDB dans le choix d’image des événements. L’envoi de fichiers et les liens restent possibles."
