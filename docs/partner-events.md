@@ -43,6 +43,7 @@ Status: slices 1 (the page, the games and interest) and 2 (teams) are built. The
 - Game panel: status, starters and substitutes (refused with `gameHasTeams` or `placesInUse` when teams exist or would not fit), card art, the referent the organizer's spreadsheet asks for (the Manager sheet), the teams with a per-team referent override and Disband, and the interest list with search.
 - Export (`GET /api/admin/partner-events/:slug/export`): sheets `Manager` (one row per team), `Joueur` (one per player, with role Capitaine, Joueur or Remplaçant) and `Intérêt`, mirroring the organizer's template. Each export is logged.
 - Close event makes the page read-only. `server/tasks/partner-events/purge.ts` (nightly, flag `jobs.purgePartnerEvents`) deletes interest, teams, invitations and dates of birth 60 days later. Reopening before then cancels it. Accounts are untouched.
+- Announce: a card in the event panel queues the push notification once, after a dialog that says how many accounts would get it (`POST /api/admin/partner-events/:slug/announce-impact`, then `/announce`). Only accounts that turned partner events on in `/account` receive it, so expect few. Refused once the event is closed.
 - Every change is in the admin log (`partnerEvent.*`). Code: `server/services/partner-events-admin.ts`, `server/services/partner-events-export.ts`, routes under `server/api/admin/partner-events/`.
 
 ## Flags
@@ -59,4 +60,4 @@ Status: slices 1 (the page, the games and interest) and 2 (teams) are built. The
 
 ## Still to do
 
-The `partner-event` push kind with its opt-in and the Announce button. A card on the home page and a line in the events listing while the event is open. The organizer's agreement before using their hero image.
+Invitation and request notifications are built (see `docs/push.md`). A card on the home page and a line in the events listing while the event is open. The organizer's agreement before using their hero image.

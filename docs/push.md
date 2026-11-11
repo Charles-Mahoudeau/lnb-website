@@ -15,6 +15,11 @@ Design: see Notifications in `docs/design.md` and the [push mock](https://claude
 | `cancelled`   | The event is cancelled                                                                                     | Registered and waitlisted           | Changes to my events | `push.changes`   |
 | `rescheduled` | A published event's start time changes                                                                     | Registered and waitlisted           | Changes to my events | `push.changes`   |
 
+| `partnerEvent` | A manager announces a partner event (`/admin/partner-events`), once | Only accounts that turned it on | Partner events (off by default) | `push.partnerEvents` |
+| `partnerTeam` | A partner event team invites someone, a student asks the captain, a request is answered | The people involved | Waitlist places | `push.spots` |
+
+Partner events are another organization's, so unlike the other switches the partner events one is off until the account turns it on, and an account with no preferences row doesn't get it. The announcement waits during the quiet hours like a new-event one. A student who turns down an invitation sends nothing to the captain. `push_notification.partner_event_id` stands in for `event_id`; the text is `buildPartnerMessage` and a tap opens `/special/<slug>`. See `docs/partner-events.md`.
+
 Removing someone by hand sends nothing. Events default to one reminder, 1 hour before. A moved event reminds again at its new time.
 
 ## The weekly limit warns, it never blocks
