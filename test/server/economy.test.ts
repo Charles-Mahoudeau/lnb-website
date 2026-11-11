@@ -382,3 +382,36 @@ describe('stats', () => {
     expect(new Set(after.days.map((day) => day.day)).size).toBe(after.days.length);
   });
 });
+
+describe('balance history', () => {
+  it('ends on the current balance, with the day’s money in and out', async () => {
+    const alice = await player();
+    const bob = await player();
+    const paid = await pay(alice.uuid, { player: bob.uuid }, 30);
+    await pay(bob.uuid, { player: alice.uuid }, 5);
+    const history = await economyAccountService.balanceHistory(alice.id, paid.from.accountId, '7d');
+    // Opened today, so the history starts today.
+    expect(history.days).toHaveLength(1);
+    expect(history.days.at(-1)).toMatchObject({ balance: 75, in: 105, out: 30 });
+    await expect(
+      economyAccountService.balanceHistory(bob.id, paid.from.accountId, '7d'),
+    ).rejects.toMatchObject({ data: { problem: 'notFound' } });
+  });
+
+  it('carries the balance over quiet days', async () => {
+    const alice = await player();
+    const { id } = await personalOf(alice.id);
+    const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+    await db.update(economyAccount).set({ createdAt: twoDaysAgo }).where(eq(economyAccount.id, id));
+    await db
+      .update(economyTransaction)
+      .set({ at: twoDaysAgo })
+      .where(
+        sql`${economyTransaction.id} in (select transaction_id from economy_entry where account_id = ${id})`,
+      );
+    const history = await economyStatsService.balanceHistory(id, '30d');
+    expect(history.days).toHaveLength(3);
+    expect(history.days.map((day) => day.balance)).toEqual([100, 100, 100]);
+    expect(history.days.map((day) => day.in)).toEqual([100, 0, 0]);
+  });
+});

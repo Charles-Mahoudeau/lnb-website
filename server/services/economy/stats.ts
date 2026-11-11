@@ -25,7 +25,7 @@ import { daysBetween, gini, histogram, parisDay, periodStart, topShare } from '.
 import type { Db } from './shared';
 import { memberCounts } from './views';
 
-import type { EconomyPeriod, EconomyStats } from '#shared/schemas/economy';
+import type { EconomyBalanceHistory, EconomyPeriod, EconomyStats } from '#shared/schemas/economy';
 import { ECONOMY_VOLUME_KINDS } from '#shared/schemas/economy';
 
 // The admin overview's numbers. Closed days come from economy_daily_stat, written each night by
@@ -277,4 +277,57 @@ async function stats(period: EconomyPeriod, now = new Date()): Promise<EconomySt
   };
 }
 
-export const economyStatsService = { stats, snapshot, parisMidnight };
+/**
+ * One account's balance at the end of each Paris day, with the money in and out that day, from
+ * the first day of the period (or the account's opening for `all`) to today.
+ */
+async function balanceHistory(
+  accountId: string,
+  period: EconomyPeriod,
+  now = new Date(),
+): Promise<EconomyBalanceHistory> {
+  const [account] = await db
+    .select({ createdAt: economyAccount.createdAt })
+    .from(economyAccount)
+    .where(eq(economyAccount.id, accountId));
+  if (!account) return { period, days: [] };
+  const today = parisDay(now);
+  const start = periodStart(period, now);
+  const firstDay =
+    start && start > account.createdAt ? parisDay(start) : parisDay(account.createdAt);
+  const from = parisMidnight(firstDay);
+
+  const [opening, rows] = await Promise.all([
+    // The balance before the first day: the last line written before it.
+    db
+      .select({ balance: economyEntry.balanceAfter })
+      .from(economyEntry)
+      .innerJoin(economyTransaction, eq(economyTransaction.id, economyEntry.transactionId))
+      .where(and(eq(economyEntry.accountId, accountId), lt(economyTransaction.at, from)))
+      .orderBy(desc(economyEntry.transactionId))
+      .limit(1),
+    db
+      .select({
+        day: parisDate,
+        in: sql<string>`coalesce(sum(${economyEntry.amount}) filter (where ${economyEntry.amount} > 0), 0)`,
+        out: sql<string>`coalesce(-sum(${economyEntry.amount}) filter (where ${economyEntry.amount} < 0), 0)`,
+        closing: sql<string>`(array_agg(${economyEntry.balanceAfter} order by ${economyEntry.transactionId} desc))[1]`,
+      })
+      .from(economyEntry)
+      .innerJoin(economyTransaction, eq(economyTransaction.id, economyEntry.transactionId))
+      .where(and(eq(economyEntry.accountId, accountId), gte(economyTransaction.at, from)))
+      .groupBy(parisDate),
+  ]);
+  const byDay = new Map(rows.map((row) => [row.day, row]));
+  let balance = opening[0]?.balance ?? 0;
+  return {
+    period,
+    days: daysBetween(firstDay, today).map((day) => {
+      const row = byDay.get(day);
+      if (row) balance = Number(row.closing);
+      return { day, balance, in: Number(row?.in ?? 0), out: Number(row?.out ?? 0) };
+    }),
+  };
+}
+
+export const economyStatsService = { stats, snapshot, parisMidnight, balanceHistory };

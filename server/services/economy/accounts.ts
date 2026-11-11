@@ -16,6 +16,7 @@ import { canManage, canSpend } from './rules';
 import { economySettingsService } from './settings';
 import { refuse } from './shared';
 import type { Db, Tx } from './shared';
+import { economyStatsService } from './stats';
 import { accountTransactions, accountViews, playerNames } from './views';
 
 import type {
@@ -24,6 +25,7 @@ import type {
   EconomyInviteBody,
   EconomyMe,
   EconomyMePatchBody,
+  EconomyPeriod,
   EconomyRole,
   EconomyTransactionPage,
 } from '#shared/schemas/economy';
@@ -289,6 +291,12 @@ async function transactions(
 ): Promise<EconomyTransactionPage> {
   await membership(db, accountId, userId);
   return accountTransactions(accountId, cursor);
+}
+
+/** An account's balance per day, for anyone in it, viewers included. */
+async function balanceHistory(userId: string, accountId: string, period: EconomyPeriod) {
+  await membership(db, accountId, userId);
+  return economyStatsService.balanceHistory(accountId, period);
 }
 
 /** Opens a shared account with the player as its owner. */
@@ -583,6 +591,7 @@ export const economyAccountService = {
   me,
   detail,
   transactions,
+  balanceHistory,
   create,
   rename,
   close,

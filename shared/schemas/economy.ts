@@ -440,6 +440,22 @@ export const ECONOMY_PERIODS = ['7d', '30d', '90d', 'all'] as const;
 export const economyStatsQuery = z.object({ period: z.enum(ECONOMY_PERIODS).default('30d') });
 export type EconomyPeriod = (typeof ECONOMY_PERIODS)[number];
 
+/** GET /api/economy/accounts/:accountId/balance-history, and the admin's twin. */
+export const economyBalanceHistory = z.object({
+  period: z.enum(ECONOMY_PERIODS),
+  days: z
+    .array(
+      z.object({
+        day: z.string().describe('YYYY-MM-DD, in Paris time.'),
+        balance: z.number().describe('At the end of the day.'),
+        in: z.number().describe('Money in that day.'),
+        out: z.number().describe('Money out that day.'),
+      }),
+    )
+    .describe('One per day, oldest first, up to today. Days without activity keep the balance.'),
+});
+export type EconomyBalanceHistory = z.infer<typeof economyBalanceHistory>;
+
 /** GET /api/economy/admin/stats */
 export const economyStats = z.object({
   period: z.enum(ECONOMY_PERIODS),
