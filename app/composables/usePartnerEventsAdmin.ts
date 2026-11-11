@@ -7,6 +7,7 @@ import type {
   PartnerGameSettingsBody,
   PartnerTeamReferentBody,
 } from '#shared/schemas/partner-events';
+import type { PushImpactView } from '#shared/schemas/push';
 
 // The Partner events section of the admin area. Writes throw a PartnerEventError.
 
@@ -48,6 +49,19 @@ export const partnerEventAdminActions = {
     call(() => $fetch(`/api/admin/partner-events/${slug}/close`, { method: 'POST' })),
   reopen: (slug: string) =>
     call(() => $fetch(`/api/admin/partner-events/${slug}/reopen`, { method: 'POST' })),
+  announceImpact: (slug: string, locale: 'en' | 'fr') =>
+    call(() =>
+      $fetch<PushImpactView>(`/api/admin/partner-events/${slug}/announce-impact`, {
+        method: 'POST',
+        body: { locale },
+      }),
+    ),
+  announce: (slug: string) =>
+    call(() =>
+      $fetch<{ recipients: number; sendAt: string }>(`/api/admin/partner-events/${slug}/announce`, {
+        method: 'POST',
+      }),
+    ),
   upload: (slug: string, file: File) => {
     const form = new FormData();
     form.append('file', file);

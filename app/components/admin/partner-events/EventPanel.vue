@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { PartnerAdminView } from '#shared/schemas/partner-events';
+import type { PushImpactView } from '#shared/schemas/push';
 
 // The event itself: dates, links, the two switches, the hero image, the spreadsheet for the
 // organizer, and closing. See docs/partner-events.md.
 const props = defineProps<{ event: PartnerAdminView }>();
 const emit = defineEmits<{ changed: [] }>();
 
-const { t, d } = useI18n();
+const { t, d, locale } = useI18n();
 const toast = useToast();
 
 const form = reactive({
@@ -22,6 +23,41 @@ const heroKey = ref(props.event.heroKey);
 const heroUrl = ref(props.event.hero);
 const pending = ref(false);
 const closing = ref(false);
+const announcing = ref(false);
+const impact = ref<PushImpactView | null>(null);
+
+async function askAnnounce() {
+  impact.value = null;
+  announcing.value = true;
+  try {
+    impact.value = await partnerEventAdminActions.announceImpact(
+      props.event.slug,
+      locale.value === 'fr' ? 'fr' : 'en',
+    );
+  } catch {
+    announcing.value = false;
+    toast.add({
+      title: t('admin.partnerEvents.notify.impactFailed'),
+      color: 'error',
+      icon: 'i-lucide-circle-alert',
+    });
+  }
+}
+
+async function onAnnounce() {
+  const done = await run(async () => {
+    const sent = await partnerEventAdminActions.announce(props.event.slug);
+    toast.add({
+      title: t('admin.partnerEvents.notify.sent', { count: sent.recipients }),
+      description: t('admin.partnerEvents.notify.when', {
+        date: d(sent.sendAt, { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Europe/Paris' }),
+      }),
+      color: 'success',
+      icon: 'i-lucide-bell-ring',
+    });
+  }, t('admin.partnerEvents.notify.done'));
+  if (done) announcing.value = false;
+}
 
 async function run(action: () => Promise<unknown>, success: string): Promise<boolean> {
   pending.value = true;
@@ -171,6 +207,28 @@ const purgeDate = computed(() =>
 
     <UCard>
       <template #header>
+        <h2 class="text-lg">{{ t('admin.partnerEvents.notify.title') }}</h2>
+      </template>
+      <div class="flex flex-col items-start gap-4">
+        <p class="text-muted">{{ t('admin.partnerEvents.notify.text') }}</p>
+        <p v-if="event.announcedAt" class="text-sm text-muted">
+          {{
+            t('admin.partnerEvents.notify.announced', {
+              date: d(event.announcedAt, { dateStyle: 'long', timeZone: 'Europe/Paris' }),
+            })
+          }}
+        </p>
+        <UButton
+          icon="i-lucide-bell-ring"
+          :label="t('admin.partnerEvents.notify.button')"
+          :disabled="!!event.announcedAt || !!event.closedAt"
+          @click="askAnnounce"
+        />
+      </div>
+    </UCard>
+
+    <UCard>
+      <template #header>
         <h2 class="text-lg">{{ t('admin.partnerEvents.event.endTitle') }}</h2>
       </template>
       <div class="flex flex-col items-start gap-4">
@@ -200,6 +258,63 @@ const purgeDate = computed(() =>
         />
       </div>
     </UCard>
+
+    <UModal
+      v-model:open="announcing"
+      :title="t('admin.partnerEvents.notify.confirmTitle')"
+      :description="t('admin.partnerEvents.notify.confirmText')"
+    >
+      <template #body>
+        <p v-if="!impact" class="text-muted">{{ t('admin.partnerEvents.notify.loading') }}</p>
+        <div v-else class="flex flex-col gap-4">
+          <p>
+            {{
+              t('admin.partnerEvents.notify.recipients', {
+                count: impact.recipients,
+                audience: impact.audience,
+              })
+            }}
+          </p>
+          <p v-if="impact.overCap > 0" class="text-warning">
+            {{
+              t('admin.partnerEvents.notify.overCap', {
+                count: impact.overCap,
+                cap: impact.weeklyCap,
+              })
+            }}
+          </p>
+          <p class="text-sm text-muted">
+            {{
+              t('admin.partnerEvents.notify.sendAt', {
+                date: d(impact.sendAt, {
+                  dateStyle: 'medium',
+                  timeStyle: 'short',
+                  timeZone: 'Europe/Paris',
+                }),
+              })
+            }}
+          </p>
+          <div class="rounded-lg bg-elevated p-4">
+            <p class="font-semibold text-highlighted">{{ impact.preview.title }}</p>
+            <p class="text-sm text-muted">{{ impact.preview.body }}</p>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <UButton
+          color="neutral"
+          variant="outline"
+          :label="t('partnerEvents.teams.cancel')"
+          @click="announcing = false"
+        />
+        <UButton
+          :label="t('admin.partnerEvents.notify.send')"
+          :loading="pending"
+          :disabled="!impact || impact.recipients === 0"
+          @click="onAnnounce"
+        />
+      </template>
+    </UModal>
 
     <UModal
       v-model:open="closing"
