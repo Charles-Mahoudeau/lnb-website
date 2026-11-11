@@ -14,6 +14,7 @@ import type { PushKind } from '~~/server/db/schema';
 import { pushConfigured, pushEnv } from '~~/server/lib/push-env';
 
 import { buildMessage } from './messages';
+import type { TeamReason } from './messages';
 import { nextPushAttempt, pushTtl } from './rules';
 
 // Sends the queued notifications to every device of the account. push:deliver runs this every
@@ -41,6 +42,7 @@ const PREFERENCE_COLUMN = {
   spot: 'spots',
   cancelled: 'changes',
   rescheduled: 'changes',
+  team: 'spots',
 } as const satisfies Record<PushKind, keyof typeof pushPreference.$inferSelect>;
 
 /** Takes the due rows: counts the attempt and pushes send_at out, so a crash retries later. */
@@ -144,7 +146,13 @@ async function deliverOne(row: Notification, now: Date): Promise<'sent' | 'skipp
       row.kind,
       device.locale === 'fr' ? 'fr' : 'en',
       { id: found.e.id, name: found.e.name, startsAt: found.e.startsAt, room: found.room },
-      { offset: typeof row.params.offset === 'number' ? row.params.offset : undefined },
+      {
+        offset: typeof row.params.offset === 'number' ? row.params.offset : undefined,
+        reason:
+          typeof row.params.reason === 'string' ? (row.params.reason as TeamReason) : undefined,
+        team: typeof row.params.team === 'string' ? row.params.team : undefined,
+        who: typeof row.params.who === 'string' ? row.params.who : undefined,
+      },
     );
     try {
       await webpush.sendNotification(

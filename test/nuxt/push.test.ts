@@ -99,7 +99,7 @@ const overview: PushOverview = {
   overCap: 2,
   subscribers: 213,
   accounts: 1480,
-  byKind: { newEvent: 12, reminder: 51, spot: 9, cancelled: 6, rescheduled: 9 },
+  byKind: { newEvent: 12, reminder: 51, spot: 9, cancelled: 6, rescheduled: 9, team: 3 },
 };
 registerEndpoint('/api/admin/push/overview', () => overview);
 registerEndpoint('/api/admin/push/subscribers', () => ({

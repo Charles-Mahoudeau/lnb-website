@@ -1,0 +1,2 @@
+ALTER TABLE "push_notification" DROP CONSTRAINT "push_notification_kind_check";--> statement-breakpoint
+ALTER TABLE "push_notification" ADD CONSTRAINT "push_notification_kind_check" CHECK ("push_notification"."kind" IN ('newEvent', 'reminder', 'spot', 'cancelled', 'rescheduled', 'team'));

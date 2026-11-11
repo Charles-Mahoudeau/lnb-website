@@ -196,6 +196,31 @@ describe('messages', () => {
     expect(message.body).toBe('samedi 24 octobre à 20:00, Room 2.04.');
   });
 
+  it('writes a team notification with the team and the person', () => {
+    const invited = buildMessage('team', 'en', info, {
+      reason: 'invited',
+      team: 'Night Owls',
+      who: 'Ada',
+    });
+    expect(invited.title).toBe('Ada invited you to Night Owls');
+    const refused = buildMessage('team', 'fr', info, { reason: 'declined', team: 'Les Éclairs' });
+    expect(refused.body).toBe('Les Éclairs ne peut pas vous prendre pour Smash night.');
+    for (const reason of [
+      'invited',
+      'request',
+      'accepted',
+      'declined',
+      'validated',
+      'place',
+      'waitlist',
+    ] as const) {
+      for (const locale of ['en', 'fr'] as const) {
+        const message = buildMessage('team', locale, info, { reason, team: 'T', who: 'W' });
+        expect(`${message.title} ${message.body}`).not.toMatch(/[{}]/);
+      }
+    }
+  });
+
   it('writes every kind, with no placeholder left over', () => {
     for (const locale of ['en', 'fr'] as const) {
       for (const kind of ['newEvent', 'reminder', 'spot', 'cancelled', 'rescheduled'] as const) {

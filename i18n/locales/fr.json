@@ -2469,6 +2469,36 @@
       "rescheduled": {
         "title": "Nouvel horaire : {name}",
         "body": "Il commence maintenant le {date} à {time}."
+      },
+      "team": {
+        "invited": {
+          "title": "{who} vous invite dans {team}",
+          "body": "Rejoignez l’équipe pour {name}, le {date}."
+        },
+        "request": {
+          "title": "{who} veut rejoindre {team}",
+          "body": "Répondez à sa demande pour {name}."
+        },
+        "accepted": {
+          "title": "Vous êtes dans {team}",
+          "body": "Votre demande pour {name} a été acceptée."
+        },
+        "declined": {
+          "title": "Demande refusée",
+          "body": "{team} ne peut pas vous prendre pour {name}."
+        },
+        "validated": {
+          "title": "{team} est inscrite",
+          "body": "L’équipe a une place pour {name}, le {date}."
+        },
+        "place": {
+          "title": "{team} a obtenu une place",
+          "body": "L’équipe a maintenant une place pour {name}, le {date}."
+        },
+        "waitlist": {
+          "title": "{team} est sur liste d’attente",
+          "body": "L’équipe est complète, et attend une place pour {name}."
+        }
       }
     },
     "prompt": {
@@ -2504,12 +2534,13 @@
         },
         "spots": {
           "label": "Places en liste d’attente",
-          "description": "Quand une place se libère pour vous, ou qu’un responsable vous ajoute"
+          "description": "Quand une place se libère pour vous ou votre équipe, qu’un responsable vous ajoute, ou qu’une équipe vous invite ou répond"
         },
         "changes": {
           "label": "Changements de mes événements",
           "description": "Événements annulés ou déplacés"
-        }
+        },
+        "team": "Équipes"
       },
       "devices": "Vos appareils",
       "thisDevice": "Cet appareil",
