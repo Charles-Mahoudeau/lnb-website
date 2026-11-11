@@ -77,7 +77,7 @@
 }
 
 @utility bg-promo {
-  background: linear-gradient(135deg, #1a1548, #4a2a7a 45%, #8a3a7a 78%, #a65a45);
+  background: linear-gradient(120deg, #0f1340, #1b2f78);
 }
 
 /* Partner logos sit on a light plate in both color modes, so one upload works everywhere. */

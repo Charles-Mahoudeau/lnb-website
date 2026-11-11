@@ -166,9 +166,9 @@ Original mock (not code to port): [Arena League mocks](https://claude.ai/artifac
 
 ## Partner event promo
 
-Original mocks (not code to port): [placement](https://claude.ai/artifact/A4awe1Tu1shyX4Q6xmDPq9) and [gradients](https://claude.ai/artifact/7TX9vhsT27Fw7mbpKuVeSB), "Ember", static. `PartnerEventsPromo` is a card at the top of the home page's side column and a banner under the title of the events list, shown while the open partner event's flag is on.
+Original mocks (not code to port): [placement](https://claude.ai/artifact/A4awe1Tu1shyX4Q6xmDPq9) [gradients](https://claude.ai/artifact/7TX9vhsT27Fw7mbpKuVeSB) (the warm "Ember" one was rejected), [calmer surfaces](https://claude.ai/artifact/Q6WwDPDJTWv5mvhhbvasVJ) and [duotones](https://claude.ai/artifact/CfwNV8cWKRtxKSHzfhGkek), "Deep blue", static. `PartnerEventsPromo` is a card at the top of the home page's side column and a banner under the title of the events list, shown while the open partner event's flag is on.
 
-- It is the one place with a decorative gradient, approved on purpose: `bg-promo`, a static navy to plum to amber-brown diagonal (`#1a1548`, `#4a2a7a`, `#8a3a7a`, `#a65a45`), the same in both color modes. The last stop is darkened so white text stays at 4.5:1 or better on it. No animation, no other gradient, no other use.
+- It is the one place with a decorative gradient, approved on purpose: `bg-promo`, a static diagonal from the site's night navy to a deeper blue (`#0f1340` to `#1b2f78`, 120deg), the same in both color modes. Both stops are dark enough for the light text to stay above 4.5:1 (10:1 at the lighter end). No warm tones. No animation, no other gradient, no other use.
 - Text uses `text-on-banner` and `text-on-banner-muted`. The one action is a light plate button (`bg-plate text-on-plate`), never red, since red isn't for large surfaces.
 - It holds a "Partner event" pill, the title, one line, and the counts (students interested, teams) when there are some. The card adds the date wording. A student who already said they are interested sees "You're in".
 
