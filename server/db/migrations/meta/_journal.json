@@ -169,6 +169,13 @@
       "when": 1794318971307,
       "tag": "0023_economy",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794402432774,
+      "tag": "0024_event-teams",
+      "breakpoints": true
     }
   ]
 }
