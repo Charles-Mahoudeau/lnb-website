@@ -68,6 +68,7 @@ function title(item: EconomyTransactionView): string {
     case 'casino':
     case 'shop':
     case 'trade':
+    case 'auction':
       return item.amount > 0
         ? t('economy.history.received', { who: who(item) })
         : t('economy.history.paid', { who: who(item) });
@@ -118,7 +119,7 @@ function title(item: EconomyTransactionView): string {
             </span>
           </span>
           <UBadge
-            v-if="item.kind === 'casino' || item.kind === 'shop' || item.kind === 'trade'"
+            v-if="['casino', 'shop', 'trade', 'auction'].includes(item.kind)"
             color="neutral"
             variant="soft"
             size="sm"

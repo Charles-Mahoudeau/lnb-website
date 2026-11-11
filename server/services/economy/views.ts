@@ -214,7 +214,9 @@ export async function accountTransactions(
   );
 
   const items = pageRows.map((row) => {
-    const sides = otherSides.get(row.id) ?? [];
+    // A tax burned along a sale is not who the money came from or went to.
+    const all = otherSides.get(row.id) ?? [];
+    const sides = all.some((id) => id !== null) ? all.filter((id) => id !== null) : all;
     const counterparty: EconomyCounterparty =
       sides.length === 1 ? lookup(sides[0] ?? null) : { type: 'several' };
     return {

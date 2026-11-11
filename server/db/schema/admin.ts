@@ -83,7 +83,8 @@ export type AdminAuditAction =
    * The economy (docs/economy.md). `data.name` is the account (`#handle`, or the owner's name).
    * An adjustment has `data.direction` (mint or burn), `data.amount` and `data.reason`; a
    * reversal `data.transactionId`; a reset `data.accounts` and `data.supply`. For a shop,
-   * `data.name` is its item and account (`Diamond, #shop`) and `data.shopId` the shop.
+   * `data.name` is its item and account (`Diamond, #shop`) and `data.shopId` the shop. For a
+   * listing taken down, `data.name` is its item and seller, with `data.listingId` and `data.reason`.
    */
   | 'economy.adjust'
   | 'economy.freeze'
@@ -92,7 +93,8 @@ export type AdminAuditAction =
   | 'economy.settings'
   | 'economy.reset'
   | 'economy.shopDisable'
-  | 'economy.shopEnable';
+  | 'economy.shopEnable'
+  | 'economy.listingRemove';
 
 // Rows outlive the accounts they name: a deleted actor or target becomes null, so the log keeps
 // what happened without keeping who it happened to.

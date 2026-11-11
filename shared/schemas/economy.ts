@@ -34,6 +34,9 @@ export const ECONOMY_PROBLEMS = [
   'shopDisabled',
   'priceChanged',
   'noBuyBack',
+  'tooManyListings',
+  'listingGone',
+  'alreadyClaimed',
 ] as const;
 export type EconomyProblem = (typeof ECONOMY_PROBLEMS)[number];
 
@@ -74,6 +77,7 @@ export const ECONOMY_TRANSACTION_KINDS = [
   'casino',
   'shop',
   'trade',
+  'auction',
   'mint',
   'burn',
   'reversal',
@@ -81,9 +85,14 @@ export const ECONOMY_TRANSACTION_KINDS = [
 export const economyTransactionKind = z.enum(ECONOMY_TRANSACTION_KINDS);
 export type EconomyTransactionKind = z.infer<typeof economyTransactionKind>;
 /** Kinds that move money between players, counted as volume. Mint, burn and reversals aren't. */
-export const ECONOMY_VOLUME_KINDS = ['payment', 'casino', 'shop', 'trade'] as const;
+export const ECONOMY_VOLUME_KINDS = ['payment', 'casino', 'shop', 'trade', 'auction'] as const;
 
-export const economyReason = z.enum(['startingBalance', 'adjustment', 'accountClosed']);
+export const economyReason = z.enum([
+  'startingBalance',
+  'adjustment',
+  'accountClosed',
+  'auctionTax',
+]);
 export type EconomyReason = z.infer<typeof economyReason>;
 
 /** An account in a request: its ID, or a shared account's handle (with or without `#`). */
@@ -534,6 +543,128 @@ export const economyFreezeBody = z
   .refine((body) => !body.frozen || body.reason, { path: ['reason'] });
 export type EconomyFreezeBody = z.infer<typeof economyFreezeBody>;
 
+// The auction house: listings at a fixed price, stored on the site with their items, and a
+// mailbox for items waiting for their player.
+
+/** The most a listing can ask: far below any balance limit, so price × tax never overflows. */
+export const ECONOMY_LISTING_MAX_PRICE = 1_000_000_000;
+export const ECONOMY_LISTINGS_PAGE = 45;
+
+export const economyListingParams = z.object({ listingId: z.uuid() });
+export const economyMailboxParams = z.object({ itemId: z.uuid() });
+
+const listedItem = z.object({
+  id: z.string(),
+  name: z.string(),
+  snbt: z.string().describe('The item as the game saved it, to show it in the game.'),
+});
+
+export const economyListingBody = z.object({
+  idempotencyKey: z.uuid().describe('A retry with the same key gives back the same listing.'),
+  player: minecraftUuid.describe('The seller.'),
+  account: economyAccountRef
+    .optional()
+    .describe(
+      'The account paid when it sells: one the seller can spend from. Their default one without it.',
+    ),
+  item: shopItem,
+  count: z.int().min(1).max(99).describe('How many items: one stack, sold whole.'),
+  price: z.int().min(1).max(ECONOMY_LISTING_MAX_PRICE).describe('The price of the whole stack.'),
+});
+export type EconomyListingBody = z.input<typeof economyListingBody>;
+
+export const economyListingStatus = z.enum(['active', 'sold', 'cancelled', 'expired']);
+
+export const economyServerListing = z.object({
+  id: z.uuid(),
+  item: listedItem,
+  count: z.number(),
+  price: z.number(),
+  seller: z.string().describe("The seller's Minecraft username."),
+  status: economyListingStatus,
+  createdAt: isoDate,
+  expiresAt: isoDate,
+});
+export type EconomyServerListing = z.infer<typeof economyServerListing>;
+
+export const economyListingsQuery = economyCursorQuery.extend({
+  q: z.string().trim().max(64).optional().describe('Item name or ID.'),
+  sort: z.enum(['newest', 'price', 'unitPrice']).default('newest'),
+});
+export type EconomyListingsQuery = z.input<typeof economyListingsQuery>;
+
+export const economyListingPage = page(economyServerListing);
+export type EconomyListingPage = z.infer<typeof economyListingPage>;
+
+export const economyPlayerListings = z.object({
+  items: z.array(economyServerListing).describe('Up now, newest first.'),
+  max: z.number().describe('The most listings up at once.'),
+  taxPercent: z.number(),
+  days: z.number().describe('How many days a new listing stays up.'),
+});
+export type EconomyPlayerListings = z.infer<typeof economyPlayerListings>;
+
+export const economyListingActionBody = z.object({
+  idempotencyKey: z.uuid(),
+  player: minecraftUuid,
+});
+
+export const economyListingBuyBody = economyListingActionBody.extend({
+  account: economyAccountRef
+    .optional()
+    .describe("The account that pays. The buyer's default one without it."),
+});
+export type EconomyListingBuyBody = z.input<typeof economyListingBuyBody>;
+
+export const economyMailboxReason = z.enum(['bought', 'cancelled', 'expired', 'removed']);
+
+export const economyMailboxView = z.object({
+  id: z.uuid(),
+  item: listedItem,
+  count: z.number(),
+  reason: economyMailboxReason,
+  createdAt: isoDate,
+});
+export type EconomyMailboxView = z.infer<typeof economyMailboxView>;
+
+export const economyMailbox = z.object({ items: z.array(economyMailboxView) });
+
+export const economyListingBuyResult = economyTransferResult.extend({
+  from: transferSide.describe("The buyer's account."),
+  to: transferSide.describe("The seller's account."),
+  amount: z.number().describe('The price.'),
+  tax: z.number().describe('Burned, taken from what the seller gets.'),
+  listingId: z.uuid(),
+  mailboxItem: economyMailboxView.describe("The item, in the buyer's mailbox, to claim."),
+});
+export type EconomyListingBuyResult = z.infer<typeof economyListingBuyResult>;
+
+export const economyMailboxClaimResult = economyMailboxView.extend({
+  replayed: z.boolean().describe('True when this key had already claimed it.'),
+});
+export type EconomyMailboxClaimResult = z.infer<typeof economyMailboxClaimResult>;
+
+/** GET /api/economy/admin/listings */
+export const economyAdminListingsQuery = economyCursorQuery.extend({
+  q: z.string().trim().max(100).optional().describe('Item name or ID, or the seller.'),
+  status: economyListingStatus.optional(),
+});
+export type EconomyAdminListingsQuery = z.input<typeof economyAdminListingsQuery>;
+
+export const economyAdminListingRow = economyServerListing.extend({
+  sellerUserId: z.string(),
+  account: z.object({ id: z.uuid(), handle: z.string().nullable() }),
+  buyer: z.object({ userId: z.string(), name: z.string() }).nullable(),
+  endedAt: isoDate.nullable(),
+});
+export type EconomyAdminListingRow = z.infer<typeof economyAdminListingRow>;
+
+export const economyAdminListingPage = page(economyAdminListingRow);
+export type EconomyAdminListingPage = z.infer<typeof economyAdminListingPage>;
+
+/** POST /api/economy/admin/listings/:listingId/remove */
+export const economyAdminListingRemoveBody = z.object({ reason: economyMemo });
+
 /** GET /api/economy/admin/shops */
 export const economyAdminShopsQuery = economyCursorQuery.extend({
   q: z.string().trim().max(100).optional().describe("Item name or ID, or the account's handle."),
@@ -680,6 +811,9 @@ export const economySettingsView = z.object({
   startingBalance: z.number(),
   maxOwnedShared: z.number(),
   maxMembers: z.number(),
+  auctionTaxPercent: z.number().describe('The auction house sale tax, burned, in percent.'),
+  auctionMaxListings: z.number().describe('The most listings a player has up at once.'),
+  auctionDays: z.number().describe('How many days a listing stays up.'),
   updatedAt: isoDate,
 });
 export type EconomySettingsView = z.infer<typeof economySettingsView>;
@@ -690,6 +824,9 @@ export const economySettingsBody = z
     startingBalance: z.int().min(0).max(1_000_000),
     maxOwnedShared: z.int().min(0).max(50),
     maxMembers: z.int().min(1).max(200),
+    auctionTaxPercent: z.int().min(0).max(50),
+    auctionMaxListings: z.int().min(1).max(200),
+    auctionDays: z.int().min(1).max(90),
   })
   .partial();
 export type EconomySettingsBody = z.infer<typeof economySettingsBody>;

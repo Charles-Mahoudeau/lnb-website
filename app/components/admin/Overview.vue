@@ -203,6 +203,7 @@ function describe(entry: AdminAuditView): string {
     case 'economy.reset':
     case 'economy.shopDisable':
     case 'economy.shopEnable':
+    case 'economy.listingRemove':
       return t(`admin.overview.log.${entry.action.replace('.', '_')}`, {
         actor,
         target,
