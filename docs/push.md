@@ -6,13 +6,14 @@ Design: see Notifications in `docs/design.md` and the [push mock](https://claude
 
 ## What is sent
 
-| Kind          | When                                                                                    | Who                                 | Switch (`/account`)  | Flag             |
-| ------------- | --------------------------------------------------------------------------------------- | ----------------------------------- | -------------------- | ---------------- |
-| `newEvent`    | A manager announces a published event, once                                             | Accounts of the event's schools     | New events           | `push.newEvents` |
-| `reminder`    | Before the start, at each offset set on the event (15 min, 1 h, 3 h, 1, 2 days, 1 week) | Registered people, not the waitlist | Reminders            | `push.reminders` |
-| `spot`        | A place opens for someone on the waitlist, or a manager adds them                       | That account                        | Waitlist places      | `push.spots`     |
-| `cancelled`   | The event is cancelled                                                                  | Registered and waitlisted           | Changes to my events | `push.changes`   |
-| `rescheduled` | A published event's start time changes                                                  | Registered and waitlisted           | Changes to my events | `push.changes`   |
+| Kind          | When                                                                                                       | Who                                 | Switch (`/account`)  | Flag             |
+| ------------- | ---------------------------------------------------------------------------------------------------------- | ----------------------------------- | -------------------- | ---------------- |
+| `newEvent`    | A manager announces a published event, once                                                                | Accounts of the event's schools     | New events           | `push.newEvents` |
+| `reminder`    | Before the start, at each offset set on the event (15 min, 1 h, 3 h, 1, 2 days, 1 week)                    | Registered people, not the waitlist | Reminders            | `push.reminders` |
+| `spot`        | A place opens for someone on the waitlist, or a manager adds them                                          | That account                        | Waitlist places      | `push.spots`     |
+| `team`        | A team invites someone, a player asks the captain, a request is answered, a team gets or waits for a place | The people involved                 | Waitlist places      | `push.spots`     |
+| `cancelled`   | The event is cancelled                                                                                     | Registered and waitlisted           | Changes to my events | `push.changes`   |
+| `rescheduled` | A published event's start time changes                                                                     | Registered and waitlisted           | Changes to my events | `push.changes`   |
 
 Removing someone by hand sends nothing. Events default to one reminder, 1 hour before. A moved event reminds again at its new time.
 
