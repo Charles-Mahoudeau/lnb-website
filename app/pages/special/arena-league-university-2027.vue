@@ -85,6 +85,11 @@ const withdraw = () => run([], t('partnerEvents.toasts.withdrawn'));
 
 const chips = computed(() => [
   {
+    icon: 'i-lucide-handshake',
+    label: t('partnerEvents.arenaLeague2027.external'),
+    external: true,
+  },
+  {
     icon: 'i-lucide-calendar',
     label:
       (locale.value === 'fr' ? event.value?.dateText.fr : event.value?.dateText.en) ||

@@ -36,12 +36,7 @@ const to = `/special/${FEATURED_PARTNER_EVENT}`;
     :aria-label="t('partnerEvents.arenaLeague2027.title')"
   >
     <div class="flex min-w-0 flex-1 flex-col items-start gap-2">
-      <UBadge
-        :label="t('partnerEvents.promo.badge')"
-        color="neutral"
-        variant="soft"
-        class="bg-accented"
-      />
+      <UBadge :label="t('partnerEvents.promo.badge')" color="secondary" variant="solid" />
       <h2 class="text-xl text-on-banner" :class="variant === 'card' && 'sm:text-2xl'">
         {{ t('partnerEvents.arenaLeague2027.title') }}
       </h2>
