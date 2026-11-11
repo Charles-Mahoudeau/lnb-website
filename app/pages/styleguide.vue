@@ -203,6 +203,7 @@ const sampleEvent: EventSummary = {
   schools: ['901cb4ca-b862-4029-9306-e5cd0f6d9f86'],
   capacity: 40,
   registered: 18,
+  teams: null,
   images: null,
   me: null,
 };

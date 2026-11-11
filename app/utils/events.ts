@@ -66,3 +66,12 @@ export function eventSchools(tenantIds: readonly string[], locale: string): stri
   const names = tenantIds.map((tid) => schoolForTenant(tid) ?? tid);
   return new Intl.ListFormat(locale, { type: 'conjunction' }).format(names);
 }
+
+/** What counts toward the places: teams for a tournament, people otherwise. */
+export function eventPlaces(event: Pick<EventSummary, 'capacity' | 'registered' | 'teams'>) {
+  return {
+    teams: event.teams !== null,
+    taken: event.teams ? event.teams.registered : event.registered,
+    capacity: event.capacity,
+  };
+}

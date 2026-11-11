@@ -400,7 +400,16 @@ export const eventSummary = z.object({
     .array(z.string())
     .describe('The tenant IDs of the schools whose students can register.'),
   capacity: z.number().nullable(),
-  registered: z.number(),
+  registered: z.number().describe('People registered. In a tournament, they may be in no team.'),
+  teams: z
+    .object({
+      min: z.number(),
+      max: z.number(),
+      registered: z.number().describe('Validated teams holding a place.'),
+      waitlist: z.number().describe('Validated teams waiting for a place.'),
+    })
+    .nullable()
+    .describe('Set for a tournament: the team size, and `capacity` counts these teams.'),
   images: eventImages,
   me: z
     .enum(['registered', 'waitlist'])

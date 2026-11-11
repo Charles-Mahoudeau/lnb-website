@@ -21,8 +21,9 @@ const soon = computed(() => {
   return t('events.nextEventIn', { when: relative });
 });
 
+const places = computed(() => eventPlaces(props.event));
 const ratio = computed(() =>
-  props.event.capacity ? Math.min(props.event.registered / props.event.capacity, 1) : null,
+  places.value.capacity ? Math.min(places.value.taken / places.value.capacity, 1) : null,
 );
 </script>
 
@@ -76,15 +77,18 @@ const ratio = computed(() =>
       <div v-if="ratio !== null && event.capacity" class="flex w-full max-w-xs flex-col gap-1.5">
         <span class="text-sm text-muted tabular-nums">
           {{
-            t('events.placesLeft', {
-              taken: event.registered,
+            t(places.teams ? 'events.teamsLeft' : 'events.placesLeft', {
+              taken: places.taken,
               capacity: event.capacity,
-              left: Math.max(event.capacity - event.registered, 0),
+              left: Math.max(event.capacity - places.taken, 0),
             })
           }}
         </span>
         <UProgress :model-value="ratio * 100" color="neutral" size="sm" />
       </div>
+      <p v-else-if="places.teams" class="text-sm text-muted tabular-nums">
+        {{ t('events.teamsRegistered', { count: places.taken }, places.taken) }}
+      </p>
       <p v-else class="text-sm text-muted tabular-nums">
         {{ t('events.attendees.registered', { count: event.registered }, event.registered) }}
       </p>

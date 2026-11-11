@@ -16,6 +16,7 @@ const overlay = useOverlay();
 const { user } = useAuth();
 const { isEnabled } = useFlags();
 
+const places = computed(() => eventPlaces(props.event));
 const state = computed(() => props.event.registration.state);
 const me = computed(() => props.event.registration.me);
 const phase = computed(() => eventPhase(props.event));
@@ -141,31 +142,40 @@ async function onCancel() {
           :label="t('events.over')"
         />
         <p class="text-muted tabular-nums">
-          {{ t('events.went', { count: event.registered }, event.registered) }}
+          {{
+            places.teams
+              ? t('events.wentTeams', { count: places.taken }, places.taken)
+              : t('events.went', { count: event.registered }, event.registered)
+          }}
         </p>
       </template>
       <div v-else-if="event.capacity" class="flex flex-col gap-2">
         <div class="flex items-center justify-between gap-3 tabular-nums">
           <span class="text-muted">
-            <span class="font-semibold text-highlighted">{{ event.registered }}</span>
-            {{ t('events.ofPlaces', { capacity: event.capacity }) }}
+            <span class="font-semibold text-highlighted">{{ places.taken }}</span>
+            {{
+              t(places.teams ? 'events.ofTeams' : 'events.ofPlaces', { capacity: event.capacity })
+            }}
           </span>
           <UBadge
-            v-if="event.registered >= event.capacity"
+            v-if="places.taken >= event.capacity"
             color="warning"
             variant="subtle"
             :label="t('events.full')"
           />
           <span v-else class="text-muted">
-            {{ t('events.left', { count: event.capacity - event.registered }) }}
+            {{ t('events.left', { count: event.capacity - places.taken }) }}
           </span>
         </div>
         <UProgress
-          :model-value="Math.min(event.registered / event.capacity, 1) * 100"
+          :model-value="Math.min(places.taken / event.capacity, 1) * 100"
           color="neutral"
           size="sm"
         />
       </div>
+      <p v-else-if="places.teams" class="text-muted tabular-nums">
+        {{ t('events.teamsRegistered', { count: places.taken }, places.taken) }}
+      </p>
       <p v-else class="text-muted tabular-nums">
         {{ t('events.attendees.registered', { count: event.registered }, event.registered) }}
       </p>
