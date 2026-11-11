@@ -1895,9 +1895,8 @@
         "overCap": "{count} of them already received {cap} notifications or more this week.",
         "sendAt": "It goes out on {date}.",
         "send": "Send the notification",
-        "sent": "{count} notifications queued",
-        "when": "They go out on {date}.",
-        "done": "Announced"
+        "sent": "{count} notification queued | {count} notifications queued",
+        "when": "They go out on {date}."
       }
     },
     "shortLinks": {
