@@ -1179,7 +1179,7 @@
         },
         "partnerEvents": {
           "label": "Pages d’événements partenaires",
-          "description": "Les pages publiques des événements organisés par d’autres structures, comme Arena League University, et leur API."
+          "description": "Les pages publiques des événements organisés par d’autres structures, comme Arena League Université, et leur API."
         },
         "partnerEvents_interest": {
           "label": "Intérêt pour les événements partenaires",
@@ -2813,7 +2813,7 @@
         "team": "Équipes",
         "partnerEvents": {
           "label": "Événements partenaires",
-          "description": "Quand LNB annonce un événement organisé par une autre structure, comme Arena League University. Désactivé tant que tu ne l’actives pas."
+          "description": "Quand LNB annonce un événement organisé par une autre structure, comme Arena League Université. Désactivé tant que tu ne l’actives pas."
         }
       },
       "devices": "Vos appareils",

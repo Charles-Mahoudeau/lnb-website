@@ -6,7 +6,7 @@ import { partnerEvent, partnerEventGame, partnerEventInterest, user } from '~~/s
 import { partnerEventService } from '~~/server/services/partner-events';
 
 const EPITECH = '901cb4ca-b862-4029-9306-e5cd0f6d9f86';
-const SEEDED = 'arena-league-university-2027';
+const SEEDED = 'arena-league-universite-2027';
 const ALICE = 'partner-event-alice';
 const BOB = 'partner-event-bob';
 

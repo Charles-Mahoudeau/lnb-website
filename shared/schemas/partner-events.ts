@@ -39,7 +39,7 @@ export const PARTNER_EVENT_PROBLEMS = [
 export type PartnerEventProblem = (typeof PARTNER_EVENT_PROBLEMS)[number];
 
 /** The partner event the home page and the events list promote while it is open. */
-export const FEATURED_PARTNER_EVENT = 'arena-league-university-2027';
+export const FEATURED_PARTNER_EVENT = 'arena-league-universite-2027';
 
 /** The games a partner event can have, in the page's order. */
 export const PARTNER_GAME_KEYS = ['lol', 'valorant', 'rocket-league', 'cs2'] as const;

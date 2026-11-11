@@ -2422,7 +2422,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.partnerEvents,
     summary: 'A partner event',
     description:
-      'The page of an event another organization runs (such as Arena League University 2027): its links, date wording, hero art, and its games with their status, team sizes and the number of interested students. Signed-in students also get their own interest in `mine`; visitors get null. Behind the `partnerEvents` flag.',
+      'The page of an event another organization runs (such as Arena League Université 2027): its links, date wording, hero art, and its games with their status, team sizes and the number of interested students. Signed-in students also get their own interest in `mine`; visitors get null. Behind the `partnerEvents` flag.',
     access: 'public',
     params: partnerEvents.partnerEventParams,
     response: partnerEvents.partnerEventView,

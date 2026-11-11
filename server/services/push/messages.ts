@@ -86,7 +86,7 @@ export type PartnerTeamReason = keyof (typeof MESSAGES)['en']['partnerTeam'];
 
 /** The name of a partner event, from the locale files. Unknown slugs show as they are. */
 const PARTNER_NAMES: Record<string, Record<PushLocale, string>> = {
-  'arena-league-university-2027': {
+  'arena-league-universite-2027': {
     en: en.partnerEvents.arenaLeague2027.title,
     fr: fr.partnerEvents.arenaLeague2027.title,
   },
