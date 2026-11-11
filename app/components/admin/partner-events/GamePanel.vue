@@ -71,7 +71,11 @@ const save = () =>
     t('admin.partnerEvents.saved'),
   );
 
-async function onPick(file: File | null | undefined) {
+const picker = ref<HTMLInputElement | null>(null);
+async function onChosen(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = '';
   if (!file) return;
   await run(async () => {
     const stored = await partnerEventAdminActions.upload(props.slug, file);
@@ -122,18 +126,19 @@ const rows = computed(() => {
       <template #header>
         <div class="flex flex-wrap items-center gap-4">
           <img v-if="artUrl" :src="artUrl" alt="" class="h-11 w-18 rounded-lg object-cover" />
-          <div v-else class="h-11 w-18 rounded-lg bg-elevated" />
           <h2 class="min-w-0 flex-1 text-lg">
             {{ t(`partnerEvents.games.${partnerGameMessageKey(game.key as PartnerGameKey)}`) }}
           </h2>
-          <UFileUpload
-            accept="image/*"
-            :label="t('admin.partnerEvents.game.upload')"
-            variant="button"
+          <UButton
+            color="neutral"
+            variant="outline"
             size="sm"
+            icon="i-lucide-upload"
+            :label="t('admin.partnerEvents.game.upload')"
             :disabled="pending"
-            @update:model-value="(file) => onPick(file as File | null)"
+            @click="picker?.click()"
           />
+          <input ref="picker" type="file" accept="image/*" class="hidden" @change="onChosen" />
         </div>
       </template>
       <form class="flex flex-col gap-5" @submit.prevent="save">

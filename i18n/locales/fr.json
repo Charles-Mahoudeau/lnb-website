@@ -1899,9 +1899,8 @@
         "overCap": "{count} d’entre eux ont déjà reçu {cap} notifications ou plus cette semaine.",
         "sendAt": "Elle part le {date}.",
         "send": "Envoyer la notification",
-        "sent": "{count} notifications en file",
-        "when": "Elles partent le {date}.",
-        "done": "Annoncé"
+        "sent": "{count} notification en file | {count} notifications en file",
+        "when": "Elles partent le {date}."
       }
     },
     "shortLinks": {
