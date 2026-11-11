@@ -35,6 +35,16 @@ Status: slices 1 (the page, the games and interest) and 2 (teams) are built. The
 - Notifications for invitations and requests come with the push slice.
 - Code: `server/services/partner-teams.ts` (copied from the tournament teams rather than shared, since those hang on event registrations; it reuses `nextCaptain` and the name rules), pure rules in `shared/utils/partner-teams.ts`, routes under `server/api/partner-events/[slug]/games/[game]/`.
 
+## Admin
+
+`/admin/partner-events` (events managers, `app/components/admin/PartnerEvents.vue`) has a list on the left, "Event and export" then one entry per game, and the selected panel on the right.
+
+- Event panel: date wording in both languages, the organizer's links, the switches (date confirmed, interest open, teams open), the hero image, the `.xlsx` export, and Close event.
+- Game panel: status, starters and substitutes (refused with `gameHasTeams` or `placesInUse` when teams exist or would not fit), card art, the referent the organizer's spreadsheet asks for (the Manager sheet), the teams with a per-team referent override and Disband, and the interest list with search.
+- Export (`GET /api/admin/partner-events/:slug/export`): sheets `Manager` (one row per team), `Joueur` (one per player, with role Capitaine, Joueur or Remplaçant) and `Intérêt`, mirroring the organizer's template. Each export is logged.
+- Close event makes the page read-only. `server/tasks/partner-events/purge.ts` (nightly, flag `jobs.purgePartnerEvents`) deletes interest, teams, invitations and dates of birth 60 days later. Reopening before then cancels it. Accounts are untouched.
+- Every change is in the admin log (`partnerEvent.*`). Code: `server/services/partner-events-admin.ts`, `server/services/partner-events-export.ts`, routes under `server/api/admin/partner-events/`.
+
 ## Flags
 
 `partnerEvents` turns the pages and their API off, `partnerEvents.interest` pauses saving interest (withdrawing stays possible), `partnerEvents.teams` pauses creating teams, inviting, asking and accepting (leaving stays possible). See `docs/feature-flags.md`.
@@ -45,8 +55,8 @@ Status: slices 1 (the page, the games and interest) and 2 (teams) are built. The
 
 ## Tests
 
-`test/unit/partner-events.test.ts` (contracts and messages), `test/server/partner-events.test.ts` and `test/server/partner-teams.test.ts` (the services on PostgreSQL) and the partner event case in `test/server/poster-images.test.ts` (pruning). Not covered: the page in a browser, the team dialogs and the signed-in flow end to end.
+`test/unit/partner-events.test.ts` (contracts and messages), `test/server/partner-events.test.ts` and `test/server/partner-teams.test.ts` and `test/server/partner-events-admin.test.ts` (the services on PostgreSQL) and the partner event case in `test/server/poster-images.test.ts` (pruning). Not covered: the pages in a browser (public and admin), the team dialogs and the signed-in flow end to end.
 
 ## Still to do
 
-The admin (settings, referent, lists, `.xlsx` export mirroring the organizer's template with `Manager` and `Joueur` sheets, close event and the 60-day purge). The `partner-event` push kind with its opt-in and the Announce button. A card on the home page and a line in the events listing while the event is open. Per-game artwork picked in the admin.
+The `partner-event` push kind with its opt-in and the Announce button. A card on the home page and a line in the events listing while the event is open. The organizer's agreement before using their hero image.
