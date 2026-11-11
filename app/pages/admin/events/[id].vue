@@ -26,7 +26,10 @@ if (error.value || !event.value) {
 const { data: registrations, refresh: refreshRegistrations } = await useEventRegistrations(id);
 
 const tab = computed({
-  get: () => (route.query.tab === 'registrations' ? 'registrations' : 'event'),
+  get: () =>
+    route.query.tab === 'registrations' || (route.query.tab === 'teams' && event.value?.teamMode)
+      ? route.query.tab
+      : 'event',
   set: (value) => void router.replace({ query: { ...route.query, tab: value } }),
 });
 const tabs = computed<TabsItem[]>(() => [
@@ -37,6 +40,7 @@ const tabs = computed<TabsItem[]>(() => [
     }),
     value: 'registrations',
   },
+  ...(event.value?.teamMode ? [{ label: t('admin.events.tabs.teams'), value: 'teams' }] : []),
 ]);
 
 const pending = ref(false);
@@ -311,6 +315,11 @@ async function onRegistrationsChanged() {
           @bde-retry="onBdeRetry"
         />
       </template>
+      <EventsAdminTeams
+        v-else-if="tab === 'teams'"
+        :event="event"
+        @changed="onRegistrationsChanged"
+      />
       <EventsAdminRegistrations v-else :event="event" @changed="onRegistrationsChanged" />
     </div>
   </AdminPage>
