@@ -7,6 +7,7 @@ export * from './economy';
 export * from './events';
 export * from './flags';
 export * from './mods';
+export * from './partner-events';
 export * from './partners';
 export * from './posters';
 export * from './push';
