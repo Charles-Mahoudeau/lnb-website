@@ -59,6 +59,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'jobs.pruneAvatars', parent: 'jobs' },
   { key: 'jobs.pruneEventImages', parent: 'jobs' },
   { key: 'jobs.prunePartnerLogos', parent: 'jobs' },
+  { key: 'jobs.purgePartnerEvents', parent: 'jobs' },
   { key: 'jobs.closeStaleSessions', parent: 'jobs' },
   { key: 'jobs.pushDeliver', parent: 'jobs' },
   { key: 'jobs.pushPrune', parent: 'jobs' },

@@ -78,6 +78,7 @@ export default defineNuxtConfig({
         'users:prune-avatars',
         'events:prune-images',
         'partners:prune-logos',
+        'partner-events:purge',
         'push:prune',
         'api-keys:prune',
         'economy:snapshot',

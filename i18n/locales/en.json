@@ -817,6 +817,11 @@
         "partner_update": "{actor} changed the partner {name}.",
         "partner_delete": "{actor} deleted the partner {name}.",
         "partners_settings": "{actor} changed the partners page settings.",
+        "partnerEvent_update": "{actor} changed the partner event {slug}.",
+        "partnerEvent_close": "{actor} closed the partner event {slug}.",
+        "partnerEvent_reopen": "{actor} reopened the partner event {slug}.",
+        "partnerEvent_export": "{actor} exported the spreadsheet of the partner event {slug}.",
+        "partnerEvent_purge": "The data of the partner event {slug} was deleted, 60 days after it closed.",
         "shortLink_create": "{actor} created the short link {name}.",
         "shortLink_update": "{actor} changed the short link {name}.",
         "shortLink_delete": "{actor} deleted the short link {name}.",
@@ -1177,6 +1182,10 @@
         "partnerEvents_teams": {
           "label": "Teams in partner events",
           "description": "Creating teams, inviting and joining in a partner event. Players can still leave."
+        },
+        "jobs_purgePartnerEvents": {
+          "label": "Deleting partner event data",
+          "description": "The nightly deletion of interest, teams and dates of birth 60 days after a partner event is closed."
         },
         "jobs_prunePartnerLogos": {
           "label": "Pruning partner logos",
@@ -3052,6 +3061,9 @@
       "withdrawn": "Interest withdrawn"
     },
     "problems": {
+      "imageNotFound": "This image no longer exists. Upload it again.",
+      "gameHasTeams": "This game has teams. Disband them before putting it back under study.",
+      "placesInUse": "A team already uses more places than that.",
       "gameNotFound": "This game doesn’t exist.",
       "gameNotConfirmed": "Teams aren’t open for this game yet.",
       "teamsClosed": "Teams are paused for now. Try again later.",

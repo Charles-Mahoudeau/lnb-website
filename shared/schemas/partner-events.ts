@@ -31,6 +31,9 @@ export const PARTNER_EVENT_PROBLEMS = [
   'tooManyRequests',
   'tooManyInvites',
   'notLooking',
+  'imageNotFound',
+  'gameHasTeams',
+  'placesInUse',
 ] as const;
 export type PartnerEventProblem = (typeof PARTNER_EVENT_PROBLEMS)[number];
 
@@ -274,3 +277,141 @@ export const partnerGameTeamsView = z.object({
 export type PartnerGameTeamsView = z.infer<typeof partnerGameTeamsView>;
 
 export const partnerCreated = z.object({ id: z.string() });
+
+// Admin
+
+/** The days between closing an event and the deletion of its interest, teams and dates of birth. */
+export const PARTNER_EVENT_PURGE_DAYS = 60;
+export const PARTNER_REFERENT_ROLES = ['Manager', 'Manager / Joueur'] as const;
+export type PartnerReferentRole = (typeof PARTNER_REFERENT_ROLES)[number];
+
+const httpsUrl = z
+  .string()
+  .trim()
+  .max(300)
+  .refine((value) => {
+    try {
+      return new URL(value).protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }, 'An https link.');
+const dateText = z.string().trim().max(80);
+const mediaKey = z.string().regex(/^[0-9a-f]{64}\.(webp|jpg)$/);
+
+/** PATCH /api/admin/partner-events/:slug: only what is sent changes. */
+export const partnerEventSettingsBody = z
+  .object({
+    websiteUrl: httpsUrl.nullable(),
+    discordUrl: httpsUrl.nullable(),
+    dateTextEn: dateText,
+    dateTextFr: dateText,
+    dateConfirmed: z.boolean(),
+    interestOpen: z.boolean(),
+    teamsOpen: z.boolean(),
+    heroKey: mediaKey.nullable(),
+  })
+  .partial()
+  .strict();
+export type PartnerEventSettingsBody = z.input<typeof partnerEventSettingsBody>;
+
+const referentFields = {
+  referentPseudo: z.string().trim().max(60),
+  referentEmail: z.string().trim().max(120),
+  referentBirthDate: birthDate.nullable(),
+  referentRole: z.enum(PARTNER_REFERENT_ROLES),
+};
+
+/** PATCH /api/admin/partner-events/:slug/games/:game: only what is sent changes. */
+export const partnerGameSettingsBody = z
+  .object({
+    status: z.enum(PARTNER_GAME_STATUSES),
+    starters: z.number().int().min(1).max(16),
+    substitutes: z.number().int().min(0).max(8),
+    artKey: mediaKey.nullable(),
+    ...referentFields,
+  })
+  .partial()
+  .strict();
+export type PartnerGameSettingsBody = z.input<typeof partnerGameSettingsBody>;
+
+/** PATCH .../teams/:teamId. A null `referent` clears the team's own referent. */
+export const partnerTeamReferentBody = z
+  .object({
+    referent: z
+      .object({
+        pseudo: referentFields.referentPseudo.min(1),
+        email: referentFields.referentEmail,
+        birthDate: referentFields.referentBirthDate,
+        role: referentFields.referentRole,
+      })
+      .nullable(),
+  })
+  .strict();
+export type PartnerTeamReferentBody = z.input<typeof partnerTeamReferentBody>;
+
+export const partnerArtStored = z.object({ key: z.string(), url: z.string() });
+
+export const partnerAdminTeamParams = partnerEventParams.extend({ teamId: z.uuid() });
+
+const adminReferent = z.object({
+  pseudo: z.string(),
+  email: z.string(),
+  birthDate: z.string().nullable(),
+  role: z.enum(PARTNER_REFERENT_ROLES),
+});
+
+export const partnerAdminGame = z.object({
+  key: z.enum(PARTNER_GAME_KEYS),
+  status: z.enum(PARTNER_GAME_STATUSES),
+  starters: z.number().int(),
+  substitutes: z.number().int(),
+  art: z.string().nullable(),
+  artKey: z.string().nullable(),
+  referent: adminReferent,
+  interested: z.number().int(),
+  teams: z.number().int(),
+  players: z.number().int(),
+});
+
+export const partnerAdminTeam = z.object({
+  id: z.string(),
+  game: z.enum(PARTNER_GAME_KEYS),
+  name: z.string(),
+  abbreviation: z.string(),
+  starters: z.number().int(),
+  substitutes: z.number().int(),
+  captain: z.string().nullable(),
+  referent: adminReferent.nullable().describe('The team’s own referent, or null for the game’s.'),
+});
+
+export const partnerAdminInterest = z.object({
+  userId: z.string(),
+  name: z.string(),
+  email: z.string(),
+  school: z.string().nullable(),
+  game: z.enum(PARTNER_GAME_KEYS),
+  inGameName: z.string(),
+  rank: z.string(),
+  status: z.enum(['team', 'looking', 'hidden']),
+});
+
+/** GET /api/admin/partner-events/:slug */
+export const partnerAdminView = z.object({
+  slug: z.string(),
+  websiteUrl: z.string().nullable(),
+  discordUrl: z.string().nullable(),
+  hero: z.string().nullable(),
+  heroKey: z.string().nullable(),
+  dateTextEn: z.string(),
+  dateTextFr: z.string(),
+  dateConfirmed: z.boolean(),
+  interestOpen: z.boolean(),
+  teamsOpen: z.boolean(),
+  closedAt: isoDate.nullable(),
+  purgeAt: isoDate.nullable().describe('When the data is deleted: 60 days after closing.'),
+  games: z.array(partnerAdminGame),
+  teams: z.array(partnerAdminTeam),
+  interest: z.array(partnerAdminInterest),
+});
+export type PartnerAdminView = z.infer<typeof partnerAdminView>;

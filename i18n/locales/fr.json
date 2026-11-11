@@ -821,6 +821,11 @@
         "partner_update": "{actor} a modifié le partenaire {name}.",
         "partner_delete": "{actor} a supprimé le partenaire {name}.",
         "partners_settings": "{actor} a modifié les réglages de la page des partenaires.",
+        "partnerEvent_update": "{actor} a modifié l’événement partenaire {slug}.",
+        "partnerEvent_close": "{actor} a clos l’événement partenaire {slug}.",
+        "partnerEvent_reopen": "{actor} a rouvert l’événement partenaire {slug}.",
+        "partnerEvent_export": "{actor} a exporté le tableur de l’événement partenaire {slug}.",
+        "partnerEvent_purge": "Les données de l’événement partenaire {slug} ont été supprimées, 60 jours après sa clôture.",
         "shortLink_create": "{actor} a créé le lien court {name}.",
         "shortLink_update": "{actor} a modifié le lien court {name}.",
         "shortLink_delete": "{actor} a supprimé le lien court {name}.",
@@ -1181,6 +1186,10 @@
         "partnerEvents_teams": {
           "label": "Équipes des événements partenaires",
           "description": "La création d’équipes, les invitations et les demandes dans un événement partenaire. Les joueurs peuvent toujours quitter leur équipe."
+        },
+        "jobs_purgePartnerEvents": {
+          "label": "Suppression des données des événements partenaires",
+          "description": "La suppression nocturne de l’intérêt, des équipes et des dates de naissance 60 jours après la clôture d’un événement partenaire."
         },
         "jobs_prunePartnerLogos": {
           "label": "Nettoyage des logos de partenaires",
@@ -3056,6 +3065,9 @@
       "withdrawn": "Intérêt retiré"
     },
     "problems": {
+      "imageNotFound": "Cette image n’existe plus. Envoie-la de nouveau.",
+      "gameHasTeams": "Ce jeu a des équipes. Dissous-les avant de le remettre à l’étude.",
+      "placesInUse": "Une équipe utilise déjà plus de places que ça.",
       "gameNotFound": "Ce jeu n’existe pas.",
       "gameNotConfirmed": "Les équipes ne sont pas encore ouvertes pour ce jeu.",
       "teamsClosed": "Les équipes sont en pause pour le moment. Réessaie plus tard.",

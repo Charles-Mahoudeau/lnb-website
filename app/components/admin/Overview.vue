@@ -180,6 +180,11 @@ function describe(entry: AdminAuditView): string {
     case 'partner.update':
     case 'partner.delete':
     case 'partners.settings':
+    case 'partnerEvent.update':
+    case 'partnerEvent.close':
+    case 'partnerEvent.reopen':
+    case 'partnerEvent.export':
+    case 'partnerEvent.purge':
     case 'shortLink.create':
     case 'shortLink.update':
     case 'shortLink.delete':
@@ -200,6 +205,7 @@ function describe(entry: AdminAuditView): string {
         target,
         name: typeof entry.data.name === 'string' ? entry.data.name : '',
         team: typeof entry.data.team === 'string' ? entry.data.team : '',
+        slug: typeof entry.data.slug === 'string' ? entry.data.slug : '',
       });
   }
 }
