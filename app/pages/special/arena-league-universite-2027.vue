@@ -4,7 +4,7 @@ import type { InterestDraft } from '~/utils/partner-events';
 import { FEATURED_PARTNER_EVENT } from '#shared/schemas/partner-events';
 import type { PartnerGameKey } from '#shared/schemas/partner-events';
 
-// Arena League University 2027, an inter-school esports league LNB doesn't run: what it is, and
+// Arena League Université 2027, an inter-school esports league LNB doesn't run: what it is, and
 // the students' interest in each game. See docs/partner-events.md.
 definePageMeta({ auth: false, flag: 'partnerEvents' });
 

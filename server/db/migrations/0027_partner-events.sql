@@ -47,7 +47,7 @@ ALTER TABLE "partner_event_interest" ADD CONSTRAINT "partner_event_interest_game
 ALTER TABLE "partner_event_interest" ADD CONSTRAINT "partner_event_interest_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 -- The first partner event, so the page works before the admin section exists.
 INSERT INTO "partner_event" ("slug", "website_url", "discord_url")
-VALUES ('arena-league-university-2027', 'https://arenaleague.tv', 'https://discord.gg/wjv9NN7DGg');
+VALUES ('arena-league-universite-2027', 'https://arenaleague.tv', 'https://discord.gg/wjv9NN7DGg');
 --> statement-breakpoint
 INSERT INTO "partner_event_game" ("partner_event_id", "key", "status", "starters", "substitutes", "position")
 SELECT "id", "game"."key", "game"."status", "game"."starters", "game"."substitutes", "game"."position"
@@ -58,4 +58,4 @@ FROM "partner_event",
     ('rocket-league', 'study', 3, 1, 2),
     ('cs2', 'study', 5, 2, 3)
   ) AS "game" ("key", "status", "starters", "substitutes", "position")
-WHERE "partner_event"."slug" = 'arena-league-university-2027';
+WHERE "partner_event"."slug" = 'arena-league-universite-2027';

@@ -1,6 +1,6 @@
 # Partner events
 
-Pages for events that another organization runs, where LNB only helps its students find the event, say they are interested and form teams. They are not events (`docs/events.md`): no date, no capacity, no registration window. The first one is **Arena League University 2027**, at `/special/arena-league-university-2027`: an inter-school esports league run by Arena League, from January to May 2027 (the date is not fixed). Mocks: [Arena League mocks](https://claude.ai/artifact/XvHUjSdFhA2ZQ6bdkY5KHM) ("Art cards"). The design is in `docs/design.md` (Partner event page).
+Pages for events that another organization runs, where LNB only helps its students find the event, say they are interested and form teams. They are not events (`docs/events.md`): no date, no capacity, no registration window. The first one is **Arena League Université 2027**, at `/special/arena-league-universite-2027`: an inter-school esports league run by Arena League, from January to May 2027 (the date is not fixed). Mocks: [Arena League mocks](https://claude.ai/artifact/XvHUjSdFhA2ZQ6bdkY5KHM) ("Art cards"). The design is in `docs/design.md` (Partner event page).
 
 Status: the page, interest, teams, the admin, notifications and the promo are built.
 

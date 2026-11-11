@@ -12,7 +12,7 @@ import {
 
 describe('partner event params', () => {
   it('take lowercase slugs with hyphens', () => {
-    expect(partnerEventParams.safeParse({ slug: 'arena-league-university-2027' }).success).toBe(
+    expect(partnerEventParams.safeParse({ slug: 'arena-league-universite-2027' }).success).toBe(
       true,
     );
     for (const slug of ['', 'Arena', 'a_b', '-a', 'a-', 'a--b', 'a/b']) {

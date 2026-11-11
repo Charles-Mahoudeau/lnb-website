@@ -1175,7 +1175,7 @@
         },
         "partnerEvents": {
           "label": "Partner event pages",
-          "description": "The public pages for events other organizations run, such as Arena League University, and their API."
+          "description": "The public pages for events other organizations run, such as Arena League Université, and their API."
         },
         "partnerEvents_interest": {
           "label": "Interest in partner events",
@@ -2809,7 +2809,7 @@
         "team": "Team news",
         "partnerEvents": {
           "label": "Partner events",
-          "description": "When LNB announces an event another organization runs, such as Arena League University. Off until you turn it on."
+          "description": "When LNB announces an event another organization runs, such as Arena League Université. Off until you turn it on."
         }
       },
       "devices": "Your devices",
@@ -3243,7 +3243,7 @@
       "alreadyAnnounced": "This event was already announced."
     },
     "arenaLeague2027": {
-      "title": "Arena League University 2027",
+      "title": "Arena League Université 2027",
       "lede": "A first season of inter-school esports between universities, on League of Legends and VALORANT. Rocket League and Counter-Strike 2 are under study.",
       "dateNotFixed": "Date to be confirmed, expected January to May",
       "free": "Free for students",

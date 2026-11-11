@@ -294,15 +294,15 @@ describe('push schemas', () => {
 });
 
 describe('partner event messages', () => {
-  const slug = 'arena-league-university-2027';
+  const slug = 'arena-league-universite-2027';
 
   it('names the event in the reader’s language and opens its page', () => {
     const en = buildPartnerMessage('partnerEvent', 'en', slug);
     const fr = buildPartnerMessage('partnerEvent', 'fr', slug);
-    expect(en.title).toBe('Arena League University 2027');
+    expect(en.title).toBe('Arena League Université 2027');
     expect(fr.body).not.toBe(en.body);
-    expect(en.url).toBe('/special/arena-league-university-2027');
-    expect(en.tag).toBe('partner:arena-league-university-2027');
+    expect(en.url).toBe('/special/arena-league-universite-2027');
+    expect(en.tag).toBe('partner:arena-league-universite-2027');
   });
 
   it('fills a team message with the game, the team and who', () => {
