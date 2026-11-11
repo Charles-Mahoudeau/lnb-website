@@ -20,7 +20,7 @@ The currency is the **LNBit**: whole numbers, no decimals.
 - Money only moves through **transactions**, each made of **entries** that add up to zero. An entry without an account is LNB itself: a negative one creates money (**mint**), a positive one destroys it (**burn**). Nothing else creates or destroys money.
 - A balance never goes below zero. Every balance is cached on its account and written in the same database transaction as the entries, with the accounts locked in ID order, so two transfers at once can't overspend or deadlock.
 - Nothing is ever updated or deleted. A mistake is undone by a **reversal**: a new transaction with the opposite entries. A transaction can be reversed once, a reversal can't be reversed, and a reversal is refused when an account no longer holds the money.
-- Kinds: `payment` (between players), `casino` (bets and payouts), `shop` (orders at a player shop), `mint`, `burn` and `reversal`. Mint and burn carry a reason: `startingBalance`, `adjustment` (an admin, with a message) or `accountClosed`.
+- Kinds: `payment` (between players), `casino` (bets and payouts), `shop` (orders at a player shop), `trade` (the money part of a trade), `mint`, `burn` and `reversal`. Mint and burn carry a reason: `startingBalance`, `adjustment` (an admin, with a message) or `accountClosed`.
 - **Frozen accounts** take and give nothing. An account is frozen when an admin freezes it, or when its owner has a site or Warden ban in force. Admin adjustments and reversals still work on frozen accounts.
 - When an LNB account is deleted (by an admin, or after 24 months without sign-in), its personal account is emptied (the money is burned with the reason `accountClosed`), closed and anonymized: its entries stay, without a link to the person. A shared account left without an owner passes to its oldest member, or is emptied and closed when nobody is left. This runs right after the deletion, and every night in case an account went another way.
 
@@ -52,6 +52,7 @@ Under `/api/economy/server`, behind the `economy.serverApi` flag, limited to 300
 | `PUT /players/:uuid/default-account` | `{ "account": "<id or handle>" }`, or `null` for the personal account. The player must be able to spend from it.                                                       |
 | `GET /accounts/:handle`              | A shared account: ID, name, balance and whether it's frozen. For `/pay #handle` and casino machines.                                                                   |
 | `POST /transfers`                    | Moves money in one call, behind the `economy.transfers` flag too. See below.                                                                                           |
+| `POST /trades`                       | The money part of a trade, in one call. Behind the `economy.trades` flag too. See below.                                                                               |
 | `POST /shops`, `PUT /shops/:id`      | Registers a shop, or saves its settings again. Behind the `economy.shops` flag too. See below.                                                                         |
 | `GET /shops/:id`                     | A shop: its account, item, prices and place, and whether it's off.                                                                                                     |
 | `POST /shops/:id/disable`            | Closes a shop whose block was broken. Not behind `economy.shops`, so a broken shop always stops selling.                                                               |
@@ -77,6 +78,24 @@ Under `/api/economy/server`, behind the `economy.serverApi` flag, limited to 300
 - `idempotencyKey` is a UUID the server makes for each move. Sending the same request again (after a timeout, say) returns the first result with `replayed: true` and moves nothing. The same key with a different request is a 409 `idempotencyMismatch`.
 - The answer is `{ transactionId, replayed, amount, from: { accountId, handle, balance }, to: { … } }`, with each balance right after the transfer.
 - Problems: `notLinked` (404), `notFound` (404), `notEligible` (403), `notAllowed` (403), `insufficientFunds`, `frozen`, `closed`, `sameAccount`, `idempotencyMismatch` (409).
+
+### Trades
+
+Two players swap items in the game, with money on either side or both. The server takes both sides' items aside (escrow) before it calls the site, so the swap can't fail once the money moved: on success each player gets the other's items, on a refusal each gets their own back. There is never a transfer to undo.
+
+```json
+{
+  "idempotencyKey": "<uuid>",
+  "from": { "player": "<uuid>", "account": "diamond-corner" },
+  "to": { "player": "<uuid>" },
+  "amount": 70,
+  "memo": "Trade with LnbTester"
+}
+```
+
+- Each player trades with one account, their default one unless they pick another they own or are a member of. `from` is the player who gave more money, and `amount` what they gave minus what the other gave: a trade is one `trade` transaction between those two accounts. Equal amounts move nothing, and the server doesn't call the site.
+- Two Minecraft accounts of the same person can't trade money (`sameAccount`), and a banned player can't trade (`frozen`).
+- The answer and the problems are a transfer's.
 
 ### Shops
 
@@ -151,4 +170,4 @@ Closed days of the charts come from `economy_daily_stat`, written every night by
 
 ## Not built yet
 
-These hang on the same ledger and come next, with their own routes: the auction house (listings and items stored on the site, a mailbox for items, a sale tax that is burned), and trades (the money part in one call, with a reversal if the item swap fails).
+The auction house hangs on the same ledger and comes next, with its own routes: listings and items stored on the site, a mailbox for items, and a sale tax that is burned.
