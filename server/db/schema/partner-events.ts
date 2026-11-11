@@ -58,6 +58,12 @@ export const partnerEventGame = pgTable(
     position: smallint('position').notNull(),
     // The card art: a file in the event-images storage, or null for the tinted fallback.
     artKey: text('art_key'),
+    // The LNB or BDE referent the organizer's spreadsheet asks for (its Manager sheet). Not shown
+    // to players. `referent_role` is 'Manager' or 'Manager / Joueur'.
+    referentPseudo: text('referent_pseudo').default('').notNull(),
+    referentEmail: text('referent_email').default('').notNull(),
+    referentBirthDate: date('referent_birth_date', { mode: 'string' }),
+    referentRole: text('referent_role').default('Manager').notNull(),
   },
   (table) => [
     unique('partner_event_game_key').on(table.partnerEventId, table.key),
@@ -107,6 +113,11 @@ export const partnerEventTeam = pgTable(
     abbreviation: text('abbreviation').notNull(),
     captainUserId: text('captain_user_id').references(() => user.id, { onDelete: 'set null' }),
     acceptsRequests: boolean('accepts_requests').default(true).notNull(),
+    // A referent for this team alone, replacing the game's in the export. Null uses the game's.
+    referentPseudo: text('referent_pseudo'),
+    referentEmail: text('referent_email'),
+    referentBirthDate: date('referent_birth_date', { mode: 'string' }),
+    referentRole: text('referent_role'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
   (table) => [
