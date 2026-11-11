@@ -214,7 +214,7 @@ export function assertNotStarted(row: EventRow, now = new Date()): void {
 }
 
 /** A tidied, valid name that no other team of the event has. */
-async function checkName(tx: Tx, eventId: string, name: string, exceptTeamId?: string) {
+export async function checkName(tx: Tx, eventId: string, name: string, exceptTeamId?: string) {
   if (!isValidTeamName(name)) refuse(400, 'invalidTeamName');
   const clean = cleanTeamName(name);
   const key = teamNameKey(clean);
