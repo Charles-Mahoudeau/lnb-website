@@ -1170,6 +1170,14 @@
           "label": "Bandeau « Soutenir LNB »",
           "description": "Le bandeau « Vous voulez soutenir LNB ? » en bas de la page des partenaires. Le lien enregistré reste."
         },
+        "partnerEvents": {
+          "label": "Pages d’événements partenaires",
+          "description": "Les pages publiques des événements organisés par d’autres structures, comme Arena League University, et leur API."
+        },
+        "partnerEvents_interest": {
+          "label": "Intérêt pour les événements partenaires",
+          "description": "L’enregistrement de l’intérêt pour les jeux d’un événement partenaire. Les étudiants peuvent toujours se retirer."
+        },
         "jobs_prunePartnerLogos": {
           "label": "Nettoyage des logos de partenaires",
           "description": "La suppression nocturne des logos qu’aucun partenaire n’utilise."
@@ -2925,6 +2933,78 @@
       "legendVolume": "Entrées et sorties par jour",
       "chartLabel": "Le solde est passé de {from} à {to} LNBits sur la période.",
       "dayLabel": "{day} : {balance} LNBits, {in} entrés, {out} sortis"
+    }
+  },
+  "partnerEvents": {
+    "links": {
+      "website": "Voir le site de la ligue",
+      "discord": "Rejoindre le Discord de la ligue"
+    },
+    "how": {
+      "title": "Comment ça marche"
+    },
+    "games": {
+      "title": "Choisissez vos jeux",
+      "lol": "League of Legends",
+      "valorant": "VALORANT",
+      "rocketLeague": "Rocket League",
+      "cs2": "Counter-Strike 2"
+    },
+    "status": {
+      "confirmed": "Équipes ouvertes",
+      "study": "À l’étude"
+    },
+    "counts": "{count} étudiant intéressé | {count} étudiant intéressé | {count} étudiants intéressés",
+    "imInterested": "Ça m’intéresse",
+    "interested": "Intéressé",
+    "signIn": {
+      "text": "Connectez-vous avec votre compte d’école pour dire que ça vous intéresse. Comptes Epitech, e-artsup et ISEG uniquement.",
+      "button": "Se connecter"
+    },
+    "paused": "L’enregistrement de l’intérêt est en pause pour le moment. Vous pouvez toujours vous retirer.",
+    "form": {
+      "title": "Vos informations",
+      "empty": "Cochez « Ça m’intéresse » sur un ou plusieurs jeux. Vous pourrez ensuite ajouter votre pseudo en jeu et votre rang.",
+      "inGameName": "Pseudo en jeu",
+      "inGameNameHint": "Pseudo#TAG",
+      "rank": "Rang",
+      "rankHint": "Or II",
+      "consent": "J’accepte que LNB transmette mon nom, mon e-mail d’école, le jeu, mon pseudo en jeu et mon rang à l’organisateur de la ligue.",
+      "save": "Enregistrer mon intérêt",
+      "withdraw": "Me retirer"
+    },
+    "toasts": {
+      "saved": "Intérêt enregistré",
+      "withdrawn": "Intérêt retiré"
+    },
+    "problems": {
+      "partnerEventNotFound": "Cet événement n’existe pas.",
+      "interestClosed": "L’enregistrement de l’intérêt est en pause. Réessayez plus tard.",
+      "partnerEventClosed": "Cet événement est terminé.",
+      "consentRequired": "Cochez la case pour accepter que LNB transmette vos informations à l’organisateur.",
+      "failed": "Votre intérêt n’a pas pu être enregistré. Vérifiez votre connexion et réessayez."
+    },
+    "arenaLeague2027": {
+      "title": "Arena League Université 2027",
+      "lede": "Une première saison de compétition esport inter-établissements entre universités, sur League of Legends et VALORANT. Rocket League et Counter-Strike 2 sont à l’étude.",
+      "dateNotFixed": "Date non fixée, probablement de janvier à mai",
+      "free": "Gratuit pour les étudiants",
+      "online": "Surtout en ligne",
+      "notice": "LNB n’est pas l’organisateur. Nous recensons les étudiants intéressés et transmettons la liste à l’organisateur. Les équipes se forment ensuite, et l’inscription définitive vient une fois les équipes et les règles d’éligibilité validées par l’organisateur.",
+      "facts": {
+        "interest": {
+          "title": "Dites que ça vous intéresse",
+          "text": "Choisissez vos jeux et indiquez votre pseudo en jeu et votre rang. Ça prend une minute."
+        },
+        "teams": {
+          "title": "Les équipes viennent ensuite",
+          "text": "Les équipes se forment avec l’aide de LNB une fois l’intérêt recensé. Chaque équipe a un référent LNB, qui est le contact avec l’organisateur."
+        },
+        "free": {
+          "title": "Gratuit et surtout en ligne",
+          "text": "Aucun frais pour les étudiants ni les établissements. Les matchs ont surtout lieu en ligne, selon un calendrier communiqué avant le lancement."
+        }
+      }
     }
   }
 }

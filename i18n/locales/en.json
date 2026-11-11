@@ -1166,6 +1166,14 @@
           "label": "Support LNB band",
           "description": "The “Want to support LNB?” band at the bottom of the partners page. The saved link stays."
         },
+        "partnerEvents": {
+          "label": "Partner event pages",
+          "description": "The public pages for events other organizations run, such as Arena League University, and their API."
+        },
+        "partnerEvents_interest": {
+          "label": "Interest in partner events",
+          "description": "Saving interest in a partner event's games. Students can still withdraw."
+        },
         "jobs_prunePartnerLogos": {
           "label": "Pruning partner logos",
           "description": "The nightly removal of logos no partner uses."
@@ -2921,6 +2929,78 @@
       "legendVolume": "In and out per day",
       "chartLabel": "The balance went from {from} to {to} LNBits over the period.",
       "dayLabel": "{day}: {balance} LNBits, {in} in, {out} out"
+    }
+  },
+  "partnerEvents": {
+    "links": {
+      "website": "Visit the league’s website",
+      "discord": "Join the league’s Discord"
+    },
+    "how": {
+      "title": "How it works"
+    },
+    "games": {
+      "title": "Pick your games",
+      "lol": "League of Legends",
+      "valorant": "VALORANT",
+      "rocketLeague": "Rocket League",
+      "cs2": "Counter-Strike 2"
+    },
+    "status": {
+      "confirmed": "Teams open",
+      "study": "Under study"
+    },
+    "counts": "{count} students interested | {count} student interested | {count} students interested",
+    "imInterested": "I’m interested",
+    "interested": "Interested",
+    "signIn": {
+      "text": "Sign in with your school account to say you’re interested. Epitech, e-artsup and ISEG accounts only.",
+      "button": "Sign in"
+    },
+    "paused": "Saving interest is paused for now. You can still withdraw.",
+    "form": {
+      "title": "Your details",
+      "empty": "Tick “I’m interested” on one or several games. You can add your in-game name and rank next.",
+      "inGameName": "In-game name",
+      "inGameNameHint": "Name#TAG",
+      "rank": "Rank",
+      "rankHint": "Gold II",
+      "consent": "I agree that LNB shares my name, school email, game, in-game name and rank with the league’s organizer.",
+      "save": "Save my interest",
+      "withdraw": "Withdraw"
+    },
+    "toasts": {
+      "saved": "Interest saved",
+      "withdrawn": "Interest withdrawn"
+    },
+    "problems": {
+      "partnerEventNotFound": "This event doesn’t exist.",
+      "interestClosed": "Saving interest is paused for now. Try again later.",
+      "partnerEventClosed": "This event is closed.",
+      "consentRequired": "Tick the box to agree that LNB shares your details with the organizer.",
+      "failed": "Your interest could not be saved. Check your connection and try again."
+    },
+    "arenaLeague2027": {
+      "title": "Arena League University 2027",
+      "lede": "A first season of inter-school esports between universities, on League of Legends and VALORANT. Rocket League and Counter-Strike 2 are under study.",
+      "dateNotFixed": "Date not fixed, probably January to May",
+      "free": "Free for students",
+      "online": "Mostly online",
+      "notice": "LNB is not the organizer. We collect which students are interested and give the organizer the list. Teams are formed afterwards, and final registration comes once the organizer has validated the teams and the eligibility rules.",
+      "facts": {
+        "interest": {
+          "title": "Say you’re interested",
+          "text": "Pick your games and tell us your in-game name and rank. It takes a minute."
+        },
+        "teams": {
+          "title": "Teams come next",
+          "text": "Teams are formed with LNB’s help once interest is in. Each team gets a referent from LNB, who is the contact with the organizer."
+        },
+        "free": {
+          "title": "Free and mostly online",
+          "text": "There is no fee for students or schools. Matches are mostly online, on a calendar shared before the launch."
+        }
+      }
     }
   }
 }
