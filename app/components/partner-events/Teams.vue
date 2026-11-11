@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { WardenConfirmModal } from '#components';
+
 import type {
   PartnerGameKey,
   PartnerGameView,
@@ -40,6 +42,19 @@ watch(
   () => props.interestVersion,
   () => refresh(),
 );
+
+const confirm = useOverlay().create(WardenConfirmModal);
+async function onDisband(team: PartnerTeamView) {
+  const confirmed: unknown = await confirm.open({
+    title: t('partnerEvents.teams.disbandTitle', { name: team.name }),
+    description: t('partnerEvents.teams.disbandBody'),
+    confirmLabel: t('partnerEvents.teams.disband'),
+    cancelLabel: t('partnerEvents.teams.keep'),
+    destructive: true,
+  }).result;
+  if (confirmed !== true) return;
+  await run(() => call('DELETE', `/teams/${team.id}`), t('partnerEvents.teams.toasts.disbanded'));
+}
 
 const busy = ref(false);
 type Dialog =
@@ -226,12 +241,7 @@ const setRole = (team: PartnerTeamView, userId: string, role: PartnerTeamRole) =
           @leave="
             run(() => call('POST', `/teams/${team.id}/leave`), t('partnerEvents.teams.toasts.left'))
           "
-          @disband="
-            run(
-              () => call('DELETE', `/teams/${team.id}`),
-              t('partnerEvents.teams.toasts.disbanded'),
-            )
-          "
+          @disband="onDisband(team)"
           @edit="dialog = { kind: 'edit', team }"
           @kick="(userId) => run(() => call('DELETE', `/teams/${team.id}/members/${userId}`))"
           @role="(userId, role) => setRole(team, userId, role)"
