@@ -20,7 +20,7 @@ The currency is the **LNBit**: whole numbers, no decimals.
 - Money only moves through **transactions**, each made of **entries** that add up to zero. An entry without an account is LNB itself: a negative one creates money (**mint**), a positive one destroys it (**burn**). Nothing else creates or destroys money.
 - A balance never goes below zero. Every balance is cached on its account and written in the same database transaction as the entries, with the accounts locked in ID order, so two transfers at once can't overspend or deadlock.
 - Nothing is ever updated or deleted. A mistake is undone by a **reversal**: a new transaction with the opposite entries. A transaction can be reversed once, a reversal can't be reversed, and a reversal is refused when an account no longer holds the money.
-- Kinds: `payment` (between players), `casino` (bets and payouts), `mint`, `burn` and `reversal`. Mint and burn carry a reason: `startingBalance`, `adjustment` (an admin, with a message) or `accountClosed`.
+- Kinds: `payment` (between players), `casino` (bets and payouts), `shop` (orders at a player shop), `mint`, `burn` and `reversal`. Mint and burn carry a reason: `startingBalance`, `adjustment` (an admin, with a message) or `accountClosed`.
 - **Frozen accounts** take and give nothing. An account is frozen when an admin freezes it, or when its owner has a site or Warden ban in force. Admin adjustments and reversals still work on frozen accounts.
 - When an LNB account is deleted (by an admin, or after 24 months without sign-in), its personal account is emptied (the money is burned with the reason `accountClosed`), closed and anonymized: its entries stay, without a link to the person. A shared account left without an owner passes to its oldest member, or is emptied and closed when nobody is left. This runs right after the deletion, and every night in case an account went another way.
 
@@ -52,6 +52,10 @@ Under `/api/economy/server`, behind the `economy.serverApi` flag, limited to 300
 | `PUT /players/:uuid/default-account` | `{ "account": "<id or handle>" }`, or `null` for the personal account. The player must be able to spend from it.                                                       |
 | `GET /accounts/:handle`              | A shared account: ID, name, balance and whether it's frozen. For `/pay #handle` and casino machines.                                                                   |
 | `POST /transfers`                    | Moves money in one call, behind the `economy.transfers` flag too. See below.                                                                                           |
+| `POST /shops`, `PUT /shops/:id`      | Registers a shop, or saves its settings again. Behind the `economy.shops` flag too. See below.                                                                         |
+| `GET /shops/:id`                     | A shop: its account, item, prices and place, and whether it's off.                                                                                                     |
+| `POST /shops/:id/disable`            | Closes a shop whose block was broken. Not behind `economy.shops`, so a broken shop always stops selling.                                                               |
+| `POST /shops/:id/orders`             | Buys lots from a shop, or sells them back to it. Behind the `economy.shops` flag too. See below.                                                                       |
 
 ### Transfers
 
@@ -74,6 +78,36 @@ Under `/api/economy/server`, behind the `economy.serverApi` flag, limited to 300
 - The answer is `{ transactionId, replayed, amount, from: { accountId, handle, balance }, to: { … } }`, with each balance right after the transfer.
 - Problems: `notLinked` (404), `notFound` (404), `notEligible` (403), `notAllowed` (403), `insufficientFunds`, `frozen`, `closed`, `sameAccount`, `idempotencyMismatch` (409).
 
+### Shops
+
+A shop is a block in the game that sells one item, in lots of 1 to 99, for an account its owner chooses (personal or shared), and may buy the same item back. There are no server shops: every shop belongs to players, so shops never create money.
+
+```json
+{
+  "player": "<uuid>",
+  "account": "diamond-corner",
+  "item": {
+    "id": "minecraft:diamond",
+    "snbt": "{id:\"minecraft:diamond\",count:16}",
+    "name": "Diamond"
+  },
+  "lotSize": 16,
+  "sellPrice": 40,
+  "buyPrice": 25,
+  "position": { "world": "minecraft:overworld", "x": 10, "y": 64, "z": -3 }
+}
+```
+
+- The player who saves a shop must be an owner or a member of its account, and of the new account when it changes. The item's SNBT is kept as the game saved it and never read; its name is shown in the history and the admin.
+- `sellPrice` is what a buyer pays for one lot. `buyPrice`, optional, is what the shop pays for a lot it buys back, at most `sellPrice`, so nobody can buy and sell back at a profit.
+- A shop is never deleted. Breaking its block turns it off (`removed`); saving it again turns it back on. A shop an admin turned off (`admin`) answers `shopDisabled` until an admin turns it back on.
+- An order is `{ idempotencyKey, player, account?, direction, lots, expectedLotPrice }`. The site prices it from the saved prices: the server never sends an amount, and `expectedLotPrice` must be the price the player saw, or the answer is `priceChanged` (409).
+  - `buy`: the player pays from `account`, or their default account, to the shop's account.
+  - `sell`: the shop's account pays the player, into `account` or their personal account. The shop pays with no owner around, only at its `buyPrice` (`noBuyBack` without one) and only while it's on.
+- Each order is a `shop` transaction, with the number of items and their name as the memo (`32 × Diamond`), and a line in `economy_shop_order`. The answer is a transfer's, plus `shopId`, `direction`, `lots` and `lotPrice`.
+- The server holds the items aside (escrow) until the site answers, and gives them back if it refuses. Shops pay no tax.
+- Problems: those of transfers, plus `shopDisabled`, `noBuyBack` and `priceChanged` (409).
+
 ## Player routes
 
 Under `/api/economy`, for signed-in players, behind the `economy` flag; creating, renaming and closing shared accounts, invitations and members also need `economy.sharedAccounts`, and the baltop `economy.baltop`.
@@ -94,17 +128,17 @@ Under `/api/economy`, for signed-in players, behind the `economy` flag; creating
 
 Under `/api/economy/admin`, for economy admins and site admins. Never behind a flag. Every change is written to `admin_audit` (`economy.*`) and shows on the Overview.
 
-| Route                                                 | What it does                                                                                                                                                                                                                                        |
-| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET /stats?period=7d\|30d\|90d\|all`                 | Money in circulation per day, minted and burned per day and by reason, volume by kind, active players, the distribution of wealth (top 10 % share, Gini, histogram) and the largest shared accounts.                                                |
-| `GET /accounts`, `GET /accounts/:id`                  | Every account, richest first, with a search; one account with its members and its flows over 30 days.                                                                                                                                               |
-| `GET /accounts/:id/transactions`                      | An account's history.                                                                                                                                                                                                                               |
-| `GET /accounts/:id/balance-history`                   | The same balance history, for any account.                                                                                                                                                                                                          |
-| `POST /accounts/:id/adjustments`                      | Mints or burns, with a reason the members see.                                                                                                                                                                                                      |
-| `POST /accounts/:id/freeze`                           | Freezes (a reason is required) or unfreezes.                                                                                                                                                                                                        |
-| `GET /transactions`, `POST /transactions/:id/reverse` | The whole ledger with filters; reversing a transaction, with a reason.                                                                                                                                                                              |
-| `GET /settings`, `PATCH /settings`                    | The starting balance and the two limits.                                                                                                                                                                                                            |
-| `GET /export`, `POST /reset`                          | Site admins only. The export lists every open account with its balance and members. The reset deletes every account, the ledger and the stats (the settings stay) after typing `reset the economy`. There are no seasons: a reset is a fresh start. |
+| Route                                                 | What it does                                                                                                                                                                                                                                                   |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /stats?period=7d\|30d\|90d\|all`                 | Money in circulation per day, minted and burned per day and by reason, volume by kind, active players, the distribution of wealth (top 10 % share, Gini, histogram) and the largest shared accounts.                                                           |
+| `GET /accounts`, `GET /accounts/:id`                  | Every account, richest first, with a search; one account with its members and its flows over 30 days.                                                                                                                                                          |
+| `GET /accounts/:id/transactions`                      | An account's history.                                                                                                                                                                                                                                          |
+| `GET /accounts/:id/balance-history`                   | The same balance history, for any account.                                                                                                                                                                                                                     |
+| `POST /accounts/:id/adjustments`                      | Mints or burns, with a reason the members see.                                                                                                                                                                                                                 |
+| `POST /accounts/:id/freeze`                           | Freezes (a reason is required) or unfreezes.                                                                                                                                                                                                                   |
+| `GET /transactions`, `POST /transactions/:id/reverse` | The whole ledger with filters; reversing a transaction, with a reason.                                                                                                                                                                                         |
+| `GET /settings`, `PATCH /settings`                    | The starting balance and the two limits.                                                                                                                                                                                                                       |
+| `GET /export`, `POST /reset`                          | Site admins only. The export lists every open account with its balance and members. The reset deletes every account, the ledger, the shops and the stats (the settings stay) after typing `reset the economy`. There are no seasons: a reset is a fresh start. |
 
 Closed days of the charts come from `economy_daily_stat`, written every night by the `economy:snapshot` task (Paris days), which also tidies up after deleted players. The current day is computed live.
 
@@ -116,4 +150,4 @@ Closed days of the charts come from `economy_daily_stat`, written every night by
 
 ## Not built yet
 
-These hang on the same ledger and come next, with their own routes: the auction house (listings and items stored on the site, a mailbox for items, a sale tax that is burned), trades (the money part in one call, with a reversal if the item swap fails), and player shops (registered on the site, selling and optionally buying items at a fixed price).
+These hang on the same ledger and come next, with their own routes: the auction house (listings and items stored on the site, a mailbox for items, a sale tax that is burned), and trades (the money part in one call, with a reversal if the item swap fails).
