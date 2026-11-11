@@ -2767,6 +2767,34 @@ const routes: RouteDoc[] = [
   },
   {
     method: 'post',
+    path: '/api/admin/partner-events/{slug}/announce-impact',
+    tag: TAGS.partnerEventsAdmin,
+    summary: 'What announcing a partner event would notify',
+    description:
+      'For the confirmation before announcing. Only accounts that turned partner event notifications on can receive it. Writes nothing.',
+    access: 'eventsManager',
+    params: partnerEvents.partnerEventParams,
+    body: partnerEvents.partnerAnnounceImpactBody,
+    response: push.pushImpactView,
+    problems: [{ status: 404, problems: ['partnerEventNotFound'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/partner-events/{slug}/announce',
+    tag: TAGS.partnerEventsAdmin,
+    summary: 'Announce a partner event',
+    description:
+      'Queues the push notification for accounts that turned partner event notifications on. Once per event, and not once it is closed. At night (22:00 to 08:00 in Paris) it waits for 08:00; `sendAt` says when. Behind the `push` and `push.partnerEvents` flags.',
+    access: 'eventsManager',
+    params: partnerEvents.partnerEventParams,
+    response: push.pushAnnounced,
+    problems: [
+      { status: 404, problems: ['partnerEventNotFound'] },
+      { status: 409, problems: ['partnerEventClosed', 'alreadyAnnounced'] },
+    ],
+  },
+  {
+    method: 'post',
     path: '/api/admin/partner-events/{slug}/reopen',
     tag: TAGS.partnerEventsAdmin,
     summary: 'Reopen a partner event',

@@ -62,6 +62,8 @@ export type AdminAuditAction =
   | 'partnerEvent.close'
   | 'partnerEvent.reopen'
   | 'partnerEvent.export'
+  /** The push announcement, with `data.slug` and `data.recipients`. */
+  | 'partnerEvent.announce'
   | 'partnerEvent.purge'
   /** Short links, with `data.id` (the short ID) and `data.name`. */
   | 'shortLink.create'

@@ -38,6 +38,8 @@ export const partnerEvent = pgTable('partner_event', {
   teamsOpen: boolean('teams_open').default(true).notNull(),
   // Set by "Close event": the page turns read-only and the data is purged later.
   closedAt: timestamp('closed_at'),
+  // Set when a manager sent the push announcement. It goes out once.
+  announcedAt: timestamp('announced_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

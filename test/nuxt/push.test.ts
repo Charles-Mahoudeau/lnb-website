@@ -8,7 +8,13 @@ import PushSettings from '~/components/push/Settings.vue';
 
 import type { PushOverview, PushStatusView } from '#shared/schemas/push';
 
-const preferences = { newEvents: true, reminders: true, spots: false, changes: true };
+const preferences = {
+  newEvents: true,
+  reminders: true,
+  spots: false,
+  changes: true,
+  partnerEvents: false,
+};
 
 function status(overrides: Partial<PushStatusView> = {}): PushStatusView {
   return {
@@ -99,7 +105,16 @@ const overview: PushOverview = {
   overCap: 2,
   subscribers: 213,
   accounts: 1480,
-  byKind: { newEvent: 12, reminder: 51, spot: 9, cancelled: 6, rescheduled: 9, team: 3 },
+  byKind: {
+    newEvent: 12,
+    reminder: 51,
+    spot: 9,
+    cancelled: 6,
+    rescheduled: 9,
+    team: 3,
+    partnerEvent: 4,
+    partnerTeam: 2,
+  },
 };
 registerEndpoint('/api/admin/push/overview', () => overview);
 registerEndpoint('/api/admin/push/subscribers', () => ({

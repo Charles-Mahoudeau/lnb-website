@@ -22,6 +22,8 @@ const KIND_FLAG: Record<PushKind, FlagKey> = {
   cancelled: 'push.changes',
   rescheduled: 'push.changes',
   team: 'push.spots',
+  partnerEvent: 'push.partnerEvents',
+  partnerTeam: 'push.spots',
 };
 
 const KIND_PREFERENCE = {
@@ -31,6 +33,8 @@ const KIND_PREFERENCE = {
   cancelled: pushPreference.changes,
   rescheduled: pushPreference.changes,
   team: pushPreference.spots,
+  partnerEvent: pushPreference.partnerEvents,
+  partnerTeam: pushPreference.spots,
 } as const;
 
 /** Whether the kind may be queued right now: the feature and the kind's own flag are on. */
@@ -48,7 +52,10 @@ async function eligible(dbx: Db, kind: PushKind, userIds: string[]): Promise<str
     .where(
       and(
         inArray(pushSubscription.userId, userIds),
-        or(isNull(KIND_PREFERENCE[kind]), eq(KIND_PREFERENCE[kind], true)),
+        // No row means the defaults: everything on, except what an account has to ask for.
+        kind === 'partnerEvent'
+          ? eq(pushPreference.partnerEvents, true)
+          : or(isNull(KIND_PREFERENCE[kind]), eq(KIND_PREFERENCE[kind], true)),
       ),
     );
   return rows.map((row) => row.userId);
@@ -56,7 +63,10 @@ async function eligible(dbx: Db, kind: PushKind, userIds: string[]): Promise<str
 
 export interface Enqueue {
   kind: PushKind;
-  eventId: string;
+  /** For the event kinds. */
+  eventId?: string;
+  /** For the partner kinds. */
+  partnerEventId?: string;
   userIds: string[];
   params?: Record<string, unknown>;
   /** One key per notification, so queueing it twice sends it once. */
@@ -72,7 +82,7 @@ async function enqueue(tx: Db, input: Enqueue): Promise<number> {
   const now = input.now ?? new Date();
   // Announcements wait for the morning. The rest is about now, so it goes out at once.
   const sendAt =
-    input.kind === 'newEvent'
+    input.kind === 'newEvent' || input.kind === 'partnerEvent'
       ? afterQuietHours(now, quietOf(await pushSettingsService.get()))
       : now;
   const rows = await tx
@@ -81,7 +91,8 @@ async function enqueue(tx: Db, input: Enqueue): Promise<number> {
       userIds.map((userId) => ({
         userId,
         kind: input.kind,
-        eventId: input.eventId,
+        eventId: input.eventId ?? null,
+        partnerEventId: input.partnerEventId ?? null,
         params: input.params ?? {},
         sendAt,
         dedupeKey: input.dedupe?.(userId) ?? null,

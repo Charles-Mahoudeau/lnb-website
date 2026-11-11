@@ -6,6 +6,7 @@ import {
   event,
   eventRegistration,
   eventRoom,
+  partnerEvent,
   pushNotification,
   pushPreference,
   pushSubscription,
@@ -13,9 +14,11 @@ import {
 import type { PushKind } from '~~/server/db/schema';
 import { pushConfigured, pushEnv } from '~~/server/lib/push-env';
 
-import { buildMessage } from './messages';
-import type { TeamReason } from './messages';
+import { buildMessage, buildPartnerMessage } from './messages';
+import type { PartnerTeamReason, PushMessage, TeamReason } from './messages';
 import { nextPushAttempt, pushTtl } from './rules';
+
+import type { PushKindName } from '#shared/schemas/push';
 
 // Sends the queued notifications to every device of the account. push:deliver runs this every
 // minute. A row is claimed by moving its send_at forward, so two runs never send the same one.
@@ -43,6 +46,8 @@ const PREFERENCE_COLUMN = {
   cancelled: 'changes',
   rescheduled: 'changes',
   team: 'spots',
+  partnerEvent: 'partnerEvents',
+  partnerTeam: 'spots',
 } as const satisfies Record<PushKind, keyof typeof pushPreference.$inferSelect>;
 
 /** Takes the due rows: counts the attempt and pushes send_at out, so a crash retries later. */
@@ -103,7 +108,35 @@ async function stillRelevant(
   return null;
 }
 
-async function deliverOne(row: Notification, now: Date): Promise<'sent' | 'skipped' | 'retry'> {
+interface Content {
+  build: (locale: 'en' | 'fr') => PushMessage;
+  startsAt: Date | null;
+}
+
+/** What to send for a partner event notification, or null when it no longer makes sense. */
+async function partnerContent(row: Notification): Promise<Content | 'gone' | 'closed'> {
+  const [found] = await db
+    .select({ slug: partnerEvent.slug, closedAt: partnerEvent.closedAt })
+    .from(partnerEvent)
+    .where(eq(partnerEvent.id, row.partnerEventId!));
+  if (!found) return 'gone';
+  if (found.closedAt) return 'closed';
+  const params = row.params;
+  return {
+    startsAt: null,
+    build: (locale) =>
+      buildPartnerMessage(row.kind as 'partnerEvent' | 'partnerTeam', locale, found.slug, {
+        reason:
+          typeof params.reason === 'string' ? (params.reason as PartnerTeamReason) : undefined,
+        game: typeof params.game === 'string' ? params.game : undefined,
+        team: typeof params.team === 'string' ? params.team : undefined,
+        who: typeof params.who === 'string' ? params.who : undefined,
+      }),
+  };
+}
+
+/** What to send for an LNB event notification, or why it no longer makes sense. */
+async function eventContent(row: Notification, now: Date): Promise<Content | string> {
   const [found] = row.eventId
     ? await db
         .select({ e: event, room: eventRoom.name })
@@ -111,13 +144,31 @@ async function deliverOne(row: Notification, now: Date): Promise<'sent' | 'skipp
         .innerJoin(eventRoom, eq(eventRoom.id, event.roomId))
         .where(eq(event.id, row.eventId))
     : [];
-  if (!found) {
-    await finish(row, 'skipped', 'eventGone', now);
-    return 'skipped';
-  }
+  if (!found) return 'eventGone';
   const why = await stillRelevant(row, found.e, now);
-  if (why) {
-    await finish(row, 'skipped', why, now);
+  if (why) return why;
+  return {
+    startsAt: found.e.startsAt,
+    build: (locale) =>
+      buildMessage(
+        row.kind as Exclude<PushKindName, 'partnerEvent' | 'partnerTeam'>,
+        locale,
+        { id: found.e.id, name: found.e.name, startsAt: found.e.startsAt, room: found.room },
+        {
+          offset: typeof row.params.offset === 'number' ? row.params.offset : undefined,
+          reason:
+            typeof row.params.reason === 'string' ? (row.params.reason as TeamReason) : undefined,
+          team: typeof row.params.team === 'string' ? row.params.team : undefined,
+          who: typeof row.params.who === 'string' ? row.params.who : undefined,
+        },
+      ),
+  };
+}
+
+async function deliverOne(row: Notification, now: Date): Promise<'sent' | 'skipped' | 'retry'> {
+  const content = row.partnerEventId ? await partnerContent(row) : await eventContent(row, now);
+  if (typeof content === 'string') {
+    await finish(row, 'skipped', content, now);
     return 'skipped';
   }
 
@@ -142,25 +193,14 @@ async function deliverOne(row: Notification, now: Date): Promise<'sent' | 'skipp
   let delivered = 0;
   let transient: string | null = null;
   for (const device of devices) {
-    const message = buildMessage(
-      row.kind,
-      device.locale === 'fr' ? 'fr' : 'en',
-      { id: found.e.id, name: found.e.name, startsAt: found.e.startsAt, room: found.room },
-      {
-        offset: typeof row.params.offset === 'number' ? row.params.offset : undefined,
-        reason:
-          typeof row.params.reason === 'string' ? (row.params.reason as TeamReason) : undefined,
-        team: typeof row.params.team === 'string' ? row.params.team : undefined,
-        who: typeof row.params.who === 'string' ? row.params.who : undefined,
-      },
-    );
+    const message = content.build(device.locale === 'fr' ? 'fr' : 'en');
     try {
       await webpush.sendNotification(
         { endpoint: device.endpoint, keys: { p256dh: device.p256dh, auth: device.auth } },
         JSON.stringify(message),
         {
-          TTL: pushTtl(row.kind, found.e.startsAt, now),
-          urgency: row.kind === 'newEvent' ? 'low' : 'high',
+          TTL: pushTtl(row.kind, content.startsAt, now),
+          urgency: row.kind === 'newEvent' || row.kind === 'partnerEvent' ? 'low' : 'high',
         },
       );
       delivered++;

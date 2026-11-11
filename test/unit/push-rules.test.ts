@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
 import { parisParts } from '../../app/utils/paris-parts.ts';
-import { buildMessage, relativeOffset } from '../../server/services/push/messages.ts';
+import {
+  buildMessage,
+  buildPartnerMessage,
+  relativeOffset,
+} from '../../server/services/push/messages.ts';
 import {
   afterQuietHours,
   countOverCap,
@@ -286,5 +290,30 @@ describe('push schemas', () => {
     expect(pushImpactBody.safeParse({ action: 'capacity' }).success).toBe(false);
     expect(pushImpactBody.safeParse({ action: 'capacity', capacity: null }).success).toBe(true);
     expect(pushImpactBody.safeParse({ action: 'add', userId: 'u1' }).success).toBe(true);
+  });
+});
+
+describe('partner event messages', () => {
+  const slug = 'arena-league-university-2027';
+
+  it('names the event in the reader’s language and opens its page', () => {
+    const en = buildPartnerMessage('partnerEvent', 'en', slug);
+    const fr = buildPartnerMessage('partnerEvent', 'fr', slug);
+    expect(en.title).toBe('Arena League University 2027');
+    expect(fr.body).not.toBe(en.body);
+    expect(en.url).toBe('/special/arena-league-university-2027');
+    expect(en.tag).toBe('partner:arena-league-university-2027');
+  });
+
+  it('fills a team message with the game, the team and who', () => {
+    const message = buildPartnerMessage('partnerTeam', 'en', slug, {
+      reason: 'invited',
+      game: 'valorant',
+      team: 'Les Éclairs',
+      who: 'Nora',
+    });
+    expect(message.title).toBe('Nora invited you to Les Éclairs');
+    expect(message.body).toContain('VALORANT');
+    expect(message.tag).toBe(`partner-team:${slug}:valorant`);
   });
 });

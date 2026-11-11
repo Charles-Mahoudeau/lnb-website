@@ -819,6 +819,7 @@
         "partner_delete": "{actor} deleted the partner {name}.",
         "partners_settings": "{actor} changed the partners page settings.",
         "partnerEvent_update": "{actor} changed the partner event {slug}.",
+        "partnerEvent_announce": "{actor} announced the partner event {slug} by notification.",
         "partnerEvent_close": "{actor} closed the partner event {slug}.",
         "partnerEvent_reopen": "{actor} reopened the partner event {slug}.",
         "partnerEvent_export": "{actor} exported the spreadsheet of the partner event {slug}.",
@@ -1231,6 +1232,10 @@
         "jobs_economySnapshot": {
           "label": "Economy stats",
           "description": "The nightly save of the economy charts, and closing the bank accounts of deleted players."
+        },
+        "push_partnerEvents": {
+          "label": "Partner event notifications",
+          "description": "Announcing a partner event. Nothing is queued while this is off."
         }
       }
     },
@@ -1613,7 +1618,10 @@
         "reminder": "Reminders",
         "spot": "Waitlist places",
         "cancelled": "Cancelled events",
-        "rescheduled": "Moved events"
+        "rescheduled": "Moved events",
+        "partnerEvent": "Partner events",
+        "partnerTeam": "Partner event teams",
+        "team": "Team news"
       },
       "subscribers": "People with notifications on",
       "name": "Name",
@@ -1873,6 +1881,23 @@
           "looking": "Looking",
           "hidden": "Hidden"
         }
+      },
+      "notify": {
+        "title": "Notification",
+        "text": "Sends one push notification to the accounts that turned on partner events in their notification settings. It is off by default, so expect few people. It goes out once.",
+        "announced": "Announced on {date}.",
+        "button": "Announce by notification",
+        "impactFailed": "The impact could not be loaded.",
+        "confirmTitle": "Announce this event?",
+        "confirmText": "This goes out once and can’t be sent again.",
+        "loading": "Counting who would get it...",
+        "recipients": "{count} of {audience} accounts would be notified.",
+        "overCap": "{count} of them already received {cap} notifications or more this week.",
+        "sendAt": "It goes out on {date}.",
+        "send": "Send the notification",
+        "sent": "{count} notifications queued",
+        "when": "They go out on {date}.",
+        "done": "Announced"
       }
     },
     "shortLinks": {
@@ -2718,6 +2743,28 @@
           "title": "{team} is on the waiting list",
           "body": "The team is complete, and waits for a place at {name}."
         }
+      },
+      "partnerEvent": {
+        "title": "{name}",
+        "body": "Say you’re interested and form a team with other students."
+      },
+      "partnerTeam": {
+        "invited": {
+          "title": "{who} invited you to {team}",
+          "body": "A {game} team for {name}."
+        },
+        "request": {
+          "title": "{who} wants to join {team}",
+          "body": "Answer their request for {name}, {game}."
+        },
+        "accepted": {
+          "title": "You’re in {team}",
+          "body": "Your request for {name}, {game}, was accepted."
+        },
+        "declined": {
+          "title": "Request declined",
+          "body": "{team} can’t take you for {name}, {game}."
+        }
       }
     },
     "prompt": {
@@ -2759,7 +2806,11 @@
           "label": "Changes to my events",
           "description": "Cancelled or moved events"
         },
-        "team": "Team news"
+        "team": "Team news",
+        "partnerEvents": {
+          "label": "Partner events",
+          "description": "When LNB announces an event another organization runs, such as Arena League University. Off until you turn it on."
+        }
       },
       "devices": "Your devices",
       "thisDevice": "This device",
@@ -3185,7 +3236,8 @@
       "interestClosed": "Saving interest is paused for now. Try again later.",
       "partnerEventClosed": "This event is closed.",
       "consentRequired": "Tick the box to agree that LNB shares your details with the organizer.",
-      "failed": "Your interest could not be saved. Check your connection and try again."
+      "failed": "Your interest could not be saved. Check your connection and try again.",
+      "alreadyAnnounced": "This event was already announced."
     },
     "arenaLeague2027": {
       "title": "Arena League University 2027",

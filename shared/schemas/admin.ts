@@ -202,6 +202,7 @@ export const adminAuditView = z.object({
     'partnerEvent.close',
     'partnerEvent.reopen',
     'partnerEvent.export',
+    'partnerEvent.announce',
     'partnerEvent.purge',
     'shortLink.create',
     'shortLink.update',

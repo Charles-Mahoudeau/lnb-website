@@ -19,15 +19,20 @@ export const PUSH_KINDS = [
   'cancelled',
   'rescheduled',
   'team',
+  'partnerEvent',
+  'partnerTeam',
 ] as const;
 export type PushKindName = (typeof PUSH_KINDS)[number];
 
-/** The four switches an account has: which kinds of notification it wants. */
+/** The switches an account has: which kinds of notification it wants. */
 export const pushPreferences = z.object({
   newEvents: z.boolean().describe('When the BDE announces an event.'),
   reminders: z.boolean().describe('Before events the account is registered for.'),
   spots: z.boolean().describe('When a place opens on a waitlist, or a manager adds the account.'),
   changes: z.boolean().describe('When an event the account is on is cancelled or moved.'),
+  partnerEvents: z
+    .boolean()
+    .describe('When LNB announces an event another organization runs. Off until asked.'),
 });
 export type PushPreferences = z.infer<typeof pushPreferences>;
 

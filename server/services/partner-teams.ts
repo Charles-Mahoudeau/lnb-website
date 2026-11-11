@@ -14,6 +14,7 @@ import {
 } from '~~/server/db/schema';
 import { nextCaptain } from '~~/server/services/events/team-rules';
 import { flagService } from '~~/server/services/flags';
+import { pushQueueService } from '~~/server/services/push/queue';
 
 import type {
   PartnerEventProblem,
@@ -374,6 +375,31 @@ async function patchMember(input: {
   });
 }
 
+/** Tells one person about an invitation, a request or its answer. Part of the caller's transaction. */
+async function notify(
+  tx: Tx,
+  input: {
+    partnerEventId: string;
+    game: PartnerGameKey;
+    userId: string;
+    inviteId: number;
+    reason: 'invited' | 'request' | 'accepted' | 'declined';
+    team: string;
+    whoUserId?: string;
+  },
+): Promise<void> {
+  const [who] = input.whoUserId
+    ? await tx.select({ name: user.name }).from(user).where(eq(user.id, input.whoUserId))
+    : [];
+  await pushQueueService.enqueue(tx, {
+    kind: 'partnerTeam',
+    partnerEventId: input.partnerEventId,
+    userIds: [input.userId],
+    params: { reason: input.reason, game: input.game, team: input.team, who: who?.name ?? '' },
+    dedupe: () => `partnerTeam:${String(input.inviteId)}:${input.reason}`,
+  });
+}
+
 async function pendingCount(tx: Tx, where: ReturnType<typeof and>): Promise<number> {
   const [row] = await tx.select({ n: count() }).from(partnerEventTeamInvite).where(where);
   return row?.n ?? 0;
@@ -435,6 +461,15 @@ async function invite(input: {
       .insert(partnerEventTeamInvite)
       .values({ teamId: team.id, userId: target.id, kind: 'invite' })
       .returning({ id: partnerEventTeamInvite.id });
+    await notify(tx, {
+      partnerEventId: event.id,
+      game: input.game,
+      userId: target.id,
+      inviteId: created!.id,
+      reason: 'invited',
+      team: team.name,
+      whoUserId: input.userId,
+    });
     return { id: created!.id };
   });
 }
@@ -485,6 +520,15 @@ async function request(input: {
         birthDate: input.birthDate,
       })
       .returning({ id: partnerEventTeamInvite.id });
+    await notify(tx, {
+      partnerEventId: event.id,
+      game: input.game,
+      userId: team.captainUserId,
+      inviteId: created!.id,
+      reason: 'request',
+      team: team.name,
+      whoUserId: input.userId,
+    });
     return { id: created!.id };
   });
 }
@@ -523,8 +567,21 @@ async function answer(input: {
         .update(partnerEventTeamInvite)
         .set({ status, resolvedAt: new Date() })
         .where(eq(partnerEventTeamInvite.id, invite.id));
+    // Only a request's answer is news to the student: an invitation they turn down is silent.
+    const tell = (reason: 'accepted' | 'declined') =>
+      isInvite
+        ? Promise.resolve()
+        : notify(tx, {
+            partnerEventId: event.id,
+            game: input.game,
+            userId: invite.userId,
+            inviteId: invite.id,
+            reason,
+            team: team.name,
+          });
     if (!input.body.accept) {
       await close('declined');
+      await tell('declined');
       return;
     }
 
@@ -535,6 +592,7 @@ async function answer(input: {
     if (await membershipOf(tx, game.id, invite.userId)) refuse(409, 'alreadyInTeam');
     await addMember(tx, game, team.id, invite.userId, birthDate);
     await close('accepted');
+    await tell('accepted');
   });
 }
 

@@ -823,6 +823,7 @@
         "partner_delete": "{actor} a supprimé le partenaire {name}.",
         "partners_settings": "{actor} a modifié les réglages de la page des partenaires.",
         "partnerEvent_update": "{actor} a modifié l’événement partenaire {slug}.",
+        "partnerEvent_announce": "{actor} a annoncé l’événement partenaire {slug} par notification.",
         "partnerEvent_close": "{actor} a clos l’événement partenaire {slug}.",
         "partnerEvent_reopen": "{actor} a rouvert l’événement partenaire {slug}.",
         "partnerEvent_export": "{actor} a exporté le tableur de l’événement partenaire {slug}.",
@@ -1235,6 +1236,10 @@
         "jobs_economySnapshot": {
           "label": "Stats de l’économie",
           "description": "L’enregistrement nocturne des graphiques de l’économie, et la fermeture des comptes bancaires des joueurs supprimés."
+        },
+        "push_partnerEvents": {
+          "label": "Notifications d’événements partenaires",
+          "description": "L’annonce d’un événement partenaire. Rien n’est mis en file tant que c’est désactivé."
         }
       }
     },
@@ -1617,7 +1622,10 @@
         "reminder": "Rappels",
         "spot": "Places en liste d’attente",
         "cancelled": "Événements annulés",
-        "rescheduled": "Événements déplacés"
+        "rescheduled": "Événements déplacés",
+        "partnerEvent": "Événements partenaires",
+        "partnerTeam": "Équipes des événements partenaires",
+        "team": "Actualités d’équipe"
       },
       "subscribers": "Personnes avec les notifications activées",
       "name": "Nom",
@@ -1877,6 +1885,23 @@
           "looking": "En recherche",
           "hidden": "Masqué"
         }
+      },
+      "notify": {
+        "title": "Notification",
+        "text": "Envoie une notification push, une seule fois, aux comptes qui ont activé les événements partenaires dans leurs réglages. C’est désactivé par défaut : attends-toi à peu de monde.",
+        "announced": "Annoncé le {date}.",
+        "button": "Annoncer par notification",
+        "impactFailed": "L’impact n’a pas pu être chargé.",
+        "confirmTitle": "Annoncer cet événement ?",
+        "confirmText": "Elle part une seule fois et ne pourra pas être renvoyée.",
+        "loading": "Comptage des personnes concernées...",
+        "recipients": "{count} comptes sur {audience} seraient notifiés.",
+        "overCap": "{count} d’entre eux ont déjà reçu {cap} notifications ou plus cette semaine.",
+        "sendAt": "Elle part le {date}.",
+        "send": "Envoyer la notification",
+        "sent": "{count} notifications en file",
+        "when": "Elles partent le {date}.",
+        "done": "Annoncé"
       }
     },
     "shortLinks": {
@@ -2722,6 +2747,28 @@
           "title": "{team} est sur liste d’attente",
           "body": "L’équipe est complète, et attend une place pour {name}."
         }
+      },
+      "partnerEvent": {
+        "title": "{name}",
+        "body": "Dis que tu es intéressé et forme une équipe avec d’autres étudiants."
+      },
+      "partnerTeam": {
+        "invited": {
+          "title": "{who} t’a invité dans {team}",
+          "body": "Une équipe {game} pour {name}."
+        },
+        "request": {
+          "title": "{who} veut rejoindre {team}",
+          "body": "Réponds à sa demande pour {name}, {game}."
+        },
+        "accepted": {
+          "title": "Tu es dans {team}",
+          "body": "Ta demande pour {name}, {game}, a été acceptée."
+        },
+        "declined": {
+          "title": "Demande refusée",
+          "body": "{team} ne peut pas te prendre pour {name}, {game}."
+        }
       }
     },
     "prompt": {
@@ -2763,7 +2810,11 @@
           "label": "Changements de mes événements",
           "description": "Événements annulés ou déplacés"
         },
-        "team": "Équipes"
+        "team": "Équipes",
+        "partnerEvents": {
+          "label": "Événements partenaires",
+          "description": "Quand LNB annonce un événement organisé par une autre structure, comme Arena League University. Désactivé tant que tu ne l’actives pas."
+        }
       },
       "devices": "Vos appareils",
       "thisDevice": "Cet appareil",
@@ -3189,7 +3240,8 @@
       "interestClosed": "L’enregistrement de l’intérêt est en pause. Réessayez plus tard.",
       "partnerEventClosed": "Cet événement est terminé.",
       "consentRequired": "Cochez la case pour accepter que LNB transmette vos informations à l’organisateur.",
-      "failed": "Votre intérêt n’a pas pu être enregistré. Vérifiez votre connexion et réessayez."
+      "failed": "Votre intérêt n’a pas pu être enregistré. Vérifiez votre connexion et réessayez.",
+      "alreadyAnnounced": "Cet événement a déjà été annoncé."
     },
     "arenaLeague2027": {
       "title": "Arena League Université 2027",
