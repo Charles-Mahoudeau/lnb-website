@@ -103,13 +103,37 @@ describe('event teams', () => {
             lookingHidden: false,
             teamIds: [],
             invitations: [],
-            requestedTeamIds: [],
+            requested: [],
             requestsLeft: 3,
           },
         },
       },
     });
     expect(wrapper.find('form').exists()).toBe(true);
+  });
+
+  it('shows an invitation to answer, and a way to ask a team that takes requests', async () => {
+    const wrapper = await mountSuspended(EventsTeams, {
+      props: {
+        event,
+        teams: {
+          ...teams,
+          me: {
+            registered: true,
+            lookingHidden: false,
+            teamIds: [],
+            invitations: [
+              { id: 7, teamId: teams.teams[0]!.id, teamName: 'Night Owls', from: 'Ada' },
+            ],
+            requested: [],
+            requestsLeft: 3,
+          },
+        },
+      },
+    });
+    expect(wrapper.text()).toContain('Ada invited you to Night Owls');
+    expect(wrapper.text()).toContain('Accept');
+    expect(wrapper.text()).toContain('Ask to join');
   });
 
   it('counts teams, not people, as the places of the agenda', async () => {

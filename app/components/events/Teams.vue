@@ -41,6 +41,26 @@ const canCreate = computed(
 const name = ref('');
 const pending = ref(false);
 
+async function onAnswer(inviteId: number, accept: boolean) {
+  try {
+    await eventInviteActions.answer(props.event.id, inviteId, accept);
+    toast.add({
+      title: t(accept ? 'events.teams.joined' : 'events.teams.invitationDeclined'),
+      color: 'success',
+      icon: 'i-lucide-circle-check',
+    });
+  } catch (error) {
+    const problem = error instanceof EventError ? error.problem : 'failed';
+    toast.add({
+      title: t(`events.errors.${problem}`, t('events.errors.failed')),
+      color: 'error',
+      icon: 'i-lucide-circle-alert',
+    });
+  } finally {
+    emit('changed');
+  }
+}
+
 async function onCreate() {
   pending.value = true;
   try {
@@ -93,6 +113,33 @@ async function onCreate() {
       />
     </form>
 
+    <!-- Invitations to answer, whatever the player's registration -->
+    <ul v-if="teams.me?.invitations.length" class="flex flex-col gap-3">
+      <li
+        v-for="invitation in teams.me.invitations"
+        :key="invitation.id"
+        class="flex flex-wrap items-center gap-3 rounded-lg bg-accented p-4"
+      >
+        <UIcon name="i-lucide-mail" class="size-5 shrink-0 text-muted" />
+        <p class="min-w-0 flex-1 text-default">
+          {{
+            invitation.from
+              ? t('events.teams.invitedBy', { who: invitation.from, team: invitation.teamName })
+              : t('events.teams.invitedTo', { team: invitation.teamName })
+          }}
+        </p>
+        <template v-if="open && live">
+          <UButton :label="t('events.teams.accept')" @click="onAnswer(invitation.id, true)" />
+          <UButton
+            color="neutral"
+            variant="outline"
+            :label="t('events.teams.decline')"
+            @click="onAnswer(invitation.id, false)"
+          />
+        </template>
+      </li>
+    </ul>
+
     <p v-if="!teams.teams.length" class="rounded-lg bg-elevated p-4 text-muted">
       {{ t('events.teams.none') }}
     </p>
@@ -104,6 +151,8 @@ async function onCreate() {
           :min="config.min"
           :max="config.max"
           :editable="editable"
+          :open="live && open"
+          :me="teams.me"
           @changed="emit('changed')"
         />
       </li>
