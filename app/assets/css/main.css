@@ -69,6 +69,17 @@
   --color-banner-fallback: color-mix(in oklab, var(--color-dusk-500) 20%, var(--color-night-950));
 }
 
+/* The promo for the partner event on the home page and the events list: the one gradient allowed
+   besides the banner scrim (docs/design.md, Partner event promo). Text on it uses the banner
+   colors, and a light plate button uses on-plate. Dark in both color modes. */
+@theme static {
+  --color-on-plate: var(--color-night-950);
+}
+
+@utility bg-promo {
+  background: linear-gradient(135deg, #1a1548, #4a2a7a 45%, #8a3a7a 78%, #a65a45);
+}
+
 /* Partner logos sit on a light plate in both color modes, so one upload works everywhere. */
 @theme inline {
   --color-plate: var(--lnb-plate);

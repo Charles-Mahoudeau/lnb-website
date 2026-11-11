@@ -78,6 +78,7 @@ const filtered = computed(() => type.value !== 'all' || school.value !== 'all');
   <UContainer class="flex flex-col gap-8 py-10 lg:py-12">
     <div class="flex flex-col gap-5">
       <h1 class="text-4xl font-bold text-highlighted">{{ t('events.title') }}</h1>
+      <PartnerEventsPromo variant="banner" />
       <div class="flex flex-wrap items-center gap-3">
         <UTabs v-model="tab" :items="tabs" :content="false" class="w-auto" />
         <span class="flex-1" />
