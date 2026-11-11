@@ -508,6 +508,39 @@ export const economyFreezeBody = z
   .refine((body) => !body.frozen || body.reason, { path: ['reason'] });
 export type EconomyFreezeBody = z.infer<typeof economyFreezeBody>;
 
+/** GET /api/economy/admin/shops */
+export const economyAdminShopsQuery = economyCursorQuery.extend({
+  q: z.string().trim().max(100).optional().describe("Item name or ID, or the account's handle."),
+  status: z.enum(['on', 'off']).optional(),
+});
+export type EconomyAdminShopsQuery = z.input<typeof economyAdminShopsQuery>;
+
+export const economyAdminShopRow = economyServerShop.extend({
+  account: z.object({
+    id: z.uuid(),
+    kind: z.enum(['personal', 'shared']),
+    handle: z.string().nullable(),
+    name: z.string().describe("A shared account's name, or the owner's name."),
+  }),
+  disabledAt: isoDate.nullable(),
+  createdBy: z.object({ userId: z.string(), name: z.string() }).nullable(),
+  createdAt: isoDate,
+  orders: z.number().describe('Orders since the shop opened.'),
+  volume: z.number().describe('LNBits moved by those orders.'),
+});
+export type EconomyAdminShopRow = z.infer<typeof economyAdminShopRow>;
+
+export const economyAdminShopPage = page(economyAdminShopRow);
+export type EconomyAdminShopPage = z.infer<typeof economyAdminShopPage>;
+
+/** PATCH /api/economy/admin/shops/:shopId */
+export const economyAdminShopPatch = z.object({
+  disabled: z
+    .boolean()
+    .describe('Turns the shop off, or back on. A shop whose block was broken stays off.'),
+});
+export type EconomyAdminShopPatch = z.infer<typeof economyAdminShopPatch>;
+
 /** POST /api/economy/admin/transactions/:transactionId/reverse */
 export const economyReverseBody = z.object({ reason: economyMemo });
 

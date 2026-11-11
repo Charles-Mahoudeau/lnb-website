@@ -42,7 +42,7 @@ import { ECONOMY_RESET_CONFIRM } from '#shared/schemas/economy';
 type Account = typeof economyAccount.$inferSelect;
 
 /** How an account is named in the audit log: its handle, or its owner's name. */
-async function auditName(tx: Tx, account: Account): Promise<string> {
+export async function auditName(tx: Tx, account: Account): Promise<string> {
   if (account.handle) return `#${account.handle}`;
   if (!account.ownerUserId) return '';
   const [owner] = await tx
@@ -52,7 +52,7 @@ async function auditName(tx: Tx, account: Account): Promise<string> {
   return owner?.name ?? '';
 }
 
-function escapeLike(value: string): string {
+export function escapeLike(value: string): string {
   return `%${value.replace(/[\\%_]/g, '\\$&')}%`;
 }
 

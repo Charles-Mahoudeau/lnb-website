@@ -201,6 +201,8 @@ function describe(entry: AdminAuditView): string {
     case 'economy.reverse':
     case 'economy.settings':
     case 'economy.reset':
+    case 'economy.shopDisable':
+    case 'economy.shopEnable':
       return t(`admin.overview.log.${entry.action.replace('.', '_')}`, {
         actor,
         target,

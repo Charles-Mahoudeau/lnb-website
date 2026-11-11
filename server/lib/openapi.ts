@@ -3654,6 +3654,34 @@ const routes: RouteDoc[] = [
   },
   {
     method: 'get',
+    path: '/api/economy/admin/shops',
+    tag: TAGS.economyAdmin,
+    summary: 'Shops',
+    description:
+      'Every player shop, newest first, 50 per page, with its orders and the LNBits they moved.',
+    access: 'economyAdmin',
+    query: economy.economyAdminShopsQuery,
+    response: economy.economyAdminShopPage,
+    problems: [{ status: 400, problems: ['invalidCursor'] }],
+  },
+  {
+    method: 'patch',
+    path: '/api/economy/admin/shops/{shopId}',
+    tag: TAGS.economyAdmin,
+    summary: 'Turn a shop off or on',
+    description:
+      'A shop turned off refuses every order, and its owner can no longer save it. A shop whose block was broken stays off (`shopDisabled`) until its owner places it again.',
+    access: 'economyAdmin',
+    params: economy.economyShopParams,
+    body: economy.economyAdminShopPatch,
+    response: economy.economyAdminShopRow,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['shopDisabled'] },
+    ],
+  },
+  {
+    method: 'get',
     path: '/api/economy/admin/transactions',
     tag: TAGS.economyAdmin,
     summary: 'The ledger',

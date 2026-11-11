@@ -844,7 +844,9 @@
         "economy_unfreeze": "{actor} a dégelé le compte bancaire {name}.",
         "economy_reverse": "{actor} a annulé une transaction sur {name}.",
         "economy_settings": "{actor} a modifié les réglages de l’économie.",
-        "economy_reset": "{actor} a remis l’économie à zéro."
+        "economy_reset": "{actor} a remis l’économie à zéro.",
+        "economy_shopDisable": "{actor} a fermé le shop {name}.",
+        "economy_shopEnable": "{actor} a rouvert le shop {name}."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page.",
       "apiKeysSoon": "1 clé API expire dans moins de 30 jours | {n} clés API expirent dans moins de 30 jours",

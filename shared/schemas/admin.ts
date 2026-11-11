@@ -220,6 +220,8 @@ export const adminAuditView = z.object({
     'economy.reverse',
     'economy.settings',
     'economy.reset',
+    'economy.shopDisable',
+    'economy.shopEnable',
   ]),
   actor: z.object({ userId: z.string(), name: z.string() }).nullable(),
   target: z.object({ userId: z.string(), name: z.string() }).nullable(),
