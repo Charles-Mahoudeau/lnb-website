@@ -7,7 +7,7 @@ import sharp from 'sharp';
 import type { Sharp } from 'sharp';
 
 import { db } from '~~/server/db';
-import { event, poster } from '~~/server/db/schema';
+import { event, partnerEvent, partnerEventGame, poster } from '~~/server/db/schema';
 
 import { focalCrop, isPrivateAddress } from './rules';
 import { refuse } from './shared';
@@ -276,9 +276,16 @@ async function posterKeys(): Promise<string[]> {
   });
 }
 
+/** The files partner event pages use: their hero art and the art of their games. */
+async function partnerEventKeys(): Promise<string[]> {
+  const heroes = await db.select({ key: partnerEvent.heroKey }).from(partnerEvent);
+  const arts = await db.select({ key: partnerEventGame.artKey }).from(partnerEventGame);
+  return [...heroes, ...arts].flatMap((row) => (row.key ? [row.key] : []));
+}
+
 /**
- * Removes files no event or poster points to any more, after a day. Returns how many were
- * removed.
+ * Removes files no event, poster or partner event points to any more, after a day. Returns how
+ * many were removed.
  */
 async function prune(now = new Date()): Promise<number> {
   const rows = await db
@@ -293,6 +300,7 @@ async function prune(now = new Date()): Promise<number> {
   const used = new Set([
     ...rows.flatMap((row) => Object.values(row)).filter(Boolean),
     ...(await posterKeys()),
+    ...(await partnerEventKeys()),
   ]);
   let removed = 0;
   for (const key of await storage().getKeys()) {
