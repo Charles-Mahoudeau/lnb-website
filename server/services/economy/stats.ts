@@ -182,7 +182,7 @@ async function stats(period: EconomyPeriod, now = new Date()): Promise<EconomySt
       .where(
         and(
           isNull(economyEntry.accountId),
-          inArray(economyTransaction.kind, ['mint', 'burn']),
+          inArray(economyTransaction.kind, ['mint', 'burn', 'auction']),
           start ? gte(economyTransaction.at, start) : undefined,
         ),
       )

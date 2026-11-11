@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  auctionTax,
   canManage,
   canSpend,
   daysBetween,
@@ -13,6 +14,13 @@ import {
 import { economyHandle, economyTransferBody } from '../../shared/schemas/economy.ts';
 
 describe('economy rules', () => {
+  it('takes the auction tax as a whole percentage, rounded down', () => {
+    expect(auctionTax(50, 10)).toBe(5);
+    expect(auctionTax(19, 5)).toBe(0);
+    expect(auctionTax(1_000_000_000, 50)).toBe(500_000_000);
+    expect(auctionTax(99, 0)).toBe(0);
+  });
+
   it('lets owners and members spend, and only owners manage', () => {
     expect(canSpend('owner')).toBe(true);
     expect(canSpend('member')).toBe(true);

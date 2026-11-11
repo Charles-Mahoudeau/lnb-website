@@ -27,9 +27,9 @@ export type EconomyAccountKind = 'personal' | 'shared';
 export type EconomyMemberRole = 'owner' | 'member' | 'viewer';
 /** What a transaction was. `mint` and `burn` create and destroy money; nothing else does. */
 export type EconomyTransactionKind =
-  'payment' | 'casino' | 'shop' | 'trade' | 'mint' | 'burn' | 'reversal';
+  'payment' | 'casino' | 'shop' | 'trade' | 'auction' | 'mint' | 'burn' | 'reversal';
 /** Why money was created or destroyed. Null for the other kinds. */
-export type EconomyReason = 'startingBalance' | 'adjustment' | 'accountClosed';
+export type EconomyReason = 'startingBalance' | 'adjustment' | 'accountClosed' | 'auctionTax';
 /** Where a transaction came from: the Minecraft server, the site, or the site on its own. */
 export type EconomySource = 'minecraft' | 'web' | 'system';
 
@@ -247,6 +247,78 @@ export const economyShopOrder = pgTable(
   (table) => [index('economy_shop_order_shop_idx').on(table.shopId, table.transactionId)],
 );
 
+export type EconomyListingStatus = 'active' | 'sold' | 'cancelled' | 'expired';
+
+/**
+ * A listing at the auction house: one stack of items, at a fixed price, until it sells, its seller
+ * takes it back or it expires. The item left the game when it was listed: the site keeps it as the
+ * game saved it (SNBT) and never reads it. An unsold item goes to its seller's mailbox.
+ */
+export const economyListing = pgTable(
+  'economy_listing',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    sellerUserId: text('seller_user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    sellerMinecraftUuid: uuid('seller_minecraft_uuid').notNull(),
+    // The account paid when it sells.
+    accountId: uuid('account_id')
+      .notNull()
+      .references(() => economyAccount.id),
+    itemId: text('item_id').notNull(),
+    itemSnbt: text('item_snbt').notNull(),
+    itemName: text('item_name').notNull(),
+    count: smallint('count').notNull(),
+    price: bigint('price', { mode: 'number' }).notNull(),
+    status: text('status').$type<EconomyListingStatus>().default('active').notNull(),
+    // The key the server listed it with, so a retry doesn't list it twice.
+    idempotencyKey: uuid('idempotency_key').notNull().unique(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    endedAt: timestamp('ended_at'),
+    buyerUserId: text('buyer_user_id').references(() => user.id, { onDelete: 'set null' }),
+    transactionId: bigint('transaction_id', { mode: 'number' }).references(
+      () => economyTransaction.id,
+      { onDelete: 'set null' },
+    ),
+  },
+  (table) => [
+    index('economy_listing_active_idx').on(table.status, table.expiresAt),
+    index('economy_listing_seller_idx').on(table.sellerUserId, table.status),
+    check('economy_listing_count', sql`${table.count} between 1 and 99`),
+    check('economy_listing_price', sql`${table.price} > 0`),
+  ],
+);
+
+export type EconomyMailboxReason = 'bought' | 'cancelled' | 'expired' | 'removed';
+
+/**
+ * An item waiting for its player at the auction house: one they bought, or one of theirs that
+ * didn't sell. The server claims it with a key when it hands it over, so a retry never gives it
+ * twice. Items belong to the LNB account, like money: any of its Minecraft accounts collects them.
+ */
+export const economyMailboxItem = pgTable(
+  'economy_mailbox_item',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    listingId: uuid('listing_id').references(() => economyListing.id, { onDelete: 'set null' }),
+    reason: text('reason').$type<EconomyMailboxReason>().notNull(),
+    itemId: text('item_id').notNull(),
+    itemSnbt: text('item_snbt').notNull(),
+    itemName: text('item_name').notNull(),
+    count: smallint('count').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    claimedAt: timestamp('claimed_at'),
+    claimKey: uuid('claim_key').unique(),
+    claimedByMinecraftUuid: uuid('claimed_by_minecraft_uuid'),
+  },
+  (table) => [index('economy_mailbox_user_idx').on(table.userId, table.claimedAt)],
+);
+
 /** Global settings, in a single row (id 1). */
 export const economySettings = pgTable(
   'economy_settings',
@@ -256,6 +328,11 @@ export const economySettings = pgTable(
     startingBalance: integer('starting_balance').default(0).notNull(),
     maxOwnedShared: smallint('max_owned_shared').default(3).notNull(),
     maxMembers: smallint('max_members').default(20).notNull(),
+    // The auction house: the sale tax (burned, in percent of the price), and per seller the most
+    // listings at once and how long one stays up.
+    auctionTaxPercent: smallint('auction_tax_percent').default(5).notNull(),
+    auctionMaxListings: smallint('auction_max_listings').default(20).notNull(),
+    auctionDays: smallint('auction_days').default(7).notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
     updatedByUserId: text('updated_by_user_id').references(() => user.id, {
       onDelete: 'set null',

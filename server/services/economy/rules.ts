@@ -101,3 +101,8 @@ export function histogram(balances: readonly number[]) {
 export function encodeCursor(id: number | string): string {
   return String(id);
 }
+
+/** The auction house tax on a sale: a whole percentage of the price, rounded down. */
+export function auctionTax(price: number, percent: number): number {
+  return Math.floor((price * percent) / 100);
+}

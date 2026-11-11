@@ -225,6 +225,13 @@
       "when": 1794423030083,
       "tag": "0031_economy-shops",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1794424410198,
+      "tag": "0032_economy-auctions",
+      "breakpoints": true
     }
   ]
 }

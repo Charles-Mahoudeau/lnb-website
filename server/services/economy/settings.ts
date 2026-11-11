@@ -8,7 +8,14 @@ import type { Db } from './shared';
 
 import type { EconomySettingsBody, EconomySettingsView } from '#shared/schemas/economy';
 
-const DEFAULTS = { startingBalance: 0, maxOwnedShared: 3, maxMembers: 20 };
+const DEFAULTS = {
+  startingBalance: 0,
+  maxOwnedShared: 3,
+  maxMembers: 20,
+  auctionTaxPercent: 5,
+  auctionMaxListings: 20,
+  auctionDays: 7,
+};
 
 /** The global settings. The migration creates their single row. */
 async function get(dbx: Db = db) {
@@ -22,6 +29,9 @@ async function view(): Promise<EconomySettingsView> {
     startingBalance: row.startingBalance,
     maxOwnedShared: row.maxOwnedShared,
     maxMembers: row.maxMembers,
+    auctionTaxPercent: row.auctionTaxPercent,
+    auctionMaxListings: row.auctionMaxListings,
+    auctionDays: row.auctionDays,
     updatedAt: row.updatedAt.toISOString(),
   };
 }

@@ -842,7 +842,8 @@
         "economy_settings": "{actor} changed the economy settings.",
         "economy_reset": "{actor} reset the economy.",
         "economy_shopDisable": "{actor} turned off the shop {name}.",
-        "economy_shopEnable": "{actor} turned the shop {name} back on."
+        "economy_shopEnable": "{actor} turned the shop {name} back on.",
+        "economy_listingRemove": "{actor} took down the listing {name}."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page.",
       "apiKeysSoon": "1 API key expires within 30 days | {n} API keys expire within 30 days",
@@ -1238,6 +1239,10 @@
         "economy_trades": {
           "label": "Trades",
           "description": "The money part of trades between players in the game. Trades with items only still work."
+        },
+        "economy_auctions": {
+          "label": "Auction house",
+          "description": "Listing and buying at the auction house in the game. Sellers can still take their items back, and players collect what waits for them."
         },
         "jobs_economySnapshot": {
           "label": "Economy stats",
@@ -2188,12 +2193,14 @@
         "mint": {
           "startingBalance": "Minted: starting balances",
           "adjustment": "Minted: adjustments",
-          "accountClosed": "Minted: closed accounts"
+          "accountClosed": "Minted: closed accounts",
+          "auctionTax": "Minted: auction tax"
         },
         "burn": {
           "startingBalance": "Burned: starting balances",
           "adjustment": "Burned: adjustments",
-          "accountClosed": "Burned: deleted players"
+          "accountClosed": "Burned: deleted players",
+          "auctionTax": "Burned: auction house tax"
         }
       },
       "volume": {
@@ -2290,6 +2297,12 @@
         "maxOwnedSharedHelp": "How many shared accounts one player can own.",
         "maxMembers": "Members per shared account",
         "maxMembersHelp": "Pending invitations count too.",
+        "auctionTaxPercent": "Auction house tax (%)",
+        "auctionTaxPercentHelp": "Taken from what the seller gets and destroyed, rounded down.",
+        "auctionMaxListings": "Listings per player",
+        "auctionMaxListingsHelp": "The most a player has up at the auction house at once.",
+        "auctionDays": "Listing length (days)",
+        "auctionDaysHelp": "After this, an unsold item goes back to its seller’s mailbox.",
         "save": "Save settings",
         "saved": "Settings saved"
       },
@@ -2941,6 +2954,7 @@
       "casino": "Casino",
       "shop": "Shop",
       "trade": "Trade",
+      "auction": "Auction house",
       "mint": "Mint",
       "burn": "Burn",
       "reversal": "Reversal"

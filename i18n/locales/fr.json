@@ -846,7 +846,8 @@
         "economy_settings": "{actor} a modifié les réglages de l’économie.",
         "economy_reset": "{actor} a remis l’économie à zéro.",
         "economy_shopDisable": "{actor} a fermé le shop {name}.",
-        "economy_shopEnable": "{actor} a rouvert le shop {name}."
+        "economy_shopEnable": "{actor} a rouvert le shop {name}.",
+        "economy_listingRemove": "{actor} a retiré l’annonce {name}."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page.",
       "apiKeysSoon": "1 clé API expire dans moins de 30 jours | {n} clés API expirent dans moins de 30 jours",
@@ -1242,6 +1243,10 @@
         "economy_trades": {
           "label": "Échanges",
           "description": "La partie argent des échanges entre joueurs en jeu. Les échanges d’objets seuls marchent toujours."
+        },
+        "economy_auctions": {
+          "label": "Hôtel des ventes",
+          "description": "Mettre en vente et acheter à l’hôtel des ventes en jeu. Les vendeurs peuvent toujours reprendre leurs objets, et les joueurs récupérer ce qui les attend."
         },
         "jobs_economySnapshot": {
           "label": "Stats de l’économie",
@@ -2192,12 +2197,14 @@
         "mint": {
           "startingBalance": "Créé : capitaux de départ",
           "adjustment": "Créé : ajustements",
-          "accountClosed": "Créé : comptes fermés"
+          "accountClosed": "Créé : comptes fermés",
+          "auctionTax": "Créé : taxe de l’hôtel des ventes"
         },
         "burn": {
           "startingBalance": "Détruit : capitaux de départ",
           "adjustment": "Détruit : ajustements",
-          "accountClosed": "Détruit : joueurs supprimés"
+          "accountClosed": "Détruit : joueurs supprimés",
+          "auctionTax": "Détruit : taxe de l’hôtel des ventes"
         }
       },
       "volume": {
@@ -2294,6 +2301,12 @@
         "maxOwnedSharedHelp": "Combien de comptes partagés un joueur peut posséder.",
         "maxMembers": "Membres par compte partagé",
         "maxMembersHelp": "Les invitations en attente comptent aussi.",
+        "auctionTaxPercent": "Taxe de l’hôtel des ventes (%)",
+        "auctionTaxPercentHelp": "Prélevée sur ce que reçoit le vendeur et détruite, arrondie à l’inférieur.",
+        "auctionMaxListings": "Annonces par joueur",
+        "auctionMaxListingsHelp": "Le plus d’annonces qu’un joueur a en même temps à l’hôtel des ventes.",
+        "auctionDays": "Durée d’une annonce (jours)",
+        "auctionDaysHelp": "Ensuite, un objet invendu retourne dans la boîte aux lettres de son vendeur.",
         "save": "Enregistrer les réglages",
         "saved": "Réglages enregistrés"
       },
@@ -2945,6 +2958,7 @@
       "casino": "Casino",
       "shop": "Shop",
       "trade": "Échange",
+      "auction": "Hôtel des ventes",
       "mint": "Création",
       "burn": "Destruction",
       "reversal": "Annulation"

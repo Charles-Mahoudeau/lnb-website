@@ -16,12 +16,18 @@ const state = reactive<Required<EconomySettingsBody>>({
   startingBalance: 0,
   maxOwnedShared: 3,
   maxMembers: 20,
+  auctionTaxPercent: 5,
+  auctionMaxListings: 20,
+  auctionDays: 7,
 });
 watchEffect(() => {
   if (!data.value) return;
   state.startingBalance = data.value.startingBalance;
   state.maxOwnedShared = data.value.maxOwnedShared;
   state.maxMembers = data.value.maxMembers;
+  state.auctionTaxPercent = data.value.auctionTaxPercent;
+  state.auctionMaxListings = data.value.auctionMaxListings;
+  state.auctionDays = data.value.auctionDays;
 });
 
 const saving = ref(false);
@@ -94,6 +100,27 @@ async function onReset() {
         :help="t('admin.economy.settings.maxMembersHelp')"
       >
         <UInputNumber v-model="state.maxMembers" :min="1" :max="200" class="w-48" />
+      </UFormField>
+      <UFormField
+        name="auctionTaxPercent"
+        :label="t('admin.economy.settings.auctionTaxPercent')"
+        :help="t('admin.economy.settings.auctionTaxPercentHelp')"
+      >
+        <UInputNumber v-model="state.auctionTaxPercent" :min="0" :max="50" class="w-48" />
+      </UFormField>
+      <UFormField
+        name="auctionMaxListings"
+        :label="t('admin.economy.settings.auctionMaxListings')"
+        :help="t('admin.economy.settings.auctionMaxListingsHelp')"
+      >
+        <UInputNumber v-model="state.auctionMaxListings" :min="1" :max="200" class="w-48" />
+      </UFormField>
+      <UFormField
+        name="auctionDays"
+        :label="t('admin.economy.settings.auctionDays')"
+        :help="t('admin.economy.settings.auctionDaysHelp')"
+      >
+        <UInputNumber v-model="state.auctionDays" :min="1" :max="90" class="w-48" />
       </UFormField>
       <UButton
         type="submit"
