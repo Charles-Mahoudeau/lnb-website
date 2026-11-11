@@ -2,8 +2,14 @@ import { and, asc, count, eq, inArray, notInArray } from 'drizzle-orm';
 import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
-import { partnerEvent, partnerEventGame, partnerEventInterest } from '~~/server/db/schema';
+import {
+  partnerEvent,
+  partnerEventGame,
+  partnerEventInterest,
+  partnerEventTeam,
+} from '~~/server/db/schema';
 import { flagService } from '~~/server/services/flags';
+import { partnerTeamService } from '~~/server/services/partner-teams';
 
 import type {
   PartnerEventProblem,
@@ -58,6 +64,15 @@ async function view(slug: string, userId: string | null): Promise<PartnerEventVi
     : [];
   const totals = new Map(counts.map((entry) => [entry.gameId, entry.total]));
 
+  const teamCounts = gameIds.length
+    ? await db
+        .select({ gameId: partnerEventTeam.gameId, total: count() })
+        .from(partnerEventTeam)
+        .where(inArray(partnerEventTeam.gameId, gameIds))
+        .groupBy(partnerEventTeam.gameId)
+    : [];
+  const teamTotals = new Map(teamCounts.map((entry) => [entry.gameId, entry.total]));
+
   let mine: PartnerEventView['mine'] = null;
   if (userId) {
     const rows = gameIds.length
@@ -104,7 +119,7 @@ async function view(slug: string, userId: string | null): Promise<PartnerEventVi
       substitutes: game.substitutes,
       art: mediaUrl(game.artKey),
       interested: totals.get(game.id) ?? 0,
-      teams: 0,
+      teams: teamTotals.get(game.id) ?? 0,
     })),
     mine,
   };
@@ -141,6 +156,10 @@ async function saveInterest(input: {
 
     const allIds = games.map((game) => game.id);
     const keptIds = chosen.map((entry) => entry.gameId);
+    // Withdrawing from a game also leaves its team.
+    for (const gameId of allIds.filter((id) => !keptIds.includes(id))) {
+      await partnerTeamService.withdrawFromGame(tx, gameId, input.userId);
+    }
     if (allIds.length > 0) {
       await tx
         .delete(partnerEventInterest)
