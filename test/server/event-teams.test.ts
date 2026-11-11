@@ -9,6 +9,8 @@ import {
   eventTeam,
   eventTeamMember,
   eventType,
+  pushNotification,
+  pushSubscription,
   user,
 } from '~~/server/db/schema';
 import { eventTeamService } from '~~/server/services/events/teams';
@@ -295,6 +297,51 @@ describe('places and the waitlist', () => {
     await db.update(event).set({ teamMin: 3, teamMax: 3 }).where(eq(event.id, e.id));
     await settle(e.id);
     expect((await teamOf(t))!.status).toBe('incomplete');
+  });
+});
+
+describe('notifications', () => {
+  it('tells the players of a team when it has a place, then when it moves up', async () => {
+    await db
+      .insert(pushSubscription)
+      .values(
+        [NAMES[0]!, NAMES[1]!].map((id) => ({
+          userId: id,
+          endpoint: `https://push.test/${id}`,
+          p256dh: 'k',
+          auth: 'a',
+          device: 'Test',
+        })),
+      )
+      .onConflictDoNothing();
+    const e = await newEvent({ capacity: 1 });
+    await register(e.id, NAMES[0]!, NAMES[1]!, NAMES[2]!, NAMES[3]!);
+    const first = await db
+      .insert(eventTeam)
+      .values({ eventId: e.id, name: 'Holders', nameKey: 'holders', captainUserId: NAMES[2] })
+      .returning();
+    await join(first[0]!.id, e.id, NAMES[2]!);
+    await join(first[0]!.id, e.id, NAMES[3]!);
+    await settle(e.id);
+    const second = await db
+      .insert(eventTeam)
+      .values({ eventId: e.id, name: 'Waiters', nameKey: 'waiters', captainUserId: NAMES[0] })
+      .returning();
+    await join(second[0]!.id, e.id, NAMES[0]!);
+    await join(second[0]!.id, e.id, NAMES[1]!);
+    await settle(e.id);
+    const reasons = async () =>
+      (
+        await db
+          .select()
+          .from(pushNotification)
+          .where(and(eq(pushNotification.eventId, e.id), eq(pushNotification.userId, NAMES[0]!)))
+      ).map((n) => (n.params as { reason: string }).reason);
+    expect(await reasons()).toEqual(['waitlist']);
+    // The holders cancel: the waiting team moves up, and its players hear about it.
+    await db.delete(eventRegistration).where(eq(eventRegistration.userId, NAMES[3]!));
+    await settle(e.id);
+    expect(await reasons()).toEqual(['waitlist', 'place']);
   });
 });
 

@@ -2,7 +2,14 @@ import { and, asc, count, eq, inArray, isNull, or } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import type { Tx } from '~~/server/db';
-import { event, eventRegistration, eventRoom, user } from '~~/server/db/schema';
+import {
+  event,
+  eventRegistration,
+  eventRoom,
+  eventTeam,
+  eventTeamMember,
+  user,
+} from '~~/server/db/schema';
 import type { PushKind } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 import { buildMessage } from '~~/server/services/push/messages';
@@ -12,6 +19,7 @@ import { pushSettingsService } from '~~/server/services/push/settings';
 
 import { placesToPromote } from './rules';
 import { refuse } from './shared';
+import { teamsToPromote } from './team-rules';
 
 import type { PushImpactBody, PushImpactView } from '#shared/schemas/push';
 
@@ -44,8 +52,45 @@ async function inSchools(dbx: Tx | typeof db, schools: string[]): Promise<string
   return rows.map((row) => row.id);
 }
 
+/** In a tournament places go to teams: the players of the waiting teams that would move up. */
+async function teamsWouldBePromoted(row: EventRow, capacity: number | null): Promise<string[]> {
+  const counted = await db
+    .select({ status: eventTeam.status, n: count() })
+    .from(eventTeam)
+    .where(eq(eventTeam.eventId, row.id))
+    .groupBy(eventTeam.status);
+  const of = (status: 'registered' | 'waitlist') =>
+    counted.find((c) => c.status === status)?.n ?? 0;
+  const n = teamsToPromote({
+    startsAt: row.startsAt,
+    capacity,
+    registeredTeams: of('registered'),
+    waitingTeams: of('waitlist'),
+  });
+  if (n === 0) return [];
+  const next = await db
+    .select({ id: eventTeam.id })
+    .from(eventTeam)
+    .where(and(eq(eventTeam.eventId, row.id), eq(eventTeam.status, 'waitlist')))
+    .orderBy(asc(eventTeam.validatedAt), asc(eventTeam.id))
+    .limit(n);
+  if (next.length === 0) return [];
+  const players = await db
+    .select({ userId: eventRegistration.userId })
+    .from(eventTeamMember)
+    .innerJoin(eventRegistration, eq(eventRegistration.id, eventTeamMember.registrationId))
+    .where(
+      inArray(
+        eventTeamMember.teamId,
+        next.map((t) => t.id),
+      ),
+    );
+  return [...new Set(players.map((p) => p.userId))];
+}
+
 /** The people who would get a place if the capacity became this. */
 async function wouldBePromoted(row: EventRow, capacity: number | null): Promise<string[]> {
+  if (row.teamMode) return teamsWouldBePromoted(row, capacity);
   const counted = await db
     .select({ status: eventRegistration.status, n: count() })
     .from(eventRegistration)

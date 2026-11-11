@@ -10,6 +10,7 @@ import {
   eventTeamMember,
   user,
 } from '~~/server/db/schema';
+import { pushQueueService } from '~~/server/services/push/queue';
 
 import { lockEvent, refuse } from './shared';
 import { isRosterLocked, nextCaptain, placeForNewTeam, teamsToPromote } from './team-rules';
@@ -138,7 +139,38 @@ async function settle(tx: Tx, row: EventRow, now = new Date()): Promise<SettleRe
         .where(eq(eventTeam.id, t.team.id));
     }
   }
+  await notifyPlaces(tx, row.id, result, teams, byTeam, now);
   return result;
+}
+
+/**
+ * Tells the players of a team that just became valid whether it has a place or waits, and those
+ * of a waiting team that now has one. In the same transaction, so a place is never given silently.
+ */
+async function notifyPlaces(
+  tx: Tx,
+  eventId: string,
+  result: SettleResult,
+  teams: (typeof eventTeam.$inferSelect)[],
+  byTeam: Map<string, { userId: string }[]>,
+  now: Date,
+): Promise<void> {
+  const send = async (teamId: string, reason: 'validated' | 'waitlist' | 'place') => {
+    const team = teams.find((t) => t.id === teamId);
+    const userIds = (byTeam.get(teamId) ?? []).map((m) => m.userId);
+    if (!team || userIds.length === 0) return;
+    await pushQueueService.enqueue(tx, {
+      kind: 'team',
+      eventId,
+      userIds,
+      params: { reason, team: team.name },
+      dedupe: (userId) => `team:${reason}:${teamId}:${userId}:${String(now.getTime())}`,
+    });
+  };
+  for (const { teamId, status } of result.validated) {
+    await send(teamId, status === 'registered' ? 'validated' : 'waitlist');
+  }
+  for (const teamId of result.promoted) await send(teamId, 'place');
 }
 
 /** The team's captain's members, as the service needs them: the membership of one player. */
