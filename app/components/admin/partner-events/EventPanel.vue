@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { EventsAdminImagePicker } from '#components';
+
 import type { PartnerAdminView } from '#shared/schemas/partner-events';
 import type { PushImpactView } from '#shared/schemas/push';
 
@@ -95,17 +97,21 @@ const save = () =>
     t('admin.partnerEvents.saved'),
   );
 
-const picker = ref<HTMLInputElement | null>(null);
-async function onChosen(event: Event) {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-  input.value = '';
-  if (!file) return;
-  await run(async () => {
-    const stored = await partnerEventAdminActions.upload(props.event.slug, file);
-    heroKey.value = stored.key;
-    heroUrl.value = stored.url;
-  }, t('admin.partnerEvents.event.uploaded'));
+const imagePicker = useOverlay().create(EventsAdminImagePicker);
+async function chooseHero() {
+  const image: unknown = await imagePicker.open({
+    title: t('admin.partnerEvents.event.hero'),
+    focus: false,
+  }).result;
+  if (!image || typeof image !== 'object') return;
+  const { key, url } = image as PickedEventImage;
+  heroKey.value = key;
+  heroUrl.value = url;
+  toast.add({
+    title: t('admin.partnerEvents.event.uploaded'),
+    color: 'success',
+    icon: 'i-lucide-circle-check',
+  });
 }
 
 async function onClose() {
@@ -181,12 +187,11 @@ const purgeDate = computed(() =>
           <UButton
             color="neutral"
             variant="outline"
-            icon="i-lucide-upload"
-            :label="t('admin.partnerEvents.event.upload')"
+            icon="i-lucide-image"
+            :label="t('admin.partnerEvents.event.choose')"
             :disabled="pending"
-            @click="picker?.click()"
+            @click="chooseHero"
           />
-          <input ref="picker" type="file" accept="image/*" class="hidden" @change="onChosen" />
         </div>
         <div class="flex justify-end">
           <UButton type="submit" :label="t('admin.partnerEvents.save')" :loading="pending" />

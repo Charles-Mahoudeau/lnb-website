@@ -2824,19 +2824,6 @@ const routes: RouteDoc[] = [
     problems: [{ status: 404, problems: ['partnerEventNotFound'] }],
   },
   {
-    method: 'post',
-    path: '/api/admin/partner-events/{slug}/art',
-    tag: TAGS.partnerEventsAdmin,
-    summary: 'Upload hero or card art',
-    description:
-      'Multipart form data with a `file` field: PNG, JPEG, WebP or GIF, up to 10 MB. Returns a key to attach with the settings routes.',
-    access: 'eventsManager',
-    params: partnerEvents.partnerEventParams,
-    response: partnerEvents.partnerArtStored,
-    created: true,
-    problems: [{ status: 400, problems: ['imageTooLarge', 'imageUnreadable'] }],
-  },
-  {
     method: 'get',
     path: '/api/partners/logos/{key}',
     tag: TAGS.partners,

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { EventsAdminImagePicker } from '#components';
+
 import { PARTNER_REFERENT_ROLES } from '#shared/schemas/partner-events';
 import type { PartnerAdminView, PartnerGameKey } from '#shared/schemas/partner-events';
 
@@ -71,17 +73,21 @@ const save = () =>
     t('admin.partnerEvents.saved'),
   );
 
-const picker = ref<HTMLInputElement | null>(null);
-async function onChosen(event: Event) {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-  input.value = '';
-  if (!file) return;
-  await run(async () => {
-    const stored = await partnerEventAdminActions.upload(props.slug, file);
-    artKey.value = stored.key;
-    artUrl.value = stored.url;
-  }, t('admin.partnerEvents.game.uploaded'));
+const imagePicker = useOverlay().create(EventsAdminImagePicker);
+async function chooseArt() {
+  const image: unknown = await imagePicker.open({
+    title: t('admin.partnerEvents.game.upload'),
+    focus: false,
+  }).result;
+  if (!image || typeof image !== 'object') return;
+  const { key, url } = image as PickedEventImage;
+  artKey.value = key;
+  artUrl.value = url;
+  toast.add({
+    title: t('admin.partnerEvents.game.uploaded'),
+    color: 'success',
+    icon: 'i-lucide-circle-check',
+  });
 }
 
 // Team referent dialog
@@ -133,12 +139,11 @@ const rows = computed(() => {
             color="neutral"
             variant="outline"
             size="sm"
-            icon="i-lucide-upload"
-            :label="t('admin.partnerEvents.game.upload')"
+            icon="i-lucide-image"
+            :label="t('admin.partnerEvents.game.choose')"
             :disabled="pending"
-            @click="picker?.click()"
+            @click="chooseArt"
           />
-          <input ref="picker" type="file" accept="image/*" class="hidden" @change="onChosen" />
         </div>
       </template>
       <form class="flex flex-col gap-5" @submit.prevent="save">

@@ -5,8 +5,15 @@ import type { EventStoredImage, ProviderGames, ProviderImages } from '#shared/sc
 
 // Picks an event image in two steps: the art (from SteamGridDB, an upload or a link), then the
 // focal point every crop is centered on. The server downloads and keeps the art as soon as it's
-// picked. With `image`, it opens on the focal point. Closes with the image, or null.
-const props = defineProps<{ title: string; image?: PickedEventImage }>();
+// picked. With `image`, it opens on the focal point. Closes with the image, or null. With
+// `focus` off (images that are never cropped around a point), it closes as soon as the art is kept.
+const props = withDefaults(
+  defineProps<{ title: string; image?: PickedEventImage; focus?: boolean }>(),
+  {
+    image: undefined,
+    focus: true,
+  },
+);
 const emit = defineEmits<{ close: [image: PickedEventImage | null] }>();
 
 const { t } = useI18n();
@@ -53,7 +60,8 @@ async function keep(request: () => Promise<EventStoredImage>) {
   try {
     const stored = await call(request);
     picked.value = { key: stored.key, url: stored.url, focusX: 0.5, focusY: 0.5 };
-    step.value = 'focus';
+    if (props.focus) step.value = 'focus';
+    else emit('close', picked.value);
   } catch (error) {
     fail(error);
   } finally {

@@ -1819,8 +1819,8 @@
         "teamsOpenHint": "Création, invitations et demandes. Quitter son équipe reste possible.",
         "hero": "Image d’en-tête",
         "heroHint": "Demande l’accord de l’organisateur avant d’utiliser son visuel.",
-        "upload": "Envoyer",
-        "uploaded": "Image envoyée. Enregistre pour l’utiliser.",
+        "choose": "Choisir une image",
+        "uploaded": "Image choisie. Enregistre pour l’utiliser.",
         "endTitle": "Fin de l’événement",
         "openText": "La clôture met la page en lecture seule et lance un compte à rebours de 60 jours. Après, l’intérêt, les équipes, les invitations et les dates de naissance sont supprimés. Les comptes ne changent pas.",
         "closedText": "L’événement est clos. Tout est supprimé le {date}. Rouvre-le pour annuler la suppression.",
@@ -1844,7 +1844,8 @@
         "referent": "Référent pour l’organisateur",
         "referentHint": "Remplit la feuille Manager. Les joueurs ne le voient jamais.",
         "upload": "Visuel de la carte",
-        "uploaded": "Image envoyée. Enregistre pour l’utiliser."
+        "uploaded": "Image choisie. Enregistre pour l’utiliser.",
+        "choose": "Choisir une image"
       },
       "referent": {
         "title": "Référent de {team}",
