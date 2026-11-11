@@ -8,6 +8,12 @@ export default defineNuxtConfig({
     enabled: true,
   },
 
+  // Nuxt 4.6.4's schema leaves devServer.host as an unresolved object, which crashes `nuxt dev`
+  // (`options.hostname.toLowerCase is not a function`). Setting it as a string avoids that.
+  devServer: {
+    host: 'localhost',
+  },
+
   css: ['~/assets/css/main.css'],
 
   // Dark first, see docs/design.md.
