@@ -1,7 +1,9 @@
 // Team rules with no database and no Nuxt imports, so unit tests can load them. See
 // docs/tournaments.md.
 import { teamSize } from '../../../shared/utils/event-teams.ts';
-import type { EventTeamStatus } from '../../db/schema/events.ts';
+
+/** Structurally the schema's `EventTeamStatus`, kept here so these rules load without it. */
+export type EventTeamStatus = 'incomplete' | 'registered' | 'waitlist';
 
 /** What a team's status should be after its roster or the event's places changed. */
 export interface TeamStatusInput {

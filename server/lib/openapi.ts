@@ -1689,7 +1689,7 @@ const routes: RouteDoc[] = [
     problems: [
       { status: 400, problems: ['roomNotFound', 'typeNotFound'] },
       { status: 404, problems: ['notFound'] },
-      { status: 409, problems: ['cancelled'] },
+      { status: 409, problems: ['cancelled', 'teamModeLocked'] },
     ],
   },
   {

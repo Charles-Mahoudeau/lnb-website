@@ -9,7 +9,7 @@ import { adminAuditService } from '~~/server/services/admin-audit';
 import { pushQueueService } from '~~/server/services/push/queue';
 
 import { placesToPromote, registrationState } from './rules';
-import { refuse } from './shared';
+import { peopleCapacity, refuse } from './shared';
 
 import type {
   EventRegistrationResult,
@@ -42,7 +42,10 @@ async function counts(tx: Tx, eventId: string) {
 
 /** Moves the first people on the waitlist to the free places. Returns who got one. */
 async function promote(tx: Tx, row: EventRow, now = new Date()): Promise<string[]> {
-  const n = placesToPromote({ ...row, ...(await counts(tx, row.id)) }, now);
+  const n = placesToPromote(
+    { ...row, capacity: peopleCapacity(row), ...(await counts(tx, row.id)) },
+    now,
+  );
   if (n === 0) return [];
   const next = await tx
     .select({ id: eventRegistration.id, userId: eventRegistration.userId })
@@ -121,7 +124,10 @@ async function register(input: {
     const existing = await standing(tx, input.eventId, input.userId);
     if (existing) return existing;
     const { registered } = await counts(tx, row.id);
-    const state = registrationState({ ...row, registered }, input.tenantId);
+    const state = registrationState(
+      { ...row, capacity: peopleCapacity(row), registered },
+      input.tenantId,
+    );
     if (state !== 'open' && state !== 'full') refuse(409, state);
     await tx.insert(eventRegistration).values({
       eventId: row.id,
@@ -168,7 +174,8 @@ async function add(input: {
     if (!target) refuse(404, 'userNotFound');
     const existing = await standing(tx, row.id, input.userId);
     const { registered } = await counts(tx, row.id);
-    const full = row.capacity !== null && registered >= row.capacity;
+    const capacity = peopleCapacity(row);
+    const full = capacity !== null && registered >= capacity;
     if (existing?.status === 'registered') refuse(409, 'alreadyRegistered');
     if (full && !input.force) refuse(409, 'full');
     if (existing) {
