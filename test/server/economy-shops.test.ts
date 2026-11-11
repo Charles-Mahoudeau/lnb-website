@@ -15,6 +15,7 @@ import {
 } from '~~/server/db/schema';
 import { offlineUuid } from '~~/server/lib/minecraft';
 import { economyAccountService } from '~~/server/services/economy/accounts';
+import { economyAdminShopService } from '~~/server/services/economy/admin-shops';
 import { economyServerService } from '~~/server/services/economy/server';
 import { economyShopService } from '~~/server/services/economy/shops';
 
@@ -246,5 +247,38 @@ describe('orders', () => {
     await expect(order(created.id, { player: buyer.uuid })).rejects.toMatchObject({
       data: { problem: 'shopDisabled' },
     });
+  });
+});
+
+describe('admins', () => {
+  it('turn a shop off and back on, and find it by item or account', async () => {
+    const { shop: created, owner, handle } = await shop();
+    const admin = await player('Shop Admin');
+
+    const off = await economyAdminShopService.patch(admin.id, created.id, { disabled: true });
+    expect(off).toMatchObject({ disabled: true, disabledReason: 'admin', orders: 0 });
+    const buyer = await player();
+    await expect(order(created.id, { player: buyer.uuid })).rejects.toMatchObject({
+      data: { problem: 'shopDisabled' },
+    });
+
+    await economyAdminShopService.patch(admin.id, created.id, { disabled: false });
+    await order(created.id, { player: buyer.uuid, lots: 2 });
+    const page = await economyAdminShopService.list({ q: `#${handle}` });
+    expect(page.items).toMatchObject([
+      { id: created.id, disabled: false, orders: 1, volume: 80, createdBy: { userId: owner.id } },
+    ]);
+    expect((await economyAdminShopService.list({ q: 'diamond', status: 'off' })).items).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: created.id })]),
+    );
+  });
+
+  it("can't turn back on a shop whose block was broken", async () => {
+    const { shop: created } = await shop();
+    const admin = await player('Shop Admin');
+    await economyShopService.remove(created.id);
+    await expect(
+      economyAdminShopService.patch(admin.id, created.id, { disabled: false }),
+    ).rejects.toMatchObject({ data: { problem: 'shopDisabled' } });
   });
 });

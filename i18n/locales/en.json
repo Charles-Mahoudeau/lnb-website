@@ -840,7 +840,9 @@
         "economy_unfreeze": "{actor} unfroze the bank account {name}.",
         "economy_reverse": "{actor} reversed a transaction on {name}.",
         "economy_settings": "{actor} changed the economy settings.",
-        "economy_reset": "{actor} reset the economy."
+        "economy_reset": "{actor} reset the economy.",
+        "economy_shopDisable": "{actor} turned off the shop {name}.",
+        "economy_shopEnable": "{actor} turned the shop {name} back on."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page.",
       "apiKeysSoon": "1 API key expires within 30 days | {n} API keys expire within 30 days",
