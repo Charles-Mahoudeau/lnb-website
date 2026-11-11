@@ -42,7 +42,7 @@ Three custom palettes, wired into Nuxt UI as `neutral: 'night'`, `primary: 'crim
 - Status colors (`success`, `warning`, `error`) are for state only: registered, waitlist, full. They're never decoration, and they don't count as accents.
 - No activity or category colors. Video games, IRL games and events are told apart by text, not by color.
 - Avatars without a photo get a soft tint picked from a fixed set (`avatarTint` in `app/utils/avatar.ts`) by a hash of the user's ID, so a person keeps the same color everywhere. The set has five hues (violet, blue, teal, gold, orchid) and no red, so it can't read as an action or an error.
-- No gradients as decoration. The only gradient allowed is the dark scrim that keeps text readable over a banner image.
+- No gradients as decoration. The only gradients allowed are the dark scrim that keeps text readable over a banner image, and the partner event promo (see Partner event promo).
 - Use semantic classes only: `bg-default`, `bg-elevated`, `bg-accented`, `text-default`, `text-muted`, `text-highlighted`, `border-default`, `text-primary`, `text-secondary`, `bg-action`. Raw palette classes (`bg-red-500`, `text-white`, `bg-night-900`), hex values and arbitrary values (`bg-[#…]`, `p-[13px]`) are blocked by ESLint.
 
 ## Type
@@ -163,6 +163,14 @@ Original mock (not code to port): [Arena League mocks](https://claude.ai/artifac
 - **Game cards:** two columns on large screens, one on phones, each at least 16.25 rem tall. The game's art fills the card (`object-cover`, downloaded and stored by the server like event banners), with the dark scrim rising from the bottom (`bg-banner`, the only gradient allowed). Text uses `text-on-banner` and `text-on-banner-muted`, so cards look the same in both color modes. A card holds the game name in the display font, a status pill, the counts and the interest button. Games under study have dimmed art. Without art a card falls back to `bg-banner-fallback`.
 - **Selecting and ticking are separate:** the whole card picks the game whose teams show below, marked by a second-accent ring (`ring-secondary`, selection is state). The button toggles interest on its own: a chip on the banner color when off, a light plate with dark text and a check when on. It is never red, and the one solid red button of the page is "Save my interest".
 - **Below the cards:** one "Your details" band listing only the ticked games (in-game name, rank, hide from the list), the consent line and the save button, then "Teams and players" for the selected game as bands with rows separated by dividers. A complete team gets a success pill, the captain role the second-accent pill, other roles a neutral pill. Visitors see counts and team names but no players.
+
+## Partner event promo
+
+Original mocks (not code to port): [placement](https://claude.ai/artifact/A4awe1Tu1shyX4Q6xmDPq9) and [gradients](https://claude.ai/artifact/7TX9vhsT27Fw7mbpKuVeSB), "Ember", static. `PartnerEventsPromo` is a card at the top of the home page's side column and a banner under the title of the events list, shown while the open partner event's flag is on.
+
+- It is the one place with a decorative gradient, approved on purpose: `bg-promo`, a static navy to plum to amber-brown diagonal (`#1a1548`, `#4a2a7a`, `#8a3a7a`, `#a65a45`), the same in both color modes. The last stop is darkened so white text stays at 4.5:1 or better on it. No animation, no other gradient, no other use.
+- Text uses `text-on-banner` and `text-on-banner-muted`. The one action is a light plate button (`bg-plate text-on-plate`), never red, since red isn't for large surfaces.
+- It holds a "Partner event" pill, the title, one line, and the counts (students interested, teams) when there are some. The card adds the date wording. A student who already said they are interested sees "You're in".
 
 ## Motion
 

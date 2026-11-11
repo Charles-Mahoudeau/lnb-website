@@ -2,7 +2,7 @@
 
 Pages for events that another organization runs, where LNB only helps its students find the event, say they are interested and form teams. They are not events (`docs/events.md`): no date, no capacity, no registration window. The first one is **Arena League University 2027**, at `/special/arena-league-university-2027`: an inter-school esports league run by Arena League, from January to May 2027 (the date is not fixed). Mocks: [Arena League mocks](https://claude.ai/artifact/XvHUjSdFhA2ZQ6bdkY5KHM) ("Art cards"). The design is in `docs/design.md` (Partner event page).
 
-Status: slices 1 (the page, the games and interest) and 2 (teams) are built. The admin, notifications and the home card follow, in that order.
+Status: the page, interest, teams, the admin, notifications and the promo are built.
 
 ## Page and URL
 
@@ -58,6 +58,10 @@ Status: slices 1 (the page, the games and interest) and 2 (teams) are built. The
 
 `test/unit/partner-events.test.ts` (contracts and messages), `test/server/partner-events.test.ts` and `test/server/partner-teams.test.ts` and `test/server/partner-events-admin.test.ts` (the services on PostgreSQL) and the partner event case in `test/server/poster-images.test.ts` (pruning). Not covered: the pages in a browser (public and admin), the team dialogs and the signed-in flow end to end.
 
+## Promo
+
+`PartnerEventsPromo` (`app/components/partner-events/Promo.vue`) shows the event as a gradient card at the top of the home page's side column and as a banner under the title of the events list. It shows only while the `partnerEvents` flag is on and the event isn't closed. It counts students once (`students` in the public view, however many games they ticked) and the teams of all games, and hides the counts while nobody is interested. A student who is interested sees "You're in". The look is in `docs/design.md` (Partner event promo). The featured event is `FEATURED_PARTNER_EVENT` in `shared/schemas/partner-events.ts`.
+
 ## Still to do
 
-Invitation and request notifications are built (see `docs/push.md`). A card on the home page and a line in the events listing while the event is open. The organizer's agreement before using their hero image.
+The organizer's agreement before using their hero image. Browser checks of the public page and the team dialogs.
