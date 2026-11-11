@@ -2,7 +2,7 @@ import sharp from 'sharp';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { db } from '~~/server/db';
-import { poster } from '~~/server/db/schema';
+import { partnerEvent, partnerEventGame, poster } from '~~/server/db/schema';
 import { eventImageService, treatedName } from '~~/server/services/events/images';
 
 import { allColors } from '#shared/utils/posters';
@@ -82,5 +82,28 @@ describe('pruning', () => {
     expect(await storage.hasItem(treatedName(ART, 'darkMedium', 'violet'))).toBe(true);
     expect(await storage.hasItem(stale)).toBe(false);
     expect(await storage.hasItem(UNUSED)).toBe(false);
+  });
+  it('keeps the hero and game art of partner events', async () => {
+    const HERO = `${'4'.repeat(64)}.webp`;
+    const GAME_ART = `${'5'.repeat(64)}.webp`;
+    const OTHER = `${'6'.repeat(64)}.webp`;
+    for (const key of [HERO, GAME_ART, OTHER]) await storage.setItemRaw(key, Buffer.from('x'));
+    const [row] = await db
+      .insert(partnerEvent)
+      .values({ slug: 'pruning-event', heroKey: HERO })
+      .returning();
+    await db.insert(partnerEventGame).values({
+      partnerEventId: row!.id,
+      key: 'lol',
+      status: 'confirmed',
+      starters: 5,
+      position: 0,
+      artKey: GAME_ART,
+    });
+
+    await eventImageService.prune();
+    expect(await storage.hasItem(HERO)).toBe(true);
+    expect(await storage.hasItem(GAME_ART)).toBe(true);
+    expect(await storage.hasItem(OTHER)).toBe(false);
   });
 });
