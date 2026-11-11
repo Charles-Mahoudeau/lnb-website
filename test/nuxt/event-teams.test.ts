@@ -58,6 +58,8 @@ const teams: EventTeamsView = {
       members: null,
       mine: false,
       captain: false,
+      invited: null,
+      requests: null,
     },
     {
       id: '3b6f3c1e-2a4d-4c1b-9b7e-5f1c2d3e4a5b',
@@ -69,6 +71,8 @@ const teams: EventTeamsView = {
       members: null,
       mine: false,
       captain: false,
+      invited: null,
+      requests: null,
     },
   ],
   looking: { count: 4, players: null },
@@ -92,7 +96,17 @@ describe('event teams', () => {
     const wrapper = await mountSuspended(EventsTeams, {
       props: {
         event,
-        teams: { ...teams, me: { registered: true, lookingHidden: false, teamIds: [] } },
+        teams: {
+          ...teams,
+          me: {
+            registered: true,
+            lookingHidden: false,
+            teamIds: [],
+            invitations: [],
+            requestedTeamIds: [],
+            requestsLeft: 3,
+          },
+        },
       },
     });
     expect(wrapper.find('form').exists()).toBe(true);
