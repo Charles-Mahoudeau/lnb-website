@@ -2,7 +2,7 @@
 
 Events are listed at `/events`, each with its page at `/events/<id>`. Students register from the event page. Events managers run them from the Events section of the admin area (`/admin/events`). An event can also be pushed to the BDE website (see `docs/bde/external_events_api.md`).
 
-Notifications (waitlist places, reminders, cancellations and moves, announcements) are described in `docs/push.md`. Later, not built yet: team events, an iCal feed, and more image providers. The approved mocks are in the [events mocks](https://claude.ai/artifact/E7UkoDfz9U9uiYATh1gZYo): event page A, list A1, admin form with 2 tabs, picker A.
+Notifications (waitlist places, reminders, cancellations and moves, announcements) are described in `docs/push.md`. Team events are described in `docs/tournaments.md`. Later, not built yet: an iCal feed, and more image providers. The approved mocks are in the [events mocks](https://claude.ai/artifact/E7UkoDfz9U9uiYATh1gZYo): event page A, list A1, admin form with 2 tabs, picker A.
 
 ## Roles
 
@@ -36,7 +36,7 @@ Notifications (waitlist places, reminders, cancellations and moves, announcement
 ## Admin pages
 
 - `/admin/events`: upcoming, drafts and past events, with registrations and the waitlist at a glance.
-- `/admin/events/new` and `/admin/events/<id>`: the form (one page of sections beside a preview of the site page, the agenda row and a Discord embed), and a Registrations tab. New events start as drafts. The menu views the page, duplicates, cancels or deletes. Times are typed in Paris time (`shared/utils/paris-time.ts`).
+- `/admin/events/new` and `/admin/events/<id>`: the form (one page of sections beside a preview of the site page, the agenda row and a Discord embed), a Registrations tab, and a Teams tab for tournaments (`docs/tournaments.md`). New events start as drafts. The menu views the page, duplicates, cancels or deletes. Times are typed in Paris time (`shared/utils/paris-time.ts`).
 
 ## Images
 
