@@ -151,7 +151,15 @@
       "notYet": "Registration isn’t open yet. Come back when it opens.",
       "closed": "Registration is closed for this event.",
       "wrongSchool": "This event is for students of other schools.",
-      "notRegistered": "You weren’t registered anymore. Reload the page."
+      "notRegistered": "You weren’t registered anymore. Reload the page.",
+      "teamFull": "That team is full.",
+      "inviteNotFound": "This invitation doesn’t exist anymore. Reload the page.",
+      "alreadyInvited": "You already invited this player.",
+      "tooManyInvites": "This player has too many invitations waiting for now.",
+      "tooManyRequests": "You already have 3 requests waiting. Withdraw one first.",
+      "alreadyRequested": "You already asked this team.",
+      "requestsClosed": "This team doesn’t take requests.",
+      "notYourInvite": "This invitation isn’t yours."
     },
     "teams": {
       "title": "Teams",
@@ -1273,7 +1281,15 @@
         "bdeUnavailable": "The BDE website can’t be reached, so the event can’t come down there. Try again later, or cancel it instead.",
         "alreadyAnnounced": "This event already had its new-event notification. It goes out once.",
         "notAnnouncedYet": "This event hasn’t been announced yet, so there is nothing to resend.",
-        "notAnnounceable": "Only a published event that hasn’t started or been cancelled can be announced."
+        "notAnnounceable": "Only a published event that hasn’t started or been cancelled can be announced.",
+        "teamFull": "That team is full.",
+        "inviteNotFound": "This invitation doesn’t exist anymore. Reload the page.",
+        "alreadyInvited": "You already invited this player.",
+        "tooManyInvites": "This player has too many invitations waiting for now.",
+        "tooManyRequests": "You already have 3 requests waiting. Withdraw one first.",
+        "alreadyRequested": "You already asked this team.",
+        "requestsClosed": "This team doesn’t take requests.",
+        "notYourInvite": "This invitation isn’t yours."
       },
       "new": "New event",
       "create": "Create the event",

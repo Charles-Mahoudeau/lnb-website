@@ -151,7 +151,15 @@
       "notYet": "Les inscriptions ne sont pas encore ouvertes. Revenez à l’ouverture.",
       "closed": "Les inscriptions sont closes pour cet événement.",
       "wrongSchool": "Cet événement est réservé aux étudiants d’autres écoles.",
-      "notRegistered": "Vous n’étiez plus inscrit. Rechargez la page."
+      "notRegistered": "Vous n’étiez plus inscrit. Rechargez la page.",
+      "teamFull": "Cette équipe est complète.",
+      "inviteNotFound": "Cette invitation n’existe plus. Rechargez la page.",
+      "alreadyInvited": "Vous avez déjà invité ce joueur.",
+      "tooManyInvites": "Ce joueur a trop d’invitations en attente pour l’instant.",
+      "tooManyRequests": "Vous avez déjà 3 demandes en attente. Retirez-en une d’abord.",
+      "alreadyRequested": "Vous avez déjà demandé à cette équipe.",
+      "requestsClosed": "Cette équipe n’accepte pas de demandes.",
+      "notYourInvite": "Cette invitation n’est pas la vôtre."
     },
     "teams": {
       "title": "Équipes",
@@ -1277,7 +1285,15 @@
         "bdeUnavailable": "Le site du BDE est injoignable, l’événement ne peut donc pas en être retiré. Réessayez plus tard, ou annulez-le plutôt.",
         "alreadyAnnounced": "La notification de nouvel événement a déjà été envoyée. Elle ne part qu’une fois.",
         "notAnnouncedYet": "Cet événement n’a pas encore été annoncé, il n’y a donc rien à renvoyer.",
-        "notAnnounceable": "Seul un événement publié, pas commencé et pas annulé peut être annoncé."
+        "notAnnounceable": "Seul un événement publié, pas commencé et pas annulé peut être annoncé.",
+        "teamFull": "Cette équipe est complète.",
+        "inviteNotFound": "Cette invitation n’existe plus. Rechargez la page.",
+        "alreadyInvited": "Vous avez déjà invité ce joueur.",
+        "tooManyInvites": "Ce joueur a trop d’invitations en attente pour l’instant.",
+        "tooManyRequests": "Vous avez déjà 3 demandes en attente. Retirez-en une d’abord.",
+        "alreadyRequested": "Vous avez déjà demandé à cette équipe.",
+        "requestsClosed": "Cette équipe n’accepte pas de demandes.",
+        "notYourInvite": "Cette invitation n’est pas la vôtre."
       },
       "new": "Nouvel événement",
       "create": "Créer l’événement",
