@@ -2,6 +2,8 @@ import { PARTNER_EVENT_PROBLEMS } from '#shared/schemas/partner-events';
 import type {
   PartnerEventProblem,
   PartnerEventView,
+  PartnerGameKey,
+  PartnerGameTeamsView,
   PartnerInterestBody,
 } from '#shared/schemas/partner-events';
 
@@ -40,6 +42,34 @@ export async function savePartnerInterest(
       method: 'PUT',
       body,
     });
+  } catch (error) {
+    throw toPartnerEventError(error);
+  }
+}
+
+/** A game's teams and the students looking for one (names are for signed-in students). */
+export function usePartnerTeams(slug: string, game: MaybeRefOrGetter<PartnerGameKey>) {
+  return useFetch<PartnerGameTeamsView>(
+    () => `/api/partner-events/${slug}/games/${toValue(game)}`,
+    {
+      key: computed(() => `partner-teams-${slug}-${toValue(game)}`),
+    },
+  );
+}
+
+/**
+ * Calls a team route of one game: `path` is what follows `/games/<game>` (for example
+ * `/teams/<id>/leave`). Throws a PartnerEventError.
+ */
+export async function partnerTeamCall(
+  slug: string,
+  game: PartnerGameKey,
+  method: 'POST' | 'PATCH' | 'DELETE',
+  path: string,
+  body?: Record<string, unknown>,
+): Promise<void> {
+  try {
+    await $fetch(`/api/partner-events/${slug}/games/${game}${path}`, { method, body });
   } catch (error) {
     throw toPartnerEventError(error);
   }

@@ -14,7 +14,7 @@ const route = useRoute();
 const toast = useToast();
 const { user } = useAuth();
 
-const { data: event, error } = await usePartnerEvent(SLUG);
+const { data: event, error, refresh } = await usePartnerEvent(SLUG);
 if (error.value || !event.value) {
   throw createError({ status: 404, statusText: 'Not Found', fatal: true });
 }
@@ -24,6 +24,7 @@ useSeoMeta({
   description: () => t('partnerEvents.arenaLeague2027.lede'),
 });
 
+const teamGames = computed(() => event.value?.games.filter((g) => g.status === 'confirmed') ?? []);
 const signedIn = computed(() => user.value !== null);
 const signInLink = computed(() => ({ path: '/sign-in', query: { redirect: route.fullPath } }));
 
@@ -189,6 +190,17 @@ const facts = [
           </template>
         </div>
       </section>
+
+      <PartnerEventsTeams
+        v-if="teamGames.length > 0"
+        :slug="SLUG"
+        :games="teamGames"
+        :signed-in="signedIn"
+        :interest-version="JSON.stringify(event.mine)"
+        :teams-open="event.teamsOpen"
+        :sign-in-link="signInLink"
+        @changed="refresh"
+      />
     </UContainer>
   </div>
 </template>

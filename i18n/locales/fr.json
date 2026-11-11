@@ -2977,6 +2977,80 @@
       "save": "Enregistrer mon intérêt",
       "withdraw": "Me retirer"
     },
+    "teams": {
+      "title": "Équipes",
+      "lede": "Forme une équipe pour un jeu confirmé : les titulaires jouent, les remplaçants les épaulent. Les équipes peuvent mélanger les écoles. Chaque équipe a un référent LNB auprès de l’organisateur.",
+      "paused": "Les équipes sont en pause pour le moment. Tu peux toujours quitter ton équipe.",
+      "visitor": "{teams} équipes et {looking} étudiants en cherchent une. Connecte-toi avec ton compte école pour créer ou rejoindre une équipe.",
+      "needInterest": "Indique que ce jeu t’intéresse plus haut pour créer ou rejoindre une équipe.",
+      "invitation": "{from} t’a invité à rejoindre {team}.",
+      "someone": "Un capitaine",
+      "accept": "Accepter",
+      "decline": "Refuser",
+      "withdraw": "Retirer",
+      "cancel": "Annuler",
+      "create": "Créer une équipe",
+      "none": "Aucune équipe pour ce jeu pour l’instant.",
+      "looking": "En recherche d’équipe ({count})",
+      "noOneLooking": "Personne ne cherche d’équipe pour l’instant.",
+      "invite": "Inviter",
+      "invitedBadge": "Invité",
+      "places": "{starters}/{maxStarters} titulaires, {substitutes}/{maxSubstitutes} remplaçants",
+      "complete": "Complète",
+      "captain": "Capitaine",
+      "role": {
+        "starter": "Titulaire",
+        "substitute": "Remplaçant"
+      },
+      "makeRole": {
+        "starter": "Passer titulaire",
+        "substitute": "Passer remplaçant"
+      },
+      "makeCaptain": "Nommer capitaine",
+      "remove": "Retirer de l’équipe",
+      "manage": "Gérer {name}",
+      "requests": "Demandes pour rejoindre",
+      "invited": "Invitations envoyées",
+      "ask": "Demander à rejoindre",
+      "requestSent": "Demande envoyée",
+      "leave": "Quitter l’équipe",
+      "disband": "Dissoudre",
+      "edit": "Modifier",
+      "closeRequests": "Ne plus accepter de demandes",
+      "openRequests": "Accepter les demandes",
+      "dialog": {
+        "name": "Nom de l’équipe",
+        "nameHint": "de {min} à {max} caractères",
+        "abbreviation": "Abréviation",
+        "abbreviationHint": "de {min} à {max} lettres ou chiffres",
+        "birthDate": "Date de naissance",
+        "birthDateHint": "Partagée avec l’organisateur, comme ton nom et ton e-mail école.",
+        "create": {
+          "title": "Créer une équipe",
+          "description": "Tu deviens le capitaine et le premier titulaire.",
+          "submit": "Créer l’équipe"
+        },
+        "edit": {
+          "title": "Modifier l’équipe",
+          "description": "Change le nom ou l’abréviation.",
+          "submit": "Enregistrer"
+        },
+        "birth": {
+          "title": "Ta date de naissance",
+          "description": "L’organisateur la demande pour valider les équipes. Elle est supprimée avec le reste des données après l’événement.",
+          "submit": "Continuer"
+        }
+      },
+      "toasts": {
+        "created": "Équipe créée",
+        "edited": "Équipe modifiée",
+        "requested": "Demande envoyée",
+        "joined": "Tu as rejoint l’équipe",
+        "left": "Tu as quitté l’équipe",
+        "disbanded": "Équipe dissoute",
+        "invited": "{name} a été invité"
+      }
+    },
     "toasts": {
       "saved": "Intérêt enregistré",
       "withdrawn": "Intérêt retiré"

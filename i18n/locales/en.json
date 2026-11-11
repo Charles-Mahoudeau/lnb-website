@@ -2973,6 +2973,80 @@
       "save": "Save my interest",
       "withdraw": "Withdraw"
     },
+    "teams": {
+      "title": "Teams",
+      "lede": "Form a team for a confirmed game: starters play, substitutes back them up. Teams can mix schools. Each team gets an LNB referent for the organizer.",
+      "paused": "Teams are paused for now. You can still leave your team.",
+      "visitor": "{teams} teams and {looking} students looking for one. Sign in with your school account to create or join a team.",
+      "needInterest": "Say you’re interested in this game above to create or join a team.",
+      "invitation": "{from} invited you to join {team}.",
+      "someone": "A captain",
+      "accept": "Accept",
+      "decline": "Decline",
+      "withdraw": "Withdraw",
+      "cancel": "Cancel",
+      "create": "Create a team",
+      "none": "No team yet for this game.",
+      "looking": "Looking for a team ({count})",
+      "noOneLooking": "Nobody is looking for a team right now.",
+      "invite": "Invite",
+      "invitedBadge": "Invited",
+      "places": "{starters}/{maxStarters} starters, {substitutes}/{maxSubstitutes} substitutes",
+      "complete": "Complete",
+      "captain": "Captain",
+      "role": {
+        "starter": "Starter",
+        "substitute": "Substitute"
+      },
+      "makeRole": {
+        "starter": "Make starter",
+        "substitute": "Make substitute"
+      },
+      "makeCaptain": "Make captain",
+      "remove": "Remove from the team",
+      "manage": "Manage {name}",
+      "requests": "Requests to join",
+      "invited": "Invitations sent",
+      "ask": "Ask to join",
+      "requestSent": "Request sent",
+      "leave": "Leave the team",
+      "disband": "Disband",
+      "edit": "Edit",
+      "closeRequests": "Stop taking requests",
+      "openRequests": "Take requests",
+      "dialog": {
+        "name": "Team name",
+        "nameHint": "{min} to {max} characters",
+        "abbreviation": "Abbreviation",
+        "abbreviationHint": "{min} to {max} letters or digits",
+        "birthDate": "Date of birth",
+        "birthDateHint": "Shared with the organizer, like your name and school email.",
+        "create": {
+          "title": "Create a team",
+          "description": "You become the captain and the first starter.",
+          "submit": "Create the team"
+        },
+        "edit": {
+          "title": "Edit the team",
+          "description": "Change the name or the abbreviation.",
+          "submit": "Save"
+        },
+        "birth": {
+          "title": "Your date of birth",
+          "description": "The organizer asks for it to validate teams. It is deleted with the rest of the data after the event.",
+          "submit": "Continue"
+        }
+      },
+      "toasts": {
+        "created": "Team created",
+        "edited": "Team updated",
+        "requested": "Request sent",
+        "joined": "You joined the team",
+        "left": "You left the team",
+        "disbanded": "Team disbanded",
+        "invited": "{name} was invited"
+      }
+    },
     "toasts": {
       "saved": "Interest saved",
       "withdrawn": "Interest withdrawn"
