@@ -3259,6 +3259,16 @@
           "text": "There is no fee for students or schools. Matches are mostly online, on a calendar shared before the launch."
         }
       }
+    },
+    "promo": {
+      "badge": "Partner event",
+      "lede": "Inter-school esports league on League of Legends and VALORANT. Free for students.",
+      "students": "students interested | student interested | students interested",
+      "studentsLabel": "Students interested",
+      "teams": "teams | team | teams",
+      "teamsLabel": "Teams formed",
+      "joined": "You’re in",
+      "see": "See the league"
     }
   }
 }

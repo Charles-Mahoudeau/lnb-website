@@ -92,6 +92,8 @@ const showMinecraft = computed(() => showModList.value || canUseWarden.value);
         </div>
 
         <aside class="flex min-w-0 flex-col gap-4 lg:col-span-4 lg:col-start-9">
+          <PartnerEventsPromo variant="card" />
+
           <section class="flex flex-col items-start gap-4 rounded-lg bg-elevated p-5">
             <h2 class="text-xl font-bold text-highlighted">{{ t('site.name') }}</h2>
             <p class="text-muted">{{ t('home.lede') }}</p>

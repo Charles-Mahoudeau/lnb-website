@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import type { InterestDraft } from '~/utils/partner-events';
 
+import { FEATURED_PARTNER_EVENT } from '#shared/schemas/partner-events';
 import type { PartnerGameKey } from '#shared/schemas/partner-events';
 
 // Arena League University 2027, an inter-school esports league LNB doesn't run: what it is, and
 // the students' interest in each game. See docs/partner-events.md.
 definePageMeta({ auth: false, flag: 'partnerEvents' });
 
-const SLUG = 'arena-league-university-2027';
+const SLUG = FEATURED_PARTNER_EVENT;
 
 const { t, locale } = useI18n();
 const route = useRoute();

@@ -3263,6 +3263,16 @@
           "text": "Aucun frais pour les étudiants ni les établissements. Les matchs ont surtout lieu en ligne, selon un calendrier communiqué avant le lancement."
         }
       }
+    },
+    "promo": {
+      "badge": "Événement partenaire",
+      "lede": "Ligue d’esport inter-écoles sur League of Legends et VALORANT. Gratuite pour les étudiants.",
+      "students": "étudiants intéressés | étudiant intéressé | étudiants intéressés",
+      "studentsLabel": "Étudiants intéressés",
+      "teams": "équipes | équipe | équipes",
+      "teamsLabel": "Équipes formées",
+      "joined": "Tu es dedans",
+      "see": "Voir la ligue"
     }
   }
 }
