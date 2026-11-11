@@ -28,14 +28,24 @@ const months = computed(() => {
 const next = computed(() => (props.featureNext ? props.events[0] : undefined));
 
 function places(event: EventSummary) {
-  if (props.past) return t('events.went', { count: event.registered }, event.registered);
-  if (event.capacity === null)
-    return t('events.attendees.registered', { count: event.registered }, event.registered);
-  return t('events.placesTaken', { count: event.registered, capacity: event.capacity });
+  const { teams, taken, capacity } = eventPlaces(event);
+  if (props.past) {
+    return teams
+      ? t('events.wentTeams', { count: taken }, taken)
+      : t('events.went', { count: event.registered }, event.registered);
+  }
+  if (capacity === null) {
+    return teams
+      ? t('events.teamsRegistered', { count: taken }, taken)
+      : t('events.attendees.registered', { count: taken }, taken);
+  }
+  return t(teams ? 'events.teamsTaken' : 'events.placesTaken', { count: taken, capacity });
 }
 
-const full = (event: EventSummary) =>
-  !props.past && event.capacity !== null && event.registered >= event.capacity;
+const full = (event: EventSummary) => {
+  const { taken, capacity } = eventPlaces(event);
+  return !props.past && capacity !== null && taken >= capacity;
+};
 </script>
 
 <template>

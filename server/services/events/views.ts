@@ -1,7 +1,7 @@
 import { eq, sql } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
-import { event, eventRegistration, eventRoom, eventType } from '~~/server/db/schema';
+import { event, eventRegistration, eventRoom, eventTeam, eventType } from '~~/server/db/schema';
 
 import type { EventSummary } from '#shared/schemas/events';
 
@@ -17,6 +17,11 @@ export const waitlistCount = sql<number>`(
   where ${eventRegistration.eventId} = ${event.id} and ${eventRegistration.status} = 'waitlist'
 )`;
 
+const teamCount = (status: 'registered' | 'waitlist') => sql<number>`(
+  select count(*)::int from ${eventTeam}
+  where ${eventTeam.eventId} = ${event.id} and ${eventTeam.status} = ${status}
+)`;
+
 export function selectEvents() {
   return db
     .select({
@@ -25,6 +30,8 @@ export function selectEvents() {
       type: eventType,
       registered: registeredCount,
       waitlist: waitlistCount,
+      teamsRegistered: teamCount('registered'),
+      teamsWaitlist: teamCount('waitlist'),
     })
     .from(event)
     .innerJoin(eventRoom, eq(eventRoom.id, event.roomId))
@@ -65,6 +72,15 @@ export function summaryView(row: SelectedEvent, me: EventSummary['me'] = null): 
     schools: e.schools,
     capacity: e.capacity,
     registered: row.registered,
+    teams:
+      e.teamMode && e.teamMin !== null && e.teamMax !== null
+        ? {
+            min: e.teamMin,
+            max: e.teamMax,
+            registered: row.teamsRegistered,
+            waitlist: row.teamsWaitlist,
+          }
+        : null,
     images: eventImages(e),
     me,
   };
