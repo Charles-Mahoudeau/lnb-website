@@ -4,7 +4,7 @@ import {
   invitesLeft,
   isRosterLocked,
   nextCaptain,
-  nextTeamStatus,
+  placeForNewTeam,
   teamsToPromote,
 } from '../../server/services/events/team-rules.ts';
 import {
@@ -58,49 +58,18 @@ describe('team sizes', () => {
   });
 });
 
-describe('nextTeamStatus', () => {
-  const base = { min: 3, max: 4, capacity: 4, placesTaken: 2, current: 'incomplete' as const };
-
-  it('stays incomplete under the minimum', () => {
-    expect(nextTeamStatus({ ...base, players: 2 })).toBe('incomplete');
-  });
-
-  it('takes a free place on becoming valid', () => {
-    expect(nextTeamStatus({ ...base, players: 3 })).toBe('registered');
+describe('placeForNewTeam', () => {
+  it('takes a free place', () => {
+    expect(placeForNewTeam(4, 3)).toBe('registered');
   });
 
   it('waits when no place is free', () => {
-    expect(nextTeamStatus({ ...base, players: 3, placesTaken: 4 })).toBe('waitlist');
+    expect(placeForNewTeam(4, 4)).toBe('waitlist');
+    expect(placeForNewTeam(4, 5)).toBe('waitlist');
   });
 
   it('has no limit without a capacity', () => {
-    expect(nextTeamStatus({ ...base, players: 3, capacity: null, placesTaken: 99 })).toBe(
-      'registered',
-    );
-  });
-
-  it('keeps its place and its waitlist position while valid', () => {
-    expect(nextTeamStatus({ ...base, players: 4, current: 'registered', placesTaken: 4 })).toBe(
-      'registered',
-    );
-    expect(nextTeamStatus({ ...base, players: 3, current: 'waitlist', placesTaken: 3 })).toBe(
-      'waitlist',
-    );
-  });
-
-  it('goes back to incomplete under the minimum, losing the place', () => {
-    expect(nextTeamStatus({ ...base, players: 2, current: 'registered' })).toBe('incomplete');
-    expect(nextTeamStatus({ ...base, players: 2, current: 'waitlist' })).toBe('incomplete');
-  });
-
-  it('does not take a place over the maximum, unless forced', () => {
-    expect(nextTeamStatus({ ...base, players: 5 })).toBe('incomplete');
-    expect(nextTeamStatus({ ...base, players: 5, forced: true })).toBe('registered');
-  });
-
-  it('lets a manager validate a small team by hand, but never an empty one', () => {
-    expect(nextTeamStatus({ ...base, players: 2, forced: true })).toBe('registered');
-    expect(nextTeamStatus({ ...base, players: 0, forced: true })).toBe('incomplete');
+    expect(placeForNewTeam(null, 99)).toBe('registered');
   });
 });
 

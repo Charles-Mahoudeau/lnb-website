@@ -9,7 +9,8 @@ import { adminAuditService } from '~~/server/services/admin-audit';
 import { pushQueueService } from '~~/server/services/push/queue';
 
 import { placesToPromote, registrationState } from './rules';
-import { peopleCapacity, refuse } from './shared';
+import { lockEvent, peopleCapacity, refuse } from './shared';
+import { eventTeamService } from './teams';
 
 import type {
   EventRegistrationResult,
@@ -23,12 +24,6 @@ import { schoolForTenant } from '#shared/utils/schools';
 // Every change locks the event row first, so two people can't take the last place at once.
 
 type EventRow = typeof event.$inferSelect;
-
-async function lockEvent(tx: Tx, eventId: string): Promise<EventRow> {
-  const [row] = await tx.select().from(event).where(eq(event.id, eventId)).for('update');
-  if (!row) refuse(404, 'notFound');
-  return row;
-}
 
 async function counts(tx: Tx, eventId: string) {
   const rows = await tx
@@ -89,6 +84,12 @@ async function promoteAll(tx: Tx): Promise<void> {
     .innerJoin(eventRegistration, eq(eventRegistration.eventId, event.id))
     .where(and(gt(event.startsAt, new Date()), eq(eventRegistration.status, 'waitlist')));
   for (const { id } of events) await promoteAfterChange(tx, id);
+  // Team events: a deleted account leaves its teams without a word too.
+  const teamEvents = await tx
+    .select({ id: event.id })
+    .from(event)
+    .where(and(gt(event.startsAt, new Date()), eq(event.teamMode, true)));
+  for (const { id } of teamEvents) await eventTeamService.settle(tx, await lockEvent(tx, id));
 }
 
 /** Where someone stands on an event: registered, or their place on the waitlist. */
@@ -149,6 +150,8 @@ async function unregister(input: { userId: string; eventId: string }): Promise<v
       .returning({ status: eventRegistration.status });
     if (!deleted) refuse(409, 'notRegistered');
     if (deleted.status === 'registered') await promote(tx, row);
+    // The player's teams lose them: captains move on, empty teams go, the waitlist of teams moves.
+    await eventTeamService.settle(tx, row);
   });
 }
 
@@ -224,6 +227,7 @@ async function remove(input: {
       .returning({ status: eventRegistration.status });
     if (!deleted) refuse(404, 'notRegistered');
     if (deleted.status === 'registered') await promote(tx, row);
+    await eventTeamService.settle(tx, row);
     await adminAuditService.record(tx, {
       action: 'event.registrationRemove',
       actorUserId: input.actorId,

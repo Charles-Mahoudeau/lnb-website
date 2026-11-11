@@ -13,6 +13,7 @@ import { eventRegistrationService } from './registrations';
 import { roomView } from './rooms';
 import { shiftDate } from './rules';
 import { refuse } from './shared';
+import { eventTeamService } from './teams';
 import { typeView } from './types';
 import { eventImages, mediaUrl, selectEvents } from './views';
 import type { SelectedEvent } from './views';
@@ -227,6 +228,8 @@ async function update(input: { actorId: string; id: string; body: EventBody }): 
     await eventPushService.onRescheduled(tx, current, cols.startsAt);
     // More places, or no limit any more: the waitlist moves up at once.
     await eventRegistrationService.promoteAfterChange(tx, input.id);
+    // New team sizes or places: teams become valid or incomplete, and the waitlist moves.
+    await eventTeamService.settle(tx, await lockEvent(tx, input.id));
     await adminAuditService.record(tx, {
       action: 'event.update',
       actorUserId: input.actorId,
