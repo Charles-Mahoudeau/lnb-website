@@ -40,6 +40,9 @@ const state = reactive({
   endsAt: initial ? isoToParisLocal(initial.endsAt) : '',
   limited: initial ? initial.capacity !== null : false,
   capacity: initial?.capacity ?? 30,
+  teamMode: initial?.teamMode ?? false,
+  teamMin: initial?.teamMin ?? 3,
+  teamMax: initial?.teamMax ?? 4,
   registrationOpensAt: initial?.registrationOpensAt
     ? isoToParisLocal(initial.registrationOpensAt)
     : '',
@@ -83,6 +86,9 @@ function body(): EventBody {
     startsAt: parisLocalToIso(state.startsAt) ?? '',
     endsAt: parisLocalToIso(state.endsAt) ?? '',
     capacity: state.limited ? state.capacity : null,
+    teamMode: state.teamMode,
+    teamMin: state.teamMode ? state.teamMin : null,
+    teamMax: state.teamMode ? state.teamMax : null,
     registrationOpensAt: parisLocalToIso(state.registrationOpensAt),
     registrationClosesAt: parisLocalToIso(state.registrationClosesAt),
     price: typeof state.price === 'number' ? state.price : null,
@@ -150,6 +156,9 @@ async function onCreateRoom(name: string) {
     state.roomId = String(room.id);
   }
 }
+
+// Team mode changes what a registration means, so it is locked once anyone has registered.
+const teamModeLocked = computed(() => (props.registrations?.length ?? 0) > 0);
 
 // Registrants whose school was just unticked stay registered: say so.
 const strandedRegistrants = computed(() => {
@@ -305,12 +314,22 @@ const preview = computed(() => ({
         />
         <USwitch
           v-model="state.limited"
-          :label="t('admin.events.form.limited')"
-          :description="t('admin.events.form.limitedHelp')"
+          :label="
+            t(state.teamMode ? 'admin.events.form.limitedTeams' : 'admin.events.form.limited')
+          "
+          :description="
+            t(
+              state.teamMode
+                ? 'admin.events.form.limitedTeamsHelp'
+                : 'admin.events.form.limitedHelp',
+            )
+          "
         />
         <UFormField
           v-if="state.limited"
-          :label="t('admin.events.form.capacity')"
+          :label="
+            t(state.teamMode ? 'admin.events.form.capacityTeams' : 'admin.events.form.capacity')
+          "
           name="capacity"
           class="sm:w-48"
         >
@@ -349,6 +368,41 @@ const preview = computed(() => ({
             <template #trailing><span class="text-muted">€</span></template>
           </UInput>
         </UFormField>
+      </section>
+
+      <section class="flex flex-col gap-5 rounded-lg bg-elevated p-5">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <IconTile icon="i-lucide-users" />
+            <div class="flex flex-col">
+              <h2 class="text-lg font-bold text-highlighted">{{ t('admin.events.form.teams') }}</h2>
+              <p class="text-sm text-muted">{{ t('admin.events.form.teamsHelp') }}</p>
+            </div>
+          </div>
+          <USwitch
+            v-model="state.teamMode"
+            :disabled="teamModeLocked"
+            :aria-label="t('admin.events.form.teams')"
+          />
+        </div>
+        <UAlert
+          v-if="teamModeLocked"
+          color="neutral"
+          variant="subtle"
+          icon="i-lucide-lock"
+          :description="t('admin.events.form.teamModeLocked')"
+        />
+        <template v-if="state.teamMode">
+          <div class="grid gap-5 sm:grid-cols-2">
+            <UFormField :label="t('admin.events.form.teamMin')" name="teamMin">
+              <UInputNumber v-model="state.teamMin" :min="2" :max="32" class="w-full" />
+            </UFormField>
+            <UFormField :label="t('admin.events.form.teamMax')" name="teamMax">
+              <UInputNumber v-model="state.teamMax" :min="2" :max="32" class="w-full" />
+            </UFormField>
+          </div>
+          <p class="text-sm text-muted">{{ t('admin.events.form.teamSizeHelp') }}</p>
+        </template>
       </section>
 
       <section class="flex flex-col gap-4 rounded-lg bg-elevated p-5">
