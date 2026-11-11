@@ -190,6 +190,13 @@
       "when": 1794404102758,
       "tag": "0026_push-team-kind",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1794412088221,
+      "tag": "0027_partner-events",
+      "breakpoints": true
     }
   ]
 }
