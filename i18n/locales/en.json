@@ -1174,6 +1174,10 @@
           "label": "Interest in partner events",
           "description": "Saving interest in a partner event's games. Students can still withdraw."
         },
+        "partnerEvents_teams": {
+          "label": "Teams in partner events",
+          "description": "Creating teams, inviting and joining in a partner event. Players can still leave."
+        },
         "jobs_prunePartnerLogos": {
           "label": "Pruning partner logos",
           "description": "The nightly removal of logos no partner uses."
@@ -2974,6 +2978,28 @@
       "withdrawn": "Interest withdrawn"
     },
     "problems": {
+      "gameNotFound": "This game doesn’t exist.",
+      "gameNotConfirmed": "Teams aren’t open for this game yet.",
+      "teamsClosed": "Teams are paused for now. Try again later.",
+      "interestRequired": "Say you’re interested in this game first.",
+      "invalidTeamName": "A team name has 3 to 30 characters, with no special characters.",
+      "invalidAbbreviation": "The abbreviation has 2 to 5 letters or digits, with no accents or spaces.",
+      "invalidBirthDate": "Enter a valid date of birth.",
+      "teamNameTaken": "Another team already has this name.",
+      "abbreviationTaken": "Another team already has this abbreviation.",
+      "teamNotFound": "This team doesn’t exist anymore.",
+      "notCaptain": "Only the captain can do this, and the captain stays a starter.",
+      "alreadyInTeam": "This player is already in a team.",
+      "notInTeam": "This player isn’t in the team.",
+      "teamFull": "The team has no free place for this.",
+      "inviteNotFound": "This invitation or request no longer exists.",
+      "notYourInvite": "This invitation isn’t yours.",
+      "alreadyInvited": "This player already has an invitation from your team.",
+      "alreadyRequested": "You already asked this team.",
+      "requestsClosed": "This team doesn’t take requests.",
+      "tooManyRequests": "You have too many requests waiting. Wait for answers or withdraw one.",
+      "tooManyInvites": "This player has too many invitations waiting.",
+      "notLooking": "This player isn’t looking for a team.",
       "partnerEventNotFound": "This event doesn’t exist.",
       "interestClosed": "Saving interest is paused for now. Try again later.",
       "partnerEventClosed": "This event is closed.",

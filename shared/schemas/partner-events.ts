@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { TEAM_NAME_MAX, TEAM_NAME_MIN } from '../utils/event-teams.ts';
+
 // Partner event contracts, shared by the routes and the pages. See docs/partner-events.md.
 
 export const PARTNER_EVENT_PROBLEMS = [
@@ -7,6 +9,28 @@ export const PARTNER_EVENT_PROBLEMS = [
   'interestClosed',
   'partnerEventClosed',
   'consentRequired',
+  'gameNotFound',
+  'gameNotConfirmed',
+  'teamsClosed',
+  'interestRequired',
+  'invalidTeamName',
+  'invalidAbbreviation',
+  'invalidBirthDate',
+  'teamNameTaken',
+  'abbreviationTaken',
+  'teamNotFound',
+  'notCaptain',
+  'alreadyInTeam',
+  'notInTeam',
+  'teamFull',
+  'inviteNotFound',
+  'notYourInvite',
+  'alreadyInvited',
+  'alreadyRequested',
+  'requestsClosed',
+  'tooManyRequests',
+  'tooManyInvites',
+  'notLooking',
 ] as const;
 export type PartnerEventProblem = (typeof PARTNER_EVENT_PROBLEMS)[number];
 
@@ -40,7 +64,7 @@ export const partnerGameView = z.object({
   substitutes: z.number().int(),
   art: z.string().nullable().describe('The card art URL, or null for the tinted fallback.'),
   interested: z.number().int().describe('Students interested in this game.'),
-  teams: z.number().int().describe('Teams of this game. Always 0 until teams are built.'),
+  teams: z.number().int().describe('Teams of this game.'),
 });
 export type PartnerGameView = z.infer<typeof partnerGameView>;
 
@@ -105,3 +129,148 @@ export const partnerInterestBody = z
   })
   .strict();
 export type PartnerInterestBody = z.input<typeof partnerInterestBody>;
+
+// Teams
+
+export const TEAM_ABBREVIATION_MIN = 2;
+export const TEAM_ABBREVIATION_MAX = 5;
+/** A student can have this many requests to join waiting at once, per game. */
+export const MAX_PENDING_REQUESTS = 3;
+/** A student can have this many invitations waiting per game. */
+export const MAX_PENDING_INVITES = 10;
+
+export const PARTNER_TEAM_ROLES = ['starter', 'substitute'] as const;
+export type PartnerTeamRole = (typeof PARTNER_TEAM_ROLES)[number];
+
+export const partnerGameParams = partnerEventParams.extend({ game: z.enum(PARTNER_GAME_KEYS) });
+export const partnerTeamParams = partnerGameParams.extend({ teamId: z.uuid() });
+export const partnerTeamMemberParams = partnerTeamParams.extend({
+  userId: z.string().min(1).max(64),
+});
+export const partnerInviteParams = partnerGameParams.extend({
+  inviteId: z.coerce.number().int().positive(),
+});
+
+/** A calendar date as `YYYY-MM-DD`, in the past, from 1940. */
+export const birthDate = z.string().refine((value) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return (
+    !Number.isNaN(date.getTime()) &&
+    date.toISOString().startsWith(value) &&
+    date.getUTCFullYear() >= 1940 &&
+    date.getTime() < Date.now()
+  );
+}, 'Not a valid date of birth.');
+
+const teamName = z
+  .string()
+  .trim()
+  .min(TEAM_NAME_MIN)
+  .max(TEAM_NAME_MAX * 2);
+const abbreviation = z
+  .string()
+  .trim()
+  .min(TEAM_ABBREVIATION_MIN)
+  .max(TEAM_ABBREVIATION_MAX * 2);
+
+/** POST .../games/:game/teams. The captain gives their date of birth. */
+export const partnerTeamCreateBody = z.object({ name: teamName, abbreviation, birthDate }).strict();
+export type PartnerTeamCreateBody = z.input<typeof partnerTeamCreateBody>;
+
+/** PATCH .../teams/:teamId: only what is sent changes. */
+export const partnerTeamPatchBody = z
+  .object({
+    name: teamName.optional(),
+    abbreviation: abbreviation.optional(),
+    acceptsRequests: z.boolean().optional().describe('Whether students can ask to join.'),
+  })
+  .strict()
+  .refine(
+    (body) =>
+      body.name !== undefined ||
+      body.abbreviation !== undefined ||
+      body.acceptsRequests !== undefined,
+  );
+export type PartnerTeamPatchBody = z.input<typeof partnerTeamPatchBody>;
+
+/** PATCH .../members/:userId: moves a player between starter and substitute, or hands over captaincy. */
+export const partnerMemberPatchBody = z
+  .object({
+    role: z.enum(PARTNER_TEAM_ROLES).optional(),
+    captain: z.literal(true).optional().describe('Make this player the captain.'),
+  })
+  .strict()
+  .refine((body) => (body.role !== undefined) !== (body.captain !== undefined));
+export type PartnerMemberPatchBody = z.input<typeof partnerMemberPatchBody>;
+
+/** POST .../teams/:teamId/invites */
+export const partnerInviteBody = z.object({ userId: z.string().min(1).max(64) }).strict();
+/** POST .../teams/:teamId/requests */
+export const partnerRequestBody = z.object({ birthDate }).strict();
+/** POST .../invites/:inviteId. Accepting an invitation needs the student's date of birth. */
+export const partnerInviteAnswerBody = z
+  .object({ accept: z.boolean(), birthDate: birthDate.optional() })
+  .strict();
+export type PartnerInviteAnswerBody = z.input<typeof partnerInviteAnswerBody>;
+
+export const partnerPerson = z.object({
+  userId: z.string(),
+  name: z.string(),
+  image: z.string().nullable(),
+  school: z.string().nullable(),
+  inGameName: z.string(),
+  rank: z.string(),
+});
+export type PartnerPerson = z.infer<typeof partnerPerson>;
+
+export const partnerTeamMemberView = partnerPerson.extend({
+  role: z.enum(PARTNER_TEAM_ROLES),
+  captain: z.boolean(),
+});
+
+const pendingPerson = partnerPerson.extend({ id: z.number().int() });
+
+export const partnerTeamView = z.object({
+  id: z.string(),
+  name: z.string(),
+  abbreviation: z.string(),
+  starters: z.number().int().describe('Starter places taken.'),
+  substitutes: z.number().int().describe('Substitute places taken.'),
+  complete: z.boolean().describe('Every starter place is taken.'),
+  acceptsRequests: z.boolean(),
+  members: z.array(partnerTeamMemberView).nullable().describe('Null for visitors.'),
+  mine: z.boolean(),
+  captain: z.boolean().describe('The caller is the captain.'),
+  invited: z.array(pendingPerson).nullable().describe('Pending invitations, for the captain.'),
+  requests: z.array(pendingPerson).nullable().describe('Pending requests, for the captain.'),
+});
+export type PartnerTeamView = z.infer<typeof partnerTeamView>;
+
+/** GET .../games/:game */
+export const partnerGameTeamsView = z.object({
+  teams: z.array(partnerTeamView),
+  looking: z.object({
+    count: z.number().int(),
+    players: z.array(partnerPerson).nullable().describe('Null for visitors.'),
+  }),
+  me: z
+    .object({
+      interested: z.boolean(),
+      teamId: z.string().nullable(),
+      invitations: z.array(
+        z.object({
+          id: z.number().int(),
+          teamId: z.string(),
+          teamName: z.string(),
+          from: z.string().nullable(),
+        }),
+      ),
+      requested: z.array(z.object({ id: z.number().int(), teamId: z.string() })),
+      requestsLeft: z.number().int(),
+    })
+    .nullable(),
+});
+export type PartnerGameTeamsView = z.infer<typeof partnerGameTeamsView>;
+
+export const partnerCreated = z.object({ id: z.string() });

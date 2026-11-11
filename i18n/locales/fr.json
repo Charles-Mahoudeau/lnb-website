@@ -1178,6 +1178,10 @@
           "label": "Intérêt pour les événements partenaires",
           "description": "L’enregistrement de l’intérêt pour les jeux d’un événement partenaire. Les étudiants peuvent toujours se retirer."
         },
+        "partnerEvents_teams": {
+          "label": "Équipes des événements partenaires",
+          "description": "La création d’équipes, les invitations et les demandes dans un événement partenaire. Les joueurs peuvent toujours quitter leur équipe."
+        },
         "jobs_prunePartnerLogos": {
           "label": "Nettoyage des logos de partenaires",
           "description": "La suppression nocturne des logos qu’aucun partenaire n’utilise."
@@ -2978,6 +2982,28 @@
       "withdrawn": "Intérêt retiré"
     },
     "problems": {
+      "gameNotFound": "Ce jeu n’existe pas.",
+      "gameNotConfirmed": "Les équipes ne sont pas encore ouvertes pour ce jeu.",
+      "teamsClosed": "Les équipes sont en pause pour le moment. Réessaie plus tard.",
+      "interestRequired": "Indique d’abord que ce jeu t’intéresse.",
+      "invalidTeamName": "Un nom d’équipe fait de 3 à 30 caractères, sans caractère spécial.",
+      "invalidAbbreviation": "L’abréviation fait de 2 à 5 lettres ou chiffres, sans accent ni espace.",
+      "invalidBirthDate": "Saisis une date de naissance valide.",
+      "teamNameTaken": "Une autre équipe porte déjà ce nom.",
+      "abbreviationTaken": "Une autre équipe a déjà cette abréviation.",
+      "teamNotFound": "Cette équipe n’existe plus.",
+      "notCaptain": "Seul le capitaine peut faire ça, et le capitaine reste titulaire.",
+      "alreadyInTeam": "Ce joueur est déjà dans une équipe.",
+      "notInTeam": "Ce joueur n’est pas dans l’équipe.",
+      "teamFull": "L’équipe n’a pas de place libre pour ça.",
+      "inviteNotFound": "Cette invitation ou cette demande n’existe plus.",
+      "notYourInvite": "Cette invitation n’est pas la tienne.",
+      "alreadyInvited": "Ce joueur a déjà une invitation de ton équipe.",
+      "alreadyRequested": "Tu as déjà fait une demande à cette équipe.",
+      "requestsClosed": "Cette équipe n’accepte pas de demandes.",
+      "tooManyRequests": "Tu as trop de demandes en attente. Attends des réponses ou retires-en une.",
+      "tooManyInvites": "Ce joueur a trop d’invitations en attente.",
+      "notLooking": "Ce joueur ne cherche pas d’équipe.",
       "partnerEventNotFound": "Cet événement n’existe pas.",
       "interestClosed": "L’enregistrement de l’intérêt est en pause. Réessayez plus tard.",
       "partnerEventClosed": "Cet événement est terminé.",
