@@ -23,6 +23,12 @@ if (error.value || !event.value) {
   });
 }
 
+// A tournament also loads its teams, and reloads them with the event after any change.
+const { data: teams, refresh: refreshTeams } = await useEventTeams(id, event.value.teams !== null);
+async function onChanged() {
+  await Promise.all([refresh(), event.value?.teams ? refreshTeams() : undefined]);
+}
+
 const when = computed(
   () =>
     event.value &&
@@ -118,12 +124,23 @@ useSeoMeta({
             <h2 class="text-2xl font-bold text-highlighted">{{ t('events.details') }}</h2>
             <EventsDetails :event="event" />
           </section>
+          <EventsTeams
+            v-if="event.teams && teams"
+            :event="event"
+            :teams="teams"
+            @changed="onChanged"
+          />
         </div>
-        <EventsRegistrationPanel
-          :event="event"
-          class="max-lg:order-first lg:sticky lg:top-24 lg:col-span-4"
-          @changed="refresh"
-        />
+        <div class="flex flex-col gap-6 max-lg:order-first lg:sticky lg:top-24 lg:col-span-4">
+          <EventsRegistrationPanel :event="event" @changed="onChanged" />
+          <EventsLooking
+            v-if="event.teams && teams"
+            :event-id="event.id"
+            :teams="teams"
+            :editable="!event.cancelled && eventPhase(event) === 'upcoming'"
+            @changed="onChanged"
+          />
+        </div>
       </div>
     </UContainer>
   </div>
