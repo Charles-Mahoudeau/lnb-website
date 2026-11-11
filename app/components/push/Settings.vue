@@ -23,6 +23,7 @@ const KINDS = [
   'reminders',
   'spots',
   'changes',
+  'partnerEvents',
 ] as const satisfies readonly (keyof PushPreferences)[];
 
 const blocked = computed(() => permission.value === 'denied');

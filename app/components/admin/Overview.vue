@@ -184,6 +184,7 @@ function describe(entry: AdminAuditView): string {
     case 'partnerEvent.close':
     case 'partnerEvent.reopen':
     case 'partnerEvent.export':
+    case 'partnerEvent.announce':
     case 'partnerEvent.purge':
     case 'shortLink.create':
     case 'shortLink.update':

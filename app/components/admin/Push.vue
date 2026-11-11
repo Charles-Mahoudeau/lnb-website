@@ -79,8 +79,9 @@ const biggest = computed(() =>
 );
 
 function categories(row: PushSubscriberRow) {
-  const on = Object.values(row.preferences).filter(Boolean).length;
-  if (on === 4) return t('admin.push.all');
+  const values = Object.values(row.preferences);
+  const on = values.filter(Boolean).length;
+  if (on === values.length) return t('admin.push.all');
   if (on === 0) return t('admin.push.none');
   return t('admin.push.some', { count: on });
 }

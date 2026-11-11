@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, isNotNull, lt, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNotNull, isNull, lt, or, sql } from 'drizzle-orm';
 import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
@@ -13,6 +13,10 @@ import {
 } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 import { eventImageService } from '~~/server/services/events/images';
+import { buildPartnerMessage } from '~~/server/services/push/messages';
+import { pushQueueService } from '~~/server/services/push/queue';
+import { afterQuietHours, quietOf } from '~~/server/services/push/rules';
+import { pushSettingsService } from '~~/server/services/push/settings';
 
 import { exportXlsx } from './partner-events-export';
 import type { ExportReferent, ExportTeam } from './partner-events-export';
@@ -27,6 +31,7 @@ import type {
   PartnerTeamReferentBody,
 } from '#shared/schemas/partner-events';
 import { PARTNER_EVENT_PURGE_DAYS } from '#shared/schemas/partner-events';
+import type { PushImpactView } from '#shared/schemas/push';
 import { schoolForTenant } from '#shared/utils/schools';
 
 // What events managers do on a partner event: its settings, each game's referent, the lists, the
@@ -120,6 +125,7 @@ async function view(slug: string): Promise<PartnerAdminView> {
     interestOpen: row.interestOpen,
     teamsOpen: row.teamsOpen,
     closedAt: row.closedAt?.toISOString() ?? null,
+    announcedAt: row.announcedAt?.toISOString() ?? null,
     purgeAt: purgeAt(row.closedAt)?.toISOString() ?? null,
     games: games.map((game) => ({
       key: game.key as PartnerGameKey,
@@ -323,6 +329,73 @@ async function reopen(input: { actorId: string; slug: string }): Promise<void> {
   });
 }
 
+/** Every account that could get the announcement: the three schools, bans aside. */
+async function announcementAudience(tx: Tx | typeof db): Promise<string[]> {
+  const rows = await tx
+    .select({ id: user.id })
+    .from(user)
+    .where(or(isNull(user.banned), eq(user.banned, false)));
+  return rows.map((row) => row.id);
+}
+
+/**
+ * What the announcement would send, for the confirmation. Only accounts that turned partner
+ * events on can get it, so the count is usually well under the audience. Writes nothing.
+ */
+async function announceImpact(input: {
+  slug: string;
+  locale: 'en' | 'fr';
+}): Promise<PushImpactView> {
+  const row = await findEvent(db, input.slug);
+  const open = !row.closedAt && !row.announcedAt;
+  const message = buildPartnerMessage('partnerEvent', input.locale, row.slug);
+  return {
+    ...(await pushQueueService.impact('partnerEvent', open ? await announcementAudience(db) : [])),
+    sendAt: afterQuietHours(new Date(), quietOf(await pushSettingsService.get())).toISOString(),
+    preview: { title: message.title, body: message.body },
+  };
+}
+
+/**
+ * Queues the announcement for accounts that opted in to partner events. Once: a second call is
+ * refused. At night it waits for the morning, like a new-event announcement.
+ */
+async function announce(input: {
+  actorId: string;
+  slug: string;
+}): Promise<{ recipients: number; sendAt: string }> {
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .select()
+      .from(partnerEvent)
+      .where(eq(partnerEvent.slug, input.slug))
+      .for('update');
+    if (!row) refuse(404, 'partnerEventNotFound');
+    if (row.closedAt) refuse(409, 'partnerEventClosed');
+    if (row.announcedAt) refuse(409, 'alreadyAnnounced');
+    await tx
+      .update(partnerEvent)
+      .set({ announcedAt: new Date() })
+      .where(eq(partnerEvent.id, row.id));
+    const recipients = await pushQueueService.enqueue(tx, {
+      kind: 'partnerEvent',
+      partnerEventId: row.id,
+      userIds: await announcementAudience(tx),
+      dedupe: (userId) => `partnerEvent:${row.id}:${userId}`,
+    });
+    await adminAuditService.record(tx, {
+      action: 'partnerEvent.announce',
+      actorUserId: input.actorId,
+      targetUserId: null,
+      data: { slug: row.slug, recipients },
+    });
+    return {
+      recipients,
+      sendAt: afterQuietHours(new Date(), quietOf(await pushSettingsService.get())).toISOString(),
+    };
+  });
+}
+
 /** The spreadsheet for the organizer. Teams of confirmed games only. */
 async function exportSheet(input: { actorId: string; slug: string }): Promise<Buffer> {
   const data = await view(input.slug);
@@ -442,6 +515,8 @@ export const partnerEventAdminService = {
   disbandTeam,
   close,
   reopen,
+  announce,
+  announceImpact,
   exportSheet,
   purgeClosed,
 };

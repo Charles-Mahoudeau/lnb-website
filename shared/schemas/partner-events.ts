@@ -34,6 +34,7 @@ export const PARTNER_EVENT_PROBLEMS = [
   'imageNotFound',
   'gameHasTeams',
   'placesInUse',
+  'alreadyAnnounced',
 ] as const;
 export type PartnerEventProblem = (typeof PARTNER_EVENT_PROBLEMS)[number];
 
@@ -409,9 +410,15 @@ export const partnerAdminView = z.object({
   interestOpen: z.boolean(),
   teamsOpen: z.boolean(),
   closedAt: isoDate.nullable(),
+  announcedAt: isoDate.nullable().describe('When the push announcement was queued.'),
   purgeAt: isoDate.nullable().describe('When the data is deleted: 60 days after closing.'),
   games: z.array(partnerAdminGame),
   teams: z.array(partnerAdminTeam),
   interest: z.array(partnerAdminInterest),
 });
 export type PartnerAdminView = z.infer<typeof partnerAdminView>;
+
+/** POST /api/admin/partner-events/:slug/announce-impact */
+export const partnerAnnounceImpactBody = z.object({
+  locale: z.enum(['en', 'fr']).default('en').describe('The language of the preview.'),
+});

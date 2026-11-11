@@ -10,11 +10,17 @@ import { pushSettingsService } from './settings';
 import { pushPreferences } from '#shared/schemas/push';
 import type { PushPreferences, PushStatusView, PushSubscribeBody } from '#shared/schemas/push';
 
-// Devices that allowed notifications, and each account's four switches.
+// Devices that allowed notifications, and each account's switches.
 
-const ALL_ON: PushPreferences = { newEvents: true, reminders: true, spots: true, changes: true };
+const DEFAULTS: PushPreferences = {
+  newEvents: true,
+  reminders: true,
+  spots: true,
+  changes: true,
+  partnerEvents: false,
+};
 
-/** The switches of an account. No row: all on. */
+/** The switches of an account. No row: all on but partner events. */
 async function preferencesOf(userId: string): Promise<PushPreferences> {
   const [row] = await db.select().from(pushPreference).where(eq(pushPreference.userId, userId));
   return row
@@ -23,8 +29,9 @@ async function preferencesOf(userId: string): Promise<PushPreferences> {
         reminders: row.reminders,
         spots: row.spots,
         changes: row.changes,
+        partnerEvents: row.partnerEvents,
       }
-    : ALL_ON;
+    : DEFAULTS;
 }
 
 async function setPreferences(userId: string, patch: Partial<PushPreferences>) {

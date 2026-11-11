@@ -44,7 +44,7 @@ export function relativeOffset(minutes: number, locale: PushLocale): string {
 }
 
 export function buildMessage(
-  kind: PushKindName,
+  kind: Exclude<PushKindName, 'partnerEvent' | 'partnerTeam'>,
   locale: PushLocale,
   info: PushEventInfo,
   params: { offset?: number; reason?: TeamReason; team?: string; who?: string } = {},
@@ -78,5 +78,46 @@ export function buildMessage(
     body: fill(template.body, values),
     url: `/events/${info.id}`,
     tag: `${kind === 'newEvent' ? 'new' : 'event'}:${info.id}`,
+  };
+}
+
+/** Why a partner team notification is sent: the key of its text under push.message.partnerTeam. */
+export type PartnerTeamReason = keyof (typeof MESSAGES)['en']['partnerTeam'];
+
+/** The name of a partner event, from the locale files. Unknown slugs show as they are. */
+const PARTNER_NAMES: Record<string, Record<PushLocale, string>> = {
+  'arena-league-university-2027': {
+    en: en.partnerEvents.arenaLeague2027.title,
+    fr: fr.partnerEvents.arenaLeague2027.title,
+  },
+};
+
+const GAME_NAMES: Record<PushLocale, Record<string, string>> = {
+  en: en.partnerEvents.games,
+  fr: fr.partnerEvents.games,
+};
+
+/** The text of a partner event notification: the announcement, or news of a team. */
+export function buildPartnerMessage(
+  kind: 'partnerEvent' | 'partnerTeam',
+  locale: PushLocale,
+  slug: string,
+  params: { reason?: PartnerTeamReason; game?: string; team?: string; who?: string } = {},
+): PushMessage {
+  const values = {
+    name: PARTNER_NAMES[slug]?.[locale] ?? slug,
+    game: GAME_NAMES[locale][params.game ?? ''] ?? params.game ?? '',
+    team: params.team ?? '',
+    who: params.who ?? '',
+  };
+  const template =
+    kind === 'partnerTeam'
+      ? MESSAGES[locale].partnerTeam[params.reason ?? 'invited']
+      : MESSAGES[locale].partnerEvent;
+  return {
+    title: fill(template.title, values),
+    body: fill(template.body, values),
+    url: `/special/${slug}`,
+    tag: kind === 'partnerEvent' ? `partner:${slug}` : `partner-team:${slug}:${params.game ?? ''}`,
   };
 }

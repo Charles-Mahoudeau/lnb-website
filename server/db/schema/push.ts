@@ -16,10 +16,21 @@ import {
 
 import { user } from './auth';
 import { event } from './events';
+import { partnerEvent } from './partner-events';
 
 // Web Push to signed-in accounts, about events only. See docs/push.md.
 
-export type PushKind = 'newEvent' | 'reminder' | 'spot' | 'cancelled' | 'rescheduled' | 'team';
+export type PushKind =
+  | 'newEvent'
+  | 'reminder'
+  | 'spot'
+  | 'cancelled'
+  | 'rescheduled'
+  | 'team'
+  /** A partner event announced by a manager. Opt-in. */
+  | 'partnerEvent'
+  /** An invitation, a request or its answer in a partner event's teams. */
+  | 'partnerTeam';
 export type PushStatus = 'pending' | 'sent' | 'failed' | 'skipped';
 
 /** One browser on one device that allowed notifications. Gone with the account. */
@@ -56,6 +67,8 @@ export const pushPreference = pgTable('push_preference', {
   reminders: boolean('reminders').default(true).notNull(),
   spots: boolean('spots').default(true).notNull(),
   changes: boolean('changes').default(true).notNull(),
+  // Unlike the others, off until the account asks: partner events aren't LNB's own.
+  partnerEvents: boolean('partner_events').default(false).notNull(),
   updatedAt: timestamp('updated_at')
     .defaultNow()
     .$onUpdate(() => new Date())
@@ -76,6 +89,10 @@ export const pushNotification = pgTable(
     kind: text('kind').$type<PushKind>().notNull(),
     // Kept (set to null) if the event is deleted, so the weekly counts stay true.
     eventId: uuid('event_id').references(() => event.id, { onDelete: 'set null' }),
+    // For the partner kinds, in place of `event_id`. `params` has the game and the team.
+    partnerEventId: uuid('partner_event_id').references(() => partnerEvent.id, {
+      onDelete: 'set null',
+    }),
     // What the text needs besides the event, such as the reminder's offset in minutes.
     params: jsonb('params').$type<Record<string, unknown>>().default({}).notNull(),
     status: text('status').$type<PushStatus>().default('pending').notNull(),
@@ -95,9 +112,10 @@ export const pushNotification = pgTable(
       .where(sql`${table.status} = 'pending'`),
     index('push_notification_user_id_sent_at_idx').on(table.userId, table.sentAt),
     index('push_notification_event_id_idx').on(table.eventId),
+    index('push_notification_partner_event_id_idx').on(table.partnerEventId),
     check(
       'push_notification_kind_check',
-      sql`${table.kind} IN ('newEvent', 'reminder', 'spot', 'cancelled', 'rescheduled', 'team')`,
+      sql`${table.kind} IN ('newEvent', 'reminder', 'spot', 'cancelled', 'rescheduled', 'team', 'partnerEvent', 'partnerTeam')`,
     ),
     check(
       'push_notification_status_check',

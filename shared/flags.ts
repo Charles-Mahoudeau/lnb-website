@@ -54,6 +54,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'push.reminders', parent: 'push' },
   { key: 'push.spots', parent: 'push' },
   { key: 'push.changes', parent: 'push' },
+  { key: 'push.partnerEvents', parent: 'push' },
   { key: 'jobs' },
   { key: 'jobs.deleteInactive', parent: 'jobs' },
   { key: 'jobs.pruneAvatars', parent: 'jobs' },

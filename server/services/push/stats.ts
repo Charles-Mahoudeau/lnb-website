@@ -85,6 +85,7 @@ async function subscribers(now = new Date()): Promise<PushSubscriberRow[]> {
       reminders: row.preference?.reminders ?? true,
       spots: row.preference?.spots ?? true,
       changes: row.preference?.changes ?? true,
+      partnerEvents: row.preference?.partnerEvents ?? false,
     },
     devices: row.devices,
     since: row.since.toISOString(),
