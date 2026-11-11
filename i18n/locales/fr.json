@@ -3226,9 +3226,10 @@
     "arenaLeague2027": {
       "title": "Arena League Université 2027",
       "lede": "Une première saison de compétition esport inter-établissements entre universités, sur League of Legends et VALORANT. Rocket League et Counter-Strike 2 sont à l’étude.",
-      "dateNotFixed": "Date non fixée, probablement de janvier à mai",
+      "dateNotFixed": "Date à confirmer, prévue de janvier à mai",
       "free": "Gratuit pour les étudiants",
-      "online": "Surtout en ligne",
+      "online": "Principalement en ligne",
+      "external": "Événement partenaire, pas par LNB",
       "notice": "LNB n’est pas l’organisateur. Nous recensons les étudiants intéressés et transmettons la liste à l’organisateur. Les équipes se forment ensuite, et l’inscription définitive vient une fois les équipes et les règles d’éligibilité validées par l’organisateur.",
       "facts": {
         "interest": {
@@ -3240,19 +3241,19 @@
           "text": "Les équipes se forment avec l’aide de LNB une fois l’intérêt recensé. Chaque équipe a un référent LNB, qui est le contact avec l’organisateur."
         },
         "free": {
-          "title": "Gratuit et surtout en ligne",
-          "text": "Aucun frais pour les étudiants ni les établissements. Les matchs ont surtout lieu en ligne, selon un calendrier communiqué avant le lancement."
+          "title": "Gratuit et principalement en ligne",
+          "text": "Aucun frais pour les étudiants ni les établissements. Les matchs ont lieu principalement en ligne, selon un calendrier communiqué avant le lancement."
         }
       }
     },
     "promo": {
-      "badge": "Événement partenaire",
+      "badge": "Événement partenaire, pas par LNB",
       "lede": "Ligue d’esport inter-écoles sur League of Legends et VALORANT. Gratuite pour les étudiants.",
       "students": "étudiants intéressés | étudiant intéressé | étudiants intéressés",
       "studentsLabel": "Étudiants intéressés",
       "teams": "équipes | équipe | équipes",
       "teamsLabel": "Équipes formées",
-      "joined": "Tu es dedans",
+      "joined": "Intérêt enregistré",
       "see": "Voir la ligue"
     }
   }

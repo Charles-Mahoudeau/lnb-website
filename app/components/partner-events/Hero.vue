@@ -7,7 +7,7 @@ defineProps<{
   lede: string;
   /** The hero art URL, or null for the fallback. */
   art: string | null;
-  chips: { icon: string; label: string }[];
+  chips: { icon: string; label: string; external?: boolean }[];
   links: { label: string; url: string }[];
 }>();
 </script>
@@ -33,10 +33,10 @@ defineProps<{
           <UBadge
             :icon="chip.icon"
             :label="chip.label"
-            color="neutral"
-            variant="soft"
+            :color="chip.external ? 'secondary' : 'neutral'"
+            :variant="chip.external ? 'solid' : 'soft'"
             size="lg"
-            class="bg-accented"
+            :class="!chip.external && 'bg-accented'"
           />
         </li>
       </ul>
