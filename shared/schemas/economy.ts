@@ -31,6 +31,9 @@ export const ECONOMY_PROBLEMS = [
   'idempotencyMismatch',
   'invalidCursor',
   'confirmMismatch',
+  'shopDisabled',
+  'priceChanged',
+  'noBuyBack',
 ] as const;
 export type EconomyProblem = (typeof ECONOMY_PROBLEMS)[number];
 
@@ -66,11 +69,18 @@ export const economyMemo = z.string().trim().min(1).max(140);
 export const economyRole = z.enum(['owner', 'member', 'viewer']);
 export type EconomyRole = z.infer<typeof economyRole>;
 
-export const ECONOMY_TRANSACTION_KINDS = ['payment', 'casino', 'mint', 'burn', 'reversal'] as const;
+export const ECONOMY_TRANSACTION_KINDS = [
+  'payment',
+  'casino',
+  'shop',
+  'mint',
+  'burn',
+  'reversal',
+] as const;
 export const economyTransactionKind = z.enum(ECONOMY_TRANSACTION_KINDS);
 export type EconomyTransactionKind = z.infer<typeof economyTransactionKind>;
 /** Kinds that move money between players, counted as volume. Mint, burn and reversals aren't. */
-export const ECONOMY_VOLUME_KINDS = ['payment', 'casino'] as const;
+export const ECONOMY_VOLUME_KINDS = ['payment', 'casino', 'shop'] as const;
 
 export const economyReason = z.enum(['startingBalance', 'adjustment', 'accountClosed']);
 export type EconomyReason = z.infer<typeof economyReason>;
@@ -342,6 +352,107 @@ export const economyTransferResult = z.object({
   to: transferSide,
 });
 export type EconomyTransferResult = z.infer<typeof economyTransferResult>;
+
+// Player shops: a block in the game selling one item for an account, and maybe buying it back.
+
+/** The longest item SNBT a shop keeps: a few heavily enchanted, renamed items fit easily. */
+export const ECONOMY_SHOP_MAX_SNBT = 32_768;
+/** The most lots one order moves: a full shop of 27 stacks of 1, with room to spare. */
+export const ECONOMY_SHOP_MAX_LOTS = 10_000;
+
+export const economyShopParams = z.object({ shopId: z.uuid() });
+
+const shopItem = z.object({
+  id: z.string().trim().min(1).max(128).describe('The item, such as `minecraft:diamond`.'),
+  snbt: z
+    .string()
+    .min(1)
+    .max(ECONOMY_SHOP_MAX_SNBT)
+    .describe('The item as the game saved it, with every component. Kept as is, never read.'),
+  name: z.string().trim().min(1).max(64).describe('Its name in the game.'),
+});
+
+const shopPosition = z.object({
+  world: z
+    .string()
+    .trim()
+    .min(1)
+    .max(128)
+    .describe('The dimension, such as `minecraft:overworld`.'),
+  x: z.int(),
+  y: z.int(),
+  z: z.int(),
+});
+
+export const economyShopSettings = z
+  .object({
+    player: minecraftUuid.describe('Who saves the shop: an owner or member of the account.'),
+    account: economyAccountRef.describe(
+      'The account that sells, and pays for what is bought back.',
+    ),
+    item: shopItem,
+    lotSize: z.int().min(1).max(99).describe('How many items one lot holds.'),
+    sellPrice: economyAmount.describe('What a buyer pays for one lot.'),
+    buyPrice: economyAmount
+      .optional()
+      .describe("What the shop pays for one lot it buys back. Without it, the shop doesn't buy."),
+    position: shopPosition,
+  })
+  .refine((body) => body.buyPrice === undefined || body.buyPrice <= body.sellPrice, {
+    path: ['buyPrice'],
+    message: 'at most the sell price',
+  });
+export type EconomyShopSettings = z.input<typeof economyShopSettings>;
+
+export const economyShopDisableBody = z.object({
+  idempotencyKey: z.uuid().describe('Sent by the server with every call it may repeat. Ignored.'),
+  player: minecraftUuid.optional().describe('Who broke the shop, when a player did.'),
+});
+
+export const economyShopDisabledReason = z.enum(['removed', 'admin']);
+
+export const economyServerShop = z.object({
+  id: z.uuid(),
+  account: z.object({
+    id: z.uuid(),
+    kind: z.enum(['personal', 'shared']),
+    handle: z.string().nullable(),
+  }),
+  item: z.object({ id: z.string(), name: z.string() }),
+  lotSize: z.number(),
+  sellPrice: z.number(),
+  buyPrice: z.number().nullable(),
+  position: shopPosition,
+  disabled: z.boolean(),
+  disabledReason: economyShopDisabledReason.nullable(),
+});
+export type EconomyServerShop = z.infer<typeof economyServerShop>;
+
+export const economyShopDirection = z.enum(['buy', 'sell']);
+
+export const economyShopOrderBody = z.object({
+  idempotencyKey: z.uuid(),
+  player: minecraftUuid,
+  account: economyAccountRef
+    .optional()
+    .describe(
+      "`buy`: the account that pays, the player's default one without it. `sell`: the account paid, the personal one without it.",
+    ),
+  direction: economyShopDirection.describe('`buy` from the shop, or `sell` back to it.'),
+  lots: z.int().positive().max(ECONOMY_SHOP_MAX_LOTS),
+  expectedLotPrice: economyAmount.describe(
+    'The lot price the player saw. Another price is a 409 `priceChanged`.',
+  ),
+});
+export type EconomyShopOrderBody = z.input<typeof economyShopOrderBody>;
+
+export const economyShopOrderResult = economyTransferResult.extend({
+  shopId: z.uuid(),
+  direction: economyShopDirection,
+  lots: z.number(),
+  lotPrice: z.number(),
+});
+export type EconomyShopOrderResult = z.infer<typeof economyShopOrderResult>;
 
 // ---- Admins -----------------------------------------------------------------------------------
 

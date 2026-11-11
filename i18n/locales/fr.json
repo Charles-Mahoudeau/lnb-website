@@ -1233,6 +1233,10 @@
           "label": "API du serveur Minecraft",
           "description": "Tous les appels du serveur Minecraft à l’économie répondent 503."
         },
+        "economy_shops": {
+          "label": "Shops",
+          "description": "Les shops des joueurs en jeu : acheter, revendre et enregistrer un shop. Les shops cassés se ferment quand même."
+        },
         "jobs_economySnapshot": {
           "label": "Stats de l’économie",
           "description": "L’enregistrement nocturne des graphiques de l’économie, et la fermeture des comptes bancaires des joueurs supprimés."
@@ -2933,6 +2937,7 @@
     "kinds": {
       "payment": "Paiement",
       "casino": "Casino",
+      "shop": "Shop",
       "mint": "Création",
       "burn": "Destruction",
       "reversal": "Annulation"

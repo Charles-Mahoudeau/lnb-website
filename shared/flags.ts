@@ -48,6 +48,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'economy.sharedAccounts', parent: 'economy' },
   { key: 'economy.baltop', parent: 'economy' },
   { key: 'economy.serverApi', parent: 'economy' },
+  { key: 'economy.shops', parent: 'economy' },
   { key: 'push' },
   { key: 'push.subscribe', parent: 'push' },
   { key: 'push.newEvents', parent: 'push' },
