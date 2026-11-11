@@ -3249,7 +3249,7 @@
       "dateNotFixed": "Date à confirmer, prévue de janvier à mai",
       "free": "Gratuit pour les étudiants",
       "online": "Principalement en ligne",
-      "external": "Événement partenaire, pas par LNB",
+      "external": "Événement externe organisé par Arena League",
       "notice": "LNB n’est pas l’organisateur. Nous recensons les étudiants intéressés et transmettons la liste à l’organisateur. Les équipes se forment ensuite, et l’inscription définitive vient une fois les équipes et les règles d’éligibilité validées par l’organisateur.",
       "facts": {
         "interest": {
@@ -3267,7 +3267,7 @@
       }
     },
     "promo": {
-      "badge": "Événement partenaire, pas par LNB",
+      "badge": "Événement externe organisé par Arena League",
       "lede": "Ligue d’esport inter-écoles sur League of Legends et VALORANT. Gratuite pour les étudiants.",
       "students": "étudiants intéressés | étudiant intéressé | étudiants intéressés",
       "studentsLabel": "Étudiants intéressés",
