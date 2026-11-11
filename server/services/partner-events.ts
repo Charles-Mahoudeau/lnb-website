@@ -1,4 +1,4 @@
-import { and, asc, count, eq, inArray, notInArray } from 'drizzle-orm';
+import { and, asc, count, countDistinct, eq, inArray, notInArray } from 'drizzle-orm';
 import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
@@ -73,6 +73,13 @@ async function view(slug: string, userId: string | null): Promise<PartnerEventVi
     : [];
   const teamTotals = new Map(teamCounts.map((entry) => [entry.gameId, entry.total]));
 
+  const [studentCount] = gameIds.length
+    ? await db
+        .select({ total: countDistinct(partnerEventInterest.userId) })
+        .from(partnerEventInterest)
+        .where(inArray(partnerEventInterest.gameId, gameIds))
+    : [];
+
   let mine: PartnerEventView['mine'] = null;
   if (userId) {
     const rows = gameIds.length
@@ -112,6 +119,7 @@ async function view(slug: string, userId: string | null): Promise<PartnerEventVi
     interestOpen: await interestIsOpen(row),
     teamsOpen: row.teamsOpen && !row.closedAt,
     closedAt: row.closedAt ? row.closedAt.toISOString() : null,
+    students: studentCount?.total ?? 0,
     games: games.map((game) => ({
       key: game.key as PartnerGameKey,
       status: game.status as PartnerGameStatus,
