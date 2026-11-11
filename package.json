@@ -29,7 +29,7 @@
     "drizzle-orm": "^0.45.4",
     "markdown-it": "^14.3.3",
     "modern-screenshot": "^4.7.0",
-    "nuxt": "^4.6.2",
+    "nuxt": "^4.6.4",
     "pg": "^8.23.1",
     "rate-limiter-flexible": "^11.2.3",
     "sharp": "^0.35.5",
