@@ -1,41 +1,14 @@
 // Team rules with no database and no Nuxt imports, so unit tests can load them. See
 // docs/tournaments.md.
-import { teamSize } from '../../../shared/utils/event-teams.ts';
-
-/** Structurally the schema's `EventTeamStatus`, kept here so these rules load without it. */
-export type EventTeamStatus = 'incomplete' | 'registered' | 'waitlist';
-
-/** What a team's status should be after its roster or the event's places changed. */
-export interface TeamStatusInput {
-  /** How many players are in the team. */
-  players: number;
-  min: number;
-  max: number;
-  current: EventTeamStatus;
-  /** Null: no limit on teams. */
-  capacity: number | null;
-  /** Validated teams holding a place right now, this team not counted. */
-  placesTaken: number;
-  /**
-   * Set when a manager validated the team by hand: it stays valid under the minimum. Over the
-   * maximum is allowed too, so a forced team keeps its place.
-   */
-  forced?: boolean;
-}
-
 /**
- * The status a team moves to. An incomplete team that becomes valid takes a place if one is free,
- * else joins the waitlist. A team that stops being valid goes back to incomplete and loses its
- * place and its waitlist position. A team already holding a place, or waiting, keeps it while it
- * stays valid.
+ * Where a team that just became valid lands: it takes a place if one is free, else it joins the
+ * waitlist.
  */
-export function nextTeamStatus(input: TeamStatusInput): EventTeamStatus {
-  const size = teamSize(input.players, input.min, input.max);
-  const valid = size === 'valid' || (input.forced && input.players > 0);
-  if (!valid) return 'incomplete';
-  if (input.current === 'registered' || input.current === 'waitlist') return input.current;
-  const hasRoom = input.capacity === null || input.placesTaken < input.capacity;
-  return hasRoom ? 'registered' : 'waitlist';
+export function placeForNewTeam(
+  capacity: number | null,
+  placesTaken: number,
+): 'registered' | 'waitlist' {
+  return capacity === null || placesTaken < capacity ? 'registered' : 'waitlist';
 }
 
 /**

@@ -5,6 +5,7 @@ import * as admin from '../../shared/schemas/admin.ts';
 import * as apiKeys from '../../shared/schemas/api-keys.ts';
 import { avatarParams } from '../../shared/schemas/avatars.ts';
 import * as economy from '../../shared/schemas/economy.ts';
+import * as eventTeams from '../../shared/schemas/event-teams.ts';
 import * as events from '../../shared/schemas/events.ts';
 import * as flags from '../../shared/schemas/flags.ts';
 import { linkApproveBody, linkApproveResult, linkDenyBody } from '../../shared/schemas/link.ts';
@@ -119,6 +120,10 @@ const requestSchemas = {
   EventTypePatchBody: events.eventTypePatchBody,
   EventBody: events.eventBody,
   EventDuplicateBody: events.eventDuplicateBody,
+  EventTeamCreateBody: eventTeams.eventTeamCreateBody,
+  EventTeamPatchBody: eventTeams.eventTeamPatchBody,
+  EventTeamCaptainBody: eventTeams.eventTeamCaptainBody,
+  EventLookingBody: eventTeams.eventLookingBody,
   EventRegistrationAddBody: events.eventRegistrationAddBody,
   EventImageImportBody: events.eventImageImportBody,
   EventImageInput: events.eventImageInput,
@@ -219,6 +224,9 @@ const responseSchemas = {
   EventView: events.eventView,
   EventRegistrationResult: events.eventRegistrationResult,
   MyEventList: events.myEventList,
+  EventTeamsView: eventTeams.eventTeamsView,
+  EventTeamView: eventTeams.eventTeamView,
+  EventTeamCreated: eventTeams.eventTeamCreated,
   EventRegistrationRow: events.eventRegistrationRow,
   EventRegistrationList: events.eventRegistrationList,
   EventUserOptions: events.eventUserOptions,
@@ -1372,6 +1380,152 @@ const routes: RouteDoc[] = [
     problems: [
       { status: 404, problems: ['notFound'] },
       { status: 409, problems: ['started', 'notRegistered'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/events/{id}/teams',
+    tag: TAGS.events,
+    summary: 'The teams of a tournament',
+    description:
+      'The teams with their size and place, and the registered players who are in no team and did not hide themselves. Team names and sizes are public; member names and the list of players are for signed-in members and null otherwise.',
+    access: 'public',
+    params: events.eventIdParams,
+    response: eventTeams.eventTeamsView,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['notTeamEvent'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/events/{id}/teams',
+    tag: TAGS.events,
+    summary: 'Create a team',
+    description:
+      'Creates a team with the caller as captain and only member. The caller must be registered, in no team yet, and the roster open (until the registration window closes). The team is validated once it has enough players.',
+    access: 'user',
+    params: events.eventIdParams,
+    body: eventTeams.eventTeamCreateBody,
+    response: eventTeams.eventTeamCreated,
+    created: true,
+    problems: [
+      { status: 400, problems: ['invalidTeamName'] },
+      { status: 404, problems: ['notFound'] },
+      {
+        status: 409,
+        problems: [
+          'notTeamEvent',
+          'cancelled',
+          'rosterLocked',
+          'notRegistered',
+          'alreadyInTeam',
+          'teamNameTaken',
+        ],
+      },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'patch',
+    path: '/api/events/{id}/teams/{teamId}',
+    tag: TAGS.events,
+    summary: 'Rename a team or switch requests',
+    description: 'The captain only, until the event starts. Only what is sent changes.',
+    access: 'user',
+    params: eventTeams.eventTeamParams,
+    body: eventTeams.eventTeamPatchBody,
+    noContent: true,
+    problems: [
+      { status: 400, problems: ['invalidTeamName'] },
+      { status: 403, problems: ['notCaptain'] },
+      { status: 404, problems: ['notFound', 'teamNotFound'] },
+      { status: 409, problems: ['notTeamEvent', 'cancelled', 'started', 'teamNameTaken'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'delete',
+    path: '/api/events/{id}/teams/{teamId}',
+    tag: TAGS.events,
+    summary: 'Disband a team',
+    description:
+      'The captain only, until the event starts. Its players stay registered and look for another team.',
+    access: 'user',
+    params: eventTeams.eventTeamParams,
+    noContent: true,
+    problems: [
+      { status: 403, problems: ['notCaptain'] },
+      { status: 404, problems: ['notFound', 'teamNotFound'] },
+      { status: 409, problems: ['notTeamEvent', 'cancelled', 'started'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/events/{id}/teams/{teamId}/leave',
+    tag: TAGS.events,
+    summary: 'Leave a team',
+    description:
+      'Until the event starts. If the caller was the captain, the member who joined first takes over. The last player out ends the team. A team that drops under its minimum loses its place.',
+    access: 'user',
+    params: eventTeams.eventTeamParams,
+    noContent: true,
+    problems: [
+      { status: 404, problems: ['notFound', 'notInTeam'] },
+      { status: 409, problems: ['notTeamEvent', 'cancelled', 'started'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/events/{id}/teams/{teamId}/captain',
+    tag: TAGS.events,
+    summary: 'Hand over the captain role',
+    description: 'The captain only, to another member of the team.',
+    access: 'user',
+    params: eventTeams.eventTeamParams,
+    body: eventTeams.eventTeamCaptainBody,
+    noContent: true,
+    problems: [
+      { status: 403, problems: ['notCaptain'] },
+      { status: 404, problems: ['notFound', 'teamNotFound', 'notInTeam'] },
+      { status: 409, problems: ['notTeamEvent', 'cancelled', 'started'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'delete',
+    path: '/api/events/{id}/teams/{teamId}/members/{userId}',
+    tag: TAGS.events,
+    summary: 'Remove a player from a team',
+    description:
+      'The captain only, until the event starts. The captain leaves with the leave route.',
+    access: 'user',
+    params: eventTeams.eventTeamMemberParams,
+    noContent: true,
+    problems: [
+      { status: 403, problems: ['notCaptain'] },
+      { status: 404, problems: ['notFound', 'teamNotFound', 'notInTeam'] },
+      { status: 409, problems: ['notTeamEvent', 'cancelled', 'started'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'patch',
+    path: '/api/events/{id}/looking',
+    tag: TAGS.events,
+    summary: 'Show or hide myself in the looking-for-a-team list',
+    description:
+      'Registered players in no team appear in the list for signed-in members. Hiding removes the caller from it; organizers still see them.',
+    access: 'user',
+    params: events.eventIdParams,
+    body: eventTeams.eventLookingBody,
+    noContent: true,
+    problems: [
+      { status: 409, problems: ['notRegistered'] },
       { status: 503, problems: ['disabled'] },
     ],
   },
