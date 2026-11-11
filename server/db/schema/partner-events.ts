@@ -1,12 +1,16 @@
 import { sql } from 'drizzle-orm';
 import {
+  bigserial,
   boolean,
   check,
+  date,
+  index,
   pgTable,
   smallint,
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
 
@@ -84,4 +88,88 @@ export const partnerEventInterest = pgTable(
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => [unique('partner_event_interest_user').on(table.gameId, table.userId)],
+);
+
+/**
+ * A team of a game. Its name and abbreviation are unique within the game (`name_key` and
+ * `abbreviation` are set by the service: accents and case ignored, capitals). The captain is
+ * always a starter.
+ */
+export const partnerEventTeam = pgTable(
+  'partner_event_team',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    gameId: uuid('game_id')
+      .notNull()
+      .references(() => partnerEventGame.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    nameKey: text('name_key').notNull(),
+    abbreviation: text('abbreviation').notNull(),
+    captainUserId: text('captain_user_id').references(() => user.id, { onDelete: 'set null' }),
+    acceptsRequests: boolean('accepts_requests').default(true).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex('partner_event_team_name_uidx').on(table.gameId, table.nameKey),
+    uniqueIndex('partner_event_team_abbreviation_uidx').on(table.gameId, table.abbreviation),
+  ],
+);
+
+/**
+ * A player in a team. `game_id` repeats the team's game so one student can only be in one team
+ * per game. The date of birth is asked when creating or joining a team, for the organizer.
+ */
+export const partnerEventTeamMember = pgTable(
+  'partner_event_team_member',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey(),
+    teamId: uuid('team_id')
+      .notNull()
+      .references(() => partnerEventTeam.id, { onDelete: 'cascade' }),
+    gameId: uuid('game_id')
+      .notNull()
+      .references(() => partnerEventGame.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    role: text('role').notNull().default('starter'),
+    birthDate: date('birth_date', { mode: 'string' }).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    unique('partner_event_team_member_game_user').on(table.gameId, table.userId),
+    index('partner_event_team_member_team_idx').on(table.teamId),
+    check('partner_event_team_member_role', sql`${table.role} in ('starter', 'substitute')`),
+  ],
+);
+
+/** An invitation from a captain to a student, or a student's request to join. One pending row per pair. */
+export const partnerEventTeamInvite = pgTable(
+  'partner_event_team_invite',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey(),
+    teamId: uuid('team_id')
+      .notNull()
+      .references(() => partnerEventTeam.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    kind: text('kind').notNull(),
+    // A request carries the student's date of birth, used if the captain accepts.
+    birthDate: date('birth_date', { mode: 'string' }),
+    status: text('status').notNull().default('pending'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    resolvedAt: timestamp('resolved_at'),
+  },
+  (table) => [
+    uniqueIndex('partner_event_team_invite_pending_uidx')
+      .on(table.teamId, table.userId)
+      .where(sql`${table.status} = 'pending'`),
+    index('partner_event_team_invite_user_idx').on(table.userId),
+    check('partner_event_team_invite_kind', sql`${table.kind} in ('invite', 'request')`),
+    check(
+      'partner_event_team_invite_status',
+      sql`${table.status} in ('pending', 'accepted', 'declined', 'cancelled')`,
+    ),
+  ],
 );
