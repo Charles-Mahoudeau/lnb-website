@@ -8,6 +8,7 @@ import {
   economyInvitation,
   economyMember,
   economyProfile,
+  economyShop,
   economyTransaction,
   user,
 } from '~~/server/db/schema';
@@ -392,7 +393,9 @@ async function reset(actorId: string, confirm: string) {
     await tx.delete(economyEntry);
     // Reversals point at the transaction they undo, so they go first.
     await tx.delete(economyTransaction).where(sql`${economyTransaction.reversesId} is not null`);
+    // Shop orders go with their transactions; shops point at accounts.
     await tx.delete(economyTransaction);
+    await tx.delete(economyShop);
     await tx.delete(economyInvitation);
     await tx.delete(economyMember);
     await tx.delete(economyProfile);

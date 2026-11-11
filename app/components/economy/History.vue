@@ -66,6 +66,7 @@ function title(item: EconomyTransactionView): string {
   switch (item.kind) {
     case 'payment':
     case 'casino':
+    case 'shop':
       return item.amount > 0
         ? t('economy.history.received', { who: who(item) })
         : t('economy.history.paid', { who: who(item) });
@@ -116,11 +117,11 @@ function title(item: EconomyTransactionView): string {
             </span>
           </span>
           <UBadge
-            v-if="item.kind === 'casino'"
+            v-if="item.kind === 'casino' || item.kind === 'shop'"
             color="neutral"
             variant="soft"
             size="sm"
-            :label="t('economy.kinds.casino')"
+            :label="t(`economy.kinds.${item.kind}`)"
           />
           <UBadge
             v-if="item.reversed"

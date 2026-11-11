@@ -1229,6 +1229,10 @@
           "label": "Minecraft server API",
           "description": "Every economy call from the Minecraft server answers 503."
         },
+        "economy_shops": {
+          "label": "Shops",
+          "description": "Player shops in the game: buying, selling back, and saving a shop. Shops that are broken still close."
+        },
         "jobs_economySnapshot": {
           "label": "Economy stats",
           "description": "The nightly save of the economy charts, and closing the bank accounts of deleted players."
@@ -2929,6 +2933,7 @@
     "kinds": {
       "payment": "Payment",
       "casino": "Casino",
+      "shop": "Shop",
       "mint": "Mint",
       "burn": "Burn",
       "reversal": "Reversal"

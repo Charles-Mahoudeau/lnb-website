@@ -26,7 +26,7 @@ import { user } from './auth';
 export type EconomyAccountKind = 'personal' | 'shared';
 export type EconomyMemberRole = 'owner' | 'member' | 'viewer';
 /** What a transaction was. `mint` and `burn` create and destroy money; nothing else does. */
-export type EconomyTransactionKind = 'payment' | 'casino' | 'mint' | 'burn' | 'reversal';
+export type EconomyTransactionKind = 'payment' | 'casino' | 'shop' | 'mint' | 'burn' | 'reversal';
 /** Why money was created or destroyed. Null for the other kinds. */
 export type EconomyReason = 'startingBalance' | 'adjustment' | 'accountClosed';
 /** Where a transaction came from: the Minecraft server, the site, or the site on its own. */
@@ -172,6 +172,78 @@ export const economyEntry = pgTable(
     index('economy_entry_transaction_idx').on(table.transactionId),
     check('economy_entry_amount_not_zero', sql`${table.amount} <> 0`),
   ],
+);
+
+/** Why a shop stopped selling: its block was broken in the game, or an admin turned it off. */
+export type EconomyShopDisabledReason = 'removed' | 'admin';
+
+/**
+ * A player shop: a block in the Minecraft world that sells one item for a shared or personal
+ * account, and can buy it back. The server registers it when its owner first saves it, and the
+ * site prices every order from here, so the server never sends an amount. Never deleted: a shop
+ * whose block is broken is disabled, and keeps its orders.
+ */
+export const economyShop = pgTable(
+  'economy_shop',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    accountId: uuid('account_id')
+      .notNull()
+      .references(() => economyAccount.id),
+    createdByUserId: text('created_by_user_id').references(() => user.id, {
+      onDelete: 'set null',
+    }),
+    // The item, as the game saved it (SNBT): the site keeps it but never reads it.
+    itemId: text('item_id').notNull(),
+    itemSnbt: text('item_snbt').notNull(),
+    // The item's name in the game when the shop was saved, for the admin and the history.
+    itemName: text('item_name').notNull(),
+    lotSize: smallint('lot_size').notNull(),
+    // What a buyer pays for one lot.
+    sellPrice: bigint('sell_price', { mode: 'number' }).notNull(),
+    // What the shop pays for one lot it buys back. Null: it doesn't buy back.
+    buyPrice: bigint('buy_price', { mode: 'number' }),
+    world: text('world').notNull(),
+    x: integer('x').notNull(),
+    y: integer('y').notNull(),
+    z: integer('z').notNull(),
+    disabledAt: timestamp('disabled_at'),
+    disabledReason: text('disabled_reason').$type<EconomyShopDisabledReason>(),
+    disabledByUserId: text('disabled_by_user_id').references(() => user.id, {
+      onDelete: 'set null',
+    }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('economy_shop_account_idx').on(table.accountId),
+    index('economy_shop_position_idx').on(table.world, table.x, table.y, table.z),
+    check('economy_shop_lot_size', sql`${table.lotSize} between 1 and 99`),
+    check('economy_shop_sell_price', sql`${table.sellPrice} > 0`),
+    check(
+      'economy_shop_buy_price',
+      sql`${table.buyPrice} is null or (${table.buyPrice} > 0 and ${table.buyPrice} <= ${table.sellPrice})`,
+    ),
+  ],
+);
+
+export type EconomyShopDirection = 'buy' | 'sell';
+
+/** One order at a shop: a player buying lots (`buy`) or selling them back (`sell`). */
+export const economyShopOrder = pgTable(
+  'economy_shop_order',
+  {
+    transactionId: bigint('transaction_id', { mode: 'number' })
+      .primaryKey()
+      .references(() => economyTransaction.id, { onDelete: 'cascade' }),
+    shopId: uuid('shop_id')
+      .notNull()
+      .references(() => economyShop.id),
+    direction: text('direction').$type<EconomyShopDirection>().notNull(),
+    lots: integer('lots').notNull(),
+    lotPrice: bigint('lot_price', { mode: 'number' }).notNull(),
+  },
+  (table) => [index('economy_shop_order_shop_idx').on(table.shopId, table.transactionId)],
 );
 
 /** Global settings, in a single row (id 1). */
