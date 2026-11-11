@@ -151,3 +151,86 @@ export const eventTeamsView = z.object({
 export type EventTeamsView = z.infer<typeof eventTeamsView>;
 
 export const eventTeamCreated = z.object({ id: z.uuid() });
+
+// Managers
+
+export const adminTeamParams = z.object({ id: z.uuid(), teamId: z.uuid() });
+export const adminTeamMemberParams = z.object({
+  id: z.uuid(),
+  teamId: z.uuid(),
+  userId: z.string().min(1).max(64),
+});
+
+/** POST /api/admin/events/:id/teams: a team made by hand, around a first registered player. */
+export const adminTeamCreateBody = z.object({
+  name: teamName,
+  userId: z.string().min(1).max(64).describe('The registered player the team starts with.'),
+  captain: z
+    .boolean()
+    .default(true)
+    .describe('Make them the captain. Without a captain only managers can change the team.'),
+});
+
+/** PATCH /api/admin/events/:id/teams/:teamId: only what is sent changes. */
+export const adminTeamPatchBody = z
+  .object({
+    name: teamName.optional(),
+    forced: z
+      .boolean()
+      .optional()
+      .describe('Validate the team whatever its size. It stops being forced once valid by size.'),
+    captainUserId: z.string().min(1).max(64).nullable().optional(),
+  })
+  .refine(
+    (body) =>
+      body.name !== undefined || body.forced !== undefined || body.captainUserId !== undefined,
+  );
+export type AdminTeamPatchBody = z.input<typeof adminTeamPatchBody>;
+
+/** POST /api/admin/events/:id/teams/:teamId/members */
+export const adminTeamMemberBody = z.object({
+  userId: z.string().min(1).max(64),
+  force: z
+    .boolean()
+    .default(false)
+    .describe('Go ahead although the team is full or the player is in another team.'),
+});
+
+const adminPerson = person.extend({
+  email: z.string(),
+});
+
+export const adminTeamView = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  status: z.enum(['incomplete', 'registered', 'waitlist']),
+  position: z.number().nullable(),
+  forced: z.boolean(),
+  captainUserId: z.string().nullable(),
+  pendingInvites: z.number(),
+  members: z.array(
+    adminPerson.extend({
+      captain: z.boolean(),
+      otherTeams: z.number().describe('How many other teams of the event they are in.'),
+    }),
+  ),
+});
+export type AdminTeamView = z.infer<typeof adminTeamView>;
+
+/** GET /api/admin/events/:id/teams */
+export const adminTeamsView = z.object({
+  min: z.number(),
+  max: z.number(),
+  capacity: z.number().nullable(),
+  counts: z.object({
+    registered: z.number(),
+    waitlist: z.number(),
+    incomplete: z.number(),
+    without: z.number(),
+  }),
+  teams: z.array(adminTeamView),
+  without: z
+    .array(adminPerson.extend({ lookingHidden: z.boolean() }))
+    .describe('Registered players in no team.'),
+});
+export type AdminTeamsView = z.infer<typeof adminTeamsView>;

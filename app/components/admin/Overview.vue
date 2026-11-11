@@ -157,6 +157,13 @@ function describe(entry: AdminAuditView): string {
     case 'event.announceResend':
     case 'event.registrationAdd':
     case 'event.registrationRemove':
+    case 'eventTeam.create':
+    case 'eventTeam.rename':
+    case 'eventTeam.delete':
+    case 'eventTeam.memberAdd':
+    case 'eventTeam.memberRemove':
+    case 'eventTeam.captain':
+    case 'eventTeam.force':
     case 'eventRoom.create':
     case 'eventRoom.update':
     case 'eventType.create':
@@ -192,6 +199,7 @@ function describe(entry: AdminAuditView): string {
         actor,
         target,
         name: typeof entry.data.name === 'string' ? entry.data.name : '',
+        team: typeof entry.data.team === 'string' ? entry.data.team : '',
       });
   }
 }

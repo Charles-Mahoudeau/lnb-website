@@ -3,7 +3,7 @@ import { alias } from 'drizzle-orm/pg-core';
 
 import { db } from '~~/server/db';
 import type { Tx } from '~~/server/db';
-import { event, eventRegistration, user } from '~~/server/db/schema';
+import { event, eventRegistration, eventTeam, eventTeamMember, user } from '~~/server/db/schema';
 import type { EventRegistrationStatus } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 import { pushQueueService } from '~~/server/services/push/queue';
@@ -285,8 +285,28 @@ function csvCell(value: string): string {
 /** The list as CSV, for organizers who print it or import it elsewhere. */
 async function csv(eventId: string): Promise<string> {
   const rows = await list(eventId);
+  // A player a manager put in two teams has both, separated by a semicolon.
+  const inTeams = await db
+    .select({ userId: eventRegistration.userId, team: eventTeam.name })
+    .from(eventTeamMember)
+    .innerJoin(eventTeam, eq(eventTeam.id, eventTeamMember.teamId))
+    .innerJoin(eventRegistration, eq(eventRegistration.id, eventTeamMember.registrationId))
+    .where(eq(eventTeam.eventId, eventId))
+    .orderBy(asc(eventTeamMember.id));
+  const teamsOf = new Map<string, string[]>();
+  for (const { userId, team } of inTeams)
+    teamsOf.set(userId, [...(teamsOf.get(userId) ?? []), team]);
   const lines = [
-    ['Name', 'Email', 'School', 'Status', 'Waitlist position', 'Registered at (UTC)', 'Added by'],
+    [
+      'Name',
+      'Email',
+      'School',
+      'Status',
+      'Waitlist position',
+      'Registered at (UTC)',
+      'Added by',
+      'Team',
+    ],
     ...rows.map((row) => [
       row.name,
       row.email,
@@ -295,6 +315,7 @@ async function csv(eventId: string): Promise<string> {
       row.position === null ? '' : String(row.position),
       row.registeredAt,
       row.addedBy ?? '',
+      (teamsOf.get(row.userId) ?? []).join('; '),
     ]),
   ];
   return `${BOM}${lines.map((line) => line.map(csvCell).join(',')).join('\r\n')}\r\n`;

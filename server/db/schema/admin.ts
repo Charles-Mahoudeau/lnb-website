@@ -27,6 +27,14 @@ export type AdminAuditAction =
   /** A manager registered someone by hand, or removed them. The target is that account. */
   | 'event.registrationAdd'
   | 'event.registrationRemove'
+  /** A manager changed a team of a tournament. `data.eventId`, `data.name`, `data.team`. */
+  | 'eventTeam.create'
+  | 'eventTeam.rename'
+  | 'eventTeam.delete'
+  | 'eventTeam.memberAdd'
+  | 'eventTeam.memberRemove'
+  | 'eventTeam.captain'
+  | 'eventTeam.force'
   /** Rooms and types of events. `data.id` and `data.name`. */
   | 'eventRoom.create'
   | 'eventRoom.update'
