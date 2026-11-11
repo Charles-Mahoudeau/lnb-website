@@ -57,6 +57,12 @@ export type AdminAuditAction =
   | 'partner.delete'
   /** The partners page settings, with `data.contactUrl`. */
   | 'partners.settings'
+  /** Partner event pages. `data.slug`, and `data.game` or `data.team` where it applies. */
+  | 'partnerEvent.update'
+  | 'partnerEvent.close'
+  | 'partnerEvent.reopen'
+  | 'partnerEvent.export'
+  | 'partnerEvent.purge'
   /** Short links, with `data.id` (the short ID) and `data.name`. */
   | 'shortLink.create'
   | 'shortLink.update'
