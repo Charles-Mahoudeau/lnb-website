@@ -4,7 +4,7 @@ import { ECONOMY_PERIODS } from '#shared/schemas/economy';
 
 // "Balance over time" for one account, on the bank page and the admin account page. `url` is the
 // route to read it from, since players and admins have their own.
-const props = defineProps<{ url: string }>();
+const props = defineProps<{ url: string; wide?: boolean }>();
 const { t, locale } = useI18n();
 
 const period = ref<EconomyPeriod>('30d');
@@ -66,6 +66,6 @@ const change = computed(() => {
       icon="i-lucide-circle-alert"
       :description="t('economy.loadFailed')"
     />
-    <EconomyBalanceChart v-else-if="data?.days.length" :days="data.days" />
+    <EconomyBalanceChart v-else-if="data?.days.length" :days="data.days" :wide="wide" />
   </section>
 </template>

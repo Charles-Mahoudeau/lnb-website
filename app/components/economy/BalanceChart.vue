@@ -3,14 +3,16 @@ import type { EconomyBalanceHistory } from '#shared/schemas/economy';
 
 // The balance at the end of each day as a line, over the money in and out each day as dimmed
 // bars along the bottom, on their own scale. Colors are the text tokens (docs/design.md).
-const props = defineProps<{ days: EconomyBalanceHistory['days'] }>();
+// `wide` draws it flatter, for full-width pages such as the admin account page.
+const props = defineProps<{ days: EconomyBalanceHistory['days']; wide?: boolean }>();
 const { t, locale } = useI18n();
 
-const W = 600;
 const H = 200;
 const LEFT = 52;
 const BOTTOM = 24;
 const TOP = 8;
+// The height is fixed in drawing units, so a wider drawing keeps the chart lower on screen.
+const W = props.wide ? 1100 : 600;
 const plotW = W - LEFT - 6;
 const plotH = H - BOTTOM - TOP;
 // The bars take the bottom third, under the line.

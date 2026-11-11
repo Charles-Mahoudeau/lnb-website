@@ -6,7 +6,8 @@ import type { EconomyStats } from '#shared/schemas/economy';
 const props = defineProps<{ days: EconomyStats['days'] }>();
 const { t, locale } = useI18n();
 
-const W = 600;
+// Full width on the page: a wide drawing keeps it low on screen.
+const W = 1100;
 const H = 200;
 const LEFT = 52;
 const BOTTOM = 24;
