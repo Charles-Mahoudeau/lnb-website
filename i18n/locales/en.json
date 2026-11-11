@@ -1318,7 +1318,8 @@
       "cancelledBody": "Its page says so, and registrations are closed. It can’t be edited anymore.",
       "tabs": {
         "event": "Event",
-        "registrations": "Registrations ({count})"
+        "registrations": "Registrations ({count})",
+        "teams": "Teams"
       },
       "list": {
         "upcoming": "Upcoming",
@@ -1519,6 +1520,61 @@
         "addWontNotify": "{name} won’t be notified: no device, or this kind of notification is off.",
         "announceHeld": "Notification queued. It goes out on {date} at {time}, after quiet hours.",
         "heldUntil": "Quiet hours are on in Paris: it will go out on {date} at {time}, not before."
+      },
+      "teams": {
+        "renamed": "Team renamed",
+        "created": "Team created",
+        "renameTitle": "Rename the team",
+        "createTitle": "Create a team",
+        "name": "Team name",
+        "firstPlayer": "First player",
+        "firstPlayerHint": "Registered, in no team",
+        "pickPlayer": "Pick a player",
+        "makeCaptain": "Make them captain",
+        "makeCaptainHint": "Without a captain, only managers can change the team.",
+        "save": "Save",
+        "players": "{count} of {max} players",
+        "added": "{name} was added",
+        "addTitle": "Add {name} to a team",
+        "pickTeam": "Pick a team",
+        "doubleWarning": "This player is already in a team. They will count for both teams.",
+        "fullWarning": "This team already has {max} players, the maximum.",
+        "force": "Add them anyway",
+        "add": "Add",
+        "deleteTitle": "Delete {name}?",
+        "deleteBody": "The team disappears. Its players stay registered, in no team. Nobody is notified.",
+        "delete": "Delete the team",
+        "deleted": "Team deleted",
+        "removeTitle": "Remove {name} from the team?",
+        "removeBody": "They stay registered, in no team. They aren’t notified.",
+        "remove": "Remove from the team",
+        "removed": "Player removed",
+        "tiles": {
+          "registered": "Teams with a place",
+          "waitlist": "Teams waiting",
+          "incomplete": "Incomplete teams",
+          "without": "Players without a team"
+        },
+        "size": "Teams of {min} to {max}",
+        "capacity": "{count} places",
+        "create": "Create a team",
+        "none": "No team yet.",
+        "status": {
+          "registered": "Has a place",
+          "waitlist": "Waiting list, number {position}",
+          "incomplete": "Incomplete"
+        },
+        "forced": "Validated by hand",
+        "pending": "{count} invitations waiting",
+        "rename": "Rename",
+        "forceValid": "Validate by hand",
+        "unforce": "Stop validating by hand",
+        "saved": "Saved",
+        "double": "In two teams",
+        "addToAnother": "Add to another team",
+        "withoutTitle": "Without a team",
+        "withoutNone": "Everyone registered is in a team.",
+        "addShort": "Add to a team"
       }
     },
     "push": {

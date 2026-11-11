@@ -1322,7 +1322,8 @@
       "cancelledBody": "Sa page l’indique, et les inscriptions sont fermées. Il ne peut plus être modifié.",
       "tabs": {
         "event": "Événement",
-        "registrations": "Inscriptions ({count})"
+        "registrations": "Inscriptions ({count})",
+        "teams": "Équipes"
       },
       "list": {
         "upcoming": "À venir",
@@ -1523,6 +1524,61 @@
         "addWontNotify": "{name} ne sera pas notifié : aucun appareil, ou ce type de notification est désactivé.",
         "announceHeld": "Notification mise en file. Elle part le {date} à {time}, après les heures calmes.",
         "heldUntil": "Les heures calmes sont actives à Paris : elle partira le {date} à {time}, pas avant."
+      },
+      "teams": {
+        "renamed": "Équipe renommée",
+        "created": "Équipe créée",
+        "renameTitle": "Renommer l’équipe",
+        "createTitle": "Créer une équipe",
+        "name": "Nom de l’équipe",
+        "firstPlayer": "Premier joueur",
+        "firstPlayerHint": "Inscrit, sans équipe",
+        "pickPlayer": "Choisir un joueur",
+        "makeCaptain": "En faire le capitaine",
+        "makeCaptainHint": "Sans capitaine, seuls les responsables peuvent modifier l’équipe.",
+        "save": "Enregistrer",
+        "players": "{count} joueurs sur {max}",
+        "added": "{name} a été ajouté",
+        "addTitle": "Ajouter {name} à une équipe",
+        "pickTeam": "Choisir une équipe",
+        "doubleWarning": "Ce joueur est déjà dans une équipe. Il comptera pour les deux équipes.",
+        "fullWarning": "Cette équipe a déjà {max} joueurs, le maximum.",
+        "force": "L’ajouter quand même",
+        "add": "Ajouter",
+        "deleteTitle": "Supprimer {name} ?",
+        "deleteBody": "L’équipe disparaît. Ses joueurs restent inscrits, sans équipe. Personne n’est notifié.",
+        "delete": "Supprimer l’équipe",
+        "deleted": "Équipe supprimée",
+        "removeTitle": "Retirer {name} de l’équipe ?",
+        "removeBody": "Il ou elle reste inscrit·e, sans équipe, et n’est pas notifié·e.",
+        "remove": "Retirer de l’équipe",
+        "removed": "Joueur retiré",
+        "tiles": {
+          "registered": "Équipes avec une place",
+          "waitlist": "Équipes en attente",
+          "incomplete": "Équipes incomplètes",
+          "without": "Joueurs sans équipe"
+        },
+        "size": "Équipes de {min} à {max}",
+        "capacity": "{count} places",
+        "create": "Créer une équipe",
+        "none": "Aucune équipe pour l’instant.",
+        "status": {
+          "registered": "A une place",
+          "waitlist": "Liste d’attente, numéro {position}",
+          "incomplete": "Incomplète"
+        },
+        "forced": "Validée à la main",
+        "pending": "{count} invitations en attente",
+        "rename": "Renommer",
+        "forceValid": "Valider à la main",
+        "unforce": "Ne plus valider à la main",
+        "saved": "Enregistré",
+        "double": "Dans deux équipes",
+        "addToAnother": "Ajouter à une autre équipe",
+        "withoutTitle": "Sans équipe",
+        "withoutNone": "Tous les inscrits sont dans une équipe.",
+        "addShort": "Ajouter à une équipe"
       }
     },
     "push": {
