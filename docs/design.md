@@ -154,6 +154,16 @@ The bank, the baltop and the Economy section of the admin area. See `docs/econom
 - **Baltop** (`/minecraft/baltop`): the top three in a raised band with 56 px skin heads, then players and shared accounts side by side as ranked rows with 28 px heads. Your own row takes the faint second-accent tint. No medals, crowns or gold.
 - **Admin overview**: four count tiles, then the charts on raised sections. Charts use the text tokens only, like the short links chart: money created in the highlight color above a baseline, destroyed in the dimmed one below it, on one scale. Breakdowns are rows with neutral progress bars. Mint and burn are neutral soft buttons, Freeze the outline destructive one, and the only solid red is the confirmation inside the dialog.
 
+## Partner event page
+
+Original mock (not code to port): [Arena League mocks](https://claude.ai/artifact/XvHUjSdFhA2ZQ6bdkY5KHM), "Art cards". The page is for an event another organization runs (`/special/<slug>`, see `docs/partner-events.md`): it says what it is, collects interest and helps students form teams.
+
+- **Hero:** the banner fallback (`bg-banner-fallback`, no scrim) with the corner mark, the title, one paragraph and three chips (date, price, format). The organizer's links are plain red text with an external-link icon. Nothing else is decorative.
+- **Notice:** a band in the second-accent tint (`bg-secondary/15`) with an info icon, saying that LNB isn't the organizer and that teams are provisional.
+- **Game cards:** two columns on large screens, one on phones, each at least 16.25 rem tall. The game's art fills the card (`object-cover`, downloaded and stored by the server like event banners), with the dark scrim rising from the bottom (`bg-banner`, the only gradient allowed). Text uses `text-on-banner` and `text-on-banner-muted`, so cards look the same in both color modes. A card holds the game name in the display font, a status pill, the counts and the interest button. Games under study have dimmed art. Without art a card falls back to `bg-banner-fallback`.
+- **Selecting and ticking are separate:** the whole card picks the game whose teams show below, marked by a second-accent ring (`ring-secondary`, selection is state). The button toggles interest on its own: a chip on the banner color when off, a light plate with dark text and a check when on. It is never red, and the one solid red button of the page is "Save my interest".
+- **Below the cards:** one "Your details" band listing only the ticked games (in-game name, rank, hide from the list), the consent line and the save button, then "Teams and players" for the selected game as bands with rows separated by dividers. A complete team gets a success pill, the captain role the second-accent pill, other roles a neutral pill. Visitors see counts and team names but no players.
+
 ## Motion
 
 - Motion answers user actions only: opening, expanding, confirming. Use Nuxt UI's built-in transitions.
