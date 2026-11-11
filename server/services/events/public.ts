@@ -7,7 +7,7 @@ import { siteUrl } from '~~/server/lib/site';
 import { descriptionSummary, descriptionText, renderDescription } from './markdown';
 import { eventRegistrationService } from './registrations';
 import { buildIcs, registrationState } from './rules';
-import { refuse } from './shared';
+import { peopleCapacity, refuse } from './shared';
 import { selectEvents, summaryView } from './views';
 import type { SelectedEvent } from './views';
 
@@ -100,7 +100,10 @@ async function get(id: string, viewer: Viewer): Promise<EventView> {
     registrationClosesAt: e.registrationClosesAt?.toISOString() ?? null,
     hidden: e.hidden,
     registration: {
-      state: registrationState({ ...e, registered: row.registered }, viewer.tenantId),
+      state: registrationState(
+        { ...e, capacity: peopleCapacity(e), registered: row.registered },
+        viewer.tenantId,
+      ),
       waitlist: row.waitlist,
       me,
     },

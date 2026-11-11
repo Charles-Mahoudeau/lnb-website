@@ -41,6 +41,9 @@ function adminRow(row: SelectedEvent): EventAdminRow {
     room: roomView(row.room),
     type: typeView(row.type),
     capacity: row.event.capacity,
+    teamMode: row.event.teamMode,
+    teamMin: row.event.teamMin,
+    teamMax: row.event.teamMax,
     counts: { registered: row.registered, waitlist: row.waitlist },
     bdeSync: row.event.bdeSync,
     bdeStatus: row.event.bdeStatus,
@@ -160,6 +163,9 @@ function columns(body: EventBody) {
     startsAt: date(body.startsAt),
     endsAt: date(body.endsAt),
     capacity: body.capacity,
+    teamMode: body.teamMode ?? false,
+    teamMin: body.teamMode ? (body.teamMin ?? null) : null,
+    teamMax: body.teamMode ? (body.teamMax ?? null) : null,
     registrationOpensAt: optionalDate(body.registrationOpensAt),
     registrationClosesAt: optionalDate(body.registrationClosesAt),
     price: body.price,
@@ -202,6 +208,15 @@ async function update(input: { actorId: string; id: string; body: EventBody }): 
   await db.transaction(async (tx) => {
     const current = await lockEvent(tx, input.id);
     if (current.cancelledAt) refuse(409, 'cancelled');
+    // Team mode changes what a registration means: it can't flip once someone has registered.
+    if (current.teamMode !== (input.body.teamMode ?? false)) {
+      const [registration] = await tx
+        .select({ id: eventRegistration.id })
+        .from(eventRegistration)
+        .where(eq(eventRegistration.eventId, input.id))
+        .limit(1);
+      if (registration) refuse(409, 'teamModeLocked');
+    }
     await checkChoices(tx, input.body, current);
     const cols = columns(input.body);
     await tx
@@ -293,6 +308,9 @@ async function duplicate(input: {
         startsAt,
         endsAt: new Date(input.body.endsAt),
         capacity: source.capacity,
+        teamMode: source.teamMode,
+        teamMin: source.teamMin,
+        teamMax: source.teamMax,
         registrationOpensAt: shiftDate(source.registrationOpensAt, source.startsAt, startsAt),
         registrationClosesAt: shiftDate(source.registrationClosesAt, source.startsAt, startsAt),
         price: source.price,

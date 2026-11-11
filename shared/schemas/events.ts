@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { DEFAULT_REMINDER_OFFSETS, reminderOffsets } from './push.ts';
+import { teamSizeProblem } from '../utils/event-teams.ts';
 import { SCHOOLS } from '../utils/schools.ts';
 
 // Event contracts, shared by the routes and the pages. See docs/events.md.
@@ -18,6 +19,7 @@ export const EVENT_PROBLEMS = [
   'typeNotFound',
   'duplicateName',
   'hasRegistrations',
+  'teamModeLocked',
   'cancelled',
   'started',
   'notYet',
@@ -214,6 +216,22 @@ export const eventBody = z
       .max(10_000)
       .nullable()
       .describe('Null: no limit. Past it, registrations join the waitlist.'),
+    teamMode: z
+      .boolean()
+      .default(false)
+      .describe(
+        'A tournament: players register, then form teams. `capacity` then counts validated teams. Locked once anyone has registered.',
+      ),
+    teamMin: z
+      .int()
+      .nullable()
+      .default(null)
+      .describe('Players a team needs to be validated, from 2. Only with `teamMode`.'),
+    teamMax: z
+      .int()
+      .nullable()
+      .default(null)
+      .describe('Players a team can have, from `teamMin` to 32. Only with `teamMode`.'),
     registrationOpensAt: dateInput.nullable().describe('Null: open from publication.'),
     registrationClosesAt: dateInput.nullable().describe('Null: open until the start.'),
     price: z.int().min(0).max(1000).nullable().describe('Whole euros, informational. Null: free.'),
@@ -250,6 +268,14 @@ export const eventBody = z
         path: ['registrationOpensAt'],
         message: 'opensAfterClose',
       });
+    }
+    if (body.teamMode) {
+      const problem = teamSizeProblem(body.teamMin ?? 0, body.teamMax ?? 0);
+      if (problem === 'min') {
+        ctx.addIssue({ code: 'custom', path: ['teamMin'], message: 'teamMin' });
+      } else if (problem === 'max') {
+        ctx.addIssue({ code: 'custom', path: ['teamMax'], message: 'teamMax' });
+      }
     }
     if (
       body.bdeSync &&
@@ -290,6 +316,9 @@ export const eventAdminRow = z.object({
   room: eventRoomView,
   type: eventTypeView,
   capacity: z.number().nullable(),
+  teamMode: z.boolean(),
+  teamMin: z.number().nullable(),
+  teamMax: z.number().nullable(),
   counts: eventCounts,
   bdeSync: z.boolean(),
   bdeStatus: eventBdeStatus,
