@@ -120,7 +120,7 @@ const facts = [
     />
 
     <UContainer class="flex flex-col gap-12 py-12">
-      <p class="flex max-w-3xl items-start gap-3 rounded-lg bg-secondary/15 p-4">
+      <p class="flex items-start gap-3 rounded-lg bg-secondary/15 p-4">
         <UIcon name="i-lucide-info" class="mt-0.5 size-5 shrink-0 text-secondary" />
         <span>{{ t('partnerEvents.arenaLeague2027.notice') }}</span>
       </p>
@@ -154,7 +154,7 @@ const facts = [
           />
         </div>
 
-        <div class="max-w-3xl">
+        <div>
           <div v-if="!signedIn" class="flex flex-col items-start gap-4 rounded-lg bg-elevated p-6">
             <p class="text-muted">{{ t('partnerEvents.signIn.text') }}</p>
             <UButton :to="signInLink" :label="t('partnerEvents.signIn.button')" />
