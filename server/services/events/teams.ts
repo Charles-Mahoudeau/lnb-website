@@ -496,9 +496,9 @@ async function view(input: {
                 from: captain?.name ?? null,
               };
             }),
-          requestedTeamIds: pending
+          requested: pending
             .filter((p) => p.kind === 'request' && p.userId === input.userId)
-            .map((p) => p.teamId),
+            .map((p) => ({ id: p.id, teamId: p.teamId })),
           requestsLeft: Math.max(
             0,
             MAX_PENDING_REQUESTS -

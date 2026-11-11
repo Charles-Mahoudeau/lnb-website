@@ -68,6 +68,7 @@ export const eventPlayerOption = z.object({
 });
 export const eventPlayerOptions = z.object({ items: z.array(eventPlayerOption) });
 export type EventPlayerOption = z.infer<typeof eventPlayerOption>;
+export type EventPlayerOptions = z.infer<typeof eventPlayerOptions>;
 
 const person = z.object({
   userId: z.string(),
@@ -139,7 +140,9 @@ export const eventTeamsView = z.object({
           from: z.string().nullable().describe("The captain's name."),
         }),
       ),
-      requestedTeamIds: z.array(z.uuid()).describe('Teams the caller asked to join.'),
+      requested: z
+        .array(z.object({ id: z.number(), teamId: z.uuid() }))
+        .describe('The requests the caller made and nobody answered yet.'),
       requestsLeft: z.number(),
     })
     .nullable()

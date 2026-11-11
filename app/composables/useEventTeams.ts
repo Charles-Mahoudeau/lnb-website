@@ -1,4 +1,5 @@
 import type {
+  EventPlayerOptions,
   EventTeamCreateBody,
   EventTeamPatchBody,
   EventTeamsView,
@@ -44,4 +45,24 @@ export const eventTeamActions = {
     ),
   setLookingHidden: (id: string, hidden: boolean) =>
     call(() => $fetch(`/api/events/${id}/looking`, { method: 'PATCH', body: { hidden } })),
+};
+
+/** Invitations and requests. Each throws an EventError when refused. */
+export const eventInviteActions = {
+  search: (id: string, q: string, teamId?: string) =>
+    call(() =>
+      $fetch<EventPlayerOptions>(`/api/events/${id}/team-players`, { query: { q, teamId } }),
+    ),
+  invite: (id: string, teamId: string, userId: string) =>
+    call(() =>
+      $fetch(`/api/events/${id}/teams/${teamId}/invites`, { method: 'POST', body: { userId } }),
+    ),
+  request: (id: string, teamId: string) =>
+    call(() => $fetch(`/api/events/${id}/teams/${teamId}/requests`, { method: 'POST' })),
+  answer: (id: string, inviteId: number, accept: boolean) =>
+    call(() =>
+      $fetch(`/api/events/${id}/invites/${String(inviteId)}`, { method: 'POST', body: { accept } }),
+    ),
+  cancel: (id: string, inviteId: number) =>
+    call(() => $fetch(`/api/events/${id}/invites/${String(inviteId)}`, { method: 'DELETE' })),
 };

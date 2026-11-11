@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { WardenConfirmModal } from '#components';
+import { EventsTeamsInviteModal, WardenConfirmModal } from '#components';
 
-import type { EventTeamView } from '#shared/schemas/event-teams';
+import type { EventTeamsView, EventTeamView } from '#shared/schemas/event-teams';
 
 // One team of a tournament: its name, state and players. Its own team gets the controls: the
 // captain renames, hands over, removes players and disbands; the others leave.
@@ -13,6 +13,10 @@ const props = defineProps<{
   max: number;
   /** Whether the team can be changed at all: the event is open to changes and not paused. */
   editable: boolean;
+  /** Whether players can still join: the roster is open and nothing is paused. */
+  open: boolean;
+  /** The caller's own invitations and requests. Null when signed out. */
+  me: EventTeamsView['me'];
 }>();
 const emit = defineEmits<{ changed: [] }>();
 
@@ -20,6 +24,7 @@ const { t } = useI18n();
 const toast = useToast();
 const overlay = useOverlay();
 const confirm = overlay.create(WardenConfirmModal);
+const inviteModal = overlay.create(EventsTeamsInviteModal);
 
 const pending = ref(false);
 const renaming = ref(false);
@@ -116,6 +121,53 @@ async function onKick(userId: string, who: string) {
     );
 }
 
+const requested = computed(() => props.me?.requested.find((r) => r.teamId === props.team.id));
+const hasRoom = computed(() => props.team.players < props.max);
+// A player without a team can ask a team that takes requests and has room.
+const canAsk = computed(
+  () =>
+    props.open &&
+    props.me?.registered === true &&
+    props.me.teamIds.length === 0 &&
+    props.team.acceptsRequests &&
+    hasRoom.value,
+);
+const canInvite = computed(
+  () =>
+    props.open &&
+    props.team.captain &&
+    props.team.players + (props.team.invited?.length ?? 0) < props.max,
+);
+
+async function onAsk() {
+  await run(
+    () => eventInviteActions.request(props.eventId, props.team.id),
+    t('events.teams.asked'),
+  );
+}
+async function onCancelRequest(id: number) {
+  await run(() => eventInviteActions.cancel(props.eventId, id), t('events.teams.withdrawn'));
+}
+async function onWithdrawInvite(id: number) {
+  await run(() => eventInviteActions.cancel(props.eventId, id), t('events.teams.withdrawn'));
+}
+async function onAnswer(id: number, accept: boolean, who: string) {
+  await run(
+    () => eventInviteActions.answer(props.eventId, id, accept),
+    t(accept ? 'events.teams.accepted' : 'events.teams.declined', { name: who }),
+  );
+}
+async function onToggleRequests(value: boolean) {
+  await run(
+    () => eventTeamActions.update(props.eventId, props.team.id, { acceptsRequests: value }),
+    t(value ? 'events.teams.requestsOn' : 'events.teams.requestsOff'),
+  );
+}
+async function onInvite() {
+  await inviteModal.open({ eventId: props.eventId, team: props.team, max: props.max }).result;
+  emit('changed');
+}
+
 async function onTransfer(userId: string, who: string) {
   await run(
     () => eventTeamActions.transfer(props.eventId, props.team.id, userId),
@@ -188,6 +240,96 @@ async function onTransfer(userId: string, who: string) {
         </UDropdownMenu>
       </li>
     </ul>
+
+    <!-- The captain's side: who was invited, who asks, and the switch for requests -->
+    <div
+      v-if="team.captain && (team.invited?.length || team.requests?.length)"
+      class="flex flex-col gap-3"
+    >
+      <ul v-if="team.requests?.length" class="flex flex-col gap-2">
+        <li v-for="r in team.requests" :key="r.id" class="flex flex-wrap items-center gap-2">
+          <UAvatar :src="r.image ?? undefined" :alt="r.name" size="sm" />
+          <span class="min-w-0 flex-1 truncate">
+            {{ r.name }}
+            <span class="text-sm text-muted">{{ t('events.teams.wantsToJoin') }}</span>
+          </span>
+          <template v-if="open">
+            <UButton
+              size="xs"
+              :loading="pending"
+              :label="t('events.teams.accept')"
+              @click="onAnswer(r.id, true, r.name)"
+            />
+            <UButton
+              size="xs"
+              color="neutral"
+              variant="outline"
+              :loading="pending"
+              :label="t('events.teams.decline')"
+              @click="onAnswer(r.id, false, r.name)"
+            />
+          </template>
+        </li>
+      </ul>
+      <ul v-if="team.invited?.length" class="flex flex-col gap-2">
+        <li v-for="i in team.invited" :key="i.id" class="flex items-center gap-2">
+          <UAvatar :src="i.image ?? undefined" :alt="i.name" size="sm" />
+          <span class="min-w-0 flex-1 truncate">
+            {{ i.name }}
+            <span class="text-sm text-muted">{{ t('events.teams.invitedWaiting') }}</span>
+          </span>
+          <UButton
+            v-if="editable"
+            size="xs"
+            color="neutral"
+            variant="ghost"
+            icon="i-lucide-x"
+            :aria-label="t('events.teams.withdraw', { name: i.name })"
+            @click="onWithdrawInvite(i.id)"
+          />
+        </li>
+      </ul>
+    </div>
+
+    <div v-if="team.captain && editable" class="flex flex-wrap items-center gap-x-4 gap-y-2">
+      <UButton
+        v-if="canInvite"
+        icon="i-lucide-user-plus"
+        :label="t('events.teams.invite')"
+        @click="onInvite"
+      />
+      <USwitch
+        :model-value="team.acceptsRequests"
+        :label="t('events.teams.acceptRequests')"
+        @update:model-value="onToggleRequests"
+      />
+    </div>
+
+    <div v-if="requested" class="flex flex-wrap items-center gap-3">
+      <UBadge
+        color="neutral"
+        variant="soft"
+        icon="i-lucide-clock"
+        :label="t('events.teams.requested')"
+      />
+      <UButton
+        color="neutral"
+        variant="ghost"
+        size="xs"
+        :label="t('events.teams.withdrawRequest')"
+        @click="onCancelRequest(requested.id)"
+      />
+    </div>
+    <UButton
+      v-else-if="canAsk"
+      class="self-start"
+      color="neutral"
+      variant="outline"
+      icon="i-lucide-hand"
+      :loading="pending"
+      :label="t('events.teams.ask')"
+      @click="onAsk"
+    />
 
     <form v-if="renaming" class="flex flex-wrap items-end gap-2" @submit.prevent="onRename">
       <UFormField :label="t('events.teams.nameLabel')" class="min-w-0 flex-1">
