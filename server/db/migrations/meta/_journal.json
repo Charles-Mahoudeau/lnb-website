@@ -197,6 +197,13 @@
       "when": 1794412088221,
       "tag": "0027_partner-events",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1794414249715,
+      "tag": "0028_partner-event-teams",
+      "breakpoints": true
     }
   ]
 }
