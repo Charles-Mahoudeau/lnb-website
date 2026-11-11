@@ -38,6 +38,9 @@ export const PARTNER_EVENT_PROBLEMS = [
 ] as const;
 export type PartnerEventProblem = (typeof PARTNER_EVENT_PROBLEMS)[number];
 
+/** The partner event the home page and the events list promote while it is open. */
+export const FEATURED_PARTNER_EVENT = 'arena-league-university-2027';
+
 /** The games a partner event can have, in the page's order. */
 export const PARTNER_GAME_KEYS = ['lol', 'valorant', 'rocket-league', 'cs2'] as const;
 export type PartnerGameKey = (typeof PARTNER_GAME_KEYS)[number];
@@ -94,6 +97,10 @@ export const partnerEventView = z.object({
   interestOpen: z.boolean().describe('False while an admin or the flag pauses saving interest.'),
   teamsOpen: z.boolean(),
   closedAt: isoDate.nullable().describe('Set once the event is closed: the page is read-only.'),
+  students: z
+    .number()
+    .int()
+    .describe('Students interested in at least one game, each counted once.'),
   games: z.array(partnerGameView),
   mine: z
     .array(partnerInterestView)

@@ -79,6 +79,10 @@ describe('saving interest', () => {
     const count = (key: string) => view.games.find((game) => game.key === key)!.interested;
     expect(count('lol')).toBeGreaterThanOrEqual(1);
     expect(count('cs2')).toBeGreaterThanOrEqual(1);
+    // A student in two games is one student.
+    const sum = view.games.reduce((total, game) => total + game.interested, 0);
+    expect(view.students).toBeGreaterThanOrEqual(1);
+    expect(view.students).toBeLessThan(sum);
     // Visitors and other students don't see it in `mine`.
     expect((await partnerEventService.view(SEEDED, null)).mine).toBeNull();
     expect((await partnerEventService.view(SEEDED, BOB)).mine).toEqual([]);
