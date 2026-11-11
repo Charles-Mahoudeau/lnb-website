@@ -80,6 +80,11 @@ const items = computed<NavigationMenuItem[][]>(() => [
     ...(isEventsManager(user.value?.role)
       ? [
           { label: t('admin.nav.push'), icon: 'i-lucide-bell', to: '/admin/push' },
+          {
+            label: t('admin.nav.partnerEvents'),
+            icon: 'i-lucide-trophy',
+            to: '/admin/partner-events',
+          },
           { label: t('admin.nav.shortLinks'), icon: 'i-lucide-link', to: '/admin/short-links' },
         ]
       : []),
