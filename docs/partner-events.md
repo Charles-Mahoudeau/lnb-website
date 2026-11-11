@@ -56,7 +56,7 @@ Status: the page, interest, teams, the admin, notifications and the promo are bu
 
 ## Tests
 
-`test/unit/partner-events.test.ts` (contracts and messages), `test/server/partner-events.test.ts` and `test/server/partner-teams.test.ts` and `test/server/partner-events-admin.test.ts` (the services on PostgreSQL) and the partner event case in `test/server/poster-images.test.ts` (pruning). Not covered: the pages in a browser (public and admin), the team dialogs and the signed-in flow end to end.
+`test/unit/partner-events.test.ts` (contracts and messages), `test/server/partner-events.test.ts` and `test/server/partner-teams.test.ts` and `test/server/partner-events-admin.test.ts` (the services on PostgreSQL) and the partner event case in `test/server/poster-images.test.ts` (pruning). The public page and the team flow (create, edit, invite, accept, request, captain changes, leave, disband) were checked by hand in a browser. Not covered by automated tests: the pages and dialogs.
 
 ## Promo
 
@@ -64,4 +64,4 @@ Status: the page, interest, teams, the admin, notifications and the promo are bu
 
 ## Still to do
 
-The organizer's agreement before using their hero image. Browser checks of the public page and the team dialogs.
+The organizer's agreement before using their hero image. Real push delivery to a device.
