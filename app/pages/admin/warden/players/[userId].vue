@@ -559,6 +559,8 @@ function dateTime(iso: string) {
             />
           </section>
 
+          <AdminAnticheatPlayerPanel :user-id="userId" />
+
           <section class="flex flex-col gap-4">
             <h2 class="text-2xl font-medium text-highlighted">
               {{ t('wardenAdmin.player.activity') }}

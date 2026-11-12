@@ -35,6 +35,8 @@ const wardenItems = computed<NavigationMenuItem[]>(() => [
     children: [
       { label: t('admin.nav.anticheatFiles'), to: '/admin/anticheat', exact: true },
       { label: t('admin.nav.anticheatReview'), to: '/admin/anticheat/review' },
+      { label: t('admin.nav.anticheatPlayers'), to: '/admin/anticheat/players' },
+      { label: t('admin.nav.anticheatSettings'), to: '/admin/anticheat/settings' },
     ],
   },
   {

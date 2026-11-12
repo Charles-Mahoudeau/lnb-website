@@ -9,6 +9,9 @@ const { t } = useI18n();
     :title="t('admin.anticheat.review.title')"
     :parents="[{ label: t('admin.anticheat.title'), to: '/admin/anticheat' }]"
   >
-    <AdminAnticheatFiles queue />
+    <div class="flex flex-col gap-4">
+      <AdminAnticheatAlerts />
+      <AdminAnticheatFiles queue />
+    </div>
   </AdminPage>
 </template>

@@ -7,6 +7,9 @@ import type { AdminAuditView, AdminRolesBody } from '#shared/schemas/admin';
 // handle, never usage figures (no internal analytics).
 const { t, locale } = useI18n();
 const { data, error } = await useAdminOverview();
+const { user } = useAuth();
+// Warden admins also see what waits in the anticheat. Loaded on the client, after the page.
+const anticheat = isWardenAdmin(user.value?.role) ? useAnticheatSummary() : null;
 
 interface Attention {
   key: string;
@@ -81,6 +84,23 @@ const attention = computed<Attention[]>(() => {
       detail: t('admin.overview.apiKeysSoonDetail'),
       to: '/admin/api-keys',
       action: t('admin.overview.seeApiKeys'),
+    });
+  }
+  const summary = anticheat?.data.value;
+  if (summary && (summary.review || summary.alerts)) {
+    items.push({
+      key: 'anticheat',
+      icon: 'i-lucide-shield-check',
+      tone: 'warning',
+      title: summary.review
+        ? t('admin.overview.anticheatReview', summary.review)
+        : t('admin.overview.anticheatAlerts', summary.alerts),
+      detail:
+        summary.review && summary.alerts
+          ? t('admin.overview.anticheatAlerts', summary.alerts)
+          : t('admin.overview.anticheatDetail'),
+      to: '/admin/anticheat/review',
+      action: t('admin.overview.seeAnticheat'),
     });
   }
   return items;
