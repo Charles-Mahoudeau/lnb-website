@@ -114,6 +114,16 @@ async function submit() {
       <form id="anticheat-project" class="flex flex-col gap-4" @submit.prevent="submit">
         <template v-if="byId">
           <UFormField :label="t('admin.anticheat.project.source')">
+            <template #hint>
+              <UButton
+                color="neutral"
+                variant="link"
+                size="xs"
+                class="p-0 underline"
+                :label="t('admin.anticheat.project.useSearch')"
+                @click="byId = !byId"
+              />
+            </template>
             <USelect v-model="source" :items="sources" class="w-full" />
           </UFormField>
           <UFormField
@@ -142,6 +152,16 @@ async function submit() {
         </template>
         <template v-else>
           <UFormField :label="t('admin.anticheat.project.search.label')" name="query">
+            <template #hint>
+              <UButton
+                color="neutral"
+                variant="link"
+                size="xs"
+                class="p-0 underline"
+                :label="t('admin.anticheat.project.useId')"
+                @click="byId = !byId"
+              />
+            </template>
             <UInput
               v-model="query"
               type="search"
@@ -162,7 +182,10 @@ async function submit() {
           <p v-else-if="state === 'done' && results.length === 0" class="text-muted">
             {{ t('admin.anticheat.project.search.empty') }}
           </p>
-          <ul v-if="results.length" class="flex flex-col gap-0.5 rounded-md bg-default p-1">
+          <ul
+            v-if="results.length"
+            class="flex max-h-72 flex-col gap-0.5 overflow-y-auto rounded-md bg-default p-1"
+          >
             <li v-for="result in results" :key="`${result.source}:${result.sourceId}`">
               <button
                 type="button"
@@ -181,12 +204,18 @@ async function submit() {
                 >
                   <span class="truncate font-semibold text-highlighted">{{ result.name }}</span>
                   <span class="truncate text-sm text-muted">
-                    {{
-                      t('admin.anticheat.project.search.meta', {
-                        author: result.author || t('admin.anticheat.project.search.unknownAuthor'),
-                        downloads: downloads(result.downloads),
-                      })
-                    }}
+                    <template v-if="result.registered">
+                      {{ t('admin.anticheat.project.search.registered') }}
+                    </template>
+                    <template v-else>
+                      {{
+                        t('admin.anticheat.project.search.meta', {
+                          author:
+                            result.author || t('admin.anticheat.project.search.unknownAuthor'),
+                          downloads: downloads(result.downloads),
+                        })
+                      }}
+                    </template>
                   </span>
                 </span>
                 <UBadge
@@ -195,20 +224,10 @@ async function submit() {
                   size="sm"
                   :label="result.source === 'modrinth' ? 'Modrinth' : 'CurseForge'"
                 />
-                <span v-if="result.registered" class="shrink-0 text-sm text-muted">
-                  {{ t('admin.anticheat.project.search.registered') }}
-                </span>
               </button>
             </li>
           </ul>
         </template>
-        <UButton
-          class="self-start"
-          color="neutral"
-          variant="link"
-          :label="t(byId ? 'admin.anticheat.project.useSearch' : 'admin.anticheat.project.useId')"
-          @click="byId = !byId"
-        />
       </form>
     </template>
     <template #footer>
