@@ -10,6 +10,7 @@ import {
   anticheatFile,
   anticheatHistory,
   anticheatModIdBan,
+  anticheatPlayer,
   anticheatProject,
   anticheatUsage,
   mod,
@@ -18,7 +19,10 @@ import {
 import { anticheatAdminService } from '~~/server/services/anticheat/admin';
 import { anticheatRegistryService } from '~~/server/services/anticheat/registry';
 import { anticheatReportService } from '~~/server/services/anticheat/reports';
+import { anticheatRosterService } from '~~/server/services/anticheat/roster';
 import { anticheatSettingsService } from '~~/server/services/anticheat/settings';
+import { anticheatTrustService } from '~~/server/services/anticheat/trust';
+import { wardenModerationService } from '~~/server/services/warden/moderation';
 
 import { admin, hash, session, setMode } from './anticheat-helpers';
 
@@ -415,6 +419,157 @@ describe('the settings the scoring reads', () => {
     const { rulesVersion } = await anticheatSettingsService.get();
     const sha512 = await unknownFile();
     expect((await stored(sha512)).rulesVersion).toBe(rulesVersion);
+  });
+});
+
+describe('bulk actions on the players of a file', () => {
+  async function usedBy(sha512: string, count: number) {
+    const userIds: string[] = [];
+    for (let i = 0; i < count; i++) {
+      const { userId } = await session();
+      await db.insert(anticheatUsage).values({
+        userId,
+        sha512,
+        lastMinecraftUuid: crypto.randomUUID(),
+      });
+      userIds.push(userId);
+    }
+    return userIds;
+  }
+
+  it('bans the players, skips one already banned and one who never used the file', async () => {
+    const sha512 = await unknownFile();
+    const [a, b] = await usedBy(sha512, 2);
+    const stranger = (await session()).userId;
+    await wardenModerationService.ban({
+      userId: b!,
+      body: { reason: 'earlier', durationSeconds: null },
+      actor,
+    });
+
+    const result = await anticheatAdminService.bulkPlayers({
+      actor,
+      sha512,
+      body: { userIds: [a!, b!, stranger, a!], action: 'ban', reason: 'cheat client' },
+    });
+    expect(result.applied).toBe(1);
+    expect(result.skipped).toEqual([
+      { userId: b, why: 'alreadyBanned' },
+      { userId: stranger, why: 'notAPlayer' },
+    ]);
+    expect(await wardenModerationService.activeBan(a!)).toMatchObject({ reason: 'cheat client' });
+    const audit = await db
+      .select()
+      .from(wardenAudit)
+      .where(eq(wardenAudit.action, 'anticheat.bulk'));
+    expect(audit.some((row) => row.data.sha512 === sha512 && row.data.applied === 1)).toBe(true);
+  });
+
+  it('holds players once and takes points with a penalty', async () => {
+    const sha512 = await unknownFile();
+    const [a] = await usedBy(sha512, 1);
+    const hold = { userIds: [a!], action: 'hold' as const, reason: 'to talk to' };
+    expect((await anticheatAdminService.bulkPlayers({ actor, sha512, body: hold })).applied).toBe(
+      1,
+    );
+    expect(
+      (await anticheatAdminService.bulkPlayers({ actor, sha512, body: hold })).skipped,
+    ).toEqual([{ userId: a, why: 'alreadyHeld' }]);
+
+    const before = (await anticheatRosterService.player(a!)).score;
+    await anticheatAdminService.bulkPlayers({
+      actor,
+      sha512,
+      body: { userIds: [a!], action: 'penalty', reason: 'used it', points: 20 },
+    });
+    const detail = await anticheatRosterService.player(a!);
+    expect(detail.score).toBe(before - 20);
+    expect(detail.events.items.map((e) => e.kind)).toContain('bulkPenalty');
+    expect(detail.manualHold).toBe(true);
+  });
+});
+
+describe('players', () => {
+  it('lists the lowest scores first and filters by band', async () => {
+    const low = (await session()).userId;
+    const high = (await session()).userId;
+    await anticheatTrustService.adjust({ actor, userId: low, score: 5, reason: 'seen cheating' });
+    await anticheatTrustService.adjust({ actor, userId: high, score: 90, reason: 'vouched for' });
+    const page = await anticheatRosterService.players({});
+    const ids = page.items.map((row) => row.player.userId);
+    expect(ids.indexOf(low)).toBeLessThan(ids.indexOf(high));
+    expect(page.items.find((row) => row.player.userId === low)).toMatchObject({ band: 'held' });
+
+    const trusted = await anticheatRosterService.players({ band: 'trusted' });
+    expect(trusted.items.map((row) => row.player.userId)).toContain(high);
+    expect(trusted.items.map((row) => row.player.userId)).not.toContain(low);
+    const found = await anticheatRosterService.players({ q: 'Anticheat Tester' });
+    expect(found.items.length).toBeGreaterThan(0);
+  });
+
+  it('shows one player with the timeline, hold and usage, fewest other users first', async () => {
+    const { userId } = await session();
+    const rare = await unknownFile();
+    const common = await unknownFile();
+    const other = (await session()).userId;
+    const uuid = crypto.randomUUID();
+    await db.insert(anticheatUsage).values([
+      { userId, sha512: common, lastMinecraftUuid: uuid },
+      { userId, sha512: rare, lastMinecraftUuid: uuid },
+      { userId: other, sha512: common, lastMinecraftUuid: uuid },
+    ]);
+    await anticheatTrustService.adjust({ actor, userId, score: 80, reason: 'checked' });
+    await anticheatTrustService.setHold({ actor, userId, hold: true, reason: 'check the mods' });
+
+    const detail = await anticheatRosterService.player(userId);
+    expect(detail).toMatchObject({
+      score: 80,
+      band: 'trusted',
+      adjustment: 6,
+      manualHold: true,
+      holdReason: 'check the mods',
+    });
+    expect(detail.events.items.map((e) => e.kind)).toEqual(['holdSet', 'adminAdjust']);
+    expect(detail.usage.map((u) => [u.sha512, u.otherUsers])).toEqual([
+      [rare, 0],
+      [common, 1],
+    ]);
+  });
+
+  it('pages the timeline by the last id', async () => {
+    const { userId } = await session();
+    for (let i = 0; i < 32; i++) {
+      await anticheatTrustService.adjust({
+        actor,
+        userId,
+        score: i % 100,
+        reason: `step ${String(i)}`,
+      });
+    }
+    const first = await anticheatRosterService.player(userId);
+    expect(first.events.items).toHaveLength(30);
+    expect(first.events.nextCursor).not.toBeNull();
+    const rest = await anticheatRosterService.events(userId, first.events.nextCursor!);
+    expect(rest.items).toHaveLength(2);
+    expect(rest.nextCursor).toBeNull();
+    await expect(anticheatRosterService.events(userId, 'x')).rejects.toMatchObject({
+      statusCode: 400,
+    });
+  });
+
+  it('refuses a player that does not exist', async () => {
+    await expect(anticheatRosterService.player('nobody')).rejects.toMatchObject({
+      statusCode: 404,
+    });
+    await expect(
+      anticheatTrustService.adjust({ actor, userId: 'nobody', score: 10, reason: 'x' }),
+    ).rejects.toMatchObject({ statusCode: 404 });
+    await expect(
+      anticheatTrustService.setHold({ actor, userId: 'nobody', hold: true, reason: 'x' }),
+    ).rejects.toMatchObject({ statusCode: 404 });
+    expect(
+      await db.select().from(anticheatPlayer).where(eq(anticheatPlayer.userId, 'nobody')),
+    ).toEqual([]);
   });
 });
 

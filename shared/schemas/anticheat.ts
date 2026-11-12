@@ -589,3 +589,134 @@ export const anticheatModIdBanRow = z.object({
 });
 export type AnticheatModIdBanRow = z.infer<typeof anticheatModIdBanRow>;
 export const anticheatModIdBanList = z.array(anticheatModIdBanRow);
+
+// Admin: players
+
+export const anticheatPlayerParams = z.object({ userId: z.string().min(1) });
+
+export const anticheatPlayersQuery = z.object({
+  q: z.string().trim().min(1).max(100).optional().describe('A name, an email or a username.'),
+  band: anticheatPlayerBand.optional(),
+  cursor,
+});
+export type AnticheatPlayersQuery = z.infer<typeof anticheatPlayersQuery>;
+
+export const anticheatPlayerRow = z.object({
+  player: anticheatPlayerRef,
+  score: z.int(),
+  band: anticheatPlayerBand,
+  manualHold: z.boolean(),
+  lastSeenAt: isoDate.nullable(),
+});
+export type AnticheatPlayerRow = z.infer<typeof anticheatPlayerRow>;
+export const anticheatPlayerRowPage = anticheatPage(anticheatPlayerRow);
+
+export const anticheatEventsQuery = z.object({ cursor });
+
+export const anticheatTimelineEvent = z.object({
+  id: z.int(),
+  kind: z.enum(ANTICHEAT_PLAYER_EVENT_KINDS),
+  delta: z.int(),
+  applied: z.boolean().describe('False in observe mode: the score stayed.'),
+  scoreAfter: z.int(),
+  actor: z.string().nullable(),
+  data: z.record(z.string(), z.unknown()),
+  at: isoDate,
+});
+export type AnticheatTimelineEvent = z.infer<typeof anticheatTimelineEvent>;
+export const anticheatTimelinePage = anticheatPage(anticheatTimelineEvent);
+
+export const anticheatPlayerDetail = z.object({
+  player: anticheatPlayerRef,
+  score: z.int(),
+  band: anticheatPlayerBand,
+  adjustment: z
+    .int()
+    .describe('Points the score adds to the files of a report with a score from 1 to 99.'),
+  manualHold: z.boolean(),
+  holdReason: z.string().nullable(),
+  holdAt: isoDate.nullable(),
+  events: anticheatTimelinePage,
+  files: z.array(
+    z.object({
+      sha512: z.string(),
+      kind: anticheatFileKind,
+      filename: z.string(),
+      score: z.int().nullable(),
+      effectiveScore: z.int().nullable(),
+      band: anticheatFileBand.nullable(),
+      status: anticheatStatus.nullable(),
+      action: anticheatAction.nullable(),
+    }),
+  ),
+  reportAt: isoDate.nullable().describe('When the latest report was sent.'),
+  usage: z.array(
+    z.object({
+      sha512: z.string(),
+      kind: anticheatFileKind,
+      filename: z.string(),
+      score: z.int().nullable(),
+      status: anticheatStatus.nullable(),
+      otherUsers: z.int().describe('Other players who used the file.'),
+      firstSeenAt: isoDate,
+      lastSeenAt: isoDate,
+      sessionCount: z.int(),
+    }),
+  ),
+  actions: z.array(
+    z.object({
+      id: z.int(),
+      action: anticheatAction,
+      reason: z.string(),
+      sha512: z.string().nullable(),
+      at: isoDate,
+    }),
+  ),
+});
+export type AnticheatPlayerDetail = z.infer<typeof anticheatPlayerDetail>;
+
+/** Body of POST /api/anticheat/admin/players/:userId/score. */
+export const anticheatScoreBody = z.object({
+  score: z.int().min(0).max(100),
+  reason: z.string().trim().min(1).max(500),
+});
+
+/** Body of POST /api/anticheat/admin/players/:userId/hold. */
+export const anticheatHoldBody = z.object({
+  hold: z.boolean(),
+  reason: z.string().trim().min(1).max(500),
+});
+
+export const ANTICHEAT_BULK_MAX_PLAYERS = 200;
+
+/** Body of POST /api/anticheat/admin/files/:sha512/players/bulk. */
+export const anticheatBulkBody = z
+  .object({
+    userIds: z.array(z.string().min(1)).min(1).max(ANTICHEAT_BULK_MAX_PLAYERS),
+    action: z.enum(['ban', 'hold', 'penalty']),
+    reason: z.string().trim().min(1).max(500),
+    durationSeconds: z
+      .int()
+      .positive()
+      .max(10 * 365 * 24 * 3600)
+      .nullable()
+      .optional()
+      .describe('For `ban`: seconds, or leave out for a permanent ban.'),
+    points: z.int().min(1).max(50).optional().describe('For `penalty`: the points to take.'),
+  })
+  .refine((body) => body.action !== 'penalty' || body.points !== undefined, {
+    message: 'points are required for a penalty',
+    path: ['points'],
+  });
+export type AnticheatBulkBody = z.infer<typeof anticheatBulkBody>;
+
+export const anticheatBulkResult = z.object({
+  applied: z.int(),
+  skipped: z.array(
+    z.object({
+      userId: z.string(),
+      why: z.enum(['notAPlayer', 'alreadyBanned', 'alreadyHeld']),
+    }),
+  ),
+});
+export type AnticheatBulkResult = z.infer<typeof anticheatBulkResult>;
