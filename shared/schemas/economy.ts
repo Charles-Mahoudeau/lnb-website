@@ -92,6 +92,8 @@ export const economyReason = z.enum([
   'adjustment',
   'accountClosed',
   'auctionTax',
+  'casinoLicense',
+  'mobDrop',
 ]);
 export type EconomyReason = z.infer<typeof economyReason>;
 
