@@ -1253,6 +1253,10 @@
           "label": "Licences de casino",
           "description": "L’achat d’une licence de casino en jeu. Les licences déjà achetées restent valables."
         },
+        "economy_mobDrops": {
+          "label": "Butin des monstres",
+          "description": "Les LNBits créés pour les monstres que les joueurs tuent. Désactivé, les monstres ne donnent plus d’argent."
+        },
         "jobs_economySnapshot": {
           "label": "Stats de l’économie",
           "description": "L’enregistrement nocturne des graphiques de l’économie, et la fermeture des comptes bancaires des joueurs supprimés."
@@ -3020,6 +3024,7 @@
       "paid": "Payé à {who}",
       "startingBalance": "Capital de départ",
       "adjustment": "Ajustement par LNB",
+      "mobDrop": "Butin des monstres",
       "casinoLicense": "Licence de casino",
       "reversal": "Annulé par LNB",
       "reversed": "Annulée",

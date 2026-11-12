@@ -1249,6 +1249,10 @@
           "label": "Casino licences",
           "description": "Buying a casino licence in the game. Licences already bought still work."
         },
+        "economy_mobDrops": {
+          "label": "Mob drops",
+          "description": "LNBits minted for the mobs players kill. With it off, mobs drop no money."
+        },
         "jobs_economySnapshot": {
           "label": "Economy stats",
           "description": "The nightly save of the economy charts, and closing the bank accounts of deleted players."
@@ -3016,6 +3020,7 @@
       "paid": "Paid {who}",
       "startingBalance": "Starting balance",
       "adjustment": "Adjustment from LNB",
+      "mobDrop": "Dropped by mobs",
       "casinoLicense": "Casino licence",
       "reversal": "Reversed by LNB",
       "reversed": "Reversed",

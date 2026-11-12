@@ -544,6 +544,26 @@ export const economyLicenseResult = z.object({
 });
 export type EconomyLicenseResult = z.infer<typeof economyLicenseResult>;
 
+/** The most one call mints: the server batches drops, so this is many mobs. */
+export const ECONOMY_MINT_MAX = 100_000;
+
+/** POST /api/economy/server/mints */
+export const economyMintBody = z.object({
+  idempotencyKey: z.uuid(),
+  player: minecraftUuid.describe('The player whose personal account is credited.'),
+  amount: z.int().min(1).max(ECONOMY_MINT_MAX),
+  reason: z.enum(['mobDrop']),
+});
+export type EconomyMintBody = z.input<typeof economyMintBody>;
+
+export const economyMintResult = z.object({
+  transactionId: z.number(),
+  replayed: z.boolean().describe('True when the key had already been used: nothing was minted.'),
+  amount: z.number(),
+  to: transferSide.describe("The player's personal account: its handle is always null."),
+});
+export type EconomyMintResult = z.infer<typeof economyMintResult>;
+
 // Trades: two players swap items in the game, with money on either side or both.
 
 const tradeSide = z.object({
