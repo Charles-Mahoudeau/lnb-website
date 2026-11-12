@@ -10,18 +10,23 @@ import {
 } from '~~/server/db/schema';
 import type { AnticheatHistoryKind, WardenAuditAction } from '~~/server/db/schema';
 import { wardenAuditService } from '~~/server/services/warden/audit';
+import { wardenModerationService } from '~~/server/services/warden/moderation';
 
 import { anticheatAlertService } from './alerts';
 import { anticheatLookupService } from './lookup';
 import { CatalogUnavailableError, platformProject } from './platforms';
+import { anticheatPlayerService } from './players';
 import { anticheatRegistryService } from './registry';
 import { anticheatReportService } from './reports';
 import { anticheatScoringService } from './scoring';
 import { actorUserId, refuse } from './shared';
 import type { AnticheatActor, Tx } from './shared';
+import { anticheatTrustService } from './trust';
 
 import type {
   AnticheatDecisionBody,
+  AnticheatBulkBody,
+  AnticheatBulkResult,
   AnticheatDecisionResult,
   AnticheatModIdBanRow,
   AnticheatProjectCreateBody,
@@ -463,7 +468,88 @@ async function unbanModId(input: { actor: AnticheatActor; modId: string }): Prom
   await notify(changed);
 }
 
+// Players
+
+/**
+ * Bans, holds or takes points from several players of one file. Each player is handled on their
+ * own: one who can't be (not a player of the file, already banned, already held) is skipped and the
+ * rest go through. A ban uses the Warden ban service; a penalty is a `bulkPenalty` event.
+ */
+async function bulkPlayers(input: {
+  actor: AnticheatActor;
+  sha512: string;
+  body: AnticheatBulkBody;
+}): Promise<AnticheatBulkResult> {
+  const { actor, sha512, body } = input;
+  const [file] = await db
+    .select({ sha512: anticheatFile.sha512 })
+    .from(anticheatFile)
+    .where(eq(anticheatFile.sha512, sha512));
+  if (!file) refuse(404, 'notFound');
+  const userIds = [...new Set(body.userIds)];
+  const users = await db
+    .select({ userId: anticheatUsage.userId })
+    .from(anticheatUsage)
+    .where(and(eq(anticheatUsage.sha512, sha512), inArray(anticheatUsage.userId, userIds)));
+  const usedIt = new Set(users.map((row) => row.userId));
+
+  const skipped: AnticheatBulkResult['skipped'] = [];
+  let applied = 0;
+  for (const userId of userIds) {
+    if (!usedIt.has(userId)) {
+      skipped.push({ userId, why: 'notAPlayer' });
+    } else if (body.action === 'ban') {
+      if (await wardenModerationService.activeBan(userId)) {
+        skipped.push({ userId, why: 'alreadyBanned' });
+        continue;
+      }
+      await wardenModerationService.ban({
+        userId,
+        body: { reason: body.reason, durationSeconds: body.durationSeconds ?? null },
+        actor,
+      });
+      applied++;
+    } else if (body.action === 'hold') {
+      if ((await anticheatPlayerService.get(db, userId)).manualHold) {
+        skipped.push({ userId, why: 'alreadyHeld' });
+        continue;
+      }
+      await anticheatTrustService.setHold({ actor, userId, hold: true, reason: body.reason });
+      applied++;
+    } else {
+      const points = body.points ?? 0;
+      await db.transaction((tx) =>
+        anticheatPlayerService.record(tx, {
+          userId,
+          kind: 'bulkPenalty',
+          delta: -points,
+          data: { reason: body.reason, sha512, points },
+          actorUserId: actorUserId(actor),
+        }),
+      );
+      await anticheatReportService.reevaluateForUser(userId);
+      applied++;
+    }
+  }
+  await db.transaction((tx) =>
+    wardenAuditService.record(tx, {
+      action: 'anticheat.bulk',
+      actor,
+      data: {
+        sha512,
+        action: body.action,
+        reason: body.reason,
+        requested: userIds.length,
+        applied,
+        skipped: skipped.length,
+      },
+    }),
+  );
+  return { applied, skipped };
+}
+
 export const anticheatAdminService = {
+  bulkPlayers,
   decideFile,
   decideProject,
   createProject,

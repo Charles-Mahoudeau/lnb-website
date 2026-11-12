@@ -5,6 +5,7 @@ import {
   anticheatActionTaken,
   anticheatPlayer,
   anticheatReport,
+  user,
   wardenSession,
 } from '~~/server/db/schema';
 import { wardenAuditService } from '~~/server/services/warden/audit';
@@ -14,7 +15,7 @@ import { anticheatReportService } from './reports';
 import { playerBandOf, verdictOf } from './rules';
 import { anticheatSettingsService } from './settings';
 import { refuse } from './shared';
-import type { AnticheatActor } from './shared';
+import type { AnticheatActor, Tx } from './shared';
 
 import type {
   AnticheatActionBody,
@@ -68,6 +69,11 @@ async function serverEvents(body: AnticheatEventsBody): Promise<AnticheatEventsR
   return { player: { score: player.score, band: player.band }, verdict };
 }
 
+async function requireUser(tx: Tx, userId: string): Promise<void> {
+  const [row] = await tx.select({ id: user.id }).from(user).where(eq(user.id, userId));
+  if (!row) refuse(404, 'notFound');
+}
+
 /** Sets the score by hand, for an admin. */
 async function adjust(input: {
   actor: AnticheatActor;
@@ -76,6 +82,7 @@ async function adjust(input: {
   reason: string;
 }): Promise<void> {
   await db.transaction(async (tx) => {
+    await requireUser(tx, input.userId);
     const player = await anticheatPlayerService.ensure(tx, input.userId);
     await anticheatPlayerService.record(tx, {
       userId: input.userId,
@@ -107,6 +114,7 @@ async function setHold(input: {
   const { rules } = await anticheatSettingsService.get();
   const actorUserId = input.actor.source === 'system' ? null : input.actor.userId;
   await db.transaction(async (tx) => {
+    await requireUser(tx, input.userId);
     const player = await anticheatPlayerService.ensure(tx, input.userId);
     await tx
       .update(anticheatPlayer)
