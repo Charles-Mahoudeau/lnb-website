@@ -179,11 +179,13 @@ Returns the warning. The player sees it on `/minecraft/warden` and in the next l
 
 Server-Sent Events. Each event's `id` is its audit log ID. Send `Last-Event-ID` when reconnecting to receive the events you missed. Without it, the stream starts from now. The site checks for new events every second, and sends a `ping` event after 25 quiet seconds so proxies keep the connection open.
 
-| Event      | Data                                                                                 |
-| ---------- | ------------------------------------------------------------------------------------ |
-| `kick`     | `{ "uuids": [...], "reason": "banned \| unlinked \| deviceRevoked", "ban"?: {...} }` |
-| `unban`    | `{ "uuids": [...] }`                                                                 |
-| `settings` | `{ "defaultMaxAccounts": 1 }`                                                        |
+| Event              | Data                                                                                                                                |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `kick`             | `{ "uuids": [...], "reason": "banned \| unlinked \| deviceRevoked", "ban"?: {...} }`                                                |
+| `unban`            | `{ "uuids": [...] }`                                                                                                                |
+| `settings`         | `{ "defaultMaxAccounts": 1 }`                                                                                                       |
+| `anticheatVerdict` | `{ "sessionId", "uuid", "reportId", "verdict", "files": [...] }`: the verdict of an online player changed. See `docs/anticheat.md`. |
+| `anticheatAlert`   | `{ "kind", "userId", "uuid", "sha512", "name" }`: something an admin should look at (nullable fields).                              |
 
 ## Player routes
 
