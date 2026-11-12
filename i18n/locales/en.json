@@ -2384,12 +2384,12 @@
       "close": "Close",
       "more": "Show more",
       "loading": "Loading…",
-      "search": "Search a name, a mod ID or a hash",
+      "search": "Name, mod ID or hash",
       "empty": "No file matches. Files show up here once the server reports them.",
       "emptyQueue": "Nothing to review. Files that need a look show up here.",
       "approveProject": "Approve a project",
       "banProject": "Ban a project",
-      "versions": "{count} versions | {count} version | {count} versions",
+      "versions": "No file yet | {count} version | {count} versions",
       "kinds": {
         "mod": "Mod",
         "resourcepack": "Resource pack",
@@ -2444,7 +2444,8 @@
         "approved": "Approved by an admin.",
         "pending": "Waiting for the platform lookup.",
         "computed": "Scored from what Modrinth and CurseForge say about it.",
-        "project": "The lowest score among its versions."
+        "project": "The lowest score among its versions.",
+        "noFiles": "No score until a player uses a version of it."
       },
       "criteria": {
         "path": {
@@ -2586,6 +2587,7 @@
         "firstSeen": "First seen",
         "lastSeen": "Last seen",
         "versions": "Versions",
+        "noVersions": "No version yet. They show up here once a player uses one.",
         "declaredModId": "Declared mod ID",
         "modIds": "Mod IDs"
       },

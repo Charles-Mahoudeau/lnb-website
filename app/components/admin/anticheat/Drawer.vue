@@ -191,6 +191,7 @@ const metadata = computed(() => {
     :title="title"
     :description="t(`admin.anticheat.kinds.${row.kind}`)"
     :ui="{ content: 'max-w-xl' }"
+    @update:open="(open: boolean) => !open && emit('close', changed)"
   >
     <template #body>
       <UAlert
@@ -210,7 +211,7 @@ const metadata = computed(() => {
             <p class="text-sm text-muted">
               {{
                 t(
-                  `admin.anticheat.path.${fileData?.breakdown?.path ?? (projectMode ? 'project' : 'pending')}`,
+                  `admin.anticheat.path.${fileData?.breakdown?.path ?? (projectMode ? (row.fileCount === 0 ? 'noFiles' : 'project') : 'pending')}`,
                 )
               }}
             </p>
@@ -390,6 +391,9 @@ const metadata = computed(() => {
           </dl>
           <section class="flex flex-col gap-2">
             <h3 class="text-lg">{{ t('admin.anticheat.drawer.versions') }}</h3>
+            <p v-if="!projectData.files.length" class="text-muted">
+              {{ t('admin.anticheat.drawer.noVersions') }}
+            </p>
             <ul class="flex flex-col divide-y divide-default">
               <li v-for="version in projectData.files" :key="version.sha512">
                 <button
