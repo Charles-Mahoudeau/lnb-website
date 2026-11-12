@@ -250,22 +250,22 @@ Access is for site admins and `warden-admin`, like Warden. Every admin action go
 
 Routes, all under `/api/anticheat/admin` (see `/api/docs` for the bodies):
 
-| Route                                                | What it does                                                  |
-| ---------------------------------------------------- | ------------------------------------------------------------- |
-| `GET /files`, `GET /files/:sha512`                   | The registry (filters, cursor) and one file.                  |
-| `GET /files/:sha512/players`                         | The players who used a file, or its project.                  |
-| `POST /files/:sha512/decision`                       | Approve or ban a file, or clear the decision.                 |
-| `POST /files/:sha512/reviewed`, `/notes`, `/rescore` | Mark reviewed at the current band, add a note, score again.   |
-| `POST /files/:sha512/players/bulk`                   | Ban, hold or penalize several players of a file (up to 200).  |
-| `POST /projects`, `GET /projects/:id`                | Decide on a project nobody reported, and read one.            |
-| `POST /projects/:id/decision`, `/link`, `/unlink`    | Approve or ban a project, merge two, split a platform off.    |
-| `GET/POST /mod-id-bans`, `DELETE /mod-id-bans/:id`   | The banned declared mod IDs.                                  |
-| `GET /players`, `GET /players/:userId`               | Players with a score, and one player's panel.                 |
-| `GET /players/:userId/events`                        | More of the timeline.                                         |
-| `POST /players/:userId/score`, `/hold`               | Set a score, hold or release a player. Applies in every mode. |
-| `GET/PATCH /settings`, `POST /rescore`               | The mode and rules, and marking every file stale.             |
-| `GET /alerts`, `POST /alerts/:id/dismiss`            | Alerts, and dismissing one.                                   |
-| `GET /summary`                                       | Counts for the nav badge.                                     |
+| Route                                                         | What it does                                                             |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `GET /files`, `GET /files/:sha512`                            | The registry (filters, cursor) and one file.                             |
+| `GET /files/:sha512/players`                                  | The players who used a file, or its project.                             |
+| `POST /files/:sha512/decision`                                | Approve or ban a file, or clear the decision.                            |
+| `POST /files/:sha512/reviewed`, `/notes`, `/rescore`          | Mark reviewed at the current band, add a note, score again.              |
+| `POST /files/:sha512/players/bulk`                            | Ban, hold or penalize several players of a file (up to 200).             |
+| `GET /projects/search`, `POST /projects`, `GET /projects/:id` | Search the platforms, decide on a project nobody reported, and read one. |
+| `POST /projects/:id/decision`, `/link`, `/unlink`             | Approve or ban a project, merge two, split a platform off.               |
+| `GET/POST /mod-id-bans`, `DELETE /mod-id-bans/:id`            | The banned declared mod IDs.                                             |
+| `GET /players`, `GET /players/:userId`                        | Players with a score, and one player's panel.                            |
+| `GET /players/:userId/events`                                 | More of the timeline.                                                    |
+| `POST /players/:userId/score`, `/hold`                        | Set a score, hold or release a player. Applies in every mode.            |
+| `GET/PATCH /settings`, `POST /rescore`                        | The mode and rules, and marking every file stale.                        |
+| `GET /alerts`, `POST /alerts/:id/dismiss`                     | Alerts, and dismissing one.                                              |
+| `GET /summary`                                                | Counts for the nav badge.                                                |
 
 ## Data
 
