@@ -2928,6 +2928,7 @@
       "notAllowed": "You can’t do that on this account.",
       "sameAccount": "Pick two different accounts.",
       "handleTaken": "That handle is taken. Pick another one.",
+      "handleReserved": "That handle is reserved. Pick another one.",
       "tooManyAccounts": "You own as many shared accounts as you can. Close one first.",
       "tooManyMembers": "The account is full. Remove a member or cancel an invitation first.",
       "alreadyMember": "That player is already in the account.",
