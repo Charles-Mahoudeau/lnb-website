@@ -14,6 +14,7 @@ import {
 } from '~~/server/db/schema';
 import type { WardenSessionEndReason } from '~~/server/db/schema';
 import { uuidMatchesUsername } from '~~/server/lib/minecraft';
+import { anticheatPlayerService } from '~~/server/services/anticheat/players';
 
 import { wardenAuditService } from './audit';
 import { wardenModerationService } from './moderation';
@@ -360,6 +361,8 @@ async function closeSessions(
     .set({ endedAt, endReason: input.reason })
     .where(input.where)
     .returning({
+      id: wardenSession.id,
+      userId: wardenSession.userId,
       minecraftUuid: wardenSession.minecraftUuid,
       endedAt: wardenSession.endedAt,
       seconds:
@@ -377,6 +380,7 @@ async function closeSessions(
         lastSeenAt: sql`greatest(${minecraftAccount.lastSeenAt}, ${session.endedAt!.toISOString()}::timestamp)`,
       })
       .where(eq(minecraftAccount.uuid, session.minecraftUuid));
+    await anticheatPlayerService.creditPlaytime(tx, session);
   }
   return closed.length;
 }

@@ -15,6 +15,7 @@ import { wardenAuditService } from '~~/server/services/warden/audit';
 
 import { anticheatAlertService } from './alerts';
 import { anticheatLookupService } from './lookup';
+import { anticheatModpackService } from './modpack';
 import { anticheatPlayerService } from './players';
 import { bandOf, effectiveScore, fileAction, actionRank, playerBandOf, verdictOf } from './rules';
 import type { VerdictFile } from './rules';
@@ -264,21 +265,57 @@ export interface Evaluation {
 }
 
 /**
+ * The join report (seq 1) is checked once against the official mod list, when none of its files
+ * waits for a lookup. Missing mods cost the player trust, once per session.
+ */
+async function checkModlist(
+  tx: Tx,
+  report: typeof anticheatReport.$inferSelect,
+  files: { sha512: string; lookupState: string }[],
+): Promise<void> {
+  if (report.modlistChecked || report.seq !== 1) return;
+  if (files.some((file) => file.lookupState === 'pending')) return;
+  const missing = await anticheatModpackService.missing(tx, files);
+  await tx
+    .update(anticheatReport)
+    .set({ modlistChecked: true, modlistMissing: missing })
+    .where(eq(anticheatReport.id, report.id));
+  if (missing.length === 0) return;
+  await anticheatPlayerService.record(tx, {
+    userId: report.userId,
+    sessionId: report.sessionId,
+    kind: 'modlistIncomplete',
+    data: { missing, reportId: report.id },
+  });
+}
+
+/**
  * Works the verdict out again from the current file rows and the player's score, and stores the
  * snapshot on the report. Raises the alerts the verdict calls for.
  */
 async function evaluate(tx: Tx, reportId: string): Promise<Evaluation> {
   const { mode, rules, rulesVersion } = await anticheatSettingsService.get();
-  const [report] = await tx.select().from(anticheatReport).where(eq(anticheatReport.id, reportId));
+  // Locked, so two evaluations of one report never both run the modlist check.
+  const [report] = await tx
+    .select()
+    .from(anticheatReport)
+    .where(eq(anticheatReport.id, reportId))
+    .for('update');
   if (!report) throw new Error(`Unknown anticheat report ${reportId}`);
   if (mode === 'off') return { changed: false, changedFiles: [], verdict: report.verdict };
 
-  const player = await anticheatPlayerService.get(tx, report.userId);
   const rows = await tx
     .select({ entry: anticheatReportFile, file: anticheatFile })
     .from(anticheatReportFile)
     .innerJoin(anticheatFile, eq(anticheatFile.sha512, anticheatReportFile.sha512))
     .where(eq(anticheatReportFile.reportId, reportId));
+  // Before the player is read: an incomplete modlist moves the score the verdict uses.
+  await checkModlist(
+    tx,
+    report,
+    rows.map((row) => row.file),
+  );
+  const player = await anticheatPlayerService.get(tx, report.userId);
 
   let changed = false;
   const changedFiles: string[] = [];
@@ -490,4 +527,21 @@ async function reevaluateFor(sha512s: string[]): Promise<number> {
   return reevaluate(rows.map((row) => row.id));
 }
 
-export const anticheatReportService = { submit, evaluate, current, reevaluate, reevaluateFor };
+/** The latest report of each open session of a player, after the score or a hold changed. */
+async function reevaluateForUser(userId: string): Promise<number> {
+  const { rows } = await db.execute<{ id: string }>(sql`
+    select r.id from ${anticheatReport} r
+    join ${wardenSession} s on s.id = r.session_id and s.ended_at is null
+    where r.user_id = ${userId}
+      and r.seq = (select max(seq) from ${anticheatReport} where session_id = r.session_id)`);
+  return reevaluate(rows.map((row) => row.id));
+}
+
+export const anticheatReportService = {
+  submit,
+  evaluate,
+  current,
+  reevaluate,
+  reevaluateFor,
+  reevaluateForUser,
+};
