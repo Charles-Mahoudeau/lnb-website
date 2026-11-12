@@ -49,7 +49,7 @@ These were settled with the user. Do not reopen them.
 | Client entries      | The mod, game jar and loader are stored as kind `client`: shown and logged, never scored or looked up.                                                                                                                                                                      |
 | Rule changes        | Saving new rules creates a new rules version. Files are re-scored lazily (next report or weekly job), with a "Score everything again" button.                                                                                                                               |
 
-Assumptions to confirm with the user before slice 6 (the plan follows the recommended answer):
+Four smaller points, also settled:
 
 1. Project linking: automatic when one hash is found on both platforms, plus manual link and unlink by an admin. Suggestions from a shared declared mod ID are left out of V1.
 2. A report holds at most 1,000 files. More is a 400.
@@ -506,8 +506,8 @@ Add to `shared/flags.ts`, with labels in both locales (`admin.flags.items`): `an
 
 ### Slice 0: branch and API check
 
-1. `git switch -c feat/anticheat`.
-2. Read the Modrinth and CurseForge references for the four endpoints in `platforms.ts`. Note any difference in the commit message of slice 4.
+1. `git switch feat/anticheat` (the branch exists and holds this plan).
+2. Read the Modrinth and CurseForge references for the four endpoints in `platforms.ts`. Note any difference in the commit message of slice 3.
 
 ### Slice 1: schema, rules, shared schemas
 
@@ -556,7 +556,7 @@ Commit: `feat: mark official mods optional and tie them to the anticheat`.
 
 ### Slice 6: admin API
 
-Confirm the four assumptions at the top with the user first. All routes use `requireWardenAdmin`, live under `server/api/anticheat/admin/`, and get OpenAPI entries with a new tag `anticheatAdmin: 'Anticheat: admins'`. Lists take `cursor` and return `{ items, nextCursor }` like Warden's. Every write runs in a transaction, writes an `anticheat_history` row where a file or project is concerned, writes a `warden_audit` row, and re-scores and re-evaluates what it touched.
+All routes use `requireWardenAdmin`, live under `server/api/anticheat/admin/`, and get OpenAPI entries with a new tag `anticheatAdmin: 'Anticheat: admins'`. Lists take `cursor` and return `{ items, nextCursor }` like Warden's. Every write runs in a transaction, writes an `anticheat_history` row where a file or project is concerned, writes a `warden_audit` row, and re-scores and re-evaluates what it touched.
 
 | Route                                                                 | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
