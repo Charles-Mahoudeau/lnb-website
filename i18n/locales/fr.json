@@ -611,7 +611,9 @@
       "economyLedger": "Grand livre",
       "anticheat": "Anticheat",
       "anticheatFiles": "Fichiers",
-      "anticheatReview": "À examiner"
+      "anticheatReview": "À examiner",
+      "anticheatPlayers": "Joueurs",
+      "anticheatSettings": "Réglages"
     },
     "cancel": "Annuler",
     "roles": {
@@ -857,7 +859,11 @@
       "apiKeysSoon": "1 clé API expire dans moins de 30 jours | {n} clés API expirent dans moins de 30 jours",
       "apiKeysSoonDetail": "Renouvelez-les avant, sinon les intégrations qui les utilisent s’arrêteront.",
       "seeApiKeys": "Voir les clés API",
-      "apiKeyActor": "La clé API {name}"
+      "apiKeyActor": "La clé API {name}",
+      "anticheatReview": "{count} fichiers attendent une revue | {count} fichier attend une revue | {count} fichiers attendent une revue",
+      "anticheatAlerts": "{count} alertes anticheat ouvertes | {count} alerte anticheat ouverte | {count} alertes anticheat ouvertes",
+      "anticheatDetail": "Des fichiers à examiner et des signaux à clore.",
+      "seeAnticheat": "Ouvrir la file de revue"
     },
     "mods": {
       "settings": {
@@ -2633,6 +2639,204 @@
       },
       "review": {
         "title": "À examiner"
+      },
+      "actions": {
+        "allow": "Autorisé",
+        "flag": "Signalé",
+        "warn": "Averti",
+        "hold": "Retenu",
+        "refuse": "Refusé",
+        "kick": "Expulsé",
+        "ban": "Banni"
+      },
+      "playerBands": {
+        "trusted": "De confiance",
+        "normal": "Normal",
+        "held": "Retenu",
+        "zero": "Zéro"
+      },
+      "playersPage": {
+        "title": "Joueurs",
+        "search": "Chercher un nom, un e-mail ou un pseudo",
+        "empty": "Aucun joueur ne correspond. Les joueurs apparaissent ici dès que le serveur déclare leurs fichiers.",
+        "columns": {
+          "player": "Joueur",
+          "score": "Score",
+          "band": "Statut",
+          "lastSeen": "Dernière activité"
+        },
+        "manualHold": "Retenue manuelle",
+        "never": "Jamais",
+        "open": "Ouvrir le joueur"
+      },
+      "panel": {
+        "title": "Anticheat",
+        "score": "Score de confiance",
+        "scoreOf": "sur 100",
+        "bands": {
+          "trusted": "De confiance. Un bon historique, donc les fichiers au score moyen reçoivent un bonus.",
+          "normal": "Normal. Son historique ne change pas le score de ses fichiers.",
+          "held": "Retenu. Le score est bas, donc la règle des joueurs retenus s’applique à la prochaine connexion.",
+          "zero": "Zéro. Le score est au plus bas, le statut le plus strict."
+        },
+        "adjustment": "Ajustement du statut sur les fichiers notés de 1 à 99 : {points}",
+        "holdSince": "Retenue manuelle depuis le {date} : {reason}",
+        "clearHold": "Lever la retenue",
+        "adjust": "Ajuster le score",
+        "notSeen": "L’anticheat n’a pas encore vu ce joueur.",
+        "timeline": "Historique du score",
+        "timelineEmpty": "Rien n’a encore fait bouger le score.",
+        "notApplied": "Non appliqué (observation)",
+        "scoreAfter": "Score {score}",
+        "by": "par {actor}",
+        "loaded": "Fichiers chargés en ce moment",
+        "loadedEmpty": "Aucun fichier dans le dernier rapport.",
+        "reportAt": "Rapport du {date}",
+        "everUsed": "Tous les fichiers utilisés",
+        "usedEmpty": "Aucun fichier utilisé pour l’instant.",
+        "otherUsers": "{count} autres joueurs | {count} autre joueur | {count} autres joueurs",
+        "taken": "Actions prises",
+        "takenEmpty": "Aucune action prise pour l’instant.",
+        "events": {
+          "challengeWrong": "Mauvaise réponse à un défi",
+          "challengeMissed": "Défi manqué",
+          "modSetChanged": "Mods modifiés",
+          "channelMismatch": "Canal incohérent",
+          "modlistIncomplete": "Liste de mods incomplète",
+          "playtime": "Temps de jeu",
+          "adminAdjust": "Ajusté par un admin",
+          "bulkPenalty": "Pénalité liée à un fichier",
+          "holdSet": "Retenue posée",
+          "holdCleared": "Retenue levée"
+        },
+        "dialog": {
+          "scoreTitle": "Ajuster le score",
+          "scoreBody": "Fixe le score de confiance. Il est gardé dans l’historique avec ton motif.",
+          "clearTitle": "Lever la retenue ?",
+          "clearBody": "Le joueur peut de nouveau se connecter. Si son score est dans la zone retenue, il est remonté au seuil de retenue.",
+          "score": "Nouveau score (0 à 100)",
+          "reason": "Motif",
+          "confirmScore": "Enregistrer le score",
+          "confirmClear": "Lever la retenue",
+          "scoreDone": "Score ajusté",
+          "clearDone": "Retenue levée"
+        }
+      },
+      "settings": {
+        "title": "Réglages",
+        "loadFailed": "Impossible de charger les réglages.",
+        "mode": "Mode",
+        "modeLede": "Détermine si le verdict est appliqué sur le serveur Minecraft.",
+        "modes": {
+          "off": {
+            "label": "Désactivé",
+            "description": "Rien n’est vérifié. Le serveur reçoit toujours « autorisé »."
+          },
+          "observe": {
+            "label": "Observation",
+            "description": "Tout est noté et enregistré, mais aucun verdict n’est appliqué."
+          },
+          "enforce": {
+            "label": "Application",
+            "description": "Les verdicts sont appliqués : les joueurs peuvent être retenus, refusés ou expulsés."
+          }
+        },
+        "modeDone": "Mode passé sur « {mode} »",
+        "rules": "Points et seuils",
+        "rulesLede": "Enregistrer crée une nouvelle version des règles. Les fichiers sont marqués périmés puis notés de nouveau par la tâche de nuit.",
+        "version": "Règles version {version}, enregistrées le {date}",
+        "groups": {
+          "files": "Fichiers",
+          "resourcepacks": "Packs de ressources",
+          "player": "Joueur",
+          "lookups": "Recherches"
+        },
+        "fields": {
+          "moderationApproved": "Approuvé par la modération (points)",
+          "downloadsHigh": "Beaucoup de téléchargements (points)",
+          "downloadsHighMin": "Beaucoup de téléchargements à partir de",
+          "downloadsMid": "Quelques téléchargements (points)",
+          "downloadsMidMin": "Quelques téléchargements à partir de",
+          "projectAge": "Projet ancien (points)",
+          "projectAgeDays": "Projet ancien après (jours)",
+          "versionAge": "Version ancienne (points)",
+          "versionAgeDays": "Version ancienne après (jours)",
+          "bothPlatforms": "Sur les deux plateformes (points)",
+          "identityMatch": "Identité cohérente (points)",
+          "serverSide": "Côté serveur ou neutre (points)",
+          "unknown": "Inconnu des deux plateformes (points)",
+          "suspectedModified": "Modification suspectée (points)",
+          "texturesClean": "Textures identiques à l’original (points)",
+          "noCoreShaders": "Aucun shader de base (points)",
+          "texturesAltered": "Textures modifiées (points)",
+          "coreShaders": "Shaders de base (points)",
+          "accepted": "Accepté à partir d’un score de",
+          "middle": "Moyen à partir d’un score de",
+          "start": "Score de départ",
+          "trusted": "De confiance à partir de",
+          "held": "Retenu jusqu’à",
+          "challengeWrong": "Défi raté (points)",
+          "challengeMissed": "Défi manqué (points)",
+          "challengeMissedSessionCap": "Plafond des défis manqués par session (points)",
+          "modSetChanged": "Mods modifiés (points)",
+          "channelMismatch": "Canal incohérent (points)",
+          "modlistIncomplete": "Liste de mods incomplète (points)",
+          "playPerHour": "Points par heure de jeu",
+          "playDailyCap": "Plafond de points par jour",
+          "adjustFactor": "Facteur d’ajustement (0 à 1)",
+          "pendingTimeoutSeconds": "Attente d’une recherche (secondes)",
+          "notFoundRetryHours": "Réessayer un fichier inconnu après (heures)",
+          "rescoreDays": "Noter de nouveau après (jours)"
+        },
+        "policy": "Ce qui arrive à un fichier",
+        "policyLede": "L’action pour chaque type de fichier, selon sa tranche.",
+        "policyKinds": {
+          "mod": "Mods",
+          "resourcepack": "Packs de ressources",
+          "shader": "Shaders"
+        },
+        "policyBands": {
+          "approved": "Approuvé",
+          "accepted": "Accepté",
+          "middle": "Moyen",
+          "low": "Bas",
+          "banned": "Banni"
+        },
+        "save": "Enregistrer",
+        "saveNote": "Une nouvelle version des règles sera créée.",
+        "saved": "Réglages enregistrés, règles version {version}",
+        "invalid": "Certaines valeurs sont hors limites.",
+        "rescore": "Tout noter de nouveau",
+        "rescoreTitle": "Tout noter de nouveau ?",
+        "rescoreBody": "Chaque fichier est marqué périmé puis noté de nouveau avec les règles actuelles. Cela peut prendre quelques minutes.",
+        "rescoreConfirm": "Noter de nouveau",
+        "rescored": "{count} fichiers à noter de nouveau | {count} fichier à noter de nouveau | {count} fichiers à noter de nouveau",
+        "modIds": "Identifiants de mod bannis",
+        "modIdsLede": "Un fichier qui déclare l’un de ces identifiants a un score de 0.",
+        "modIdsEmpty": "Aucun identifiant de mod n’est banni.",
+        "modId": "Identifiant du mod",
+        "reason": "Motif",
+        "ban": "Bannir",
+        "remove": "Retirer",
+        "removeLabel": "Retirer {modId} de la liste",
+        "banned": "Identifiant de mod banni",
+        "unbanned": "Identifiant de mod retiré",
+        "by": "{date} par {actor}"
+      },
+      "alerts": {
+        "title": "Alertes",
+        "empty": "Aucune alerte ouverte.",
+        "dismiss": "Écarter",
+        "dismissed": "Alerte écartée",
+        "kinds": {
+          "fileRefused": "{player} a tenté de se connecter avec {file}, qui a été refusé.",
+          "bannedFileSeen": "{player} a {file}, qui est banni.",
+          "playerHeld": "{player} a été retenu à la connexion (score {score}).",
+          "factsDisputed": "Les plateformes ne sont pas d’accord sur {file}, déclaré par {player}.",
+          "banAffectsPlayers": "Bannir {file} touche {count} joueurs. | Bannir {file} touche {count} joueur. | Bannir {file} touche {count} joueurs."
+        },
+        "someone": "un joueur",
+        "aFile": "un fichier"
       }
     }
   },

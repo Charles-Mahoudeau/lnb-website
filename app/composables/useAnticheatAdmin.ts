@@ -1,4 +1,5 @@
 import type {
+  AnticheatAlertRow,
   AnticheatBulkBody,
   AnticheatBulkResult,
   AnticheatDecisionBody,
@@ -7,10 +8,17 @@ import type {
   AnticheatFilePlayerRow,
   AnticheatFileRow,
   AnticheatFilesQuery,
+  AnticheatModIdBanRow,
+  AnticheatPlayerDetail,
+  AnticheatPlayerRow,
+  AnticheatPlayersQuery,
   AnticheatProblem,
   AnticheatProjectCreateBody,
   AnticheatProjectDetail,
+  AnticheatSettings,
+  AnticheatSettingsPatch,
   AnticheatSummary,
+  AnticheatTimelineEvent,
 } from '#shared/schemas/anticheat';
 import { ANTICHEAT_PROBLEMS } from '#shared/schemas/anticheat';
 
@@ -68,6 +76,42 @@ export function useAnticheatProject(id: string) {
   });
 }
 
+type Page<T> = { items: T[]; nextCursor: string | null };
+
+/** One page of players. More pages come by cursor. */
+export function useAnticheatPlayers(query: Ref<Omit<AnticheatPlayersQuery, 'cursor'>>) {
+  return useFetch<Page<AnticheatPlayerRow>>(`${base}/players`, {
+    key: 'anticheat-players',
+    query,
+  });
+}
+
+/** One player's anticheat panel. Loaded on the client, so the Warden page keeps one request. */
+export function useAnticheatPlayer(userId: string) {
+  return useFetch<AnticheatPlayerDetail>(`${base}/players/${encodeURIComponent(userId)}`, {
+    key: `anticheat-player-${userId}`,
+    lazy: true,
+    server: false,
+  });
+}
+
+export function useAnticheatSettings() {
+  return useFetch<AnticheatSettings>(`${base}/settings`, { key: 'anticheat-settings' });
+}
+
+export function useAnticheatModIdBans() {
+  return useFetch<AnticheatModIdBanRow[]>(`${base}/mod-id-bans`, { key: 'anticheat-mod-id-bans' });
+}
+
+/** The open alerts, with a first page for the top of the review queue. */
+export function useAnticheatAlerts() {
+  return useFetch<Page<AnticheatAlertRow>>(`${base}/alerts`, {
+    key: 'anticheat-alerts',
+    lazy: true,
+    server: false,
+  });
+}
+
 /** What admins can do to files and projects. Each throws an AnticheatError when refused. */
 export const anticheatActions = {
   moreFiles: (query: Omit<AnticheatFilesQuery, 'cursor'>, cursor: string) =>
@@ -107,4 +151,33 @@ export const anticheatActions = {
         body,
       }),
     ),
+  morePlayerRows: (query: Omit<AnticheatPlayersQuery, 'cursor'>, cursor: string) =>
+    call(() =>
+      $fetch<Page<AnticheatPlayerRow>>(`${base}/players`, { query: { ...query, cursor } }),
+    ),
+  moreEvents: (userId: string, cursor: string) =>
+    call(() =>
+      $fetch<Page<AnticheatTimelineEvent>>(`${base}/players/${encodeURIComponent(userId)}/events`, {
+        query: { cursor },
+      }),
+    ),
+  setHold: (userId: string, body: { hold: boolean; reason: string }) =>
+    call(() =>
+      $fetch(`${base}/players/${encodeURIComponent(userId)}/hold`, { method: 'POST', body }),
+    ),
+  setScore: (userId: string, body: { score: number; reason: string }) =>
+    call(() =>
+      $fetch(`${base}/players/${encodeURIComponent(userId)}/score`, { method: 'POST', body }),
+    ),
+  saveSettings: (body: AnticheatSettingsPatch) =>
+    call(() => $fetch<AnticheatSettings>(`${base}/settings`, { method: 'PATCH', body })),
+  rescoreAll: () => call(() => $fetch<{ files: number }>(`${base}/rescore`, { method: 'POST' })),
+  banModId: (body: { modId: string; reason: string }) =>
+    call(() => $fetch<AnticheatModIdBanRow[]>(`${base}/mod-id-bans`, { method: 'POST', body })),
+  unbanModId: (modId: string) =>
+    call(() => $fetch(`${base}/mod-id-bans/${encodeURIComponent(modId)}`, { method: 'DELETE' })),
+  dismissAlert: (id: number) =>
+    call(() => $fetch(`${base}/alerts/${String(id)}/dismiss`, { method: 'POST' })),
+  moreAlerts: (cursor: string) =>
+    call(() => $fetch<Page<AnticheatAlertRow>>(`${base}/alerts`, { query: { cursor } })),
 };

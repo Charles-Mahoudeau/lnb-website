@@ -960,6 +960,14 @@ function showToast() {
       <div class="flex flex-wrap items-center gap-3">
         <AdminAnticheatStatusBadge v-for="item in anticheatStatuses" :key="item" :status="item" />
       </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <AdminAnticheatPlayerBadge
+          v-for="item in ['trusted', 'normal', 'held', 'zero'] as const"
+          :key="item"
+          :band="item"
+        />
+        <UBadge color="warning" variant="outline" label="Manual hold" />
+      </div>
       <div class="flex flex-wrap items-center gap-6">
         <span class="font-display text-5xl font-bold text-highlighted tabular-nums">44</span>
         <span class="font-display text-2xl tabular-nums">87</span>

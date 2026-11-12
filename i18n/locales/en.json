@@ -607,7 +607,9 @@
       "economyLedger": "Ledger",
       "anticheat": "Anticheat",
       "anticheatFiles": "Files",
-      "anticheatReview": "Review queue"
+      "anticheatReview": "Review queue",
+      "anticheatPlayers": "Players",
+      "anticheatSettings": "Settings"
     },
     "cancel": "Cancel",
     "roles": {
@@ -853,7 +855,11 @@
       "apiKeysSoon": "1 API key expires within 30 days | {n} API keys expire within 30 days",
       "apiKeysSoonDetail": "Rotate them before then, or the integrations using them stop working.",
       "seeApiKeys": "See the API keys",
-      "apiKeyActor": "The API key {name}"
+      "apiKeyActor": "The API key {name}",
+      "anticheatReview": "{count} files wait for review | {count} file waits for review | {count} files wait for review",
+      "anticheatAlerts": "{count} open anticheat alerts | {count} open anticheat alert | {count} open anticheat alerts",
+      "anticheatDetail": "Files that need a look and signals to dismiss.",
+      "seeAnticheat": "Open the review queue"
     },
     "mods": {
       "settings": {
@@ -2629,6 +2635,204 @@
       },
       "review": {
         "title": "Review queue"
+      },
+      "actions": {
+        "allow": "Allowed",
+        "flag": "Flagged",
+        "warn": "Warned",
+        "hold": "Held",
+        "refuse": "Refused",
+        "kick": "Kicked",
+        "ban": "Banned"
+      },
+      "playerBands": {
+        "trusted": "Trusted",
+        "normal": "Normal",
+        "held": "Held",
+        "zero": "Zero"
+      },
+      "playersPage": {
+        "title": "Players",
+        "search": "Search a name, an email or a username",
+        "empty": "No player matches. Players show up here once the server reports their files.",
+        "columns": {
+          "player": "Player",
+          "score": "Score",
+          "band": "Standing",
+          "lastSeen": "Last seen"
+        },
+        "manualHold": "Manual hold",
+        "never": "Never",
+        "open": "Open the player"
+      },
+      "panel": {
+        "title": "Anticheat",
+        "score": "Trust score",
+        "scoreOf": "out of 100",
+        "bands": {
+          "trusted": "Trusted. A good record, so files with a middle score get a boost.",
+          "normal": "Normal. Their record doesn’t change how their files are scored.",
+          "held": "Held. The score is low, so the policy for held players applies at the next join.",
+          "zero": "Zero. The score is at the bottom, the strictest standing."
+        },
+        "adjustment": "Standing adjustment on files scored 1 to 99: {points}",
+        "holdSince": "Manual hold since {date}: {reason}",
+        "clearHold": "Clear the hold",
+        "adjust": "Adjust score",
+        "notSeen": "The anticheat hasn’t seen this player yet.",
+        "timeline": "Timeline",
+        "timelineEmpty": "Nothing has moved the score yet.",
+        "notApplied": "Not applied (observe)",
+        "scoreAfter": "Score {score}",
+        "by": "by {actor}",
+        "loaded": "Files loaded now",
+        "loadedEmpty": "No file in the latest report.",
+        "reportAt": "Reported {date}",
+        "everUsed": "Every file used",
+        "usedEmpty": "No file used yet.",
+        "otherUsers": "{count} other players | {count} other player | {count} other players",
+        "taken": "Actions taken",
+        "takenEmpty": "No action taken yet.",
+        "events": {
+          "challengeWrong": "Wrong answer to a challenge",
+          "challengeMissed": "Challenge missed",
+          "modSetChanged": "Mod set changed",
+          "channelMismatch": "Channel mismatch",
+          "modlistIncomplete": "Modlist incomplete",
+          "playtime": "Time played",
+          "adminAdjust": "Adjusted by an admin",
+          "bulkPenalty": "Penalty from a file",
+          "holdSet": "Hold set",
+          "holdCleared": "Hold cleared"
+        },
+        "dialog": {
+          "scoreTitle": "Adjust the score",
+          "scoreBody": "Set the trust score. It is kept on the timeline with your reason.",
+          "clearTitle": "Clear the hold?",
+          "clearBody": "The player can join again. If their score is in the held band, it is lifted to the held threshold.",
+          "score": "New score (0 to 100)",
+          "reason": "Reason",
+          "confirmScore": "Save the score",
+          "confirmClear": "Clear the hold",
+          "scoreDone": "Score adjusted",
+          "clearDone": "Hold cleared"
+        }
+      },
+      "settings": {
+        "title": "Settings",
+        "loadFailed": "We couldn’t load the settings.",
+        "mode": "Mode",
+        "modeLede": "Whether the verdict is applied on the Minecraft server.",
+        "modes": {
+          "off": {
+            "label": "Off",
+            "description": "Nothing is checked. The server gets an allow."
+          },
+          "observe": {
+            "label": "Observe",
+            "description": "Everything is scored and recorded, but no verdict is applied."
+          },
+          "enforce": {
+            "label": "Enforce",
+            "description": "Verdicts are applied: players can be held, refused or kicked."
+          }
+        },
+        "modeDone": "Mode changed to {mode}",
+        "rules": "Points and thresholds",
+        "rulesLede": "Saving creates a new rules version. Files are marked stale and scored again by the nightly job.",
+        "version": "Rules version {version}, saved {date}",
+        "groups": {
+          "files": "Files",
+          "resourcepacks": "Resource packs",
+          "player": "Player",
+          "lookups": "Lookups"
+        },
+        "fields": {
+          "moderationApproved": "Approved by moderation (points)",
+          "downloadsHigh": "High downloads (points)",
+          "downloadsHighMin": "High downloads from",
+          "downloadsMid": "Some downloads (points)",
+          "downloadsMidMin": "Some downloads from",
+          "projectAge": "Old project (points)",
+          "projectAgeDays": "Old project after (days)",
+          "versionAge": "Old version (points)",
+          "versionAgeDays": "Old version after (days)",
+          "bothPlatforms": "On both platforms (points)",
+          "identityMatch": "Identity matches (points)",
+          "serverSide": "Server-side or neutral (points)",
+          "unknown": "Unknown to both platforms (points)",
+          "suspectedModified": "Suspected modified (points)",
+          "texturesClean": "Textures match the original (points)",
+          "noCoreShaders": "No core shaders (points)",
+          "texturesAltered": "Textures altered (points)",
+          "coreShaders": "Core shaders (points)",
+          "accepted": "Accepted from a score of",
+          "middle": "Middle from a score of",
+          "start": "Starting score",
+          "trusted": "Trusted from",
+          "held": "Held up to",
+          "challengeWrong": "Wrong challenge (points)",
+          "challengeMissed": "Missed challenge (points)",
+          "challengeMissedSessionCap": "Missed challenges per session cap (points)",
+          "modSetChanged": "Mod set changed (points)",
+          "channelMismatch": "Channel mismatch (points)",
+          "modlistIncomplete": "Incomplete modlist (points)",
+          "playPerHour": "Points per hour played",
+          "playDailyCap": "Points per day cap",
+          "adjustFactor": "Adjustment factor (0 to 1)",
+          "pendingTimeoutSeconds": "Wait for a lookup (seconds)",
+          "notFoundRetryHours": "Retry an unknown file after (hours)",
+          "rescoreDays": "Score again after (days)"
+        },
+        "policy": "What happens to a file",
+        "policyLede": "The action for each kind of file, by its band.",
+        "policyKinds": {
+          "mod": "Mods",
+          "resourcepack": "Resource packs",
+          "shader": "Shaders"
+        },
+        "policyBands": {
+          "approved": "Approved",
+          "accepted": "Accepted",
+          "middle": "Middle",
+          "low": "Low",
+          "banned": "Banned"
+        },
+        "save": "Save",
+        "saveNote": "A new rules version will be created.",
+        "saved": "Settings saved, rules version {version}",
+        "invalid": "Some values are out of range.",
+        "rescore": "Score everything again",
+        "rescoreTitle": "Score everything again?",
+        "rescoreBody": "Every file is marked stale and scored again with the current rules. This can take a few minutes.",
+        "rescoreConfirm": "Score again",
+        "rescored": "{count} files marked to be scored again | {count} file marked to be scored again | {count} files marked to be scored again",
+        "modIds": "Banned mod IDs",
+        "modIdsLede": "A file that declares one of these mod IDs scores 0.",
+        "modIdsEmpty": "No mod ID is banned.",
+        "modId": "Mod ID",
+        "reason": "Reason",
+        "ban": "Ban",
+        "remove": "Remove",
+        "removeLabel": "Remove {modId} from the list",
+        "banned": "Mod ID banned",
+        "unbanned": "Mod ID removed",
+        "by": "{date} by {actor}"
+      },
+      "alerts": {
+        "title": "Alerts",
+        "empty": "No open alert.",
+        "dismiss": "Dismiss",
+        "dismissed": "Alert dismissed",
+        "kinds": {
+          "fileRefused": "{player} tried to join with {file}, which was refused.",
+          "bannedFileSeen": "{player} has {file}, which is banned.",
+          "playerHeld": "{player} was held at join (score {score}).",
+          "factsDisputed": "The platforms disagree about {file}, reported by {player}.",
+          "banAffectsPlayers": "Banning {file} affects {count} players. | Banning {file} affects {count} player. | Banning {file} affects {count} players."
+        },
+        "someone": "a player",
+        "aFile": "a file"
       }
     }
   },
