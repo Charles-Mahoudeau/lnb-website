@@ -2932,6 +2932,7 @@
       "notAllowed": "Vous ne pouvez pas faire ça sur ce compte.",
       "sameAccount": "Choisissez deux comptes différents.",
       "handleTaken": "Cet identifiant est déjà pris. Choisissez-en un autre.",
+      "handleReserved": "Cet identifiant est réservé. Choisissez-en un autre.",
       "tooManyAccounts": "Vous possédez déjà autant de comptes partagés que possible. Fermez-en un d’abord.",
       "tooManyMembers": "Le compte est complet. Retirez un membre ou annulez une invitation d’abord.",
       "alreadyMember": "Ce joueur fait déjà partie du compte.",
