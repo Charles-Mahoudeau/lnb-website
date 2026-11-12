@@ -15,6 +15,8 @@ import type {
   AnticheatProblem,
   AnticheatProjectCreateBody,
   AnticheatProjectDetail,
+  AnticheatProjectKind,
+  AnticheatProjectSearchResult,
   AnticheatSettings,
   AnticheatSettingsPatch,
   AnticheatSummary,
@@ -134,6 +136,12 @@ export const anticheatActions = {
       $fetch<AnticheatDecisionResult>(`${base}/projects/${id}/decision`, {
         method: 'POST',
         body,
+      }),
+    ),
+  searchProjects: (q: string, kind: AnticheatProjectKind) =>
+    call(() =>
+      $fetch<{ items: AnticheatProjectSearchResult[] }>(`${base}/projects/search`, {
+        query: { q, kind },
       }),
     ),
   createProject: (body: AnticheatProjectCreateBody) =>

@@ -2435,7 +2435,8 @@
         "unavailable": "Modrinth ou CurseForge n’a pas répondu. Réessaie dans un instant.",
         "notLinked": "Ce projet n’est pas lié à cette plateforme.",
         "sameProject": "Ce sont déjà le même projet.",
-        "notScored": "Ce fichier n’a pas encore de score."
+        "notScored": "Ce fichier n’a pas encore de score.",
+        "rateLimited": "Trop de recherches. Attends une minute, puis réessaie."
       },
       "hash": {
         "copy": "Copier le hash",
@@ -2490,6 +2491,21 @@
         "body": {
           "approved": "Toutes les versions du projet, présentes et futures, comptent comme approuvées.",
           "banned": "Toutes les versions du projet valent 0, et les joueurs qui en utilisent une sont concernés."
+        },
+        "change": "Changer",
+        "useId": "Saisir un identifiant",
+        "useSearch": "Rechercher plutôt",
+        "search": {
+          "label": "Projet",
+          "placeholder": {
+            "mod": "Rechercher un mod",
+            "resourcepack": "Rechercher un pack de ressources",
+            "shader": "Rechercher un pack de shaders"
+          },
+          "empty": "Aucun résultat. Essaie un autre nom, ou saisis un identifiant.",
+          "meta": "{author} · {downloads} téléchargements",
+          "unknownAuthor": "Auteur inconnu",
+          "registered": "Déjà enregistré"
         },
         "source": "Plateforme",
         "id": "Identifiant du projet",

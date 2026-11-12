@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import type { AnticheatDecision, AnticheatProjectKind } from '#shared/schemas/anticheat';
+import type {
+  AnticheatDecision,
+  AnticheatProjectKind,
+  AnticheatProjectSearchResult,
+} from '#shared/schemas/anticheat';
 
-// Approves or bans a Modrinth or CurseForge project that no player has used yet, by its ID.
+// Approves or bans a Modrinth or CurseForge project that no player has used yet. It is found by
+// search, or by its ID when the search can't help.
 // Closes with the new project's ID once saved, or null.
 const props = defineProps<{ decision: AnticheatDecision; kind: AnticheatProjectKind }>();
 const emit = defineEmits<{ close: [projectId: string | null] }>();
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const toast = useToast();
 
+const byId = ref(false);
 const source = ref<'modrinth' | 'curseforge'>('modrinth');
 const sourceId = ref('');
 const pending = ref(false);
@@ -18,13 +24,64 @@ const sources = computed(() => [
   { value: 'curseforge', label: 'CurseForge' },
 ]);
 
+const query = ref('');
+const results = ref<AnticheatProjectSearchResult[]>([]);
+const picked = ref<AnticheatProjectSearchResult | null>(null);
+const state = ref<'idle' | 'loading' | 'done' | 'error'>('idle');
+const errorKey = ref('failed');
+
+let timer: ReturnType<typeof setTimeout> | undefined;
+let latest = 0;
+watch(query, (value) => {
+  clearTimeout(timer);
+  const q = value.trim();
+  if (q.length < 2) {
+    results.value = [];
+    state.value = 'idle';
+    return;
+  }
+  timer = setTimeout(() => void run(q), 300);
+});
+onBeforeUnmount(() => {
+  clearTimeout(timer);
+});
+
+async function run(q: string) {
+  const id = ++latest;
+  state.value = 'loading';
+  try {
+    const { items } = await anticheatActions.searchProjects(q, props.kind);
+    if (id !== latest) return;
+    results.value = items;
+    state.value = 'done';
+  } catch (error) {
+    if (id !== latest) return;
+    const problem = error instanceof AnticheatError ? error.problem : 'failed';
+    errorKey.value = problem === 'rateLimited' || problem === 'unavailable' ? problem : 'failed';
+    state.value = 'error';
+  }
+}
+
+const downloads = (count: number) =>
+  new Intl.NumberFormat(locale.value, { notation: 'compact' }).format(count);
+
+const target = computed(() =>
+  byId.value
+    ? { source: source.value, sourceId: sourceId.value.trim() }
+    : picked.value
+      ? { source: picked.value.source, sourceId: picked.value.sourceId }
+      : null,
+);
+const ready = computed(() => Boolean(target.value?.sourceId));
+
 async function submit() {
-  if (!sourceId.value.trim()) return;
+  const chosen = target.value;
+  if (!chosen?.sourceId) return;
   pending.value = true;
   try {
     const { id } = await anticheatActions.createProject({
-      source: source.value,
-      sourceId: sourceId.value.trim(),
+      source: chosen.source,
+      sourceId: chosen.sourceId,
       kind: props.kind,
       decision: props.decision,
     });
@@ -55,15 +112,103 @@ async function submit() {
   >
     <template #body>
       <form id="anticheat-project" class="flex flex-col gap-4" @submit.prevent="submit">
-        <UFormField :label="t('admin.anticheat.project.source')">
-          <USelect v-model="source" :items="sources" class="w-full" />
-        </UFormField>
-        <UFormField
-          :label="t('admin.anticheat.project.id')"
-          :help="t(`admin.anticheat.project.idHelp.${source}`)"
-        >
-          <UInput v-model="sourceId" class="w-full" autofocus />
-        </UFormField>
+        <template v-if="byId">
+          <UFormField :label="t('admin.anticheat.project.source')">
+            <USelect v-model="source" :items="sources" class="w-full" />
+          </UFormField>
+          <UFormField
+            :label="t('admin.anticheat.project.id')"
+            :help="t(`admin.anticheat.project.idHelp.${source}`)"
+          >
+            <UInput v-model="sourceId" class="w-full" autofocus />
+          </UFormField>
+        </template>
+        <template v-else-if="picked">
+          <div class="flex items-center gap-3 rounded-md bg-default p-2">
+            <ModsIcon :name="picked.name" :src="picked.iconUrl" size="sm" />
+            <span class="flex min-w-0 grow flex-col">
+              <span class="truncate font-semibold text-highlighted">{{ picked.name }}</span>
+              <span class="truncate text-sm text-muted">
+                {{ picked.source === 'modrinth' ? 'Modrinth' : 'CurseForge' }}
+              </span>
+            </span>
+            <UButton
+              color="neutral"
+              variant="ghost"
+              :label="t('admin.anticheat.project.change')"
+              @click="picked = null"
+            />
+          </div>
+        </template>
+        <template v-else>
+          <UFormField :label="t('admin.anticheat.project.search.label')" name="query">
+            <UInput
+              v-model="query"
+              type="search"
+              icon="i-lucide-search"
+              :loading="state === 'loading'"
+              :placeholder="t(`admin.anticheat.project.search.placeholder.${kind}`)"
+              autofocus
+              class="w-full"
+            />
+          </UFormField>
+          <UAlert
+            v-if="state === 'error'"
+            color="error"
+            variant="subtle"
+            icon="i-lucide-circle-alert"
+            :description="t(`admin.anticheat.errors.${errorKey}`)"
+          />
+          <p v-else-if="state === 'done' && results.length === 0" class="text-muted">
+            {{ t('admin.anticheat.project.search.empty') }}
+          </p>
+          <ul v-if="results.length" class="flex flex-col gap-0.5 rounded-md bg-default p-1">
+            <li v-for="result in results" :key="`${result.source}:${result.sourceId}`">
+              <button
+                type="button"
+                class="flex w-full items-center gap-3 rounded-md p-2 text-left enabled:hover:bg-accented disabled:cursor-default"
+                :disabled="result.registered"
+                @click="picked = result"
+              >
+                <ModsIcon
+                  :name="result.name"
+                  :src="result.iconUrl"
+                  size="sm"
+                  :class="result.registered ? 'opacity-50' : ''"
+                />
+                <span
+                  :class="['flex min-w-0 grow flex-col', result.registered ? 'opacity-60' : '']"
+                >
+                  <span class="truncate font-semibold text-highlighted">{{ result.name }}</span>
+                  <span class="truncate text-sm text-muted">
+                    {{
+                      t('admin.anticheat.project.search.meta', {
+                        author: result.author || t('admin.anticheat.project.search.unknownAuthor'),
+                        downloads: downloads(result.downloads),
+                      })
+                    }}
+                  </span>
+                </span>
+                <UBadge
+                  color="neutral"
+                  variant="soft"
+                  size="sm"
+                  :label="result.source === 'modrinth' ? 'Modrinth' : 'CurseForge'"
+                />
+                <span v-if="result.registered" class="shrink-0 text-sm text-muted">
+                  {{ t('admin.anticheat.project.search.registered') }}
+                </span>
+              </button>
+            </li>
+          </ul>
+        </template>
+        <UButton
+          class="self-start"
+          color="neutral"
+          variant="link"
+          :label="t(byId ? 'admin.anticheat.project.useSearch' : 'admin.anticheat.project.useId')"
+          @click="byId = !byId"
+        />
       </form>
     </template>
     <template #footer>
@@ -81,7 +226,7 @@ async function submit() {
           color="error"
           variant="outline"
           :loading="pending"
-          :disabled="!sourceId.trim()"
+          :disabled="!ready"
           :label="t('admin.anticheat.project.confirm.banned')"
         />
         <UButton
@@ -89,7 +234,7 @@ async function submit() {
           type="submit"
           form="anticheat-project"
           :loading="pending"
-          :disabled="!sourceId.trim()"
+          :disabled="!ready"
           :label="t('admin.anticheat.project.confirm.approved')"
         />
       </div>
