@@ -6,6 +6,7 @@ import { db } from '~~/server/db';
 import { isUniqueViolation } from '~~/server/db/errors';
 import {
   economyAccount,
+  economyCasinoLicense,
   economyEntry,
   economyTransaction,
   minecraftAccount,
@@ -13,18 +14,22 @@ import {
 
 import { economyAccountService } from './accounts';
 import { economyLedger } from './ledger';
+import { licenseCount } from './licenses';
 import { canSpend } from './rules';
+import { economySettingsService } from './settings';
 import { bannedUsers, refuse } from './shared';
 import type { Db, Tx } from './shared';
 import { accountViews } from './views';
 
 import type {
+  EconomyLicenseBody,
+  EconomyLicenseResult,
   EconomyServerAccount,
   EconomyServerPlayer,
   EconomyTransferBody,
   EconomyTransferResult,
 } from '#shared/schemas/economy';
-import { economyTransferBody } from '#shared/schemas/economy';
+import { economyLicenseBody, economyTransferBody } from '#shared/schemas/economy';
 
 // What the Minecraft server asks of the economy: a player's accounts, an account by handle,
 // transfers, casino licences and the money mobs drop. The server is trusted (WARDEN_SERVER_SECRET), but every rule is still checked here:
@@ -53,11 +58,17 @@ export async function player(tx: Tx, uuid: string) {
 /** The player's accounts, for the in-game balance and "My accounts". */
 async function lookup(uuid: string): Promise<EconomyServerPlayer> {
   const { userId, personal } = await db.transaction((tx) => player(tx, uuid));
-  const rows = await economyAccountService.accountsOf(db, userId);
+  const [rows, casinoLicenses, settings] = await Promise.all([
+    economyAccountService.accountsOf(db, userId),
+    licenseCount(db, userId),
+    economySettingsService.get(),
+  ]);
   return {
     userId,
     defaultAccountId: await economyAccountService.resolveDefault(db, userId, personal.id),
     accounts: await accountViews(db, rows),
+    casinoLicenses,
+    casinoLicensePrice: settings.casinoLicensePrice,
   };
 }
 
@@ -200,4 +211,126 @@ async function transfer(input: EconomyTransferBody): Promise<EconomyTransferResu
   }
 }
 
-export const economyServerService = { lookup, setDefault, account, transfer };
+/** A licence already bought with this key, or nothing. */
+async function previousLicense(
+  dbx: Db,
+  key: string,
+  print: string,
+): Promise<EconomyLicenseResult | undefined> {
+  const [license] = await dbx
+    .select()
+    .from(economyCasinoLicense)
+    .where(eq(economyCasinoLicense.idempotencyKey, key));
+  if (!license) {
+    // The key of another kind of move.
+    const [other] = await dbx
+      .select({ id: economyTransaction.id })
+      .from(economyTransaction)
+      .where(eq(economyTransaction.idempotencyKey, key));
+    if (other) refuse(409, 'idempotencyMismatch');
+    return undefined;
+  }
+  if (license.fingerprint !== print) refuse(409, 'idempotencyMismatch');
+  const [payer] = await dbx
+    .select({ handle: economyAccount.handle, balance: economyAccount.balance })
+    .from(economyAccount)
+    .where(eq(economyAccount.id, license.paidByAccountId));
+  const [entry] = license.transactionId
+    ? await dbx
+        .select({ balanceAfter: economyEntry.balanceAfter })
+        .from(economyEntry)
+        .where(
+          and(
+            eq(economyEntry.transactionId, license.transactionId),
+            eq(economyEntry.accountId, license.paidByAccountId),
+          ),
+        )
+    : [];
+  return {
+    transactionId: license.transactionId,
+    replayed: true,
+    amount: license.price,
+    from: {
+      accountId: license.paidByAccountId,
+      handle: payer?.handle ?? null,
+      balance: entry?.balanceAfter ?? payer?.balance ?? 0,
+    },
+    licenses: await licenseCount(dbx, license.userId),
+  };
+}
+
+/**
+ * The player buys a casino licence. Its price is burned from the account they chose, or their
+ * default one, which they must be able to spend from. A price of 0 gives the licence with no
+ * transaction. Sending the same key again gives back the first result.
+ */
+async function buyLicense(input: EconomyLicenseBody): Promise<EconomyLicenseResult> {
+  const body = economyLicenseBody.parse(input);
+  const print = hashRequest({
+    kind: 'casinoLicense',
+    player: body.player,
+    account: body.account ?? null,
+  });
+  const previous = await previousLicense(db, body.idempotencyKey, print);
+  if (previous) return previous;
+
+  try {
+    return await db.transaction(async (tx) => {
+      const buyer = await player(tx, body.player);
+      if ((await bannedUsers(tx, [buyer.userId])).size) refuse(409, 'frozen');
+      const from = body.account
+        ? await economyAccountService.byRef(tx, body.account)
+        : await economyAccountService
+            .resolveDefault(tx, buyer.userId, buyer.personal.id)
+            .then((id) => economyAccountService.byRef(tx, id));
+      if (!canSpend(await economyAccountService.roleIn(tx, from, buyer.userId))) {
+        refuse(403, 'notAllowed');
+      }
+      if (from.frozenAt) refuse(409, 'frozen');
+      const { casinoLicensePrice: price } = await economySettingsService.get(tx);
+      const posted =
+        price > 0
+          ? await economyLedger.post(tx, {
+              kind: 'burn',
+              reason: 'casinoLicense',
+              memo: 'Casino licence',
+              actor: { source: 'minecraft', userId: buyer.userId, minecraftUuid: body.player },
+              idempotencyKey: body.idempotencyKey,
+              fingerprint: print,
+              legs: [
+                { accountId: from.id, amount: -price },
+                { accountId: null, amount: price },
+              ],
+            })
+          : undefined;
+      await tx.insert(economyCasinoLicense).values({
+        userId: buyer.userId,
+        price,
+        paidByAccountId: from.id,
+        transactionId: posted?.transactionId ?? null,
+        idempotencyKey: body.idempotencyKey,
+        fingerprint: print,
+      });
+      return {
+        transactionId: posted?.transactionId ?? null,
+        replayed: false,
+        amount: price,
+        from: {
+          accountId: from.id,
+          handle: from.handle,
+          balance: posted?.balances.get(from.id) ?? from.balance,
+        },
+        licenses: await licenseCount(tx, buyer.userId),
+      };
+    });
+  } catch (error) {
+    // The same key sent twice at once: the second one lost the race, so answer like a retry.
+    if (isUniqueViolation(error)) {
+      const raced = await previousLicense(db, body.idempotencyKey, print);
+      if (raced) return raced;
+    }
+    throw error;
+  }
+}
+
+export const economyServerService = { lookup, setDefault, account, transfer, buyLicense };

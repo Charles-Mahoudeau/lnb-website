@@ -335,6 +335,8 @@ export const economyServerPlayer = z.object({
   userId: z.string(),
   defaultAccountId: z.uuid().describe('The account that pays when none is named.'),
   accounts: z.array(economyAccountView).describe('The personal account first.'),
+  casinoLicenses: economyLicenseCount,
+  casinoLicensePrice: z.number().describe('What a casino licence costs now.'),
 });
 export type EconomyServerPlayer = z.infer<typeof economyServerPlayer>;
 
@@ -520,6 +522,27 @@ export const economyServerInvitations = z.object({
     .describe("Waiting for the player's LNB account, oldest first."),
 });
 export type EconomyServerInvitations = z.infer<typeof economyServerInvitations>;
+
+// Casino licences and mob drops: the two ways the game burns and mints money by itself.
+
+/** POST /api/economy/server/licenses */
+export const economyLicenseBody = z.object({
+  idempotencyKey: z.uuid(),
+  player: minecraftUuid.describe('The player who buys the licence, and gets it.'),
+  account: economyAccountRef
+    .optional()
+    .describe("The account that pays. The player's default one without it."),
+});
+export type EconomyLicenseBody = z.input<typeof economyLicenseBody>;
+
+export const economyLicenseResult = z.object({
+  transactionId: z.number().nullable().describe('Null when the licence was free.'),
+  replayed: z.boolean().describe('True when the key had already been used: nothing was bought.'),
+  amount: z.number().describe('The price paid, burned.'),
+  from: transferSide,
+  licenses: economyLicenseCount,
+});
+export type EconomyLicenseResult = z.infer<typeof economyLicenseResult>;
 
 // Trades: two players swap items in the game, with money on either side or both.
 
@@ -979,6 +1002,7 @@ export const economySettingsView = z.object({
   auctionTaxPercent: z.number().describe('The auction house sale tax, burned, in percent.'),
   auctionMaxListings: z.number().describe('The most listings a player has up at once.'),
   auctionDays: z.number().describe('How many days a listing stays up.'),
+  casinoLicensePrice: z.number().describe('What a casino licence costs. Burned.'),
   updatedAt: isoDate,
 });
 export type EconomySettingsView = z.infer<typeof economySettingsView>;
@@ -992,6 +1016,7 @@ export const economySettingsBody = z
     auctionTaxPercent: z.int().min(0).max(50),
     auctionMaxListings: z.int().min(1).max(200),
     auctionDays: z.int().min(1).max(90),
+    casinoLicensePrice: z.int().min(0).max(ECONOMY_MAX_AMOUNT),
   })
   .partial();
 export type EconomySettingsBody = z.infer<typeof economySettingsBody>;

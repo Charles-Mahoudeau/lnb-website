@@ -1245,6 +1245,10 @@
           "label": "Auction house",
           "description": "Listing and buying at the auction house in the game. Sellers can still take their items back, and players collect what waits for them."
         },
+        "economy_casinoLicenses": {
+          "label": "Casino licences",
+          "description": "Buying a casino licence in the game. Licences already bought still work."
+        },
         "jobs_economySnapshot": {
           "label": "Economy stats",
           "description": "The nightly save of the economy charts, and closing the bank accounts of deleted players."
@@ -2195,13 +2199,17 @@
           "startingBalance": "Minted: starting balances",
           "adjustment": "Minted: adjustments",
           "accountClosed": "Minted: closed accounts",
-          "auctionTax": "Minted: auction tax"
+          "auctionTax": "Minted: auction tax",
+          "casinoLicense": "Minted: casino licences",
+          "mobDrop": "Minted: mob drops"
         },
         "burn": {
           "startingBalance": "Burned: starting balances",
           "adjustment": "Burned: adjustments",
           "accountClosed": "Burned: deleted players",
-          "auctionTax": "Burned: auction house tax"
+          "auctionTax": "Burned: auction house tax",
+          "casinoLicense": "Burned: casino licences",
+          "mobDrop": "Burned: mob drops"
         }
       },
       "volume": {
@@ -2306,6 +2314,8 @@
         "auctionMaxListingsHelp": "The most a player has up at the auction house at once.",
         "auctionDays": "Listing length (days)",
         "auctionDaysHelp": "After this, an unsold item goes back to its seller’s mailbox.",
+        "casinoLicensePrice": "Casino licence price",
+        "casinoLicensePriceHelp": "What a player pays in the game for one licence. It is destroyed. 0 makes licences free.",
         "save": "Save settings",
         "saved": "Settings saved"
       },
@@ -3006,6 +3016,7 @@
       "paid": "Paid {who}",
       "startingBalance": "Starting balance",
       "adjustment": "Adjustment from LNB",
+      "casinoLicense": "Casino licence",
       "reversal": "Reversed by LNB",
       "reversed": "Reversed",
       "memo": "“{memo}”",

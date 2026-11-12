@@ -19,6 +19,7 @@ const state = reactive<Required<EconomySettingsBody>>({
   auctionTaxPercent: 5,
   auctionMaxListings: 20,
   auctionDays: 7,
+  casinoLicensePrice: 100_000,
 });
 watchEffect(() => {
   if (!data.value) return;
@@ -28,6 +29,7 @@ watchEffect(() => {
   state.auctionTaxPercent = data.value.auctionTaxPercent;
   state.auctionMaxListings = data.value.auctionMaxListings;
   state.auctionDays = data.value.auctionDays;
+  state.casinoLicensePrice = data.value.casinoLicensePrice;
 });
 
 const saving = ref(false);
@@ -121,6 +123,13 @@ async function onReset() {
         :help="t('admin.economy.settings.auctionDaysHelp')"
       >
         <UInputNumber v-model="state.auctionDays" :min="1" :max="90" class="w-48" />
+      </UFormField>
+      <UFormField
+        name="casinoLicensePrice"
+        :label="t('admin.economy.settings.casinoLicensePrice')"
+        :help="t('admin.economy.settings.casinoLicensePriceHelp')"
+      >
+        <UInputNumber v-model="state.casinoLicensePrice" :min="0" :step="1000" class="w-48" />
       </UFormField>
       <UButton
         type="submit"

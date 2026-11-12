@@ -1249,6 +1249,10 @@
           "label": "Hôtel des ventes",
           "description": "Mettre en vente et acheter à l’hôtel des ventes en jeu. Les vendeurs peuvent toujours reprendre leurs objets, et les joueurs récupérer ce qui les attend."
         },
+        "economy_casinoLicenses": {
+          "label": "Licences de casino",
+          "description": "L’achat d’une licence de casino en jeu. Les licences déjà achetées restent valables."
+        },
         "jobs_economySnapshot": {
           "label": "Stats de l’économie",
           "description": "L’enregistrement nocturne des graphiques de l’économie, et la fermeture des comptes bancaires des joueurs supprimés."
@@ -2199,13 +2203,17 @@
           "startingBalance": "Créé : capitaux de départ",
           "adjustment": "Créé : ajustements",
           "accountClosed": "Créé : comptes fermés",
-          "auctionTax": "Créé : taxe de l’hôtel des ventes"
+          "auctionTax": "Créé : taxe de l’hôtel des ventes",
+          "casinoLicense": "Créé : licences de casino",
+          "mobDrop": "Créé : butin des monstres"
         },
         "burn": {
           "startingBalance": "Détruit : capitaux de départ",
           "adjustment": "Détruit : ajustements",
           "accountClosed": "Détruit : joueurs supprimés",
-          "auctionTax": "Détruit : taxe de l’hôtel des ventes"
+          "auctionTax": "Détruit : taxe de l’hôtel des ventes",
+          "casinoLicense": "Détruit : licences de casino",
+          "mobDrop": "Détruit : butin des monstres"
         }
       },
       "volume": {
@@ -2310,6 +2318,8 @@
         "auctionMaxListingsHelp": "Le plus d’annonces qu’un joueur a en même temps à l’hôtel des ventes.",
         "auctionDays": "Durée d’une annonce (jours)",
         "auctionDaysHelp": "Ensuite, un objet invendu retourne dans la boîte aux lettres de son vendeur.",
+        "casinoLicensePrice": "Prix d’une licence de casino",
+        "casinoLicensePriceHelp": "Ce qu’un joueur paie en jeu pour une licence. La somme est détruite. À 0, les licences sont gratuites.",
         "save": "Enregistrer les réglages",
         "saved": "Réglages enregistrés"
       },
@@ -3010,6 +3020,7 @@
       "paid": "Payé à {who}",
       "startingBalance": "Capital de départ",
       "adjustment": "Ajustement par LNB",
+      "casinoLicense": "Licence de casino",
       "reversal": "Annulé par LNB",
       "reversed": "Annulée",
       "memo": "« {memo} »",
