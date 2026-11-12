@@ -8,6 +8,9 @@ import { wardenSettingsService } from './settings';
 
 import type { WardenEvent, WardenSettingsView } from '#shared/schemas/warden';
 
+type AnticheatVerdictEvent = Extract<WardenEvent, { type: 'anticheatVerdict' }>['data'];
+type AnticheatAlertEvent = Extract<WardenEvent, { type: 'anticheatAlert' }>['data'];
+
 // Events for the Minecraft server come from the audit log: every change that matters to the
 // server is audited in the same transaction, so reading the log after an ID gives exactly the
 // committed changes, in order, and a reconnecting server replays what it missed.
@@ -18,6 +21,8 @@ const EVENT_ACTIONS = [
   'unlink',
   'device.revoke',
   'settings.update',
+  'anticheat.verdict',
+  'anticheat.alert',
 ] as const satisfies readonly WardenAuditAction[];
 
 /** The newest audit ID, where a server that sends no Last-Event-ID starts. */
@@ -85,6 +90,11 @@ async function toEvent(row: typeof wardenAudit.$inferSelect): Promise<WardenEven
       const settings = data.settings as WardenSettingsView | undefined;
       return { type: 'settings', data: settings ?? (await wardenSettingsService.get()) };
     }
+    // The audit rows hold the whole event, written by the anticheat.
+    case 'anticheat.verdict':
+      return { type: 'anticheatVerdict', data: data as AnticheatVerdictEvent };
+    case 'anticheat.alert':
+      return { type: 'anticheatAlert', data: data as AnticheatAlertEvent };
     default:
       return undefined;
   }

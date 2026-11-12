@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { ANTICHEAT_ALERT_KINDS, anticheatReportFileResult, anticheatVerdict } from './anticheat.ts';
+
 // Warden contracts, shared by the routes and the pages. See docs/warden.md.
 // Responses are schemas too, so the API reference (server/openapi/) is built from the same
 // definitions as the types. The server doesn't check its own responses with them.
@@ -513,6 +515,28 @@ export const wardenEvent = z.discriminatedUnion('type', [
   }),
   z.object({ type: z.literal('unban'), data: z.object({ uuids: z.array(z.string()) }) }),
   z.object({ type: z.literal('settings'), data: wardenSettingsView }),
+  z.object({
+    type: z.literal('anticheatVerdict'),
+    data: z.object({
+      sessionId: z.uuid(),
+      uuid: z.string(),
+      reportId: z.uuid(),
+      verdict: anticheatVerdict,
+      files: z
+        .array(anticheatReportFileResult)
+        .describe('The entries whose score or action changed.'),
+    }),
+  }),
+  z.object({
+    type: z.literal('anticheatAlert'),
+    data: z.object({
+      kind: z.enum(ANTICHEAT_ALERT_KINDS),
+      userId: z.string().nullable(),
+      uuid: z.string().nullable(),
+      sha512: z.string().nullable(),
+      name: z.string().nullable(),
+    }),
+  }),
 ]);
 export type WardenEvent = z.infer<typeof wardenEvent>;
 
