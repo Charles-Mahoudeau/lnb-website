@@ -1,8 +1,8 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 
 import { anticheatPlayer, anticheatPlayerEvent } from '~~/server/db/schema';
 
-import { applyPlayerEvent, playerBandOf } from './rules';
+import { applyPlayerEvent, playerBandOf, playtimeGain } from './rules';
 import type { SessionEvent } from './rules';
 import { anticheatSettingsService } from './settings';
 import type { Db, Tx } from './shared';
@@ -156,4 +156,64 @@ function isComputed(
   );
 }
 
-export const anticheatPlayerService = { ensure, get, record };
+/** The kinds that count as a penalty for the playtime gain of a session. */
+const PENALTY_KINDS: readonly AnticheatPlayerEventKind[] = [
+  'challengeWrong',
+  'challengeMissed',
+  'modSetChanged',
+  'channelMismatch',
+  'modlistIncomplete',
+  'bulkPenalty',
+];
+
+/**
+ * Adds the trust a closed session earned: whole hours played, up to a daily cap (UTC days) and
+ * nothing when the session had a penalty. Called when a session ends. Skipped with the mode off.
+ */
+async function creditPlaytime(
+  tx: Tx,
+  session: { id: string; userId: string; seconds: number },
+): Promise<void> {
+  const { mode, rules } = await anticheatSettingsService.get();
+  if (mode === 'off') return;
+  // Lock the player first: the gain depends on what the player earned today.
+  await ensure(tx, session.userId);
+
+  const penalties = await tx
+    .select({ id: anticheatPlayerEvent.id })
+    .from(anticheatPlayerEvent)
+    .where(
+      and(
+        eq(anticheatPlayerEvent.sessionId, session.id),
+        inArray(anticheatPlayerEvent.kind, [...PENALTY_KINDS]),
+      ),
+    )
+    .limit(1);
+  const dayStart = new Date();
+  dayStart.setUTCHours(0, 0, 0, 0);
+  const [today] = await tx
+    .select({
+      gained: sql<number>`coalesce(sum(${anticheatPlayerEvent.delta}), 0)`.mapWith(Number),
+    })
+    .from(anticheatPlayerEvent)
+    .where(
+      and(
+        eq(anticheatPlayerEvent.userId, session.userId),
+        eq(anticheatPlayerEvent.kind, 'playtime'),
+        eq(anticheatPlayerEvent.applied, true),
+        // As an ISO string: node-postgres writes raw Dates in local time, and the column holds UTC.
+        sql`${anticheatPlayerEvent.at} >= ${dayStart.toISOString()}::timestamp`,
+      ),
+    );
+  const gain = playtimeGain(session.seconds, today?.gained ?? 0, penalties.length > 0, rules);
+  if (gain === 0) return;
+  await record(tx, {
+    userId: session.userId,
+    sessionId: session.id,
+    kind: 'playtime',
+    delta: gain,
+    data: { seconds: session.seconds },
+  });
+}
+
+export const anticheatPlayerService = { ensure, get, record, creditPlaytime };
