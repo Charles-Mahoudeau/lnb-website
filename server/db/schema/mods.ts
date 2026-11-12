@@ -65,6 +65,11 @@ export const mod = pgTable(
     pageUrl: text('page_url').notNull(),
     // The key in the mod-icons storage. Null when the mod has no icon.
     iconKey: text('icon_key'),
+    // An official mod that players may leave out. Admins only: the anticheat's modlist check skips
+    // it, and no public view shows it (docs/anticheat.md).
+    optional: boolean('optional').default(false).notNull(),
+    // The SHA-512 of the mod's jar, for mods added by hand, so the anticheat can match the file.
+    fileSha512: text('file_sha512'),
     // A deleted account leaves its suggestions, shown as "Former member".
     proposerUserId: text('proposer_user_id').references(() => user.id, { onDelete: 'set null' }),
     reason: text('reason'),

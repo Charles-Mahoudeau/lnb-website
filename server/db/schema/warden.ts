@@ -316,6 +316,23 @@ export const WARDEN_AUDIT_ACTIONS = [
   'mod.restore',
   'mod.delete',
   'modSettings.update',
+  // The anticheat (docs/anticheat.md), run by the same staff. The last two are written by the site
+  // itself and exist to feed the event stream.
+  'anticheat.approve',
+  'anticheat.ban',
+  'anticheat.clear',
+  'anticheat.reviewed',
+  'anticheat.link',
+  'anticheat.unlink',
+  'anticheat.modIdBan',
+  'anticheat.modIdUnban',
+  'anticheat.playerAdjust',
+  'anticheat.hold',
+  'anticheat.holdClear',
+  'anticheat.bulk',
+  'anticheat.settings',
+  'anticheat.verdict',
+  'anticheat.alert',
 ] as const;
 
 export type WardenAuditAction = (typeof WARDEN_AUDIT_ACTIONS)[number];
