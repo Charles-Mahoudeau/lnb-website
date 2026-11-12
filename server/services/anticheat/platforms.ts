@@ -180,6 +180,35 @@ async function curseforgeByFingerprints(fingerprints: number[]): Promise<Cursefo
   return { files, projects };
 }
 
+/**
+ * One project by its ID, for an admin who decides on a project nobody reported yet. Undefined when
+ * the platform doesn't know it; throws CatalogUnavailableError when it can't be reached (or, for
+ * CurseForge, when no API key is set).
+ */
+export async function platformProject(
+  source: 'modrinth' | 'curseforge',
+  id: string,
+): Promise<
+  | { modrinth: AnticheatModrinthProject; name: string; id: string }
+  | { curseforge: AnticheatCurseforgeProject; name: string; id: string }
+  | undefined
+> {
+  if (source === 'modrinth') {
+    const project = [...(await modrinthProjects([id])).values()][0];
+    return project ? { modrinth: project, name: project.title, id: project.id } : undefined;
+  }
+  const key = modsEnv().CURSEFORGE_API_KEY;
+  if (!key) throw new CatalogUnavailableError('curseforge');
+  if (!/^\d+$/.test(id)) return undefined;
+  const raw = await getJson<{ data: RawCurseforgeMod }>(
+    `${CURSEFORGE}/mods/${id}`,
+    curseforgeHeaders(key),
+  );
+  if (!raw) return undefined;
+  const project = mapCurseforgeMod(raw.data);
+  return { curseforge: project, name: project.name, id: String(project.id) };
+}
+
 export const platformClient: PlatformClient = {
   get curseforgeConfigured() {
     return Boolean(modsEnv().CURSEFORGE_API_KEY);
