@@ -24,12 +24,15 @@ import { user } from './auth';
 // See docs/economy.md.
 
 export type EconomyAccountKind = 'personal' | 'shared';
+/** What a shared account is for. A casino needs a casino licence, and stays a casino. */
+export type EconomyAccountType = 'team' | 'shop' | 'casino';
 export type EconomyMemberRole = 'owner' | 'member' | 'viewer';
 /** What a transaction was. `mint` and `burn` create and destroy money; nothing else does. */
 export type EconomyTransactionKind =
   'payment' | 'casino' | 'shop' | 'trade' | 'auction' | 'mint' | 'burn' | 'reversal';
 /** Why money was created or destroyed. Null for the other kinds. */
-export type EconomyReason = 'startingBalance' | 'adjustment' | 'accountClosed' | 'auctionTax';
+export type EconomyReason =
+  'startingBalance' | 'adjustment' | 'accountClosed' | 'auctionTax' | 'casinoLicense' | 'mobDrop';
 /** Where a transaction came from: the Minecraft server, the site, or the site on its own. */
 export type EconomySource = 'minecraft' | 'web' | 'system';
 
@@ -44,6 +47,8 @@ export const economyAccount = pgTable(
   {
     id: uuid('id').primaryKey().defaultRandom(),
     kind: text('kind').$type<EconomyAccountKind>().notNull(),
+    // Shared accounts only.
+    type: text('type').$type<EconomyAccountType>(),
     // Personal accounts only.
     ownerUserId: text('owner_user_id').references(() => user.id, { onDelete: 'set null' }),
     // Shared accounts only: lower case, shown with a leading `#`. Kept after closing, so a closed
@@ -64,7 +69,7 @@ export const economyAccount = pgTable(
     check('economy_account_balance_non_negative', sql`${table.balance} >= 0`),
     check(
       'economy_account_kind_fields',
-      sql`(${table.kind} = 'personal' and ${table.handle} is null) or (${table.kind} = 'shared' and ${table.handle} is not null and ${table.ownerUserId} is null)`,
+      sql`(${table.kind} = 'personal' and ${table.handle} is null and ${table.type} is null) or (${table.kind} = 'shared' and ${table.handle} is not null and ${table.ownerUserId} is null and ${table.type} is not null)`,
     ),
   ],
 );
@@ -109,6 +114,40 @@ export const economyInvitation = pgTable(
     uniqueIndex('economy_invitation_account_user_uidx').on(table.accountId, table.userId),
     index('economy_invitation_user_id_idx').on(table.userId),
   ],
+);
+
+/**
+ * A casino licence: what lets a player make one of their shared accounts a casino. Bought from the
+ * game, for a price that is burned. It belongs to the LNB account and is free until it is bound to
+ * an account, for good: closing the casino doesn't free it.
+ */
+export const economyCasinoLicense = pgTable(
+  'economy_casino_license',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    // What it cost, and the account that paid. A price of 0 has no transaction.
+    price: bigint('price', { mode: 'number' }).notNull(),
+    paidByAccountId: uuid('paid_by_account_id')
+      .notNull()
+      .references(() => economyAccount.id),
+    transactionId: bigint('transaction_id', { mode: 'number' }).references(
+      (): AnyPgColumn => economyTransaction.id,
+      { onDelete: 'set null' },
+    ),
+    // The key the server bought it with, so a retry doesn't buy two, and the request behind it.
+    idempotencyKey: uuid('idempotency_key').notNull().unique(),
+    fingerprint: text('fingerprint').notNull(),
+    // The casino it was used for. Null: still free.
+    accountId: uuid('account_id')
+      .unique()
+      .references(() => economyAccount.id),
+    boundAt: timestamp('bound_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [index('economy_casino_license_user_idx').on(table.userId)],
 );
 
 /** A player's economy preferences, created on first change. */
@@ -282,6 +321,8 @@ export const economyListing = pgTable(
       () => economyTransaction.id,
       { onDelete: 'set null' },
     ),
+    // When the server told the seller their listing sold. Null on a sold one: still to tell.
+    sellerNotifiedAt: timestamp('seller_notified_at'),
   },
   (table) => [
     index('economy_listing_active_idx').on(table.status, table.expiresAt),
@@ -333,6 +374,10 @@ export const economySettings = pgTable(
     auctionTaxPercent: smallint('auction_tax_percent').default(5).notNull(),
     auctionMaxListings: smallint('auction_max_listings').default(20).notNull(),
     auctionDays: smallint('auction_days').default(7).notNull(),
+    // What a casino licence costs. Burned.
+    casinoLicensePrice: bigint('casino_license_price', { mode: 'number' })
+      .default(100_000)
+      .notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
     updatedByUserId: text('updated_by_user_id').references(() => user.id, {
       onDelete: 'set null',
