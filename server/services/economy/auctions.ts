@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, ilike, isNull, lt, or, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, ilike, inArray, isNull, lt, or, sql } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import { isUniqueViolation } from '~~/server/db/errors';
@@ -28,10 +28,13 @@ import type {
   EconomyMailboxClaimResult,
   EconomyMailboxView,
   EconomyPlayerListings,
+  EconomySalesSeenBody,
   EconomyServerListing,
+  EconomyServerSales,
 } from '#shared/schemas/economy';
 import {
   ECONOMY_LISTINGS_PAGE,
+  ECONOMY_SALES_PAGE,
   economyListingActionBody,
   economyListingBody,
   economyListingBuyBody,
@@ -323,6 +326,7 @@ async function previousPurchase(
     from: { accountId: buyer.accountId, handle: buyer.handle, balance: buyer.balanceAfter ?? 0 },
     to: { accountId: seller.accountId, handle: seller.handle, balance: seller.balanceAfter ?? 0 },
     listingId,
+    sellerUserId: listing.sellerUserId,
     mailboxItem: mailboxView(item),
   };
 }
@@ -399,6 +403,7 @@ async function buy(
         },
         to: { accountId: to.id, handle: to.handle, balance: posted.balances.get(to.id) ?? 0 },
         listingId,
+        sellerUserId: listing.sellerUserId,
         mailboxItem: mailboxView(item),
       };
     });
@@ -453,4 +458,69 @@ async function claim(itemId: string, input: unknown): Promise<EconomyMailboxClai
   });
 }
 
-export const economyAuctionService = { expireDue, create, list, mine, cancel, buy, mailbox, claim };
+/**
+ * The player's sold listings they weren't told about yet, oldest first, 50 at most: the server
+ * tells them in the game, then marks them seen.
+ */
+async function sales(uuid: string): Promise<EconomyServerSales> {
+  const userId = await ownerOf(db, uuid);
+  const rows = await db
+    .select({
+      listing: economyListing,
+      // The buyer shows as the seller does on a listing: the Minecraft account they bought with.
+      buyer: minecraftAccount.username,
+      tax: sql<string>`coalesce((select sum(${economyEntry.amount}) from ${economyEntry} where ${economyEntry.transactionId} = ${economyListing.transactionId} and ${economyEntry.accountId} is null), 0)`,
+    })
+    .from(economyListing)
+    .leftJoin(economyTransaction, eq(economyTransaction.id, economyListing.transactionId))
+    .leftJoin(minecraftAccount, eq(minecraftAccount.uuid, economyTransaction.actorMinecraftUuid))
+    .where(
+      and(
+        eq(economyListing.sellerUserId, userId),
+        eq(economyListing.status, 'sold'),
+        isNull(economyListing.sellerNotifiedAt),
+      ),
+    )
+    .orderBy(asc(economyListing.endedAt), asc(economyListing.id))
+    .limit(ECONOMY_SALES_PAGE);
+  return {
+    items: rows.map(({ listing, buyer, tax }) => ({
+      listingId: listing.id,
+      item: { id: listing.itemId, name: listing.itemName },
+      count: listing.count,
+      price: listing.price,
+      tax: Number(tax),
+      buyer: buyer ?? '',
+      soldAt: (listing.endedAt ?? listing.createdAt).toISOString(),
+    })),
+  };
+}
+
+/** Marks sales as told to their seller. IDs that aren't sales of this player are ignored. */
+async function salesSeen(uuid: string, body: EconomySalesSeenBody): Promise<void> {
+  const userId = await ownerOf(db, uuid);
+  await db
+    .update(economyListing)
+    .set({ sellerNotifiedAt: new Date() })
+    .where(
+      and(
+        inArray(economyListing.id, body.listingIds),
+        eq(economyListing.sellerUserId, userId),
+        eq(economyListing.status, 'sold'),
+        isNull(economyListing.sellerNotifiedAt),
+      ),
+    );
+}
+
+export const economyAuctionService = {
+  expireDue,
+  create,
+  list,
+  mine,
+  cancel,
+  buy,
+  mailbox,
+  claim,
+  sales,
+  salesSeen,
+};

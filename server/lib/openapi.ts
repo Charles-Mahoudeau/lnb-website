@@ -3413,6 +3413,37 @@ const routes: RouteDoc[] = [
     ],
   },
   {
+    method: 'get',
+    path: '/api/economy/server/players/{uuid}/sales',
+    tag: TAGS.economyServer,
+    summary: "A player's sales to tell them about",
+    description:
+      "The player's listings that sold and that they weren't told about yet, oldest first, 50 at most. Works while the `economy.auctions` flag is off.",
+    access: 'wardenServer',
+    params: economy.economyUuidParams,
+    response: economy.economyServerSales,
+    problems: [
+      { status: 404, problems: ['notLinked'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/economy/server/players/{uuid}/sales/seen',
+    tag: TAGS.economyServer,
+    summary: 'Mark sales as told',
+    description:
+      "Once the seller was told in the game. IDs that aren't sales of this player are ignored. Works while the `economy.auctions` flag is off.",
+    access: 'wardenServer',
+    params: economy.economyUuidParams,
+    body: economy.economySalesSeenBody,
+    noContent: true,
+    problems: [
+      { status: 404, problems: ['notLinked'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
     method: 'post',
     path: '/api/economy/server/transfers',
     tag: TAGS.economyServer,
@@ -3490,7 +3521,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.economyServer,
     summary: 'Buy a listing',
     description:
-      "In one transaction: the buyer pays the price, the seller's account gets it minus the tax (a percentage set by the admins, rounded down), and the tax is burned. The item goes to the buyer's mailbox, to claim. Carries an `idempotencyKey`, as transfers do. Buying your own listing is `sameAccount`.",
+      "In one transaction: the buyer pays the price, the seller's account gets it minus the tax (a percentage set by the admins, rounded down), and the tax is burned. The item goes to the buyer's mailbox, to claim, and `sellerUserId` lets the server tell the seller when they are online. Carries an `idempotencyKey`, as transfers do. Buying your own listing is `sameAccount`.",
     access: 'wardenServer',
     params: economy.economyListingParams,
     body: economy.economyListingBuyBody,

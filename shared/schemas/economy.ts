@@ -843,9 +843,39 @@ export const economyListingBuyResult = economyTransferResult.extend({
   amount: z.number().describe('The price.'),
   tax: z.number().describe('Burned, taken from what the seller gets.'),
   listingId: z.uuid(),
+  sellerUserId: z
+    .string()
+    .describe("The seller's LNB account, to tell them right away when they are online."),
   mailboxItem: economyMailboxView.describe("The item, in the buyer's mailbox, to claim."),
 });
 export type EconomyListingBuyResult = z.infer<typeof economyListingBuyResult>;
+
+/** GET /api/economy/server/players/:uuid/sales */
+export const economyServerSales = z.object({
+  items: z
+    .array(
+      z.object({
+        listingId: z.uuid(),
+        item: z.object({ id: z.string(), name: z.string() }),
+        count: z.number(),
+        price: z.number(),
+        tax: z.number().describe('Burned, taken from what the seller got.'),
+        buyer: z.string().describe("The buyer's Minecraft username."),
+        soldAt: isoDate,
+      }),
+    )
+    .describe('Sold listings the seller was not told about yet, oldest first, 50 at most.'),
+});
+export type EconomyServerSales = z.infer<typeof economyServerSales>;
+
+/** The most sales one call lists or marks as seen. */
+export const ECONOMY_SALES_PAGE = 50;
+
+/** POST /api/economy/server/players/:uuid/sales/seen */
+export const economySalesSeenBody = z.object({
+  listingIds: z.array(z.uuid()).min(1).max(ECONOMY_SALES_PAGE),
+});
+export type EconomySalesSeenBody = z.infer<typeof economySalesSeenBody>;
 
 export const economyMailboxClaimResult = economyMailboxView.extend({
   replayed: z.boolean().describe('True when this key had already claimed it.'),
