@@ -123,7 +123,15 @@ await list;
         <div class="flex items-center gap-3">
           <ModsIcon :name="row.original.name" :src="row.original.iconUrl" size="sm" />
           <div class="flex min-w-0 flex-col">
-            <span class="font-semibold text-highlighted">{{ row.original.name }}</span>
+            <span class="flex flex-wrap items-center gap-2">
+              <span class="font-semibold text-highlighted">{{ row.original.name }}</span>
+              <UBadge
+                v-if="row.original.optional"
+                color="neutral"
+                variant="outline"
+                :label="t('admin.mods.official.optional')"
+              />
+            </span>
             <span v-if="row.original.promotedAt" class="text-sm text-muted">
               {{ t('admin.mods.official.fromSuggestion') }}
             </span>

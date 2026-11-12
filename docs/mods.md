@@ -20,6 +20,8 @@ The mod list at `/minecraft/mod-list` lets members vote on the mods of the LNB M
 - **Refresh metadata** (a button on both admin tabs) fetches the mods of the tab again from Modrinth or CurseForge. A dialog checks them one by one, then lists the differences in the name, summary, page link and icon, each with a checkbox. Nothing is saved until the admin applies the ticked ones. Applying fetches the source again, so the saved values never come from the browser. Mods added by hand have no source and are skipped. A mod the source no longer has, or that no longer has a file for the server's version and loader, is flagged in the review but never changed or removed. A source that can't be reached flags the mod and leaves it as it is. The icon counts as changed when the downloaded image differs from the stored one.
 - Removing an official mod deletes it with its votes. It can then be added or suggested again.
 - A deleted account's votes go with it. Its suggestions stay, credited to a former member.
+- **Optional and file hash** (admins only, for the anticheat, see `docs/plans/anticheat.md`): an official mod can be marked **Optional**, so a player may leave it out of their client without losing trust (the anticheat's modlist check skips it). A mod added by hand can carry the SHA-512 of its jar (128 hex characters, stored lowercase), set in the add form or the edit dialog; it is how the anticheat matches a file to an entry that has no Modrinth or CurseForge project. Neither field is in any public response: the page and the other `/api/minecraft/mods/**` routes never select them, and a test checks the page. Asking for `optional` on a suggestion or a hash on a Modrinth or CurseForge mod is refused (`notOfficial`, `notManual`); converting a mod to a source removes its hash.
+- **Re-scoring**: adding, deleting, promoting or converting an official mod, or changing a hand-added entry's hash, scores again the anticheat files that entry matches (by hash or by project) in the same transaction. The open sessions holding those files are evaluated once it commits, so the Minecraft server hears the new verdicts. Marking a mod optional changes no file score.
 - Every admin change is written to `warden_audit` (`mod.add`, `mod.edit`, `mod.convert`, `mod.refresh`, `mod.promote`, `mod.remove`, `mod.restore`, `mod.delete`, `modSettings.update`) and shows in Warden's activity log. These actions aren't sent to the Minecraft server.
 
 ## Sources
@@ -44,7 +46,7 @@ Icons are downloaded once, when the mod is added (PNG, JPEG, WebP or GIF, up to 
 ## Data
 
 - `mod_list_settings`: one row with `open`, `voting_ends_at`, `show_countdown`, `max_suggestions`, `game_version` and `loader`.
-- `mod`: both tabs (`list` is `official` or `suggestion`), with `status` `visible` or `removed`, the source, the stored details, the proposer and reason, and the moderation fields.
+- `mod`: both tabs (`list` is `official` or `suggestion`), with `status` `visible` or `removed`, the source, the stored details, the proposer and reason, the moderation fields, and for the anticheat `optional` and `file_sha512`.
 - `mod_vote`: one row per account and mod, with `value` −1 or 1. Clearing a vote deletes the row.
 
 The routes are listed in the API reference at `/api/docs`, under Minecraft.

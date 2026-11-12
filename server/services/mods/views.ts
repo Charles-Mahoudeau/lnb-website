@@ -27,6 +27,8 @@ export async function modsWithVotes(where: SQL | undefined, dbx: Db = db) {
       pageUrl: mod.pageUrl,
       iconKey: mod.iconKey,
       reason: mod.reason,
+      optional: mod.optional,
+      fileSha512: mod.fileSha512,
       proposerUserId: mod.proposerUserId,
       proposerName: user.name,
       proposerEmail: user.email,

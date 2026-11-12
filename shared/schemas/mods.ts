@@ -188,13 +188,27 @@ export const modAdminRow = modView.omit({ myVote: true, mine: true }).extend({
   removedReason: z.string().nullable(),
   removedAt: isoDate.nullable(),
   promotedAt: isoDate.nullable(),
+  optional: z
+    .boolean()
+    .describe('An official mod players may leave out. The anticheat skips it. Admins only.'),
+  fileSha512: z
+    .string()
+    .nullable()
+    .describe("The hash of a manual mod's jar, so the anticheat can match it. Admins only."),
 });
 export type ModAdminRow = z.infer<typeof modAdminRow>;
 
 export const modAdminList = z.object({ items: z.array(modAdminRow) });
 
-/** Body of POST /api/minecraft/admin/mods: from a search result, or by hand. */
-export const modAddBody = z.discriminatedUnion('source', [
+/** The SHA-512 of a jar: 128 hex characters, stored lowercase. */
+export const modFileSha512 = z
+  .string()
+  .trim()
+  .regex(/^[0-9a-fA-F]{128}$/, '128 hexadecimal characters')
+  .transform((value) => value.toLowerCase());
+
+/** A mod from a search result, or by hand. Adding and converting both take this shape. */
+export const modSourceBody = z.discriminatedUnion('source', [
   z.object({ source: modCatalogSource, sourceId: catalogId }),
   z.object({
     source: z.literal('manual'),
@@ -208,6 +222,19 @@ export const modAddBody = z.discriminatedUnion('source', [
       .describe('Downloaded once by the site.'),
   }),
 ]);
+export type ModSourceBody = z.input<typeof modSourceBody>;
+
+/**
+ * Body of POST /api/minecraft/admin/mods: from a search result, or by hand. `fileSha512` is for
+ * mods added by hand only.
+ */
+export const modAddBody = z.intersection(
+  modSourceBody,
+  z.object({
+    optional: z.boolean().default(false),
+    fileSha512: modFileSha512.optional(),
+  }),
+);
 export type ModAddBody = z.input<typeof modAddBody>;
 
 /**
@@ -224,6 +251,10 @@ export const modAdminPatchBody = z
       .transform((value) => value || null)
       .describe('Empty or null removes the text.'),
     proposerUserId: z.string().min(1).max(64).nullable().describe('Null credits nobody.'),
+    optional: z.boolean().describe('Official mods only.'),
+    fileSha512: modFileSha512
+      .nullable()
+      .describe('Mods added by hand only. Null removes the hash.'),
   })
   .partial()
   .refine((body) => Object.keys(body).length > 0, 'nothing to change');
@@ -233,8 +264,8 @@ export type ModAdminPatchBody = z.input<typeof modAdminPatchBody>;
  * Body of POST /api/minecraft/admin/mods/{id}/convert: the same shapes as adding a mod. The
  * votes, the proposer, the reason and the tab stay.
  */
-export const modConvertBody = modAddBody;
-export type ModConvertBody = ModAddBody;
+export const modConvertBody = modSourceBody;
+export type ModConvertBody = ModSourceBody;
 
 /** Body of POST /api/minecraft/admin/mods/{id}/remove. Shown to the person who suggested it. */
 export const modRemoveBody = z.object({ reason: z.string().trim().min(3).max(300) });
@@ -284,6 +315,7 @@ export const MOD_PROBLEMS = [
   'notFound',
   'notSuggestion',
   'notOfficial',
+  'notManual',
   'manual',
   'rateLimited',
   'sourceUnavailable',

@@ -1,4 +1,4 @@
-import { eq, inArray, sql } from 'drizzle-orm';
+import { eq, inArray, or, sql } from 'drizzle-orm';
 
 import {
   anticheatFile,
@@ -169,4 +169,49 @@ async function rescoreProject(tx: Tx, projectId: string, ctx?: ScoringContext) {
   );
 }
 
-export const anticheatScoringService = { context, scoreFiles, scoreAndStore, rescoreProject };
+/** An official mod list entry, as far as scoring can match it. */
+export interface ModpackEntry {
+  source: string;
+  sourceId: string | null;
+  fileSha512: string | null;
+}
+
+/**
+ * Scores again the files a change of the official list can affect: those with the entry's hash and
+ * those of its Modrinth or CurseForge project. Returns the hashes whose score, band or path
+ * changed, so the caller can evaluate the reports that hold them.
+ */
+async function rescoreModpack(tx: Tx, entries: ModpackEntry[], ctx?: ScoringContext) {
+  const hashes = entries.flatMap((e) => (e.fileSha512 ? [e.fileSha512.toLowerCase()] : []));
+  const modrinth = entries.flatMap((e) =>
+    e.source === 'modrinth' && e.sourceId ? [e.sourceId] : [],
+  );
+  const curseforge = entries.flatMap((e) =>
+    e.source === 'curseforge' && e.sourceId ? [e.sourceId] : [],
+  );
+  const conditions = [
+    hashes.length > 0 ? inArray(anticheatFile.sha512, hashes) : undefined,
+    modrinth.length > 0 ? inArray(anticheatProject.modrinthId, modrinth) : undefined,
+    curseforge.length > 0 ? inArray(anticheatProject.curseforgeId, curseforge) : undefined,
+  ].filter((condition) => condition !== undefined);
+  if (conditions.length === 0) return [];
+  const rows = await tx
+    .select({ sha512: anticheatFile.sha512 })
+    .from(anticheatFile)
+    .leftJoin(anticheatProject, eq(anticheatProject.id, anticheatFile.projectId))
+    .where(or(...conditions));
+  const results = await scoreFiles(
+    tx,
+    rows.map((row) => row.sha512),
+    ctx,
+  );
+  return results.filter((result) => result.changed).map((result) => result.sha512);
+}
+
+export const anticheatScoringService = {
+  context,
+  scoreFiles,
+  scoreAndStore,
+  rescoreProject,
+  rescoreModpack,
+};

@@ -2,6 +2,7 @@
 import type { TabsItem } from '@nuxt/ui';
 
 import type { ModSearchResult } from '#shared/schemas/mods';
+import { modFileSha512 } from '#shared/schemas/mods';
 
 // Adds a mod to the official list, from the search or by hand. Closes with true once added.
 const emit = defineEmits<{ close: [added: boolean] }>();
@@ -16,7 +17,17 @@ const modes = computed<TabsItem[]>(() => [
   { label: t('admin.mods.add.manual'), value: 'manual' },
 ]);
 
-const manual = reactive({ name: '', summary: '', pageUrl: '', iconUrl: '' });
+const manual = reactive({
+  name: '',
+  summary: '',
+  pageUrl: '',
+  iconUrl: '',
+  optional: false,
+  fileSha512: '',
+});
+const hashValid = computed(
+  () => manual.fileSha512.trim() === '' || modFileSha512.safeParse(manual.fileSha512).success,
+);
 const pending = ref(false);
 
 async function submit(body: Parameters<typeof add>[0]) {
@@ -52,6 +63,8 @@ function onManual() {
     summary: manual.summary,
     pageUrl: manual.pageUrl,
     iconUrl: manual.iconUrl || undefined,
+    optional: manual.optional,
+    fileSha512: manual.fileSha512.trim() || undefined,
   });
 }
 </script>
@@ -85,6 +98,26 @@ function onManual() {
           >
             <UInput v-model="manual.iconUrl" type="url" placeholder="https://" class="w-full" />
           </UFormField>
+          <UFormField
+            :label="t('admin.mods.add.fileSha512')"
+            :help="t('admin.mods.add.fileSha512Help')"
+            :error="hashValid ? undefined : t('admin.mods.edit.fileSha512Invalid')"
+            name="fileSha512"
+          >
+            <UInput
+              v-model="manual.fileSha512"
+              :maxlength="128"
+              spellcheck="false"
+              class="w-full"
+            />
+          </UFormField>
+          <UFormField
+            :label="t('admin.mods.add.optional')"
+            :help="t('admin.mods.add.optionalHelp')"
+            name="optional"
+          >
+            <USwitch v-model="manual.optional" />
+          </UFormField>
         </form>
       </div>
     </template>
@@ -102,6 +135,7 @@ function onManual() {
           type="submit"
           form="mods-add-manual"
           :label="t('admin.mods.add.submit')"
+          :disabled="!hashValid"
           :loading="pending"
         />
       </div>

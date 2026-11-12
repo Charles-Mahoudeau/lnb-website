@@ -872,6 +872,7 @@
       },
       "more": "More actions",
       "official": {
+        "optional": "Optional",
         "add": "Add mod",
         "empty": "No official mods yet. Add one, or promote a suggestion.",
         "mod": "Mod",
@@ -890,6 +891,10 @@
         "removed": "Mod removed"
       },
       "add": {
+        "optional": "Optional mod",
+        "optionalHelp": "Players may leave it out without losing trust. Official mods that aren’t optional are expected in every client.",
+        "fileSha512": "File hash (SHA-512)",
+        "fileSha512Help": "Optional. The 128-character SHA-512 of the mod’s jar, so the anticheat recognizes it.",
         "title": "Add a mod to the official list",
         "lede": "Pick it from Modrinth or CurseForge, or add it by hand if it’s on neither.",
         "fromSearch": "Search",
@@ -922,6 +927,11 @@
         "restored": "Suggestion restored"
       },
       "edit": {
+        "optional": "Optional mod",
+        "optionalHelp": "Players may leave it out without losing trust. Official mods that aren’t optional are expected in every client.",
+        "fileSha512": "File hash (SHA-512)",
+        "fileSha512Help": "The 128-character SHA-512 of the mod’s jar. Leave it empty to remove it.",
+        "fileSha512Invalid": "Enter 128 hexadecimal characters.",
         "title": "Edit {name}",
         "lede": "Change the reason or who gets the credit. The votes stay.",
         "reason": "Reason",
@@ -2744,6 +2754,7 @@
       "notFound": "This mod isn’t in the list anymore. Reload the page.",
       "notSuggestion": "This suggestion was already handled. Reload the page.",
       "notOfficial": "This mod isn’t in the official list anymore. Reload the page.",
+      "notManual": "This entry wasn’t added by hand, so it has no jar hash to set.",
       "rateLimited": "Too many searches. Wait a minute, then try again.",
       "manual": "Mods added by hand have no source to refresh from.",
       "sourceUnavailable": "Modrinth and CurseForge can’t be reached right now. Try again in a few minutes.",

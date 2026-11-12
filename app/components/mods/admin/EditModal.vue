@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ModAdminRow } from '#shared/schemas/mods';
-import { REASON_MAX } from '#shared/schemas/mods';
+import { REASON_MAX, modFileSha512 } from '#shared/schemas/mods';
 
 // Changes a mod's reason (it can be emptied) and who gets the credit. Closes with true once saved.
 const props = defineProps<{ mod: ModAdminRow }>();
@@ -16,6 +16,14 @@ interface Option {
 }
 
 const reason = ref(props.mod.reason ?? '');
+const isOfficial = props.mod.list === 'official';
+const isManual = props.mod.source === 'manual';
+const optional = ref(props.mod.optional);
+const fileSha512 = ref(props.mod.fileSha512 ?? '');
+// An empty field removes the hash. Anything else has to be a SHA-512.
+const hashValid = computed(
+  () => fileSha512.value.trim() === '' || modFileSha512.safeParse(fileSha512.value).success,
+);
 const current: Option | null = props.mod.proposer;
 // The picked account, or null for nobody.
 const picked = ref<Option | null>(current);
@@ -59,7 +67,9 @@ const pickedId = computed({
 const changed = computed(
   () =>
     reason.value.trim() !== (props.mod.reason ?? '') ||
-    (picked.value?.userId ?? null) !== (current?.userId ?? null),
+    (picked.value?.userId ?? null) !== (current?.userId ?? null) ||
+    (isOfficial && optional.value !== props.mod.optional) ||
+    (isManual && fileSha512.value.trim().toLowerCase() !== (props.mod.fileSha512 ?? '')),
 );
 
 async function onSave() {
@@ -68,6 +78,8 @@ async function onSave() {
     await modAdminActions.edit(props.mod.id, {
       reason: reason.value,
       proposerUserId: picked.value?.userId ?? null,
+      ...(isOfficial ? { optional: optional.value } : {}),
+      ...(isManual ? { fileSha512: fileSha512.value.trim() || null } : {}),
     });
     toast.add({
       title: t('admin.mods.edit.saved'),
@@ -129,6 +141,23 @@ async function onSave() {
             />
           </div>
         </UFormField>
+        <UFormField
+          v-if="isOfficial"
+          :label="t('admin.mods.edit.optional')"
+          :help="t('admin.mods.edit.optionalHelp')"
+          name="optional"
+        >
+          <USwitch v-model="optional" />
+        </UFormField>
+        <UFormField
+          v-if="isManual"
+          :label="t('admin.mods.edit.fileSha512')"
+          :help="t('admin.mods.edit.fileSha512Help')"
+          :error="hashValid ? undefined : t('admin.mods.edit.fileSha512Invalid')"
+          name="fileSha512"
+        >
+          <UInput v-model="fileSha512" :maxlength="128" spellcheck="false" class="w-full" />
+        </UFormField>
       </form>
     </template>
     <template #footer>
@@ -144,7 +173,7 @@ async function onSave() {
           type="submit"
           form="mods-edit"
           :label="t('admin.mods.edit.submit')"
-          :disabled="!changed"
+          :disabled="!changed || !hashValid"
           :loading="pending"
         />
       </div>

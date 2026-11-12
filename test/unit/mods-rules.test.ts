@@ -11,6 +11,7 @@ import {
 } from '../../server/services/mods/rules.ts';
 import {
   modAddBody,
+  modAdminPatchBody,
   modListIsOpen,
   modSettingsPatchBody,
   modSuggestBody,
@@ -128,6 +129,23 @@ describe('mod list contracts', () => {
         iconUrl: 'file:///etc/passwd',
       }).success,
     ).toBe(false);
+  });
+});
+
+describe('the jar hash of a mod added by hand', () => {
+  const manual = { source: 'manual', name: 'Our mod', pageUrl: 'https://example.org' };
+
+  it('is 128 hexadecimal characters, stored lowercase', () => {
+    const upper = 'AB'.repeat(64);
+    const parsed = modAddBody.parse({ ...manual, fileSha512: ` ${upper} ` });
+    expect(parsed).toMatchObject({ fileSha512: 'ab'.repeat(64), optional: false });
+    expect(modAddBody.safeParse({ ...manual, fileSha512: 'ab'.repeat(63) }).success).toBe(false);
+    expect(modAddBody.safeParse({ ...manual, fileSha512: 'zz'.repeat(64) }).success).toBe(false);
+  });
+
+  it('can be removed by an admin with null, and the patch takes optional', () => {
+    expect(modAdminPatchBody.parse({ fileSha512: null })).toEqual({ fileSha512: null });
+    expect(modAdminPatchBody.parse({ optional: true })).toEqual({ optional: true });
   });
 });
 

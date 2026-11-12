@@ -1264,14 +1264,14 @@ const routes: RouteDoc[] = [
     tag: TAGS.modsAdmin,
     summary: 'Add an official mod',
     description:
-      'From a search result, checked like a suggestion, or by hand for mods on neither source.',
+      'From a search result, checked like a suggestion, or by hand for mods on neither source. A hand-added mod can carry the SHA-512 of its jar, so the anticheat matches it.',
     access: 'wardenAdmin',
     body: mods.modAddBody,
     response: mods.modCreated,
     created: true,
     problems: [
       { status: 404, problems: ['notFound'] },
-      { status: 409, problems: ['duplicate', 'removed', 'incompatible'] },
+      { status: 409, problems: ['duplicate', 'removed', 'incompatible', 'notManual'] },
       { status: 502, problems: ['sourceUnavailable'] },
     ],
   },
@@ -1281,12 +1281,15 @@ const routes: RouteDoc[] = [
     tag: TAGS.modsAdmin,
     summary: 'Edit a mod',
     description:
-      "Changes the reason, which can be emptied, and who suggested the mod (or nobody). Works on any mod. The new proposer's own vote on it is cleared.",
+      "Changes the reason, which can be emptied, and who suggested the mod (or nobody). Works on any mod. The new proposer's own vote on it is cleared. `optional` (official mods) lets players leave a mod out of the anticheat's modlist check; `fileSha512` (manual mods) ties the entry to a jar.",
     access: 'wardenAdmin',
     params: mods.modIdParams,
     body: mods.modAdminPatchBody,
     noContent: true,
-    problems: [{ status: 404, problems: ['notFound'] }],
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['notOfficial', 'notManual'] },
+    ],
   },
   {
     method: 'post',
