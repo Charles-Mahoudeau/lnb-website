@@ -8,6 +8,13 @@ const { t } = useI18n();
 const { user, school } = useAuth();
 const route = useRoute();
 
+// The anticheat's waiting work, for the badge on its group. Warden admins only.
+const summary = isWardenAdmin(user.value?.role) ? useAnticheatSummary() : null;
+const anticheatBadge = computed(() => {
+  const count = (summary?.data.value?.alerts ?? 0) + (summary?.data.value?.waiting ?? 0);
+  return count > 0 ? count : undefined;
+});
+
 const wardenItems = computed<NavigationMenuItem[]>(() => [
   {
     label: t('admin.nav.warden'),
@@ -18,6 +25,16 @@ const wardenItems = computed<NavigationMenuItem[]>(() => [
       { label: t('admin.nav.appeals'), to: '/admin/warden/appeals' },
       { label: t('admin.nav.activity'), to: '/admin/warden/activity' },
       { label: t('admin.nav.settings'), to: '/admin/warden/settings' },
+    ],
+  },
+  {
+    label: t('admin.nav.anticheat'),
+    icon: 'i-lucide-shield-check',
+    defaultOpen: true,
+    badge: anticheatBadge.value,
+    children: [
+      { label: t('admin.nav.anticheatFiles'), to: '/admin/anticheat', exact: true },
+      { label: t('admin.nav.anticheatReview'), to: '/admin/anticheat/review' },
     ],
   },
   {
