@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { WardenConfirmModal } from '#components';
 
-import type { EconomyAccountView } from '#shared/schemas/economy';
+import type { EconomyAccountType, EconomyAccountView } from '#shared/schemas/economy';
+import { ECONOMY_ACCOUNT_TYPES } from '#shared/schemas/economy';
 
-// Settings of the chosen account: the baltop for the personal one; the name, closing or leaving
-// for a shared one.
-const props = defineProps<{ account: EconomyAccountView; hideFromBaltop: boolean }>();
+// Settings of the chosen account: the baltop for the personal one; the name, the type, closing or
+// leaving for a shared one. A casino stays a casino, and becoming one uses a casino licence.
+const props = defineProps<{
+  account: EconomyAccountView;
+  hideFromBaltop: boolean;
+  freeLicenses: number;
+}>();
 const emit = defineEmits<{ changed: []; closed: []; failed: [caught: unknown] }>();
 const { t } = useI18n();
 const toast = useToast();
@@ -34,12 +39,24 @@ async function onBaltop(hidden: boolean) {
 }
 
 const name = ref(props.account.name ?? '');
+const type = ref<EconomyAccountType>(props.account.type ?? 'team');
+const typeLocked = computed(() => props.account.type === 'casino');
+const typeItems = computed(() =>
+  ECONOMY_ACCOUNT_TYPES.map((value) => ({
+    label: t(`economy.types.${value}`),
+    value,
+    disabled: value === 'casino' && !typeLocked.value && props.freeLicenses < 1,
+  })),
+);
+const unchanged = computed(
+  () => name.value.trim() === props.account.name && type.value === props.account.type,
+);
 const renaming = ref(false);
 async function onRename() {
   renaming.value = true;
   if (
     await run(
-      () => economyActions.rename(props.account.id, name.value),
+      () => economyActions.update(props.account.id, { name: name.value, type: type.value }),
       t('economy.settings.renamed'),
     )
   ) {
@@ -121,13 +138,29 @@ async function onLeave() {
         >
           <UInput v-model="name" class="w-full max-w-sm" maxlength="32" />
         </UFormField>
+        <UFormField
+          :label="t('economy.settings.type')"
+          :help="
+            typeLocked
+              ? t('economy.settings.typeLocked')
+              : t('economy.settings.typeLicenses', { n: freeLicenses }, freeLicenses)
+          "
+        >
+          <USelect
+            v-model="type"
+            :items="typeItems"
+            value-key="value"
+            :disabled="typeLocked"
+            class="w-full max-w-sm"
+          />
+        </UFormField>
         <UButton
           type="submit"
           color="neutral"
           variant="soft"
           class="self-start"
           :loading="renaming"
-          :disabled="!name.trim() || name.trim() === account.name"
+          :disabled="!name.trim() || unchanged"
           :label="t('economy.settings.rename')"
         />
       </form>

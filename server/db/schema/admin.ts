@@ -85,6 +85,7 @@ export type AdminAuditAction =
    * reversal `data.transactionId`; a reset `data.accounts` and `data.supply`. For a shop,
    * `data.name` is its item and account (`Diamond, #shop`) and `data.shopId` the shop. For a
    * listing taken down, `data.name` is its item and seller, with `data.listingId` and `data.reason`.
+   * A type set by an admin has `data.from` and `data.type`.
    */
   | 'economy.adjust'
   | 'economy.freeze'
@@ -94,7 +95,8 @@ export type AdminAuditAction =
   | 'economy.reset'
   | 'economy.shopDisable'
   | 'economy.shopEnable'
-  | 'economy.listingRemove';
+  | 'economy.listingRemove'
+  | 'economy.accountType';
 
 // Rows outlive the accounts they name: a deleted actor or target becomes null, so the log keeps
 // what happened without keeping who it happened to.

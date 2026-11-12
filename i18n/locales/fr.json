@@ -847,7 +847,8 @@
         "economy_reset": "{actor} a remis l’économie à zéro.",
         "economy_shopDisable": "{actor} a fermé le shop {name}.",
         "economy_shopEnable": "{actor} a rouvert le shop {name}.",
-        "economy_listingRemove": "{actor} a retiré l’annonce {name}."
+        "economy_listingRemove": "{actor} a retiré l’annonce {name}.",
+        "economy_accountType": "{actor} a changé le type du compte bancaire {name}."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page.",
       "apiKeysSoon": "1 clé API expire dans moins de 30 jours | {n} clés API expirent dans moins de 30 jours",
@@ -2242,7 +2243,9 @@
         "in30": "Entrées, 30 jours",
         "out30": "Sorties, 30 jours",
         "members": "Membres",
-        "history": "Historique"
+        "history": "Historique",
+        "type": "Type",
+        "typeSaved": "Type enregistré"
       },
       "adjust": {
         "title": "Ajuster {name}",
@@ -2936,6 +2939,8 @@
       "lastOwner": "Un compte a besoin d’au moins un propriétaire. Nommez quelqu’un d’autre propriétaire d’abord.",
       "balanceNotZero": "Videz le compte avant de le fermer.",
       "personalAccount": "Les comptes perso ne peuvent pas faire ça.",
+      "noLicense": "Un casino demande une licence de casino. Achetez-en une en jeu d’abord.",
+      "typeLocked": "Un casino reste un casino : son type ne peut plus changer.",
       "alreadyReversed": "Cette transaction a déjà été annulée.",
       "notReversible": "Une annulation ne peut pas être annulée.",
       "idempotencyMismatch": "Cette requête a déjà servi pour autre chose.",
@@ -2952,6 +2957,11 @@
       "owner": "gère les membres et le compte",
       "member": "dépense et voit l’historique",
       "viewer": "voit l’historique seulement"
+    },
+    "types": {
+      "team": "Équipe",
+      "shop": "Boutique",
+      "casino": "Casino"
     },
     "kinds": {
       "payment": "Paiement",
@@ -3051,8 +3061,11 @@
       "baltopShown": "Vous êtes de retour au baltop",
       "name": "Nom",
       "handleFixed": "#{handle} ne change jamais",
-      "rename": "Enregistrer le nom",
-      "renamed": "Nom enregistré",
+      "type": "Type",
+      "typeLocked": "Un casino reste un casino",
+      "typeLicenses": "Devenir un casino utilise une licence de casino, pour de bon. Vous n’en avez aucune de libre : achetez-en une en jeu. | Devenir un casino utilise une licence de casino, pour de bon. Vous en avez {n} de libre. | Devenir un casino utilise une licence de casino, pour de bon. Vous en avez {n} de libres.",
+      "rename": "Enregistrer",
+      "renamed": "Compte enregistré",
       "closeHeading": "Fermer le compte",
       "closeHint": "Son identifiant reste pris, pour que personne ne puisse se faire passer pour lui.",
       "closeNotEmpty": "Videz le compte avant de le fermer.",
@@ -3073,6 +3086,8 @@
       "name": "Nom",
       "handle": "Identifiant",
       "handleHelp": "Les joueurs le paient avec /pay #identifiant. De 3 à 24 lettres minuscules, chiffres ou tirets. Il ne pourra plus changer.",
+      "type": "Type",
+      "typeHelp": "Un casino utilise une licence de casino. Vous n’en avez aucune de libre : achetez-en une en jeu. | Un casino utilise une licence de casino. Vous en avez {n} de libre. | Un casino utilise une licence de casino. Vous en avez {n} de libres.",
       "submit": "Ouvrir le compte"
     },
     "baltop": {

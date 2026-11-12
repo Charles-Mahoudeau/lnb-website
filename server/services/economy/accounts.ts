@@ -12,6 +12,7 @@ import {
 
 import { economyBaltopService } from './baltop';
 import { economyLedger } from './ledger';
+import { bindLicense, licenseCount } from './licenses';
 import { canManage, canSpend } from './rules';
 import { economySettingsService } from './settings';
 import { refuse } from './shared';
@@ -21,6 +22,8 @@ import { accountTransactions, accountViews, playerNames } from './views';
 
 import type {
   EconomyAccountDetail,
+  EconomyAccountPatchBody,
+  EconomyAccountView,
   EconomyCreateBody,
   EconomyInviteBody,
   EconomyMe,
@@ -190,7 +193,7 @@ async function ownedSharedCount(dbx: Db, userId: string): Promise<number> {
 async function me(userId: string): Promise<EconomyMe> {
   const eligible = await isEligible(db, userId);
   if (eligible) await db.transaction((tx) => ensurePersonal(tx, userId));
-  const [rows, invitations, profile, settings, ownedShared] = await Promise.all([
+  const [rows, invitations, profile, settings, ownedShared, casinoLicenses] = await Promise.all([
     accountsOf(db, userId),
     db
       .select({
@@ -209,6 +212,7 @@ async function me(userId: string): Promise<EconomyMe> {
     db.select().from(economyProfile).where(eq(economyProfile.userId, userId)),
     economySettingsService.get(),
     ownedSharedCount(db, userId),
+    licenseCount(db, userId),
   ]);
   const names = await playerNames(
     db,
@@ -231,7 +235,16 @@ async function me(userId: string): Promise<EconomyMe> {
     rank: personal && !hideFromBaltop ? await economyBaltopService.rankOf(personal.id) : null,
     ownedShared,
     maxOwnedShared: settings.maxOwnedShared,
+    casinoLicenses,
   };
+}
+
+/** One account as the player sees it, with their role. */
+async function view(userId: string, accountId: string): Promise<EconomyAccountView> {
+  const { account, role } = await membership(db, accountId, userId);
+  const [found] = await accountViews(db, [{ ...account, role }]);
+  if (!found) refuse(404, 'notFound');
+  return found;
 }
 
 /** One account, with its members, for anyone in it. Owners also see pending invitations. */
@@ -299,7 +312,7 @@ async function balanceHistory(userId: string, accountId: string, period: Economy
   return economyStatsService.balanceHistory(accountId, period);
 }
 
-/** Opens a shared account with the player as its owner. */
+/** Opens a shared account with the player as its owner. A casino uses one of their licences. */
 async function create(userId: string, body: EconomyCreateBody): Promise<EconomyAccountDetail> {
   if (!(await isEligible(db, userId))) refuse(403, 'notEligible');
   const handle = economyHandle.parse(body.handle);
@@ -310,23 +323,35 @@ async function create(userId: string, body: EconomyCreateBody): Promise<EconomyA
     if ((await ownedSharedCount(tx, userId)) >= maxOwnedShared) refuse(409, 'tooManyAccounts');
     const [account] = await tx
       .insert(economyAccount)
-      .values({ kind: 'shared', handle, name: body.name.trim() })
+      .values({ kind: 'shared', type: body.type ?? 'team', handle, name: body.name.trim() })
       .onConflictDoNothing()
       .returning({ id: economyAccount.id });
     if (!account) refuse(409, 'handleTaken');
     await tx.insert(economyMember).values({ accountId: account.id, userId, role: 'owner' });
+    if (body.type === 'casino') await bindLicense(tx, account.id, userId);
     return account.id;
   });
   return detail(userId, accountId);
 }
 
-async function rename(userId: string, accountId: string, name: string) {
+/**
+ * Renames a shared account, changes its type, or both. Only owners do. A casino stays a casino:
+ * its licence is bound to it for good. Becoming one uses one of the owner's free licences.
+ */
+async function update(userId: string, accountId: string, body: EconomyAccountPatchBody) {
   await db.transaction(async (tx) => {
-    await owned(tx, accountId, userId);
-    await tx
-      .update(economyAccount)
-      .set({ name: name.trim() })
-      .where(eq(economyAccount.id, accountId));
+    const account = await owned(tx, accountId, userId);
+    const type = body.type !== undefined && body.type !== account.type ? body.type : undefined;
+    if (type) {
+      if (account.type === 'casino') refuse(409, 'typeLocked');
+      if (type === 'casino') await bindLicense(tx, accountId, userId);
+    }
+    const values = {
+      ...(body.name !== undefined && { name: body.name.trim() }),
+      ...(type && { type }),
+    };
+    if (!Object.keys(values).length) return;
+    await tx.update(economyAccount).set(values).where(eq(economyAccount.id, accountId));
   });
 }
 
@@ -361,7 +386,7 @@ async function seatsTaken(dbx: Db, accountId: string): Promise<number> {
 
 /** Invites a player by their linked Minecraft username. They join once they accept. */
 async function invite(userId: string, accountId: string, body: EconomyInviteBody) {
-  await db.transaction(async (tx) => {
+  return db.transaction(async (tx) => {
     await owned(tx, accountId, userId);
     const [target] = await tx
       .select({ userId: minecraftAccount.userId })
@@ -384,6 +409,7 @@ async function invite(userId: string, accountId: string, body: EconomyInviteBody
       .onConflictDoNothing()
       .returning({ id: economyInvitation.id });
     if (!created) refuse(409, 'alreadyInvited');
+    return { id: created.id, userId: target.userId };
   });
 }
 
@@ -400,8 +426,9 @@ async function cancelInvitation(userId: string, accountId: string, invitationId:
   });
 }
 
+/** Answers an invitation. Gives back the account's ID, to show it once joined. */
 async function answerInvitation(userId: string, invitationId: string, accept: boolean) {
-  await db.transaction(async (tx) => {
+  return db.transaction(async (tx) => {
     const [invitation] = await tx
       .select()
       .from(economyInvitation)
@@ -409,7 +436,7 @@ async function answerInvitation(userId: string, invitationId: string, accept: bo
       .for('update');
     if (!invitation) refuse(404, 'notFound');
     await tx.delete(economyInvitation).where(eq(economyInvitation.id, invitationId));
-    if (!accept) return;
+    if (!accept) return invitation.accountId;
     const [account] = await tx
       .select()
       .from(economyAccount)
@@ -424,6 +451,7 @@ async function answerInvitation(userId: string, invitationId: string, accept: bo
       .insert(economyMember)
       .values({ accountId: account.id, userId, role: invitation.role })
       .onConflictDoNothing();
+    return account.id;
   });
 }
 
@@ -589,11 +617,12 @@ export const economyAccountService = {
   openAccounts,
   closeAccount,
   me,
+  view,
   detail,
   transactions,
   balanceHistory,
   create,
-  rename,
+  update,
   close,
   invite,
   cancelInvitation,

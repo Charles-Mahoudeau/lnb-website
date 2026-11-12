@@ -51,7 +51,9 @@ async function run(action: () => Promise<unknown>, success?: string): Promise<bo
 
 const createModal = overlay.create(EconomyCreateModal);
 async function onCreate() {
-  const created: unknown = await createModal.open().result;
+  const created: unknown = await createModal.open({
+    freeLicenses: me.value?.casinoLicenses.free ?? 0,
+  }).result;
   if (created && typeof created === 'object' && 'id' in created) {
     await refresh();
     select(created as EconomyAccountView);
@@ -146,6 +148,7 @@ const canCreate = computed(
           :key="selected.id"
           :account="selected"
           :hide-from-baltop="me.hideFromBaltop"
+          :free-licenses="me.casinoLicenses.free"
           @changed="refresh"
           @closed="select(me.accounts[0]!)"
           @failed="fail"

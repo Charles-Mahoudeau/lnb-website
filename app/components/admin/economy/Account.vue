@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { AdminEconomyAdjustModal, AdminEconomyReasonModal } from '#components';
 
-import type { EconomyTransactionView } from '#shared/schemas/economy';
-import { economyAdjustBody } from '#shared/schemas/economy';
+import type { EconomyAccountType, EconomyTransactionView } from '#shared/schemas/economy';
+import { ECONOMY_ACCOUNT_TYPES, economyAdjustBody } from '#shared/schemas/economy';
 
-// One bank account for economy admins: its numbers, mint and burn, freezing, and its history with
-// a reversal on each line.
+// One bank account for economy admins: its numbers, its type, mint and burn, freezing, and its
+// history with a reversal on each line.
 const props = defineProps<{ id: string }>();
 const { t, locale } = useI18n();
 const toast = useToast();
@@ -76,6 +76,18 @@ async function onAdjust(direction: 'mint' | 'burn') {
     t(`admin.economy.adjust.done.${body.direction}`, {
       amount: formatLnbits(body.amount, locale.value),
     }),
+  );
+}
+
+const typeItems = computed(() =>
+  ECONOMY_ACCOUNT_TYPES.map((value) => ({ label: t(`economy.types.${value}`), value })),
+);
+// Admins set any type, with no licence: for casinos that were there before the licences.
+async function onType(type: EconomyAccountType) {
+  if (type === data.value?.type) return;
+  await run(
+    () => economyAdminActions.setType(props.id, type),
+    t('admin.economy.account.typeSaved'),
   );
 }
 
@@ -153,6 +165,12 @@ function counterparty(item: EconomyTransactionView): string {
             }}
           </span>
           <UBadge
+            v-if="data.type"
+            color="neutral"
+            variant="soft"
+            :label="t(`economy.types.${data.type}`)"
+          />
+          <UBadge
             v-if="data.closed"
             color="neutral"
             variant="soft"
@@ -181,6 +199,15 @@ function counterparty(item: EconomyTransactionView): string {
         </p>
       </div>
       <div v-if="!data.closed" class="flex flex-wrap gap-2">
+        <USelect
+          v-if="data.type"
+          :model-value="data.type"
+          :items="typeItems"
+          value-key="value"
+          :aria-label="t('admin.economy.account.type')"
+          class="w-36"
+          @update:model-value="onType"
+        />
         <UButton
           color="neutral"
           variant="soft"

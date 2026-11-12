@@ -1,12 +1,21 @@
 <script setup lang="ts">
 import type { EconomyAccountDetail, EconomyCreateBody } from '#shared/schemas/economy';
-import { economyCreateBody } from '#shared/schemas/economy';
+import { ECONOMY_ACCOUNT_TYPES, economyCreateBody } from '#shared/schemas/economy';
 
-// Opening a shared account. Closes with the new account, or null.
+// Opening a shared account. Closes with the new account, or null. A casino needs a free casino
+// licence, bought in the game.
+const props = defineProps<{ freeLicenses: number }>();
 const emit = defineEmits<{ close: [account: EconomyAccountDetail | null] }>();
 const { t } = useI18n();
 
-const state = reactive<EconomyCreateBody>({ name: '', handle: '' });
+const state = reactive<EconomyCreateBody>({ name: '', handle: '', type: 'team' });
+const typeItems = computed(() =>
+  ECONOMY_ACCOUNT_TYPES.map((value) => ({
+    label: t(`economy.types.${value}`),
+    value,
+    disabled: value === 'casino' && props.freeLicenses < 1,
+  })),
+);
 const handleTouched = ref(false);
 // The handle follows the name until the player edits it.
 watch(
@@ -65,6 +74,13 @@ async function onSubmit() {
           >
             <template #leading><span class="text-muted">#</span></template>
           </UInput>
+        </UFormField>
+        <UFormField
+          name="type"
+          :label="t('economy.create.type')"
+          :help="t('economy.create.typeHelp', { n: freeLicenses }, freeLicenses)"
+        >
+          <USelect v-model="state.type" :items="typeItems" value-key="value" class="w-full" />
         </UFormField>
         <UAlert
           v-if="problem"
