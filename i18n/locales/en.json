@@ -1257,6 +1257,30 @@
           "label": "Economy stats",
           "description": "The nightly save of the economy charts, and closing the bank accounts of deleted players."
         },
+        "anticheat": {
+          "label": "Anticheat",
+          "description": "The Minecraft server’s file reports and their scoring. Players are let in as if the anticheat didn’t exist. Admins can still manage it."
+        },
+        "anticheat_serverApi": {
+          "label": "Anticheat server API",
+          "description": "Every anticheat call from the Minecraft server answers 503, and the server lets players in."
+        },
+        "anticheat_lookups": {
+          "label": "Anticheat platform lookups",
+          "description": "Looking files up on Modrinth and CurseForge. Files stay pending, then are scored as unknown."
+        },
+        "jobs_anticheatLookups": {
+          "label": "Anticheat lookups",
+          "description": "The per-minute retry and expiry of platform lookups."
+        },
+        "jobs_anticheatRescore": {
+          "label": "Anticheat re-scoring",
+          "description": "The nightly re-scoring of stale files and their platform data."
+        },
+        "jobs_anticheatPrune": {
+          "label": "Anticheat cleanup",
+          "description": "The nightly removal of old reports, usage links, alerts and unused files."
+        },
         "push_partnerEvents": {
           "label": "Partner event notifications",
           "description": "Announcing a partner event. Nothing is queued while this is off."

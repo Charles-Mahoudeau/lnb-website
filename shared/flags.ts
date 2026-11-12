@@ -53,6 +53,9 @@ export const FLAG_DEFINITIONS = [
   { key: 'economy.auctions', parent: 'economy' },
   { key: 'economy.casinoLicenses', parent: 'economy' },
   { key: 'economy.mobDrops', parent: 'economy' },
+  { key: 'anticheat' },
+  { key: 'anticheat.serverApi', parent: 'anticheat' },
+  { key: 'anticheat.lookups', parent: 'anticheat' },
   { key: 'push' },
   { key: 'push.subscribe', parent: 'push' },
   { key: 'push.newEvents', parent: 'push' },
@@ -71,6 +74,9 @@ export const FLAG_DEFINITIONS = [
   { key: 'jobs.pushPrune', parent: 'jobs' },
   { key: 'jobs.pruneApiKeys', parent: 'jobs' },
   { key: 'jobs.economySnapshot', parent: 'jobs' },
+  { key: 'jobs.anticheatLookups', parent: 'jobs' },
+  { key: 'jobs.anticheatRescore', parent: 'jobs' },
+  { key: 'jobs.anticheatPrune', parent: 'jobs' },
 ] as const satisfies readonly FlagDefinition[];
 
 export type FlagKey = (typeof FLAG_DEFINITIONS)[number]['key'];
