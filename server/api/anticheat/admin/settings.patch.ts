@@ -1,0 +1,14 @@
+import { defineEventHandler } from 'nuxt/server';
+
+import { anticheatAdminService } from '~~/server/services/anticheat/admin';
+
+import { anticheatSettingsPatch } from '#shared/schemas/anticheat';
+
+export default defineEventHandler(async (event) => {
+  const admin = await requireWardenAdmin(event);
+  const patch = await parseBody(event, anticheatSettingsPatch);
+  return anticheatAdminService.updateSettings({
+    actor: { source: 'web', userId: admin.id },
+    patch,
+  });
+});

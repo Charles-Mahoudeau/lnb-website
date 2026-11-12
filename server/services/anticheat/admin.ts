@@ -19,6 +19,7 @@ import { anticheatPlayerService } from './players';
 import { anticheatRegistryService } from './registry';
 import { anticheatReportService } from './reports';
 import { anticheatScoringService } from './scoring';
+import { anticheatSettingsService } from './settings';
 import { actorUserId, refuse } from './shared';
 import type { AnticheatActor, Tx } from './shared';
 import { anticheatTrustService } from './trust';
@@ -30,6 +31,8 @@ import type {
   AnticheatDecisionResult,
   AnticheatModIdBanRow,
   AnticheatProjectCreateBody,
+  AnticheatSettings,
+  AnticheatSettingsPatch,
 } from '#shared/schemas/anticheat';
 
 // What an admin changes about files, projects and declared mod IDs. Each write runs in a
@@ -468,6 +471,41 @@ async function unbanModId(input: { actor: AnticheatActor; modId: string }): Prom
   await notify(changed);
 }
 
+// Settings
+
+function settingsView(
+  config: Awaited<ReturnType<typeof anticheatSettingsService.get>>,
+): AnticheatSettings {
+  return {
+    mode: config.mode,
+    rulesVersion: config.rulesVersion,
+    rules: config.rules,
+    updatedAt: config.updatedAt.toISOString(),
+  };
+}
+
+async function settings(): Promise<AnticheatSettings> {
+  return settingsView(await anticheatSettingsService.get());
+}
+
+/**
+ * Changes the mode or the rules. New rules make a new version, and every file is marked stale so
+ * the re-score task works it out again under them.
+ */
+async function updateSettings(input: {
+  actor: AnticheatActor;
+  patch: AnticheatSettingsPatch;
+}): Promise<AnticheatSettings> {
+  const before = await anticheatSettingsService.get();
+  const after = await anticheatSettingsService.update({
+    actorId: actorUserId(input.actor) ?? '',
+    mode: input.patch.mode,
+    rules: input.patch.rules,
+  });
+  if (after.rulesVersion !== before.rulesVersion) await rescoreAll();
+  return settingsView(after);
+}
+
 // Players
 
 /**
@@ -549,6 +587,8 @@ async function bulkPlayers(input: {
 }
 
 export const anticheatAdminService = {
+  settings,
+  updateSettings,
   bulkPlayers,
   decideFile,
   decideProject,
