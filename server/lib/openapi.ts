@@ -3397,6 +3397,23 @@ const routes: RouteDoc[] = [
   },
   {
     method: 'post',
+    path: '/api/economy/server/mints',
+    tag: TAGS.economyServer,
+    summary: 'Mint what mobs dropped',
+    description:
+      "Creates `amount` LNBits on the player's personal account: one transaction of kind `mint`, reason `mobDrop`. The server batches drops, so one call covers many mobs. A frozen or banned player gets nothing. Carries an `idempotencyKey`, as transfers do. Behind the `economy.mobDrops` flag too.",
+    access: 'wardenServer',
+    body: economy.economyMintBody,
+    response: economy.economyMintResult,
+    problems: [
+      { status: 403, problems: ['notEligible'] },
+      { status: 404, problems: ['notLinked'] },
+      { status: 409, problems: ['frozen', 'idempotencyMismatch'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'post',
     path: '/api/economy/server/transfers',
     tag: TAGS.economyServer,
     summary: 'Move money',

@@ -52,6 +52,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'economy.trades', parent: 'economy' },
   { key: 'economy.auctions', parent: 'economy' },
   { key: 'economy.casinoLicenses', parent: 'economy' },
+  { key: 'economy.mobDrops', parent: 'economy' },
   { key: 'push' },
   { key: 'push.subscribe', parent: 'push' },
   { key: 'push.newEvents', parent: 'push' },

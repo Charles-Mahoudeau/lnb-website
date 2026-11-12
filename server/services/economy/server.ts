@@ -24,12 +24,14 @@ import { accountViews } from './views';
 import type {
   EconomyLicenseBody,
   EconomyLicenseResult,
+  EconomyMintBody,
+  EconomyMintResult,
   EconomyServerAccount,
   EconomyServerPlayer,
   EconomyTransferBody,
   EconomyTransferResult,
 } from '#shared/schemas/economy';
-import { economyLicenseBody, economyTransferBody } from '#shared/schemas/economy';
+import { economyLicenseBody, economyMintBody, economyTransferBody } from '#shared/schemas/economy';
 
 // What the Minecraft server asks of the economy: a player's accounts, an account by handle,
 // transfers, casino licences and the money mobs drop. The server is trusted (WARDEN_SERVER_SECRET), but every rule is still checked here:
@@ -333,4 +335,84 @@ async function buyLicense(input: EconomyLicenseBody): Promise<EconomyLicenseResu
   }
 }
 
-export const economyServerService = { lookup, setDefault, account, transfer, buyLicense };
+/** A mint already made with this key, or nothing. */
+async function previousMint(
+  dbx: Db,
+  key: string,
+  print: string,
+): Promise<EconomyMintResult | undefined> {
+  const [existing] = await dbx
+    .select({ id: economyTransaction.id, fingerprint: economyTransaction.fingerprint })
+    .from(economyTransaction)
+    .where(eq(economyTransaction.idempotencyKey, key));
+  if (!existing) return undefined;
+  if (existing.fingerprint !== print) refuse(409, 'idempotencyMismatch');
+  const entries = await dbx
+    .select({
+      accountId: economyEntry.accountId,
+      amount: economyEntry.amount,
+      balanceAfter: economyEntry.balanceAfter,
+    })
+    .from(economyEntry)
+    .where(eq(economyEntry.transactionId, existing.id));
+  const to = entries.find((entry) => entry.accountId && entry.amount > 0);
+  if (!to?.accountId) throw new Error('A mint credits an account.');
+  return {
+    transactionId: existing.id,
+    replayed: true,
+    amount: to.amount,
+    to: { accountId: to.accountId, handle: null, balance: to.balanceAfter ?? 0 },
+  };
+}
+
+/**
+ * Creates money on a player's personal account: what the mobs they killed dropped. The server
+ * batches drops, so one call covers many mobs. A frozen or banned player gets nothing. Sending the
+ * same key again gives back the first result.
+ */
+async function mint(input: EconomyMintBody): Promise<EconomyMintResult> {
+  const body = economyMintBody.parse(input);
+  const print = hashRequest({
+    kind: 'mint',
+    player: body.player,
+    amount: body.amount,
+    reason: body.reason,
+  });
+  const previous = await previousMint(db, body.idempotencyKey, print);
+  if (previous) return previous;
+
+  try {
+    return await db.transaction(async (tx) => {
+      const who = await player(tx, body.player);
+      const posted = await economyLedger.post(tx, {
+        kind: 'mint',
+        reason: body.reason,
+        actor: { source: 'minecraft', userId: who.userId, minecraftUuid: body.player },
+        idempotencyKey: body.idempotencyKey,
+        fingerprint: print,
+        legs: [
+          { accountId: null, amount: -body.amount },
+          { accountId: who.personal.id, amount: body.amount },
+        ],
+      });
+      return {
+        transactionId: posted.transactionId,
+        replayed: false,
+        amount: body.amount,
+        to: {
+          accountId: who.personal.id,
+          handle: null,
+          balance: posted.balances.get(who.personal.id) ?? 0,
+        },
+      };
+    });
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      const raced = await previousMint(db, body.idempotencyKey, print);
+      if (raced) return raced;
+    }
+    throw error;
+  }
+}
+
+export const economyServerService = { lookup, setDefault, account, transfer, buyLicense, mint };

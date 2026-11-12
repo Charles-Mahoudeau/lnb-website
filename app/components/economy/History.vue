@@ -73,11 +73,13 @@ function title(item: EconomyTransactionView): string {
         ? t('economy.history.received', { who: who(item) })
         : t('economy.history.paid', { who: who(item) });
     case 'mint':
-      return item.reason === 'startingBalance'
-        ? t('economy.history.startingBalance')
-        : t('economy.history.adjustment');
-    case 'burn':
+      if (item.reason === 'startingBalance') return t('economy.history.startingBalance');
+      if (item.reason === 'mobDrop') return t('economy.history.mobDrop');
       return t('economy.history.adjustment');
+    case 'burn':
+      return item.reason === 'casinoLicense'
+        ? t('economy.history.casinoLicense')
+        : t('economy.history.adjustment');
     case 'reversal':
       return t('economy.history.reversal');
   }
