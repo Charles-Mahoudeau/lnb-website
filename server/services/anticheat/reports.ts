@@ -1,3 +1,5 @@
+import { isDeepStrictEqual } from 'node:util';
+
 import { and, desc, eq, inArray, isNull, max, sql } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
@@ -9,6 +11,7 @@ import {
   wardenSession,
 } from '~~/server/db/schema';
 import type { AnticheatDeclared } from '~~/server/db/schema';
+import { wardenAuditService } from '~~/server/services/warden/audit';
 
 import { anticheatAlertService } from './alerts';
 import { anticheatLookupService } from './lookup';
@@ -214,6 +217,7 @@ async function storeFiles(
         kind: 'factsDisputed',
         userId,
         sha512: file.sha512,
+        name: file.name ?? file.filename,
         data: { stored: row.facts, reported: file.facts },
       });
       toScore.add(file.sha512);
@@ -254,6 +258,8 @@ async function linkUsage(
 export interface Evaluation {
   /** The verdict or a file's entry differs from what the report held. */
   changed: boolean;
+  /** The files whose score, band or action differs from what the report held. */
+  changedFiles: string[];
   verdict: AnticheatVerdict;
 }
 
@@ -265,7 +271,7 @@ async function evaluate(tx: Tx, reportId: string): Promise<Evaluation> {
   const { mode, rules, rulesVersion } = await anticheatSettingsService.get();
   const [report] = await tx.select().from(anticheatReport).where(eq(anticheatReport.id, reportId));
   if (!report) throw new Error(`Unknown anticheat report ${reportId}`);
-  if (mode === 'off') return { changed: false, verdict: report.verdict };
+  if (mode === 'off') return { changed: false, changedFiles: [], verdict: report.verdict };
 
   const player = await anticheatPlayerService.get(tx, report.userId);
   const rows = await tx
@@ -275,6 +281,7 @@ async function evaluate(tx: Tx, reportId: string): Promise<Evaluation> {
     .where(eq(anticheatReportFile.reportId, reportId));
 
   let changed = false;
+  const changedFiles: string[] = [];
   const verdictFiles: VerdictFile[] = [];
   for (const { entry, file } of rows) {
     const name = entry.declared.name ?? entry.filename;
@@ -307,6 +314,7 @@ async function evaluate(tx: Tx, reportId: string): Promise<Evaluation> {
       entry.action !== action
     ) {
       changed = true;
+      changedFiles.push(entry.sha512);
       await tx
         .update(anticheatReportFile)
         .set({ score: file.score, effectiveScore: effective, band, action })
@@ -323,6 +331,8 @@ async function evaluate(tx: Tx, reportId: string): Promise<Evaluation> {
         kind: 'fileRefused',
         userId: report.userId,
         sha512: entry.sha512,
+        minecraftUuid: report.minecraftUuid,
+        name,
         data: { name },
       });
     } else if (action === 'kick' || action === 'ban') {
@@ -330,6 +340,8 @@ async function evaluate(tx: Tx, reportId: string): Promise<Evaluation> {
         kind: 'bannedFileSeen',
         userId: report.userId,
         sha512: entry.sha512,
+        minecraftUuid: report.minecraftUuid,
+        name,
         data: { name },
       });
     }
@@ -339,17 +351,19 @@ async function evaluate(tx: Tx, reportId: string): Promise<Evaluation> {
     await anticheatAlertService.raise(tx, {
       kind: 'playerHeld',
       userId: report.userId,
+      minecraftUuid: report.minecraftUuid,
       data: { score: player.score },
     });
   }
 
   const verdict = verdictOf(verdictFiles, player, mode, rules);
-  if (JSON.stringify(verdict) !== JSON.stringify(report.verdict)) changed = true;
+  // jsonb keeps keys in its own order, so the objects are compared, not their text.
+  if (!isDeepStrictEqual(verdict, report.verdict)) changed = true;
   await tx
     .update(anticheatReport)
     .set({ verdict, playerScore: player.score, mode, rulesVersion, evaluatedAt: new Date() })
     .where(eq(anticheatReport.id, reportId));
-  return { changed, verdict };
+  return { changed, changedFiles, verdict };
 }
 
 /** A report as the server receives it, rebuilt from the stored snapshot. */
@@ -423,4 +437,57 @@ async function current(sessionId: string): Promise<AnticheatReportResponse> {
   return buildResponse(db, report.id);
 }
 
-export const anticheatReportService = { submit, evaluate, current };
+/**
+ * Evaluates the given reports again and tells the Minecraft server about each verdict that changed,
+ * through an `anticheat.verdict` audit row. One transaction per report, so one failure leaves the
+ * others. Returns how many verdicts changed.
+ */
+async function reevaluate(reportIds: string[]): Promise<number> {
+  let changed = 0;
+  for (const reportId of reportIds) {
+    try {
+      await db.transaction(async (tx) => {
+        const result = await evaluate(tx, reportId);
+        if (!result.changed) return;
+        const response = await buildResponse(tx, reportId);
+        const [report] = await tx
+          .select()
+          .from(anticheatReport)
+          .where(eq(anticheatReport.id, reportId));
+        await wardenAuditService.record(tx, {
+          action: 'anticheat.verdict',
+          actor: { source: 'system' },
+          targetUserId: report!.userId,
+          targetMinecraftUuid: report!.minecraftUuid,
+          data: {
+            sessionId: report!.sessionId,
+            uuid: report!.minecraftUuid,
+            reportId,
+            verdict: result.verdict,
+            files: response.files.filter((file) => result.changedFiles.includes(file.sha512)),
+          },
+        });
+        changed++;
+      });
+    } catch (error) {
+      console.error('Anticheat: re-evaluation failed', error);
+    }
+  }
+  return changed;
+}
+
+/** The latest report of each open session, when it contains one of the files. */
+async function reevaluateFor(sha512s: string[]): Promise<number> {
+  if (sha512s.length === 0) return 0;
+  const { rows } = await db.execute<{ id: string }>(sql`
+    select r.id from ${anticheatReport} r
+    join ${wardenSession} s on s.id = r.session_id and s.ended_at is null
+    where r.seq = (select max(seq) from ${anticheatReport} where session_id = r.session_id)
+      and exists (
+        select 1 from ${anticheatReportFile} f
+        where f.report_id = r.id and f.sha512 = any(${sql.param(sha512s)}::text[])
+      )`);
+  return reevaluate(rows.map((row) => row.id));
+}
+
+export const anticheatReportService = { submit, evaluate, current, reevaluate, reevaluateFor };

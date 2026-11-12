@@ -1,4 +1,5 @@
 import { anticheatAlert } from '~~/server/db/schema';
+import { wardenAuditService } from '~~/server/services/warden/audit';
 
 import type { Tx } from './shared';
 
@@ -14,6 +15,9 @@ async function raise(
     kind: AnticheatAlertKind;
     userId?: string | null;
     sha512?: string | null;
+    /** For the event the Minecraft server receives. */
+    minecraftUuid?: string | null;
+    name?: string | null;
     data?: Record<string, unknown>;
   },
 ): Promise<boolean> {
@@ -28,7 +32,22 @@ async function raise(
     // The partial unique index on open alerts.
     .onConflictDoNothing()
     .returning({ id: anticheatAlert.id });
-  return created.length > 0;
+  if (created.length === 0) return false;
+  // The audit row is the event on the Warden stream.
+  await wardenAuditService.record(tx, {
+    action: 'anticheat.alert',
+    actor: { source: 'system' },
+    targetUserId: alert.userId ?? null,
+    targetMinecraftUuid: alert.minecraftUuid ?? null,
+    data: {
+      kind: alert.kind,
+      userId: alert.userId ?? null,
+      uuid: alert.minecraftUuid ?? null,
+      sha512: alert.sha512 ?? null,
+      name: alert.name ?? null,
+    },
+  });
+  return true;
 }
 
 export const anticheatAlertService = { raise };
