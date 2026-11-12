@@ -933,6 +933,21 @@ const routes: RouteDoc[] = [
     response: anticheat.anticheatRescoreResult,
   },
   {
+    method: 'get',
+    path: '/api/anticheat/admin/projects/search',
+    tag: TAGS.anticheatAdmin,
+    summary: 'Search Modrinth and CurseForge',
+    description:
+      'Finds projects of one kind to approve or ban. Results already in the registry say so.',
+    access: 'wardenAdmin',
+    query: anticheat.anticheatProjectSearchQuery,
+    response: anticheat.anticheatProjectSearchResults,
+    problems: [
+      { status: 429, problems: ['rateLimited'] },
+      { status: 503, problems: ['unavailable'] },
+    ],
+  },
+  {
     method: 'post',
     path: '/api/anticheat/admin/projects',
     tag: TAGS.anticheatAdmin,

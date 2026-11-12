@@ -117,6 +117,7 @@ export const ANTICHEAT_PROBLEMS = [
   'notLinked',
   'sameProject',
   'notScored',
+  'rateLimited',
 ] as const;
 export type AnticheatProblem = (typeof ANTICHEAT_PROBLEMS)[number];
 
@@ -567,6 +568,29 @@ export const anticheatProjectCreateBody = z.object({
 export type AnticheatProjectCreateBody = z.infer<typeof anticheatProjectCreateBody>;
 
 export const anticheatProjectCreated = z.object({ id: z.uuid() });
+
+/** GET /api/anticheat/admin/projects/search?q=&kind= */
+export const anticheatProjectSearchQuery = z.object({
+  q: z.string().trim().min(2).max(80),
+  kind: z.enum(ANTICHEAT_PROJECT_KINDS),
+});
+
+export const anticheatProjectSearchResult = z.object({
+  source: z.enum(['modrinth', 'curseforge']),
+  sourceId: z.string(),
+  name: z.string(),
+  summary: z.string(),
+  author: z.string(),
+  downloads: z.number(),
+  pageUrl: z.string(),
+  iconUrl: z.string().nullable().describe('Served by this site, from the platform.'),
+  registered: z.boolean().describe('The project already has a decision or files here.'),
+});
+export type AnticheatProjectSearchResult = z.infer<typeof anticheatProjectSearchResult>;
+
+export const anticheatProjectSearchResults = z.object({
+  items: z.array(anticheatProjectSearchResult),
+});
 
 export const anticheatNoteBody = z.object({ body: z.string().trim().min(1).max(1000) });
 export const anticheatLinkBody = z.object({ otherProjectId: z.uuid() });
