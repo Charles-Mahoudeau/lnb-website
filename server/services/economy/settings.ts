@@ -15,6 +15,7 @@ const DEFAULTS = {
   auctionTaxPercent: 5,
   auctionMaxListings: 20,
   auctionDays: 7,
+  casinoLicensePrice: 100_000,
 };
 
 /** The global settings. The migration creates their single row. */
@@ -32,6 +33,7 @@ async function view(): Promise<EconomySettingsView> {
     auctionTaxPercent: row.auctionTaxPercent,
     auctionMaxListings: row.auctionMaxListings,
     auctionDays: row.auctionDays,
+    casinoLicensePrice: row.casinoLicensePrice,
     updatedAt: row.updatedAt.toISOString(),
   };
 }
