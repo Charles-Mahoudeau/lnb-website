@@ -88,7 +88,7 @@ export async function memberCounts(dbx: Db, accountIds: readonly string[]) {
 
 type AccountRow = Pick<
   typeof economyAccount.$inferSelect,
-  'id' | 'kind' | 'handle' | 'name' | 'balance' | 'ownerUserId' | 'frozenAt'
+  'id' | 'kind' | 'type' | 'handle' | 'name' | 'balance' | 'ownerUserId' | 'frozenAt'
 >;
 
 /** Accounts as their members see them, with the viewer's role in each. */
@@ -107,6 +107,7 @@ export async function accountViews(
   return rows.map((row) => ({
     id: row.id,
     kind: row.kind,
+    type: row.type,
     handle: row.handle,
     name: row.name,
     balance: row.balance,

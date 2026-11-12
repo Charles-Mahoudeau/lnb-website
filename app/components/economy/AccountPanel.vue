@@ -37,6 +37,12 @@ const canSpend = computed(() => props.account.role !== 'viewer');
         </span>
       </div>
       <UBadge
+        v-if="account.type"
+        color="neutral"
+        variant="soft"
+        :label="t(`economy.types.${account.type}`)"
+      />
+      <UBadge
         v-if="account.frozen"
         color="warning"
         variant="subtle"

@@ -26,8 +26,8 @@ import type {
 } from '#shared/schemas/economy';
 import { economyTransferBody } from '#shared/schemas/economy';
 
-// What the Minecraft server asks of the economy: a player's accounts, an account by handle, and
-// transfers. The server is trusted (WARDEN_SERVER_SECRET), but every rule is still checked here:
+// What the Minecraft server asks of the economy: a player's accounts, an account by handle,
+// transfers, casino licences and the money mobs drop. The server is trusted (WARDEN_SERVER_SECRET), but every rule is still checked here:
 // who may spend, frozen accounts, balances. See docs/economy.md.
 
 type TransferBody = ReturnType<typeof economyTransferBody.parse>;
@@ -77,6 +77,7 @@ async function account(handle: string): Promise<EconomyServerAccount> {
     id: found.id,
     handle: found.handle ?? '',
     name: found.name ?? '',
+    type: found.type ?? 'team',
     balance: found.balance,
     frozen: Boolean(found.frozenAt),
   };

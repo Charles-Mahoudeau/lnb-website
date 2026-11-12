@@ -223,6 +223,7 @@ export const adminAuditView = z.object({
     'economy.shopDisable',
     'economy.shopEnable',
     'economy.listingRemove',
+    'economy.accountType',
   ]),
   actor: z.object({ userId: z.string(), name: z.string() }).nullable(),
   target: z.object({ userId: z.string(), name: z.string() }).nullable(),
