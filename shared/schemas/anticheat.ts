@@ -386,3 +386,5 @@ export const anticheatSettingsPatch = z
     message: 'nothing to change',
   });
 export type AnticheatSettingsPatch = z.infer<typeof anticheatSettingsPatch>;
+
+export const anticheatSessionParams = z.object({ sessionId: z.uuid() });

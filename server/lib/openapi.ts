@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import type { ApiKeyPermission } from '../../shared/api-keys.ts';
 import * as admin from '../../shared/schemas/admin.ts';
+import * as anticheat from '../../shared/schemas/anticheat.ts';
 import * as apiKeys from '../../shared/schemas/api-keys.ts';
 import { avatarParams } from '../../shared/schemas/avatars.ts';
 import * as economy from '../../shared/schemas/economy.ts';
@@ -86,6 +87,7 @@ const requestSchemas = {
   EconomyAdjustBody: economy.economyAdjustBody,
   EconomyFreezeBody: economy.economyFreezeBody,
   EconomySettingsBody: economy.economySettingsBody,
+  AnticheatReportBody: anticheat.anticheatReportBody,
   WardenIssuer: warden.wardenIssuer,
   WardenClientLinkRequestBody: warden.wardenClientLinkRequestBody,
   WardenClientPollBody: warden.wardenClientPollBody,
@@ -194,6 +196,7 @@ const responseSchemas = {
   WardenSessionView: warden.wardenSessionView,
   WardenSessionPage: warden.wardenSessionPage,
   WardenMe: warden.wardenMe,
+  AnticheatReportResponse: anticheat.anticheatReportResponse,
   WardenServerPlayer: warden.wardenServerPlayer,
   WardenPlayerRow: warden.wardenPlayerRow,
   WardenPlayerPage: warden.wardenPlayerPage,
@@ -280,6 +283,7 @@ const TAGS = {
   admin: 'Admin',
   flags: 'Feature flags',
   wardenServer: 'Warden: Minecraft server',
+  anticheatServer: 'Anticheat: Minecraft server',
   economy: 'Economy: players',
   economyServer: 'Economy: Minecraft server',
   economyAdmin: 'Economy: admins',
@@ -743,6 +747,37 @@ const routes: RouteDoc[] = [
         'text/event-stream': { schema: { $ref: '#/components/schemas/WardenEvent' } },
       },
     },
+  },
+
+  // ---- Anticheat (docs/anticheat.md) ----
+  {
+    method: 'post',
+    path: '/api/warden/server/anticheat/reports',
+    tag: TAGS.anticheatServer,
+    summary: 'Report a client’s files',
+    description: [
+      'Send right after `POST /api/warden/server/login` answers `allowed`, and again in the same session whenever the client’s file set changes. The account comes from the session: nothing in the payload names a player.',
+      '',
+      'The answer holds one `verdict` for the session and an entry per file. In `observe` mode the `action` is always `allow` and `wouldBe` holds what `enforce` would do. Files whose platform lookup is still running are `pending`; their score arrives later, as an `anticheatVerdict` event on the stream. With the mode `off`, nothing is stored and the answer allows everything.',
+      '',
+      'If the site is unavailable (a 5xx or a timeout), let the player in and log it.',
+    ].join('\n'),
+    access: 'wardenServer',
+    body: anticheat.anticheatReportBody,
+    response: anticheat.anticheatReportResponse,
+    problems: [{ status: 404, problems: ['unknownSession'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/warden/server/anticheat/sessions/{sessionId}',
+    tag: TAGS.anticheatServer,
+    summary: 'The latest report of a session',
+    description:
+      'The body of the session’s latest report, re-read from the database. For a server that missed stream events. An ended session can still be read.',
+    access: 'wardenServer',
+    params: anticheat.anticheatSessionParams,
+    response: anticheat.anticheatReportResponse,
+    problems: [{ status: 404, problems: ['unknownSession', 'noReport'] }],
   },
 
   // Warden: players
@@ -4468,6 +4503,11 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       { name: TAGS.admin, description: 'The admin area at `/admin`. Site admins only.' },
       { name: TAGS.wardenServer, description: 'Called by the LNB Minecraft server only.' },
       {
+        name: TAGS.anticheatServer,
+        description:
+          'Called by the LNB Minecraft server only, with `WARDEN_SERVER_SECRET`. The server reports the files of a client and applies the verdict. See `docs/anticheat.md`.',
+      },
+      {
         name: TAGS.economyServer,
         description:
           'Called by the LNB Minecraft server only, with `WARDEN_SERVER_SECRET`. Every money move goes through one call. See `docs/economy.md`.',
@@ -4536,6 +4576,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
         name: 'Warden',
         tags: [TAGS.wardenServer, TAGS.wardenClient, TAGS.wardenPlayer, TAGS.wardenAdmin],
       },
+      { name: 'Anticheat', tags: [TAGS.anticheatServer] },
       { name: 'Minecraft', tags: [TAGS.mods, TAGS.modsAdmin] },
       { name: 'Economy', tags: [TAGS.economyServer, TAGS.economy, TAGS.economyAdmin] },
       { name: 'Push', tags: [TAGS.push, TAGS.pushAdmin] },
