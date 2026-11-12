@@ -1,8 +1,12 @@
 import { and, eq } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
+import type { Tx } from '~~/server/db';
 import { isUniqueViolation } from '~~/server/db/errors';
 import { mod, modListSettings, modVote, user } from '~~/server/db/schema';
+import { anticheatReportService } from '~~/server/services/anticheat/reports';
+import { anticheatScoringService } from '~~/server/services/anticheat/scoring';
+import type { ModpackEntry } from '~~/server/services/anticheat/scoring';
 import { wardenAuditService } from '~~/server/services/warden/audit';
 import type { WardenActor } from '~~/server/services/warden/shared';
 
@@ -26,6 +30,31 @@ import type {
 // Minecraft staff runs it. See docs/mods.md.
 
 type WebActor = WardenActor & { source: 'web' };
+
+// A change to the official list can move the score of the files it matches (an official mod
+// counts as approved). The files are scored again in the same transaction, and the open sessions
+// that hold them are evaluated once it commits, so the Minecraft server hears the new verdicts.
+async function rescoreEntries(tx: Tx, entries: (ModpackEntry | null)[]): Promise<string[]> {
+  const found = entries.filter((entry) => entry !== null);
+  return found.length === 0 ? [] : anticheatScoringService.rescoreModpack(tx, found);
+}
+
+async function notifyRescored(changed: string[]) {
+  if (changed.length === 0) return;
+  try {
+    await anticheatReportService.reevaluateFor(changed);
+  } catch (error) {
+    console.error('Anticheat: evaluating after a mod list change failed', error);
+  }
+}
+
+function entryOf(row: {
+  source: string;
+  sourceId?: string | null;
+  fileSha512?: string | null;
+}): ModpackEntry {
+  return { source: row.source, sourceId: row.sourceId ?? null, fileSha512: row.fileSha512 ?? null };
+}
 
 async function list(query: {
   list: ModListName;
@@ -55,12 +84,15 @@ async function list(query: {
     removedReason: row.removedReason,
     removedAt: row.removedAt?.toISOString() ?? null,
     promotedAt: row.promotedAt?.toISOString() ?? null,
+    optional: row.optional,
+    fileSha512: row.fileSha512,
   }));
 }
 
 /** Adds a mod to the official list, from a search result or by hand. */
 async function addOfficial(input: { body: ModAddBody; actor: WebActor }): Promise<{ id: number }> {
   const { body } = input;
+  if (body.source !== 'manual' && body.fileSha512) refuse(409, 'notManual');
   let values: typeof mod.$inferInsert;
   if (body.source === 'manual') {
     values = {
@@ -70,6 +102,8 @@ async function addOfficial(input: { body: ModAddBody; actor: WebActor }): Promis
       summary: body.summary ?? '',
       pageUrl: body.pageUrl,
       iconKey: body.iconUrl ? await modIconService.save(body.iconUrl) : null,
+      optional: body.optional ?? false,
+      fileSha512: body.fileSha512 ?? null,
     };
   } else {
     const { project, iconKey } = await fetchAddable(body.source, body.sourceId);
@@ -81,19 +115,22 @@ async function addOfficial(input: { body: ModAddBody; actor: WebActor }): Promis
       summary: project.summary,
       pageUrl: project.pageUrl,
       iconKey,
+      optional: body.optional ?? false,
     };
   }
 
   try {
-    return await db.transaction(async (tx) => {
+    const { id, changed } = await db.transaction(async (tx) => {
       const [row] = await tx.insert(mod).values(values).returning({ id: mod.id });
       await wardenAuditService.record(tx, {
         action: 'mod.add',
         actor: input.actor,
         data: { modId: row!.id, name: values.name, source: values.source },
       });
-      return { id: row!.id };
+      return { id: row!.id, changed: await rescoreEntries(tx, [entryOf(values)]) };
     });
+    await notifyRescored(changed);
+    return { id };
   } catch (error) {
     await modIconService.remove(values.iconKey ?? null);
     if (isUniqueViolation(error)) refuse(409, 'duplicate');
@@ -108,7 +145,7 @@ async function addOfficial(input: { body: ModAddBody; actor: WebActor }): Promis
  */
 async function edit(input: { modId: number; patch: ModAdminPatchBody; actor: WebActor }) {
   const { patch } = input;
-  await db.transaction(async (tx) => {
+  const changed = await db.transaction(async (tx) => {
     const set: Partial<typeof mod.$inferInsert> = {};
     if (patch.reason !== undefined) set.reason = patch.reason?.trim() || null;
     if (patch.proposerUserId !== undefined) {
@@ -122,11 +159,26 @@ async function edit(input: { modId: number; patch: ModAdminPatchBody; actor: Web
       set.proposerUserId = patch.proposerUserId;
     }
     const [before] = await tx
-      .select({ name: mod.name, proposerUserId: mod.proposerUserId })
+      .select({
+        name: mod.name,
+        list: mod.list,
+        source: mod.source,
+        sourceId: mod.sourceId,
+        fileSha512: mod.fileSha512,
+        proposerUserId: mod.proposerUserId,
+      })
       .from(mod)
       .where(eq(mod.id, input.modId))
       .for('update');
     if (!before) refuse(404, 'notFound');
+    if (patch.optional !== undefined) {
+      if (before.list !== 'official') refuse(409, 'notOfficial');
+      set.optional = patch.optional;
+    }
+    if (patch.fileSha512 !== undefined) {
+      if (before.source !== 'manual') refuse(409, 'notManual');
+      set.fileSha512 = patch.fileSha512;
+    }
     await tx.update(mod).set(set).where(eq(mod.id, input.modId));
     if (patch.proposerUserId) {
       await tx
@@ -142,9 +194,18 @@ async function edit(input: { modId: number; patch: ModAdminPatchBody; actor: Web
         name: before.name,
         reason: patch.reason !== undefined ? 'changed' : undefined,
         proposer: patch.proposerUserId !== undefined ? (patch.proposerUserId ?? 'none') : undefined,
+        optional: patch.optional,
+        fileSha512: patch.fileSha512 !== undefined ? (patch.fileSha512 ?? 'none') : undefined,
       },
     });
+    // Only a new hash can change a score. Marking a mod optional matters to the modlist check.
+    if (patch.fileSha512 === undefined || before.list !== 'official') return [];
+    return rescoreEntries(tx, [
+      entryOf(before),
+      entryOf({ ...before, fileSha512: patch.fileSha512 }),
+    ]);
   });
+  await notifyRescored(changed);
 }
 
 /**
@@ -155,7 +216,14 @@ async function edit(input: { modId: number; patch: ModAdminPatchBody; actor: Web
 async function convert(input: { modId: number; body: ModConvertBody; actor: WebActor }) {
   const { body } = input;
   const [current] = await db
-    .select({ name: mod.name, source: mod.source, iconKey: mod.iconKey })
+    .select({
+      name: mod.name,
+      list: mod.list,
+      source: mod.source,
+      sourceId: mod.sourceId,
+      fileSha512: mod.fileSha512,
+      iconKey: mod.iconKey,
+    })
     .from(mod)
     .where(eq(mod.id, input.modId));
   if (!current) refuse(404, 'notFound');
@@ -185,11 +253,15 @@ async function convert(input: { modId: number; body: ModConvertBody; actor: WebA
     };
   }
 
+  // The hash belongs to an entry added by hand, so it goes when the mod gets a source.
+  const set: Partial<typeof mod.$inferInsert> =
+    body.source === 'manual' ? values : { ...values, fileSha512: null };
+  let changed: string[];
   try {
-    await db.transaction(async (tx) => {
+    changed = await db.transaction(async (tx) => {
       const [row] = await tx
         .update(mod)
-        .set(values)
+        .set(set)
         .where(eq(mod.id, input.modId))
         .returning({ proposerUserId: mod.proposerUserId });
       if (!row) refuse(404, 'notFound');
@@ -204,6 +276,11 @@ async function convert(input: { modId: number; body: ModConvertBody; actor: WebA
           to: values.source,
         },
       });
+      if (current.list !== 'official') return [];
+      return rescoreEntries(tx, [
+        entryOf(current),
+        entryOf({ ...values, fileSha512: set.fileSha512 }),
+      ]);
     });
   } catch (error) {
     if (values.iconKey !== current.iconKey) await modIconService.remove(values.iconKey ?? null);
@@ -211,16 +288,23 @@ async function convert(input: { modId: number; body: ModConvertBody; actor: WebA
     throw error;
   }
   if (values.iconKey !== current.iconKey) await modIconService.remove(current.iconKey);
+  await notifyRescored(changed);
 }
 
 /** Moves a visible suggestion to the official list, with its votes and its proposer. */
 async function promote(input: { modId: number; actor: WebActor }) {
-  await db.transaction(async (tx) => {
+  const changed = await db.transaction(async (tx) => {
     const [row] = await tx
       .update(mod)
       .set({ list: 'official', promotedAt: new Date() })
       .where(and(eq(mod.id, input.modId), eq(mod.list, 'suggestion'), eq(mod.status, 'visible')))
-      .returning({ name: mod.name, proposerUserId: mod.proposerUserId });
+      .returning({
+        name: mod.name,
+        source: mod.source,
+        sourceId: mod.sourceId,
+        fileSha512: mod.fileSha512,
+        proposerUserId: mod.proposerUserId,
+      });
     if (!row) refuse(404, 'notSuggestion');
     await wardenAuditService.record(tx, {
       action: 'mod.promote',
@@ -228,7 +312,9 @@ async function promote(input: { modId: number; actor: WebActor }) {
       targetUserId: row.proposerUserId,
       data: { modId: input.modId, name: row.name },
     });
+    return rescoreEntries(tx, [entryOf(row)]);
   });
+  await notifyRescored(changed);
 }
 
 /**
@@ -284,11 +370,18 @@ async function restore(input: { modId: number; actor: WebActor }) {
 
 /** Deletes an official mod with its votes. It can be added or suggested again afterwards. */
 async function deleteOfficial(input: { modId: number; actor: WebActor }) {
-  const iconKey = await db.transaction(async (tx) => {
+  const { iconKey, changed } = await db.transaction(async (tx) => {
     const [row] = await tx
       .delete(mod)
       .where(and(eq(mod.id, input.modId), eq(mod.list, 'official')))
-      .returning({ name: mod.name, iconKey: mod.iconKey, proposerUserId: mod.proposerUserId });
+      .returning({
+        name: mod.name,
+        source: mod.source,
+        sourceId: mod.sourceId,
+        fileSha512: mod.fileSha512,
+        iconKey: mod.iconKey,
+        proposerUserId: mod.proposerUserId,
+      });
     if (!row) refuse(404, 'notOfficial');
     await wardenAuditService.record(tx, {
       action: 'mod.delete',
@@ -296,9 +389,10 @@ async function deleteOfficial(input: { modId: number; actor: WebActor }) {
       targetUserId: row.proposerUserId,
       data: { modId: input.modId, name: row.name },
     });
-    return row.iconKey;
+    return { iconKey: row.iconKey, changed: await rescoreEntries(tx, [entryOf(row)]) };
   });
   await modIconService.remove(iconKey);
+  await notifyRescored(changed);
 }
 
 async function updateSettings(input: {
