@@ -161,6 +161,7 @@ async function merge(
   tx: Tx,
   keep: typeof anticheatProject.$inferSelect,
   other: typeof anticheatProject.$inferSelect,
+  actorUserId: string | null = null,
 ) {
   await tx
     .update(anticheatFile)
@@ -187,6 +188,7 @@ async function merge(
   await tx.insert(anticheatHistory).values({
     projectId: keep.id,
     kind: 'link',
+    actorUserId,
     data: { merged: other.id, modrinthId: other.modrinthId, curseforgeId: other.curseforgeId },
   });
 }
@@ -412,4 +414,4 @@ function kick(): void {
   })();
 }
 
-export const anticheatLookupService = { claim, resolve, expire, run, kick };
+export const anticheatLookupService = { claim, resolve, expire, run, kick, merge };

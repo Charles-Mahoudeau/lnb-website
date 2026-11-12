@@ -113,6 +113,10 @@ export const ANTICHEAT_PROBLEMS = [
   'exists',
   'notFound',
   'invalidCursor',
+  'unavailable',
+  'notLinked',
+  'sameProject',
+  'notScored',
 ] as const;
 export type AnticheatProblem = (typeof ANTICHEAT_PROBLEMS)[number];
 
@@ -388,3 +392,200 @@ export const anticheatSettingsPatch = z
 export type AnticheatSettingsPatch = z.infer<typeof anticheatSettingsPatch>;
 
 export const anticheatSessionParams = z.object({ sessionId: z.uuid() });
+
+/** A player in a list: the account and its latest Minecraft username. */
+export const anticheatPlayerRef = z.object({
+  userId: z.string(),
+  name: z.string(),
+  username: z.string().nullable(),
+});
+export type AnticheatPlayerRef = z.infer<typeof anticheatPlayerRef>;
+
+/** A page of a list. Pass `nextCursor` as `?cursor=` for the next one. */
+function anticheatPage<T extends z.ZodType>(item: T) {
+  return z.object({
+    items: z.array(item),
+    nextCursor: z.string().nullable().describe('Null on the last page.'),
+  });
+}
+
+const cursor = z.string().max(200).optional().describe('`nextCursor` of the previous page.');
+
+export const anticheatFileParams = z.object({ sha512: anticheatSha512 });
+export const anticheatProjectParams = z.object({ id: z.uuid() });
+
+export const anticheatFilesQuery = z.object({
+  kind: z.enum(ANTICHEAT_PROJECT_KINDS).optional(),
+  status: anticheatStatus.optional(),
+  q: z
+    .string()
+    .trim()
+    .min(1)
+    .max(100)
+    .optional()
+    .describe('A hash prefix, a filename, a declared mod ID or a project name.'),
+  userId: z.string().min(1).optional().describe('Only files this player used.'),
+  sort: z.enum(['recent', 'queue']).default('recent'),
+  cursor,
+});
+export type AnticheatFilesQuery = z.infer<typeof anticheatFilesQuery>;
+
+/** A project (with its file count) or a file without a project. */
+export const anticheatFileRow = z.object({
+  projectId: z.uuid().nullable(),
+  sha512: z.string().nullable().describe('Set on a file without a project.'),
+  kind: z.enum(ANTICHEAT_PROJECT_KINDS),
+  name: z.string(),
+  fileCount: z.int(),
+  platforms: z.array(z.enum(['modrinth', 'curseforge'])),
+  status: anticheatStatus.nullable(),
+  score: z.int().nullable().describe('The lowest score among the files.'),
+  decision: anticheatDecision.nullable(),
+  usingNow: z.int().describe('Open sessions whose latest report has one of the files.'),
+  everUsed: z.int().describe('Players who ever used one of the files.'),
+  waiting: z.int().describe('Open sessions waiting for a score of one of the files.'),
+  firstSeenAt: isoDate,
+  lastScoredAt: isoDate.nullable(),
+});
+export type AnticheatFileRow = z.infer<typeof anticheatFileRow>;
+export const anticheatFilePage = anticheatPage(anticheatFileRow);
+
+export const anticheatHistoryEntry = z.object({
+  id: z.int(),
+  kind: z.enum(['score', 'approve', 'ban', 'clear', 'reviewed', 'note', 'link', 'unlink']),
+  at: isoDate,
+  actor: z.string().nullable(),
+  data: z.record(z.string(), z.unknown()),
+});
+export type AnticheatHistoryEntry = z.infer<typeof anticheatHistoryEntry>;
+
+export const anticheatFilePlayerRow = z.object({
+  player: anticheatPlayerRef,
+  sha512: z.string(),
+  firstSeenAt: isoDate,
+  lastSeenAt: isoDate,
+  sessionCount: z.int(),
+  version: z.string().nullable(),
+  afterBan: z.boolean().describe('Used the file after it was banned.'),
+});
+export type AnticheatFilePlayerRow = z.infer<typeof anticheatFilePlayerRow>;
+export const anticheatFilePlayerPage = anticheatPage(anticheatFilePlayerRow);
+
+export const anticheatFilePlayersQuery = z.object({
+  project: z.enum(['1']).optional().describe('`1`: across every file of the file’s project.'),
+  cursor,
+});
+
+const decisionInfo = z.object({
+  decision: anticheatDecision.nullable(),
+  decidedAt: isoDate.nullable(),
+  decidedBy: z.string().nullable(),
+  note: z.string().nullable(),
+});
+
+export const anticheatFileDetail = z.object({
+  sha512: z.string(),
+  kind: anticheatFileKind,
+  filename: z.string(),
+  declared: z.object({
+    modId: z.string().optional(),
+    name: z.string().optional(),
+    version: z.string().optional(),
+    loader: z.string().optional(),
+  }),
+  fingerprint: z.int().nullable(),
+  score: z.int().nullable(),
+  band: anticheatFileBand.nullable(),
+  status: anticheatStatus.nullable(),
+  breakdown: anticheatBreakdown.nullable(),
+  rulesVersion: z.int().nullable(),
+  lookupState: z.enum(ANTICHEAT_LOOKUP_STATES),
+  facts: anticheatFacts.nullable(),
+  factsDisputed: z.boolean(),
+  platformVersion: z.record(z.string(), z.unknown()).nullable(),
+  project: z
+    .object({ id: z.uuid(), name: z.string(), decision: anticheatDecision.nullable() })
+    .nullable(),
+  decision: decisionInfo,
+  reviewedAt: isoDate.nullable(),
+  reviewedBand: anticheatFileBand.nullable(),
+  firstSeenAt: isoDate,
+  lastSeenAt: isoDate,
+  scoredAt: isoDate.nullable(),
+  rescoreAt: isoDate.nullable(),
+  history: z.array(anticheatHistoryEntry),
+  players: anticheatFilePlayerPage,
+});
+export type AnticheatFileDetail = z.infer<typeof anticheatFileDetail>;
+
+export const anticheatProjectDetail = z.object({
+  id: z.uuid(),
+  kind: z.enum(ANTICHEAT_PROJECT_KINDS),
+  name: z.string(),
+  modrinthId: z.string().nullable(),
+  curseforgeId: z.string().nullable(),
+  declaredModId: z.string().nullable(),
+  modIds: z.array(z.string()),
+  modrinth: z.record(z.string(), z.unknown()).nullable(),
+  curseforge: z.record(z.string(), z.unknown()).nullable(),
+  decision: decisionInfo,
+  files: z.array(
+    z.object({
+      sha512: z.string(),
+      filename: z.string(),
+      version: z.string().nullable(),
+      score: z.int().nullable(),
+      band: anticheatFileBand.nullable(),
+      status: anticheatStatus.nullable(),
+    }),
+  ),
+  history: z.array(anticheatHistoryEntry),
+});
+export type AnticheatProjectDetail = z.infer<typeof anticheatProjectDetail>;
+
+/** Body of POST .../decision on a file or a project. `null` clears the decision. */
+export const anticheatDecisionBody = z.object({
+  decision: anticheatDecision.nullable(),
+  note: z.string().trim().max(500).optional(),
+});
+export type AnticheatDecisionBody = z.infer<typeof anticheatDecisionBody>;
+
+export const anticheatDecisionResult = z.object({
+  affectedPlayers: z
+    .int()
+    .describe('Players who used a file of the project. Set when the decision is a ban.'),
+});
+export type AnticheatDecisionResult = z.infer<typeof anticheatDecisionResult>;
+
+/** Body of POST /api/anticheat/admin/projects. */
+export const anticheatProjectCreateBody = z.object({
+  source: z.enum(['modrinth', 'curseforge']),
+  sourceId: z.string().trim().min(1).max(64),
+  kind: z.enum(ANTICHEAT_PROJECT_KINDS),
+  decision: anticheatDecision,
+});
+export type AnticheatProjectCreateBody = z.infer<typeof anticheatProjectCreateBody>;
+
+export const anticheatProjectCreated = z.object({ id: z.uuid() });
+
+export const anticheatNoteBody = z.object({ body: z.string().trim().min(1).max(1000) });
+export const anticheatLinkBody = z.object({ otherProjectId: z.uuid() });
+export const anticheatUnlinkBody = z.object({ platform: z.enum(['modrinth', 'curseforge']) });
+
+export const anticheatRescoreResult = z.object({ files: z.int() });
+
+export const anticheatModIdParams = z.object({
+  modId: z.string().trim().toLowerCase().min(1).max(128),
+});
+export const anticheatModIdBanBody = z.object({
+  modId: z.string().trim().toLowerCase().min(1).max(128),
+  reason: z.string().trim().min(1).max(500),
+});
+export const anticheatModIdBanRow = z.object({
+  modId: z.string(),
+  reason: z.string(),
+  createdAt: isoDate,
+  createdBy: z.string().nullable(),
+});
+export type AnticheatModIdBanRow = z.infer<typeof anticheatModIdBanRow>;
+export const anticheatModIdBanList = z.array(anticheatModIdBanRow);
