@@ -19,6 +19,7 @@ export const ECONOMY_PROBLEMS = [
   'notAllowed',
   'sameAccount',
   'handleTaken',
+  'handleReserved',
   'noLicense',
   'typeLocked',
   'tooManyAccounts',
@@ -68,6 +69,13 @@ export const economyHandle = z
       }),
   )
   .describe('Lower case, without the `#`. A leading `#` is removed.');
+
+/** A handle as the Minecraft server sends it: the right shape, reserved or not. */
+export const economyServerHandle = z
+  .string()
+  .trim()
+  .transform((handle) => handle.replace(/^#/, '').toLowerCase())
+  .pipe(z.string().regex(/^[a-z\d](?:[a-z\d-]{1,22})[a-z\d]$/));
 
 /** What a shared account is for. `casino` needs a casino licence, and never changes again. */
 export const ECONOMY_ACCOUNT_TYPES = ['team', 'shop', 'casino'] as const;
@@ -400,6 +408,118 @@ export const economyTransferResult = z.object({
   to: transferSide,
 });
 export type EconomyTransferResult = z.infer<typeof economyTransferResult>;
+
+// Shared accounts from the game: the same rules as the player routes, for the player the server names.
+
+/** `?player=<uuid>`: the acting player, on routes without a body. */
+export const economyServerPlayerQuery = z.object({
+  player: minecraftUuid.describe('The acting player.'),
+});
+export const economyServerPlayerBody = z.object({
+  player: minecraftUuid.describe('The acting player.'),
+});
+
+export const economyServerInvitationParams = z.object({
+  handle: economyHandle,
+  invitationId: z.uuid(),
+});
+
+/** POST /api/economy/server/accounts */
+export const economyServerCreateBody = z.object({
+  player: minecraftUuid.describe('The player who opens the account, and owns it.'),
+  handle: economyServerHandle,
+  name: economyAccountName,
+  type: economyAccountType
+    .optional()
+    .describe("`team` without it. `casino` uses one of the player's free casino licences."),
+});
+export type EconomyServerCreateBody = z.input<typeof economyServerCreateBody>;
+
+/** PATCH /api/economy/server/accounts/:handle */
+export const economyServerAccountPatchBody = z
+  .object({
+    player: minecraftUuid.describe('The acting player: an owner.'),
+    name: economyAccountName.optional(),
+    type: economyAccountType.optional(),
+  })
+  .refine((body) => body.name !== undefined || body.type !== undefined, {
+    message: 'name or type',
+  });
+export type EconomyServerAccountPatchBody = z.infer<typeof economyServerAccountPatchBody>;
+
+/** How an invitation names its account. */
+const invitationAccount = z.object({
+  id: z.uuid(),
+  handle: z.string(),
+  name: z.string(),
+  type: economyAccountType,
+});
+
+/** GET /api/economy/server/accounts/:handle/members */
+export const economyServerMembers = z.object({
+  account: economyAccountView.describe("With the acting player's role."),
+  members: z.array(
+    z.object({
+      userId: z.string(),
+      username: z
+        .string()
+        .describe(
+          "The member's Minecraft username: the first account they linked. Empty when they have none linked any more.",
+        ),
+      role: economyRole,
+    }),
+  ),
+  invitations: z
+    .array(
+      z.object({
+        id: z.uuid(),
+        username: z.string().describe("The invited player's Minecraft username."),
+        createdAt: isoDate,
+      }),
+    )
+    .describe('Owners only; empty for the others.'),
+});
+export type EconomyServerMembers = z.infer<typeof economyServerMembers>;
+
+/** POST /api/economy/server/accounts/:handle/invitations */
+export const economyServerInviteBody = z.object({
+  player: minecraftUuid.describe('The acting player: an owner.'),
+  username: minecraftUsername.describe('A linked Minecraft username.'),
+  role: economyRole.default('member'),
+});
+export type EconomyServerInviteBody = z.input<typeof economyServerInviteBody>;
+
+export const economyServerInviteResult = z.object({
+  id: z.uuid(),
+  username: z.string().describe('The invited username, as sent.'),
+  account: invitationAccount,
+  role: economyRole,
+  invitedBy: z.string().describe("The inviter's Minecraft username."),
+  inviteeUuids: z
+    .array(z.string())
+    .describe(
+      'Every Minecraft account linked to the invited LNB account, to tell them in the game.',
+    ),
+});
+export type EconomyServerInviteResult = z.infer<typeof economyServerInviteResult>;
+
+/** GET /api/economy/server/players/:uuid/invitations */
+export const economyServerInvitations = z.object({
+  items: z
+    .array(
+      z.object({
+        id: z.uuid(),
+        account: invitationAccount,
+        role: economyRole,
+        invitedBy: z
+          .string()
+          .describe("The inviter's Minecraft username. Empty when they are gone."),
+        createdAt: isoDate,
+      }),
+    )
+    .describe("Waiting for the player's LNB account, oldest first."),
+});
+export type EconomyServerInvitations = z.infer<typeof economyServerInvitations>;
 
 // Trades: two players swap items in the game, with money on either side or both.
 
