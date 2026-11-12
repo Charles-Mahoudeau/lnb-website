@@ -10,9 +10,9 @@ import type { ModCatalogSource } from '#shared/schemas/mods';
 // Modrinth and CurseForge, called by the site only: visitors never contact them, and the
 // CurseForge key never leaves the server. Search results are cached for an hour.
 
-const MODRINTH = 'https://api.modrinth.com/v2';
-const CURSEFORGE = 'https://api.curseforge.com/v1';
-const MINECRAFT_GAME_ID = 432;
+export const MODRINTH = 'https://api.modrinth.com/v2';
+export const CURSEFORGE = 'https://api.curseforge.com/v1';
+export const MINECRAFT_GAME_ID = 432;
 const MOD_CLASS_ID = 6;
 const TIMEOUT_MS = 5000;
 const PAGE_SIZE = 10;
@@ -35,10 +35,10 @@ export interface CatalogProject {
 /** Thrown when a source can't be reached or answers with an error. */
 export class CatalogUnavailableError extends Error {}
 
-async function getJson<T>(url: string, headers: Record<string, string>): Promise<T | undefined> {
+async function request<T>(url: string, init: RequestInit): Promise<T | undefined> {
   let response: Response;
   try {
-    response = await fetch(url, { headers, signal: AbortSignal.timeout(TIMEOUT_MS) });
+    response = await fetch(url, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) });
   } catch {
     throw new CatalogUnavailableError(url);
   }
@@ -47,9 +47,25 @@ async function getJson<T>(url: string, headers: Record<string, string>): Promise
   return (await response.json()) as T;
 }
 
+export function getJson<T>(url: string, headers: Record<string, string>): Promise<T | undefined> {
+  return request<T>(url, { headers });
+}
+
+export function postJson<T>(
+  url: string,
+  headers: Record<string, string>,
+  body: unknown,
+): Promise<T | undefined> {
+  return request<T>(url, {
+    method: 'POST',
+    headers: { ...headers, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
 // Modrinth
 
-function modrinthHeaders() {
+export function modrinthHeaders() {
   return { 'User-Agent': modsEnv().MODRINTH_USER_AGENT };
 }
 
@@ -130,7 +146,7 @@ async function modrinthProject(
 
 // CurseForge
 
-function curseforgeHeaders(key: string) {
+export function curseforgeHeaders(key: string) {
   return { 'x-api-key': key, Accept: 'application/json' };
 }
 

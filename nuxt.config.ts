@@ -70,7 +70,7 @@ export default defineNuxtConfig({
       },
     },
     scheduledTasks: {
-      '* * * * *': ['events:bde-sync', 'push:deliver'],
+      '* * * * *': ['events:bde-sync', 'push:deliver', 'anticheat:lookups'],
       '*/5 * * * *': ['warden:close-stale-sessions'],
       // Every night at 03:00, server time.
       '0 3 * * *': [

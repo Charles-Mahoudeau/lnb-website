@@ -156,4 +156,17 @@ async function scoreAndStore(tx: Tx, sha512: string, ctx?: ScoringContext) {
   return (await scoreFiles(tx, [sha512], ctx))[0] ?? null;
 }
 
-export const anticheatScoringService = { context, scoreFiles, scoreAndStore };
+/** Scores every file of a project again, after a decision or a merge. */
+async function rescoreProject(tx: Tx, projectId: string, ctx?: ScoringContext) {
+  const rows = await tx
+    .select({ sha512: anticheatFile.sha512 })
+    .from(anticheatFile)
+    .where(eq(anticheatFile.projectId, projectId));
+  return scoreFiles(
+    tx,
+    rows.map((row) => row.sha512),
+    ctx,
+  );
+}
+
+export const anticheatScoringService = { context, scoreFiles, scoreAndStore, rescoreProject };
