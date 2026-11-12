@@ -608,7 +608,10 @@
       "economy": "Économie",
       "economyOverview": "Vue d’ensemble",
       "economyAccounts": "Comptes",
-      "economyLedger": "Grand livre"
+      "economyLedger": "Grand livre",
+      "anticheat": "Anticheat",
+      "anticheatFiles": "Fichiers",
+      "anticheatReview": "À examiner"
     },
     "cancel": "Annuler",
     "roles": {
@@ -2371,6 +2374,265 @@
         "type": "Tapez « {sentence} » pour confirmer",
         "confirm": "Tout remettre à zéro",
         "done": "L’économie a été remise à zéro"
+      }
+    },
+    "anticheat": {
+      "title": "Anticheat",
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "more": "Afficher plus",
+      "loading": "Chargement…",
+      "search": "Chercher un nom, un identifiant de mod ou un hash",
+      "empty": "Aucun fichier ne correspond. Les fichiers apparaissent ici dès que le serveur les signale.",
+      "emptyQueue": "Rien à examiner. Les fichiers qui demandent un coup d’œil apparaissent ici.",
+      "approveProject": "Approuver un projet",
+      "banProject": "Bannir un projet",
+      "versions": "{count} versions | {count} version | {count} versions",
+      "kinds": {
+        "mod": "Mod",
+        "resourcepack": "Pack de ressources",
+        "shader": "Shader",
+        "client": "Client"
+      },
+      "tabs": {
+        "mod": "Mods",
+        "resourcepack": "Packs de ressources",
+        "shader": "Shaders"
+      },
+      "status": {
+        "approved": "Approuvé",
+        "accepted": "Accepté",
+        "review": "À examiner",
+        "refused": "Refusé",
+        "banned": "Banni",
+        "pending": "En attente"
+      },
+      "platforms": {
+        "modrinth": "Modrinth",
+        "curseforge": "CurseForge"
+      },
+      "columns": {
+        "file": "Fichier ou projet",
+        "status": "Statut",
+        "score": "Score",
+        "usingNow": "En cours",
+        "everUsed": "Déjà utilisé",
+        "waiting": "En attente"
+      },
+      "errors": {
+        "failed": "Ça n’a pas marché. Réessaie dans un instant.",
+        "unknownSession": "Cette session n’existe pas.",
+        "noReport": "Cette session n’a envoyé aucun rapport.",
+        "exists": "Cela existe déjà.",
+        "notFound": "Introuvable. Il a peut-être été supprimé.",
+        "invalidCursor": "Cette page de résultats n’est plus valide. Recharge la liste.",
+        "unavailable": "Modrinth ou CurseForge n’a pas répondu. Réessaie dans un instant.",
+        "notLinked": "Ce projet n’est pas lié à cette plateforme.",
+        "sameProject": "Ce sont déjà le même projet.",
+        "notScored": "Ce fichier n’a pas encore de score."
+      },
+      "hash": {
+        "copy": "Copier le hash",
+        "copied": "Hash copié"
+      },
+      "path": {
+        "client": "Un fichier du client. Il n’est pas noté.",
+        "banned": "Banni, donc le score est 0.",
+        "approved": "Approuvé par un admin.",
+        "pending": "En attente de la recherche sur les plateformes.",
+        "computed": "Noté d’après ce que Modrinth et CurseForge en disent.",
+        "project": "Le plus bas score parmi ses versions."
+      },
+      "criteria": {
+        "path": {
+          "client": "Un fichier du client. Il n’est pas noté.",
+          "banned": "Banni : {why}. Le score est 0.",
+          "approved": "Approuvé : {why}.",
+          "pending": "En attente de la recherche sur les plateformes. Pas encore de score."
+        },
+        "overrides": {
+          "hash": "un admin a statué sur ce hash",
+          "project": "un admin a statué sur son projet",
+          "modId": "son identifiant de mod est sur la liste de bannissement",
+          "modpack": "il figure dans la liste officielle des mods"
+        },
+        "unavailable": "(pas de données)",
+        "keys": {
+          "moderationApproved": "Approuvé par la modération de la plateforme",
+          "downloads": "Téléchargements",
+          "projectAge": "Ancienneté du projet",
+          "versionAge": "Ancienneté de la version",
+          "bothPlatforms": "Présent sur les deux plateformes",
+          "identityMatch": "Le nom et l’identifiant du mod correspondent au projet",
+          "serverSide": "Côté serveur ou neutre",
+          "texturesClean": "Textures identiques à l’original",
+          "noCoreShaders": "Aucun shader du cœur du jeu"
+        },
+        "penalties": {
+          "unknown": "Inconnu des deux plateformes",
+          "suspectedModified": "Modification suspectée",
+          "texturesAltered": "Textures modifiées",
+          "coreShaders": "Shaders du cœur du jeu"
+        },
+        "sum": "{earned} sur {max} gagnés, ramenés à {scaled} sur {fullMax}, pénalités {penalties}, score final {score}."
+      },
+      "project": {
+        "title": {
+          "approved": "Approuver un projet",
+          "banned": "Bannir un projet"
+        },
+        "body": {
+          "approved": "Toutes les versions du projet, présentes et futures, comptent comme approuvées.",
+          "banned": "Toutes les versions du projet valent 0, et les joueurs qui en utilisent une sont concernés."
+        },
+        "source": "Plateforme",
+        "id": "Identifiant du projet",
+        "idHelp": {
+          "modrinth": "L’identifiant ou le slug du projet, depuis sa page Modrinth.",
+          "curseforge": "L’identifiant numérique du projet, dans le cadre « À propos » de sa page CurseForge."
+        },
+        "confirm": {
+          "approved": "Approuver le projet",
+          "banned": "Bannir le projet"
+        },
+        "done": {
+          "approved": "Projet approuvé",
+          "banned": "Projet banni"
+        }
+      },
+      "confirm": {
+        "approveProject": {
+          "title": "Approuver ce projet ?",
+          "body": "Toutes ses versions comptent comme approuvées, quel que soit leur hash.",
+          "label": "Approuver le projet",
+          "done": "Projet approuvé"
+        },
+        "approveHash": {
+          "title": "Approuver ce hash ?",
+          "body": "Seul ce fichier exact compte comme approuvé.",
+          "label": "Approuver ce hash",
+          "done": "Hash approuvé"
+        },
+        "ban": {
+          "title": "Bannir ceci ?",
+          "body": "Il vaut 0 à partir de maintenant. Les joueurs qui l’utilisent sont concernés par la politique.",
+          "label": "Bannir",
+          "done": "Banni"
+        },
+        "clear": {
+          "title": "Annuler la décision ?",
+          "body": "Le score revient à ce que disent les plateformes.",
+          "label": "Annuler la décision",
+          "done": "Décision annulée"
+        },
+        "affected": "{count} joueurs sont concernés | {count} joueur est concerné | {count} joueurs sont concernés"
+      },
+      "note": {
+        "optional": "Note (facultative, gardée dans l’historique)",
+        "save": "Enregistrer la note",
+        "done": "Note ajoutée"
+      },
+      "drawer": {
+        "criteria": "Critères",
+        "identity": "Identité",
+        "players": "Joueurs",
+        "history": "Historique",
+        "waiting": "{count} sessions attendent ce score. | {count} session attend ce score. | {count} sessions attendent ce score.",
+        "disputed": "Les plateformes ne sont pas d’accord sur ce fichier. Le score retient les faits auxquels on se fie le moins.",
+        "approveProject": "Approuver le projet",
+        "approveHash": "Approuver ce hash",
+        "banProject": "Bannir le projet",
+        "ban": "Bannir",
+        "clear": "Annuler la décision",
+        "reviewed": "Examiné, garder le score",
+        "reviewedDone": "Marqué comme examiné",
+        "rescore": "Noter à nouveau",
+        "rescored": "Noté à nouveau",
+        "addNote": "Ajouter une note",
+        "decided": {
+          "approved": "Approuvé par un admin.",
+          "banned": "Banni par un admin."
+        },
+        "notScored": "Ce fichier n’a pas encore de score.",
+        "hash": "Hash",
+        "filename": "Nom du fichier",
+        "declared": {
+          "modId": "Identifiant de mod déclaré",
+          "name": "Nom déclaré",
+          "version": "Version déclarée",
+          "loader": "Loader"
+        },
+        "lookup": "Recherche sur les plateformes",
+        "project": "Projet",
+        "rules": "Version des règles",
+        "firstSeen": "Vu pour la première fois",
+        "lastSeen": "Vu pour la dernière fois",
+        "versions": "Versions",
+        "declaredModId": "Identifiant de mod déclaré",
+        "modIds": "Identifiants de mod"
+      },
+      "lookup": {
+        "pending": "En attente",
+        "found": "Trouvé",
+        "notFound": "Introuvable",
+        "timedOut": "Délai dépassé",
+        "skipped": "Ignoré"
+      },
+      "history": {
+        "empty": "Rien pour l’instant.",
+        "score": "Score {from} puis {to}",
+        "kinds": {
+          "score": "Noté",
+          "approve": "Approuvé",
+          "ban": "Banni",
+          "clear": "Décision annulée",
+          "reviewed": "Examiné",
+          "note": "Note",
+          "link": "Projets fusionnés",
+          "unlink": "Projet séparé"
+        }
+      },
+      "players": {
+        "empty": "Aucun joueur n’a utilisé ce fichier.",
+        "selectAll": "Sélectionner tous les joueurs",
+        "selected": "{count} sélectionnés",
+        "ban": "Bannir",
+        "hold": "Retenir à la prochaine connexion",
+        "penalty": "Pénalité",
+        "clear": "Effacer la sélection",
+        "selectRow": "Sélectionner {name}",
+        "seen": "vu pour la première fois le {first}, pour la dernière fois le {last}",
+        "afterBan": "Après le bannissement",
+        "sessions": "{count} sessions | {count} session | {count} sessions"
+      },
+      "bulk": {
+        "title": {
+          "ban": "Bannir {count} joueurs | Bannir {count} joueur | Bannir {count} joueurs",
+          "hold": "Retenir {count} joueurs | Retenir {count} joueur | Retenir {count} joueurs",
+          "penalty": "Pénaliser {count} joueurs | Pénaliser {count} joueur | Pénaliser {count} joueurs"
+        },
+        "body": {
+          "ban": "Ils reçoivent un bannissement Warden. Leurs sessions en jeu prennent fin.",
+          "hold": "Ils sont retenus à leur prochaine connexion jusqu’à ce qu’un admin lève la retenue.",
+          "penalty": "Leur score de confiance baisse du nombre de points ci-dessous."
+        },
+        "applies": "S’applique à {count} joueurs | S’applique à {count} joueur | S’applique à {count} joueurs",
+        "more": "+{n} autres",
+        "points": "Points à retirer (1 à 50)",
+        "confirm": {
+          "ban": "Bannir {count} joueurs | Bannir {count} joueur | Bannir {count} joueurs",
+          "hold": "Retenir {count} joueurs | Retenir {count} joueur | Retenir {count} joueurs",
+          "penalty": "Pénaliser {count} joueurs | Pénaliser {count} joueur | Pénaliser {count} joueurs"
+        },
+        "done": {
+          "ban": "{count} joueurs bannis | {count} joueur banni | {count} joueurs bannis",
+          "hold": "{count} joueurs retenus | {count} joueur retenu | {count} joueurs retenus",
+          "penalty": "{count} joueurs pénalisés | {count} joueur pénalisé | {count} joueurs pénalisés"
+        },
+        "skipped": "{count} sont laissés tels quels | {count} est laissé tel quel | {count} sont laissés tels quels"
+      },
+      "review": {
+        "title": "À examiner"
       }
     }
   },

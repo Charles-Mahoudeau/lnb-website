@@ -3,6 +3,7 @@ import type { NavigationMenuItem, TableColumn, TabsItem } from '@nuxt/ui';
 
 import { EventsAdminImagePicker } from '#components';
 
+import type { AnticheatBreakdown, AnticheatStatus } from '#shared/schemas/anticheat';
 import type { EventTeamsView, EventTeamView } from '#shared/schemas/event-teams';
 import type { EventAdminView, EventSummary, EventView } from '#shared/schemas/events';
 import type { ModView } from '#shared/schemas/mods';
@@ -146,6 +147,34 @@ const samplePartners: PartnerPublicKind = {
     },
   ],
 };
+const anticheatStatuses: AnticheatStatus[] = [
+  'approved',
+  'accepted',
+  'review',
+  'refused',
+  'banned',
+  'pending',
+];
+const anticheatBreakdown: AnticheatBreakdown = {
+  path: 'computed',
+  rulesVersion: 1,
+  overrides: [],
+  criteria: [
+    { key: 'moderationApproved', state: 'earned', points: 20 },
+    { key: 'downloads', state: 'earned', points: 15 },
+    { key: 'projectAge', state: 'notEarned', points: 10 },
+    { key: 'bothPlatforms', state: 'unavailable', points: 10 },
+  ],
+  fullMax: 100,
+  availableMax: 55,
+  earned: 35,
+  scaled: 64,
+  penalties: [{ key: 'texturesAltered', points: -20 }],
+  raw: 44,
+  score: 44,
+};
+const anticheatHash = 'a3f5c2d19e8b7a6054c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1';
+
 const campuses = ['Paris', 'Lyon', 'Nantes', 'Marseille'];
 const campus = ref('Paris');
 const email = ref('alex@gmail.com');
@@ -917,6 +946,27 @@ function showToast() {
           </div>
           <p class="text-muted">Page content</p>
         </div>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Anticheat</h2>
+      <p class="max-w-2xl text-muted">
+        Status pills use the status colors, because they are state. Scores are text in the display
+        font, never colored. Hashes stay in the body font with tabular numbers, shortened, with a
+        ghost copy button. The criteria checklist shows the stored breakdown: a check, a cross or a
+        dash, the points, then the arithmetic.
+      </p>
+      <div class="flex flex-wrap items-center gap-3">
+        <AdminAnticheatStatusBadge v-for="item in anticheatStatuses" :key="item" :status="item" />
+      </div>
+      <div class="flex flex-wrap items-center gap-6">
+        <span class="font-display text-5xl font-bold text-highlighted tabular-nums">44</span>
+        <span class="font-display text-2xl tabular-nums">87</span>
+        <AdminAnticheatHash :sha512="anticheatHash" />
+      </div>
+      <div class="max-w-md">
+        <AdminAnticheatCriteria :breakdown="anticheatBreakdown" />
       </div>
     </section>
 

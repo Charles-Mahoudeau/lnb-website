@@ -604,7 +604,10 @@
       "economy": "Economy",
       "economyOverview": "Overview",
       "economyAccounts": "Accounts",
-      "economyLedger": "Ledger"
+      "economyLedger": "Ledger",
+      "anticheat": "Anticheat",
+      "anticheatFiles": "Files",
+      "anticheatReview": "Review queue"
     },
     "cancel": "Cancel",
     "roles": {
@@ -2367,6 +2370,265 @@
         "type": "Type “{sentence}” to confirm",
         "confirm": "Reset everything",
         "done": "The economy was reset"
+      }
+    },
+    "anticheat": {
+      "title": "Anticheat",
+      "cancel": "Cancel",
+      "close": "Close",
+      "more": "Show more",
+      "loading": "Loading…",
+      "search": "Search a name, a mod ID or a hash",
+      "empty": "No file matches. Files show up here once the server reports them.",
+      "emptyQueue": "Nothing to review. Files that need a look show up here.",
+      "approveProject": "Approve a project",
+      "banProject": "Ban a project",
+      "versions": "{count} versions | {count} version | {count} versions",
+      "kinds": {
+        "mod": "Mod",
+        "resourcepack": "Resource pack",
+        "shader": "Shader",
+        "client": "Client"
+      },
+      "tabs": {
+        "mod": "Mods",
+        "resourcepack": "Resource packs",
+        "shader": "Shaders"
+      },
+      "status": {
+        "approved": "Approved",
+        "accepted": "Accepted",
+        "review": "Review",
+        "refused": "Refused",
+        "banned": "Banned",
+        "pending": "Pending"
+      },
+      "platforms": {
+        "modrinth": "Modrinth",
+        "curseforge": "CurseForge"
+      },
+      "columns": {
+        "file": "File or project",
+        "status": "Status",
+        "score": "Score",
+        "usingNow": "Using now",
+        "everUsed": "Ever used",
+        "waiting": "Waiting"
+      },
+      "errors": {
+        "failed": "That didn’t work. Try again in a moment.",
+        "unknownSession": "That session doesn’t exist.",
+        "noReport": "That session has sent no report.",
+        "exists": "That already exists.",
+        "notFound": "We couldn’t find it. It may have been removed.",
+        "invalidCursor": "That page of results is no longer valid. Reload the list.",
+        "unavailable": "Modrinth or CurseForge didn’t answer. Try again in a moment.",
+        "notLinked": "That project isn’t linked to that platform.",
+        "sameProject": "Those are already the same project.",
+        "notScored": "That file hasn’t been scored yet."
+      },
+      "hash": {
+        "copy": "Copy the hash",
+        "copied": "Hash copied"
+      },
+      "path": {
+        "client": "A client file. It isn’t scored.",
+        "banned": "Banned, so the score is 0.",
+        "approved": "Approved by an admin.",
+        "pending": "Waiting for the platform lookup.",
+        "computed": "Scored from what Modrinth and CurseForge say about it.",
+        "project": "The lowest score among its versions."
+      },
+      "criteria": {
+        "path": {
+          "client": "A client file. It isn’t scored.",
+          "banned": "Banned: {why}. The score is 0.",
+          "approved": "Approved: {why}.",
+          "pending": "Waiting for the platform lookup. There is no score yet."
+        },
+        "overrides": {
+          "hash": "an admin decided on this hash",
+          "project": "an admin decided on its project",
+          "modId": "its mod ID is on the ban list",
+          "modpack": "it is on the official modlist"
+        },
+        "unavailable": "(no data)",
+        "keys": {
+          "moderationApproved": "Approved by the platform’s moderation",
+          "downloads": "Downloads",
+          "projectAge": "Project age",
+          "versionAge": "Version age",
+          "bothPlatforms": "Found on both platforms",
+          "identityMatch": "Name and mod ID match the project",
+          "serverSide": "Server-side or neutral",
+          "texturesClean": "Textures match the original",
+          "noCoreShaders": "No core shaders"
+        },
+        "penalties": {
+          "unknown": "Unknown to both platforms",
+          "suspectedModified": "Suspected modified",
+          "texturesAltered": "Textures altered",
+          "coreShaders": "Core shaders"
+        },
+        "sum": "{earned} of {max} earned, scaled to {scaled} of {fullMax}, penalties {penalties}, final score {score}."
+      },
+      "project": {
+        "title": {
+          "approved": "Approve a project",
+          "banned": "Ban a project"
+        },
+        "body": {
+          "approved": "Every version of the project, now and later, counts as approved.",
+          "banned": "Every version of the project scores 0, and players who use one are affected."
+        },
+        "source": "Platform",
+        "id": "Project ID",
+        "idHelp": {
+          "modrinth": "The project’s ID or slug, from its Modrinth page.",
+          "curseforge": "The numeric project ID, from the About box on its CurseForge page."
+        },
+        "confirm": {
+          "approved": "Approve project",
+          "banned": "Ban project"
+        },
+        "done": {
+          "approved": "Project approved",
+          "banned": "Project banned"
+        }
+      },
+      "confirm": {
+        "approveProject": {
+          "title": "Approve this project?",
+          "body": "All its versions count as approved, whatever their hash.",
+          "label": "Approve project",
+          "done": "Project approved"
+        },
+        "approveHash": {
+          "title": "Approve this hash?",
+          "body": "Only this exact file counts as approved.",
+          "label": "Approve this hash",
+          "done": "Hash approved"
+        },
+        "ban": {
+          "title": "Ban this?",
+          "body": "It scores 0 from now on. Players who use it are affected by the policy.",
+          "label": "Ban",
+          "done": "Banned"
+        },
+        "clear": {
+          "title": "Clear the decision?",
+          "body": "The score goes back to what the platforms say.",
+          "label": "Clear the decision",
+          "done": "Decision cleared"
+        },
+        "affected": "This affects {count} players | This affects {count} player | This affects {count} players"
+      },
+      "note": {
+        "optional": "Note (optional, kept in the history)",
+        "save": "Save the note",
+        "done": "Note added"
+      },
+      "drawer": {
+        "criteria": "Criteria",
+        "identity": "Identity",
+        "players": "Players",
+        "history": "History",
+        "waiting": "{count} sessions are waiting for this score. | {count} session is waiting for this score. | {count} sessions are waiting for this score.",
+        "disputed": "The platforms disagree about this file. The score uses the facts we trust least.",
+        "approveProject": "Approve project",
+        "approveHash": "Approve this hash",
+        "banProject": "Ban project",
+        "ban": "Ban",
+        "clear": "Clear the decision",
+        "reviewed": "Reviewed, keep the score",
+        "reviewedDone": "Marked as reviewed",
+        "rescore": "Score again",
+        "rescored": "Scored again",
+        "addNote": "Add a note",
+        "decided": {
+          "approved": "Approved by an admin.",
+          "banned": "Banned by an admin."
+        },
+        "notScored": "This file hasn’t been scored yet.",
+        "hash": "Hash",
+        "filename": "File name",
+        "declared": {
+          "modId": "Declared mod ID",
+          "name": "Declared name",
+          "version": "Declared version",
+          "loader": "Loader"
+        },
+        "lookup": "Platform lookup",
+        "project": "Project",
+        "rules": "Rules version",
+        "firstSeen": "First seen",
+        "lastSeen": "Last seen",
+        "versions": "Versions",
+        "declaredModId": "Declared mod ID",
+        "modIds": "Mod IDs"
+      },
+      "lookup": {
+        "pending": "Pending",
+        "found": "Found",
+        "notFound": "Not found",
+        "timedOut": "Timed out",
+        "skipped": "Skipped"
+      },
+      "history": {
+        "empty": "Nothing yet.",
+        "score": "Score {from} to {to}",
+        "kinds": {
+          "score": "Scored",
+          "approve": "Approved",
+          "ban": "Banned",
+          "clear": "Decision cleared",
+          "reviewed": "Reviewed",
+          "note": "Note",
+          "link": "Projects merged",
+          "unlink": "Project split"
+        }
+      },
+      "players": {
+        "empty": "No player has used this file.",
+        "selectAll": "Select every player",
+        "selected": "{count} selected",
+        "ban": "Ban",
+        "hold": "Hold next join",
+        "penalty": "Penalty",
+        "clear": "Clear the selection",
+        "selectRow": "Select {name}",
+        "seen": "first seen {first}, last seen {last}",
+        "afterBan": "After the ban",
+        "sessions": "{count} sessions | {count} session | {count} sessions"
+      },
+      "bulk": {
+        "title": {
+          "ban": "Ban {count} players | Ban {count} player | Ban {count} players",
+          "hold": "Hold {count} players | Hold {count} player | Hold {count} players",
+          "penalty": "Penalize {count} players | Penalize {count} player | Penalize {count} players"
+        },
+        "body": {
+          "ban": "They get a Warden ban. Their sessions in the game end.",
+          "hold": "They are held at their next join until an admin clears the hold.",
+          "penalty": "Their trust score drops by the points below."
+        },
+        "applies": "Applies to {count} players | Applies to {count} player | Applies to {count} players",
+        "more": "+{n} more",
+        "points": "Points to take (1 to 50)",
+        "confirm": {
+          "ban": "Ban {count} players | Ban {count} player | Ban {count} players",
+          "hold": "Hold {count} players | Hold {count} player | Hold {count} players",
+          "penalty": "Penalize {count} players | Penalize {count} player | Penalize {count} players"
+        },
+        "done": {
+          "ban": "Banned {count} players | Banned {count} player | Banned {count} players",
+          "hold": "Held {count} players | Held {count} player | Held {count} players",
+          "penalty": "Penalized {count} players | Penalized {count} player | Penalized {count} players"
+        },
+        "skipped": "{count} were left as they are | {count} was left as it is | {count} were left as they are"
+      },
+      "review": {
+        "title": "Review queue"
       }
     }
   },
