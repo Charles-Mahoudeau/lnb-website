@@ -3,6 +3,7 @@ import { and, asc, desc, eq, gte, ilike, inArray, isNull, lt, or, sql, sum } fro
 import { db } from '~~/server/db';
 import {
   economyAccount,
+  economyCasinoLicense,
   economyDailyStat,
   economyEntry,
   economyInvitation,
@@ -23,6 +24,7 @@ import { economyStatsService } from './stats';
 import { accountTransactions, memberCounts, playerNames } from './views';
 
 import type {
+  EconomyAccountType,
   EconomyAdjustBody,
   EconomyAdminAccountDetail,
   EconomyAdminAccountPage,
@@ -73,6 +75,7 @@ async function rows(accounts: readonly Account[]): Promise<EconomyAdminAccountRo
     return {
       id: account.id,
       kind: account.kind,
+      type: account.type,
       handle: account.handle,
       name: account.name,
       owner:
@@ -213,6 +216,27 @@ async function adjust(actorId: string, accountId: string, body: EconomyAdjustBod
         reason: body.reason,
         transactionId: posted.transactionId,
       },
+    });
+  });
+  return detail(accountId);
+}
+
+/**
+ * Sets a shared account's type, with no licence needed: for casinos that were there before the
+ * licences. A licence already bound to the account stays bound.
+ */
+async function setType(actorId: string, accountId: string, type: EconomyAccountType) {
+  await db.transaction(async (tx) => {
+    const account = await requireAccount(accountId, tx, true);
+    if (account.kind === 'personal') refuse(409, 'personalAccount');
+    if (account.closedAt) refuse(409, 'closed');
+    if (account.type === type) return;
+    await tx.update(economyAccount).set({ type }).where(eq(economyAccount.id, accountId));
+    await adminAuditService.record(tx, {
+      action: 'economy.accountType',
+      actorUserId: actorId,
+      targetUserId: null,
+      data: { name: await auditName(tx, account), accountId, from: account.type, type },
     });
   });
   return detail(accountId);
@@ -371,6 +395,7 @@ async function exportAll(): Promise<EconomyExport> {
     accounts: accounts.map((account) => ({
       id: account.id,
       kind: account.kind,
+      type: account.type,
       handle: account.handle,
       name: account.name,
       ownerUserId: account.ownerUserId,
@@ -383,7 +408,7 @@ async function exportAll(): Promise<EconomyExport> {
 }
 
 /**
- * Deletes every account, the ledger and the daily stats. The settings stay. Personal accounts
+ * Deletes every account, the ledger, the casino licences and the daily stats. The settings stay. Personal accounts
  * open again on the next need, with the starting balance. Site admins only, after typing the
  * confirmation.
  */
@@ -392,6 +417,8 @@ async function reset(actorId: string, confirm: string) {
   await db.transaction(async (tx) => {
     const [totals] = await tx.select({ supply: sum(economyAccount.balance) }).from(economyAccount);
     const accounts = await tx.select({ id: economyAccount.id }).from(economyAccount);
+    // Licences point at the transaction that paid for them and at accounts.
+    await tx.delete(economyCasinoLicense);
     await tx.delete(economyEntry);
     // Reversals point at the transaction they undo, so they go first.
     await tx.delete(economyTransaction).where(sql`${economyTransaction.reversesId} is not null`);
@@ -420,6 +447,7 @@ export const economyAdminService = {
   transactions,
   balanceHistory,
   adjust,
+  setType,
   freeze,
   reverse,
   ledger,

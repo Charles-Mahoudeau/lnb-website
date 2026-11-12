@@ -1,4 +1,5 @@
 import type {
+  EconomyAccountType,
   EconomyAdjustBody,
   EconomyAdminAccountDetail,
   EconomyAdminAccountPage,
@@ -79,6 +80,13 @@ export const economyAdminActions = {
       $fetch<EconomyAdminAccountDetail>(`/api/economy/admin/accounts/${accountId}/adjustments`, {
         method: 'POST',
         body,
+      }),
+    ),
+  setType: (accountId: string, type: EconomyAccountType) =>
+    call(() =>
+      $fetch<EconomyAdminAccountDetail>(`/api/economy/admin/accounts/${accountId}`, {
+        method: 'PATCH',
+        body: { type },
       }),
     ),
   freeze: (accountId: string, body: EconomyFreezeBody) =>

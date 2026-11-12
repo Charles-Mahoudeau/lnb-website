@@ -19,6 +19,8 @@ export const ECONOMY_PROBLEMS = [
   'notAllowed',
   'sameAccount',
   'handleTaken',
+  'noLicense',
+  'typeLocked',
   'tooManyAccounts',
   'tooManyMembers',
   'alreadyMember',
@@ -66,6 +68,11 @@ export const economyHandle = z
       }),
   )
   .describe('Lower case, without the `#`. A leading `#` is removed.');
+
+/** What a shared account is for. `casino` needs a casino licence, and never changes again. */
+export const ECONOMY_ACCOUNT_TYPES = ['team', 'shop', 'casino'] as const;
+export const economyAccountType = z.enum(ECONOMY_ACCOUNT_TYPES);
+export type EconomyAccountType = z.infer<typeof economyAccountType>;
 
 export const economyAccountName = z.string().trim().min(1).max(32);
 export const economyMemo = z.string().trim().min(1).max(140);
@@ -137,6 +144,9 @@ function page<T extends z.ZodType>(item: T) {
 export const economyAccountView = z.object({
   id: z.uuid(),
   kind: z.enum(['personal', 'shared']),
+  type: economyAccountType
+    .nullable()
+    .describe('What a shared account is for. Null for the personal account.'),
   handle: z.string().nullable().describe('Shared accounts only, without the `#`.'),
   name: z.string().nullable().describe('Shared accounts only.'),
   balance: z.number(),
@@ -178,6 +188,13 @@ export type EconomyTransactionView = z.infer<typeof economyTransactionView>;
 export const economyTransactionPage = page(economyTransactionView);
 export type EconomyTransactionPage = z.infer<typeof economyTransactionPage>;
 
+/** A player's casino licences. */
+export const economyLicenseCount = z.object({
+  total: z.number().describe('Every licence the player bought.'),
+  free: z.number().describe('Those not yet used for a casino.'),
+});
+export type EconomyLicenseCount = z.infer<typeof economyLicenseCount>;
+
 export const economyInvitationView = z.object({
   id: z.uuid(),
   account: z.object({ id: z.uuid(), handle: z.string(), name: z.string() }),
@@ -199,6 +216,7 @@ export const economyMe = z.object({
   rank: z.number().nullable().describe('Place on the baltop. Null when hidden or not eligible.'),
   ownedShared: z.number(),
   maxOwnedShared: z.number(),
+  casinoLicenses: economyLicenseCount,
 });
 export type EconomyMe = z.infer<typeof economyMe>;
 
@@ -231,11 +249,28 @@ export const economyAccountDetail = economyAccountView.extend({
 export type EconomyAccountDetail = z.infer<typeof economyAccountDetail>;
 
 /** POST /api/economy/accounts */
-export const economyCreateBody = z.object({ name: economyAccountName, handle: economyHandle });
+export const economyCreateBody = z.object({
+  name: economyAccountName,
+  handle: economyHandle,
+  type: economyAccountType
+    .optional()
+    .describe("`team` without it. `casino` uses one of the caller's free casino licences."),
+});
 export type EconomyCreateBody = z.input<typeof economyCreateBody>;
 
 /** PATCH /api/economy/accounts/:accountId */
-export const economyRenameBody = z.object({ name: economyAccountName });
+export const economyAccountPatchBody = z
+  .object({
+    name: economyAccountName,
+    type: economyAccountType.describe(
+      "`casino` uses one of the caller's free casino licences, and never changes again.",
+    ),
+  })
+  .partial()
+  .refine((body) => body.name !== undefined || body.type !== undefined, {
+    message: 'name or type',
+  });
+export type EconomyAccountPatchBody = z.infer<typeof economyAccountPatchBody>;
 
 /** PATCH /api/economy/me */
 export const economyMePatchBody = z
@@ -305,6 +340,7 @@ export const economyServerAccount = z.object({
   id: z.uuid(),
   handle: z.string(),
   name: z.string(),
+  type: economyAccountType,
   balance: z.number(),
   frozen: z.boolean(),
 });
@@ -502,6 +538,7 @@ export type EconomyAdminAccountsQuery = z.input<typeof economyAdminAccountsQuery
 export const economyAdminAccountRow = z.object({
   id: z.uuid(),
   kind: z.enum(['personal', 'shared']),
+  type: economyAccountType.nullable().describe('Shared accounts only.'),
   handle: z.string().nullable(),
   name: z.string().nullable(),
   owner: z
@@ -527,6 +564,12 @@ export const economyAdminAccountDetail = economyAdminAccountRow.extend({
   out30: z.number().describe('Money out over the last 30 days.'),
 });
 export type EconomyAdminAccountDetail = z.infer<typeof economyAdminAccountDetail>;
+
+/** PATCH /api/economy/admin/accounts/:accountId */
+export const economyAdminAccountPatchBody = z.object({
+  type: economyAccountType.describe('Any type, with no licence needed.'),
+});
+export type EconomyAdminAccountPatchBody = z.infer<typeof economyAdminAccountPatchBody>;
 
 /** POST /api/economy/admin/accounts/:accountId/adjustments */
 export const economyAdjustBody = z.object({
@@ -849,6 +892,7 @@ export const economyExport = z.object({
     z.object({
       id: z.uuid(),
       kind: z.enum(['personal', 'shared']),
+      type: economyAccountType.nullable(),
       handle: z.string().nullable(),
       name: z.string().nullable(),
       ownerUserId: z.string().nullable(),

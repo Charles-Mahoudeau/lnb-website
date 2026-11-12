@@ -4,7 +4,11 @@ import type { TabsItem } from '@nuxt/ui';
 import type { EconomyAccountView } from '#shared/schemas/economy';
 
 // History, members and settings of the chosen account. Personal accounts have no members.
-const props = defineProps<{ account: EconomyAccountView; hideFromBaltop: boolean }>();
+const props = defineProps<{
+  account: EconomyAccountView;
+  hideFromBaltop: boolean;
+  freeLicenses: number;
+}>();
 const emit = defineEmits<{ changed: []; closed: []; failed: [caught: unknown] }>();
 const { t } = useI18n();
 
@@ -36,6 +40,7 @@ const items = computed<TabsItem[]>(() => [
       v-else
       :account="account"
       :hide-from-baltop="hideFromBaltop"
+      :free-licenses="freeLicenses"
       @changed="emit('changed')"
       @closed="emit('closed')"
       @failed="emit('failed', $event)"

@@ -1,5 +1,6 @@
 import type {
   EconomyAccountDetail,
+  EconomyAccountPatchBody,
   EconomyBalanceHistory,
   EconomyBaltop,
   EconomyCreateBody,
@@ -81,11 +82,11 @@ export const economyActions = {
     ),
   create: (body: EconomyCreateBody) =>
     call(() => $fetch<EconomyAccountDetail>('/api/economy/accounts', { method: 'POST', body })),
-  rename: (accountId: string, name: string) =>
+  update: (accountId: string, body: EconomyAccountPatchBody) =>
     call(() =>
       $fetch<EconomyAccountDetail>(`/api/economy/accounts/${accountId}`, {
         method: 'PATCH',
-        body: { name },
+        body,
       }),
     ),
   close: (accountId: string) =>

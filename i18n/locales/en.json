@@ -843,7 +843,8 @@
         "economy_reset": "{actor} reset the economy.",
         "economy_shopDisable": "{actor} turned off the shop {name}.",
         "economy_shopEnable": "{actor} turned the shop {name} back on.",
-        "economy_listingRemove": "{actor} took down the listing {name}."
+        "economy_listingRemove": "{actor} took down the listing {name}.",
+        "economy_accountType": "{actor} changed the type of the bank account {name}."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page.",
       "apiKeysSoon": "1 API key expires within 30 days | {n} API keys expire within 30 days",
@@ -2238,7 +2239,9 @@
         "in30": "In, 30 days",
         "out30": "Out, 30 days",
         "members": "Members",
-        "history": "History"
+        "history": "History",
+        "type": "Type",
+        "typeSaved": "Type saved"
       },
       "adjust": {
         "title": "Adjust {name}",
@@ -2932,6 +2935,8 @@
       "lastOwner": "An account needs at least one owner. Make someone else owner first.",
       "balanceNotZero": "Empty the account before closing it.",
       "personalAccount": "Personal accounts can’t do that.",
+      "noLicense": "A casino needs a casino licence. Buy one in the game first.",
+      "typeLocked": "A casino stays a casino: its type can’t change.",
       "alreadyReversed": "That transaction was already reversed.",
       "notReversible": "A reversal can’t be reversed.",
       "idempotencyMismatch": "That request was already used for something else.",
@@ -2948,6 +2953,11 @@
       "owner": "manages members and the account",
       "member": "spends and sees the history",
       "viewer": "sees the history only"
+    },
+    "types": {
+      "team": "Team",
+      "shop": "Shop",
+      "casino": "Casino"
     },
     "kinds": {
       "payment": "Payment",
@@ -3047,8 +3057,11 @@
       "baltopShown": "You’re back on the baltop",
       "name": "Name",
       "handleFixed": "#{handle} never changes",
-      "rename": "Save name",
-      "renamed": "Name saved",
+      "type": "Type",
+      "typeLocked": "A casino stays a casino",
+      "typeLicenses": "Becoming a casino uses one casino licence, for good. You have none free: buy one in the game. | Becoming a casino uses one casino licence, for good. You have {n} free. | Becoming a casino uses one casino licence, for good. You have {n} free.",
+      "rename": "Save",
+      "renamed": "Account saved",
       "closeHeading": "Close the account",
       "closeHint": "Its handle stays taken, so nobody can pose as it later.",
       "closeNotEmpty": "Empty the account before closing it.",
@@ -3069,6 +3082,8 @@
       "name": "Name",
       "handle": "Handle",
       "handleHelp": "Players pay it with /pay #handle. 3 to 24 lower-case letters, digits or dashes. It can’t change later.",
+      "type": "Type",
+      "typeHelp": "A casino uses one casino licence. You have none free: buy one in the game. | A casino uses one casino licence. You have {n} free. | A casino uses one casino licence. You have {n} free.",
       "submit": "Open account"
     },
     "baltop": {
