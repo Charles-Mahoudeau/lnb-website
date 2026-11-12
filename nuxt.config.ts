@@ -111,7 +111,7 @@ export default defineNuxtConfig({
     // Unit and database tests and tool configs run in plain Node, so they belong to the Node tsconfig.
     // Paths are relative to .nuxt/.
     nodeTsConfig: {
-      include: ['../test/unit/**/*', '../test/db/**/*', '../drizzle.config.ts'],
+      include: ['../test/unit/**/*', '../test/db/**/*', '../drizzle.config.ts', '../scripts/**/*'],
     },
   },
 
