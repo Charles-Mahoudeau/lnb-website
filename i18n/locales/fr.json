@@ -1261,6 +1261,30 @@
           "label": "Stats de l’économie",
           "description": "L’enregistrement nocturne des graphiques de l’économie, et la fermeture des comptes bancaires des joueurs supprimés."
         },
+        "anticheat": {
+          "label": "Anticheat",
+          "description": "Les rapports de fichiers du serveur Minecraft et leur notation. Les joueurs entrent comme si l’anticheat n’existait pas. Les admins peuvent toujours le gérer."
+        },
+        "anticheat_serverApi": {
+          "label": "API serveur de l’anticheat",
+          "description": "Tous les appels du serveur Minecraft à l’anticheat répondent 503, et le serveur laisse entrer les joueurs."
+        },
+        "anticheat_lookups": {
+          "label": "Recherches de l’anticheat",
+          "description": "La recherche des fichiers sur Modrinth et CurseForge. Les fichiers restent en attente, puis sont notés comme inconnus."
+        },
+        "jobs_anticheatLookups": {
+          "label": "Recherches de l’anticheat",
+          "description": "La reprise et l’expiration des recherches, chaque minute."
+        },
+        "jobs_anticheatRescore": {
+          "label": "Nouvelle notation de l’anticheat",
+          "description": "La nouvelle notation nocturne des fichiers périmés et de leurs données de plateforme."
+        },
+        "jobs_anticheatPrune": {
+          "label": "Nettoyage de l’anticheat",
+          "description": "La suppression nocturne des anciens rapports, liens d’usage, alertes et fichiers inutilisés."
+        },
         "push_partnerEvents": {
           "label": "Notifications d’événements partenaires",
           "description": "L’annonce d’un événement partenaire. Rien n’est mis en file tant que c’est désactivé."
