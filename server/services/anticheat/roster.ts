@@ -39,7 +39,7 @@ interface Page<T> {
 }
 
 /** The latest Minecraft username of a player, as a correlated subquery. */
-const latestUsername = sql<string | null>`(
+export const latestUsername = sql<string | null>`(
   select ${minecraftAccount.username} from ${minecraftAccount}
   where ${minecraftAccount.userId} = ${user.id}
   order by ${minecraftAccount.lastSeenAt} desc nulls last, ${minecraftAccount.linkedAt} desc

@@ -720,3 +720,31 @@ export const anticheatBulkResult = z.object({
   ),
 });
 export type AnticheatBulkResult = z.infer<typeof anticheatBulkResult>;
+
+// Admin: alerts and summary
+
+export const anticheatAlertParams = z.object({ id: z.coerce.number().int().positive() });
+
+export const anticheatAlertsQuery = z.object({ cursor });
+
+export const anticheatAlertRow = z.object({
+  id: z.int(),
+  kind: z.enum(ANTICHEAT_ALERT_KINDS),
+  createdAt: isoDate,
+  dismissedAt: isoDate.nullable(),
+  dismissedBy: z.string().nullable(),
+  player: anticheatPlayerRef.nullable(),
+  file: z.object({ sha512: z.string(), name: z.string() }).nullable(),
+  data: z.record(z.string(), z.unknown()),
+});
+export type AnticheatAlertRow = z.infer<typeof anticheatAlertRow>;
+export const anticheatAlertPage = anticheatPage(anticheatAlertRow);
+
+/** For the nav badge and the Overview tile. */
+export const anticheatSummary = z.object({
+  review: z.int().describe('Files that wait for an admin to look at them.'),
+  waiting: z.int().describe('Open sessions waiting for the score of a file.'),
+  alerts: z.int().describe('Open alerts.'),
+  mode: anticheatMode,
+});
+export type AnticheatSummary = z.infer<typeof anticheatSummary>;

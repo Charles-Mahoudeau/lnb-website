@@ -17,6 +17,7 @@ import {
   wardenAudit,
 } from '~~/server/db/schema';
 import { anticheatAdminService } from '~~/server/services/anticheat/admin';
+import { anticheatAlertService } from '~~/server/services/anticheat/alerts';
 import { anticheatRegistryService } from '~~/server/services/anticheat/registry';
 import { anticheatReportService } from '~~/server/services/anticheat/reports';
 import { anticheatRosterService } from '~~/server/services/anticheat/roster';
@@ -570,6 +571,93 @@ describe('players', () => {
     expect(
       await db.select().from(anticheatPlayer).where(eq(anticheatPlayer.userId, 'nobody')),
     ).toEqual([]);
+  });
+});
+
+describe('settings', () => {
+  it('makes a new rules version and marks every file stale when the rules change', async () => {
+    const sha512 = await unknownFile();
+    await db
+      .update(anticheatFile)
+      .set({ rescoreAt: new Date(Date.now() + 86_400_000) })
+      .where(eq(anticheatFile.sha512, sha512));
+    const before = await anticheatAdminService.settings();
+
+    const same = await anticheatAdminService.updateSettings({
+      actor,
+      patch: { rules: before.rules },
+    });
+    expect(same.rulesVersion).toBe(before.rulesVersion);
+    expect((await stored(sha512)).rescoreAt!.getTime()).toBeGreaterThan(Date.now());
+
+    const rules = { ...before.rules, lookup: { ...before.rules.lookup, rescoreDays: 20 } };
+    const changed = await anticheatAdminService.updateSettings({ actor, patch: { rules } });
+    expect(changed.rulesVersion).toBe(before.rulesVersion + 1);
+    expect(changed.rules.lookup.rescoreDays).toBe(20);
+    expect((await stored(sha512)).rescoreAt!.getTime()).toBeLessThanOrEqual(Date.now());
+
+    // Put the rules back for the other suites.
+    await anticheatAdminService.updateSettings({ actor, patch: { rules: before.rules } });
+  });
+
+  it('changes the mode alone without a new version', async () => {
+    const before = await anticheatAdminService.settings();
+    const after = await anticheatAdminService.updateSettings({ actor, patch: { mode: 'observe' } });
+    expect(after).toMatchObject({ mode: 'observe', rulesVersion: before.rulesVersion });
+    await setMode('enforce');
+  });
+});
+
+describe('alerts and the summary', () => {
+  it('lists open alerts first and dismisses one', async () => {
+    const sha512 = await unknownFile('alerted.jar');
+    const { userId } = await session();
+    await db.transaction(async (tx) => {
+      await anticheatAlertService.raise(tx, { kind: 'bannedFileSeen', userId, sha512 });
+      await anticheatAlertService.raise(tx, { kind: 'playerHeld', userId });
+    });
+    const before = await anticheatAlertService.summary();
+    const page = await anticheatAlertService.list();
+    const mine = page.items.filter((alert) => alert.player?.userId === userId);
+    expect(mine).toHaveLength(2);
+    expect(mine.find((a) => a.kind === 'bannedFileSeen')?.file).toEqual({
+      sha512,
+      name: 'alerted.jar',
+    });
+
+    await anticheatAlertService.dismiss(mine[0]!.id, admin);
+    await anticheatAlertService.dismiss(mine[0]!.id, admin);
+    expect((await anticheatAlertService.summary()).alerts).toBe(before.alerts - 1);
+    const after = await anticheatAlertService.list();
+    const dismissedAt = after.items.findIndex((a) => a.id === mine[0]!.id);
+    const stillOpen = after.items.findIndex((a) => a.id === mine[1]!.id);
+    expect(stillOpen).toBeLessThan(dismissedAt);
+    expect(after.items[dismissedAt]).toMatchObject({ dismissedBy: 'Admin' });
+    await expect(anticheatAlertService.dismiss(2_000_000_000, admin)).rejects.toMatchObject({
+      statusCode: 404,
+    });
+  });
+
+  it('counts the files to review and the sessions waiting for a score', async () => {
+    const before = await anticheatAlertService.summary();
+    const { hashes } = await projectWith(1);
+    await db
+      .update(anticheatFile)
+      .set({ band: 'middle', score: 50 })
+      .where(eq(anticheatFile.sha512, hashes[0]!));
+    const waiting = hash();
+    await db
+      .insert(anticheatFile)
+      .values({ sha512: waiting, kind: 'mod', filename: 'wait.jar', lookupState: 'pending' });
+    const { sessionId } = await session();
+    await anticheatReportService.submit({
+      sessionId,
+      files: [{ kind: 'mod', sha512: waiting, filename: 'wait.jar' }],
+    });
+    const after = await anticheatAlertService.summary();
+    expect(after.review).toBe(before.review + 1);
+    expect(after.waiting).toBe(before.waiting + 1);
+    expect(after.mode).toBe('enforce');
   });
 });
 
