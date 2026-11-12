@@ -133,6 +133,17 @@ Original mock (not code to port): [bulk user actions mock](https://claude.ai/art
 - Every action asks first (`AdminBulkModal`). The dialog asks the server who the action applies to, says "Applies to N of M selected", and lists who is skipped and why. Ban asks one reason and length for the group, roles asks add or remove and the role, delete asks to type the count. Ban and delete confirm with the outline destructive button, the others with the solid one.
 - The result is one toast, such as "Banned 3 accounts" with "2 were left as they are".
 
+## Anticheat
+
+Original mock (not code to port): [anticheat admin mocks](https://claude.ai/artifact/8f2BCEe7yXvjdpNNeWhEEx), Files proposition A, "Table and drawer". See `docs/plans/anticheat.md`. Players see nothing of it, so everything here is admin.
+
+- **Files** (`/admin/anticheat`): pill tabs for Mods, Resource packs and Shaders, a search field and status filters as toggle chips (second accent when on, like the push reminders), then a table on one raised section with rows separated by dividers. The file or project name is semibold, with platform badges (neutral outline) and a muted line under it. "Approve a project" is the page's one solid button, "Ban a project" the neutral soft one. The review queue (`/admin/anticheat/review`) is the same table, sorted by who is waiting.
+- **Drawer** (`USlideover`): the score large in the display font, the status pill and a sentence on how it was reached, a warning note when sessions wait for the score, the actions (Approve project solid, Approve this hash soft, Ban outline destructive, the rest ghost), then pill tabs for Criteria, Identity, Players and History. A project opens its versions as rows that open the file.
+- **Scores are text, never color.** Status pills (`AdminAnticheatStatusBadge`) are state, so they take the status colors. Waiting counts use the warning color when above zero.
+- **Criteria checklist** (`AdminAnticheatCriteria`): the stored breakdown, one row per criterion with a check, a cross or a dash (not available), the label and the points, then one line of arithmetic. An override is one sentence instead. Penalties use a real minus sign.
+- **Hashes** are shown in the body font with tabular numbers, the first 10 and last 4 characters, and a ghost copy button (`AdminAnticheatHash`). Never monospace.
+- **Players in the drawer** use the bulk pattern of the Users table: a checkbox per row with the faint second-accent tint, and Ban (outline destructive), Hold next join and Penalty (neutral soft) once some are ticked. Each asks first and says how many players it applies to. No solid red button.
+
 ## Notifications
 
 Original mock (not code to port): [push notifications mock](https://claude.ai/artifact/B9QVfPJbgPRYARQ1hjmN6A), bottom sheet (phones) and one-card settings. The desktop dialog came after, from the same content.
