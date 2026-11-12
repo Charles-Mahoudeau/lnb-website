@@ -3197,7 +3197,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.economyServer,
     summary: "A player's accounts",
     description:
-      'For the balance in the inventory and "My accounts": the personal account first (opened on first need, with the starting balance), then the shared accounts the player is in, and the account that pays by default.',
+      'For the balance in the inventory and "My accounts": the personal account first (opened on first need, with the starting balance), then the shared accounts the player is in, the account that pays by default, their casino licences and what one costs.',
     access: 'wardenServer',
     params: economy.economyUuidParams,
     response: economy.economyServerPlayer,
@@ -3375,6 +3375,23 @@ const routes: RouteDoc[] = [
     noContent: true,
     problems: [
       { status: 404, problems: ['notLinked', 'notFound'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/economy/server/licenses',
+    tag: TAGS.economyServer,
+    summary: 'Buy a casino licence',
+    description:
+      'The player buys one licence, which lets them make one of their shared accounts a casino. Its price (set by the admins) is burned from `account`, or their default account: one transaction of kind `burn`, reason `casinoLicense`. A price of 0 gives the licence with no transaction (`transactionId: null`). Carries an `idempotencyKey`, as transfers do. Behind the `economy.casinoLicenses` flag too.',
+    access: 'wardenServer',
+    body: economy.economyLicenseBody,
+    response: economy.economyLicenseResult,
+    problems: [
+      { status: 403, problems: ['notEligible', 'notAllowed'] },
+      { status: 404, problems: ['notLinked', 'notFound'] },
+      { status: 409, problems: ['insufficientFunds', 'frozen', 'idempotencyMismatch'] },
       { status: 503, problems: ['disabled'] },
     ],
   },
@@ -4051,7 +4068,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.economyAdmin,
     summary: 'Change the economy settings',
     description:
-      'The starting balance (minted on each new personal account), how many shared accounts a player can own, and how many members one can have.',
+      'The starting balance (minted on each new personal account), how many shared accounts a player can own, how many members one can have, the auction house tax, listings per player and listing length, and the price of a casino licence.',
     access: 'economyAdmin',
     body: economy.economySettingsBody,
     response: economy.economySettingsView,
