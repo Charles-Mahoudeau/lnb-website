@@ -308,6 +308,28 @@ describe('the registry', () => {
 });
 
 describe('projects', () => {
+  it('lists a decided project that has no file yet', async () => {
+    const [created] = await db
+      .insert(anticheatProject)
+      .values({
+        kind: 'resourcepack',
+        name: 'No files yet',
+        modrinthId: `nofiles${hash().slice(0, 8)}`,
+        decision: 'banned',
+      })
+      .returning({ id: anticheatProject.id });
+
+    const page = await anticheatRegistryService.files({ kind: 'resourcepack', sort: 'recent' });
+    expect(page.items.find((item) => item.projectId === created!.id)).toMatchObject({
+      fileCount: 0,
+      sha512: null,
+      status: 'banned',
+      platforms: ['modrinth'],
+    });
+    const found = await anticheatRegistryService.files({ q: 'no files yet', sort: 'recent' });
+    expect(found.items.map((item) => item.projectId)).toContain(created!.id);
+  });
+
   it('merges two projects and splits a platform off again', async () => {
     const a = await projectWith(1);
     const b = await projectWith(1);

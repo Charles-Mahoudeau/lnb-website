@@ -40,7 +40,7 @@ function iso(date: Date | null): string | null {
 
 interface RawRow extends Record<string, unknown> {
   project_id: string | null;
-  sha512: string;
+  sha512: string | null;
   kind: AnticheatFileRow['kind'];
   name: string;
   file_count: number;
@@ -93,6 +93,12 @@ async function files(query: AnticheatFilesQuery): Promise<Page<AnticheatFileRow>
       from ${anticheatFile} f
       left join ${anticheatProject} p on p.id = f.project_id
       where f.kind <> 'client'
+      union all
+      -- A project an admin decided on before any player used it has no file yet.
+      select null, p.kind, null, null, null, null, null,
+        p.created_at, null, p.id, p.name, p.modrinth_id, p.curseforge_id, p.decision, p.id::text
+      from ${anticheatProject} p
+      where not exists (select 1 from ${anticheatFile} f where f.project_id = p.id)
     ),
     live as (
       select distinct rf.sha512, r.session_id
@@ -102,7 +108,7 @@ async function files(query: AnticheatFilesQuery): Promise<Page<AnticheatFileRow>
       where r.seq = (select max(seq) from anticheat_report where session_id = r.session_id)
     ),
     grp as (
-      select gkey, count(*)::int as file_count, min(first_seen_at) as first_seen_at,
+      select gkey, count(sha512)::int as file_count, min(first_seen_at) as first_seen_at,
         max(scored_at) as last_scored_at
       from base group by gkey
     ),
@@ -126,6 +132,7 @@ async function files(query: AnticheatFilesQuery): Promise<Page<AnticheatFileRow>
           case when rep.modrinth_id is not null then 'modrinth' end,
           case when rep.curseforge_id is not null then 'curseforge' end], null) as platforms,
         case
+          when rep.sha512 is null then rep.decision
           when rep.band is null then 'pending'
           when rep.band = 'banned' then 'banned'
           when rep.band = 'approved' then 'approved'
