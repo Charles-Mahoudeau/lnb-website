@@ -4,7 +4,21 @@ A ghost is an account an admin or events manager makes for someone who has never
 
 A ghost is a normal `user` row with `ghost = true`. It has the person's school email, a name, a school (`tenantId`, picked by the admin), no photo, no `account` and no `session`, so it can't sign in or act. `emailVerified` is `true`: the admin vouches for the email, and Better Auth requires it to link an account (`requireLocalEmailVerified`).
 
-Status: the `ghost` column, the takeover and its tests are built. Creating and managing ghosts (service, routes, admin screens, flag) and the places that count or list accounts are still to come.
+Status: the `ghost` column, the takeover, the service, the routes and the flag are built. The admin screens (Users, the pickers) and the places that count or list accounts are still to come.
+
+## Making and changing ghosts
+
+`ghostService` (`server/services/ghosts.ts`) makes a ghost from a name, an email and a school, and changes them while the account is still a ghost. The email is lowercased and must not belong to any account, ghost or not (`emailTaken`, 409). The school is one of `SCHOOLS`, and only that school's students can take it over. Making and changing are logged in `admin_audit` (`user.ghostCreate`, `user.ghostUpdate`).
+
+| Route                                  | Who             | Does                                                            |
+| -------------------------------------- | --------------- | --------------------------------------------------------------- |
+| `POST /api/admin/users/ghost`          | site admins     | Makes a ghost.                                                  |
+| `POST /api/admin/events/users/ghost`   | events managers | The same, for the event and team screens.                       |
+| `PATCH /api/admin/users/:userId/ghost` | site admins     | Changes its name, email or school (`notGhost` once taken over). |
+
+A ghost has no roles: `setRoles` refuses it (`isGhost`, 409), and so does the bulk role action. It can be banned, deleted (with everything attached to it) and filtered in the Users list (`status=ghost`, and `ghost` on each row).
+
+The `ghostAccounts` flag switches both making ghosts (503 `disabled`) and taking them over off. With it off, a person signing in with a ghost's email sees `account_claim_refused` until it is switched back on. Existing ghosts stay.
 
 ## Taking over a ghost
 
@@ -27,4 +41,4 @@ Ghosts follow the 24-month inactive-account cleanup like any account: `coalesce(
 
 ## Tests
 
-`test/server/ghost-claim.test.ts` runs Better Auth's real `handleOAuthUserInfo` against a database: same row kept with its seat and settings, audit row, case-insensitive email, wrong school refused, second `oid` refused, real accounts (unverified or verified, or without an `oid`) refused, and sign-in and sign-up unchanged. A real Microsoft sign-in from the three schools isn't tested.
+`test/server/ghosts.test.ts` covers the service, the list and the roles. `test/server/ghost-claim.test.ts` runs Better Auth's real `handleOAuthUserInfo` against a database: same row kept with its seat and settings, audit row, case-insensitive email, wrong school refused, second `oid` refused, real accounts (unverified or verified, or without an `oid`) refused, and sign-in and sign-up unchanged. It also makes a ghost with the service and takes it over, with the flag off and on. A real Microsoft sign-in from the three schools isn't tested.

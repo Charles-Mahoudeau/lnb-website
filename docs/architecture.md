@@ -31,7 +31,7 @@ server/               Nitro server, picked up by Nuxt automatically
   routes/go/           the short links, /go/<shortId> (outside /api, so not in the API reference)
   services/           business rules, one file per domain: links (app link codes), warden/
                       (Minecraft link, see docs/warden.md), mods/ (the mod list, see
-                      docs/mods.md), users (accounts, for admins), avatars (profile photos),
+                      docs/mods.md), users (accounts, for admins), ghosts (ghost accounts, see docs/ghost-accounts.md), avatars (profile photos),
                       admin-audit and admin-overview (the admin log and Overview), events/
                       (see docs/events.md: admin, public, registrations, rooms, types, images,
                       bde, push, markdown, and rules.ts for the pure rules), push/ (see docs/push.md:
