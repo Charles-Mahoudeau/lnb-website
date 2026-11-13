@@ -225,3 +225,11 @@ CREATE UNIQUE INDEX "anticheat_report_session_id_seq_uidx" ON "anticheat_report"
 CREATE INDEX "anticheat_report_user_id_created_at_idx" ON "anticheat_report" USING btree ("user_id","created_at");--> statement-breakpoint
 CREATE INDEX "anticheat_report_file_sha512_idx" ON "anticheat_report_file" USING btree ("sha512");--> statement-breakpoint
 CREATE INDEX "anticheat_usage_sha512_idx" ON "anticheat_usage" USING btree ("sha512");
+--> statement-breakpoint
+-- Version 1 of the rules (server/lib/anticheat-rules.ts: a unit test compares them) and the single
+-- settings row, which starts in observe mode.
+INSERT INTO "anticheat_rules" ("version", "rules") VALUES (1, '{"criteria":{"moderationApproved":20,"downloadsHigh":20,"downloadsHighMin":10000,"downloadsMid":10,"downloadsMidMin":1000,"projectAge":15,"projectAgeDays":182,"versionAge":15,"versionAgeDays":14,"bothPlatforms":10,"identityMatch":10,"serverSide":10,"texturesClean":60,"noCoreShaders":40,"unknown":-50,"suspectedModified":-40,"texturesAltered":-100,"coreShaders":-40},"bands":{"accepted":75,"middle":40},"policy":{"mod":{"approved":"allow","accepted":"flag","middle":"hold","low":"refuse","banned":"ban"},"resourcepack":{"approved":"allow","accepted":"flag","middle":"warn","low":"refuse","banned":"kick"},"shader":{"approved":"allow","accepted":"allow","middle":"allow","low":"allow","banned":"kick"}},"player":{"start":50,"trusted":70,"held":30,"challengeWrong":-25,"challengeMissed":-5,"challengeMissedSessionCap":-15,"modSetChanged":-30,"channelMismatch":-30,"modlistIncomplete":-40,"playPerHour":1,"playDailyCap":5,"adjustFactor":0.2},"lookup":{"pendingTimeoutSeconds":60,"notFoundRetryHours":6,"rescoreDays":7}}'::jsonb);
+--> statement-breakpoint
+SELECT setval(pg_get_serial_sequence('anticheat_rules', 'version'), 1);
+--> statement-breakpoint
+INSERT INTO "anticheat_settings" ("id", "rules_version") VALUES (1, 1);

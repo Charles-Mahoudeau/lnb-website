@@ -62,7 +62,7 @@ describe('default rules', () => {
 
   it('are the ones the migration seeds as version 1', () => {
     const sql = readFileSync(
-      new URL('../../server/db/migrations/0031_anticheat.sql', import.meta.url),
+      new URL('../../server/db/migrations/0034_anticheat.sql', import.meta.url),
       'utf8',
     );
     const match =
