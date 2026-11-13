@@ -228,6 +228,16 @@ function describe(entry: AdminAuditView): string {
     case 'economy.shopEnable':
     case 'economy.listingRemove':
     case 'economy.accountType':
+    case 'quests.settings':
+    case 'quests.create':
+    case 'quests.update':
+    case 'quests.delete':
+    case 'quests.import':
+    case 'quests.season':
+    case 'quests.communityCreate':
+    case 'quests.communityUpdate':
+    case 'quests.communityCancel':
+    case 'quests.communityTemplate':
       return t(`admin.overview.log.${entry.action.replace('.', '_')}`, {
         actor,
         target,

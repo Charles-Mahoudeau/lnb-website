@@ -102,7 +102,17 @@ export type AdminAuditAction =
   | 'economy.shopDisable'
   | 'economy.shopEnable'
   | 'economy.listingRemove'
-  | 'economy.accountType';
+  | 'economy.accountType'
+  | 'quests.settings'
+  | 'quests.create'
+  | 'quests.update'
+  | 'quests.delete'
+  | 'quests.import'
+  | 'quests.season'
+  | 'quests.communityCreate'
+  | 'quests.communityUpdate'
+  | 'quests.communityCancel'
+  | 'quests.communityTemplate';
 
 // Rows outlive the accounts they name: a deleted actor or target becomes null, so the log keeps
 // what happened without keeping who it happened to.
