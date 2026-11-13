@@ -503,6 +503,8 @@ async function updateSettings(input: {
     rules: input.patch.rules,
   });
   if (after.rulesVersion !== before.rulesVersion) await rescoreAll();
+  // The mode decides what a verdict does, so players already online need a new one pushed.
+  if (after.mode !== before.mode) await anticheatReportService.reevaluateOpen();
   return settingsView(after);
 }
 

@@ -537,11 +537,21 @@ async function reevaluateForUser(userId: string): Promise<number> {
   return reevaluate(rows.map((row) => row.id));
 }
 
+/** The latest report of every open session, after the mode changed. */
+async function reevaluateOpen(): Promise<number> {
+  const { rows } = await db.execute<{ id: string }>(sql`
+    select r.id from ${anticheatReport} r
+    join ${wardenSession} s on s.id = r.session_id and s.ended_at is null
+    where r.seq = (select max(seq) from ${anticheatReport} where session_id = r.session_id)`);
+  return reevaluate(rows.map((row) => row.id));
+}
+
 export const anticheatReportService = {
   submit,
   evaluate,
   current,
   reevaluate,
+  reevaluateOpen,
   reevaluateFor,
   reevaluateForUser,
 };
