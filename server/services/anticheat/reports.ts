@@ -67,7 +67,10 @@ function offAnswer(): AnticheatReportResponse {
  * Files are stored by hash, scored when they can be, and linked to the player. Unknown hashes wait
  * for their platform lookup and are scored as soon as it ends.
  */
-async function submit(body: AnticheatReportBody): Promise<AnticheatReportResponse> {
+async function submit(input: AnticheatReportBody): Promise<AnticheatReportResponse> {
+  // Jars nested in another file are covered by that file: not stored, looked up or scored. The
+  // schema makes sure every `nestedIn` points at a top-level file of the report.
+  const body = { ...input, files: input.files.filter((file) => !file.nestedIn) };
   const config = await anticheatSettingsService.get();
   const result = await db.transaction(async (tx) => {
     const [session] = await tx

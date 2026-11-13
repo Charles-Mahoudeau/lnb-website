@@ -158,6 +158,8 @@ Sent right after an allowed login, and again in the same session whenever the cl
 
 `kind` is `mod`, `resourcepack`, `shader` or `client`. `sha512` is lowercased. `fingerprint` is an optional unsigned 32-bit integer (the CurseForge fingerprint). `filename` is 1 to 255 characters; `modId`, `name`, `version` and `loader` are optional strings up to 128 characters. `facts` is read only for resource packs. A report holds 1 to 1,000 files, unique by hash (more, or a duplicate, is a 400).
 
+`nestedIn` marks a jar found inside another file of the report (jar-in-jar, such as `kffmod-neoforge-5.12.0.jar` inside `kotlinforforge-5.12.0-all.jar`). It holds the SHA-512 of the top-level file in `mods/`, which must be in the same report and not nested itself, or the report is a 400. A nested entry is not stored, looked up, scored or linked to the player, and it is not in the answer: the top-level file stands for it, because its hash covers what is inside. The server should still send the top-level file, so what it contains is judged. A nested jar's hash is on neither platform, so reporting it without `nestedIn` scores it as unknown.
+
 ```json
 {
   "reportId": "0d4c2b1e-3a77-4f5b-8c1a-6b1f0b1c2d3e",

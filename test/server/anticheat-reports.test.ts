@@ -132,6 +132,23 @@ describe('anticheat reports', () => {
     expect(answer.pending).toBe(0);
   });
 
+  it('leaves a nested jar out and judges its top-level file', async () => {
+    const { sessionId, userId } = await session();
+    const outer = file({ filename: 'kotlinforforge-5.12.0-all.jar' });
+    const nested = file({ filename: 'kffmod-neoforge-5.12.0.jar', nestedIn: outer.sha512 });
+    const answer = await anticheatReportService.submit({
+      sessionId,
+      files: anticheatReportBody.parse({ sessionId, files: [outer, nested] }).files,
+    });
+    expect(answer.files.map((f) => f.sha512)).toEqual([outer.sha512]);
+    expect(
+      await db.select().from(anticheatFile).where(eq(anticheatFile.sha512, nested.sha512)),
+    ).toEqual([]);
+    expect(
+      await db.select().from(anticheatUsage).where(eq(anticheatUsage.userId, userId)),
+    ).toMatchObject([{ sha512: outer.sha512 }]);
+  });
+
   it('bans for a banned project in enforce mode', async () => {
     const sha512 = await knownFile({}, { modrinthId: `mr-${randomUUID()}`, decision: 'banned' });
     const { sessionId } = await session();
@@ -298,6 +315,18 @@ describe('anticheat reports', () => {
       .from(anticheatAlert)
       .where(eq(anticheatAlert.sha512, pack.sha512));
     expect(alerts.map((a) => [a.kind, a.userId])).toEqual([['factsDisputed', second.userId]]);
+  });
+
+  it('only accepts nestedIn that points at a top-level file of the report', () => {
+    const outer = file();
+    const sessionId = randomUUID();
+    const parse = (files: ReturnType<typeof file>[]) =>
+      anticheatReportBody.safeParse({ sessionId, files }).success;
+    expect(parse([outer, file({ nestedIn: outer.sha512 })])).toBe(true);
+    expect(parse([outer, file({ nestedIn: hash() })])).toBe(false);
+    const inner = file({ nestedIn: outer.sha512 });
+    expect(parse([outer, inner, file({ nestedIn: inner.sha512 })])).toBe(false);
+    expect(parse([{ ...outer, nestedIn: outer.sha512 }])).toBe(false);
   });
 
   it('refuses more than 1,000 files, and duplicates', () => {
