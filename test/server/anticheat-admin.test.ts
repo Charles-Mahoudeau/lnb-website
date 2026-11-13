@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { db } from '~~/server/db';
@@ -627,6 +627,33 @@ describe('settings', () => {
     const after = await anticheatAdminService.updateSettings({ actor, patch: { mode: 'observe' } });
     expect(after).toMatchObject({ mode: 'observe', rulesVersion: before.rulesVersion });
     await setMode('enforce');
+  });
+
+  it('tells the stream of open sessions when the mode changes', async () => {
+    const { hashes } = await projectWith(1);
+    await anticheatAdminService.decideFile({
+      actor,
+      sha512: hashes[0]!,
+      body: { decision: 'banned' },
+    });
+    await setMode('observe');
+    const { sessionId, userId } = await session();
+    const answer = await anticheatReportService.submit({
+      sessionId,
+      files: [{ kind: 'mod', sha512: hashes[0]!, filename: 'v0.jar' }],
+    });
+    expect(answer.verdict.action).toBe('allow');
+    const verdictRows = () =>
+      db
+        .select({ id: wardenAudit.id })
+        .from(wardenAudit)
+        .where(
+          and(eq(wardenAudit.action, 'anticheat.verdict'), eq(wardenAudit.targetUserId, userId)),
+        );
+    expect(await verdictRows()).toHaveLength(0);
+
+    await anticheatAdminService.updateSettings({ actor, patch: { mode: 'enforce' } });
+    expect(await verdictRows()).toHaveLength(1);
   });
 });
 
