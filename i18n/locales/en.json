@@ -794,6 +794,7 @@
         "flagOff": "{actor} switched {name} off.",
         "rateLimitMode": "{actor} set rate limiting to {mode}.",
         "user_ghostCreate": "{actor} created a ghost account for {target}.",
+        "user_ghostUpdate": "{actor} changed the ghost account of {target}.",
         "user_ghostClaim": "{target} signed in and took over their ghost account.",
         "event_create": "{actor} created the event {name}.",
         "event_update": "{actor} edited the event {name}.",
@@ -1226,6 +1227,10 @@
         "shortLinks_tracking": {
           "label": "Recording who clicks",
           "description": "Links keep counting clicks but stop recording who clicked. People already recorded stay."
+        },
+        "ghostAccounts": {
+          "label": "Ghost accounts",
+          "description": "No new ghost accounts can be made, and a person signing in can no longer take over the ghost made for them (they see an error until it is back on). Existing ghosts stay."
         },
         "apiKeys": {
           "label": "API keys",

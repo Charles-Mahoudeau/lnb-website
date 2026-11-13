@@ -11,6 +11,8 @@ export type AdminAuditAction =
   | 'user.delete'
   /** A ghost account was created by an admin or events manager. `data.email`, `data.tenantId`. */
   | 'user.ghostCreate'
+  /** An admin changed a ghost's name, email or school. `data.fields`. */
+  | 'user.ghostUpdate'
   /** The person signed in and took over a ghost account. `data.email`. No actor. */
   | 'user.ghostClaim'
   /** A feature flag switched, with `data.key` and `data.enabled`. */

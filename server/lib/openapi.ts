@@ -71,6 +71,8 @@ type OpenApiObject = Record<string, unknown>;
 // Named schemas, listed under Models in the reference. Requests are described as they're sent,
 // responses as they're returned.
 const requestSchemas = {
+  AdminGhostBody: admin.adminGhostBody,
+  AdminGhostUpdateBody: admin.adminGhostUpdateBody,
   AdminRolesBody: admin.adminRolesBody,
   ApiKeyBody: apiKeys.apiKeyBody,
   ApiKeyRotateBody: apiKeys.apiKeyRotateBody,
@@ -183,6 +185,7 @@ const responseSchemas = {
   AdminOverview: admin.adminOverview,
   AdminAuditView: admin.adminAuditView,
   AdminUserRow: admin.adminUserRow,
+  AdminGhost: admin.adminGhost,
   AdminUserPage: admin.adminUserPage,
   AdminBulkResult: admin.adminBulkResult,
   FlagStates: flags.flagStates,
@@ -510,6 +513,38 @@ const routes: RouteDoc[] = [
     problems: [{ status: 400, problems: ['tooMany'] }],
   },
   {
+    method: 'post',
+    path: '/api/admin/users/ghost',
+    tag: TAGS.admin,
+    summary: 'Make a ghost account',
+    description:
+      "Makes an account for someone who hasn't signed in yet, so they can be registered for events, put in a team or shown on the team page. At their first Microsoft sign-in, the person takes the same account over: nothing is created twice, and what was attached to it stays. Only that school can take it over, by the email given here. A ghost can't sign in, has no roles, and counts as inactive 24 months after its creation like any account. Off when the `ghostAccounts` flag is.",
+    access: 'admin',
+    body: admin.adminGhostBody,
+    created: true,
+    response: admin.adminGhost,
+    problems: [
+      { status: 409, problems: ['emailTaken'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'patch',
+    path: '/api/admin/users/{userId}/ghost',
+    tag: TAGS.admin,
+    summary: 'Change a ghost account',
+    description:
+      "Changes a ghost's name, email or school. Refused once the person has signed in and taken it over.",
+    access: 'admin',
+    params: admin.adminUserParams,
+    body: admin.adminGhostUpdateBody,
+    response: admin.adminGhost,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['notGhost', 'emailTaken'] },
+    ],
+  },
+  {
     method: 'put',
     path: '/api/admin/users/{userId}/roles',
     tag: TAGS.admin,
@@ -522,7 +557,7 @@ const routes: RouteDoc[] = [
     noContent: true,
     problems: [
       { status: 404, problems: ['notFound'] },
-      { status: 409, problems: ['self'] },
+      { status: 409, problems: ['self', 'isGhost'] },
     ],
   },
   {
@@ -2389,6 +2424,22 @@ const routes: RouteDoc[] = [
     access: 'eventsManager',
     query: events.eventUserQuery,
     response: events.eventUserOptions,
+  },
+  {
+    method: 'post',
+    path: '/api/admin/events/users/ghost',
+    tag: TAGS.eventsAdmin,
+    summary: 'Make a ghost account',
+    description:
+      'Makes an account for someone who has not signed in yet, to register them for an event or put them in a team. The same as `POST /api/admin/users/ghost`: the person takes it over at their first Microsoft sign-in, with the email given here.',
+    access: 'eventsManager',
+    body: admin.adminGhostBody,
+    created: true,
+    response: admin.adminGhost,
+    problems: [
+      { status: 409, problems: ['emailTaken'] },
+      { status: 503, problems: ['disabled'] },
+    ],
   },
   {
     method: 'get',

@@ -85,6 +85,7 @@ function filterWhere(query: AdminUsersFilters, now: Date) {
     !query.role || query.role === 'any' ? undefined : roleMatch(query.role),
     query.status === 'banned' ? banActiveWhere(now) : undefined,
     query.status === 'inactive' ? lt(lastActive, inactiveBefore(now)) : undefined,
+    query.status === 'ghost' ? eq(user.ghost, true) : undefined,
   );
 }
 
@@ -93,7 +94,7 @@ async function list(query: {
   q?: string;
   tenantId?: string;
   role: 'any' | 'admin' | 'warden-admin' | 'events-manager' | 'economy-admin';
-  status: 'all' | 'banned' | 'inactive';
+  status: 'all' | 'banned' | 'inactive' | 'ghost';
   cursor?: string;
 }): Promise<AdminUserPage> {
   const now = new Date();
@@ -111,6 +112,7 @@ async function list(query: {
         role: user.role,
         createdAt: user.createdAt,
         lastSignInAt: user.lastSignInAt,
+        ghost: user.ghost,
         banned: user.banned,
         banReason: user.banReason,
         banExpires: user.banExpires,
@@ -138,6 +140,7 @@ async function list(query: {
     wardenAdmin: hasRole(row.role, WARDEN_ADMIN_ROLE),
     eventsManager: hasRole(row.role, EVENTS_MANAGER_ROLE),
     economyAdmin: hasRole(row.role, ECONOMY_ADMIN_ROLE),
+    ghost: row.ghost,
     createdAt: row.createdAt.toISOString(),
     lastSignInAt: row.lastSignInAt?.toISOString() ?? null,
     inactive: (row.lastSignInAt ?? row.createdAt) < cutoff,
@@ -172,7 +175,13 @@ function decodeCursor(cursor: string): { name: string; id: string } {
 
 async function requireTarget(dbx: Db, userId: string) {
   const [row] = await dbx
-    .select({ id: user.id, role: user.role, banned: user.banned, banExpires: user.banExpires })
+    .select({
+      id: user.id,
+      role: user.role,
+      ghost: user.ghost,
+      banned: user.banned,
+      banExpires: user.banExpires,
+    })
     .from(user)
     .where(eq(user.id, userId))
     .for('update');
@@ -188,6 +197,8 @@ async function setRoles(input: { actorId: string; userId: string; roles: AdminRo
   if (input.userId === input.actorId && !input.roles.admin) refuse(409, 'self');
   await db.transaction(async (tx) => {
     const target = await requireTarget(tx, input.userId);
+    // A ghost has no roles: the person would get them by signing in, before anyone checked.
+    if (target.ghost) refuse(409, 'isGhost');
     const before = {
       admin: isAdmin(target.role),
       wardenAdmin: hasRole(target.role, WARDEN_ADMIN_ROLE),

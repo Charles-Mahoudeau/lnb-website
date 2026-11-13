@@ -1,6 +1,7 @@
 import { and, eq } from 'drizzle-orm';
 
 import { db } from '../db';
+import { isFlagOn } from './flag-gate';
 import { adminAudit, user } from '../db/schema';
 
 // Ghost accounts: rows an admin made for people who haven't signed in yet (docs/ghost-accounts.md).
@@ -8,10 +9,11 @@ import { adminAudit, user } from '../db/schema';
 
 /**
  * Whether a Microsoft sign-in from tenant `tid` may take over this account. Only a ghost of the
- * same school can be taken over: the admin picked that school when making it.
+ * same school can be taken over: the admin picked that school when making it. The `ghostAccounts`
+ * flag switches it off.
  */
 export async function mayClaimGhost(userId: string | undefined, tid: string): Promise<boolean> {
-  if (!userId) return false;
+  if (!userId || !(await isFlagOn('ghostAccounts'))) return false;
   const [row] = await db
     .select({ ghost: user.ghost, tenantId: user.tenantId })
     .from(user)

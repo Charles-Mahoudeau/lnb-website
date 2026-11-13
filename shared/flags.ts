@@ -43,6 +43,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'shortLinks' },
   { key: 'shortLinks.tracking', parent: 'shortLinks' },
   { key: 'apiKeys' },
+  { key: 'ghostAccounts' },
   { key: 'economy' },
   { key: 'economy.transfers', parent: 'economy' },
   { key: 'economy.sharedAccounts', parent: 'economy' },
