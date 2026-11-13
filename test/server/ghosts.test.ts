@@ -1,10 +1,15 @@
 import { eq } from 'drizzle-orm';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { db } from '~~/server/db';
 import { adminAudit, user } from '~~/server/db/schema';
+import { eventRegistrationService } from '~~/server/services/events/registrations';
 import { ghostService } from '~~/server/services/ghosts';
+import { teamService } from '~~/server/services/team';
 import { usersService } from '~~/server/services/users';
+
+// The team service imports the avatar storage, which needs the Nitro runtime.
+vi.mock('~~/server/services/avatars', () => ({ avatarService: {} }));
 
 const EPITECH = '901cb4ca-b862-4029-9306-e5cd0f6d9f86';
 const ISEG = '8dab9574-4b8e-4eec-8e5e-791d6835fdea';
@@ -27,8 +32,8 @@ const body = (overrides: Partial<{ name: string; email: string; tenantId: string
   ...overrides,
 });
 
-const problem = (status: number, name: string): unknown =>
-  expect.objectContaining({ status, data: { problem: name } });
+const problem = (status: number, name: string): object =>
+  expect.objectContaining({ status, data: { problem: name } }) as object;
 
 describe('ghostService.create', () => {
   it('makes a ghost that can be taken over, and logs it', async () => {
@@ -166,5 +171,30 @@ describe('ghosts among accounts', () => {
     const ghost = await ghostService.create({ actorId, body: body() });
     await usersService.remove({ actorId, userId: ghost.userId });
     expect(await db.select().from(user).where(eq(user.id, ghost.userId))).toHaveLength(0);
+  });
+});
+
+describe('ghosts in the admin pickers', () => {
+  it('are flagged in the events and team searches, so the screens can mark them', async () => {
+    const actorId = await actor();
+    const tag = `Picker${next()}`;
+    const ghost = await ghostService.create({
+      actorId,
+      body: body({ name: `${tag} Ghost` }),
+    });
+    await db.insert(user).values({
+      id: `real-${next()}`,
+      name: `${tag} Real`,
+      email: `${tag}-real@epitech.eu`.toLowerCase(),
+      tenantId: EPITECH,
+    });
+
+    for (const found of [
+      await eventRegistrationService.searchUsers(tag),
+      await teamService.searchUsers(tag),
+    ]) {
+      expect(found.find((option) => option.userId === ghost.userId)?.ghost).toBe(true);
+      expect(found.find((option) => option.name.endsWith('Real'))?.ghost).toBe(false);
+    }
   });
 });

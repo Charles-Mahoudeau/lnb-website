@@ -250,6 +250,7 @@ async function list(eventId: string): Promise<EventRegistrationRow[]> {
       email: user.email,
       image: user.image,
       tenantId: user.tenantId,
+      ghost: user.ghost,
       status: eventRegistration.status,
       createdAt: eventRegistration.createdAt,
       addedBy: addedBy.name,
@@ -266,6 +267,7 @@ async function list(eventId: string): Promise<EventRegistrationRow[]> {
     email: row.email,
     image: row.image,
     school: schoolForTenant(row.tenantId) ?? null,
+    ghost: row.ghost,
     status: row.status,
     position: row.status === 'waitlist' ? ++position : null,
     registeredAt: row.createdAt.toISOString(),
@@ -325,7 +327,13 @@ async function csv(eventId: string): Promise<string> {
 async function searchUsers(q: string): Promise<EventUserOption[]> {
   const pattern = `%${q.replace(/[\\%_]/g, '\\$&')}%`;
   const rows = await db
-    .select({ id: user.id, name: user.name, email: user.email, tenantId: user.tenantId })
+    .select({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      tenantId: user.tenantId,
+      ghost: user.ghost,
+    })
     .from(user)
     .where(or(ilike(user.name, pattern), ilike(user.email, pattern)))
     .orderBy(asc(user.name))
@@ -335,6 +343,7 @@ async function searchUsers(q: string): Promise<EventUserOption[]> {
     name: row.name,
     email: row.email,
     school: schoolForTenant(row.tenantId) ?? null,
+    ghost: row.ghost,
   }));
 }
 

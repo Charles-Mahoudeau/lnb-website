@@ -142,6 +142,7 @@ async function listAdmin(now = new Date()): Promise<TeamAdminView> {
       email: user.email,
       image: user.image,
       tenantId: user.tenantId,
+      ghost: user.ghost,
       banned: sql<boolean>`coalesce(${banInForce(now)}, false)`,
     })
     .from(teamMember)
@@ -161,6 +162,7 @@ async function listAdmin(now = new Date()): Promise<TeamAdminView> {
       visible: row.member.visible,
       showSelf: row.member.showSelf,
       banned: row.banned,
+      ghost: row.ghost,
     };
     poles.find((pole) => pole.id === row.member.poleId)?.members.push(member);
   }
@@ -179,6 +181,7 @@ async function searchUsers(q: string): Promise<TeamUserOption[]> {
       email: user.email,
       image: user.image,
       tenantId: user.tenantId,
+      ghost: user.ghost,
     })
     .from(user)
     .where(
@@ -200,6 +203,7 @@ async function searchUsers(q: string): Promise<TeamUserOption[]> {
     email: row.email,
     school: schoolForTenant(row.tenantId) ?? null,
     image: row.image,
+    ghost: row.ghost,
   }));
 }
 

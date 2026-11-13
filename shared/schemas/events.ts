@@ -493,6 +493,7 @@ export const eventRegistrationRow = z.object({
   email: z.string(),
   image: z.string().nullable(),
   school: z.string().nullable(),
+  ghost: z.boolean().describe('Made by an admin for someone who has not signed in yet.'),
   status: z.enum(['registered', 'waitlist']),
   position: z.number().nullable().describe('Place on the waitlist, from 1.'),
   registeredAt: isoDate,
@@ -518,6 +519,7 @@ export const eventUserOption = z.object({
   name: z.string(),
   email: z.string(),
   school: z.string().nullable(),
+  ghost: z.boolean().describe('Made by an admin for someone who has not signed in yet.'),
 });
 export const eventUserOptions = z.object({ items: z.array(eventUserOption) });
 export type EventUserOption = z.infer<typeof eventUserOption>;

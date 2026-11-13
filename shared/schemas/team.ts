@@ -97,6 +97,7 @@ export const teamAdminMember = z.object({
   visible: z.boolean(),
   showSelf: z.boolean(),
   banned: z.boolean().describe('A site ban is in force: the public page hides them.'),
+  ghost: z.boolean().describe('Made by an admin for someone who has not signed in yet.'),
 });
 export type TeamAdminMember = z.infer<typeof teamAdminMember>;
 
@@ -176,6 +177,7 @@ export const teamUserOptions = z.object({
       email: z.string(),
       school: z.string().nullable(),
       image: z.string().nullable(),
+      ghost: z.boolean(),
     }),
   ),
 });
