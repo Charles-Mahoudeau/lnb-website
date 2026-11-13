@@ -26,7 +26,8 @@
     "teamDescription": "Les personnes qui font tourner LNB",
     "partnersDescription": "Sponsors, partenaires de jeu et partenaires de lots",
     "bankDescription": "Vos LNBits et comptes partagés",
-    "baltopDescription": "Les joueurs les plus riches du serveur"
+    "baltopDescription": "Les joueurs les plus riches du serveur",
+    "questsDescription": "Paliers personnels, records du serveur et objectifs communs"
   },
   "home": {
     "intro": {
@@ -614,7 +615,8 @@
       "anticheatFiles": "Fichiers",
       "anticheatReview": "À examiner",
       "anticheatPlayers": "Joueurs",
-      "anticheatSettings": "Réglages"
+      "anticheatSettings": "Réglages",
+      "economyQuests": "Quêtes"
     },
     "cancel": "Annuler",
     "roles": {
@@ -2910,6 +2912,221 @@
       "tabExisting": "Compte existant",
       "tabNew": "Nouveau fantôme",
       "selected": "Créé. Ajoutez-le ci-dessous pour terminer."
+    },
+    "quests": {
+      "lede": "Le catalogue, les quêtes communautaires et le calcul des récompenses. Le serveur Minecraft lit ces réglages au démarrage, puis toutes les quelques minutes.",
+      "loadFailed": "Le chargement a échoué. Vérifie ta connexion, puis recharge la page.",
+      "tabs": {
+        "catalog": "Catalogue",
+        "community": "Communautaires",
+        "settings": "Réglages",
+        "index": "Indice des récompenses"
+      },
+      "family": {
+        "individual": "Individuelle",
+        "server": "Serveur",
+        "community": "Communautaire",
+        "flash": "Flash"
+      },
+      "objective": {
+        "kill": "Tuer",
+        "mine": "Miner",
+        "fish": "Pêcher",
+        "craft": "Fabriquer",
+        "travel": "Parcourir",
+        "deliver": "Livrer",
+        "advancement": "Obtenir un achievement"
+      },
+      "catalog": {
+        "filter": "Famille",
+        "all": "Toutes",
+        "overwrite": "Remplacer les quêtes existantes",
+        "import": "Importer le JSON",
+        "export": "Exporter le JSON",
+        "new": "Nouvelle quête",
+        "quest": "Quête",
+        "family": "Famille",
+        "objective": "Objectif",
+        "base": "Base (LNBits)",
+        "completions": "Réussites cette saison",
+        "enabled": "Active",
+        "toggle": "Activer ou désactiver {id}",
+        "broken": "Cette quête ne respecte plus le format : corrige-la dans le JSON.",
+        "range": "{type} de {min} à {max}",
+        "perUnit": "{n} par unité",
+        "imported": "{added} ajoutées, {replaced} remplacées",
+        "note": "Le fichier config/lnbquests/quests.json du serveur ajoute les quêtes que le site ne connaît pas au démarrage. Une modification faite ici gagne toujours sur le fichier.",
+        "empty": {
+          "title": "Pas encore de quête",
+          "body": "Démarre le serveur Minecraft avec le mod de quêtes pour charger son catalogue, ou crée une quête ici."
+        }
+      },
+      "editor": {
+        "newTitle": "Nouvelle quête",
+        "newLede": "Choisis la famille, puis l’objectif et la récompense.",
+        "editTitle": "Modifier {name}",
+        "family": "Famille",
+        "id": "Identifiant",
+        "idHelp": "Lettres minuscules, chiffres et tirets bas. Il ne pourra plus changer.",
+        "icon": "Objet affiché",
+        "nameFr": "Nom en français",
+        "nameEn": "Nom en anglais",
+        "descriptionFr": "Description en français",
+        "descriptionEn": "Description en anglais",
+        "objective": "Objectif",
+        "type": "Type",
+        "target": "Ce qui compte",
+        "targetHelp": "L’identifiant d’un bloc, d’un monstre ou d’un objet, ou un tag avec #. Vide, tout compte.",
+        "advancement": "Identifiant de l’achievement",
+        "category": "Catégorie",
+        "tier": "Rareté",
+        "tiers": "Paliers",
+        "tiersHelp": "Les paliers sont cumulatifs : chacun demande plus que le précédent.",
+        "amount": "Quantité",
+        "base": "Récompense de base",
+        "baseHelp": "LNBits à l’indice de référence.",
+        "items": "Objets",
+        "itemsJson": "Objets (JSON)",
+        "itemsHelp": "Une liste de {'{'} id, snbt, name, count {'}'}. En jeu, tiens l’objet et tape /quests reward add pour le capturer.",
+        "addTier": "Ajouter un palier",
+        "removeTier": "Retirer ce palier",
+        "rewards": "Récompenses",
+        "ranks": "Parts par rang (%)",
+        "ranksHelp": "Séparées par des virgules, pour le 1er, le 2e, le 3e…",
+        "restShare": "Part après le podium (%)",
+        "race": "Course",
+        "min": "Plus petit objectif",
+        "max": "Plus grand objectif",
+        "perUnit": "Base par unité",
+        "weight": "Poids du tirage",
+        "weightHelp": "Une quête de poids double sort deux fois plus souvent.",
+        "minPlayers": "Joueurs connectés au moins",
+        "enabled": "Active",
+        "save": "Enregistrer",
+        "create": "Créer la quête",
+        "saved": "Quête enregistrée",
+        "created": "Quête créée",
+        "delete": "Supprimer",
+        "deleted": "Quête supprimée",
+        "badItems": "Les objets ne sont pas un JSON valide. Vérifie la liste, puis enregistre à nouveau."
+      },
+      "community": {
+        "lede": "Tout le serveur vise un objectif. À la fin, chaque joueur au-dessus du seuil est payé pour chaque palier atteint.",
+        "new": "Programmer une quête communautaire",
+        "newTitle": "Nouvelle quête communautaire",
+        "newLede": "Les dates sont à l’heure de Paris. Elle démarre seule, dès qu’aucune autre n’est en cours.",
+        "goal": "Objectif",
+        "starts": "Début",
+        "ends": "Fin",
+        "tiers": "Paliers",
+        "tierName": "Nom",
+        "at": "% de l’objectif",
+        "threshold": "Seuil (% de l’objectif)",
+        "thresholdHelp": "En dessous, un joueur ne partage rien.",
+        "bonus": "Bonus du meilleur contributeur (%)",
+        "plan": "Programmer",
+        "planned": "Quête communautaire programmée",
+        "badDates": "La fin doit venir après le début.",
+        "contributors": "Contributeurs",
+        "noContributors": "Personne n’a encore contribué.",
+        "cancel": "Annuler la quête",
+        "cancelledToast": "Quête communautaire annulée",
+        "others": "Programmées et passées",
+        "noOthers": "Rien de programmé, rien de passé pour l’instant.",
+        "status": {
+          "scheduled": "Programmée",
+          "running": "En cours",
+          "paid": "Payée",
+          "cancelled": "Annulée"
+        },
+        "templates": "Modèles de la rotation",
+        "templatesHelp": "Avec la rotation activée (dans Réglages), une quête est tirée parmi les modèles actifs chaque lundi quand rien n’est programmé.",
+        "toggleTemplate": "Utiliser ce modèle",
+        "templateJson": "Nouveau modèle (JSON)",
+        "templatePlaceholder": "title, objective, goal (min, max), tiers, days",
+        "addTemplate": "Ajouter le modèle",
+        "templateSaved": "Modèle enregistré"
+      },
+      "settings": {
+        "formula": "Formule de récompense",
+        "formulaHelp": "D’après la spécification de l’économie : I = médiane × w + Q3 × w + moyenne × w, Kglobal = (I / I0)^α entre ses bornes, et jusqu’à +bMax pour les joueurs sous I.",
+        "wMedian": "Poids de la médiane",
+        "wQ3": "Poids du Q3",
+        "wMean": "Poids de la moyenne",
+        "baseline": "Indice de référence I0",
+        "alpha": "Amortissement α",
+        "kMin": "Kglobal min.",
+        "kMax": "Kglobal max.",
+        "bMax": "Bonus de rattrapage max.",
+        "active": "Joueurs actifs",
+        "activeHelp": "Seuls eux comptent dans l’indice. Comptes partagés et staff exclus.",
+        "activeHours": "Vus dans les dernières (heures)",
+        "minPlaytime": "Temps de jeu au moins (minutes)",
+        "minPlayers": "Joueurs nécessaires",
+        "minPlayersHelp": "En dessous, on utilise I0.",
+        "cap": "Plafond sur 30 jours",
+        "capHelp": "Ce que les quêtes versent sur 30 jours, en part de la masse monétaire. Au-delà, les récompenses sont réduites.",
+        "capPercent": "Plafond (%)",
+        "share": "Part de {family}",
+        "used": "{spent} sur {budget}",
+        "sharesTotal": "Les parts font {n} % au total : elles sont ramenées à 100 %.",
+        "flash": "Quêtes flash",
+        "flashHelp": "Elles remplacent les valeurs de la config du mod.",
+        "interval": "Tirage toutes les (minutes)",
+        "flashPlayers": "Joueurs connectés au moins",
+        "duration": "Durée (minutes)",
+        "poll": "Lecture par le serveur toutes les (secondes)",
+        "pollHelp": "À quelle fréquence le serveur lit les réglages de cette page.",
+        "antiCheat": "Anti-triche et rotation",
+        "rules": {
+          "ignorePlacedBlocks": "Les blocs posés par un joueur ne comptent pas",
+          "ignoreSpawnerMobs": "Les monstres de spawner ne comptent pas",
+          "ignoreMachineBreaks": "Les blocs cassés par une machine (Create, etc.) ne comptent pas",
+          "countFluidBlocks": "Les blocs créés par un fluide comptent (générateurs de pierre)",
+          "excludeCreative": "Les joueurs en créatif ou spectateur ne progressent pas"
+        },
+        "rotation": "Tirer une quête communautaire parmi les modèles chaque semaine",
+        "preview": "Aperçu",
+        "save": "Enregistrer",
+        "saved": "Réglages enregistrés",
+        "previewHelp": "Avec les soldes d’aujourd’hui : médiane {median}, Q3 {q3}, moyenne {mean}, {n} joueurs actifs.",
+        "fallback": "Trop peu de joueurs actifs : l’indice de référence est utilisé.",
+        "base": "Base",
+        "balance": "Solde {n}",
+        "atIndex": "Solde ≥ I"
+      },
+      "season": {
+        "title": "Saisons",
+        "body": "La saison {n} est en cours. Une nouvelle saison remet toutes les quêtes à zéro : progression, paliers et rangs, et les achievements des quêtes serveur sont retirés à tous les joueurs. Les LNBits déjà versés restent.",
+        "confirm": "Tape « new season » pour confirmer",
+        "start": "Lancer une nouvelle saison",
+        "started": "Nouvelle saison lancée"
+      },
+      "index": {
+        "index": "Indice",
+        "week": "{n} % en 7 jours",
+        "fallback": "Indice de référence, trop peu de joueurs",
+        "damped": "Amorti, entre ses bornes",
+        "active": "Joueurs actifs",
+        "activeHelp": "Vus dans les 48 h, 1 h de jeu",
+        "cap": "Plafond utilisé",
+        "capOf": "{spent} sur {budget} en 30 jours",
+        "chart": {
+          "index": "Indice sur 60 jours",
+          "k": "Kglobal sur 60 jours"
+        },
+        "noData": "La courbe commence après quelques nuits.",
+        "log": "Journal de chaque nuit",
+        "day": "Jour",
+        "median": "Médiane",
+        "mean": "Moyenne"
+      },
+      "errors": {
+        "failed": "Ça n’a pas marché. Réessaie dans un instant.",
+        "invalid": "Quelque chose dans le formulaire n’est pas valide.",
+        "idTaken": "Une quête a déjà cet identifiant.",
+        "questInUse": "Des joueurs ont déjà fait cette quête : désactive-la plutôt."
+      }
     }
   },
   "wardenAdmin": {
@@ -3910,6 +4127,150 @@
       "teamsLabel": "Équipes formées",
       "joined": "Intérêt enregistré",
       "see": "Voir la ligue"
+    }
+  },
+  "quests": {
+    "title": "Quêtes",
+    "lede": "Des défis à ton rythme, des records à décrocher avant les autres et des objectifs à remplir tous ensemble. Les récompenses sont versées en LNBits sur ton compte.",
+    "loadFailed": "Les quêtes n’ont pas pu être chargées. Vérifie ta connexion, puis recharge la page.",
+    "tabs": {
+      "individual": "Individuelles",
+      "server": "Serveur",
+      "community": "Communauté",
+      "flash": "Flash",
+      "leaderboard": "Classement"
+    },
+    "season": {
+      "label": "Saison",
+      "current": "Saison {n}, en cours",
+      "past": "Saison {n}"
+    },
+    "me": {
+      "label": "Ta saison",
+      "done": "Quêtes réussies",
+      "earned": "LNBits gagnés",
+      "bonus": "Bonus de rattrapage",
+      "ready": "À réclamer"
+    },
+    "category": {
+      "mining": "Minage",
+      "combat": "Combat",
+      "fishing": "Pêche",
+      "exploration": "Exploration",
+      "crafting": "Artisanat",
+      "delivery": "Livraisons"
+    },
+    "objective": {
+      "kill": "Monstres tués.",
+      "mine": "Blocs minés à la main.",
+      "fish": "Prises à la canne.",
+      "craft": "Objets fabriqués.",
+      "travel": "Distance parcourue, sans téléportation.",
+      "deliver": "Objets livrés, et consommés.",
+      "advancement": "Un achievement à obtenir."
+    },
+    "individual": {
+      "categories": "Catégories",
+      "empty": "Pas encore de quête dans cette catégorie.",
+      "cumulative": "Les paliers sont cumulatifs.",
+      "tier": "Palier {n}",
+      "locked": "Se débloque après le palier {n}.",
+      "claim": "Réclamer",
+      "state": {
+        "claimed": "Réclamé",
+        "ready": "Prêt",
+        "progress": "En cours"
+      },
+      "plusItems": "En plus : {items}",
+      "claimed": "{n} LNBits versés sur ton compte personnel",
+      "claimedItems": "1 objet t’attend dans ta boîte aux lettres en jeu. | {n} objets t’attendent dans ta boîte aux lettres en jeu.",
+      "note": "Les montants suivent l’indice du jour et ton bonus de rattrapage (+{bonus} %). Un montant est fixé quand tu atteins le palier, même si tu le réclames plus tard, ici ou en jeu.",
+      "noteSignedOut": "Les montants suivent l’indice du jour. Connecte-toi pour voir ta progression et ton bonus de rattrapage."
+    },
+    "server": {
+      "filter": "Afficher",
+      "filters": {
+        "all": "Toutes",
+        "open": "Podium ouvert",
+        "none": "Personne encore"
+      },
+      "shares": "1er 100 %, 2e 60 %, 3e 20 %, puis 2 % de la récompense",
+      "empty": "Aucune quête serveur ne correspond.",
+      "free": "Libre",
+      "tier": {
+        "rare": "Rare",
+        "epic": "Épique",
+        "legendary": "Légendaire"
+      },
+      "rest": "1 de plus après le podium | {n} de plus après le podium",
+      "next": "{place} : {n} LNBits",
+      "place": {
+        "1": "1er",
+        "2": "2e",
+        "3": "3e",
+        "4": "{n}e"
+      }
+    },
+    "community": {
+      "label": "Quête communautaire",
+      "endsIn": "Fin dans {d} j {h} h",
+      "see": "Voir la quête",
+      "lede": "Tout le serveur vise {goal}. Chaque palier atteint paie tous ceux qui ont apporté au moins {threshold}.",
+      "contributors": "Aucun contributeur pour l’instant. | 1 contributeur. | {n} contributeurs.",
+      "yours": "Ta part : {n}.",
+      "ofGoal": "{percent} % de l’objectif",
+      "progress": "Progression vers l’objectif",
+      "tierReward": "{n} LNBits",
+      "reached": "{tiers} atteint.",
+      "missing": "Encore {n} pour {tier}.",
+      "yourPart": "Ta contribution",
+      "qualified": "Qualifié",
+      "notQualified": "Sous le seuil",
+      "threshold": "Il faut {n} ({percent} % de l’objectif) pour partager les récompenses. Tu as apporté {mine}. Le meilleur contributeur gagne {bonus} % en plus.",
+      "none": {
+        "title": "Pas de quête communautaire en ce moment",
+        "body": "La prochaine est annoncée ici et en jeu."
+      },
+      "past": "Quêtes communautaires passées",
+      "week": "Semaine du {date}",
+      "cancelled": "Annulée",
+      "reachedTier": "{tier} atteint",
+      "noTier": "Aucun palier atteint"
+    },
+    "flash": {
+      "how": "Une quête flash se lance au hasard quand assez de joueurs sont connectés. Le premier qui atteint l’objectif gagne, et elle expire au bout de quelques minutes sans gagnant.",
+      "empty": {
+        "title": "Pas encore de quête flash cette saison",
+        "body": "Joue sur le serveur : la prochaine peut partir à tout moment."
+      },
+      "goal": "{name} : {n}",
+      "nobody": "Personne",
+      "in": "en {n} min",
+      "expired": "Expirée"
+    },
+    "board": {
+      "sort": "Trier par",
+      "by": {
+        "lnbits": "LNBits gagnés",
+        "quests": "Quêtes réussies"
+      },
+      "empty": "Personne n’a encore réussi de quête cette saison.",
+      "questsCount": "1 quête | {n} quêtes"
+    },
+    "how": {
+      "title": "Comment les récompenses sont calculées",
+      "body": "Chaque quête a une récompense de base. Chaque nuit, elle est ajustée à la richesse des joueurs actifs, lentement pour ne jamais s’emballer, et augmentée pour les joueurs qui ont moins que le solde typique du serveur.",
+      "formula": "Récompense = base × {k} × ton bonus",
+      "index": "Indice du jour",
+      "multiplier": "Multiplicateur serveur",
+      "bonus": "Ton bonus",
+      "chart": "Indice sur 30 jours",
+      "noChart": "La courbe commence après quelques nuits."
+    },
+    "errors": {
+      "failed": "Ça n’a pas marché. Réessaie dans un instant.",
+      "alreadyClaimed": "Cette récompense a déjà été réclamée.",
+      "frozen": "Ton compte est gelé : rien ne peut y être versé."
     }
   }
 }
