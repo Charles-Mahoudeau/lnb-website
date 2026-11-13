@@ -154,6 +154,14 @@ The bank, the baltop and the Economy section of the admin area. See `docs/econom
 - **Baltop** (`/minecraft/baltop`): the top three in a raised band with 56 px skin heads, then players and shared accounts side by side as ranked rows with 28 px heads. Your own row takes the faint second-accent tint. No medals, crowns or gold.
 - **Admin overview**: four count tiles, then the charts on raised sections. Charts use the text tokens only, like the short links chart: money created in the highlight color above a baseline, destroyed in the dimmed one below it, on one scale. Breakdowns are rows with neutral progress bars. Mint and burn are neutral soft buttons, Freeze the outline destructive one, and the only solid red is the confirmation inside the dialog.
 
+## Quests
+
+Original mock (not code to port): [quests mocks](https://claude.ai/artifact/CJ8W887yJ7yjds5DqCkXzZ), home proposal A. See `docs/quests.md`.
+
+- **Community band** (`QuestsCommunityBand`): the running community quest on `bg-banner-fallback` with the corner mark (the objective's icon), dark in both color modes like the event hero. Pills for the label and the time left, the title, one line, a light plate button (never red), then the progress on a neutral meter with a tick per tier and the tier's reward under it. On the home page it sits in the container right under the hero.
+- **Quests page**: the player's season as a raised band of figures, then pill tabs. Personal quests are categories on a raised list (the chosen one in the second accent) beside chains of tiers: claimed (neutral outline badge), ready (success badge and the solid "Claim", the one red button of the tier), in progress (second-accent badge and a neutral meter) or locked (dimmed, a lock icon). Server quests are rows with up to three podium slots (skin head, username, amount) and dashed free slots showing today's amount. The leaderboard copies the baltop.
+- Amounts follow the economy rule: text, never color.
+
 ## Partner event page
 
 Original mock (not code to port): [Arena League mocks](https://claude.ai/artifact/XvHUjSdFhA2ZQ6bdkY5KHM), "Art cards". The page is for an event another organization runs (`/special/<slug>`, see `docs/partner-events.md`): it says what it is, collects interest and helps students form teams.
