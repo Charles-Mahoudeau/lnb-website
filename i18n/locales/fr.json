@@ -861,7 +861,17 @@
         "economy_shopDisable": "{actor} a fermé le shop {name}.",
         "economy_shopEnable": "{actor} a rouvert le shop {name}.",
         "economy_listingRemove": "{actor} a retiré l’annonce {name}.",
-        "economy_accountType": "{actor} a changé le type du compte bancaire {name}."
+        "economy_accountType": "{actor} a changé le type du compte bancaire {name}.",
+        "quests_settings": "{actor} a modifié les réglages des quêtes.",
+        "quests_create": "{actor} a créé la quête {name}.",
+        "quests_update": "{actor} a modifié la quête {name}.",
+        "quests_delete": "{actor} a supprimé la quête {name}.",
+        "quests_import": "{actor} a importé des quêtes.",
+        "quests_season": "{actor} a lancé une nouvelle saison de quêtes.",
+        "quests_communityCreate": "{actor} a programmé la quête communautaire {name}.",
+        "quests_communityUpdate": "{actor} a modifié la quête communautaire {name}.",
+        "quests_communityCancel": "{actor} a annulé la quête communautaire {name}.",
+        "quests_communityTemplate": "{actor} a enregistré un modèle de quête communautaire."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page.",
       "apiKeysSoon": "1 clé API expire dans moins de 30 jours | {n} clés API expirent dans moins de 30 jours",

@@ -857,7 +857,17 @@
         "economy_shopDisable": "{actor} turned off the shop {name}.",
         "economy_shopEnable": "{actor} turned the shop {name} back on.",
         "economy_listingRemove": "{actor} took down the listing {name}.",
-        "economy_accountType": "{actor} changed the type of the bank account {name}."
+        "economy_accountType": "{actor} changed the type of the bank account {name}.",
+        "quests_settings": "{actor} changed the quest settings.",
+        "quests_create": "{actor} created the quest {name}.",
+        "quests_update": "{actor} changed the quest {name}.",
+        "quests_delete": "{actor} deleted the quest {name}.",
+        "quests_import": "{actor} imported quests.",
+        "quests_season": "{actor} started a new quest season.",
+        "quests_communityCreate": "{actor} planned the community quest {name}.",
+        "quests_communityUpdate": "{actor} changed the community quest {name}.",
+        "quests_communityCancel": "{actor} cancelled the community quest {name}.",
+        "quests_communityTemplate": "{actor} saved a community quest template."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page.",
       "apiKeysSoon": "1 API key expires within 30 days | {n} API keys expire within 30 days",

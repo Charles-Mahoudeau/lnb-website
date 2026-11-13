@@ -825,7 +825,13 @@ export const economyListingBuyBody = economyListingActionBody.extend({
 });
 export type EconomyListingBuyBody = z.input<typeof economyListingBuyBody>;
 
-export const economyMailboxReason = z.enum(['bought', 'cancelled', 'expired', 'removed']);
+export const economyMailboxReason = z.enum([
+  'bought',
+  'cancelled',
+  'expired',
+  'removed',
+  'questReward',
+]);
 
 export const economyMailboxView = z.object({
   id: z.uuid(),
