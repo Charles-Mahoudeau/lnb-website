@@ -45,6 +45,16 @@ const projectRef = computed(() => {
 const decision = computed<AnticheatDecision | null>(
   () => projectData.value?.decision.decision ?? fileData.value?.decision.decision ?? null,
 );
+// What each button acts on: approve project and (with a project) ban act on the project, approve
+// hash (and ban without a project) on the file. A button is disabled when its target already has
+// that decision.
+const projectDecision = computed<AnticheatDecision | null>(
+  () => projectData.value?.decision.decision ?? fileData.value?.project?.decision ?? null,
+);
+const fileDecision = computed<AnticheatDecision | null>(
+  () => fileData.value?.decision.decision ?? null,
+);
+const banTarget = computed(() => (projectRef.value ? projectDecision.value : fileDecision.value));
 const status = computed(() => fileData.value?.status ?? props.row.status);
 const score = computed(() => fileData.value?.score ?? props.row.score);
 const title = computed(
@@ -238,6 +248,7 @@ const metadata = computed(() => {
             v-if="projectRef"
             size="md"
             :loading="pending"
+            :disabled="projectDecision === 'approved'"
             :label="t('admin.anticheat.drawer.approveProject')"
             @click="ask('approveProject')"
           />
@@ -247,6 +258,7 @@ const metadata = computed(() => {
             color="neutral"
             variant="soft"
             :loading="pending"
+            :disabled="fileDecision === 'approved'"
             :label="t('admin.anticheat.drawer.approveHash')"
             @click="ask('approveHash')"
           />
@@ -255,6 +267,7 @@ const metadata = computed(() => {
             color="error"
             variant="outline"
             :loading="pending"
+            :disabled="banTarget === 'banned'"
             :label="
               projectRef ? t('admin.anticheat.drawer.banProject') : t('admin.anticheat.drawer.ban')
             "
