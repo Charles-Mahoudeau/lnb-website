@@ -35,9 +35,10 @@ const page: AdminUserPage = {
       ban: { reason: 'Spam', expiresAt: null },
     }),
     row({ userId: 'u3', name: 'Léa Roux', inactive: true, lastSignInAt: null }),
+    row({ userId: 'u4', name: 'Noa Petit', ghost: true, lastSignInAt: null }),
   ],
   nextCursor: null,
-  total: 3,
+  total: 4,
 };
 registerEndpoint('/api/admin/users', () => page);
 
@@ -53,18 +54,27 @@ describe('admin users list', () => {
     expect(text).toContain('Never');
   });
 
+  it('marks a ghost, with no sign-in date, and offers to make one', async () => {
+    const list = await mountSuspended(AdminUsers);
+    const text = list.text();
+    expect(text).toContain('Noa Petit');
+    expect(text).toContain('Not signed in yet');
+    expect(text).toContain('Never signed in');
+    expect(text).toContain('Create ghost');
+  });
+
   it('shows the bulk bar once accounts are ticked, and hides it on clear', async () => {
     const list = await mountSuspended(AdminUsers);
     expect(list.find('[role="toolbar"]').exists()).toBe(false);
     const boxes = list.findAll('button[role="checkbox"]');
     // The header checkbox, then one per account.
-    expect(boxes).toHaveLength(4);
+    expect(boxes).toHaveLength(5);
 
     await boxes[1]!.trigger('click');
     expect(list.find('[role="toolbar"]').text()).toContain('1 selected');
 
     await boxes[0]!.trigger('click');
-    expect(list.find('[role="toolbar"]').text()).toContain('3 selected');
+    expect(list.find('[role="toolbar"]').text()).toContain('4 selected');
 
     await list.get('[aria-label="Clear selection"]').trigger('click');
     expect(list.find('[role="toolbar"]').exists()).toBe(false);

@@ -68,6 +68,7 @@ async function onEditMember(member: TeamAdminMember, pole: TeamAdminPole) {
 
 function flags(member: TeamAdminMember): { key: string; label: string }[] {
   return [
+    ...(member.ghost ? [{ key: 'ghost', label: t('admin.ghost.badge') }] : []),
     ...(member.banned ? [{ key: 'banned', label: t('admin.team.badges.banned') }] : []),
     ...(!member.visible ? [{ key: 'hidden', label: t('admin.team.badges.hidden') }] : []),
     ...(!member.showSelf ? [{ key: 'self', label: t('admin.team.badges.hiddenBySelf') }] : []),
@@ -195,6 +196,7 @@ function flags(member: TeamAdminMember): { key: string; label: string }[] {
             :user-id="member.userId"
             :name="member.name"
             :image="member.image"
+            :ghost="member.ghost"
             size="lg"
           />
           <div class="flex min-w-0 flex-1 flex-col">

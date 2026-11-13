@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import type { DropdownMenuItem, TableColumn } from '@nuxt/ui';
 
-import { AdminBanModal, AdminBulkModal, AdminRolesModal, WardenConfirmModal } from '#components';
+import {
+  AdminBanModal,
+  AdminBulkModal,
+  AdminGhostModal,
+  AdminRolesModal,
+  WardenConfirmModal,
+} from '#components';
 
 import type {
   AdminBulkBody,
@@ -18,7 +24,7 @@ const overlay = useOverlay();
 const { user: me } = useAuth();
 const actions = useAdminUserActions();
 
-type Status = 'all' | 'banned' | 'inactive';
+type Status = 'all' | 'banned' | 'inactive' | 'ghost';
 type Role = 'any' | 'admin' | 'warden-admin' | 'events-manager' | 'economy-admin';
 
 // The Overview links here with ?status=inactive or ?status=banned.
@@ -27,7 +33,9 @@ const search = ref('');
 const school = ref<string>('all');
 const role = ref<Role>('any');
 const status = ref<Status>(
-  initialStatus === 'banned' || initialStatus === 'inactive' ? initialStatus : 'all',
+  initialStatus === 'banned' || initialStatus === 'inactive' || initialStatus === 'ghost'
+    ? initialStatus
+    : 'all',
 );
 // Cursors of the pages before this one, to go back to the first page.
 const cursors = ref<string[]>([]);
@@ -96,6 +104,7 @@ const statusItems = computed(() => [
   { label: t('admin.users.status.all'), value: 'all' },
   { label: t('admin.users.status.banned'), value: 'banned' },
   { label: t('admin.users.status.inactive'), value: 'inactive' },
+  { label: t('admin.users.status.ghost'), value: 'ghost' },
 ]);
 
 const items = computed(() => data.value?.items ?? []);
@@ -157,6 +166,7 @@ const modals = {
   confirm: overlay.create(WardenConfirmModal),
   ban: overlay.create(AdminBanModal),
   roles: overlay.create(AdminRolesModal),
+  ghost: overlay.create(AdminGhostModal),
 };
 
 async function ask(title: string, description: string, confirmLabel: string, destructive = false) {
@@ -176,13 +186,24 @@ async function run(action: () => Promise<unknown>, success: string) {
     toast.add({ title: success, color: 'success', icon: 'i-lucide-circle-check' });
   } catch (failure) {
     const problem = failure instanceof AdminError ? failure.problem : 'failed';
-    const known = ['notFound', 'self', 'targetIsAdmin', 'notBanned'];
+    const known = ['notFound', 'self', 'targetIsAdmin', 'notBanned', 'isGhost'];
     toast.add({
       title: t(`admin.errors.${known.includes(problem) ? problem : 'failed'}`),
       color: 'error',
       icon: 'i-lucide-circle-alert',
     });
   }
+  await refresh();
+}
+
+async function onCreateGhost() {
+  const ghost: unknown = await modals.ghost.open().result;
+  if (!ghost || typeof ghost !== 'object') return;
+  toast.add({
+    title: t('admin.ghost.created', { name: (ghost as { name: string }).name }),
+    color: 'success',
+    icon: 'i-lucide-circle-check',
+  });
   await refresh();
 }
 
@@ -298,18 +319,21 @@ function rowItems(row: AdminUserRow): DropdownMenuItem[][] {
   // Admins can't ban or delete themselves or another admin: the role goes first.
   const protectedRow = row.admin || row.userId === me.value?.id;
   return [
-    [
-      {
-        label: t('admin.users.changeRoles'),
-        icon: 'i-lucide-shield',
-        onSelect: () => void onRoles(row),
-      },
-      {
-        label: t('admin.users.signOut'),
-        icon: 'i-lucide-log-out',
-        onSelect: () => void onSignOut(row),
-      },
-    ],
+    // A ghost has no sessions and can't have roles, until its person signs in.
+    row.ghost
+      ? []
+      : [
+          {
+            label: t('admin.users.changeRoles'),
+            icon: 'i-lucide-shield',
+            onSelect: () => void onRoles(row),
+          },
+          {
+            label: t('admin.users.signOut'),
+            icon: 'i-lucide-log-out',
+            onSelect: () => void onSignOut(row),
+          },
+        ],
     protectedRow
       ? []
       : [
@@ -364,6 +388,13 @@ function rowItems(row: AdminUserRow): DropdownMenuItem[][] {
         :items="statusItems"
         :aria-label="t('admin.users.state')"
         class="w-48"
+      />
+      <UButton
+        icon="i-lucide-user-plus"
+        color="neutral"
+        variant="soft"
+        :label="t('admin.ghost.createButton')"
+        @click="onCreateGhost"
       />
     </div>
 
@@ -428,10 +459,20 @@ function rowItems(row: AdminUserRow): DropdownMenuItem[][] {
               :user-id="row.original.userId"
               :name="row.original.name"
               :image="row.original.image"
+              :ghost="row.original.ghost"
               size="sm"
             />
             <div class="flex min-w-0 flex-col">
-              <span class="font-semibold text-highlighted">{{ row.original.name }}</span>
+              <span class="flex flex-wrap items-center gap-2">
+                <span class="font-semibold text-highlighted">{{ row.original.name }}</span>
+                <UBadge
+                  v-if="row.original.ghost"
+                  color="neutral"
+                  variant="soft"
+                  size="sm"
+                  :label="t('admin.ghost.badge')"
+                />
+              </span>
               <span class="text-sm text-muted">{{ row.original.email }}</span>
             </div>
           </div>
@@ -484,7 +525,9 @@ function rowItems(row: AdminUserRow): DropdownMenuItem[][] {
           {{
             row.original.lastSignInAt
               ? formatWardenRelative(row.original.lastSignInAt, locale)
-              : t('admin.users.never')
+              : row.original.ghost
+                ? t('admin.ghost.neverSignedIn')
+                : t('admin.users.never')
           }}
         </template>
         <template #state-cell="{ row }">

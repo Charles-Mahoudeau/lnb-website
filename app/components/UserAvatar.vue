@@ -9,13 +9,22 @@ const props = defineProps<{
   name: string;
   image?: string | null;
   size?: AvatarProps['size'];
+  /** An account made by an admin for someone who hasn't signed in yet: a dashed ring. Admin screens only. */
+  ghost?: boolean;
 }>();
 
 const tint = computed(() => avatarTint(props.userId));
 </script>
 
 <template>
-  <UAvatar :src="image ?? undefined" :alt="name" :size="size" :ui="{ root: tint.root }">
+  <UAvatar
+    :src="image ?? undefined"
+    :alt="name"
+    :size="size"
+    :ui="{
+      root: [tint.root, ghost ? 'outline-2 outline-offset-2 outline-default outline-dashed' : ''],
+    }"
+  >
     <!-- The wolf of the LNB logo, cut out of its canvas so it fills 80% of the avatar's height. -->
     <svg
       viewBox="60 44 392 424"

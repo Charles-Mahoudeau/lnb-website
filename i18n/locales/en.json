@@ -626,7 +626,8 @@
       "status": {
         "all": "Everyone",
         "banned": "Banned from the site",
-        "inactive": "Inactive for 24 months"
+        "inactive": "Inactive for 24 months",
+        "ghost": "Not signed in yet"
       },
       "user": "User",
       "school": "School",
@@ -758,7 +759,10 @@
       "notFound": "This account doesn’t exist anymore. Reload the page.",
       "self": "You can’t do that to your own account. Ask another admin.",
       "targetIsAdmin": "This account is an admin. Remove the admin role first.",
-      "notBanned": "This account isn’t banned anymore. Reload the page."
+      "notBanned": "This account isn’t banned anymore. Reload the page.",
+      "emailTaken": "An account already has this email. Search for it instead.",
+      "isGhost": "This account hasn’t signed in yet, so it can’t have roles.",
+      "notGhost": "This person has signed in, so their account is theirs to edit."
     },
     "overview": {
       "attention": "Needs attention",
@@ -2860,6 +2864,24 @@
         "someone": "a player",
         "aFile": "a file"
       }
+    },
+    "ghost": {
+      "badge": "Not signed in yet",
+      "neverSignedIn": "Never signed in",
+      "createButton": "Create ghost",
+      "modalTitle": "Create a ghost account",
+      "modalLede": "An account for someone who has not signed in yet. They take it over at their first Microsoft sign-in.",
+      "name": "Name",
+      "email": "Email",
+      "emailHelp": "The one Microsoft sends, usually name.surname{'@'}school.",
+      "school": "School",
+      "schoolPlaceholder": "Pick a school",
+      "warning": "If this isn’t exactly the email Microsoft sends, the person gets a second account at their first sign-in and the ghost stays empty.",
+      "submit": "Create ghost",
+      "created": "{name} is now a ghost account.",
+      "tabExisting": "Existing account",
+      "tabNew": "New ghost",
+      "selected": "Created. Add them below to finish."
     }
   },
   "wardenAdmin": {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AdminGhost } from '#shared/schemas/admin';
 import { teamMemberBody } from '#shared/schemas/team';
 import type { TeamAdminMember, TeamAdminPole, TeamUserOption } from '#shared/schemas/team';
 
@@ -48,6 +49,19 @@ onBeforeUnmount(() => {
   clearTimeout(timer);
 });
 
+// "New ghost" makes an account for someone who hasn't signed in yet (docs/ghost-accounts.md).
+const tab = ref<'existing' | 'ghost'>('existing');
+const tabs = computed(() => [
+  { label: t('admin.ghost.tabExisting'), value: 'existing' },
+  { label: t('admin.ghost.tabNew'), value: 'ghost' },
+]);
+const ghostPending = ref(false);
+
+function onGhost(ghost: AdminGhost) {
+  pick({ ...ghost, image: null, ghost: true });
+  tab.value = 'existing';
+}
+
 function pick(option: TeamUserOption) {
   picked.value = option;
   state.userId = option.userId;
@@ -89,7 +103,17 @@ async function onSubmit() {
     :close="false"
   >
     <template #body>
+      <div v-if="!props.member" class="mb-5 flex flex-col gap-5">
+        <UTabs v-model="tab" :items="tabs" :content="false" variant="pill" class="w-full" />
+      </div>
+      <AdminGhostForm
+        v-if="tab === 'ghost'"
+        id="team-ghost"
+        @pending="ghostPending = $event"
+        @created="onGhost"
+      />
       <UForm
+        v-else
         id="team-member"
         :schema="teamMemberBody"
         :state="state"
@@ -102,10 +126,20 @@ async function onSubmit() {
               :user-id="state.userId"
               :name="props.member?.name ?? picked?.name ?? ''"
               :image="props.member?.image ?? picked?.image"
+              :ghost="props.member?.ghost ?? picked?.ghost"
             />
             <div class="flex min-w-0 flex-col">
-              <span class="font-semibold text-highlighted">
-                {{ props.member?.name ?? picked?.name }}
+              <span class="flex flex-wrap items-center gap-2">
+                <span class="font-semibold text-highlighted">
+                  {{ props.member?.name ?? picked?.name }}
+                </span>
+                <UBadge
+                  v-if="props.member?.ghost ?? picked?.ghost"
+                  color="neutral"
+                  variant="soft"
+                  size="sm"
+                  :label="t('admin.ghost.badge')"
+                />
               </span>
               <span class="truncate text-sm text-muted">
                 {{ props.member?.email ?? picked?.email }}
@@ -143,6 +177,7 @@ async function onSubmit() {
                     :user-id="option.userId"
                     :name="option.name"
                     :image="option.image"
+                    :ghost="option.ghost"
                     size="md"
                   />
                   <span class="flex min-w-0 flex-col">
@@ -198,6 +233,14 @@ async function onSubmit() {
           @click="emit('close', false)"
         />
         <UButton
+          v-if="tab === 'ghost'"
+          type="submit"
+          form="team-ghost"
+          :loading="ghostPending"
+          :label="t('admin.ghost.submit')"
+        />
+        <UButton
+          v-else
           type="submit"
           form="team-member"
           :loading="pending"
