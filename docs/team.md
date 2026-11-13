@@ -9,7 +9,7 @@
 - Name, photo and school come from the account and are never copied. A member's name and photo change when the account's do.
 - `team_setting`: one row with `joinUrl`. It must start with `https://`. Without it the button is hidden.
 
-Members are accounts only. Placeholder "ghost" members, for people who never signed in, are planned: `user_id` would become nullable and the row would carry a name and a photo.
+Members are accounts only. A person who never signed in can be a member through a ghost account (`docs/ghost-accounts.md`): an ordinary account row marked `ghost`, made from the member picker. When they sign in they take it over, and their seat stays. `user_id` stays required.
 
 ## Who shows
 
