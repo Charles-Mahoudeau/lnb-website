@@ -26,7 +26,8 @@
     "teamDescription": "The people who run LNB",
     "partnersDescription": "Sponsors, game partners and prize partners",
     "bankDescription": "Your LNBits and shared accounts",
-    "baltopDescription": "The richest players on the server"
+    "baltopDescription": "The richest players on the server",
+    "questsDescription": "Personal tiers, server records and community goals"
   },
   "home": {
     "intro": {
@@ -604,7 +605,8 @@
       "economy": "Economy",
       "economyOverview": "Overview",
       "economyAccounts": "Accounts",
-      "economyLedger": "Ledger"
+      "economyLedger": "Ledger",
+      "economyQuests": "Quests"
     },
     "cancel": "Cancel",
     "roles": {
@@ -2358,6 +2360,221 @@
         "confirm": "Reset everything",
         "done": "The economy was reset"
       }
+    },
+    "quests": {
+      "lede": "The catalogue, community quests and how rewards are computed. The Minecraft server reads these settings when it starts, then every few minutes.",
+      "loadFailed": "This couldn’t be loaded. Check your connection, then reload the page.",
+      "tabs": {
+        "catalog": "Catalogue",
+        "community": "Community",
+        "settings": "Settings",
+        "index": "Reward index"
+      },
+      "family": {
+        "individual": "Personal",
+        "server": "Server",
+        "community": "Community",
+        "flash": "Flash"
+      },
+      "objective": {
+        "kill": "Kill",
+        "mine": "Mine",
+        "fish": "Fish",
+        "craft": "Craft",
+        "travel": "Travel",
+        "deliver": "Deliver",
+        "advancement": "Get an advancement"
+      },
+      "catalog": {
+        "filter": "Family",
+        "all": "All",
+        "overwrite": "Replace existing quests",
+        "import": "Import JSON",
+        "export": "Export JSON",
+        "new": "New quest",
+        "quest": "Quest",
+        "family": "Family",
+        "objective": "Objective",
+        "base": "Base (LNBits)",
+        "completions": "Done this season",
+        "enabled": "On",
+        "toggle": "Turn {id} on or off",
+        "broken": "This quest no longer matches the format: fix it in the JSON.",
+        "range": "{type} {min} to {max}",
+        "perUnit": "{n} per unit",
+        "imported": "{added} added, {replaced} replaced",
+        "note": "The server’s config/lnbquests/quests.json adds the quests the site doesn’t know when the server starts. A change made here always wins over the file.",
+        "empty": {
+          "title": "No quest yet",
+          "body": "Start the Minecraft server with the quests mod to load its catalogue, or create one here."
+        }
+      },
+      "editor": {
+        "newTitle": "New quest",
+        "newLede": "Pick the family, then the objective and the reward.",
+        "editTitle": "Edit {name}",
+        "family": "Family",
+        "id": "ID",
+        "idHelp": "Lower-case letters, digits and underscores. It can’t change later.",
+        "icon": "Item shown",
+        "nameFr": "Name in French",
+        "nameEn": "Name in English",
+        "descriptionFr": "Description in French",
+        "descriptionEn": "Description in English",
+        "objective": "Objective",
+        "type": "Type",
+        "target": "What counts",
+        "targetHelp": "A block, mob or item ID, or a tag with #. Empty counts everything.",
+        "advancement": "Advancement ID",
+        "category": "Category",
+        "tier": "Rarity",
+        "tiers": "Tiers",
+        "tiersHelp": "Tiers add up: each one needs a larger amount than the one before.",
+        "amount": "Amount",
+        "base": "Base reward",
+        "baseHelp": "LNBits at the reference index.",
+        "items": "Items",
+        "itemsJson": "Items (JSON)",
+        "itemsHelp": "A list of {'{'} id, snbt, name, count {'}'}. In the game, hold the item and type /quests reward add to capture it.",
+        "addTier": "Add a tier",
+        "removeTier": "Remove this tier",
+        "rewards": "Rewards",
+        "ranks": "Shares by rank (%)",
+        "ranksHelp": "Comma-separated, for 1st, 2nd, 3rd…",
+        "restShare": "Share after the podium (%)",
+        "race": "Race",
+        "min": "Smallest goal",
+        "max": "Largest goal",
+        "perUnit": "Base per unit",
+        "weight": "Draw weight",
+        "weightHelp": "A quest with twice the weight comes up twice as often.",
+        "minPlayers": "Players online at least",
+        "enabled": "On",
+        "save": "Save",
+        "create": "Create the quest",
+        "saved": "Quest saved",
+        "created": "Quest created",
+        "delete": "Delete",
+        "deleted": "Quest deleted",
+        "badItems": "The items aren’t valid JSON. Check the list, then save again."
+      },
+      "community": {
+        "lede": "The whole server works towards one goal. When it ends, everyone above the threshold is paid for each tier reached.",
+        "new": "Plan a community quest",
+        "newTitle": "New community quest",
+        "newLede": "Dates are in Paris time. It starts on its own, once no other one is running.",
+        "goal": "Goal",
+        "starts": "Starts",
+        "ends": "Ends",
+        "tiers": "Tiers",
+        "tierName": "Name",
+        "at": "% of the goal",
+        "threshold": "Threshold (% of the goal)",
+        "thresholdHelp": "Below it, a player shares nothing.",
+        "bonus": "Top contributor bonus (%)",
+        "plan": "Plan",
+        "planned": "Community quest planned",
+        "badDates": "The end must come after the start.",
+        "contributors": "Contributors",
+        "noContributors": "Nobody contributed yet.",
+        "cancel": "Cancel the quest",
+        "cancelledToast": "Community quest cancelled",
+        "others": "Planned and past",
+        "noOthers": "Nothing planned, nothing past yet.",
+        "status": {
+          "scheduled": "Planned",
+          "running": "Running",
+          "paid": "Paid",
+          "cancelled": "Cancelled"
+        },
+        "templates": "Rotation templates",
+        "templatesHelp": "With the rotation on (in Settings), a quest is drawn from the active templates every Monday when nothing is planned.",
+        "toggleTemplate": "Use this template",
+        "templateJson": "New template (JSON)",
+        "templatePlaceholder": "title, objective, goal (min, max), tiers, days",
+        "addTemplate": "Add the template",
+        "templateSaved": "Template saved"
+      },
+      "settings": {
+        "formula": "Reward formula",
+        "formulaHelp": "From the economy spec: I = median × w + Q3 × w + mean × w, Kglobal = (I / I0)^α between its bounds, and up to +bMax for players below I.",
+        "wMedian": "Median weight",
+        "wQ3": "Q3 weight",
+        "wMean": "Mean weight",
+        "baseline": "Reference index I0",
+        "alpha": "Damping α",
+        "kMin": "Kglobal min.",
+        "kMax": "Kglobal max.",
+        "bMax": "Catch-up bonus max.",
+        "active": "Active players",
+        "activeHelp": "Only they count in the index. Shared accounts and staff are left out.",
+        "activeHours": "Seen in the last (hours)",
+        "minPlaytime": "Play time at least (minutes)",
+        "minPlayers": "Players needed",
+        "minPlayersHelp": "Below it, I0 is used.",
+        "cap": "30-day cap",
+        "capHelp": "What quests pay over 30 days, as a share of the money in circulation. Beyond it, rewards are cut.",
+        "capPercent": "Cap (%)",
+        "share": "Share of {family}",
+        "used": "{spent} of {budget}",
+        "sharesTotal": "The shares add up to {n} %: they are scaled to 100 %.",
+        "flash": "Flash quests",
+        "flashHelp": "These replace the values in the mod’s config.",
+        "interval": "Draw every (minutes)",
+        "flashPlayers": "Players online at least",
+        "duration": "Length (minutes)",
+        "poll": "Server reads every (seconds)",
+        "pollHelp": "How often the server reads this page’s settings.",
+        "antiCheat": "Anti-cheat and rotation",
+        "rules": {
+          "ignorePlacedBlocks": "Blocks placed by a player don’t count",
+          "ignoreSpawnerMobs": "Mobs from spawners don’t count",
+          "ignoreMachineBreaks": "Blocks broken by a machine (Create, etc.) don’t count",
+          "countFluidBlocks": "Blocks made by fluids count (stone generators)",
+          "excludeCreative": "Players in creative or spectator mode can’t progress"
+        },
+        "rotation": "Draw a community quest from the templates every week",
+        "preview": "Preview",
+        "save": "Save",
+        "saved": "Settings saved",
+        "previewHelp": "With today’s balances: median {median}, Q3 {q3}, mean {mean}, {n} active players.",
+        "fallback": "Too few active players: the reference index is used.",
+        "base": "Base",
+        "balance": "Balance {n}",
+        "atIndex": "Balance ≥ I"
+      },
+      "season": {
+        "title": "Seasons",
+        "body": "Season {n} is running. A new season starts every quest over: progress, tiers and ranks, and the advancements of server quests are taken back from every player. LNBits already paid stay.",
+        "confirm": "Type “new season” to confirm",
+        "start": "Start a new season",
+        "started": "New season started"
+      },
+      "index": {
+        "index": "Index",
+        "week": "{n} % over 7 days",
+        "fallback": "Reference index, too few players",
+        "damped": "Damped, between its bounds",
+        "active": "Active players",
+        "activeHelp": "Seen in the last 48 h, 1 h of play",
+        "cap": "Cap used",
+        "capOf": "{spent} of {budget} over 30 days",
+        "chart": {
+          "index": "Index over 60 days",
+          "k": "Kglobal over 60 days"
+        },
+        "noData": "The chart starts after a few nights.",
+        "log": "Nightly log",
+        "day": "Day",
+        "median": "Median",
+        "mean": "Mean"
+      },
+      "errors": {
+        "failed": "That didn’t work. Try again in a moment.",
+        "invalid": "Something in the form isn’t valid.",
+        "idTaken": "A quest already has this ID.",
+        "questInUse": "Players already did this quest: turn it off instead."
+      }
     }
   },
   "wardenAdmin": {
@@ -3357,6 +3574,150 @@
       "teamsLabel": "Teams formed",
       "joined": "Interest saved",
       "see": "See the league"
+    }
+  },
+  "quests": {
+    "title": "Quests",
+    "lede": "Challenges at your own pace, records to grab before the others and goals to reach together. Rewards are paid in LNBits to your bank account.",
+    "loadFailed": "The quests couldn’t be loaded. Check your connection, then reload the page.",
+    "tabs": {
+      "individual": "Personal",
+      "server": "Server",
+      "community": "Community",
+      "flash": "Flash",
+      "leaderboard": "Leaderboard"
+    },
+    "season": {
+      "label": "Season",
+      "current": "Season {n}, in progress",
+      "past": "Season {n}"
+    },
+    "me": {
+      "label": "Your season",
+      "done": "Quests done",
+      "earned": "LNBits earned",
+      "bonus": "Catch-up bonus",
+      "ready": "To claim"
+    },
+    "category": {
+      "mining": "Mining",
+      "combat": "Combat",
+      "fishing": "Fishing",
+      "exploration": "Exploration",
+      "crafting": "Crafting",
+      "delivery": "Deliveries"
+    },
+    "objective": {
+      "kill": "Mobs killed.",
+      "mine": "Blocks mined by hand.",
+      "fish": "Catches with a rod.",
+      "craft": "Items crafted.",
+      "travel": "Distance travelled, without teleporting.",
+      "deliver": "Items delivered, and used up.",
+      "advancement": "An advancement to get."
+    },
+    "individual": {
+      "categories": "Categories",
+      "empty": "No quest in this category yet.",
+      "cumulative": "Tiers add up.",
+      "tier": "Tier {n}",
+      "locked": "Unlocks after tier {n}.",
+      "claim": "Claim",
+      "state": {
+        "claimed": "Claimed",
+        "ready": "Ready",
+        "progress": "In progress"
+      },
+      "plusItems": "Plus {items}",
+      "claimed": "{n} LNBits paid to your personal account",
+      "claimedItems": "1 item waits in your mailbox in the game. | {n} items wait in your mailbox in the game.",
+      "note": "Amounts follow today’s index and your catch-up bonus (+{bonus} %). An amount is set when you reach the tier, even if you claim it later, here or in the game.",
+      "noteSignedOut": "Amounts follow today’s index. Sign in to see your progress and your catch-up bonus."
+    },
+    "server": {
+      "filter": "Show",
+      "filters": {
+        "all": "All",
+        "open": "Podium open",
+        "none": "Nobody yet"
+      },
+      "shares": "1st 100 %, 2nd 60 %, 3rd 20 %, then 2 % of the reward",
+      "empty": "No server quest matches.",
+      "free": "Free",
+      "tier": {
+        "rare": "Rare",
+        "epic": "Epic",
+        "legendary": "Legendary"
+      },
+      "rest": "1 more after the podium | {n} more after the podium",
+      "next": "{place}: {n} LNBits",
+      "place": {
+        "1": "1st",
+        "2": "2nd",
+        "3": "3rd",
+        "4": "{n}th"
+      }
+    },
+    "community": {
+      "label": "Community quest",
+      "endsIn": "Ends in {d} d {h} h",
+      "see": "See the quest",
+      "lede": "The whole server works towards {goal}. Every tier reached pays everyone who brought at least {threshold}.",
+      "contributors": "No contributor yet. | 1 contributor. | {n} contributors.",
+      "yours": "Your part: {n}.",
+      "ofGoal": "{percent} % of the goal",
+      "progress": "Progress towards the goal",
+      "tierReward": "{n} LNBits",
+      "reached": "{tiers} reached.",
+      "missing": "{n} more for {tier}.",
+      "yourPart": "Your part",
+      "qualified": "Qualified",
+      "notQualified": "Under the threshold",
+      "threshold": "You need {n} ({percent} % of the goal) to share the rewards. You brought {mine}. The top contributor gets {bonus} % more.",
+      "none": {
+        "title": "No community quest right now",
+        "body": "The next one is announced here and in the game."
+      },
+      "past": "Past community quests",
+      "week": "Week of {date}",
+      "cancelled": "Cancelled",
+      "reachedTier": "{tier} reached",
+      "noTier": "No tier reached"
+    },
+    "flash": {
+      "how": "A flash quest starts at random when enough players are online. The first to reach the goal wins, and it ends after a few minutes without a winner.",
+      "empty": {
+        "title": "No flash quest yet this season",
+        "body": "Play on the server: the next one could start any moment."
+      },
+      "goal": "{name}: {n}",
+      "nobody": "Nobody",
+      "in": "in {n} min",
+      "expired": "Expired"
+    },
+    "board": {
+      "sort": "Sort by",
+      "by": {
+        "lnbits": "LNBits earned",
+        "quests": "Quests done"
+      },
+      "empty": "Nobody finished a quest yet this season.",
+      "questsCount": "1 quest | {n} quests"
+    },
+    "how": {
+      "title": "How rewards are computed",
+      "body": "Each quest has a base reward. Every night it is adjusted to the wealth of active players, slowly so it never runs away, and raised for players with less than the server’s typical balance.",
+      "formula": "Reward = base × {k} × your bonus",
+      "index": "Today’s index",
+      "multiplier": "Server multiplier",
+      "bonus": "Your bonus",
+      "chart": "Index over 30 days",
+      "noChart": "The chart starts after a few nights."
+    },
+    "errors": {
+      "failed": "That didn’t work. Try again in a moment.",
+      "alreadyClaimed": "This reward was already claimed.",
+      "frozen": "Your bank account is frozen: nothing can be paid to it."
     }
   }
 }

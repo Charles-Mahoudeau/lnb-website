@@ -99,6 +99,7 @@ const items = computed<NavigationMenuItem[][]>(() => [
               { label: t('admin.nav.economyOverview'), to: '/admin/economy', exact: true },
               { label: t('admin.nav.economyAccounts'), to: '/admin/economy/accounts' },
               { label: t('admin.nav.economyLedger'), to: '/admin/economy/ledger' },
+              { label: t('admin.nav.economyQuests'), to: '/admin/economy/quests' },
               { label: t('admin.nav.settings'), to: '/admin/economy/settings' },
             ],
           },

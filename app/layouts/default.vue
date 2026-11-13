@@ -60,6 +60,16 @@ const navItems = computed<NavigationMenuItem[]>(() => {
           },
         ]
       : []),
+    ...(isEnabled('economy.quests')
+      ? [
+          {
+            label: t('quests.title'),
+            description: t('nav.questsDescription'),
+            icon: 'i-lucide-trophy',
+            to: '/minecraft/quests',
+          },
+        ]
+      : []),
     ...(user.value && isEnabled('economy.baltop')
       ? [
           {
