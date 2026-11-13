@@ -10,9 +10,14 @@ import { sql } from 'drizzle-orm';
 import { readAuthEnv } from './auth-env';
 import { saveProfilePhoto } from './avatars';
 import { isFlagOn } from './flag-gate';
+import { claimGhost, mayClaimGhost } from './ghosts';
 import { generateLinkCode } from './link-codes';
 import { isAllowedTenant, SCHOOL_SIGN_IN_FLAGS } from './tenants';
-import { SIGN_IN_DISABLED, TENANT_NOT_ALLOWED } from '../../shared/utils/auth-errors';
+import {
+  ACCOUNT_CLAIM_REFUSED,
+  SIGN_IN_DISABLED,
+  TENANT_NOT_ALLOWED,
+} from '../../shared/utils/auth-errors';
 import { getLinkApp, LINK_CODE_LENGTH } from '../../shared/utils/link-apps';
 import {
   ADMIN_ROLE,
@@ -93,16 +98,24 @@ export const auth = betterAuth({
       // Set from the Microsoft profile only: /update-user is disabled below.
       tenantId: { type: 'string', required: true },
       lastSignInAt: { type: 'date', required: false, input: false },
+      // An account an admin made for someone who hasn't signed in yet (docs/ghost-accounts.md).
+      ghost: { type: 'boolean', required: true, defaultValue: false, input: false },
     },
     // Runs on account creation and on every Microsoft sign-in, with the fresh ID token claims.
     // The Microsoft provider has already checked that `tid` matches the token's issuer.
-    validateUserInfo: async ({ source }) => {
+    validateUserInfo: async ({ user, source }) => {
       const tid = source.oauth?.providerId === 'microsoft' ? source.oauth.profile?.tid : undefined;
       if (!isAllowedTenant(tid, env.AUTH_ALLOWED_TENANTS)) {
         return { error: TENANT_NOT_ALLOWED };
       }
       // The signIn feature flags (shared/flags.ts) refuse everyone, or one school. Admins stay
       // able to sign in, so a flag can't lock them out of the page that switches it back on.
+      // Better Auth links a sign-in to an existing account with the same email only when the account
+      // has no Microsoft account yet. Only a ghost of the same school may be claimed that way: any
+      // other account is somebody's, and a reused school address must not hand it over.
+      if (source.action === 'link-account' && !(await mayClaimGhost(user.id, tid))) {
+        return { error: ACCOUNT_CLAIM_REFUSED };
+      }
       const schoolFlag = SCHOOL_SIGN_IN_FLAGS[tid.toLowerCase()];
       const open = (await isFlagOn('signIn')) && (!schoolFlag || (await isFlagOn(schoolFlag)));
       if (!open && !(await isExistingAdmin(source.oauth?.profile?.email))) {
@@ -112,8 +125,10 @@ export const auth = betterAuth({
   },
 
   account: {
-    // One Microsoft account, one user.
-    accountLinking: { enabled: false },
+    // One Microsoft account, one user. Linking is on only so that a person can take over the ghost
+    // account made for them: validateUserInfo refuses every link to an account that isn't one, and
+    // /link-social (linking from a signed-in session) is disabled below.
+    accountLinking: { enabled: true, trustedProviders: ['microsoft'] },
     // Tokens aren't kept (see databaseHooks), so there is nothing to refresh on sign-in.
     updateAccountOnSignIn: false,
   },
@@ -124,6 +139,7 @@ export const auth = betterAuth({
   // Better Auth's OpenAPI schema is merged into ours (server/openapi/), so it isn't served here.
   disabledPaths: [
     '/update-user',
+    '/link-social',
     '/device/approve',
     '/device/deny',
     '/open-api/generate-schema',
@@ -138,6 +154,10 @@ export const auth = betterAuth({
           Promise.resolve({
             data: { ...account, accessToken: null, refreshToken: null, idToken: null },
           }),
+        // The first Microsoft account on a ghost is the person taking it over.
+        after: async (account) => {
+          await claimGhost(account.userId);
+        },
       },
     },
     session: {

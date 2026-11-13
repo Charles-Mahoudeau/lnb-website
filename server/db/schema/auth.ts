@@ -26,6 +26,7 @@ export const user = pgTable('user', {
   banExpires: timestamp('ban_expires'),
   tenantId: text('tenant_id').notNull(),
   lastSignInAt: timestamp('last_sign_in_at'),
+  ghost: boolean('ghost').default(false).notNull(),
 });
 
 export const session = pgTable(

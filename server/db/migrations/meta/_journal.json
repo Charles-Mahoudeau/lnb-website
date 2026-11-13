@@ -246,6 +246,13 @@
       "when": 1794565449049,
       "tag": "0034_anticheat",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1794582238069,
+      "tag": "0035_ghost-accounts",
+      "breakpoints": true
     }
   ]
 }

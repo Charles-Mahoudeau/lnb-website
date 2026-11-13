@@ -164,6 +164,8 @@ export const adminAuditView = z.object({
     'user.unban',
     'user.signOut',
     'user.delete',
+    'user.ghostCreate',
+    'user.ghostClaim',
     'users.deleteInactive',
     'flag.update',
     'rateLimit.mode',
