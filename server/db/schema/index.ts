@@ -12,6 +12,7 @@ export * from './partner-events';
 export * from './partners';
 export * from './posters';
 export * from './push';
+export * from './quests';
 export * from './rate-limit';
 export * from './short-links';
 export * from './team';
