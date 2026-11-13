@@ -71,7 +71,7 @@ export default defineNuxtConfig({
     },
     scheduledTasks: {
       '* * * * *': ['events:bde-sync', 'push:deliver'],
-      '*/5 * * * *': ['warden:close-stale-sessions'],
+      '*/5 * * * *': ['warden:close-stale-sessions', 'quests:community'],
       // Every night at 03:00, server time.
       '0 3 * * *': [
         'users:delete-inactive',
@@ -83,6 +83,8 @@ export default defineNuxtConfig({
         'api-keys:prune',
         'economy:snapshot',
       ],
+      // After the economy snapshot, so the quest index reads the night's balances.
+      '0 4 * * *': ['quests:index'],
     },
     // Skin heads fetched from Crafatar, cached on disk. See server/services/warden/heads.ts.
     // Mod icons, downloaded once when a mod is added. See server/services/mods/icons.ts.
