@@ -57,6 +57,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'anticheat' },
   { key: 'anticheat.serverApi', parent: 'anticheat' },
   { key: 'anticheat.lookups', parent: 'anticheat' },
+  { key: 'economy.quests', parent: 'economy' },
   { key: 'push' },
   { key: 'push.subscribe', parent: 'push' },
   { key: 'push.newEvents', parent: 'push' },
@@ -78,6 +79,8 @@ export const FLAG_DEFINITIONS = [
   { key: 'jobs.anticheatLookups', parent: 'jobs' },
   { key: 'jobs.anticheatRescore', parent: 'jobs' },
   { key: 'jobs.anticheatPrune', parent: 'jobs' },
+  { key: 'jobs.questsIndex', parent: 'jobs' },
+  { key: 'jobs.questsCommunity', parent: 'jobs' },
 ] as const satisfies readonly FlagDefinition[];
 
 export type FlagKey = (typeof FLAG_DEFINITIONS)[number]['key'];
