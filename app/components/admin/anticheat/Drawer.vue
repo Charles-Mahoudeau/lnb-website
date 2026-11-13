@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { AdminAnticheatConfirm, AdminAnticheatDrawer } from '#components';
+import { AdminAnticheatConfirm } from '#components';
+
+import AdminAnticheatDrawer from './Drawer.vue';
 
 import type {
   AnticheatDecision,
