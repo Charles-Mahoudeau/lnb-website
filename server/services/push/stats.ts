@@ -33,7 +33,8 @@ async function overview(now = new Date()): Promise<PushOverview> {
   const [subscribers] = await db
     .select({ n: sql<number>`count(distinct ${pushSubscription.userId})::int` })
     .from(pushSubscription);
-  const [accounts] = await db.select({ n: count() }).from(user);
+  // Ghosts can't subscribe, so they would only lower the share of people who did.
+  const [accounts] = await db.select({ n: count() }).from(user).where(eq(user.ghost, false));
 
   const byKind = Object.fromEntries(PUSH_KINDS.map((kind) => [kind, 0])) as Record<
     PushKind,

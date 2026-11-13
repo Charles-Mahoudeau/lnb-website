@@ -43,12 +43,18 @@ async function everyone(dbx: Tx | typeof db, eventId: string): Promise<string[]>
   return rows.map((row) => row.userId);
 }
 
-/** Accounts of the schools the event is open to, who can still sign in. */
+/** Accounts of the schools the event is open to, who can still sign in. Ghosts have no one to notify. */
 async function inSchools(dbx: Tx | typeof db, schools: string[]): Promise<string[]> {
   const rows = await dbx
     .select({ id: user.id })
     .from(user)
-    .where(and(inArray(user.tenantId, schools), or(isNull(user.banned), eq(user.banned, false))));
+    .where(
+      and(
+        inArray(user.tenantId, schools),
+        eq(user.ghost, false),
+        or(isNull(user.banned), eq(user.banned, false)),
+      ),
+    );
   return rows.map((row) => row.id);
 }
 
