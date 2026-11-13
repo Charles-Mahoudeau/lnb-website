@@ -138,10 +138,20 @@ const counts = computed(() => {
               :user-id="row.original.userId"
               :name="row.original.name"
               :image="row.original.image"
+              :ghost="row.original.ghost"
               size="sm"
             />
             <div class="flex min-w-0 flex-col">
-              <span class="font-semibold text-highlighted">{{ row.original.name }}</span>
+              <span class="flex flex-wrap items-center gap-2">
+                <span class="font-semibold text-highlighted">{{ row.original.name }}</span>
+                <UBadge
+                  v-if="row.original.ghost"
+                  color="neutral"
+                  variant="soft"
+                  size="sm"
+                  :label="t('admin.ghost.badge')"
+                />
+              </span>
               <span class="text-sm text-muted">{{ row.original.email }}</span>
             </div>
           </div>

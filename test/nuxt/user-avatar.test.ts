@@ -23,4 +23,13 @@ describe('UserAvatar', () => {
     expect(wrapper.find('img').exists()).toBe(true);
     expect(wrapper.find('svg').exists()).toBe(false);
   });
+
+  it('draws a dashed ring only for a ghost', async () => {
+    const plain = await mountSuspended(UserAvatar, { props: { userId: 'u', name: 'A B' } });
+    const ghost = await mountSuspended(UserAvatar, {
+      props: { userId: 'u', name: 'A B', ghost: true },
+    });
+    expect(plain.html()).not.toContain('outline-dashed');
+    expect(ghost.html()).toContain('outline-dashed');
+  });
 });

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AdminGhost } from '#shared/schemas/admin';
 import type { EventAdminView, EventUserOption } from '#shared/schemas/events';
 import type { PushImpactView } from '#shared/schemas/push';
 
@@ -15,6 +16,19 @@ const results = ref<EventUserOption[]>([]);
 const picked = ref<EventUserOption>();
 const force = ref(false);
 const pending = ref(false);
+// "New ghost" makes an account for someone who hasn't signed in yet (docs/ghost-accounts.md).
+const tab = ref<'existing' | 'ghost'>('existing');
+const tabs = computed(() => [
+  { label: t('admin.ghost.tabExisting'), value: 'existing' },
+  { label: t('admin.ghost.tabNew'), value: 'ghost' },
+]);
+const ghostPending = ref(false);
+
+// Once made, the ghost is picked like any account: the manager still adds them below.
+function onGhost(ghost: AdminGhost) {
+  picked.value = { ...ghost, ghost: true };
+  tab.value = 'existing';
+}
 
 // Adding someone sends them a notification, if they have it on: say so once they're picked.
 const { impact: countImpact } = useEventPush();
@@ -44,7 +58,9 @@ watch(search, (q) => {
 const items = computed(() =>
   results.value.map((option) => ({
     label: option.name,
-    description: [option.email, option.school].filter(Boolean).join(', '),
+    description: [option.email, option.school, option.ghost ? t('admin.ghost.badge') : null]
+      .filter(Boolean)
+      .join(', '),
     value: option,
   })),
 );
@@ -84,7 +100,15 @@ async function onAdd() {
   >
     <template #body>
       <div class="flex flex-col gap-5">
-        <UFormField :label="t('admin.events.registrations.person')">
+        <UTabs v-model="tab" :items="tabs" :content="false" variant="pill" class="w-full" />
+        <AdminGhostForm
+          v-if="tab === 'ghost'"
+          id="registration-ghost"
+          via="events"
+          @pending="ghostPending = $event"
+          @created="onGhost"
+        />
+        <UFormField v-else :label="t('admin.events.registrations.person')">
           <USelectMenu
             v-model="picked"
             v-model:search-term="search"
@@ -97,7 +121,7 @@ async function onAdd() {
           />
         </UFormField>
         <UAlert
-          v-if="picked && notified"
+          v-if="tab === 'existing' && picked && notified"
           :color="notified.overCap > 0 ? 'warning' : 'neutral'"
           variant="subtle"
           :icon="notified.recipients > 0 ? 'i-lucide-bell' : 'i-lucide-bell-off'"
@@ -115,7 +139,7 @@ async function onAdd() {
           "
         />
         <UCheckbox
-          v-if="full"
+          v-if="full && tab === 'existing'"
           v-model="force"
           :label="t('admin.events.registrations.force')"
           :description="t('admin.events.registrations.forceHelp')"
@@ -131,6 +155,14 @@ async function onAdd() {
           @click="emit('close', false)"
         />
         <UButton
+          v-if="tab === 'ghost'"
+          type="submit"
+          form="registration-ghost"
+          :loading="ghostPending"
+          :label="t('admin.ghost.submit')"
+        />
+        <UButton
+          v-else
           :disabled="!picked || (full && !force)"
           :loading="pending"
           :label="t('admin.events.registrations.addSubmit')"

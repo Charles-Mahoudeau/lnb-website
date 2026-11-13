@@ -937,6 +937,15 @@ function showToast() {
           :size="size"
         />
       </div>
+      <p class="max-w-2xl text-muted">
+        In admin lists only, a ghost account (made for someone who has not signed in yet) has a
+        dashed ring around its avatar and a neutral "Not signed in yet" badge by its name.
+      </p>
+      <div class="flex flex-wrap items-center gap-3">
+        <UserAvatar user-id="user-2" name="Camille Martin" ghost />
+        <span class="font-semibold text-highlighted">Camille Martin</span>
+        <UBadge color="neutral" variant="soft" size="sm" label="Not signed in yet" />
+      </div>
     </section>
 
     <section class="flex flex-col gap-6">

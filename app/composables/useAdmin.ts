@@ -1,6 +1,8 @@
 import { ADMIN_PROBLEMS } from '#shared/schemas/admin';
 import type {
   AdminBanBody,
+  AdminGhost,
+  AdminGhostBody,
   AdminBulkBody,
   AdminBulkResult,
   AdminOverview,
@@ -40,6 +42,14 @@ export function useAdminUsers(query: Ref<AdminUsersQuery>) {
   return useFetch<AdminUserPage>('/api/admin/users', { key: 'admin-users', query });
 }
 
+/**
+ * A ghost made by an events manager, from the events pickers. Throws an AdminError, like the
+ * admin's own route (`createGhost` below), which the Users and Team screens use.
+ */
+export function createEventGhost(body: AdminGhostBody) {
+  return call(() => $fetch<AdminGhost>('/api/admin/events/users/ghost', { method: 'POST', body }));
+}
+
 /** Everything an admin can do to an account. */
 export function useAdminUserActions() {
   const base = (userId: string) => `/api/admin/users/${encodeURIComponent(userId)}`;
@@ -51,6 +61,9 @@ export function useAdminUserActions() {
     unban: (userId: string) => call(() => $fetch(`${base(userId)}/unban`, { method: 'POST' })),
     signOut: (userId: string) => call(() => $fetch(`${base(userId)}/sign-out`, { method: 'POST' })),
     remove: (userId: string) => call(() => $fetch(base(userId), { method: 'DELETE' })),
+    /** An account for someone who has not signed in yet. */
+    createGhost: (body: AdminGhostBody) =>
+      call(() => $fetch<AdminGhost>('/api/admin/users/ghost', { method: 'POST', body })),
     /** One action on many accounts. With `dryRun`, counts who it would apply to. */
     bulk: (body: AdminBulkBody) =>
       call(() => $fetch<AdminBulkResult>('/api/admin/users/bulk', { method: 'POST', body })),
