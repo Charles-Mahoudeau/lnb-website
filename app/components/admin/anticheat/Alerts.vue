@@ -13,10 +13,14 @@ watch(data, () => {
   more.value = [];
   moreCursor.value = undefined;
 });
-const rows = computed(() => [...(data.value?.items ?? []), ...more.value]);
-const nextCursor = computed(() =>
-  moreCursor.value === undefined ? (data.value?.nextCursor ?? null) : moreCursor.value,
-);
+// The API lists the open alerts first, then the dismissed ones. Only the open ones belong here.
+const loaded = computed(() => [...(data.value?.items ?? []), ...more.value]);
+const rows = computed(() => loaded.value.filter((alert) => !alert.dismissedAt));
+const nextCursor = computed(() => {
+  // Once a dismissed alert has come back, every following one is dismissed too.
+  if (loaded.value.some((alert) => alert.dismissedAt)) return null;
+  return moreCursor.value === undefined ? (data.value?.nextCursor ?? null) : moreCursor.value;
+});
 
 async function loadMore() {
   if (!nextCursor.value) return;
