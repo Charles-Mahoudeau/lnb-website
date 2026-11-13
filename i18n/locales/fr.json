@@ -1288,6 +1288,10 @@
           "label": "Butin des monstres",
           "description": "Les LNBits créés pour les monstres que les joueurs tuent. Désactivé, les monstres ne donnent plus d’argent."
         },
+        "economy_quests": {
+          "label": "Quêtes",
+          "description": "Les quêtes en jeu et sur le site : paliers, records, objectifs communs et quêtes flash. Désactivé, le serveur ne compte plus rien et rien n’est versé."
+        },
         "jobs_economySnapshot": {
           "label": "Stats de l’économie",
           "description": "L’enregistrement nocturne des graphiques de l’économie, et la fermeture des comptes bancaires des joueurs supprimés."
@@ -1315,6 +1319,14 @@
         "jobs_anticheatPrune": {
           "label": "Nettoyage de l’anticheat",
           "description": "La suppression nocturne des anciens rapports, liens d’usage, alertes et fichiers inutilisés."
+        },
+        "jobs_questsIndex": {
+          "label": "Indice des quêtes",
+          "description": "Le calcul nocturne de l’indice des récompenses de quêtes."
+        },
+        "jobs_questsCommunity": {
+          "label": "Quêtes communautaires",
+          "description": "Le lancement et le paiement des quêtes communautaires."
         },
         "push_partnerEvents": {
           "label": "Notifications d’événements partenaires",
@@ -2264,7 +2276,8 @@
           "accountClosed": "Créé : comptes fermés",
           "auctionTax": "Créé : taxe de l’hôtel des ventes",
           "casinoLicense": "Créé : licences de casino",
-          "mobDrop": "Créé : butin des monstres"
+          "mobDrop": "Créé : butin des monstres",
+          "questReward": "Créé : récompenses de quêtes"
         },
         "burn": {
           "startingBalance": "Détruit : capitaux de départ",
@@ -2272,7 +2285,8 @@
           "accountClosed": "Détruit : joueurs supprimés",
           "auctionTax": "Détruit : taxe de l’hôtel des ventes",
           "casinoLicense": "Détruit : licences de casino",
-          "mobDrop": "Détruit : butin des monstres"
+          "mobDrop": "Détruit : butin des monstres",
+          "questReward": "Détruit : récompenses de quêtes"
         }
       },
       "volume": {
@@ -3574,6 +3588,7 @@
       "startingBalance": "Capital de départ",
       "adjustment": "Ajustement par LNB",
       "mobDrop": "Butin des monstres",
+      "questReward": "Récompense de quête",
       "casinoLicense": "Licence de casino",
       "reversal": "Annulé par LNB",
       "reversed": "Annulée",

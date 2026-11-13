@@ -75,6 +75,7 @@ function title(item: EconomyTransactionView): string {
     case 'mint':
       if (item.reason === 'startingBalance') return t('economy.history.startingBalance');
       if (item.reason === 'mobDrop') return t('economy.history.mobDrop');
+      if (item.reason === 'questReward') return t('economy.history.questReward');
       return t('economy.history.adjustment');
     case 'burn':
       return item.reason === 'casinoLicense'

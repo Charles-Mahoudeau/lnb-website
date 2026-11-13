@@ -32,7 +32,13 @@ export type EconomyTransactionKind =
   'payment' | 'casino' | 'shop' | 'trade' | 'auction' | 'mint' | 'burn' | 'reversal';
 /** Why money was created or destroyed. Null for the other kinds. */
 export type EconomyReason =
-  'startingBalance' | 'adjustment' | 'accountClosed' | 'auctionTax' | 'casinoLicense' | 'mobDrop';
+  | 'startingBalance'
+  | 'adjustment'
+  | 'accountClosed'
+  | 'auctionTax'
+  | 'casinoLicense'
+  | 'mobDrop'
+  | 'questReward';
 /** Where a transaction came from: the Minecraft server, the site, or the site on its own. */
 export type EconomySource = 'minecraft' | 'web' | 'system';
 
@@ -332,7 +338,8 @@ export const economyListing = pgTable(
   ],
 );
 
-export type EconomyMailboxReason = 'bought' | 'cancelled' | 'expired' | 'removed';
+/** Why an item waits in a mailbox. `questReward` is an item given by a quest (docs/quests.md). */
+export type EconomyMailboxReason = 'bought' | 'cancelled' | 'expired' | 'removed' | 'questReward';
 
 /**
  * An item waiting for its player at the auction house: one they bought, or one of theirs that
