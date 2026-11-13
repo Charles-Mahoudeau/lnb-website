@@ -4,7 +4,7 @@ A ghost is an account an admin or events manager makes for someone who has never
 
 A ghost is a normal `user` row with `ghost = true`. It has the person's school email, a name, a school (`tenantId`, picked by the admin), no photo, no `account` and no `session`, so it can't sign in or act. `emailVerified` is `true`: the admin vouches for the email, and Better Auth requires it to link an account (`requireLocalEmailVerified`).
 
-Status: the `ghost` column, the takeover, the service, the routes, the flag and the admin screens are built. The places that count or list accounts (push, the Overview) are still to come.
+Status: the `ghost` column, the takeover, the service, the routes, the flag and the admin screens are built. Push leaves ghosts out of its account count and of the audience of an event announcement, since they can't subscribe.
 
 ## Admin screens
 
