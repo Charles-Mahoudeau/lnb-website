@@ -28,6 +28,12 @@ const later = computed(() => upcoming.value?.items.slice(1) ?? []);
 // The last events, so the page isn't empty between seasons.
 const { data: past } = await useEventList({ when: 'past', limit: 3 }, 'home-recent');
 const recent = computed(() => (showEvents.value ? (past.value?.items ?? []) : []));
+// The running community quest, under the hero (docs/quests.md).
+const { data: quests } = await useFetch('/api/quests', {
+  key: 'home-quests',
+  immediate: isEnabled('economy.quests'),
+});
+const community = computed(() => (isEnabled('economy.quests') ? quests.value?.community : null));
 
 // Warden (Minecraft) is open to some schools only.
 const wardenApp = getLinkApp('warden');
@@ -47,6 +53,10 @@ const showMinecraft = computed(() => showModList.value || canUseWarden.value);
   <div>
     <EventsHero v-if="next" :event="next" :attendees="nextAttendees" />
     <HomeIntro v-else />
+
+    <UContainer v-if="community" class="pt-8">
+      <QuestsCommunityBand :community="community" link />
+    </UContainer>
 
     <UContainer class="flex flex-col gap-10 py-12">
       <section
