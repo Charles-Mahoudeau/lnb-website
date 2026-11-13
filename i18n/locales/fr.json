@@ -246,7 +246,8 @@
     "errors": {
       "tenantNotAllowed": "Seuls les comptes Epitech, e-artsup et ISEG peuvent se connecter. Choisis ton compte Microsoft de l’école, par exemple prenom.nom{'@'}epitech.eu.",
       "generic": "La connexion n’a pas abouti. Réessaie avec ton compte Microsoft de l’école.",
-      "signInDisabled": "La connexion est coupée pour le moment. Réessaie plus tard."
+      "signInDisabled": "La connexion est coupée pour le moment. Réessaie plus tard.",
+      "accountClaimRefused": "Cet e-mail appartient déjà à un autre compte du site. Demande à l’équipe LNB de régler ça."
     }
   },
   "account": {
@@ -796,6 +797,8 @@
         "flagOn": "{actor} a activé {name}.",
         "flagOff": "{actor} a coupé {name}.",
         "rateLimitMode": "{actor} a réglé la limitation de débit sur {mode}.",
+        "user_ghostCreate": "{actor} a créé un compte fantôme pour {target}.",
+        "user_ghostClaim": "{target} s’est connecté·e et a repris son compte fantôme.",
         "event_create": "{actor} a créé l’événement {name}.",
         "event_update": "{actor} a modifié l’événement {name}.",
         "event_cancel": "{actor} a annulé l’événement {name}.",

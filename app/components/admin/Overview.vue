@@ -169,6 +169,8 @@ function describe(entry: AdminAuditView): string {
       const deleted = Number(entry.data.count ?? 0);
       return t('admin.overview.log.deleteInactive', { count: deleted }, deleted);
     }
+    case 'user.ghostCreate':
+    case 'user.ghostClaim':
     case 'event.create':
     case 'event.update':
     case 'event.cancel':

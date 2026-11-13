@@ -246,7 +246,8 @@
     "errors": {
       "tenantNotAllowed": "Only Epitech, e-artsup and ISEG accounts can sign in. Choose your school Microsoft account, for example name{'@'}epitech.eu.",
       "generic": "Sign-in didn't finish. Try again with your school Microsoft account.",
-      "signInDisabled": "Sign-in is switched off for now. Try again later."
+      "signInDisabled": "Sign-in is switched off for now. Try again later.",
+      "accountClaimRefused": "This email already belongs to another account on the site. Ask the LNB team to sort it out."
     }
   },
   "account": {
@@ -792,6 +793,8 @@
         "flagOn": "{actor} switched {name} on.",
         "flagOff": "{actor} switched {name} off.",
         "rateLimitMode": "{actor} set rate limiting to {mode}.",
+        "user_ghostCreate": "{actor} created a ghost account for {target}.",
+        "user_ghostClaim": "{target} signed in and took over their ghost account.",
         "event_create": "{actor} created the event {name}.",
         "event_update": "{actor} edited the event {name}.",
         "event_cancel": "{actor} cancelled the event {name}.",

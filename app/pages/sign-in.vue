@@ -13,6 +13,7 @@ const errorMessage = computed(() => {
   if (!error) return null;
   if (error === TENANT_NOT_ALLOWED) return t('auth.errors.tenantNotAllowed');
   if (error === SIGN_IN_DISABLED) return t('auth.errors.signInDisabled');
+  if (error === ACCOUNT_CLAIM_REFUSED) return t('auth.errors.accountClaimRefused');
   return t('auth.errors.generic');
 });
 
