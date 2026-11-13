@@ -6,6 +6,8 @@ import { getDefaultAttributes } from 'eslint-plugin-better-tailwindcss/api/defau
 import withNuxt from './.nuxt/eslint.config.mjs';
 
 export default withNuxt(
+  // Standalone Node scripts sit outside the Nuxt tsconfig projects.
+  { ignores: ['scripts/'] },
   betterTailwindcss.configs['correctness-error'],
   {
     settings: {
