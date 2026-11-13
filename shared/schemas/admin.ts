@@ -18,6 +18,9 @@ export const ADMIN_PROBLEMS = [
   'tooMany',
   'alreadyBanned',
   'unchanged',
+  'emailTaken',
+  'notGhost',
+  'isGhost',
 ] as const;
 export type AdminProblem = (typeof ADMIN_PROBLEMS)[number];
 
@@ -40,9 +43,11 @@ export const adminUsersQuery = z.object({
     .describe("The school's Microsoft tenant ID."),
   role: z.enum(['any', 'admin', 'warden-admin', 'events-manager', 'economy-admin']).default('any'),
   status: z
-    .enum(['all', 'banned', 'inactive'])
+    .enum(['all', 'banned', 'inactive', 'ghost'])
     .default('all')
-    .describe('`inactive`: no sign-in for 24 months, so due for deletion.'),
+    .describe(
+      '`inactive`: no sign-in for 24 months, so due for deletion. `ghost`: made by an admin for someone who has not signed in yet.',
+    ),
   cursor: z.string().max(400).optional(),
 });
 export type AdminUsersQuery = z.input<typeof adminUsersQuery>;
@@ -63,6 +68,9 @@ export const adminUserRow = z.object({
   economyAdmin: z
     .boolean()
     .describe('Has the economy-admin role itself. Site admins have its rights anyway.'),
+  ghost: z
+    .boolean()
+    .describe('Made by an admin for someone who has not signed in yet. It has no sign-in.'),
   createdAt: isoDate,
   lastSignInAt: isoDate.nullable(),
   inactive: z.boolean().describe('No sign-in for 24 months.'),
@@ -86,6 +94,40 @@ export const adminRolesBody = z.object({
   economyAdmin: z.boolean(),
 });
 export type AdminRolesBody = z.infer<typeof adminRolesBody>;
+
+const ghostTenantId = z
+  .string()
+  .refine((tid) => tid in SCHOOLS)
+  .describe("The person's school, as its Microsoft tenant ID. Only that school can take it over.");
+
+/** POST /api/admin/users/ghost and POST /api/admin/events/users/ghost */
+export const adminGhostBody = z.object({
+  name: z.string().trim().min(1).max(100),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(z.email().max(254))
+    .describe(
+      "The email the person signs in with. The first Microsoft sign-in with it takes the account over, so it must be the one Microsoft sends, usually the school's.",
+    ),
+  tenantId: ghostTenantId,
+});
+export type AdminGhostBody = z.infer<typeof adminGhostBody>;
+
+/** PATCH /api/admin/users/:userId/ghost */
+export const adminGhostUpdateBody = adminGhostBody
+  .partial()
+  .refine((body) => Object.keys(body).length > 0, { message: 'Nothing to change.' });
+export type AdminGhostUpdateBody = z.infer<typeof adminGhostUpdateBody>;
+
+export const adminGhost = z.object({
+  userId: z.string(),
+  name: z.string(),
+  email: z.string(),
+  school: z.string().nullable(),
+});
+export type AdminGhost = z.infer<typeof adminGhost>;
 
 /** POST /api/admin/users/:userId/ban */
 export const adminBanBody = z.object({
@@ -165,6 +207,7 @@ export const adminAuditView = z.object({
     'user.signOut',
     'user.delete',
     'user.ghostCreate',
+    'user.ghostUpdate',
     'user.ghostClaim',
     'users.deleteInactive',
     'flag.update',

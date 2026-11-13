@@ -12,6 +12,7 @@ import {
   teamPole,
   user,
 } from '~~/server/db/schema';
+import { ghostService } from '~~/server/services/ghosts';
 
 import { ACCOUNT_CLAIM_REFUSED } from '#shared/utils/auth-errors';
 
@@ -216,5 +217,35 @@ describe('accounts that are not ghosts', () => {
     expect(result.isRegister).toBe(true);
     const [row] = await db.select().from(user).where(eq(user.email, email));
     expect(row?.ghost).toBe(false);
+  });
+});
+
+describe('a ghost made through the service', () => {
+  it('is taken over by the person it was made for, and only while the flag is on', async () => {
+    const { setFlagReader } = await import('~~/server/lib/flag-gate');
+    const adminId = `admin-${next()}`;
+    await db
+      .insert(user)
+      .values({ id: adminId, name: 'Admin', email: `${adminId}@epitech.eu`, tenantId: EPITECH });
+    const made = await ghostService.create({
+      actorId: adminId,
+      body: { name: 'Made For You', email: `made-${next()}@epitech.eu`, tenantId: EPITECH },
+    });
+
+    // The kill-switch: with `ghostAccounts` off, the sign-in is refused and nothing changes.
+    setFlagReader((key) => Promise.resolve(key !== 'ghostAccounts'));
+    try {
+      await expect(signIn({ email: made.email, oid: 'oid-made' })).rejects.toMatchObject({
+        body: { code: ACCOUNT_CLAIM_REFUSED },
+      });
+    } finally {
+      setFlagReader(() => Promise.resolve(true));
+    }
+    expect((await rows(made.userId))[0]?.ghost).toBe(true);
+
+    const result = await signIn({ email: made.email, oid: 'oid-made', name: 'Made For You' });
+    expect(result.error).toBeNull();
+    expect(result.data?.user.id).toBe(made.userId);
+    expect((await rows(made.userId))[0]?.ghost).toBe(false);
   });
 });

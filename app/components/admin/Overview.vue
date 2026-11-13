@@ -170,6 +170,7 @@ function describe(entry: AdminAuditView): string {
       return t('admin.overview.log.deleteInactive', { count: deleted }, deleted);
     }
     case 'user.ghostCreate':
+    case 'user.ghostUpdate':
     case 'user.ghostClaim':
     case 'event.create':
     case 'event.update':

@@ -798,6 +798,7 @@
         "flagOff": "{actor} a coupé {name}.",
         "rateLimitMode": "{actor} a réglé la limitation de débit sur {mode}.",
         "user_ghostCreate": "{actor} a créé un compte fantôme pour {target}.",
+        "user_ghostUpdate": "{actor} a modifié le compte fantôme de {target}.",
         "user_ghostClaim": "{target} s’est connecté·e et a repris son compte fantôme.",
         "event_create": "{actor} a créé l’événement {name}.",
         "event_update": "{actor} a modifié l’événement {name}.",
@@ -1230,6 +1231,10 @@
         "shortLinks_tracking": {
           "label": "Enregistrement des clics par personne",
           "description": "Les liens continuent de compter les clics mais n’enregistrent plus qui a cliqué. Les personnes déjà enregistrées restent."
+        },
+        "ghostAccounts": {
+          "label": "Comptes fantômes",
+          "description": "Plus aucun compte fantôme ne peut être créé, et une personne qui se connecte ne peut plus reprendre le compte fantôme fait pour elle (elle voit une erreur tant que c’est coupé). Les comptes fantômes existants restent."
         },
         "apiKeys": {
           "label": "Clés API",
