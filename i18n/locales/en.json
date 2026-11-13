@@ -1253,9 +1253,21 @@
           "label": "Mob drops",
           "description": "LNBits minted for the mobs players kill. With it off, mobs drop no money."
         },
+        "economy_quests": {
+          "label": "Quests",
+          "description": "Quests in the game and on the site: tiers, records, community goals and flash races. With it off, the server stops counting and nothing is paid."
+        },
         "jobs_economySnapshot": {
           "label": "Economy stats",
           "description": "The nightly save of the economy charts, and closing the bank accounts of deleted players."
+        },
+        "jobs_questsIndex": {
+          "label": "Quest index",
+          "description": "The nightly computation of the quest reward index."
+        },
+        "jobs_questsCommunity": {
+          "label": "Community quests",
+          "description": "Starting and paying community quests."
         },
         "push_partnerEvents": {
           "label": "Partner event notifications",
@@ -2205,7 +2217,8 @@
           "accountClosed": "Minted: closed accounts",
           "auctionTax": "Minted: auction tax",
           "casinoLicense": "Minted: casino licences",
-          "mobDrop": "Minted: mob drops"
+          "mobDrop": "Minted: mob drops",
+          "questReward": "Minted: quest rewards"
         },
         "burn": {
           "startingBalance": "Burned: starting balances",
@@ -2213,7 +2226,8 @@
           "accountClosed": "Burned: deleted players",
           "auctionTax": "Burned: auction house tax",
           "casinoLicense": "Burned: casino licences",
-          "mobDrop": "Burned: mob drops"
+          "mobDrop": "Burned: mob drops",
+          "questReward": "Burned: quest rewards"
         }
       },
       "volume": {
@@ -3021,6 +3035,7 @@
       "startingBalance": "Starting balance",
       "adjustment": "Adjustment from LNB",
       "mobDrop": "Dropped by mobs",
+      "questReward": "Quest reward",
       "casinoLicense": "Casino licence",
       "reversal": "Reversed by LNB",
       "reversed": "Reversed",

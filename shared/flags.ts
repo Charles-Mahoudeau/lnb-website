@@ -53,6 +53,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'economy.auctions', parent: 'economy' },
   { key: 'economy.casinoLicenses', parent: 'economy' },
   { key: 'economy.mobDrops', parent: 'economy' },
+  { key: 'economy.quests', parent: 'economy' },
   { key: 'push' },
   { key: 'push.subscribe', parent: 'push' },
   { key: 'push.newEvents', parent: 'push' },
@@ -71,6 +72,8 @@ export const FLAG_DEFINITIONS = [
   { key: 'jobs.pushPrune', parent: 'jobs' },
   { key: 'jobs.pruneApiKeys', parent: 'jobs' },
   { key: 'jobs.economySnapshot', parent: 'jobs' },
+  { key: 'jobs.questsIndex', parent: 'jobs' },
+  { key: 'jobs.questsCommunity', parent: 'jobs' },
 ] as const satisfies readonly FlagDefinition[];
 
 export type FlagKey = (typeof FLAG_DEFINITIONS)[number]['key'];
