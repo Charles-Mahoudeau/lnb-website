@@ -277,6 +277,11 @@ export const anticheatReportFileInput = z.object({
   version: text128.optional(),
   loader: text128.optional(),
   facts: anticheatFacts.optional().describe('Only read for resource packs.'),
+  nestedIn: anticheatSha512
+    .optional()
+    .describe(
+      'Set on a jar found inside another file of the report (jar-in-jar): the SHA-512 of that top-level file. A nested entry is not looked up, scored or linked to the player; the top-level file stands for it.',
+    ),
 });
 export type AnticheatReportFileInput = z.infer<typeof anticheatReportFileInput>;
 
@@ -289,7 +294,14 @@ export const anticheatReportBody = z.object({
     .max(ANTICHEAT_MAX_REPORT_FILES)
     .refine((files) => new Set(files.map((file) => file.sha512)).size === files.length, {
       message: 'duplicate sha512',
-    }),
+    })
+    .refine(
+      (files) => {
+        const topLevel = new Set(files.filter((file) => !file.nestedIn).map((file) => file.sha512));
+        return files.every((file) => !file.nestedIn || topLevel.has(file.nestedIn));
+      },
+      { message: 'nestedIn must be the sha512 of a file of the report that is not nested itself' },
+    ),
 });
 export type AnticheatReportBody = z.infer<typeof anticheatReportBody>;
 
