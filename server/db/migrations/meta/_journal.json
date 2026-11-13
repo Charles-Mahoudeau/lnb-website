@@ -253,6 +253,13 @@
       "when": 1794582238069,
       "tag": "0035_ghost-accounts",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1794612050393,
+      "tag": "0036_quests",
+      "breakpoints": true
     }
   ]
 }
