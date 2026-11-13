@@ -21,10 +21,31 @@ One mount on `.data` covers every storage below, and any storage added later, so
 | `.data/event-images`  | Event images, picked or uploaded, and crops | Event pages and the BDE push show broken images. Not recoverable except by picking again.  |
 | `.data/partner-logos` | Partner logos uploaded by admins            | Partners show without a logo until it is uploaded again.                                   |
 | `.data/mod-icons`     | Mod icons, downloaded when a mod is added   | Mods fall back to initials until the icon is fetched again.                                |
-| `.data/avatars`       | Profile photos fetched from Microsoft Graph | Initials show until the next sign-in of each account.                                      |
+| `.data/avatars`       | Profile photos fetched from Microsoft Graph | The wolf shows until the next sign-in of each account.                                     |
 | `.data/warden-heads`  | Cache of Minecraft skin heads from Crafatar | Nothing: it refills by itself. It is a cache, but kept so a deploy doesn't start it empty. |
 
 The database rows point at these files by key, so the volume and the PostgreSQL database have to be restored together. The VPS's daily backup is the only backup (no off-site copy), so check that it covers the Docker volumes' directory (`/var/lib/docker/volumes/`) as well as the database.
+
+## Backups
+
+The VPS's daily backup is the only scheduled backup. Take an extra one before a risky deploy, such as a migration that changes a table.
+
+In Coolify, with the database as a Coolify PostgreSQL resource:
+
+1. Open the project, then the PostgreSQL resource, then its **Backups** tab.
+2. **Backup Now** makes a dump straight away. The dumps are kept on the VPS (under `/data/coolify/backups/`), listed in the same tab, and can be downloaded from there.
+3. A scheduled backup (a cron expression and how many to keep) adds a second local copy. It sits on the same VPS, so it doesn't protect against losing the VPS. Storing it on S3-compatible storage would be an off-site copy, which goes against the no-off-site-backup decision: decide that on purpose.
+
+A manual dump over SSH on the VPS does the same:
+
+```sh
+docker ps | grep postgres   # the container name
+docker exec <container> pg_dump -U <user> -d <db> -Fc > lnb-$(date +%F).dump
+```
+
+Restore it with `pg_restore -U <user> -d <db> --clean lnb-<date>.dump`.
+
+A database dump doesn't include `.data` (see above), so copy the volume too when the backup is meant to restore the whole site.
 
 ## Health check
 
