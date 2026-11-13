@@ -152,13 +152,11 @@ const items = computed<NavigationMenuItem[][]>(() => [
           icon="i-lucide-arrow-left"
           :label="t('admin.backToSite')"
         />
-        <UUser
-          v-if="user"
-          :name="user.name"
-          :description="school"
-          :avatar="{ src: user.image ?? undefined, alt: user.name, ui: avatarTint(user.id) }"
-          class="px-2.5 py-1.5"
-        />
+        <UUser v-if="user" :name="user.name" :description="school" class="px-2.5 py-1.5">
+          <template #avatar>
+            <UserAvatar :user-id="user.id" :name="user.name" :image="user.image" />
+          </template>
+        </UUser>
       </template>
     </UDashboardSidebar>
 

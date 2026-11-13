@@ -206,7 +206,7 @@ async function onTransfer(userId: string, who: string) {
 
     <ul v-if="team.members" class="flex flex-col gap-2">
       <li v-for="member in team.members" :key="member.userId" class="flex items-center gap-3">
-        <UAvatar :src="member.image ?? undefined" :alt="member.name" size="sm" />
+        <UserAvatar :user-id="member.userId" :name="member.name" :image="member.image" size="sm" />
         <span class="min-w-0 flex-1 truncate text-default">{{ member.name }}</span>
         <UIcon
           v-if="member.captain"
@@ -248,7 +248,7 @@ async function onTransfer(userId: string, who: string) {
     >
       <ul v-if="team.requests?.length" class="flex flex-col gap-2">
         <li v-for="r in team.requests" :key="r.id" class="flex flex-wrap items-center gap-2">
-          <UAvatar :src="r.image ?? undefined" :alt="r.name" size="sm" />
+          <UserAvatar :user-id="r.userId" :name="r.name" :image="r.image" size="sm" />
           <span class="min-w-0 flex-1 truncate">
             {{ r.name }}
             <span class="text-sm text-muted">{{ t('events.teams.wantsToJoin') }}</span>
@@ -273,7 +273,7 @@ async function onTransfer(userId: string, who: string) {
       </ul>
       <ul v-if="team.invited?.length" class="flex flex-col gap-2">
         <li v-for="i in team.invited" :key="i.id" class="flex items-center gap-2">
-          <UAvatar :src="i.image ?? undefined" :alt="i.name" size="sm" />
+          <UserAvatar :user-id="i.userId" :name="i.name" :image="i.image" size="sm" />
           <span class="min-w-0 flex-1 truncate">
             {{ i.name }}
             <span class="text-sm text-muted">{{ t('events.teams.invitedWaiting') }}</span>

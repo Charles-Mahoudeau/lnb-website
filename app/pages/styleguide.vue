@@ -108,13 +108,16 @@ function onSampleVote(value: -1 | 0 | 1) {
   sampleMod.value = { ...mod, up, down, score: up - down, myVote: value };
 }
 
-// Example IDs, picked so each avatar gets a different tint.
+// Example IDs, user-1 to user-8, so each of the eight tints shows once.
 const people = [
   { id: 'user-1', name: 'Alex Laurent' },
   { id: 'user-6', name: 'Inès Moreau' },
   { id: 'user-2', name: 'Sam Nguyen' },
   { id: 'user-3', name: 'Léa Martin' },
   { id: 'user-5', name: 'Yanis Touré' },
+  { id: 'user-4', name: 'Chloé Dubois' },
+  { id: 'user-7', name: 'Malik Benali' },
+  { id: 'user-8', name: 'Zoé Garnier' },
 ];
 
 // Example partners: the logos are inline drawings, so the guide needs no stored files.
@@ -907,8 +910,9 @@ function showToast() {
       <h2 class="text-2xl font-bold">Icons and avatars</h2>
       <p class="max-w-2xl text-muted">
         Icons that introduce an item sit on a tile tinted with the second accent
-        (<code>IconTile</code>). Avatars without a photo get a tint per person from
-        <code>avatarTint</code>, so someone keeps the same color everywhere.
+        (<code>IconTile</code>). Avatars without a photo (<code>UserAvatar</code>) show the LNB wolf
+        on one of eight soft tints, picked from the account ID by <code>avatarTint</code>, so
+        someone keeps the same color everywhere. The wolf fills 80% of the avatar's height.
       </p>
       <div class="flex flex-wrap items-center gap-3">
         <IconTile icon="i-lucide-gamepad-2" />
@@ -917,11 +921,20 @@ function showToast() {
         <IconTile icon="i-lucide-puzzle" />
       </div>
       <div class="flex flex-wrap items-center gap-3">
-        <UAvatar
+        <UserAvatar
           v-for="person in people"
           :key="person.id"
-          :alt="person.name"
-          :ui="avatarTint(person.id)"
+          :user-id="person.id"
+          :name="person.name"
+        />
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <UserAvatar
+          v-for="size in ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '3xl'] as const"
+          :key="size"
+          user-id="user-1"
+          name="Alex Laurent"
+          :size="size"
         />
       </div>
     </section>

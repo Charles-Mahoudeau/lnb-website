@@ -85,14 +85,27 @@
   --color-plate: var(--lnb-plate);
 }
 
-/* Avatars without a photo: a soft tint per person, picked by avatarTint() in app/utils/avatar.ts.
-   No red, so a tint never reads as an action or an error. */
+/* Avatars without a photo: the LNB wolf on a soft tint per person, picked by avatarTint() in
+   app/utils/avatar.ts. Each of the eight hues has a fill and an ink (the wolf). Pale fill and deep
+   ink in light mode, deep fill and pale ink in dark mode. No red, so a tint never reads as an
+   action or an error. */
 @theme inline {
   --color-avatar-1: var(--lnb-avatar-1);
+  --color-avatar-ink-1: var(--lnb-avatar-ink-1);
   --color-avatar-2: var(--lnb-avatar-2);
+  --color-avatar-ink-2: var(--lnb-avatar-ink-2);
   --color-avatar-3: var(--lnb-avatar-3);
+  --color-avatar-ink-3: var(--lnb-avatar-ink-3);
   --color-avatar-4: var(--lnb-avatar-4);
+  --color-avatar-ink-4: var(--lnb-avatar-ink-4);
   --color-avatar-5: var(--lnb-avatar-5);
+  --color-avatar-ink-5: var(--lnb-avatar-ink-5);
+  --color-avatar-6: var(--lnb-avatar-6);
+  --color-avatar-ink-6: var(--lnb-avatar-ink-6);
+  --color-avatar-7: var(--lnb-avatar-7);
+  --color-avatar-ink-7: var(--lnb-avatar-ink-7);
+  --color-avatar-8: var(--lnb-avatar-8);
+  --color-avatar-ink-8: var(--lnb-avatar-ink-8);
 }
 
 :root {
@@ -106,11 +119,22 @@
   --lnb-action-hover: var(--color-crimson-800);
   --ui-secondary: var(--ui-color-secondary-700);
   --lnb-plate: #fff;
-  --lnb-avatar-1: var(--color-dusk-700);
-  --lnb-avatar-2: #3d5bd1;
-  --lnb-avatar-3: #13766b;
-  --lnb-avatar-4: #8a6210;
-  --lnb-avatar-5: #a03a9a;
+  --lnb-avatar-1: #ddd8f7;
+  --lnb-avatar-ink-1: #4a3f9c;
+  --lnb-avatar-2: #d3e3fb;
+  --lnb-avatar-ink-2: #2f58b8;
+  --lnb-avatar-3: #d0efe7;
+  --lnb-avatar-ink-3: #13766b;
+  --lnb-avatar-4: #f3e8c8;
+  --lnb-avatar-ink-4: #8a6210;
+  --lnb-avatar-5: #f1d6ee;
+  --lnb-avatar-ink-5: #9a3a93;
+  --lnb-avatar-6: #dfecca;
+  --lnb-avatar-ink-6: #47721a;
+  --lnb-avatar-7: #d2ebf1;
+  --lnb-avatar-ink-7: #1c7186;
+  --lnb-avatar-8: #f7e0cf;
+  --lnb-avatar-ink-8: #a5561f;
 
   --ui-bg: var(--ui-color-neutral-50);
   --ui-bg-muted: var(--ui-color-neutral-100);
@@ -139,11 +163,22 @@
   --lnb-action-hover: var(--color-crimson-700);
   --ui-secondary: var(--ui-color-secondary-400);
   --lnb-plate: var(--color-night-100);
-  --lnb-avatar-1: var(--color-dusk-400);
-  --lnb-avatar-2: #8fa8ff;
-  --lnb-avatar-3: #5ccfc0;
-  --lnb-avatar-4: #eec46a;
-  --lnb-avatar-5: #e59be0;
+  --lnb-avatar-1: #2f2a63;
+  --lnb-avatar-ink-1: #cfc8ff;
+  --lnb-avatar-2: #233a73;
+  --lnb-avatar-ink-2: #bcd3ff;
+  --lnb-avatar-3: #1a4d47;
+  --lnb-avatar-ink-3: #b4ede0;
+  --lnb-avatar-4: #5a4413;
+  --lnb-avatar-ink-4: #f2deaa;
+  --lnb-avatar-5: #5d2a59;
+  --lnb-avatar-ink-5: #f2c4ee;
+  --lnb-avatar-6: #34501b;
+  --lnb-avatar-ink-6: #d2e9b4;
+  --lnb-avatar-7: #1d4a58;
+  --lnb-avatar-ink-7: #b8e4ef;
+  --lnb-avatar-8: #633a1d;
+  --lnb-avatar-ink-8: #f6d2b8;
 
   --ui-bg: var(--ui-color-neutral-950);
   --ui-bg-muted: var(--ui-color-neutral-900);

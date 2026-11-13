@@ -113,7 +113,7 @@ function toggleBand(value: AnticheatPlayerBand) {
                 class="flex items-center gap-3 hover:underline"
                 :aria-label="`${t('admin.anticheat.playersPage.open')}: ${row.player.name}`"
               >
-                <UAvatar :alt="row.player.name" size="sm" :ui="avatarTint(row.player.userId)" />
+                <UserAvatar :user-id="row.player.userId" :name="row.player.name" size="sm" />
                 <span class="flex min-w-0 flex-col">
                   <span class="truncate font-semibold text-highlighted">{{ row.player.name }}</span>
                   <span v-if="row.player.username" class="truncate text-sm text-muted">

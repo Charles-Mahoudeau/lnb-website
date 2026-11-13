@@ -77,7 +77,7 @@ async function onInvite(player: EventPlayerOption) {
         />
         <ul v-if="results.length" class="flex flex-col gap-3">
           <li v-for="player in results" :key="player.userId" class="flex items-center gap-3">
-            <UAvatar :src="player.image ?? undefined" :alt="player.name" />
+            <UserAvatar :user-id="player.userId" :name="player.name" :image="player.image" />
             <div class="min-w-0 flex-1">
               <p class="truncate font-medium text-highlighted">{{ player.name }}</p>
               <p class="truncate text-sm text-muted">

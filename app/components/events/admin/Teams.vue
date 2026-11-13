@@ -231,7 +231,12 @@ const readOnly = computed(() => props.event.cancelledAt !== null);
           </header>
           <ul class="flex flex-col gap-2">
             <li v-for="member in team.members" :key="member.userId" class="flex items-center gap-3">
-              <UAvatar :src="member.image ?? undefined" :alt="member.name" size="sm" />
+              <UserAvatar
+                :user-id="member.userId"
+                :name="member.name"
+                :image="member.image"
+                size="sm"
+              />
               <div class="min-w-0 flex-1">
                 <p class="truncate">
                   {{ member.name }}
@@ -308,7 +313,12 @@ const readOnly = computed(() => props.event.cancelledAt !== null);
         </p>
         <ul v-else class="flex flex-col gap-3">
           <li v-for="player in data.without" :key="player.userId" class="flex items-center gap-3">
-            <UAvatar :src="player.image ?? undefined" :alt="player.name" size="sm" />
+            <UserAvatar
+              :user-id="player.userId"
+              :name="player.name"
+              :image="player.image"
+              size="sm"
+            />
             <div class="min-w-0 flex-1">
               <p class="truncate">{{ player.name }}</p>
               <p class="truncate text-sm text-muted">

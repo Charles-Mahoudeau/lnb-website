@@ -123,7 +123,7 @@ const count = computed(() => preview.value?.total ?? props.people.length);
               :key="person.userId"
               class="flex items-center gap-2 rounded-full bg-accented py-0.5 pr-3 pl-0.5 text-sm"
             >
-              <UAvatar :alt="person.name" size="2xs" :ui="avatarTint(person.userId)" />
+              <UserAvatar :user-id="person.userId" :name="person.name" size="2xs" />
               {{ person.name }}
             </span>
             <span v-if="more > 0" class="rounded-full bg-accented px-3 py-0.5 text-sm text-muted">

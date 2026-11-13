@@ -17,11 +17,11 @@ const { locale } = useI18n();
     </div>
     <ul class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
       <li v-for="member in pole.members" :key="member.id" class="flex min-w-0 flex-col gap-3">
-        <UAvatar
-          :src="member.image ?? undefined"
-          :alt="member.name"
-          :ui="avatarTint(member.id)"
-          class="size-16 text-xl"
+        <UserAvatar
+          :user-id="member.id"
+          :name="member.name"
+          :image="member.image"
+          class="size-16"
         />
         <div class="flex flex-col gap-0.5">
           <p class="font-display font-medium text-highlighted">{{ member.name }}</p>
