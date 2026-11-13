@@ -98,11 +98,10 @@ async function onSubmit() {
       >
         <UFormField :label="t('admin.team.member.account')" name="userId" required>
           <div v-if="props.member || picked" class="flex items-center gap-3">
-            <UAvatar
-              :src="(props.member?.image ?? picked?.image) || undefined"
-              :alt="props.member?.name ?? picked?.name"
-              :ui="avatarTint(state.userId)"
-              class="text-sm"
+            <UserAvatar
+              :user-id="state.userId"
+              :name="props.member?.name ?? picked?.name ?? ''"
+              :image="props.member?.image ?? picked?.image"
             />
             <div class="flex min-w-0 flex-col">
               <span class="font-semibold text-highlighted">
@@ -140,12 +139,11 @@ async function onSubmit() {
                   class="flex w-full items-center gap-3 rounded-sm px-2 py-1.5 text-left hover:bg-accented"
                   @click="pick(option)"
                 >
-                  <UAvatar
-                    :src="option.image ?? undefined"
-                    :alt="option.name"
+                  <UserAvatar
+                    :user-id="option.userId"
+                    :name="option.name"
+                    :image="option.image"
                     size="md"
-                    :ui="avatarTint(option.userId)"
-                    class="text-xs"
                   />
                   <span class="flex min-w-0 flex-col">
                     <span class="font-semibold text-highlighted">{{ option.name }}</span>

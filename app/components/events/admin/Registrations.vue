@@ -134,11 +134,11 @@ const counts = computed(() => {
       >
         <template #name-cell="{ row }">
           <div class="flex items-center gap-3">
-            <UAvatar
-              :src="row.original.image ?? undefined"
-              :alt="row.original.name"
+            <UserAvatar
+              :user-id="row.original.userId"
+              :name="row.original.name"
+              :image="row.original.image"
               size="sm"
-              :ui="avatarTint(row.original.userId)"
             />
             <div class="flex min-w-0 flex-col">
               <span class="font-semibold text-highlighted">{{ row.original.name }}</span>

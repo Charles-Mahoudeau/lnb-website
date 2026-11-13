@@ -266,7 +266,12 @@ const setRole = (team: PartnerTeamView, userId: string, role: PartnerTeamRole) =
             :key="player.userId"
             class="flex items-center gap-3 rounded-lg bg-elevated p-3"
           >
-            <UAvatar :src="player.image ?? undefined" :alt="player.name" size="sm" />
+            <UserAvatar
+              :user-id="player.userId"
+              :name="player.name"
+              :image="player.image"
+              size="sm"
+            />
             <div class="min-w-0 flex-1">
               <p class="truncate font-medium text-highlighted">{{ player.name }}</p>
               <p class="truncate text-sm text-muted">

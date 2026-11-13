@@ -89,24 +89,13 @@ const items = computed<DropdownMenuItem[][]>(() => [
       :aria-label="t('auth.accountMenu')"
       :ui="{ trailingIcon: 'size-4 text-muted' }"
     >
-      <UAvatar
-        :src="user.image ?? undefined"
-        :alt="user.name"
-        size="sm"
-        :ui="avatarTint(user.id)"
-      />
+      <UserAvatar :user-id="user.id" :name="user.name" :image="user.image" size="sm" />
       <span class="max-sm:hidden">{{ firstName }}</span>
     </UButton>
 
     <template #content-top>
       <div class="flex items-center gap-3 border-b border-default p-4">
-        <UAvatar
-          :src="user.image ?? undefined"
-          :alt="user.name"
-          size="xl"
-          :ui="avatarTint(user.id)"
-          class="text-base"
-        />
+        <UserAvatar :user-id="user.id" :name="user.name" :image="user.image" size="xl" />
         <div class="flex min-w-0 flex-col gap-0.5">
           <span class="truncate font-semibold text-highlighted">{{ user.name }}</span>
           <span class="truncate text-sm text-muted">{{ user.email }}</span>

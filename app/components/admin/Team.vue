@@ -191,12 +191,11 @@ function flags(member: TeamAdminMember): { key: string; label: string }[] {
           :key="member.userId"
           class="flex flex-wrap items-center gap-3 rounded-md bg-default px-3 py-2"
         >
-          <UAvatar
-            :src="member.image ?? undefined"
-            :alt="member.name"
+          <UserAvatar
+            :user-id="member.userId"
+            :name="member.name"
+            :image="member.image"
             size="lg"
-            :ui="avatarTint(member.userId)"
-            class="text-sm"
           />
           <div class="flex min-w-0 flex-1 flex-col">
             <div class="flex flex-wrap items-center gap-2">

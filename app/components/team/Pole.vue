@@ -18,13 +18,7 @@ const { locale } = useI18n();
     </p>
     <ul class="flex flex-col gap-3">
       <li v-for="member in pole.members" :key="member.id" class="flex items-center gap-3">
-        <UAvatar
-          :src="member.image ?? undefined"
-          :alt="member.name"
-          size="lg"
-          :ui="avatarTint(member.id)"
-          class="text-sm"
-        />
+        <UserAvatar :user-id="member.id" :name="member.name" :image="member.image" size="lg" />
         <div class="flex min-w-0 flex-col">
           <p class="truncate font-semibold text-highlighted">{{ member.name }}</p>
           <p class="truncate text-sm text-muted">{{ teamText(member.role, locale) }}</p>

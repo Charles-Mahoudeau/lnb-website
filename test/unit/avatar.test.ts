@@ -11,6 +11,13 @@ describe('avatarTint', () => {
     const tints = new Set(
       Array.from({ length: 50 }, (_, i) => avatarTint(`user-${String(i)}`).root),
     );
-    expect(tints.size).toBe(5);
+    expect(tints.size).toBe(8);
+  });
+
+  it('pairs each background with its own wolf color', () => {
+    for (let i = 0; i < 50; i++) {
+      const tint = avatarTint(`user-${String(i)}`);
+      expect(tint.wolf).toBe(tint.root.replace('bg-avatar-', 'text-avatar-ink-'));
+    }
   });
 });

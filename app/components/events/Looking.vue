@@ -43,7 +43,7 @@ async function onToggle(value: boolean) {
     </p>
     <ul v-if="shown.length" class="flex flex-col gap-2">
       <li v-for="player in shown" :key="player.userId" class="flex items-center gap-3">
-        <UAvatar :src="player.image ?? undefined" :alt="player.name" size="sm" />
+        <UserAvatar :user-id="player.userId" :name="player.name" :image="player.image" size="sm" />
         <span class="min-w-0 flex-1 truncate">{{ player.name }}</span>
       </li>
       <li v-if="more > 0" class="text-sm text-muted">

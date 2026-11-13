@@ -196,7 +196,7 @@ onMounted(() => {
           </div>
           <USeparator />
           <div v-if="user" class="flex items-center gap-3">
-            <UAvatar :src="user.image ?? undefined" :alt="user.name" :ui="avatarTint(user.id)" />
+            <UserAvatar :user-id="user.id" :name="user.name" :image="user.image" />
             <div class="flex min-w-0 flex-col">
               <span class="text-sm text-muted">{{ t('link.confirm.account') }}</span>
               <span class="truncate text-highlighted">

@@ -108,7 +108,7 @@ function memberMenu(member: PartnerTeamView['members'] extends (infer M)[] | nul
 
     <ul v-if="team.members" class="flex flex-col gap-3">
       <li v-for="member in team.members" :key="member.userId" class="flex items-center gap-3">
-        <UAvatar :src="member.image ?? undefined" :alt="member.name" size="sm" />
+        <UserAvatar :user-id="member.userId" :name="member.name" :image="member.image" size="sm" />
         <div class="min-w-0 flex-1">
           <p class="truncate font-medium text-highlighted">
             {{ member.name }}
@@ -155,7 +155,12 @@ function memberMenu(member: PartnerTeamView['members'] extends (infer M)[] | nul
         </h4>
         <ul class="flex flex-col gap-3">
           <li v-for="person in team.requests" :key="person.id" class="flex items-center gap-3">
-            <UAvatar :src="person.image ?? undefined" :alt="person.name" size="sm" />
+            <UserAvatar
+              :user-id="person.userId"
+              :name="person.name"
+              :image="person.image"
+              size="sm"
+            />
             <p class="min-w-0 flex-1 truncate text-sm">
               {{ [person.name, person.inGameName, person.rank].filter(Boolean).join(', ') }}
             </p>

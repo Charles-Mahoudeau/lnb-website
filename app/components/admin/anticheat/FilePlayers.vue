@@ -160,7 +160,7 @@ const day = (iso: string) => d(iso, { dateStyle: 'medium', timeZone: 'Europe/Par
             (on: boolean | 'indeterminate') => toggle(row.player.userId, on === true)
           "
         />
-        <UAvatar :alt="row.player.name" size="sm" :ui="avatarTint(row.player.userId)" />
+        <UserAvatar :user-id="row.player.userId" :name="row.player.name" size="sm" />
         <div class="min-w-0 grow">
           <NuxtLink
             :to="`/admin/warden/players/${row.player.userId}`"

@@ -40,13 +40,7 @@ const count = computed(() => {
         :key="person.id"
         class="-ms-2 rounded-full bg-accented ring-2 ring-accented"
       >
-        <UAvatar
-          :src="person.image ?? undefined"
-          :alt="person.name"
-          size="xl"
-          :ui="avatarTint(person.id)"
-          class="text-sm"
-        />
+        <UserAvatar :user-id="person.id" :name="person.name" :image="person.image" size="xl" />
       </span>
       <span
         v-if="moreAvatars > 0"

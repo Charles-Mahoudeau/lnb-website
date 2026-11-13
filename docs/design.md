@@ -41,7 +41,7 @@ Three custom palettes, wired into Nuxt UI as `neutral: 'night'`, `primary: 'crim
 - Destructive actions use `color="error" variant="outline"`, never solid, so they don't look like the main action.
 - Status colors (`success`, `warning`, `error`) are for state only: registered, waitlist, full. They're never decoration, and they don't count as accents.
 - No activity or category colors. Video games, IRL games and events are told apart by text, not by color.
-- Avatars without a photo get a soft tint picked from a fixed set (`avatarTint` in `app/utils/avatar.ts`) by a hash of the user's ID, so a person keeps the same color everywhere. The set has five hues (violet, blue, teal, gold, orchid) and no red, so it can't read as an action or an error.
+- Avatars without a photo show the LNB wolf (the cut-out of the logo, `logo_wolf_cutout.svg`) on a soft tint, through `UserAvatar`: use it wherever an account is shown, never a bare `UAvatar`. The tint is picked from a fixed set (`avatarTint` in `app/utils/avatar.ts`) by a hash of the account ID, not the email, so a person keeps the same color everywhere, even after a ghost account is claimed. The set has eight hues (lavender, sky, mint, sand, orchid, sage, ice, peach) and no red, so it can't read as an action or an error. Each hue has a fill and an ink (the wolf): a pale fill with a deep ink in light mode, a deep fill with a pale ink in dark mode (`--color-avatar-N` and `--color-avatar-ink-N` in `app/assets/css/main.css`). The wolf fills 80% of the avatar's height, centered, with nothing cropped. Chosen from the wolf avatar mock, variant A, palette 1.
 - No gradients as decoration. The only gradients allowed are the dark scrim that keeps text readable over a banner image, and the partner event promo (see Partner event promo).
 - Use semantic classes only: `bg-default`, `bg-elevated`, `bg-accented`, `text-default`, `text-muted`, `text-highlighted`, `border-default`, `text-primary`, `text-secondary`, `bg-action`. Raw palette classes (`bg-red-500`, `text-white`, `bg-night-900`), hex values and arbitrary values (`bg-[#…]`, `p-[13px]`) are blocked by ESLint.
 
@@ -89,7 +89,7 @@ Original mock (not code to port): [team page mocks](https://claude.ai/artifact/P
 
 - The featured pole (the bureau) is a raised band (`bg-elevated`, 12 px) with one column per person: a 64 px photo, the name in the display font, the role, a short bio and the school badge. Photos are 96 px, so don't show them larger.
 - The other poles are columns on the page background: the pole's `IconTile` and name, one line on what it does, then people as 36 px avatar, name and role. No cards around them.
-- Every photo is the account's profile photo, and an account without one gets its tinted initials like everywhere else.
+- Every photo is the account's profile photo, and an account without one gets its wolf on a tint like everywhere else.
 - "Join the team" is a raised band at the end with the one solid red button of the page. It shows only with a link set and its flag on.
 
 ## Partners page
