@@ -1220,6 +1220,22 @@
           "label": "Bandeau « Soutenir LNB »",
           "description": "Le bandeau « Vous voulez soutenir LNB ? » en bas de la page des partenaires. Le lien enregistré reste."
         },
+        "gamesplanet": {
+          "label": "Promotion Gamesplanet",
+          "description": "Toutes les offres et tous les liens d’affiliation Gamesplanet du site, et la lecture de leurs flux. Les admins peuvent toujours la gérer."
+        },
+        "gamesplanet_home": {
+          "label": "Carte Gamesplanet de l’accueil",
+          "description": "La carte d’offre partenaire dans la colonne latérale de l’accueil."
+        },
+        "gamesplanet_events": {
+          "label": "Carte Gamesplanet des événements",
+          "description": "La carte « Besoin du jeu ? » sur les pages d’événement. Les jeux choisis pour les événements restent."
+        },
+        "gamesplanet_footer": {
+          "label": "Ligne Gamesplanet du pied de page",
+          "description": "La ligne au-dessus des colonnes du pied de page. La mention d’affiliation de la ligne légale reste."
+        },
         "partnerEvents": {
           "label": "Pages d’événements partenaires",
           "description": "Les pages publiques des événements organisés par d’autres structures, comme Arena League Université, et leur API."
@@ -1239,6 +1255,18 @@
         "jobs_prunePartnerLogos": {
           "label": "Nettoyage des logos de partenaires",
           "description": "La suppression nocturne des logos qu’aucun partenaire n’utilise."
+        },
+        "jobs_gamesplanetCatalog": {
+          "label": "Lecture du catalogue Gamesplanet",
+          "description": "La lecture nocturne de tout le catalogue de Gamesplanet, pour les prix et les liens de n’importe quel jeu."
+        },
+        "jobs_gamesplanetDeals": {
+          "label": "Lecture des meilleures ventes Gamesplanet",
+          "description": "La lecture des meilleures ventes et des ventes flash de Gamesplanet toutes les 6 heures, et le téléchargement de leurs jaquettes."
+        },
+        "jobs_pruneGamesplanetCovers": {
+          "label": "Nettoyage des jaquettes Gamesplanet",
+          "description": "La suppression nocturne des jaquettes des jeux que le site n’affiche plus."
         },
         "shortLinks": {
           "label": "Liens courts",

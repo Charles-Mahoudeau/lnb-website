@@ -1216,6 +1216,22 @@
           "label": "Support LNB band",
           "description": "The “Want to support LNB?” band at the bottom of the partners page. The saved link stays."
         },
+        "gamesplanet": {
+          "label": "Gamesplanet promotion",
+          "description": "Every Gamesplanet deal and affiliate link on the site, and the reading of their feeds. Admins can still manage it."
+        },
+        "gamesplanet_home": {
+          "label": "Gamesplanet card on the home page",
+          "description": "The partner deal card in the side column of the home page."
+        },
+        "gamesplanet_events": {
+          "label": "Gamesplanet card on events",
+          "description": "The “Need the game?” card on event pages. The games chosen for events stay."
+        },
+        "gamesplanet_footer": {
+          "label": "Gamesplanet line in the footer",
+          "description": "The line above the footer columns. The affiliate notice in the legal line stays."
+        },
         "partnerEvents": {
           "label": "Partner event pages",
           "description": "The public pages for events other organizations run, such as Arena League Université, and their API."
@@ -1235,6 +1251,18 @@
         "jobs_prunePartnerLogos": {
           "label": "Pruning partner logos",
           "description": "The nightly removal of logos no partner uses."
+        },
+        "jobs_gamesplanetCatalog": {
+          "label": "Reading the Gamesplanet catalog",
+          "description": "The nightly read of Gamesplanet’s whole catalog, for prices and links of any game."
+        },
+        "jobs_gamesplanetDeals": {
+          "label": "Reading Gamesplanet best sellers",
+          "description": "The read of Gamesplanet’s best sellers and flash sales every 6 hours, and the download of their covers."
+        },
+        "jobs_pruneGamesplanetCovers": {
+          "label": "Pruning Gamesplanet covers",
+          "description": "The nightly removal of covers of games the site no longer shows."
         },
         "shortLinks": {
           "label": "Short links",
