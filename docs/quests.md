@@ -11,6 +11,8 @@ Quests give players LNBits for what they do on the Minecraft server. The server 
 | `community`  | Every contributor above a threshold, for each tier of the goal reached.       | When the quest ends, from the `quests:community` task.                          |
 | `flash`      | The first to reach a goal drawn at random. Started by the server.             | At once, when the server reports the winner. A race without a winner just ends. |
 
+A server quest can be **secret** (`hidden`): the page and the game show it as "???" until someone takes first place. The game also treats advancements it hides itself as secret.
+
 Individual, server and flash quests form the **catalogue** (`quest`, its definition as JSON checked by `questDefinition` in `shared/schemas/quests.ts`). Community quests have their own table.
 
 ## Rewards

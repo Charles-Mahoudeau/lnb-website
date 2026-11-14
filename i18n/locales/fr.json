@@ -3008,7 +3008,9 @@
         "created": "Quête créée",
         "delete": "Supprimer",
         "deleted": "Quête supprimée",
-        "badItems": "Les objets ne sont pas un JSON valide. Vérifie la liste, puis enregistre à nouveau."
+        "badItems": "Les objets ne sont pas un JSON valide. Vérifie la liste, puis enregistre à nouveau.",
+        "hidden": "Achievement secret",
+        "hiddenHelp": "Affiché « ??? » sur la page et dans le jeu jusqu'à ce que quelqu'un prenne la 1re place."
       },
       "community": {
         "lede": "Tout le serveur vise un objectif. À la fin, chaque joueur au-dessus du seuil est payé pour chaque palier atteint.",
@@ -4209,7 +4211,8 @@
         "2": "2e",
         "3": "3e",
         "4": "{n}e"
-      }
+      },
+      "secret": "Secret : révélé dès que quelqu'un prend la 1re place."
     },
     "community": {
       "label": "Quête communautaire",

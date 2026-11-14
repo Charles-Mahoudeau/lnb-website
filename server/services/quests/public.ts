@@ -168,7 +168,7 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
       .reverse()
       .map((row) => ({ day: row.day, index: row.index, kGlobal: row.kGlobal })),
     quests: catalog.map((quest) => ({
-      ...withoutSnbt(quest),
+      ...withoutSnbt(maskSecret(quest, podiums)),
       today:
         quest.family === 'individual'
           ? quest.tiers.map((tier) => reward(tier.reward, today.kGlobal, 1))
@@ -199,6 +199,21 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
       lnbits: Number(row.lnbits),
     })),
     me,
+  };
+}
+
+/**
+ * A secret server quest is "???" until someone takes first place: no name, description, icon or
+ * advancement, so the page can't give it away. Its rewards and podium places stay.
+ */
+function maskSecret(quest: QuestDefinition, podiums: Record<string, unknown[]>) {
+  if (quest.family !== 'server' || !quest.hidden || podiums[quest.id]?.length) return quest;
+  return {
+    ...quest,
+    name: { fr: '???', en: '???' },
+    description: undefined,
+    icon: 'minecraft:paper',
+    advancement: 'minecraft:hidden',
   };
 }
 
