@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { gamesplanetAdminGame, gamesplanetDeal } from './gamesplanet.ts';
 import { DEFAULT_REMINDER_OFFSETS, reminderOffsets } from './push.ts';
 import { teamSizeProblem } from '../utils/event-teams.ts';
 import { SCHOOLS } from '../utils/schools.ts';
@@ -15,6 +16,7 @@ const dateInput = z.iso.datetime({ offset: true });
 
 export const EVENT_PROBLEMS = [
   'notFound',
+  'gamesplanetGameNotFound',
   'roomNotFound',
   'typeNotFound',
   'duplicateName',
@@ -251,6 +253,14 @@ export const eventBody = z
     registrationOpensAt: dateInput.nullable().describe('Null: open from publication.'),
     registrationClosesAt: dateInput.nullable().describe('Null: open until the start.'),
     price: z.int().min(0).max(1000).nullable().describe('Whole euros, informational. Null: free.'),
+    gamesplanetUid: z
+      .string()
+      .regex(/^\d+-\d+$/)
+      .nullable()
+      .default(null)
+      .describe(
+        'A Gamesplanet game (its `uid`) shown on the page as a deal, until the event ends. Null: none.',
+      ),
     hidden: z.boolean().describe('A draft: only events managers see it.'),
     reminderOffsets: reminderOffsets
       .default(DEFAULT_REMINDER_OFFSETS)
@@ -363,6 +373,10 @@ export const eventAdminView = eventAdminRow.extend({
   registrationOpensAt: isoDate.nullable(),
   registrationClosesAt: isoDate.nullable(),
   price: z.number().nullable(),
+  gamesplanetUid: z.string().nullable(),
+  gamesplanet: gamesplanetAdminGame
+    .nullable()
+    .describe('The chosen Gamesplanet game. Null when none, or no longer in the catalog.'),
   reminderOffsets: z.array(z.number()),
   announcedAt: isoDate.nullable().describe('When the new-event notification was sent.'),
   bde: z.object({
@@ -445,6 +459,11 @@ export const eventView = eventSummary.extend({
   descriptionHtml: z.string().describe('The description, rendered. No raw HTML, no images.'),
   summary: z.string().describe('The start of the description as plain text, for meta tags.'),
   price: z.number().nullable(),
+  gamesplanet: gamesplanetDeal
+    .nullable()
+    .describe(
+      'A Gamesplanet deal for the game of the evening. Null without one, once the event is over or cancelled, and while the Gamesplanet flags are off.',
+    ),
   registrationOpensAt: isoDate.nullable(),
   registrationClosesAt: isoDate.nullable(),
   hidden: z.boolean().describe('A draft. Only events managers get one.'),

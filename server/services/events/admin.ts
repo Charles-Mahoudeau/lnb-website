@@ -2,8 +2,15 @@ import { and, asc, desc, eq, gte, isNull, lt } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import type { Tx } from '~~/server/db';
-import { event, eventRegistration, eventRoom, eventType } from '~~/server/db/schema';
+import {
+  event,
+  eventRegistration,
+  eventRoom,
+  eventType,
+  gamesplanetGame,
+} from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
+import { gamesplanetDealsService } from '~~/server/services/gamesplanet-deals';
 import { posterService } from '~~/server/services/posters';
 
 import { bdeSyncService } from './bde';
@@ -51,7 +58,7 @@ function adminRow(row: SelectedEvent): EventAdminRow {
   };
 }
 
-function adminView(row: SelectedEvent): EventAdminView {
+function adminView(row: SelectedEvent, gamesplanet: EventAdminView['gamesplanet']): EventAdminView {
   const e = row.event;
   return {
     ...adminRow(row),
@@ -72,6 +79,8 @@ function adminView(row: SelectedEvent): EventAdminView {
     registrationOpensAt: e.registrationOpensAt?.toISOString() ?? null,
     registrationClosesAt: e.registrationClosesAt?.toISOString() ?? null,
     price: e.price,
+    gamesplanetUid: e.gamesplanetUid,
+    gamesplanet,
     reminderOffsets: e.reminderOffsets,
     announcedAt: e.announcedAt?.toISOString() ?? null,
     bde: {
@@ -106,19 +115,30 @@ async function list(query: { tab: 'upcoming' | 'drafts' | 'past' }): Promise<Eve
 async function get(id: string): Promise<EventAdminView> {
   const [row] = await selectEvents().where(eq(event.id, id));
   if (!row) refuse(404, 'notFound');
-  return adminView(row);
+  const game = row.event.gamesplanetUid
+    ? await gamesplanetDealsService.dealByUid(row.event.gamesplanetUid)
+    : null;
+  return adminView(row, game);
 }
 
 /** The room and type an event points to must exist. Archived ones are refused on new choices. */
 async function checkChoices(
   tx: Tx,
-  body: { roomId: string; typeId: string },
+  body: { roomId: string; typeId: string; gamesplanetUid?: string | null },
   current?: EventRow,
 ): Promise<{ roomName: string }> {
   const [room] = await tx.select().from(eventRoom).where(eq(eventRoom.id, body.roomId));
   if (!room || (room.archivedAt && room.id !== current?.roomId)) refuse(400, 'roomNotFound');
   const [type] = await tx.select().from(eventType).where(eq(eventType.id, body.typeId));
   if (!type || (type.archivedAt && type.id !== current?.typeId)) refuse(400, 'typeNotFound');
+  // A game kept from before may have left the catalog since, so only a new choice is checked.
+  if (body.gamesplanetUid && body.gamesplanetUid !== current?.gamesplanetUid) {
+    const [game] = await tx
+      .select({ uid: gamesplanetGame.uid })
+      .from(gamesplanetGame)
+      .where(eq(gamesplanetGame.uid, body.gamesplanetUid));
+    if (!game) refuse(400, 'gamesplanetGameNotFound');
+  }
   return { roomName: room.name };
 }
 
@@ -170,6 +190,7 @@ function columns(body: EventBody) {
     registrationOpensAt: optionalDate(body.registrationOpensAt),
     registrationClosesAt: optionalDate(body.registrationClosesAt),
     price: body.price,
+    gamesplanetUid: body.gamesplanetUid ?? null,
     hidden: body.hidden,
     reminderOffsets: [...(body.reminderOffsets ?? DEFAULT_REMINDER_OFFSETS)].sort((a, b) => b - a),
     bdeSync: body.bdeSync,
@@ -317,6 +338,7 @@ async function duplicate(input: {
         registrationOpensAt: shiftDate(source.registrationOpensAt, source.startsAt, startsAt),
         registrationClosesAt: shiftDate(source.registrationClosesAt, source.startsAt, startsAt),
         price: source.price,
+        gamesplanetUid: source.gamesplanetUid,
         reminderOffsets: source.reminderOffsets,
         hidden: true,
         bannerKey: source.bannerKey,

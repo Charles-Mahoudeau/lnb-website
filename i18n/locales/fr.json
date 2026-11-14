@@ -1419,6 +1419,7 @@
         "failed": "Ça n’a pas marché. Vérifiez votre connexion, puis réessayez.",
         "notFound": "Cet événement n’existe plus. Rechargez la page.",
         "roomNotFound": "Cette salle n’existe plus, ou elle a été archivée. Choisissez-en une autre.",
+        "gamesplanetGameNotFound": "Ce jeu Gamesplanet n’est plus dans le catalogue. Choisissez-en un autre.",
         "typeNotFound": "Ce type d’événement n’existe plus, ou il a été archivé. Choisissez-en un autre.",
         "duplicateName": "Ce nom est déjà pris. Choisissez-en un autre, ou restaurez celui qui est archivé.",
         "hasRegistrations": "Des personnes sont inscrites à cet événement. Annulez-le plutôt, pour que sa page reste.",

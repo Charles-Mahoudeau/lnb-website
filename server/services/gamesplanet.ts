@@ -1,12 +1,12 @@
 import { createHash } from 'node:crypto';
 
-import { and, asc, eq, inArray, isNotNull, lt, notInArray, or, sql } from 'drizzle-orm';
+import { and, asc, eq, gt, inArray, isNotNull, lt, notInArray, or, sql } from 'drizzle-orm';
 import { useStorage } from 'nitropack/runtime';
 import sharp from 'sharp';
 
 import { db } from '~~/server/db';
 import type { Tx } from '~~/server/db';
-import { gamesplanetGame, gamesplanetPin, gamesplanetSetting } from '~~/server/db/schema';
+import { event, gamesplanetGame, gamesplanetPin, gamesplanetSetting } from '~~/server/db/schema';
 
 import { coverSourceUrl, isGamesplanetImageUrl, parseProducts } from '#shared/utils/gamesplanet';
 import type { GamesplanetProduct } from '#shared/utils/gamesplanet';
@@ -210,8 +210,8 @@ async function syncFlash(): Promise<{ games: number; unchanged: boolean }> {
 // Covers
 
 /**
- * The games whose covers we keep: the ones admins pinned, and the best sellers that France can
- * buy. Games attached to events join this list in a later step.
+ * The games whose covers we keep: the ones admins pinned, the best sellers that France can buy,
+ * and the games of events that aren't over.
  */
 async function coverUids(): Promise<string[]> {
   const pins = await db
@@ -224,7 +224,18 @@ async function coverUids(): Promise<string[]> {
     .where(and(isNotNull(gamesplanetGame.chartRank), eq(gamesplanetGame.availableInFrance, true)))
     .orderBy(asc(gamesplanetGame.chartRank))
     .limit(COVER_CHARTS);
-  return [...new Set([...pins.map((pin) => pin.uid), ...rows.map((row) => row.uid)])];
+  // The games attached to events that aren't over yet.
+  const events = await db
+    .selectDistinct({ uid: event.gamesplanetUid })
+    .from(event)
+    .where(and(isNotNull(event.gamesplanetUid), gt(event.endsAt, new Date())));
+  return [
+    ...new Set([
+      ...pins.map((pin) => pin.uid),
+      ...rows.map((row) => row.uid),
+      ...events.flatMap((row) => (row.uid ? [row.uid] : [])),
+    ]),
+  ];
 }
 
 /** Downloads one image from Gamesplanet and stores it as WebP under the SHA-256 of its bytes. */

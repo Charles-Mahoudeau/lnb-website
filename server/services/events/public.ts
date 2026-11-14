@@ -3,6 +3,8 @@ import { and, asc, desc, eq, gte, inArray, lt, sql } from 'drizzle-orm';
 import { db } from '~~/server/db';
 import { event, eventRegistration } from '~~/server/db/schema';
 import { siteUrl } from '~~/server/lib/site';
+import { flagService } from '~~/server/services/flags';
+import { gamesplanetDealsService } from '~~/server/services/gamesplanet-deals';
 
 import { descriptionSummary, descriptionText, renderDescription } from './markdown';
 import { eventRegistrationService } from './registrations';
@@ -86,6 +88,17 @@ async function find(id: string, canSeeDrafts: boolean): Promise<SelectedEvent> {
   return row;
 }
 
+/** The Gamesplanet deal of an event that isn't over or cancelled, while its flags are on. */
+async function gamesplanetDeal(e: typeof event.$inferSelect): Promise<EventView['gamesplanet']> {
+  if (!e.gamesplanetUid || e.cancelledAt || e.endsAt.getTime() <= Date.now()) return null;
+  const [all, events] = await Promise.all([
+    flagService.isEnabled('gamesplanet'),
+    flagService.isEnabled('gamesplanet.events'),
+  ]);
+  if (!all || !events) return null;
+  return gamesplanetDealsService.eventDeal(e.gamesplanetUid);
+}
+
 async function get(id: string, viewer: Viewer): Promise<EventView> {
   const row = await find(id, viewer.canSeeDrafts);
   const e = row.event;
@@ -96,6 +109,7 @@ async function get(id: string, viewer: Viewer): Promise<EventView> {
     descriptionHtml: renderDescription(e.description),
     summary: descriptionSummary(e.description),
     price: e.price,
+    gamesplanet: await gamesplanetDeal(e),
     registrationOpensAt: e.registrationOpensAt?.toISOString() ?? null,
     registrationClosesAt: e.registrationClosesAt?.toISOString() ?? null,
     hidden: e.hidden,

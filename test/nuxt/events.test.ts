@@ -39,6 +39,7 @@ function view(overrides: Partial<EventView> = {}): EventView {
     descriptionHtml: '<p>Two rounds.</p>',
     summary: 'Two rounds.',
     price: null,
+    gamesplanet: null,
     registrationOpensAt: null,
     registrationClosesAt: null,
     hidden: false,

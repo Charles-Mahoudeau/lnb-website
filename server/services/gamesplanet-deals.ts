@@ -12,12 +12,13 @@ import {
   GAMESPLANET_MAX_PINS,
   type GamesplanetAdminGame,
   type GamesplanetAdminView,
+  type GamesplanetDeal,
   type GamesplanetProblem,
   type GamesplanetPublicView,
   type GamesplanetSearchView,
   type GamesplanetSyncView,
 } from '#shared/schemas/gamesplanet';
-import { discountPercent, withRef } from '#shared/utils/gamesplanet';
+import { discountPercent, uidFromGameUrl, withRef } from '#shared/utils/gamesplanet';
 
 // The public and admin sides of the Gamesplanet promotion: which deals are shown, and the pins
 // and affiliate ref admins control. The feeds themselves are read by gamesplanet.ts.
@@ -57,6 +58,15 @@ function toGame(row: GameRow, ref: string, pinned: boolean, now: Date): Gamespla
   };
 }
 
+function publicDeal({
+  chartRank: _rank,
+  availableInFrance: _fr,
+  pegi: _pegi,
+  ...deal
+}: GamesplanetAdminGame): GamesplanetDeal {
+  return deal;
+}
+
 /** The pinned games, in order. A pinned game France can't buy is skipped. */
 async function pinnedRows(): Promise<GameRow[]> {
   const rows = await db
@@ -83,8 +93,21 @@ async function listPublic(now = new Date()): Promise<GamesplanetPublicView> {
     ...charts.filter((row) => !pinnedUids.has(row.uid)).map((row) => toGame(row, ref, false, now)),
   ]
     .slice(0, GAMESPLANET_DEALS_SHOWN)
-    .map(({ chartRank: _rank, availableInFrance: _fr, pegi: _pegi, ...deal }) => deal);
+    .map(publicDeal);
   return { deals, siteUrl: withRef(SITE_URL, ref) };
+}
+
+/** One game as a deal, or null when it isn't in the catalog. */
+async function dealByUid(uid: string, now = new Date()): Promise<GamesplanetAdminGame | null> {
+  const [row] = await db.select().from(gamesplanetGame).where(eq(gamesplanetGame.uid, uid));
+  if (!row) return null;
+  return toGame(row, await gamesplanetService.refCode(), false, now);
+}
+
+/** The deal on an event's page, or null when the game left the catalog. */
+async function eventDeal(uid: string, now = new Date()): Promise<GamesplanetDeal | null> {
+  const game = await dealByUid(uid, now);
+  return game ? publicDeal(game) : null;
 }
 
 async function getCover(key: string): Promise<Buffer | null> {
@@ -144,9 +167,43 @@ async function setRefCode(input: { actorId: string; refCode: string }): Promise<
   });
 }
 
-/** Games whose name contains the text, best sellers first. */
+/** The uid or Steam id a pasted link names, or null when the text isn't such a link. */
+function linkTarget(text: string): { uid: string } | { steamId: string } | null {
+  if (!/^https?:\/\//i.test(text)) return null;
+  const uid = uidFromGameUrl(text);
+  if (uid) return { uid };
+  try {
+    const url = new URL(text);
+    const steamId = /^\/app\/(\d+)/.exec(url.pathname)?.[1];
+    if (url.hostname === 'store.steampowered.com' && steamId) return { steamId };
+  } catch {
+    // Not a link after all.
+  }
+  return null;
+}
+
+/**
+ * Games to choose from: a pasted Gamesplanet or Steam link finds that game, and any other text
+ * finds the games whose name contains it, best sellers first.
+ */
 async function search(query: string, now = new Date()): Promise<GamesplanetSearchView> {
   const ref = await gamesplanetService.refCode();
+  const target = linkTarget(query);
+  if (target || /^https?:\/\//i.test(query)) {
+    const rows = target
+      ? await db
+          .select()
+          .from(gamesplanetGame)
+          .where(
+            'uid' in target
+              ? eq(gamesplanetGame.uid, target.uid)
+              : eq(gamesplanetGame.steamId, target.steamId),
+          )
+          .limit(SEARCH_LIMIT)
+      : [];
+    const pinned = new Set((await pinnedRows()).map((row) => row.uid));
+    return { games: rows.map((row) => toGame(row, ref, pinned.has(row.uid), now)) };
+  }
   const escaped = query.replace(/[\\%_]/g, (char) => `\\${char}`);
   const rows = await db
     .select()
@@ -255,6 +312,8 @@ async function syncNow(input: {
 
 export const gamesplanetDealsService = {
   listPublic,
+  dealByUid,
+  eventDeal,
   getCover,
   listAdmin,
   setRefCode,

@@ -252,6 +252,7 @@ function sampleView(registration: EventView['registration'], overrides: Partial<
     descriptionHtml: '<p>Two rounds of <strong>Werewolf</strong>, then Among Us.</p>',
     summary: 'Two rounds of Werewolf, then Among Us.',
     price: null,
+    gamesplanet: null,
     registrationOpensAt: null,
     registrationClosesAt: null,
     hidden: false,
@@ -316,6 +317,8 @@ function sampleAdmin(overrides: Partial<EventAdminView>): EventAdminView {
     registrationOpensAt: null,
     registrationClosesAt: null,
     price: null,
+    gamesplanetUid: null,
+    gamesplanet: null,
     reminderOffsets: [60],
     announcedAt: null,
     bde: {

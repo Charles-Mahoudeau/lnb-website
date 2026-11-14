@@ -39,6 +39,7 @@ const event: EventView = {
   descriptionHtml: '',
   summary: '',
   price: null,
+  gamesplanet: null,
   registrationOpensAt: null,
   registrationClosesAt: null,
   hidden: false,

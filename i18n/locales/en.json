@@ -1415,6 +1415,7 @@
         "failed": "That didn’t work. Check your connection, then try again.",
         "notFound": "This event doesn’t exist anymore. Reload the page.",
         "roomNotFound": "This room doesn’t exist anymore, or it was archived. Pick another one.",
+        "gamesplanetGameNotFound": "This Gamesplanet game isn’t in the catalog anymore. Pick another one.",
         "typeNotFound": "This event type doesn’t exist anymore, or it was archived. Pick another one.",
         "duplicateName": "That name is already taken. Pick another one, or restore the archived one.",
         "hasRegistrations": "People registered to this event. Cancel it instead, so its page stays.",
