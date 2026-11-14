@@ -31,7 +31,8 @@ An `ETag` of each feed is kept in `gamesplanet_setting`, and sent back as `If-No
 ## Data
 
 - `gamesplanet_game` (`server/db/schema/gamesplanet.ts`): one compact row per game, with no description. Its link is stored without a query string. `chart_rank` is the place in the best sellers, `flash_ends_at` the end of a flash price (a game not in flash has none), and `teaser_key` and `packshot_key` name our copies of its covers.
-- `gamesplanet_setting`: one row (id 1) with the affiliate `ref_code` (default `teknantes`) and the feeds' ETags.
+- `gamesplanet_setting`: one row (id 1) with the affiliate `ref_code` (default `teknantes`), the feeds' ETags and the last time the deals and the catalog were read.
+- `gamesplanet_pin`: the games admins put first, in order. At most three, and removed with their game.
 
 Links are built when shown, with `withRef(url, ref)`. The ref is never stored in a link.
 
@@ -41,7 +42,7 @@ The covers of the games the site shows are downloaded by the server (`gamesplane
 
 - Only `https` images on `gamesplanet.com` and `gpstatic.com` hosts are fetched, with no redirects, a 15 second timeout and a 3 MB cap.
 - A cover that fails is logged and tried again at the next read. When a game's source image changes, our copy is dropped and downloaded again.
-- Covers are kept for the 8 first best sellers France can buy. `gamesplanet:prune-covers` (every night) forgets the covers of other games, then deletes the files nothing uses, after a day.
+- Covers are kept for the pinned games and the 8 first best sellers France can buy. `gamesplanet:prune-covers` (every night) forgets the covers of other games, then deletes the files nothing uses, after a day.
 
 ## Scheduled tasks
 
@@ -55,6 +56,12 @@ The covers of the games the site shows are downloaded by the server (`gamesplane
 
 `gamesplanet` switches everything off, including the reading of the feeds. Its parts, `gamesplanet.home`, `gamesplanet.events` and `gamesplanet.footer`, switch off one placement. Each task also has a `jobs.*` flag (`gamesplanetCatalog`, `gamesplanetDeals`, `pruneGamesplanetCovers`). See `docs/feature-flags.md`.
 
+## Public side and admin
+
+- `GET /api/gamesplanet` (flag `gamesplanet`) returns up to three deals: pinned games first, then the best sellers France can buy, with the ref on every link. The price is shown with a discount only when it is below the regular one, and the end date only for a flash price still running. `GET /api/gamesplanet/covers/:key` serves our copies, cached for a year.
+- The partners page (`/partners`) shows the band (`PartnersGamesplanet`) above the kinds while the flag is on and deals exist. Its badge (`GamesplanetBadge`) opens the disclosure bubble.
+- `/admin/gamesplanet` (full admins) sets the ref, pins and orders games (found by name in the catalog), previews the best sellers and reads a feed now. Changes are in the audit log.
+
 ## Still to come
 
-The partners band and its public API, the admin section (ref code, pinned games, a "Sync now" button, click counts), the home card, the Gamesplanet link on events, the click route and its anonymous daily counts, and the footer row.
+The home card, the Gamesplanet link on events, the click route and its anonymous daily counts, and the footer row.

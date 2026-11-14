@@ -37,3 +37,5 @@ All routes are in the API reference (`/api/docs`): `GET /api/partners`, `GET /ap
 ## Links
 
 The page is linked from the footer ("The site" column), not from the header or the home page.
+
+The Gamesplanet band at the top of the page is described in `docs/gamesplanet.md`.
