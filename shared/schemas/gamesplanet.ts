@@ -17,7 +17,16 @@ export const GAMESPLANET_MAX_PINS = 3;
 /** How many deals the partners band and the home card show. */
 export const GAMESPLANET_DEALS_SHOWN = 3;
 
+/** Where a link to Gamesplanet is shown. Clicks are counted per placement. */
+export const GAMESPLANET_PLACEMENTS = ['partners', 'home', 'event', 'footer'] as const;
+export type GamesplanetPlacement = (typeof GAMESPLANET_PLACEMENTS)[number];
+
 const UID = /^\d+-\d+$/;
+
+/** `/go/gp/:uid` takes a game's uid, or `site` for Gamesplanet's home page. */
+export const gamesplanetGoParams = z.object({ uid: z.string().regex(/^(\d+-\d+|site)$/) });
+export const gamesplanetGoQuery = z.object({ from: z.enum(GAMESPLANET_PLACEMENTS) });
+
 export const gamesplanetUidParams = z.object({ uid: z.string().regex(UID) });
 export const gamesplanetCoverParams = z.object({ key: z.string().regex(/^[0-9a-f]{64}\.webp$/) });
 
@@ -74,6 +83,16 @@ export const gamesplanetAdminView = z.object({
     covers: z.number().int().describe('Games with a stored cover.'),
     catalogSyncedAt: z.string().nullable(),
     dealsSyncedAt: z.string().nullable(),
+  }),
+  clicks: z.object({
+    days: z.number().int().describe('The period counted, in days.'),
+    total: z.number().int(),
+    byPlacement: z.array(
+      z.object({ placement: z.enum(GAMESPLANET_PLACEMENTS), count: z.number().int() }),
+    ),
+    topGames: z
+      .array(z.object({ uid: z.string(), name: z.string().nullable(), count: z.number().int() }))
+      .describe('The most clicked games. A link to the home page is not a game.'),
   }),
 });
 export type GamesplanetAdminView = z.infer<typeof gamesplanetAdminView>;

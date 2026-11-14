@@ -1075,6 +1075,7 @@ const sampleGamesplanet = {
       </div>
       <div class="max-w-xl rounded-lg bg-elevated p-5">
         <GamesplanetDeal
+          from="partners"
           :deal="{
             uid: '1-1',
             name: 'Example game',

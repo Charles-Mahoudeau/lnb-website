@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '~~/server/db';
 import {
   adminAudit,
+  gamesplanetClick,
   gamesplanetGame,
   gamesplanetPin,
   gamesplanetSetting,
@@ -40,6 +41,7 @@ async function problemOf(run: Promise<unknown>): Promise<string | undefined> {
 
 beforeEach(async () => {
   await db.delete(adminAudit);
+  await db.delete(gamesplanetClick);
   await db.delete(gamesplanetPin);
   await db.delete(gamesplanetGame);
   await db.delete(gamesplanetSetting);
@@ -168,5 +170,46 @@ describe('search', () => {
       '3-1',
     ]);
     expect((await gamesplanetDealsService.search('_p')).games).toHaveLength(0);
+  });
+});
+
+describe('clicks', () => {
+  it('redirects to the game with the ref and counts by day, placement and game', async () => {
+    await game('1-1');
+    const now = new Date('2026-11-14T12:00:00Z');
+    const to = 'https://fr.gamesplanet.com/game/game-1-1--1-1?ref=teknantes';
+    expect(await gamesplanetDealsService.follow({ uid: '1-1', from: 'home', now })).toBe(to);
+    await gamesplanetDealsService.follow({ uid: '1-1', from: 'home', now });
+    await gamesplanetDealsService.follow({ uid: '1-1', from: 'event', now });
+    expect(await gamesplanetDealsService.follow({ uid: 'site', from: 'footer', now })).toBe(
+      'https://fr.gamesplanet.com/?ref=teknantes',
+    );
+    const rows = await db.select().from(gamesplanetClick);
+    expect(rows.map((r) => [r.day, r.placement, r.uid, r.count]).sort()).toEqual([
+      ['2026-11-14', 'event', '1-1', 1],
+      ['2026-11-14', 'footer', 'site', 1],
+      ['2026-11-14', 'home', '1-1', 2],
+    ]);
+    const { clicks } = await gamesplanetDealsService.listAdmin(now);
+    expect(clicks.total).toBe(4);
+    expect(clicks.byPlacement.find((r) => r.placement === 'home')?.count).toBe(2);
+    expect(clicks.topGames).toEqual([{ uid: '1-1', name: 'Game 1-1', count: 3 }]);
+  });
+
+  it('refuses a game that is not in the catalog and counts nothing without a placement', async () => {
+    await game('1-1');
+    expect(await gamesplanetDealsService.follow({ uid: '0-0', from: 'home' })).toBeNull();
+    expect(await gamesplanetDealsService.follow({ uid: '1-1', from: null })).toContain('ref=');
+    expect(await db.select().from(gamesplanetClick)).toHaveLength(0);
+  });
+
+  it('deletes counts older than about a year', async () => {
+    const now = new Date('2026-11-14T12:00:00Z');
+    await db.insert(gamesplanetClick).values([
+      { day: '2025-01-01', placement: 'home', uid: 'site', count: 3 },
+      { day: '2026-11-01', placement: 'home', uid: 'site', count: 3 },
+    ]);
+    expect(await gamesplanetDealsService.pruneClicks(now)).toBe(1);
+    expect(await db.select().from(gamesplanetClick)).toHaveLength(1);
   });
 });

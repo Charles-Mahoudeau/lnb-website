@@ -226,6 +226,39 @@ function when(iso: string | null): string {
     </section>
 
     <section class="flex flex-col gap-3 rounded-lg bg-elevated p-5">
+      <h2 class="text-xl font-bold text-highlighted">{{ t('admin.gamesplanet.clicks.title') }}</h2>
+      <p class="text-sm text-muted">
+        {{ t('admin.gamesplanet.clicks.help', { days: data.clicks.days }) }}
+      </p>
+      <p class="font-display text-2xl text-highlighted tabular-nums">{{ data.clicks.total }}</p>
+      <dl class="flex flex-col gap-1 text-sm">
+        <div
+          v-for="row in data.clicks.byPlacement"
+          :key="row.placement"
+          class="flex justify-between gap-6"
+        >
+          <dt class="text-muted">
+            {{ t(`admin.gamesplanet.clicks.placements.${row.placement}`) }}
+          </dt>
+          <dd class="text-default tabular-nums">{{ row.count }}</dd>
+        </div>
+      </dl>
+      <template v-if="data.clicks.topGames.length">
+        <h3 class="pt-2 font-semibold text-highlighted">{{ t('admin.gamesplanet.clicks.top') }}</h3>
+        <ol class="flex flex-col gap-1 text-sm">
+          <li
+            v-for="game in data.clicks.topGames"
+            :key="game.uid"
+            class="flex justify-between gap-6"
+          >
+            <span class="min-w-0 truncate text-default">{{ game.name ?? game.uid }}</span>
+            <span class="text-muted tabular-nums">{{ game.count }}</span>
+          </li>
+        </ol>
+      </template>
+    </section>
+
+    <section class="flex flex-col gap-3 rounded-lg bg-elevated p-5">
       <h2 class="text-xl font-bold text-highlighted">{{ t('admin.gamesplanet.feeds.title') }}</h2>
       <dl class="flex flex-col gap-1 text-sm">
         <div class="flex flex-wrap justify-between gap-x-6">

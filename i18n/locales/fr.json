@@ -3230,6 +3230,17 @@
         "tooManyPins": "Trois jeux sont déjà épinglés. Désépinglez-en un d’abord.",
         "pinNotFound": "Ce jeu n’est pas épinglé.",
         "syncFailed": "Gamesplanet n’a pas répondu correctement. Les dernières données sont conservées ; réessayez plus tard."
+      },
+      "clicks": {
+        "title": "Clics",
+        "help": "Clics sur les liens Gamesplanet ces {days} derniers jours. Seuls le jour, l’endroit et le jeu sont conservés : ni compte, ni adresse IP, ni appareil.",
+        "top": "Jeux les plus cliqués",
+        "placements": {
+          "partners": "Page des partenaires",
+          "home": "Carte de l’accueil",
+          "event": "Pages d’événement",
+          "footer": "Pied de page"
+        }
       }
     }
   },
@@ -4407,6 +4418,11 @@
       "title": "Besoin du jeu pour cette soirée ?",
       "lede": "Achetez-le avant le début de la soirée. Chaque achat aide à financer nos événements.",
       "button": "Acheter sur Gamesplanet"
+    },
+    "footer": {
+      "line": "Vous achetez des jeux ? Passez par notre lien Gamesplanet et aidez à financer les événements de LNB.",
+      "button": "Aller sur Gamesplanet",
+      "notice": "Certains liens de ce site sont des liens d’affiliation : LNB touche une petite commission sur les achats, sans frais en plus pour vous. Les clics sur ces liens sont comptés de façon anonyme, sans rien noter sur la personne qui clique."
     }
   }
 }

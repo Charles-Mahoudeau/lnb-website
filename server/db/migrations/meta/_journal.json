@@ -281,6 +281,13 @@
       "when": 1794660987430,
       "tag": "0039_event-gamesplanet",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1794664849071,
+      "tag": "0040_gamesplanet-clicks",
+      "breakpoints": true
     }
   ]
 }

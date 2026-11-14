@@ -3226,6 +3226,17 @@
         "tooManyPins": "Three games are already pinned. Unpin one first.",
         "pinNotFound": "This game is not pinned.",
         "syncFailed": "Gamesplanet didn’t answer correctly. The last data is kept; try again later."
+      },
+      "clicks": {
+        "title": "Clicks",
+        "help": "Clicks on Gamesplanet links over the last {days} days. Only the day, the place and the game are kept: no account, IP address or device.",
+        "top": "Most clicked games",
+        "placements": {
+          "partners": "Partners page",
+          "home": "Home card",
+          "event": "Event pages",
+          "footer": "Footer"
+        }
       }
     }
   },
@@ -4403,6 +4414,11 @@
       "title": "Need the game for this evening?",
       "lede": "Buy it before the evening starts. Each purchase helps fund our events.",
       "button": "Buy on Gamesplanet"
+    },
+    "footer": {
+      "line": "Buying games? Use our Gamesplanet link and help fund LNB events.",
+      "button": "Visit Gamesplanet",
+      "notice": "Some links on this site are affiliate links: LNB earns a small commission on purchases, at no extra cost to you. Clicks on them are counted anonymously, with nothing about who clicked."
     }
   }
 }
