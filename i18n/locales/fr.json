@@ -616,7 +616,8 @@
       "anticheatReview": "À examiner",
       "anticheatPlayers": "Joueurs",
       "anticheatSettings": "Réglages",
-      "economyQuests": "Quêtes"
+      "economyQuests": "Quêtes",
+      "gamesplanet": "Gamesplanet"
     },
     "cancel": "Annuler",
     "roles": {
@@ -3161,6 +3162,62 @@
         "idTaken": "Une quête a déjà cet identifiant.",
         "questInUse": "Des joueurs ont déjà fait cette quête : désactive-la plutôt."
       }
+    },
+    "gamesplanet": {
+      "title": "Gamesplanet",
+      "note": "Gamesplanet est un partenaire d’affiliation. Les offres de la page des partenaires viennent de ses flux publics, lus automatiquement.",
+      "flagOff": "Le drapeau Gamesplanet est désactivé : la page publique n’affiche rien. Activez-le dans les drapeaux de fonctionnalité.",
+      "never": "Jamais",
+      "notInFrance": "non vendu en France",
+      "ref": {
+        "title": "Code d’affiliation",
+        "help": "Ajouté à chaque lien vers Gamesplanet. Ne le changez que si Gamesplanet vous en a donné un nouveau.",
+        "label": "Code",
+        "invalid": "Utilisez 2 à 40 lettres, chiffres, - ou _.",
+        "save": "Enregistrer le code",
+        "saved": "Code enregistré"
+      },
+      "pins": {
+        "title": "Jeux épinglés",
+        "help": "Les jeux épinglés passent en premier sur la page des partenaires, dans cet ordre. {max} au maximum. Les meilleures ventes complètent.",
+        "empty": "Aucun jeu n’est épinglé. Les meilleures ventes s’affichent.",
+        "moveUp": "Monter {name}",
+        "moveDown": "Descendre {name}",
+        "unpin": "Désépingler",
+        "unpinned": "Jeu désépinglé",
+        "search": "Trouver un jeu à épingler",
+        "searchButton": "Chercher",
+        "noResult": "Aucun jeu avec ce nom.",
+        "pin": "Épingler",
+        "pinned": "Épinglé",
+        "pinnedDone": "Jeu épinglé"
+      },
+      "charts": {
+        "title": "Meilleures ventes",
+        "help": "Les dix premières, dans l’ordre de Gamesplanet. La page affiche les premières que la France peut acheter."
+      },
+      "feeds": {
+        "title": "Flux",
+        "games": "Jeux dans le catalogue",
+        "charts": "Jeux dans les meilleures ventes",
+        "covers": "Jaquettes enregistrées",
+        "dealsAt": "Offres lues le",
+        "catalogAt": "Catalogue lu le",
+        "syncDeals": "Lire les offres maintenant",
+        "syncCatalog": "Lire le catalogue maintenant"
+      },
+      "sync": {
+        "done": "Flux lu"
+      },
+      "errors": {
+        "failed": "La requête a échoué. Réessayez.",
+        "gameNotFound": "Ce jeu n’est pas dans le catalogue.",
+        "notSoldInFrance": "La France ne peut pas acheter ce jeu : impossible de l’épingler.",
+        "alreadyPinned": "Ce jeu est déjà épinglé.",
+        "tooManyPins": "Trois jeux sont déjà épinglés. Désépinglez-en un d’abord.",
+        "pinNotFound": "Ce jeu n’est pas épinglé.",
+        "syncFailed": "Gamesplanet n’a pas répondu correctement. Les dernières données sont conservées ; réessayez plus tard."
+      }
     }
   },
   "wardenAdmin": {
@@ -3728,6 +3785,17 @@
       "title": "Vous voulez soutenir LNB ?",
       "lede": "Dites-nous ce que vous pouvez offrir et nous trouverons la meilleure façon de faire : lots, repas, matériel ou clés de jeux.",
       "button": "Nous contacter"
+    },
+    "gamesplanet": {
+      "newPartner": "Nouveau partenaire",
+      "title": "Achetez vos jeux moins cher. Financez nos événements.",
+      "lede": "Gamesplanet vend des clés de jeux PC. Quand vous achetez via nos liens, LNB touche une petite commission qui aide à financer nos événements.",
+      "checks": {
+        "keys": "Des clés de jeux pour Steam et d’autres lanceurs",
+        "sameprice": "Le prix est le même avec notre lien",
+        "events": "Chaque achat aide à financer les événements de LNB"
+      },
+      "browse": "Voir toutes les offres Gamesplanet"
     }
   },
   "shortLink": {
@@ -4307,5 +4375,14 @@
       "alreadyClaimed": "Cette récompense a déjà été réclamée.",
       "frozen": "Ton compte est gelé : rien ne peut y être versé."
     }
+  },
+  "gamesplanet": {
+    "affiliateLink": "Lien d’affiliation",
+    "partnerDeal": "Offre partenaire",
+    "bubble": "LNB touche une petite commission quand vous achetez via ce lien, sans frais en plus pour vous. Les prix viennent de Gamesplanet et peuvent changer.",
+    "until": "Jusqu’au {date}",
+    "regularPrice": "Prix habituel",
+    "nowPrice": "Prix actuel",
+    "opensNew": "(ouvre Gamesplanet dans un nouvel onglet)"
   }
 }

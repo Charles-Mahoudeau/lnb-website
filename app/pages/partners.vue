@@ -6,6 +6,13 @@ const { t } = useI18n();
 useSeoMeta({ title: () => t('partners.title'), description: () => t('partners.lede') });
 
 const { data } = await usePublicPartners();
+
+// The Gamesplanet band shows only while its flag is on and the deals have loaded.
+const { isEnabled } = useFlags();
+const { data: gamesplanet } = await usePublicGamesplanet();
+const showGamesplanet = computed(
+  () => isEnabled('gamesplanet') && !!gamesplanet.value?.deals.length,
+);
 </script>
 
 <template>
@@ -14,6 +21,8 @@ const { data } = await usePublicPartners();
       <h1 class="text-4xl font-bold text-highlighted">{{ t('partners.title') }}</h1>
       <p class="max-w-prose text-muted">{{ t('partners.lede') }}</p>
     </div>
+
+    <PartnersGamesplanet v-if="showGamesplanet && gamesplanet" :data="gamesplanet" />
 
     <p v-if="!data?.kinds.length" class="rounded-lg bg-elevated p-6 text-muted">
       {{ t('partners.empty') }}
@@ -33,6 +42,8 @@ const { data } = await usePublicPartners();
         :target="data.contactUrl.startsWith('https:') ? '_blank' : undefined"
         external
         size="lg"
+        :color="showGamesplanet ? 'neutral' : undefined"
+        :variant="showGamesplanet ? 'soft' : undefined"
         :label="t('partners.contact.button')"
       />
     </section>

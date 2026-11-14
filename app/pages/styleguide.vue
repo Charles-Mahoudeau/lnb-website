@@ -1043,6 +1043,31 @@ function showToast() {
     </section>
 
     <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Gamesplanet</h2>
+      <div class="flex flex-wrap gap-3">
+        <GamesplanetBadge />
+        <GamesplanetBadge variant="deal" />
+      </div>
+      <div class="max-w-xl rounded-lg bg-elevated p-5">
+        <GamesplanetDeal
+          :deal="{
+            uid: '1-1',
+            name: 'Example game',
+            publisher: null,
+            url: 'https://fr.gamesplanet.com/',
+            priceCents: 599,
+            basePriceCents: 1199,
+            discountPercent: 50,
+            endsAt: '2027-01-05T12:00:00.000Z',
+            cover: null,
+            packshot: null,
+            pinned: false,
+          }"
+        />
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
       <h2 class="text-2xl font-bold">Table</h2>
       <UTable :data="registrations" :columns="columns" class="tabular-nums">
         <template #status-cell="{ row }">
