@@ -63,6 +63,11 @@ export type AdminAuditAction =
   | 'partner.delete'
   /** The partners page settings, with `data.contactUrl`. */
   | 'partners.settings'
+  /** The Gamesplanet promotion: `data.refCode`, `data.uid` for a pin, `data.feed` for a sync. */
+  | 'gamesplanet.settings'
+  | 'gamesplanet.pin'
+  | 'gamesplanet.unpin'
+  | 'gamesplanet.sync'
   /** Partner event pages. `data.slug`, and `data.game` or `data.team` where it applies. */
   | 'partnerEvent.update'
   | 'partnerEvent.close'
