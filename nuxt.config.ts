@@ -72,12 +72,17 @@ export default defineNuxtConfig({
     scheduledTasks: {
       '* * * * *': ['events:bde-sync', 'push:deliver', 'anticheat:lookups'],
       '*/5 * * * *': ['warden:close-stale-sessions', 'quests:community'],
+      // The best sellers and flash sales, every 6 hours.
+      '0 */6 * * *': ['gamesplanet:sync-deals'],
+      // The whole catalog, before the night's other jobs.
+      '30 2 * * *': ['gamesplanet:sync-catalog'],
       // Every night at 03:00, server time.
       '0 3 * * *': [
         'users:delete-inactive',
         'users:prune-avatars',
         'events:prune-images',
         'partners:prune-logos',
+        'gamesplanet:prune-covers',
         'partner-events:purge',
         'push:prune',
         'api-keys:prune',
@@ -93,12 +98,14 @@ export default defineNuxtConfig({
     // Profile photos from Microsoft, saved at sign-in. See server/services/avatars.ts.
     // Event images, uploaded or picked, and their crops. See server/services/events/images.ts.
     // Partner logos, uploaded by admins. See server/services/partners.ts.
+    // Gamesplanet covers, copied from their servers. See server/services/gamesplanet.ts.
     storage: {
       'warden-heads': { driver: 'fs', base: './.data/warden-heads' },
       'mod-icons': { driver: 'fs', base: './.data/mod-icons' },
       avatars: { driver: 'fs', base: './.data/avatars' },
       'event-images': { driver: 'fs', base: './.data/event-images' },
       'partner-logos': { driver: 'fs', base: './.data/partner-logos' },
+      'gamesplanet-covers': { driver: 'fs', base: './.data/gamesplanet-covers' },
     },
     devStorage: {
       'warden-heads': { driver: 'fs', base: './.data/warden-heads' },
@@ -106,6 +113,7 @@ export default defineNuxtConfig({
       avatars: { driver: 'fs', base: './.data/avatars' },
       'event-images': { driver: 'fs', base: './.data/event-images' },
       'partner-logos': { driver: 'fs', base: './.data/partner-logos' },
+      'gamesplanet-covers': { driver: 'fs', base: './.data/gamesplanet-covers' },
     },
   },
 
