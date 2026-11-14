@@ -33,7 +33,7 @@ const { t, locale } = useI18n();
       />
     </span>
     <span class="flex min-w-0 flex-1 flex-col gap-1">
-      <span class="truncate font-semibold text-highlighted group-hover:underline">
+      <span class="line-clamp-2 font-semibold text-highlighted group-hover:underline">
         {{ deal.name }}
       </span>
       <span class="flex flex-wrap items-center gap-x-2 gap-y-1">

@@ -70,7 +70,7 @@ const columns = computed(() => {
     <UContainer class="flex flex-col gap-10 py-10">
       <div v-if="showGamesplanetRow" class="flex flex-wrap items-center gap-4">
         <IconTile icon="i-lucide-heart" />
-        <p class="min-w-0 flex-1 text-default">{{ t('gamesplanet.footer.line') }}</p>
+        <p class="min-w-56 flex-1 text-default">{{ t('gamesplanet.footer.line') }}</p>
         <UButton
           :to="gamesplanetGoUrl('site', 'footer')"
           target="_blank"
