@@ -19,7 +19,7 @@ const { t } = useI18n();
       class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
       :class="
         plate
-          ? 'bg-plate text-on-plate hover:bg-accented'
+          ? 'bg-plate text-on-plate hover:underline'
           : 'bg-secondary/15 text-secondary hover:bg-secondary/25'
       "
     >
