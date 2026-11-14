@@ -97,6 +97,9 @@ export const event = pgTable(
     registrationClosesAt: timestamp('registration_closes_at'),
     // Whole euros, shown on the page only. Null: free.
     price: smallint('price'),
+    // The Gamesplanet game people can buy for the evening, by its uid in gamesplanet_game. No
+    // foreign key: the game can leave the catalog, and the card then simply doesn't show.
+    gamesplanetUid: text('gamesplanet_uid'),
     hidden: boolean('hidden').default(true).notNull(),
     // Minutes before the start when registered people get a reminder. Empty: none.
     reminderOffsets: integer('reminder_offsets')

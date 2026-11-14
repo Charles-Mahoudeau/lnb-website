@@ -97,7 +97,9 @@ export const gamesplanetMoveBody = z.object({ direction: z.enum(['up', 'down']) 
 export type GamesplanetMoveBody = z.infer<typeof gamesplanetMoveBody>;
 
 /** GET /api/admin/gamesplanet/search */
-export const gamesplanetSearchQuery = z.object({ q: z.string().trim().min(2).max(80) });
+export const gamesplanetSearchQuery = z.object({
+  q: z.string().trim().min(2).max(300).describe('Part of a name, or a Gamesplanet or Steam link.'),
+});
 export const gamesplanetSearchView = z.object({
   games: z.array(gamesplanetAdminGame).describe('Up to ten matches, best sellers first.'),
 });

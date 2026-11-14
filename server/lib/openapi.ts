@@ -2185,6 +2185,17 @@ const routes: RouteDoc[] = [
   // Events: managers
   {
     method: 'get',
+    path: '/api/admin/events/gamesplanet/search',
+    tag: TAGS.eventsAdmin,
+    summary: 'Search Gamesplanet games for an event',
+    description:
+      'Up to ten games from the cached catalog: whose name contains the text, or the one a pasted Gamesplanet or Steam link names. The `uid` of the chosen game goes in the event’s `gamesplanetUid`.',
+    access: 'eventsManager',
+    query: gamesplanet.gamesplanetSearchQuery,
+    response: gamesplanet.gamesplanetSearchView,
+  },
+  {
+    method: 'get',
     path: '/api/admin/events/bde',
     tag: TAGS.eventsAdmin,
     summary: 'BDE website settings',
@@ -2549,7 +2560,9 @@ const routes: RouteDoc[] = [
     body: events.eventBody,
     response: events.eventCreated,
     created: true,
-    problems: [{ status: 400, problems: ['roomNotFound', 'typeNotFound'] }],
+    problems: [
+      { status: 400, problems: ['roomNotFound', 'typeNotFound', 'gamesplanetGameNotFound'] },
+    ],
   },
   {
     method: 'get',
@@ -2573,7 +2586,7 @@ const routes: RouteDoc[] = [
     body: events.eventBody,
     noContent: true,
     problems: [
-      { status: 400, problems: ['roomNotFound', 'typeNotFound'] },
+      { status: 400, problems: ['roomNotFound', 'typeNotFound', 'gamesplanetGameNotFound'] },
       { status: 404, problems: ['notFound'] },
       { status: 409, problems: ['cancelled', 'teamModeLocked'] },
     ],
