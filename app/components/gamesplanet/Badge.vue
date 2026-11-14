@@ -2,7 +2,9 @@
 // The "Affiliate link" and "Partner deal" badge: a button in the second-accent tint that opens a
 // bubble saying what an affiliate link is. Click or tap only, never hover. It is the only
 // disclosure on the home and event cards, so never hide it there (docs/design.md).
-defineProps<{ variant?: 'affiliate' | 'deal' }>();
+// `plate` makes it one solid light pill, for use over a cover image: the plate is the badge's own
+// background, so there is no pill inside another.
+defineProps<{ variant?: 'affiliate' | 'deal'; plate?: boolean }>();
 
 const { t } = useI18n();
 </script>
@@ -14,7 +16,12 @@ const { t } = useI18n();
   >
     <button
       type="button"
-      class="inline-flex items-center gap-1.5 rounded-full bg-secondary/15 px-2.5 py-1 text-xs font-semibold text-secondary hover:bg-secondary/25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
+      class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
+      :class="
+        plate
+          ? 'bg-plate text-on-plate hover:bg-accented'
+          : 'bg-secondary/15 text-secondary hover:bg-secondary/25'
+      "
     >
       <UIcon name="i-lucide-info" class="size-3.5" aria-hidden="true" />
       {{ variant === 'deal' ? t('gamesplanet.partnerDeal') : t('gamesplanet.affiliateLink') }}

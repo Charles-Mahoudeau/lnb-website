@@ -26,9 +26,7 @@ function step(by: number) {
         class="absolute inset-0 -z-1 size-full object-cover"
       />
       <div class="absolute inset-0 -z-1 bg-linear-to-t from-banner via-banner/40 to-transparent" />
-      <div class="absolute top-3 left-3 rounded-full bg-plate p-0.5">
-        <GamesplanetBadge variant="deal" />
-      </div>
+      <GamesplanetBadge variant="deal" plate class="absolute top-3 left-3" />
       <a
         :href="gamesplanetGoUrl(deal.uid, 'home')"
         target="_blank"
