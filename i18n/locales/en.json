@@ -3813,9 +3813,11 @@
       "checks": {
         "keys": "Game keys for Steam and other launchers",
         "sameprice": "The price is the same with our link",
-        "events": "Every purchase helps fund LNB events"
+        "events": "Every purchase helps fund LNB events",
+        "keysNote": "An official key reseller, not a marketplace of third-party sellers."
       },
-      "browse": "Browse all Gamesplanet deals"
+      "browse": "Browse all Gamesplanet deals",
+      "logoLabel": "Gamesplanet (opens in a new tab)"
     }
   },
   "shortLink": {

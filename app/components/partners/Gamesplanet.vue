@@ -14,12 +14,25 @@ const checks = ['keys', 'sameprice', 'events'] as const;
   <section class="grid gap-x-12 gap-y-8 rounded-lg bg-elevated p-6 md:grid-cols-2 md:p-8">
     <div class="flex flex-col items-start gap-4">
       <div class="flex flex-wrap items-center gap-3">
-        <PartnersLogo
-          name="Gamesplanet"
-          src="/partners/gamesplanet.svg"
-          :url="gamesplanetGoUrl('site', 'partners')"
-          size="small"
-        />
+        <!-- White on the dark theme, ink on the light one, so it reads on the band in both. -->
+        <a
+          :href="gamesplanetGoUrl('site', 'partners')"
+          target="_blank"
+          rel="sponsored noopener noreferrer"
+          :aria-label="t('partners.gamesplanet.logoLabel')"
+          class="shrink-0"
+        >
+          <img
+            src="/partners/gamesplanet-light.svg"
+            alt=""
+            class="h-10 w-auto sm:h-12 dark:hidden"
+          />
+          <img
+            src="/partners/gamesplanet-dark.svg"
+            alt=""
+            class="hidden h-10 w-auto sm:h-12 dark:block"
+          />
+        </a>
         <span class="rounded-full bg-secondary/15 px-2.5 py-1 text-xs font-semibold text-secondary">
           {{ t('partners.gamesplanet.newPartner') }}
         </span>
@@ -29,7 +42,12 @@ const checks = ['keys', 'sameprice', 'events'] as const;
       <ul class="flex flex-col gap-2">
         <li v-for="check in checks" :key="check" class="flex items-start gap-2 text-default">
           <UIcon name="i-lucide-check" class="mt-0.5 size-5 shrink-0 text-secondary" />
-          {{ t(`partners.gamesplanet.checks.${check}`) }}
+          <span class="flex flex-col">
+            {{ t(`partners.gamesplanet.checks.${check}`) }}
+            <span v-if="check === 'keys'" class="text-sm text-muted">
+              {{ t('partners.gamesplanet.checks.keysNote') }}
+            </span>
+          </span>
         </li>
       </ul>
     </div>
