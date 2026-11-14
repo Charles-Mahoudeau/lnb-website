@@ -68,6 +68,9 @@ The covers of the games the site shows are downloaded by the server (`gamesplane
 - An event has an optional `gamesplanet_uid`. Events managers switch on "Gamesplanet offer" in the event form and find the game with `GET /api/admin/events/gamesplanet/search`: by name, or by pasting a Gamesplanet or Steam link. Only the uid is stored, with no foreign key, so a game that leaves the catalog just makes the card disappear.
 - The event page (`EventsGamesplanet`, under the registration box) shows the deal from the catalog while the event isn't over or cancelled, and `gamesplanet` and `gamesplanet.events` are on. Covers of games attached to events that aren't over are kept. Duplicating an event keeps its game.
 
-## Still to come
+## Clicks and the footer
 
-The click route and its anonymous daily counts, and the footer row.
+- Every link to Gamesplanet on the site goes through `/go/gp/<game uid or "site">?from=<partners|home|event|footer>` (`server/routes/go/gp/[uid].get.ts`, not in the API reference). It redirects with a 302 to the game's page, or Gamesplanet's home page for `site`, with the affiliate ref. It only redirects to games in our catalog: anything else goes to `/partners`.
+- This is the one piece of analytics the site has, approved for this partnership. `gamesplanet_click` keeps a count per Paris day, placement and game, and nothing else: no account, IP address, user agent or referrer is read. Only `GET` requests with a known `from` are counted. Counts older than 400 days are deleted by `gamesplanet:prune-covers`. The admin page shows the last 30 days by placement and the five most clicked games.
+- The footer has a row above its columns (`gamesplanet.footer`) and an affiliate notice in the legal line. The notice stays while `gamesplanet` is on, even with the row off, and says that clicks are counted anonymously. There is no privacy page yet: when one is written, it should say the same.
+- The public API's `url` is the direct link with the ref, for integrations. Our own pages use the counted links.
