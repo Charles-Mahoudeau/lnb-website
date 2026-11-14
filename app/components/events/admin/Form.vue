@@ -20,6 +20,7 @@ const emit = defineEmits<{ submit: [body: EventBody]; bdeRetry: [] }>();
 
 const { t, locale } = useI18n();
 const overlay = useOverlay();
+const { isEnabled } = useFlags();
 
 const { data: rooms, refresh: refreshRooms } = await useEventRooms();
 const { data: types } = await useEventTypes();
@@ -51,6 +52,8 @@ const state = reactive({
     : '',
   // Empty means free. An emptied number input gives '', which counts as empty too.
   price: initial?.price ?? undefined,
+  gamesplanetUid: initial?.gamesplanetUid ?? null,
+  gamesplanet: initial?.gamesplanet ?? null,
   banner: initial?.banner ?? null,
   embed: initial?.embed ?? null,
   hidden: initial?.hidden ?? true,
@@ -92,6 +95,7 @@ function body(): EventBody {
     registrationOpensAt: parisLocalToIso(state.registrationOpensAt),
     registrationClosesAt: parisLocalToIso(state.registrationClosesAt),
     price: typeof state.price === 'number' ? state.price : null,
+    gamesplanetUid: state.gamesplanetUid,
     hidden: state.hidden,
     reminderOffsets: state.reminderOffsets,
     bdeSync: state.bdeSync,
@@ -404,6 +408,18 @@ const preview = computed(() => ({
           <p class="text-sm text-muted">{{ t('admin.events.form.teamSizeHelp') }}</p>
         </template>
       </section>
+
+      <EventsAdminGamesplanet
+        v-if="isEnabled('gamesplanet')"
+        :uid="state.gamesplanetUid"
+        :game="state.gamesplanet"
+        @change="
+          (game) => {
+            state.gamesplanetUid = game?.uid ?? null;
+            state.gamesplanet = game;
+          }
+        "
+      />
 
       <section class="flex flex-col gap-4 rounded-lg bg-elevated p-5">
         <div class="flex flex-col gap-1">

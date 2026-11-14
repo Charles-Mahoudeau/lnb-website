@@ -44,6 +44,12 @@ const canUseWarden = computed(
     !!user.value &&
     canLinkFromSchool(wardenApp, user.value.tenantId),
 );
+// The Gamesplanet card, below the partner event promo.
+const { data: gamesplanet } = await usePublicGamesplanet();
+const showGamesplanet = computed(
+  () =>
+    isEnabled('gamesplanet') && isEnabled('gamesplanet.home') && !!gamesplanet.value?.deals.length,
+);
 const showModList = computed(() => isEnabled('modList'));
 // The card is empty without either link, so it goes too.
 const showMinecraft = computed(() => showModList.value || canUseWarden.value);
@@ -103,6 +109,7 @@ const showMinecraft = computed(() => showModList.value || canUseWarden.value);
 
         <aside class="flex min-w-0 flex-col gap-4 lg:col-span-4 lg:col-start-9">
           <PartnerEventsPromo variant="card" />
+          <HomeGamesplanet v-if="showGamesplanet && gamesplanet" :data="gamesplanet" />
 
           <section class="flex flex-col items-start gap-4 rounded-lg bg-elevated p-5">
             <h2 class="text-xl font-bold text-highlighted">{{ t('site.name') }}</h2>

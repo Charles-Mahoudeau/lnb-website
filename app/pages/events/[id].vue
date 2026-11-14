@@ -133,6 +133,7 @@ useSeoMeta({
         </div>
         <div class="flex flex-col gap-6 max-lg:order-first lg:sticky lg:top-24 lg:col-span-4">
           <EventsRegistrationPanel :event="event" @changed="onChanged" />
+          <EventsGamesplanet v-if="event.gamesplanet" :deal="event.gamesplanet" />
           <EventsLooking
             v-if="event.teams && teams"
             :event-id="event.id"
