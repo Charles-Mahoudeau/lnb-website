@@ -473,6 +473,24 @@ function showToast() {
     color: 'success',
   });
 }
+
+// Sample Gamesplanet deals, for the cards.
+const sampleGamesplanet = {
+  siteUrl: 'https://fr.gamesplanet.com/',
+  deals: ['Example game', 'Another game', 'A third game'].map((name, index) => ({
+    uid: `${String(index + 1)}-1`,
+    name,
+    publisher: null,
+    url: 'https://fr.gamesplanet.com/',
+    priceCents: 599,
+    basePriceCents: 1199,
+    discountPercent: 50,
+    endsAt: '2027-01-05T12:00:00.000Z',
+    cover: null,
+    packshot: null,
+    pinned: false,
+  })),
+};
 </script>
 
 <template>
@@ -1047,6 +1065,10 @@ function showToast() {
 
     <section class="flex flex-col gap-6">
       <h2 class="text-2xl font-bold">Gamesplanet</h2>
+      <div class="grid max-w-3xl gap-6 sm:grid-cols-2">
+        <HomeGamesplanet :data="sampleGamesplanet" />
+        <EventsGamesplanet :deal="sampleGamesplanet.deals[0]!" />
+      </div>
       <div class="flex flex-wrap gap-3">
         <GamesplanetBadge />
         <GamesplanetBadge variant="deal" />

@@ -1585,6 +1585,18 @@
           "1440": "1 day before",
           "2880": "2 days before",
           "10080": "1 week before"
+        },
+        "gamesplanet": {
+          "title": "Gamesplanet offer",
+          "help": "Show a deal for the game of the evening, until the event ends.",
+          "search": "Find the game",
+          "searchHelp": "A name, or a Gamesplanet or Steam link.",
+          "searchButton": "Search",
+          "noResult": "No game found. Try another name, or paste its link.",
+          "choose": "Choose",
+          "change": "Change game",
+          "gone": "This game is no longer in the catalog. Pick another one, or turn the offer off.",
+          "failed": "The search failed. Try again."
         }
       },
       "preview": {
@@ -4380,6 +4392,17 @@
     "until": "Until {date}",
     "regularPrice": "Regular price",
     "nowPrice": "Price now",
-    "opensNew": "(opens Gamesplanet in a new tab)"
+    "opensNew": "(opens Gamesplanet in a new tab)",
+    "home": {
+      "lede": "Buy games for less. Each purchase helps fund our events.",
+      "button": "See the deal",
+      "previous": "Previous deal",
+      "next": "Next deal"
+    },
+    "event": {
+      "title": "Need the game for this evening?",
+      "lede": "Buy it before the evening starts. Each purchase helps fund our events.",
+      "button": "Buy on Gamesplanet"
+    }
   }
 }

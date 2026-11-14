@@ -59,3 +59,10 @@ export const gamesplanetActions = {
       }),
     ),
 };
+
+/** The catalog search for an event's game, open to events managers. */
+export function searchGamesplanetForEvent(q: string) {
+  return call(() =>
+    $fetch<GamesplanetSearchView>('/api/admin/events/gamesplanet/search', { query: { q } }),
+  );
+}
