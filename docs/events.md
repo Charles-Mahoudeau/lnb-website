@@ -76,3 +76,5 @@ In `server/db/schema/events.ts`:
 - `event_room` and `event_type`: archived with `archived_at`. Names are unique among those not archived, ignoring case.
 - `event`: the event, keyed by a UUID that is also its `external_id` on the BDE website. It also holds its image keys and crops, and its BDE sync state.
 - `event_registration`: one row per account and event, `registered` or `waitlist`. The waitlist is in order of creation. Rows go with the account.
+
+An event can carry a Gamesplanet game, shown as a deal on its page: see `docs/gamesplanet.md`.
