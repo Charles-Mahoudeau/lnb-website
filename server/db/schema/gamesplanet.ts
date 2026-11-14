@@ -8,6 +8,8 @@ import {
   text,
   timestamp,
   boolean,
+  date,
+  primaryKey,
 } from 'drizzle-orm/pg-core';
 
 // The Gamesplanet affiliate promotion. See docs/gamesplanet.md.
@@ -75,3 +77,19 @@ export const gamesplanetPin = pgTable('gamesplanet_pin', {
   position: integer('position').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+/**
+ * Clicks on Gamesplanet links, counted per day, placement and game. Nothing else is kept: no
+ * account, IP address or device, so a count can't be traced to anyone. `uid` is a game's uid, or
+ * "site" for a link to Gamesplanet's home page.
+ */
+export const gamesplanetClick = pgTable(
+  'gamesplanet_click',
+  {
+    day: date('day', { mode: 'string' }).notNull(),
+    placement: text('placement').notNull(),
+    uid: text('uid').notNull(),
+    count: integer('count').default(0).notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.day, table.placement, table.uid] })],
+);

@@ -55,7 +55,7 @@ const { t, locale } = useI18n();
     </div>
     <p class="text-sm text-muted">{{ t('gamesplanet.event.lede') }}</p>
     <UButton
-      :to="deal.url"
+      :to="gamesplanetGoUrl(deal.uid, 'event')"
       target="_blank"
       external
       rel="sponsored noopener noreferrer"

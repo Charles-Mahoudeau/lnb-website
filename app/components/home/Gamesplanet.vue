@@ -30,7 +30,7 @@ function step(by: number) {
         <GamesplanetBadge variant="deal" />
       </div>
       <a
-        :href="deal.url"
+        :href="gamesplanetGoUrl(deal.uid, 'home')"
         target="_blank"
         rel="sponsored noopener noreferrer"
         class="group w-full p-4 text-lg font-bold text-on-banner"
@@ -62,7 +62,7 @@ function step(by: number) {
       <p class="text-muted">{{ t('gamesplanet.home.lede') }}</p>
       <div class="flex items-center justify-between gap-3">
         <UButton
-          :to="deal.url"
+          :to="gamesplanetGoUrl(deal.uid, 'home')"
           target="_blank"
           external
           rel="sponsored noopener noreferrer"

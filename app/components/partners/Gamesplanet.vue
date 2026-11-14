@@ -17,7 +17,7 @@ const checks = ['keys', 'sameprice', 'events'] as const;
         <PartnersLogo
           name="Gamesplanet"
           src="/partners/gamesplanet.svg"
-          :url="data.siteUrl"
+          :url="gamesplanetGoUrl('site', 'partners')"
           size="small"
         />
         <span class="rounded-full bg-secondary/15 px-2.5 py-1 text-xs font-semibold text-secondary">
@@ -35,13 +35,13 @@ const checks = ['keys', 'sameprice', 'events'] as const;
     </div>
     <div class="flex flex-col">
       <div class="flex flex-col divide-y divide-default">
-        <GamesplanetDeal v-for="deal in data.deals" :key="deal.uid" :deal="deal" />
+        <GamesplanetDeal v-for="deal in data.deals" :key="deal.uid" :deal="deal" from="partners" />
       </div>
       <div
         class="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-default pt-4"
       >
         <UButton
-          :to="data.siteUrl"
+          :to="gamesplanetGoUrl('site', 'partners')"
           target="_blank"
           external
           rel="sponsored noopener noreferrer"

@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import type { GamesplanetDeal } from '#shared/schemas/gamesplanet';
+import type { GamesplanetDeal, GamesplanetPlacement } from '#shared/schemas/gamesplanet';
 
 // One deal as a row: thumbnail, name, prices, the discount and an external-link icon. The whole
 // row is the link, and only the name underlines on hover. Prices are text, never a color.
-defineProps<{ deal: GamesplanetDeal }>();
+defineProps<{ deal: GamesplanetDeal; from: GamesplanetPlacement }>();
 
 const { t, locale } = useI18n();
 </script>
 
 <template>
   <a
-    :href="deal.url"
+    :href="gamesplanetGoUrl(deal.uid, from)"
     target="_blank"
     rel="sponsored noopener noreferrer"
     class="group flex items-center gap-4 py-3 first:pt-0"

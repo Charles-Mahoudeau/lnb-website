@@ -21,6 +21,11 @@ interface FooterLink {
   external?: boolean;
 }
 
+// The Gamesplanet row above the columns, and the affiliate notice in the legal line, which stays
+// while the promotion is on even when the row is off (docs/design.md).
+const showGamesplanet = computed(() => isEnabled('gamesplanet'));
+const showGamesplanetRow = computed(() => showGamesplanet.value && isEnabled('gamesplanet.footer'));
+
 const columns = computed(() => {
   const site: FooterLink[] = [
     { label: t('nav.home'), to: localePath('index') },
@@ -63,6 +68,21 @@ const columns = computed(() => {
 <template>
   <footer class="bg-elevated">
     <UContainer class="flex flex-col gap-10 py-10">
+      <div v-if="showGamesplanetRow" class="flex flex-wrap items-center gap-4">
+        <IconTile icon="i-lucide-heart" />
+        <p class="min-w-0 flex-1 text-default">{{ t('gamesplanet.footer.line') }}</p>
+        <UButton
+          :to="gamesplanetGoUrl('site', 'footer')"
+          target="_blank"
+          external
+          rel="sponsored noopener noreferrer"
+          color="neutral"
+          variant="outline"
+          trailing-icon="i-lucide-external-link"
+          :label="t('gamesplanet.footer.button')"
+        />
+      </div>
+
       <div class="grid gap-10 md:grid-cols-5">
         <div class="flex max-w-xs flex-col items-start gap-4 md:col-span-2">
           <NuxtLink :to="localePath('index')" class="flex items-center gap-2.5">
@@ -100,9 +120,10 @@ const columns = computed(() => {
         </nav>
       </div>
 
-      <p class="text-sm text-muted">
-        {{ t('footer.legal', { year: new Date().getFullYear(), name: t('site.name') }) }}
-      </p>
+      <div class="flex flex-col gap-1 text-sm text-muted">
+        <p>{{ t('footer.legal', { year: new Date().getFullYear(), name: t('site.name') }) }}</p>
+        <p v-if="showGamesplanet">{{ t('gamesplanet.footer.notice') }}</p>
+      </div>
     </UContainer>
   </footer>
 </template>

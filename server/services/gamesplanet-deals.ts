@@ -1,15 +1,22 @@
-import { and, asc, count, desc, eq, ilike, isNotNull, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gte, ilike, isNotNull, lt, sql } from 'drizzle-orm';
 import { useStorage } from 'nitropack/runtime';
 import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
-import { gamesplanetGame, gamesplanetPin, gamesplanetSetting } from '~~/server/db/schema';
+import {
+  gamesplanetClick,
+  gamesplanetGame,
+  gamesplanetPin,
+  gamesplanetSetting,
+} from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 import { gamesplanetService } from '~~/server/services/gamesplanet';
 
 import {
   GAMESPLANET_DEALS_SHOWN,
   GAMESPLANET_MAX_PINS,
+  GAMESPLANET_PLACEMENTS,
+  type GamesplanetPlacement,
   type GamesplanetAdminGame,
   type GamesplanetAdminView,
   type GamesplanetDeal,
@@ -27,6 +34,20 @@ const SITE_URL = 'https://fr.gamesplanet.com/';
 const COVER_PATH = '/api/gamesplanet/covers/';
 const CHARTS_PREVIEW = 10;
 const SEARCH_LIMIT = 10;
+const CLICK_DAYS = 30;
+/** Counts older than this are deleted. */
+const CLICK_KEEP_DAYS = 400;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** The Paris day of a date, as YYYY-MM-DD. */
+function parisDay(at: Date): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Paris',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(at);
+}
 
 function refuse(status: number, problem: GamesplanetProblem): never {
   throw createError({ status, statusText: problem, data: { problem } });
@@ -117,6 +138,89 @@ async function getCover(key: string): Promise<Buffer | null> {
 
 // Admin
 
+/**
+ * Where a click on `/go/gp/:uid` goes, or null when it goes nowhere: a game must be in the
+ * catalog, so the route can't be made to redirect anywhere else. The click is counted by day,
+ * placement and game, and nothing about who clicked is read.
+ */
+async function follow(input: {
+  uid: string;
+  from: GamesplanetPlacement | null;
+  now?: Date;
+}): Promise<string | null> {
+  const ref = await gamesplanetService.refCode();
+  let target: string;
+  if (input.uid === 'site') {
+    target = SITE_URL;
+  } else {
+    const [game] = await db
+      .select({ url: gamesplanetGame.url })
+      .from(gamesplanetGame)
+      .where(eq(gamesplanetGame.uid, input.uid));
+    if (!game) return null;
+    target = game.url;
+  }
+  if (input.from) {
+    await db
+      .insert(gamesplanetClick)
+      .values({
+        day: parisDay(input.now ?? new Date()),
+        placement: input.from,
+        uid: input.uid,
+        count: 1,
+      })
+      .onConflictDoUpdate({
+        target: [gamesplanetClick.day, gamesplanetClick.placement, gamesplanetClick.uid],
+        set: { count: sql`${gamesplanetClick.count} + 1` },
+      });
+  }
+  return withRef(target, ref);
+}
+
+/** Deletes the counts older than about a year. Returns how many rows went. */
+async function pruneClicks(now = new Date()): Promise<number> {
+  const gone = await db
+    .delete(gamesplanetClick)
+    .where(lt(gamesplanetClick.day, parisDay(new Date(now.getTime() - CLICK_KEEP_DAYS * DAY_MS))))
+    .returning({ day: gamesplanetClick.day });
+  return gone.length;
+}
+
+async function clickStats(now: Date): Promise<GamesplanetAdminView['clicks']> {
+  const since = parisDay(new Date(now.getTime() - (CLICK_DAYS - 1) * DAY_MS));
+  const recent = gte(gamesplanetClick.day, since);
+  const places = await db
+    .select({
+      placement: gamesplanetClick.placement,
+      total: sql<number>`sum(${gamesplanetClick.count})`.mapWith(Number),
+    })
+    .from(gamesplanetClick)
+    .where(recent)
+    .groupBy(gamesplanetClick.placement);
+  const games = await db
+    .select({
+      uid: gamesplanetClick.uid,
+      name: gamesplanetGame.name,
+      total: sql<number>`sum(${gamesplanetClick.count})`.mapWith(Number),
+    })
+    .from(gamesplanetClick)
+    .leftJoin(gamesplanetGame, eq(gamesplanetGame.uid, gamesplanetClick.uid))
+    .where(and(recent, sql`${gamesplanetClick.uid} <> 'site'`))
+    .groupBy(gamesplanetClick.uid, gamesplanetGame.name)
+    .orderBy(sql`sum(${gamesplanetClick.count}) desc`)
+    .limit(5);
+  const byPlacement = GAMESPLANET_PLACEMENTS.map((placement) => ({
+    placement,
+    count: places.find((row) => row.placement === placement)?.total ?? 0,
+  }));
+  return {
+    days: CLICK_DAYS,
+    total: byPlacement.reduce((sum, row) => sum + row.count, 0),
+    byPlacement,
+    topGames: games.map((row) => ({ uid: row.uid, name: row.name, count: row.total })),
+  };
+}
+
 async function listAdmin(now = new Date()): Promise<GamesplanetAdminView> {
   const setting = await gamesplanetService.readSetting();
   const ref = setting.refCode;
@@ -148,6 +252,7 @@ async function listAdmin(now = new Date()): Promise<GamesplanetAdminView> {
       catalogSyncedAt: setting.catalogSyncedAt?.toISOString() ?? null,
       dealsSyncedAt: setting.dealsSyncedAt?.toISOString() ?? null,
     },
+    clicks: await clickStats(now),
   };
 }
 
@@ -312,6 +417,8 @@ async function syncNow(input: {
 
 export const gamesplanetDealsService = {
   listPublic,
+  follow,
+  pruneClicks,
   dealByUid,
   eventDeal,
   getCover,

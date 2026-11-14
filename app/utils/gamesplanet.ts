@@ -1,5 +1,16 @@
 // Prices and end dates of the Gamesplanet deals, from Intl in Europe/Paris (docs/gamesplanet.md).
 
+/**
+ * A link to a game (or to Gamesplanet's home page, with `site`) that goes through our click
+ * counter. The counter redirects to Gamesplanet with the affiliate ref.
+ */
+export function gamesplanetGoUrl(
+  uid: string,
+  from: 'partners' | 'home' | 'event' | 'footer',
+): string {
+  return `/go/gp/${uid}?from=${from}`;
+}
+
 const TIME_ZONE = 'Europe/Paris';
 
 /** "9,99 €" in French, "€9.99" in English. Gamesplanet's feed is in euros for everyone. */
