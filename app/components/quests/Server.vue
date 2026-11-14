@@ -18,6 +18,9 @@ const shown = computed(() =>
     return true;
   }),
 );
+// The site masks a secret quest until its first place is taken.
+const secret = (quest: (typeof quests.value)[number]) =>
+  quest.hidden && !props.data.podiums[quest.id]?.length;
 const ordinal = (n: number) => t(`quests.server.place.${String(Math.min(n, 4))}`, { n });
 </script>
 
@@ -49,10 +52,11 @@ const ordinal = (n: number) => t(`quests.server.place.${String(Math.min(n, 4))}`
         :class="data.me?.ranks[quest.id] ? 'bg-secondary/10' : ''"
       >
         <div class="flex items-center gap-3 lg:col-span-2">
-          <IconTile icon="i-lucide-trophy" />
+          <IconTile :icon="secret(quest) ? 'i-lucide-lock' : 'i-lucide-trophy'" />
           <div class="min-w-0">
             <h3 class="font-semibold text-highlighted">{{ questName(quest.name, locale) }}</h3>
-            <p v-if="quest.description" class="text-sm text-muted">
+            <p v-if="secret(quest)" class="text-sm text-muted">{{ t('quests.server.secret') }}</p>
+            <p v-else-if="quest.description" class="text-sm text-muted">
               {{ questName(quest.description, locale) }}
             </p>
             <UBadge

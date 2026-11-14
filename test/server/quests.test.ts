@@ -415,6 +415,26 @@ describe('index, cap and seasons', () => {
     expect(result.amount).toBeLessThan(400);
   });
 
+  it('keeps a secret quest as "???" until someone takes first place', async () => {
+    const id = `secret_${suffix()}`;
+    await questServerService.seedCatalog({ quests: [{ ...serverQuest(id), hidden: true }] });
+    const masked = (await questPublicService.overview({})).quests.find((quest) => quest.id === id);
+    expect(masked).toMatchObject({ name: { fr: '???', en: '???' }, hidden: true });
+    expect(masked?.family === 'server' && masked.advancement).toBe('minecraft:hidden');
+
+    const who = await player();
+    await questServerService.advancement({
+      idempotencyKey: randomUUID(),
+      player: who.uuid,
+      quest: id,
+    });
+    const shown = (await questPublicService.overview({})).quests.find((quest) => quest.id === id);
+    expect(shown).toMatchObject({ name: { fr: 'Plus profond' } });
+    expect(shown?.family === 'server' && shown.advancement).toBe(
+      'minecraft:story/enter_the_nether',
+    );
+  });
+
   it('opens a new season only with the confirmation', async () => {
     const admin = await player();
     const before = await currentSeason();

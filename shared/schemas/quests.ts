@@ -115,6 +115,10 @@ export const questServer = z.object({
   ranks: z.array(z.number().min(0).max(100)).min(1).max(10).default([100, 60, 20]),
   restShare: z.number().min(0).max(100).default(2),
   items,
+  hidden: z
+    .boolean()
+    .default(false)
+    .describe('A secret advancement: shown as "???" until someone takes first place.'),
 });
 
 export const questFlash = z.object({

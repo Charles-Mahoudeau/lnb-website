@@ -47,6 +47,7 @@ const state = reactive({
   ranks: (srv?.ranks ?? [100, 60, 20]).join(', '),
   restShare: srv?.restShare ?? 2,
   items: JSON.stringify(srv?.items ?? [], null, 2),
+  hidden: srv?.hidden ?? false,
   // flash
   min: fla?.range.min ?? 5,
   max: fla?.range.max ?? 12,
@@ -123,6 +124,7 @@ function definition() {
         .filter((n) => !Number.isNaN(n)),
       restShare: state.restShare,
       items: parseItems(state.items),
+      hidden: state.hidden,
     };
   }
   return {
@@ -420,6 +422,11 @@ async function onDelete() {
           >
             <UTextarea v-model="state.items" :rows="4" class="w-full" />
           </UFormField>
+          <USwitch
+            v-model="state.hidden"
+            :label="t('admin.quests.editor.hidden')"
+            :description="t('admin.quests.editor.hiddenHelp')"
+          />
         </fieldset>
 
         <fieldset v-if="state.family === 'flash'" class="flex flex-col gap-4">
