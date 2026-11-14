@@ -11,8 +11,10 @@ const checks = ['keys', 'sameprice', 'events'] as const;
 </script>
 
 <template>
-  <section class="grid gap-x-12 gap-y-8 rounded-lg bg-elevated p-6 md:grid-cols-2 md:p-8">
-    <div class="flex flex-col items-start gap-4">
+  <section
+    class="grid grid-cols-1 gap-x-12 gap-y-8 rounded-lg bg-elevated p-6 lg:grid-cols-2 lg:p-8"
+  >
+    <div class="flex min-w-0 flex-col items-start gap-4">
       <div class="flex flex-wrap items-center gap-3">
         <!-- White on the dark theme, ink on the light one, so it reads on the band in both. -->
         <a
@@ -51,7 +53,7 @@ const checks = ['keys', 'sameprice', 'events'] as const;
         </li>
       </ul>
     </div>
-    <div class="flex flex-col">
+    <div class="flex min-w-0 flex-col">
       <div class="flex flex-col divide-y divide-default">
         <GamesplanetDeal v-for="deal in data.deals" :key="deal.uid" :deal="deal" from="partners" />
       </div>
