@@ -44,8 +44,8 @@ const checks = ['keys', 'sameprice', 'events'] as const;
           <UIcon name="i-lucide-check" class="mt-0.5 size-5 shrink-0 text-secondary" />
           <span class="flex flex-col">
             {{ t(`partners.gamesplanet.checks.${check}`) }}
-            <span v-if="check === 'keys'" class="text-sm text-muted">
-              {{ t('partners.gamesplanet.checks.keysNote') }}
+            <span class="text-sm text-muted">
+              {{ t(`partners.gamesplanet.checks.${check}Note`) }}
             </span>
           </span>
         </li>
