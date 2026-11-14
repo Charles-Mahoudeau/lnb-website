@@ -612,7 +612,8 @@
       "anticheatReview": "Review queue",
       "anticheatPlayers": "Players",
       "anticheatSettings": "Settings",
-      "economyQuests": "Quests"
+      "economyQuests": "Quests",
+      "gamesplanet": "Gamesplanet"
     },
     "cancel": "Cancel",
     "roles": {
@@ -3157,6 +3158,62 @@
         "idTaken": "A quest already has this ID.",
         "questInUse": "Players already did this quest: turn it off instead."
       }
+    },
+    "gamesplanet": {
+      "title": "Gamesplanet",
+      "note": "Gamesplanet is an affiliate partner. The deals on the partners page come from its public feeds, which are read automatically.",
+      "flagOff": "The Gamesplanet flag is off, so the public page shows nothing. Turn it on in Feature flags.",
+      "never": "Never",
+      "notInFrance": "not sold in France",
+      "ref": {
+        "title": "Affiliate code",
+        "help": "Added to every link to Gamesplanet. Only change it if Gamesplanet gave you a new one.",
+        "label": "Code",
+        "invalid": "Use 2 to 40 letters, digits, - or _.",
+        "save": "Save code",
+        "saved": "Code saved"
+      },
+      "pins": {
+        "title": "Pinned games",
+        "help": "Pinned games come first on the partners page, in this order. Up to {max}. The best sellers fill the rest.",
+        "empty": "No game is pinned. The best sellers are shown.",
+        "moveUp": "Move {name} up",
+        "moveDown": "Move {name} down",
+        "unpin": "Unpin",
+        "unpinned": "Game unpinned",
+        "search": "Find a game to pin",
+        "searchButton": "Search",
+        "noResult": "No game with that name.",
+        "pin": "Pin",
+        "pinned": "Pinned",
+        "pinnedDone": "Game pinned"
+      },
+      "charts": {
+        "title": "Best sellers",
+        "help": "The first ten, in Gamesplanet’s order. The page shows the first ones France can buy."
+      },
+      "feeds": {
+        "title": "Feeds",
+        "games": "Games in the catalog",
+        "charts": "Games in the best sellers",
+        "covers": "Covers stored",
+        "dealsAt": "Deals last read",
+        "catalogAt": "Catalog last read",
+        "syncDeals": "Read deals now",
+        "syncCatalog": "Read catalog now"
+      },
+      "sync": {
+        "done": "Feed read"
+      },
+      "errors": {
+        "failed": "The request failed. Try again.",
+        "gameNotFound": "This game is not in the catalog.",
+        "notSoldInFrance": "France can’t buy this game, so it can’t be pinned.",
+        "alreadyPinned": "This game is already pinned.",
+        "tooManyPins": "Three games are already pinned. Unpin one first.",
+        "pinNotFound": "This game is not pinned.",
+        "syncFailed": "Gamesplanet didn’t answer correctly. The last data is kept; try again later."
+      }
     }
   },
   "wardenAdmin": {
@@ -3724,6 +3781,17 @@
       "title": "Want to support LNB?",
       "lede": "Tell us what you can offer and we will find the right fit: prizes, food, equipment or game keys.",
       "button": "Get in touch"
+    },
+    "gamesplanet": {
+      "newPartner": "New partner",
+      "title": "Buy games for less. Fund our events.",
+      "lede": "Gamesplanet sells PC game keys. When you buy through our links, LNB earns a small commission that helps pay for our events.",
+      "checks": {
+        "keys": "Game keys for Steam and other launchers",
+        "sameprice": "The price is the same with our link",
+        "events": "Every purchase helps fund LNB events"
+      },
+      "browse": "Browse all Gamesplanet deals"
     }
   },
   "shortLink": {
@@ -4303,5 +4371,14 @@
       "alreadyClaimed": "This reward was already claimed.",
       "frozen": "Your bank account is frozen: nothing can be paid to it."
     }
+  },
+  "gamesplanet": {
+    "affiliateLink": "Affiliate link",
+    "partnerDeal": "Partner deal",
+    "bubble": "LNB earns a small commission when you buy through this link, at no extra cost to you. Prices come from Gamesplanet and may change.",
+    "until": "Until {date}",
+    "regularPrice": "Regular price",
+    "nowPrice": "Price now",
+    "opensNew": "(opens Gamesplanet in a new tab)"
   }
 }
