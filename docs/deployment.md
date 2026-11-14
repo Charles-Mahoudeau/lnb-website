@@ -16,13 +16,14 @@ Add **one** persistent storage in Coolify (Application â†’ Persistent Storage â†
 
 One mount on `.data` covers every storage below, and any storage added later, so a new one needs no change in Coolify. Mounting each folder separately only adds places to forget.
 
-| Folder                | Holds                                       | If lost                                                                                    |
-| --------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `.data/event-images`  | Event images, picked or uploaded, and crops | Event pages and the BDE push show broken images. Not recoverable except by picking again.  |
-| `.data/partner-logos` | Partner logos uploaded by admins            | Partners show without a logo until it is uploaded again.                                   |
-| `.data/mod-icons`     | Mod icons, downloaded when a mod is added   | Mods fall back to initials until the icon is fetched again.                                |
-| `.data/avatars`       | Profile photos fetched from Microsoft Graph | The wolf shows until the next sign-in of each account.                                     |
-| `.data/warden-heads`  | Cache of Minecraft skin heads from Crafatar | Nothing: it refills by itself. It is a cache, but kept so a deploy doesn't start it empty. |
+| Folder                     | Holds                                          | If lost                                                                                    |
+| -------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `.data/event-images`       | Event images, picked or uploaded, and crops    | Event pages and the BDE push show broken images. Not recoverable except by picking again.  |
+| `.data/partner-logos`      | Partner logos uploaded by admins               | Partners show without a logo until it is uploaded again.                                   |
+| `.data/gamesplanet-covers` | Covers of the Gamesplanet games the site shows | They are downloaded again at the next read of the best sellers (every 6 hours).            |
+| `.data/mod-icons`          | Mod icons, downloaded when a mod is added      | Mods fall back to initials until the icon is fetched again.                                |
+| `.data/avatars`            | Profile photos fetched from Microsoft Graph    | The wolf shows until the next sign-in of each account.                                     |
+| `.data/warden-heads`       | Cache of Minecraft skin heads from Crafatar    | Nothing: it refills by itself. It is a cache, but kept so a deploy doesn't start it empty. |
 
 The database rows point at these files by key, so the volume and the PostgreSQL database have to be restored together. The VPS's daily backup is the only backup (no off-site copy), so check that it covers the Docker volumes' directory (`/var/lib/docker/volumes/`) as well as the database.
 
