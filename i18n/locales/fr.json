@@ -3818,7 +3818,9 @@
         "keys": "Des clés de jeux pour Steam et d’autres lanceurs",
         "sameprice": "Le prix est le même avec notre lien",
         "events": "Chaque achat aide à financer les événements de LNB",
-        "keysNote": "Un revendeur officiel de clés, pas une place de marché de vendeurs tiers."
+        "keysNote": "Un revendeur officiel de clés, pas une place de marché de vendeurs tiers.",
+        "samepriceNote": "Aucun code à saisir : cliquez simplement avant d’acheter.",
+        "eventsNote": "La commission aide à payer nos soirées et nos tournois."
       },
       "browse": "Voir toutes les offres Gamesplanet",
       "logoLabel": "Gamesplanet (s’ouvre dans un nouvel onglet)"
