@@ -267,6 +267,13 @@
       "when": 1794658384024,
       "tag": "0037_gamesplanet",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1794659344189,
+      "tag": "0038_gamesplanet-pins",
+      "breakpoints": true
     }
   ]
 }

@@ -23,6 +23,9 @@ export const gamesplanetSetting = pgTable(
     catalogEtag: text('catalog_etag'),
     chartsEtag: text('charts_etag'),
     flashEtag: text('flash_etag'),
+    // The last time each read finished without an error, for the admin page.
+    catalogSyncedAt: timestamp('catalog_synced_at'),
+    dealsSyncedAt: timestamp('deals_synced_at'),
   },
   (table) => [check('gamesplanet_setting_single_row', sql`${table.id} = 1`)],
 );
@@ -63,3 +66,12 @@ export const gamesplanetGame = pgTable(
     index('gamesplanet_game_name_idx').on(sql`lower(${table.name})`),
   ],
 );
+
+/** Games admins put first on the partners band and the home card, in order. At most three. */
+export const gamesplanetPin = pgTable('gamesplanet_pin', {
+  uid: text('uid')
+    .primaryKey()
+    .references(() => gamesplanetGame.uid, { onDelete: 'cascade' }),
+  position: integer('position').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});

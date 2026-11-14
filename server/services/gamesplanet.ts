@@ -6,7 +6,7 @@ import sharp from 'sharp';
 
 import { db } from '~~/server/db';
 import type { Tx } from '~~/server/db';
-import { gamesplanetGame, gamesplanetSetting } from '~~/server/db/schema';
+import { gamesplanetGame, gamesplanetPin, gamesplanetSetting } from '~~/server/db/schema';
 
 import { coverSourceUrl, isGamesplanetImageUrl, parseProducts } from '#shared/utils/gamesplanet';
 import type { GamesplanetProduct } from '#shared/utils/gamesplanet';
@@ -150,7 +150,7 @@ async function syncCatalog(): Promise<{ games: number; removed: number; unchange
       .returning({ uid: gamesplanetGame.uid });
     await tx
       .update(gamesplanetSetting)
-      .set({ catalogEtag: answer.etag })
+      .set({ catalogEtag: answer.etag, catalogSyncedAt: new Date() })
       .where(eq(gamesplanetSetting.id, 1));
     return gone.length;
   });
@@ -210,17 +210,21 @@ async function syncFlash(): Promise<{ games: number; unchanged: boolean }> {
 // Covers
 
 /**
- * The games whose covers we keep: the best sellers that France can buy. Games chosen by admins
- * and attached to events join this list in later steps.
+ * The games whose covers we keep: the ones admins pinned, and the best sellers that France can
+ * buy. Games attached to events join this list in a later step.
  */
 async function coverUids(): Promise<string[]> {
+  const pins = await db
+    .select({ uid: gamesplanetPin.uid })
+    .from(gamesplanetPin)
+    .orderBy(asc(gamesplanetPin.position));
   const rows = await db
     .select({ uid: gamesplanetGame.uid })
     .from(gamesplanetGame)
     .where(and(isNotNull(gamesplanetGame.chartRank), eq(gamesplanetGame.availableInFrance, true)))
     .orderBy(asc(gamesplanetGame.chartRank))
     .limit(COVER_CHARTS);
-  return rows.map((row) => row.uid);
+  return [...new Set([...pins.map((pin) => pin.uid), ...rows.map((row) => row.uid)])];
 }
 
 /** Downloads one image from Gamesplanet and stores it as WebP under the SHA-256 of its bytes. */
@@ -308,6 +312,12 @@ async function syncDeals(): Promise<{
   };
   const charts = await attempt('charts', syncCharts);
   const flash = await attempt('flash', syncFlash);
+  if (!('error' in charts) && !('error' in flash)) {
+    await db
+      .update(gamesplanetSetting)
+      .set({ dealsSyncedAt: new Date() })
+      .where(eq(gamesplanetSetting.id, 1));
+  }
   return { charts, flash, covers: await ensureCovers(await coverUids()) };
 }
 
@@ -347,6 +357,7 @@ export const gamesplanetService = {
   syncCharts,
   syncFlash,
   syncDeals,
+  readSetting,
   ensureCovers,
   coverUids,
   pruneCovers,

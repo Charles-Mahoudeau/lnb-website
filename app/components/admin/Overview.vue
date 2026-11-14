@@ -203,6 +203,10 @@ function describe(entry: AdminAuditView): string {
     case 'partner.update':
     case 'partner.delete':
     case 'partners.settings':
+    case 'gamesplanet.settings':
+    case 'gamesplanet.pin':
+    case 'gamesplanet.unpin':
+    case 'gamesplanet.sync':
     case 'partnerEvent.update':
     case 'partnerEvent.close':
     case 'partnerEvent.reopen':
