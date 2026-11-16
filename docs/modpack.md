@@ -2,7 +2,7 @@
 
 The Modlist at `/admin/mods` is the list of mods the Minecraft launcher downloads. It is **separate from the mod vote** (`docs/mods.md`): the vote is about what players want, the Modlist is what the launcher installs. The two meet in an "Export to manifest" button (not built yet). The page layout is "Manifest first" with the filters of "Table and drawer", from [the Modlist mocks](https://claude.ai/artifact/Qs6v2HynjKZ3ugYZcEEhXu).
 
-Built so far: the Modlist itself, the nightly check and Adopt. Still to do: the export from the vote, and the public manifest.
+Built so far: the Modlist itself, the nightly check and Adopt. the export from the vote. Still to do: the public manifest.
 
 ## Model
 
@@ -36,6 +36,16 @@ CurseForge needs `CURSEFORGE_API_KEY`; without it those lookups answer `sourceUn
 - Uploaded files are the team's own, and aren't checked.
 
 **Adopt** (`POST .../mods/{id}/adopt`, from the drawer) pins the latest file and raises the revision. For a changed link it accepts the new file and puts the mod back. **Adopt all** (`POST .../mods/adopt-all`, shown on the Updates filter) adopts every update in one change with one revision bump, and leaves the mods needing attention alone. Both are written to `warden_audit` (`modpack.adopt`, with the old and new versions).
+
+## Exporting from the vote
+
+**Export from the vote** (shown while the vote feature is on) copies the vote's official list to the Modlist. Pick a mode, review the diff, tick what to apply:
+
+- **Add missing**: official mods whose project isn't in the Modlist yet.
+- **Sync removals**: also removes Modrinth and CurseForge mods that left the vote list, and copies the optional flag.
+- **Replace**: the Modlist becomes the vote list. Links and uploaded entries are dropped too, but unticked by default.
+
+`GET .../export?mode=` returns the diff and writes nothing. `POST .../export` takes `{mode, keys}` and recomputes the diff, so only ticked changes of a real diff apply. Added mods get the newest compatible file pinned (or are flagged and left out of the manifest) and are linked to their vote mod. A mod whose source can't be reached is counted as failed and not added. The whole export raises the revision once and is audited as `modpack.export`. Official mods added by hand have no source and are listed as skipped.
 
 ## Page
 
