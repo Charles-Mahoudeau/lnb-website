@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AdminModlistAdd, AdminModlistDetail } from '#components';
+import { AdminModlistAdd, AdminModlistDetail, AdminModlistExport } from '#components';
 
 import type { ModpackModView } from '#shared/schemas/modpack';
 
@@ -10,12 +10,18 @@ const toast = useToast();
 const checking = ref(false);
 
 // The page's buttons open the Add modal and run the check.
-defineExpose({ add: () => onAdd(), check: () => onCheck(), checking });
+defineExpose({
+  add: () => onAdd(),
+  check: () => onCheck(),
+  exportVote: () => onExport(),
+  checking,
+});
 const { data, error, refresh } = await useAdminModpack();
 
 const overlay = useOverlay();
 const detail = overlay.create(AdminModlistDetail);
 const adding = overlay.create(AdminModlistAdd);
+const exporting = overlay.create(AdminModlistExport);
 
 type Filter = 'all' | 'update' | 'attention';
 const filter = ref<Filter>('all');
@@ -58,6 +64,11 @@ const initials = (name: string) =>
 async function onAdd() {
   const added: unknown = await adding.open().result;
   if (added === true) await refresh();
+}
+
+async function onExport() {
+  const done: unknown = await exporting.open().result;
+  if (done === true) await refresh();
 }
 
 const adoptingAll = ref(false);

@@ -2,6 +2,9 @@ import { MODPACK_PROBLEMS } from '#shared/schemas/modpack';
 import type {
   ModpackAddBody,
   ModpackCheckResult,
+  ModpackExportMode,
+  ModpackExportPreview,
+  ModpackExportResult,
   ModpackList,
   ModpackPatchBody,
   ModpackPinBody,
@@ -29,6 +32,7 @@ async function call<T>(request: () => Promise<T>): Promise<T> {
 }
 
 const BASE = '/api/minecraft/admin/modpack/mods';
+const EXPORT = '/api/minecraft/admin/modpack/export';
 
 /** Every mod of the pack, with the manifest's revision. */
 export function useAdminModpack() {
@@ -45,5 +49,9 @@ export const modpackActions = {
   check: () => call(() => $fetch<ModpackCheckResult>(`${BASE}/check`, { method: 'POST' })),
   adopt: (id: string) => call(() => $fetch(`${BASE}/${id}/adopt`, { method: 'POST' })),
   adoptAll: () => call(() => $fetch<{ adopted: number }>(`${BASE}/adopt-all`, { method: 'POST' })),
+  exportPreview: (mode: ModpackExportMode) =>
+    call(() => $fetch<ModpackExportPreview>(EXPORT, { query: { mode } })),
+  exportApply: (mode: ModpackExportMode, keys: string[]) =>
+    call(() => $fetch<ModpackExportResult>(EXPORT, { method: 'POST', body: { mode, keys } })),
   remove: (id: string) => call(() => $fetch(`${BASE}/${id}`, { method: 'DELETE' })),
 };

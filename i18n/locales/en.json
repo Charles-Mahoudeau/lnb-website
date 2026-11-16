@@ -3437,7 +3437,45 @@
       "checkFailed": "1 mod's source didn't answer. | {count} mods' sources didn't answer.",
       "adoptAll": "Adopt all {count}",
       "adoptedAll": "No mod adopted. | 1 update adopted. | {count} updates adopted.",
-      "adopted": "Update adopted"
+      "adopted": "Update adopted",
+      "export": {
+        "button": "Export from the vote",
+        "title": "Export the vote list to the Modlist",
+        "modes": {
+          "add": {
+            "label": "Add missing",
+            "hint": "Only the official mods the Modlist doesn't have"
+          },
+          "sync": {
+            "label": "Sync removals",
+            "hint": "Also remove mods that left the vote list"
+          },
+          "replace": {
+            "label": "Replace",
+            "hint": "The Modlist becomes the vote list"
+          }
+        },
+        "sections": {
+          "add": "Add",
+          "remove": "Remove",
+          "update": "Optional flag",
+          "custom": "Custom entries"
+        },
+        "addHint": "The newest compatible file is pinned. With none, the mod is added flagged and left out of the manifest.",
+        "removeHint": "Not on the vote list",
+        "customHint": "A link or uploaded entry. Kept unless you tick it.",
+        "updateHint": "Becomes {value}",
+        "optionalOn": "optional",
+        "optionalOff": "required",
+        "none": "Nothing to change.",
+        "skipped": "Added by hand on the vote, so with no source to download from: {names}",
+        "revision": "Manifest revision {from} → {to}",
+        "apply": "Apply {count}",
+        "cancel": "Cancel",
+        "done": "Exported: {added} added, {removed} removed, {updated} changed.",
+        "flagged": "{count} left out of the manifest for lack of a file.",
+        "failed": "{count} could not be reached and weren't added."
+      }
     }
   },
   "wardenAdmin": {
@@ -3562,7 +3600,8 @@
       "modpackEdit": "Edited {name} in the Modlist",
       "modpackPin": "Switched {name} to a library file",
       "modpackRemove": "Removed {name} from the Modlist",
-      "modpackAdopt": "Adopted a newer file of {name}"
+      "modpackAdopt": "Adopted a newer file of {name}",
+      "modpackExport": "Exported the vote list to the Modlist"
     },
     "actors": {
       "console": "Console",

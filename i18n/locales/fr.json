@@ -3441,7 +3441,45 @@
       "checkFailed": "La source d'1 mod n'a pas répondu. | Les sources de {count} mods n'ont pas répondu.",
       "adoptAll": "Tout adopter ({count})",
       "adoptedAll": "Aucun mod adopté. | 1 mise à jour adoptée. | {count} mises à jour adoptées.",
-      "adopted": "Mise à jour adoptée"
+      "adopted": "Mise à jour adoptée",
+      "export": {
+        "button": "Exporter depuis le vote",
+        "title": "Exporter la liste du vote vers la Modlist",
+        "modes": {
+          "add": {
+            "label": "Ajouter les manquants",
+            "hint": "Seulement les mods officiels absents de la Modlist"
+          },
+          "sync": {
+            "label": "Synchroniser les retraits",
+            "hint": "Retire aussi les mods sortis de la liste du vote"
+          },
+          "replace": {
+            "label": "Remplacer",
+            "hint": "La Modlist devient la liste du vote"
+          }
+        },
+        "sections": {
+          "add": "Ajouts",
+          "remove": "Retraits",
+          "update": "Drapeau facultatif",
+          "custom": "Entrées personnalisées"
+        },
+        "addHint": "Le fichier compatible le plus récent est épinglé. Sans fichier, le mod est ajouté avec un signalement, hors du manifeste.",
+        "removeHint": "Absent de la liste du vote",
+        "customHint": "Un lien ou un fichier téléversé. Conservé sauf si vous le cochez.",
+        "updateHint": "Devient {value}",
+        "optionalOn": "facultatif",
+        "optionalOff": "obligatoire",
+        "none": "Rien à changer.",
+        "skipped": "Ajoutés à la main sur le vote, sans source de téléchargement : {names}",
+        "revision": "Révision du manifeste {from} → {to}",
+        "apply": "Appliquer {count}",
+        "cancel": "Annuler",
+        "done": "Exporté : {added} ajoutés, {removed} retirés, {updated} modifiés.",
+        "flagged": "{count} hors du manifeste faute de fichier.",
+        "failed": "{count} injoignables, non ajoutés."
+      }
     }
   },
   "wardenAdmin": {
@@ -3566,7 +3604,8 @@
       "modpackEdit": "{name} modifié dans la Modlist",
       "modpackPin": "{name} passé sur un fichier de la bibliothèque",
       "modpackRemove": "{name} retiré de la Modlist",
-      "modpackAdopt": "Fichier plus récent adopté pour {name}"
+      "modpackAdopt": "Fichier plus récent adopté pour {name}",
+      "modpackExport": "Liste du vote exportée vers la Modlist"
     },
     "actors": {
       "console": "Console",
