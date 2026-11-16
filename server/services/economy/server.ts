@@ -34,7 +34,7 @@ import type {
 import { economyLicenseBody, economyMintBody, economyTransferBody } from '#shared/schemas/economy';
 
 // What the Minecraft server asks of the economy: a player's accounts, an account by handle,
-// transfers, casino licences and the money mobs drop. The server is trusted (WARDEN_SERVER_SECRET), but every rule is still checked here:
+// transfers, casino licenses and the money mobs drop. The server is trusted (WARDEN_SERVER_SECRET), but every rule is still checked here:
 // who may spend, frozen accounts, balances. See docs/economy.md.
 
 type TransferBody = ReturnType<typeof economyTransferBody.parse>;
@@ -213,7 +213,7 @@ async function transfer(input: EconomyTransferBody): Promise<EconomyTransferResu
   }
 }
 
-/** A licence already bought with this key, or nothing. */
+/** A license already bought with this key, or nothing. */
 async function previousLicense(
   dbx: Db,
   key: string,
@@ -262,8 +262,8 @@ async function previousLicense(
 }
 
 /**
- * The player buys a casino licence. Its price is burned from the account they chose, or their
- * default one, which they must be able to spend from. A price of 0 gives the licence with no
+ * The player buys a casino license. Its price is burned from the account they chose, or their
+ * default one, which they must be able to spend from. A price of 0 gives the license with no
  * transaction. Sending the same key again gives back the first result.
  */
 async function buyLicense(input: EconomyLicenseBody): Promise<EconomyLicenseResult> {
@@ -295,7 +295,7 @@ async function buyLicense(input: EconomyLicenseBody): Promise<EconomyLicenseResu
           ? await economyLedger.post(tx, {
               kind: 'burn',
               reason: 'casinoLicense',
-              memo: 'Casino licence',
+              memo: 'Casino license',
               actor: { source: 'minecraft', userId: buyer.userId, minecraftUuid: body.player },
               idempotencyKey: body.idempotencyKey,
               fingerprint: print,

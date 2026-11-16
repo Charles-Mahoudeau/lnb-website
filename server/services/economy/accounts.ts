@@ -312,7 +312,7 @@ async function balanceHistory(userId: string, accountId: string, period: Economy
   return economyStatsService.balanceHistory(accountId, period);
 }
 
-/** Opens a shared account with the player as its owner. A casino uses one of their licences. */
+/** Opens a shared account with the player as its owner. A casino uses one of their licenses. */
 async function create(userId: string, body: EconomyCreateBody): Promise<EconomyAccountDetail> {
   if (!(await isEligible(db, userId))) refuse(403, 'notEligible');
   const handle = economyHandle.parse(body.handle);
@@ -336,7 +336,7 @@ async function create(userId: string, body: EconomyCreateBody): Promise<EconomyA
 
 /**
  * Renames a shared account, changes its type, or both. Only owners do. A casino stays a casino:
- * its licence is bound to it for good. Becoming one uses one of the owner's free licences.
+ * its license is bound to it for good. Becoming one uses one of the owner's free licenses.
  */
 async function update(userId: string, accountId: string, body: EconomyAccountPatchBody) {
   await db.transaction(async (tx) => {

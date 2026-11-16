@@ -5,7 +5,7 @@ import type { EconomyAccountType, EconomyAccountView } from '#shared/schemas/eco
 import { ECONOMY_ACCOUNT_TYPES } from '#shared/schemas/economy';
 
 // Settings of the chosen account: the baltop for the personal one; the name, the type, closing or
-// leaving for a shared one. A casino stays a casino, and becoming one uses a casino licence.
+// leaving for a shared one. A casino stays a casino, and becoming one uses a casino license.
 const props = defineProps<{
   account: EconomyAccountView;
   hideFromBaltop: boolean;

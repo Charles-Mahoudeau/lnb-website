@@ -22,7 +22,7 @@ import { economyServerAccountService } from '~~/server/services/economy/server-a
 import { economySettingsService } from '~~/server/services/economy/settings';
 import { economyStatsService } from '~~/server/services/economy/stats';
 
-// Pass 3 of the economy: account types, shared accounts from the game, casino licences, mob drops
+// Pass 3 of the economy: account types, shared accounts from the game, casino licenses, mob drops
 // and sale notices. See docs/economy.md.
 
 const EPITECH = '901cb4ca-b862-4029-9306-e5cd0f6d9f86';
@@ -117,7 +117,7 @@ describe('account types', () => {
     ).rejects.toMatchObject({ statusCode: 403, data: { problem: 'notAllowed' } });
   });
 
-  it('needs a free licence for a casino, and binds it for good', async () => {
+  it('needs a free license for a casino, and binds it for good', async () => {
     const owner = await player();
     await expect(
       economyAccountService.create(owner.id, { name: 'Royal', handle: handle(), type: 'casino' }),
@@ -133,7 +133,7 @@ describe('account types', () => {
       total: 1,
       free: 0,
     });
-    // The one licence is used: a second casino needs another.
+    // The one license is used: a second casino needs another.
     await expect(
       economyAccountService.create(owner.id, { name: 'Second', handle: handle(), type: 'casino' }),
     ).rejects.toMatchObject({ data: { problem: 'noLicense' } });
@@ -145,7 +145,7 @@ describe('account types', () => {
     await economyAccountService.update(owner.id, team.id, { name: 'Royale', type: 'casino' });
     expect((await economyAccountService.view(owner.id, team.id)).name).toBe('Royale');
 
-    // Closing the casino doesn't free its licence.
+    // Closing the casino doesn't free its license.
     await economyAccountService.close(owner.id, team.id);
     expect((await economyAccountService.me(owner.id)).casinoLicenses).toEqual({
       total: 1,
@@ -153,7 +153,7 @@ describe('account types', () => {
     });
   });
 
-  it('lets an admin set any type without a licence, in the audit log', async () => {
+  it('lets an admin set any type without a license, in the audit log', async () => {
     const admin = await player('Type Admin');
     const owner = await player();
     const account = await economyAccountService.create(owner.id, {
@@ -350,8 +350,8 @@ describe('shared accounts from the game', () => {
   });
 });
 
-describe('casino licences', () => {
-  it('burns the price once per key, and counts the licences', async () => {
+describe('casino licenses', () => {
+  it('burns the price once per key, and counts the licenses', async () => {
     const buyer = await player();
     const before = await economyServerService.lookup(buyer.uuid);
     expect(before).toMatchObject({
@@ -381,7 +381,7 @@ describe('casino licences', () => {
       id: bought.transactionId,
       kind: 'burn',
       reason: 'casinoLicense',
-      memo: 'Casino licence',
+      memo: 'Casino license',
       amount: -400,
       counterparty: { type: 'lnb' },
     });
@@ -428,7 +428,7 @@ describe('casino licences', () => {
       statusCode: 409,
       data: { problem: 'insufficientFunds' },
     });
-    // The licence can make that very account a casino.
+    // The license can make that very account a casino.
     const casino = await economyServerAccountService.update(name, {
       player: owner.uuid,
       type: 'casino',
@@ -441,7 +441,7 @@ describe('casino licences', () => {
   });
 
   it('refuses a banned player and a frozen account', async () => {
-    const admin = await player('Licence Admin');
+    const admin = await player('License Admin');
     const banned = await player();
     const frozen = await player();
     await db.insert(wardenBan).values({ userId: banned.id, reason: 'Cheating', source: 'web' });
@@ -461,7 +461,7 @@ describe('casino licences', () => {
     });
   });
 
-  it('gives a free licence with no transaction, once per key', async () => {
+  it('gives a free license with no transaction, once per key', async () => {
     const admin = await player('Price Admin');
     const buyer = await player();
     const settings = await economySettingsService.update(admin.id, { casinoLicensePrice: 0 });
@@ -651,7 +651,7 @@ describe('sale notices', () => {
 });
 
 describe('the reset', () => {
-  it('clears the licences with the accounts', async () => {
+  it('clears the licenses with the accounts', async () => {
     const admin = await player('Reset Admin');
     const owner = await player();
     await license(owner.uuid);

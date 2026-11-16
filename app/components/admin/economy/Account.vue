@@ -82,7 +82,7 @@ async function onAdjust(direction: 'mint' | 'burn') {
 const typeItems = computed(() =>
   ECONOMY_ACCOUNT_TYPES.map((value) => ({ label: t(`economy.types.${value}`), value })),
 );
-// Admins set any type, with no licence: for casinos that were there before the licences.
+// Admins set any type, with no license: for casinos that were there before the licenses.
 async function onType(type: EconomyAccountType) {
   if (type === data.value?.type) return;
   await run(

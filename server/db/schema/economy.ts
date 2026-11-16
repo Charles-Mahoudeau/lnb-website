@@ -24,7 +24,7 @@ import { user } from './auth';
 // See docs/economy.md.
 
 export type EconomyAccountKind = 'personal' | 'shared';
-/** What a shared account is for. A casino needs a casino licence, and stays a casino. */
+/** What a shared account is for. A casino needs a casino license, and stays a casino. */
 export type EconomyAccountType = 'team' | 'shop' | 'casino';
 export type EconomyMemberRole = 'owner' | 'member' | 'viewer';
 /** What a transaction was. `mint` and `burn` create and destroy money; nothing else does. */
@@ -123,7 +123,7 @@ export const economyInvitation = pgTable(
 );
 
 /**
- * A casino licence: what lets a player make one of their shared accounts a casino. Bought from the
+ * A casino license: what lets a player make one of their shared accounts a casino. Bought from the
  * game, for a price that is burned. It belongs to the LNB account and is free until it is bound to
  * an account, for good: closing the casino doesn't free it.
  */
@@ -381,7 +381,7 @@ export const economySettings = pgTable(
     auctionTaxPercent: smallint('auction_tax_percent').default(5).notNull(),
     auctionMaxListings: smallint('auction_max_listings').default(20).notNull(),
     auctionDays: smallint('auction_days').default(7).notNull(),
-    // What a casino licence costs. Burned.
+    // What a casino license costs. Burned.
     casinoLicensePrice: bigint('casino_license_price', { mode: 'number' })
       .default(100_000)
       .notNull(),

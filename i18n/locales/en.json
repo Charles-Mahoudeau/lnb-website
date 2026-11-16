@@ -1322,8 +1322,8 @@
           "description": "Listing and buying at the auction house in the game. Sellers can still take their items back, and players collect what waits for them."
         },
         "economy_casinoLicenses": {
-          "label": "Casino licences",
-          "description": "Buying a casino licence in the game. Licences already bought still work."
+          "label": "Casino licenses",
+          "description": "Buying a casino license in the game. Licenses already bought still work."
         },
         "economy_mobDrops": {
           "label": "Mob drops",
@@ -2329,7 +2329,7 @@
           "adjustment": "Minted: adjustments",
           "accountClosed": "Minted: closed accounts",
           "auctionTax": "Minted: auction tax",
-          "casinoLicense": "Minted: casino licences",
+          "casinoLicense": "Minted: casino licenses",
           "mobDrop": "Minted: mob drops",
           "questReward": "Minted: quest rewards"
         },
@@ -2338,7 +2338,7 @@
           "adjustment": "Burned: adjustments",
           "accountClosed": "Burned: deleted players",
           "auctionTax": "Burned: auction house tax",
-          "casinoLicense": "Burned: casino licences",
+          "casinoLicense": "Burned: casino licenses",
           "mobDrop": "Burned: mob drops",
           "questReward": "Burned: quest rewards"
         }
@@ -2445,8 +2445,8 @@
         "auctionMaxListingsHelp": "The most a player has up at the auction house at once.",
         "auctionDays": "Listing length (days)",
         "auctionDaysHelp": "After this, an unsold item goes back to its seller’s mailbox.",
-        "casinoLicensePrice": "Casino licence price",
-        "casinoLicensePriceHelp": "What a player pays in the game for one licence. It is destroyed. 0 makes licences free.",
+        "casinoLicensePrice": "Casino license price",
+        "casinoLicensePriceHelp": "What a player pays in the game for one license. It is destroyed. 0 makes licenses free.",
         "save": "Save settings",
         "saved": "Settings saved"
       },
@@ -3870,7 +3870,7 @@
       "lastOwner": "An account needs at least one owner. Make someone else owner first.",
       "balanceNotZero": "Empty the account before closing it.",
       "personalAccount": "Personal accounts can’t do that.",
-      "noLicense": "A casino needs a casino licence. Buy one in the game first.",
+      "noLicense": "A casino needs a casino license. Buy one in the game first.",
       "typeLocked": "A casino stays a casino: its type can’t change.",
       "alreadyReversed": "That transaction was already reversed.",
       "notReversible": "A reversal can’t be reversed.",
@@ -3942,7 +3942,7 @@
       "adjustment": "Adjustment from LNB",
       "mobDrop": "Dropped by mobs",
       "questReward": "Quest reward",
-      "casinoLicense": "Casino licence",
+      "casinoLicense": "Casino license",
       "reversal": "Reversed by LNB",
       "reversed": "Reversed",
       "memo": "“{memo}”",
@@ -3997,7 +3997,7 @@
       "handleFixed": "#{handle} never changes",
       "type": "Type",
       "typeLocked": "A casino stays a casino",
-      "typeLicenses": "Becoming a casino uses one casino licence, for good. You have none free: buy one in the game. | Becoming a casino uses one casino licence, for good. You have {n} free. | Becoming a casino uses one casino licence, for good. You have {n} free.",
+      "typeLicenses": "Becoming a casino uses one casino license, for good. You have none free: buy one in the game. | Becoming a casino uses one casino license, for good. You have {n} free. | Becoming a casino uses one casino license, for good. You have {n} free.",
       "rename": "Save",
       "renamed": "Account saved",
       "closeHeading": "Close the account",
@@ -4021,7 +4021,7 @@
       "handle": "Handle",
       "handleHelp": "Players pay it with /pay #handle. 3 to 24 lower-case letters, digits or dashes. It can’t change later.",
       "type": "Type",
-      "typeHelp": "A casino uses one casino licence. You have none free: buy one in the game. | A casino uses one casino licence. You have {n} free. | A casino uses one casino licence. You have {n} free.",
+      "typeHelp": "A casino uses one casino license. You have none free: buy one in the game. | A casino uses one casino license. You have {n} free. | A casino uses one casino license. You have {n} free.",
       "submit": "Open account"
     },
     "baltop": {
