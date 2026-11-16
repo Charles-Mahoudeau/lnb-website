@@ -1,6 +1,7 @@
 import { MODPACK_PROBLEMS } from '#shared/schemas/modpack';
 import type {
   ModpackAddBody,
+  ModpackCheckResult,
   ModpackList,
   ModpackPatchBody,
   ModpackPinBody,
@@ -41,5 +42,8 @@ export const modpackActions = {
     call(() => $fetch(`${BASE}/${id}`, { method: 'PATCH', body })),
   pinFile: (id: string, body: ModpackPinBody) =>
     call(() => $fetch(`${BASE}/${id}/file`, { method: 'PUT', body })),
+  check: () => call(() => $fetch<ModpackCheckResult>(`${BASE}/check`, { method: 'POST' })),
+  adopt: (id: string) => call(() => $fetch(`${BASE}/${id}/adopt`, { method: 'POST' })),
+  adoptAll: () => call(() => $fetch<{ adopted: number }>(`${BASE}/adopt-all`, { method: 'POST' })),
   remove: (id: string) => call(() => $fetch(`${BASE}/${id}`, { method: 'DELETE' })),
 };

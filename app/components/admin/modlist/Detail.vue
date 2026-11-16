@@ -87,6 +87,18 @@ async function onSwitch() {
   }
 }
 
+async function onAdopt() {
+  if (await run(() => modpackActions.adopt(props.mod.id), 'admin.modlist.adopted')) {
+    emit('close', 'changed');
+  }
+}
+
+const canAdopt = computed(
+  () =>
+    !!props.mod.latest?.sha512 &&
+    (props.mod.status === 'update' || props.mod.attention === 'urlChanged'),
+);
+
 async function onRemove() {
   if (await run(() => modpackActions.remove(props.mod.id), 'admin.modlist.removed')) {
     emit('close', 'changed');
@@ -134,6 +146,19 @@ const statusColor = { ok: 'success', update: 'warning', attention: 'error' } as 
           icon="i-lucide-triangle-alert"
           :description="t(`admin.modlist.attention.${mod.attention}`)"
         />
+
+        <div v-if="canAdopt">
+          <UButton
+            icon="i-lucide-check"
+            :label="
+              mod.attention === 'urlChanged'
+                ? t('admin.modlist.detail.acceptNew')
+                : t('admin.modlist.detail.adopt', { version: mod.latest?.version ?? '' })
+            "
+            :loading="pending"
+            @click="onAdopt"
+          />
+        </div>
 
         <section
           v-for="block in [
