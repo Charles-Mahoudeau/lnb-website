@@ -593,6 +593,7 @@
       "overview": "Vue d’ensemble",
       "mods": "Mods",
       "modList": "Liste de mods",
+      "modVote": "Vote des mods",
       "modSuggestions": "Propositions",
       "flags": "Fonctionnalités",
       "rateLimit": "Limitation de débit",
@@ -1084,8 +1085,8 @@
           "description": "Refuse les nouvelles connexions des comptes ISEG. Les admins peuvent toujours se connecter."
         },
         "modList": {
-          "label": "Liste des mods",
-          "description": "La page publique de la liste des mods et tout ce qu’elle permet."
+          "label": "Vote des mods",
+          "description": "La page publique de la liste des mods, où les membres votent et proposent des mods, et tout ce qu’elle permet."
         },
         "modList_voting": {
           "label": "Votes",

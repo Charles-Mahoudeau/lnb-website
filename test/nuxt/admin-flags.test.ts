@@ -28,7 +28,7 @@ describe('admin feature flags', () => {
   it('shows each feature with its parts, and says when the parts are off', async () => {
     const page = await mountSuspended(AdminFlags);
     const text = page.text();
-    expect(text).toContain('Mod list');
+    expect(text).toContain('Mod vote');
     expect(text).toContain('Voting');
     expect(text).toContain('App linking');
     expect(text).toContain('its parts are off too');

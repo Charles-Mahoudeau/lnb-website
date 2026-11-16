@@ -1,0 +1,28 @@
+<script setup lang="ts">
+definePageMeta({ wardenAdmins: true });
+
+const { t } = useI18n();
+const official = useTemplateRef('official');
+</script>
+
+<template>
+  <AdminPage :title="t('admin.nav.modVote')" :parents="[{ label: t('admin.nav.mods') }]">
+    <template #actions>
+      <UButton
+        color="neutral"
+        variant="soft"
+        icon="i-lucide-refresh-cw"
+        :label="t('admin.mods.refresh.button')"
+        @click="official?.onRefresh()"
+      />
+      <UButton
+        icon="i-lucide-plus"
+        :label="t('admin.mods.official.add')"
+        @click="official?.onAdd()"
+      />
+    </template>
+    <div class="flex max-w-5xl flex-col gap-6">
+      <ModsAdminOfficial ref="official" />
+    </div>
+  </AdminPage>
+</template>

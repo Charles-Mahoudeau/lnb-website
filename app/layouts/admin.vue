@@ -7,6 +7,7 @@ import type { NavigationMenuItem } from '@nuxt/ui';
 const { t } = useI18n();
 const { user, school } = useAuth();
 const route = useRoute();
+const { isEnabled } = useFlags();
 
 // The anticheat's waiting work, for the badge on its group. Warden admins only.
 const summary = isWardenAdmin(user.value?.role) ? useAnticheatSummary() : null;
@@ -44,8 +45,14 @@ const wardenItems = computed<NavigationMenuItem[]>(() => [
     icon: 'i-lucide-blocks',
     defaultOpen: true,
     children: [
-      { label: t('admin.nav.modList'), to: '/admin/mods', exact: true },
-      { label: t('admin.nav.modSuggestions'), to: '/admin/mods/suggestions' },
+      // The vote is a feature that can be switched off (the modList flag), so its entries go with it.
+      ...(isEnabled('modList')
+        ? [
+            { label: t('admin.nav.modVote'), to: '/admin/mods/vote', exact: true },
+            { label: t('admin.nav.modSuggestions'), to: '/admin/mods/vote/suggestions' },
+          ]
+        : []),
+      { label: t('admin.nav.settings'), to: '/admin/mods/settings' },
     ],
   },
 ]);
