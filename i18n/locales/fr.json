@@ -619,7 +619,8 @@
       "anticheatPlayers": "Joueurs",
       "anticheatSettings": "Réglages",
       "economyQuests": "Quêtes",
-      "gamesplanet": "Gamesplanet"
+      "gamesplanet": "Gamesplanet",
+      "modlist": "Modlist"
     },
     "cancel": "Annuler",
     "roles": {
@@ -3323,6 +3324,112 @@
           "footer": "Pied de page"
         }
       }
+    },
+    "modlist": {
+      "note": "Les mods que le lanceur télécharge. Chacun est épinglé sur un fichier, et rien ne change dans le manifeste tant qu'un admin ne le change pas.",
+      "search": "Chercher un mod",
+      "filter": "Filtre",
+      "side": "Côté",
+      "optional": "Optionnel",
+      "optionalHelp": "Les joueurs peuvent se passer de ce mod.",
+      "saved": "Enregistré",
+      "switched": "Ce fichier est maintenant utilisé",
+      "removed": "Mod retiré",
+      "updateTo": "Mise à jour disponible : {version}",
+      "checkedOn": "Vérifié le {date}",
+      "notChecked": "Pas encore vérifié",
+      "stats": {
+        "revision": "Révision du manifeste",
+        "mods": "Mods",
+        "size": "Taille à télécharger",
+        "changed": "Dernier changement"
+      },
+      "filters": {
+        "all": "Tous {count}",
+        "update": "Mises à jour {count}",
+        "attention": "À traiter {count}"
+      },
+      "status": {
+        "ok": "À jour",
+        "update": "Mise à jour disponible",
+        "attention": "À traiter"
+      },
+      "sides": {
+        "both": "Les deux",
+        "client": "Client",
+        "server": "Serveur"
+      },
+      "sources": {
+        "modrinth": "Modrinth",
+        "curseforge": "CurseForge",
+        "url": "Lien perso",
+        "upload": "Importé"
+      },
+      "attention": {
+        "noCompatibleFile": "Pas encore de fichier pour la version et le loader du serveur. Il est laissé hors du manifeste.",
+        "downloadBlocked": "CurseForge interdit les téléchargements depuis l'extérieur. Importez le jar dans la bibliothèque de fichiers, puis utilisez-le.",
+        "urlChanged": "Le fichier au bout du lien a changé : son empreinte ne correspond plus."
+      },
+      "empty": {
+        "none": "Aucun mod pour l'instant. Ajoutez le premier.",
+        "all": "Aucun mod.",
+        "update": "Tous les mods sont à jour.",
+        "attention": "Aucun mod à traiter.",
+        "ok": "Aucun mod.",
+        "search": "Aucun mod ne correspond."
+      },
+      "add": {
+        "button": "Ajouter un mod",
+        "title": "Ajouter un mod",
+        "lede": "Épingle le dernier fichier compatible, ou celui que vous donnez.",
+        "fromSearch": "Modrinth et CurseForge",
+        "fromUrl": "Lien perso",
+        "fromFile": "Bibliothèque de fichiers",
+        "url": "Lien vers le jar",
+        "urlHelp": "Le site le télécharge une fois pour calculer son empreinte. https uniquement, 100 Mo maximum.",
+        "file": "Jar",
+        "pickFile": "Choisir un jar",
+        "noJars": "Aucun jar de mod dans la bibliothèque. Importez-en un d'abord.",
+        "name": "Nom",
+        "version": "Version",
+        "versionHelp": "À écrire à la main, par exemple 1.4.2.",
+        "submit": "Ajouter au pack",
+        "added": "Mod ajouté"
+      },
+      "detail": {
+        "now": "Dans le manifeste actuellement",
+        "latest": "Dernier fichier compatible",
+        "noFile": "Pas encore de fichier : le manifeste laisse ce mod de côté.",
+        "noLatest": "Rien de plus récent trouvé.",
+        "notChecked": "Pas encore vérifié.",
+        "checked": "Vérifié le {date}",
+        "fromLibrary": "Téléchargé depuis la bibliothèque de ce site",
+        "fromSource": "Téléchargé depuis la source",
+        "details": "Détails",
+        "save": "Enregistrer",
+        "switchTitle": "Utiliser un fichier de la bibliothèque",
+        "switchHelp": "Pointe ce mod vers un jar que vous avez importé. Utile quand la source interdit les téléchargements, ou pour héberger votre propre build.",
+        "switch": "Choisir un jar",
+        "switchApply": "Utiliser ce fichier",
+        "remove": "Retirer du pack",
+        "removeConfirm": "Retirer {name} du pack ?",
+        "removeNote": "Il quitte le manifeste. Un fichier qu'il utilisait reste dans la bibliothèque.",
+        "removeYes": "Retirer"
+      },
+      "errors": {
+        "failed": "Un problème est survenu. Réessayez.",
+        "notFound": "Ce mod n'existe plus.",
+        "duplicate": "Ce mod est déjà dans le pack.",
+        "incompatible": "Aucun fichier de ce mod ne convient au serveur.",
+        "sourceUnavailable": "Modrinth ou CurseForge n'a pas répondu. Réessayez dans un instant.",
+        "badUrl": "Ce n'est pas un lien https valide.",
+        "unreachable": "Le site n'a pas pu télécharger ce lien.",
+        "tooLarge": "Ce fichier dépasse la limite de 100 Mo.",
+        "notAJar": "Ce fichier n'est pas un jar.",
+        "fileNotFound": "Ce fichier n'est pas dans la bibliothèque.",
+        "notModFile": "Seuls les fichiers ajoutés comme jar de mod peuvent servir.",
+        "notUploaded": "Ce fichier n'a pas été importé."
+      }
     }
   },
   "wardenAdmin": {
@@ -3442,7 +3549,11 @@
       "deviceDeny": "A refusé d’associer l’appareil {device}",
       "deviceRevoke": "A révoqué l’appareil {device}",
       "linkTransfer": "A repris {username} à un autre joueur",
-      "transferDismiss": "A ignoré l’avertissement sur {username}"
+      "transferDismiss": "A ignoré l’avertissement sur {username}",
+      "modpackAdd": "{name} ajouté à la Modlist",
+      "modpackEdit": "{name} modifié dans la Modlist",
+      "modpackPin": "{name} passé sur un fichier de la bibliothèque",
+      "modpackRemove": "{name} retiré de la Modlist"
     },
     "actors": {
       "console": "Console",

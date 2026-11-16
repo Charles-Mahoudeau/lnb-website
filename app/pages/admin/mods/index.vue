@@ -1,9 +1,19 @@
 <script setup lang="ts">
-// The Modlist will live here. Until it does, the section opens on the vote.
 definePageMeta({ wardenAdmins: true });
-await navigateTo('/admin/mods/vote', { replace: true });
+
+const { t } = useI18n();
+const modlist = useTemplateRef('modlist');
 </script>
 
 <template>
-  <div />
+  <AdminPage :title="t('admin.nav.modlist')" :parents="[{ label: t('admin.nav.mods') }]">
+    <template #actions>
+      <UButton
+        icon="i-lucide-plus"
+        :label="t('admin.modlist.add.button')"
+        @click="modlist?.add()"
+      />
+    </template>
+    <AdminModlist ref="modlist" />
+  </AdminPage>
 </template>

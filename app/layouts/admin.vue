@@ -45,6 +45,7 @@ const wardenItems = computed<NavigationMenuItem[]>(() => [
     icon: 'i-lucide-blocks',
     defaultOpen: true,
     children: [
+      { label: t('admin.nav.modlist'), to: '/admin/mods', exact: true },
       // The vote is a feature that can be switched off (the modList flag), so its entries go with it.
       ...(isEnabled('modList')
         ? [

@@ -615,7 +615,8 @@
       "anticheatPlayers": "Players",
       "anticheatSettings": "Settings",
       "economyQuests": "Quests",
-      "gamesplanet": "Gamesplanet"
+      "gamesplanet": "Gamesplanet",
+      "modlist": "Modlist"
     },
     "cancel": "Cancel",
     "roles": {
@@ -3319,6 +3320,112 @@
           "footer": "Footer"
         }
       }
+    },
+    "modlist": {
+      "note": "The mods the launcher downloads. Each one is pinned to a file, and nothing changes in the manifest until an admin changes it.",
+      "search": "Search mods",
+      "filter": "Filter",
+      "side": "Side",
+      "optional": "Optional",
+      "optionalHelp": "Players may leave this mod out.",
+      "saved": "Saved",
+      "switched": "Now using that file",
+      "removed": "Mod removed",
+      "updateTo": "Update available: {version}",
+      "checkedOn": "Checked on {date}",
+      "notChecked": "Not checked for updates yet",
+      "stats": {
+        "revision": "Manifest revision",
+        "mods": "Mods",
+        "size": "Download size",
+        "changed": "Last change"
+      },
+      "filters": {
+        "all": "All {count}",
+        "update": "Updates {count}",
+        "attention": "Needs attention {count}"
+      },
+      "status": {
+        "ok": "Up to date",
+        "update": "Update available",
+        "attention": "Needs attention"
+      },
+      "sides": {
+        "both": "Both",
+        "client": "Client",
+        "server": "Server"
+      },
+      "sources": {
+        "modrinth": "Modrinth",
+        "curseforge": "CurseForge",
+        "url": "Custom URL",
+        "upload": "Uploaded"
+      },
+      "attention": {
+        "noCompatibleFile": "No file for the server's version and loader yet. It is left out of the manifest.",
+        "downloadBlocked": "CurseForge forbids downloads from outside. Upload the jar to the Files library and use it.",
+        "urlChanged": "The file at the link changed, so its hash no longer matches."
+      },
+      "empty": {
+        "none": "No mod yet. Add the first one.",
+        "all": "No mod.",
+        "update": "Every mod is up to date.",
+        "attention": "No mod needs attention.",
+        "ok": "No mod.",
+        "search": "No mod matches."
+      },
+      "add": {
+        "button": "Add mod",
+        "title": "Add a mod",
+        "lede": "Pins the newest compatible file, or the file you give.",
+        "fromSearch": "Modrinth and CurseForge",
+        "fromUrl": "Custom URL",
+        "fromFile": "Files library",
+        "url": "Link to the jar",
+        "urlHelp": "The site downloads it once to hash it. https only, 100 MB at most.",
+        "file": "Jar",
+        "pickFile": "Pick a jar",
+        "noJars": "No mod jar in the Files library yet. Upload one there first.",
+        "name": "Name",
+        "version": "Version",
+        "versionHelp": "Written by hand, such as 1.4.2.",
+        "submit": "Add to the pack",
+        "added": "Mod added"
+      },
+      "detail": {
+        "now": "In the manifest now",
+        "latest": "Newest compatible file",
+        "noFile": "No file yet, so the manifest leaves this mod out.",
+        "noLatest": "Nothing newer found.",
+        "notChecked": "Not checked yet.",
+        "checked": "Checked on {date}",
+        "fromLibrary": "Downloads from this site's Files library",
+        "fromSource": "Downloads from the source",
+        "details": "Details",
+        "save": "Save",
+        "switchTitle": "Use a file of the library",
+        "switchHelp": "Points this mod at a jar you uploaded. Use it when the source forbids downloads, or to host a build yourself.",
+        "switch": "Choose a jar",
+        "switchApply": "Use this file",
+        "remove": "Remove from the pack",
+        "removeConfirm": "Remove {name} from the pack?",
+        "removeNote": "It leaves the manifest. A file it used stays in the library.",
+        "removeYes": "Remove"
+      },
+      "errors": {
+        "failed": "Something went wrong. Try again.",
+        "notFound": "That mod isn't there any more.",
+        "duplicate": "That mod is already in the pack.",
+        "incompatible": "No file of that mod fits the server.",
+        "sourceUnavailable": "Modrinth or CurseForge didn't answer. Try again in a moment.",
+        "badUrl": "That isn't a valid https link.",
+        "unreachable": "The site couldn't download that link.",
+        "tooLarge": "That file is over the 100 MB limit.",
+        "notAJar": "That file isn't a jar.",
+        "fileNotFound": "That file isn't in the library.",
+        "notModFile": "Only files added as a mod jar can be used.",
+        "notUploaded": "That file wasn't uploaded."
+      }
     }
   },
   "wardenAdmin": {
@@ -3438,7 +3545,11 @@
       "deviceDeny": "Refused to link the device {device}",
       "deviceRevoke": "Revoked the device {device}",
       "linkTransfer": "Took over {username} from another player",
-      "transferDismiss": "Dismissed the warning about {username}"
+      "transferDismiss": "Dismissed the warning about {username}",
+      "modpackAdd": "Added {name} to the Modlist",
+      "modpackEdit": "Edited {name} in the Modlist",
+      "modpackPin": "Switched {name} to a library file",
+      "modpackRemove": "Removed {name} from the Modlist"
     },
     "actors": {
       "console": "Console",
