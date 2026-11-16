@@ -86,6 +86,13 @@ export function useWardenLabels() {
         const key = `file${entry.action.charAt(5).toUpperCase()}${entry.action.slice(6)}`;
         return t(`wardenAdmin.actions.${key}`, { name: text('name') });
       }
+      case 'modpack.add':
+      case 'modpack.edit':
+      case 'modpack.pin':
+      case 'modpack.remove': {
+        const key = `modpack${entry.action.charAt(8).toUpperCase()}${entry.action.slice(9)}`;
+        return t(`wardenAdmin.actions.${key}`, { name: text('name') });
+      }
       default: {
         // token.rotate becomes tokenRotate, and so on.
         const key = entry.action.replace(/\.(\w)/g, (_, c: string) => c.toUpperCase());

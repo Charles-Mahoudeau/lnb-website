@@ -3,7 +3,14 @@ import type { ModSearchResult } from '#shared/schemas/mods';
 
 // Searches Modrinth and CurseForge as the user types. Only available results can be picked:
 // the others say why not.
+const props = defineProps<{
+  /** Results already in the vote's lists can be picked too: the Modlist is a separate list. */
+  ignoreListing?: boolean;
+}>();
 const emit = defineEmits<{ pick: [result: ModSearchResult] }>();
+
+const pickable = (result: ModSearchResult) =>
+  result.status === 'available' || (props.ignoreListing && result.status !== 'incompatible');
 
 const { t, locale } = useI18n();
 
@@ -79,21 +86,16 @@ const downloads = (count: number) =>
         <button
           type="button"
           class="flex w-full items-center gap-3 rounded-md p-2 text-left enabled:hover:bg-accented disabled:cursor-default"
-          :disabled="result.status !== 'available'"
+          :disabled="!pickable(result)"
           @click="emit('pick', result)"
         >
           <ModsIcon
             :name="result.name"
             :src="result.iconUrl"
             size="sm"
-            :class="result.status === 'available' ? '' : 'opacity-50'"
+            :class="pickable(result) ? '' : 'opacity-50'"
           />
-          <span
-            :class="[
-              'flex min-w-0 grow flex-col',
-              result.status === 'available' ? '' : 'opacity-60',
-            ]"
-          >
+          <span :class="['flex min-w-0 grow flex-col', pickable(result) ? '' : 'opacity-60']">
             <span class="truncate font-semibold text-highlighted">{{ result.name }}</span>
             <span class="truncate text-sm text-muted">
               {{
@@ -110,7 +112,7 @@ const downloads = (count: number) =>
             size="sm"
             :label="t(`mods.sources.${result.source}`)"
           />
-          <span v-if="result.status !== 'available'" class="shrink-0 text-sm text-muted">
+          <span v-if="!pickable(result)" class="shrink-0 text-sm text-muted">
             {{ t(`mods.search.status.${result.status}`) }}
           </span>
         </button>
