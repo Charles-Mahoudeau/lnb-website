@@ -324,6 +324,7 @@ export const WARDEN_AUDIT_ACTIONS = [
   'modpack.edit',
   'modpack.pin',
   'modpack.adopt',
+  'modpack.export',
   'modpack.remove',
   // The anticheat (docs/anticheat.md), run by the same staff. The last two are written by the site
   // itself and exist to feed the event stream.

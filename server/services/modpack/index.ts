@@ -152,7 +152,7 @@ function pinnedFromLibrary(file: typeof storedFile.$inferSelect, version: string
 }
 
 /** What a new entry holds, from the add request. */
-async function valuesFor(body: ModpackAddBody): Promise<typeof modpackMod.$inferInsert> {
+export async function valuesFor(body: ModpackAddBody): Promise<typeof modpackMod.$inferInsert> {
   const base = { side: body.side ?? 'both', optional: body.optional ?? false };
   if (body.source === 'upload') {
     return {

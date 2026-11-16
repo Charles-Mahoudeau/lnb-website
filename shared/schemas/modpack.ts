@@ -143,3 +143,48 @@ export const modpackCheckResult = z.object({
 export type ModpackCheckResult = z.infer<typeof modpackCheckResult>;
 
 export const modpackAdoptedResult = z.object({ adopted: z.number() });
+
+/** How the vote's official list is copied to the Modlist. */
+export const MODPACK_EXPORT_MODES = ['add', 'sync', 'replace'] as const;
+export const modpackExportMode = z.enum(MODPACK_EXPORT_MODES);
+export type ModpackExportMode = z.infer<typeof modpackExportMode>;
+
+export const modpackExportQuery = z.object({ mode: modpackExportMode });
+
+/** One change the export would make. `custom` marks a link or uploaded entry that Replace drops. */
+export const modpackExportItem = z.object({
+  key: z.string().describe('Sent back to apply this change.'),
+  kind: z.enum(['add', 'remove', 'update']),
+  name: z.string(),
+  source: modpackSource,
+  custom: z.boolean(),
+  optional: z.boolean().describe('For an update, the new value.'),
+});
+export type ModpackExportItem = z.infer<typeof modpackExportItem>;
+
+export const modpackExportPreview = z.object({
+  revision: z.number(),
+  items: z.array(modpackExportItem),
+  skipped: z
+    .array(z.string())
+    .describe('Official mods added by hand, which have no source to download from.'),
+});
+export type ModpackExportPreview = z.infer<typeof modpackExportPreview>;
+
+/** Body of POST /api/minecraft/admin/modpack/export. */
+export const modpackExportBody = z.object({
+  mode: modpackExportMode,
+  keys: z.array(z.string().max(80)).max(1000),
+});
+export type ModpackExportBody = z.infer<typeof modpackExportBody>;
+
+export const modpackExportResult = z.object({
+  added: z.number(),
+  removed: z.number(),
+  updated: z.number(),
+  flagged: z.number().describe('Added mods with no usable file, left out of the manifest.'),
+  failed: z
+    .number()
+    .describe('Mods whose source could not be reached. Nothing was changed for them.'),
+});
+export type ModpackExportResult = z.infer<typeof modpackExportResult>;

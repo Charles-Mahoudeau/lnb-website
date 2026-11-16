@@ -1890,6 +1890,28 @@ const routes: RouteDoc[] = [
     ],
   },
   {
+    method: 'get',
+    path: '/api/minecraft/admin/modpack/export',
+    tag: TAGS.modpackAdmin,
+    summary: 'Preview an export of the vote list',
+    description:
+      "What copying the vote's official list to the Modlist would change, in one of three modes: add the missing mods, also remove the catalog mods that left the vote list (sync), or make the Modlist match the vote list (replace, which also drops links and uploaded entries). Writes nothing. Official mods added by hand have no source and are listed as skipped.",
+    access: 'wardenAdmin',
+    query: modpack.modpackExportQuery,
+    response: modpack.modpackExportPreview,
+  },
+  {
+    method: 'post',
+    path: '/api/minecraft/admin/modpack/export',
+    tag: TAGS.modpackAdmin,
+    summary: 'Export the vote list to the Modlist',
+    description:
+      "Applies the changes whose keys are sent, from a fresh diff: the client can't invent changes. Added mods get the newest compatible file pinned, or are flagged and left out of the manifest. One change to the manifest, one revision bump. A mod whose source can't be reached is counted as failed and not added.",
+    access: 'wardenAdmin',
+    body: modpack.modpackExportBody,
+    response: modpack.modpackExportResult,
+  },
+  {
     method: 'put',
     path: '/api/minecraft/admin/modpack/mods/{id}/file',
     tag: TAGS.modpackAdmin,
