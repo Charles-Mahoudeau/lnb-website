@@ -1855,6 +1855,41 @@ const routes: RouteDoc[] = [
     problems: [{ status: 404, problems: ['notFound'] }],
   },
   {
+    method: 'post',
+    path: '/api/minecraft/admin/modpack/mods/check',
+    tag: TAGS.modpackAdmin,
+    summary: 'Check for newer files',
+    description:
+      "Looks up the newest compatible file of every mod from Modrinth, CurseForge or a link, as the nightly job does. It only notes what it found, for the update badge: the manifest doesn't change. A custom link whose file changed takes its mod out of the manifest until an admin adopts the new file. It can take a while.",
+    access: 'wardenAdmin',
+    response: modpack.modpackCheckResult,
+  },
+  {
+    method: 'post',
+    path: '/api/minecraft/admin/modpack/mods/adopt-all',
+    tag: TAGS.modpackAdmin,
+    summary: 'Adopt every update',
+    description:
+      'Pins the newest file of every mod that has an update waiting, in one change that raises the manifest revision once. A mod needing attention is left for an admin to look at.',
+    access: 'wardenAdmin',
+    response: modpack.modpackAdoptedResult,
+  },
+  {
+    method: 'post',
+    path: '/api/minecraft/admin/modpack/mods/{id}/adopt',
+    tag: TAGS.modpackAdmin,
+    summary: 'Adopt the newest file of a mod',
+    description:
+      'Pins the newest file the check found. For a custom link whose file changed, this accepts the new file and puts the mod back in the manifest.',
+    access: 'wardenAdmin',
+    params: modpack.modpackIdParams,
+    noContent: true,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['nothingToAdopt'] },
+    ],
+  },
+  {
     method: 'put',
     path: '/api/minecraft/admin/modpack/mods/{id}/file',
     tag: TAGS.modpackAdmin,

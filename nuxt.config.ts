@@ -90,6 +90,7 @@ export default defineNuxtConfig({
         'anticheat:rescore',
         'anticheat:prune',
         'minecraft:prune-events',
+        'modpack:check-latest',
       ],
       // After the economy snapshot, so the quest index reads the night's balances.
       '0 4 * * *': ['quests:index'],

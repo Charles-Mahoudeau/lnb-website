@@ -107,7 +107,7 @@ function toView(row: Row): ModpackModView {
 }
 
 /** Raises the revision: what a launcher reads from the manifest has changed. */
-async function bump(tx: Tx): Promise<void> {
+export async function bump(tx: Tx): Promise<void> {
   await tx
     .update(modpackState)
     .set({ revision: sql`${modpackState.revision} + 1`, updatedAt: new Date() })

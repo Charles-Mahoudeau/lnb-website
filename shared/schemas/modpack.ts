@@ -21,6 +21,7 @@ export const MODPACK_PROBLEMS = [
   'fileNotFound',
   'notModFile',
   'notUploaded',
+  'nothingToAdopt',
 ] as const;
 export type ModpackProblem = (typeof MODPACK_PROBLEMS)[number];
 
@@ -132,3 +133,13 @@ export const modpackPinBody = z.object({ fileId: z.uuid(), version });
 export type ModpackPinBody = z.infer<typeof modpackPinBody>;
 
 export const modpackCreated = z.object({ id: z.uuid() });
+
+/** What a check for newer files found. */
+export const modpackCheckResult = z.object({
+  checked: z.number().describe('Mods looked at: those from Modrinth, CurseForge or a link.'),
+  updates: z.number().describe('Mods with a newer file than the pinned one, after the check.'),
+  failed: z.number().describe('Mods whose source could not be reached. They keep what was known.'),
+});
+export type ModpackCheckResult = z.infer<typeof modpackCheckResult>;
+
+export const modpackAdoptedResult = z.object({ adopted: z.number() });

@@ -99,6 +99,7 @@ async function curseforgeLatest(
   key: string,
   id: string,
   target: ServerTarget,
+  known?: KnownFile,
 ): Promise<Resolution> {
   const params = new URLSearchParams({
     gameVersion: target.gameVersion,
@@ -114,6 +115,21 @@ async function curseforgeLatest(
   if (!best) return { kind: 'none' };
   const version = best.displayName.replace(/\.jar$/i, '');
   if (!best.downloadUrl) return { kind: 'blocked', version, fileName: best.fileName };
+  // A file already hashed under the same link is the same file: CurseForge file links hold the
+  // file's ID, so the nightly check doesn't download every jar again.
+  if (known?.url === best.downloadUrl && known.sha512) {
+    return {
+      kind: 'file',
+      file: {
+        version,
+        fileName: best.fileName,
+        url: best.downloadUrl,
+        sha256: known.sha256,
+        sha512: known.sha512,
+        size: known.size,
+      },
+    };
+  }
   // CurseForge gives a SHA-1 and an MD5 only, so the file is downloaded to get its SHA-512.
   try {
     const hashed = await downloadAndHash(best.downloadUrl, CURSEFORGE_HOSTS);
@@ -134,17 +150,26 @@ async function curseforgeLatest(
   }
 }
 
+/** A file the site already hashed, so a source's unchanged file isn't downloaded again. */
+export interface KnownFile {
+  url: string | null;
+  sha256: string | null;
+  sha512: string | null;
+  size: number;
+}
+
 /** The newest compatible file of a project on Modrinth or CurseForge. */
 export async function resolveLatest(
   source: Extract<ModpackSource, 'modrinth' | 'curseforge'>,
   sourceId: string,
   target: ServerTarget,
+  known?: KnownFile,
 ): Promise<Resolution> {
   try {
     if (source === 'modrinth') return await modrinthLatest(sourceId, target);
     const key = modsEnv().CURSEFORGE_API_KEY;
     if (!key || !/^\d+$/.test(sourceId)) throw new SourceUnavailableError('no key');
-    return await curseforgeLatest(key, sourceId, target);
+    return await curseforgeLatest(key, sourceId, target, known);
   } catch (error) {
     if (error instanceof SourceUnavailableError) throw error;
     if (error instanceof CatalogUnavailableError) throw new SourceUnavailableError(error.message);
