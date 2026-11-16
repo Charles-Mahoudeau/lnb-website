@@ -2,7 +2,7 @@
 
 The Modlist at `/admin/mods` is the list of mods the Minecraft launcher downloads. It is **separate from the mod vote** (`docs/mods.md`): the vote is about what players want, the Modlist is what the launcher installs. The two meet in an "Export to manifest" button (not built yet). The page layout is "Manifest first" with the filters of "Table and drawer", from [the Modlist mocks](https://claude.ai/artifact/Qs6v2HynjKZ3ugYZcEEhXu).
 
-Built so far: the Modlist itself, the nightly check and Adopt. the export from the vote. Still to do: the public manifest.
+Everything is built: the Modlist, the nightly check and Adopt, the export from the vote, and the public manifest. Not verified against the real thing: the Prism wrapper jar reading the manifest.
 
 ## Model
 
@@ -46,6 +46,53 @@ CurseForge needs `CURSEFORGE_API_KEY`; without it those lookups answer `sourceUn
 - **Replace**: the Modlist becomes the vote list. Links and uploaded entries are dropped too, but unticked by default.
 
 `GET .../export?mode=` returns the diff and writes nothing. `POST .../export` takes `{mode, keys}` and recomputes the diff, so only ticked changes of a real diff apply. Added mods get the newest compatible file pinned (or are flagged and left out of the manifest) and are linked to their vote mod. A mod whose source can't be reached is counted as failed and not added. The whole export raises the revision once and is audited as `modpack.export`. Official mods added by hand have no source and are listed as skipped.
+
+## The public manifest
+
+`GET /api/minecraft/modpack/manifest`, also at `/modpack/manifest.json`: the shorter address is the one the wrapper jar should hardcode, since it isn't tied to the API's layout. No sign-in. Behind the `modpack` flag (off: 503, launchers keep what they have).
+
+```json
+{
+  "schema": 1,
+  "revision": 15,
+  "updatedAt": "2026-11-16T19:53:16.729Z",
+  "gameVersion": "1.21.1",
+  "loader": "neoforge",
+  "mods": [
+    {
+      "id": "…",
+      "name": "Sodium",
+      "side": "client",
+      "optional": false,
+      "version": "0.6.1",
+      "fileName": "sodium-0.6.1.jar",
+      "size": 1160000,
+      "hashes": { "sha512": "…" },
+      "downloads": ["https://cdn.modrinth.com/…"],
+      "source": "modrinth",
+      "projectUrl": "https://modrinth.com/mod/sodium"
+    }
+  ],
+  "assets": [
+    {
+      "name": "wrapper.jar",
+      "kind": "wrapper",
+      "size": 5,
+      "hashes": { "sha256": "…", "sha512": "…" },
+      "url": "https://…/api/files/<sha256>/wrapper.jar"
+    }
+  ]
+}
+```
+
+- Mods with an attention flag, or no pinned hash, are left out. Files of the library are served from this site's own `/api/files/<sha256>/<name>` (absolute address, from `BETTER_AUTH_URL`).
+- `hashes.sha512` is always there. `sha256` only when the site knows it (uploaded files and downloaded ones).
+- `assets` lists the library's wrapper and asset files. The game version and loader come from the Mods settings.
+- The `ETag` is a hash of the content, so it also changes when the settings or an asset change, not only when `revision` does. A launcher sends `If-None-Match` and gets a 304. `Cache-Control` is 60 seconds.
+- `revision` goes up with every change an admin makes to the mods. A launcher can compare it to know whether its pack is current.
+- Change the format only by adding fields. A break means a new `schema` number.
+
+The Modlist page shows the address with Copy and Open buttons.
 
 ## Page
 

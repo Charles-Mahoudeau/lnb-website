@@ -1168,6 +1168,10 @@
           "label": "Files",
           "description": "Public downloads of the files in the library. Admins can still upload and manage files."
         },
+        "modpack": {
+          "label": "Modpack manifest",
+          "description": "The public manifest the Minecraft launcher reads. Off, it answers 503 and launchers keep what they have."
+        },
         "warden": {
           "label": "Warden",
           "description": "The Warden pages for players: linked accounts, bans and sessions."
@@ -3475,6 +3479,12 @@
         "done": "Exported: {added} added, {removed} removed, {updated} changed.",
         "flagged": "{count} left out of the manifest for lack of a file.",
         "failed": "{count} could not be reached and weren't added."
+      },
+      "manifest": {
+        "label": "Manifest address, public",
+        "copy": "Copy",
+        "copied": "Copied",
+        "open": "Open"
       }
     }
   },

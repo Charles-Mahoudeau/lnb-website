@@ -71,6 +71,19 @@ async function onExport() {
   if (done === true) await refresh();
 }
 
+const { isEnabled } = useFlags();
+const manifestUrl = `${useRequestURL().origin}/modpack/manifest.json`;
+const copied = ref(false);
+async function copyManifest() {
+  try {
+    await navigator.clipboard.writeText(manifestUrl);
+    copied.value = true;
+    setTimeout(() => (copied.value = false), 2000);
+  } catch {
+    // Clipboard blocked: the address is on screen to copy by hand.
+  }
+}
+
 const adoptingAll = ref(false);
 
 async function onCheck() {
@@ -159,6 +172,33 @@ async function onOpen(mod: ModpackModView) {
         <dt class="text-sm text-muted">{{ t('admin.modlist.stats.changed') }}</dt>
       </div>
     </dl>
+
+    <div
+      v-if="isEnabled('modpack')"
+      class="flex flex-wrap items-center gap-3 rounded-lg bg-elevated p-4"
+    >
+      <div class="flex min-w-0 flex-col">
+        <span class="text-sm text-muted">{{ t('admin.modlist.manifest.label') }}</span>
+        <code class="truncate text-sm text-highlighted">{{ manifestUrl }}</code>
+      </div>
+      <div class="ml-auto flex gap-2">
+        <UButton
+          color="neutral"
+          variant="soft"
+          :icon="copied ? 'i-lucide-check' : 'i-lucide-copy'"
+          :label="copied ? t('admin.modlist.manifest.copied') : t('admin.modlist.manifest.copy')"
+          @click="copyManifest"
+        />
+        <UButton
+          color="neutral"
+          variant="soft"
+          icon="i-lucide-external-link"
+          :label="t('admin.modlist.manifest.open')"
+          :to="manifestUrl"
+          target="_blank"
+        />
+      </div>
+    </div>
 
     <section class="flex flex-col gap-4 rounded-lg bg-elevated p-5">
       <div class="flex flex-wrap items-center gap-3">
