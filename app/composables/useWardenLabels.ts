@@ -81,6 +81,11 @@ export function useWardenLabels() {
         const key = `mod${entry.action.charAt(4).toUpperCase()}${entry.action.slice(5)}`;
         return t(`wardenAdmin.actions.${key}`, { name: text('name') });
       }
+      case 'file.upload':
+      case 'file.delete': {
+        const key = `file${entry.action.charAt(5).toUpperCase()}${entry.action.slice(6)}`;
+        return t(`wardenAdmin.actions.${key}`, { name: text('name') });
+      }
       default: {
         // token.rotate becomes tokenRotate, and so on.
         const key = entry.action.replace(/\.(\w)/g, (_, c: string) => c.toUpperCase());

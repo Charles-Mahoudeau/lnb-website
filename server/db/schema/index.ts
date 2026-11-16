@@ -6,6 +6,7 @@ export * from './api-keys';
 export * from './auth';
 export * from './economy';
 export * from './events';
+export * from './files';
 export * from './flags';
 export * from './gamesplanet';
 export * from './minecraft-events';

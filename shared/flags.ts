@@ -19,6 +19,8 @@ export const FLAG_DEFINITIONS = [
   { key: 'modList.suggestions', parent: 'modList' },
   { key: 'modList.search', parent: 'modList' },
   { key: 'modList.icons', parent: 'modList' },
+  // The Files library's public downloads (docs/files.md). Uploading is admin-only, so never gated.
+  { key: 'files' },
   { key: 'warden' },
   { key: 'warden.linking', parent: 'warden' },
   { key: 'warden.appeals', parent: 'warden' },

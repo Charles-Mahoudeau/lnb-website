@@ -595,6 +595,7 @@
       "modList": "Liste de mods",
       "modVote": "Vote des mods",
       "modSuggestions": "Propositions",
+      "files": "Fichiers",
       "flags": "Fonctionnalités",
       "rateLimit": "Limitation de débit",
       "events": "Événements",
@@ -1034,6 +1035,68 @@
         "done": "Proposition retirée"
       }
     },
+    "files": {
+      "upload": "Téléverser des fichiers",
+      "note": "Des jars et des fichiers que le lanceur télécharge. Toute personne qui a le lien d’un fichier peut le télécharger : ne téléversez que ce que vous voulez partager.",
+      "copy": "Copier le lien de téléchargement",
+      "copied": "Copié",
+      "deleted": "Fichier supprimé",
+      "stats": {
+        "files": "Fichiers",
+        "stored": "Stockés",
+        "unused": "Utilisés par rien"
+      },
+      "drop": {
+        "title": "Déposez des fichiers ici",
+        "help": "{size} au plus chacun. Des jars, des archives zip et quelques formats texte. Un même fichier n’est stocké qu’une fois.",
+        "choose": "Choisir des fichiers",
+        "addAs": "Ajouter comme"
+      },
+      "kinds": {
+        "auto": "Automatique",
+        "mod": "Jar de mod",
+        "wrapper": "Jar du wrapper",
+        "asset": "Ressource"
+      },
+      "queue": {
+        "title": "Envois",
+        "clear": "Effacer les terminés",
+        "added": "Ajouté",
+        "refused": "Refusé",
+        "waiting": "En attente"
+      },
+      "library": {
+        "title": "Bibliothèque",
+        "search": "Rechercher un fichier",
+        "empty": "Aucun fichier pour l’instant. Déposez un jar ci-dessus pour ajouter le premier.",
+        "noMatch": "Aucun fichier ne correspond.",
+        "notUsed": "Inutilisé",
+        "usedBy": "Utilisé par {name} | Utilisé par {name} et {count} autre | Utilisé par {name} et {count} autres"
+      },
+      "detail": {
+        "link": "Lien de téléchargement",
+        "usedBy": "Utilisé par",
+        "unused": "Rien n’utilise ce fichier : il peut être supprimé.",
+        "uploaded": "Téléversé le {date} par {name}",
+        "uploadedNoName": "Téléversé le {date}",
+        "inUseNote": "Quelque chose pointe vers ce fichier, il ne peut donc pas être supprimé. Faites d’abord passer ces entrées sur un autre fichier.",
+        "download": "Télécharger",
+        "delete": "Supprimer",
+        "cancel": "Annuler",
+        "deleteConfirm": "Supprimer ce fichier ? Son lien de téléchargement cesse de fonctionner aussitôt."
+      },
+      "errors": {
+        "failed": "Une erreur s’est produite. Réessayez.",
+        "fileNotFound": "Ce fichier n’existe plus.",
+        "fileTooLarge": "Le fichier dépasse 100 Mo.",
+        "fileEmpty": "Le fichier est vide.",
+        "fileBadName": "Le nom du fichier est inutilisable. Renommez-le et réessayez.",
+        "fileBadType": "Ce type de fichier n’est pas accepté ici, ou ce n’est pas un jar ou une archive zip valide.",
+        "fileDuplicate": "Ce fichier exact est déjà dans la bibliothèque.",
+        "fileInUse": "Quelque chose utilise encore ce fichier : il ne peut pas être supprimé.",
+        "fileUnreadable": "L’envoi a été coupé. Réessayez."
+      }
+    },
     "rateLimit": {
       "title": "Limitation de débit",
       "lede": "Choisis ce que le site doit faire maintenant. Le changement s’applique en quelques secondes et apparaît dans la vue d’ensemble.",
@@ -1103,6 +1166,10 @@
         "modList_icons": {
           "label": "Icônes des mods",
           "description": "Les icônes des mods et celles des résultats de recherche."
+        },
+        "files": {
+          "label": "Fichiers",
+          "description": "Les téléchargements publics des fichiers de la bibliothèque. Les admins peuvent toujours téléverser et gérer les fichiers."
         },
         "warden": {
           "label": "Warden",
@@ -3369,6 +3436,8 @@
       "modRestore": "Proposition {name} rétablie",
       "modDelete": "{name} retiré de la liste officielle",
       "modSettingsUpdate": "Réglages de la liste de mods modifiés",
+      "fileUpload": "A téléversé le fichier {name}",
+      "fileDelete": "A supprimé le fichier {name}",
       "deviceLink": "A associé l’appareil {device}",
       "deviceDeny": "A refusé d’associer l’appareil {device}",
       "deviceRevoke": "A révoqué l’appareil {device}",

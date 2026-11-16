@@ -8,6 +8,7 @@ import { avatarParams } from '../../shared/schemas/avatars.ts';
 import * as economy from '../../shared/schemas/economy.ts';
 import * as eventTeams from '../../shared/schemas/event-teams.ts';
 import * as events from '../../shared/schemas/events.ts';
+import * as files from '../../shared/schemas/files.ts';
 import * as flags from '../../shared/schemas/flags.ts';
 import * as gamesplanet from '../../shared/schemas/gamesplanet.ts';
 import { linkApproveBody, linkApproveResult, linkDenyBody } from '../../shared/schemas/link.ts';
@@ -253,6 +254,8 @@ const responseSchemas = {
   ModSearchResults: mods.modSearchResults,
   ModCreated: mods.modCreated,
   ModSettingsView: mods.modSettingsView,
+  FileView: files.fileView,
+  FileList: files.fileList,
   ModAdminRow: mods.modAdminRow,
   ModAdminList: mods.modAdminList,
   ModRefreshCheck: mods.modRefreshCheck,
@@ -341,6 +344,8 @@ const TAGS = {
   wardenAdmin: 'Warden: admins',
   mods: 'Mod list',
   modsAdmin: 'Mod list: admins',
+  files: 'Files',
+  filesAdmin: 'Files: admins',
   events: 'Events',
   eventsAdmin: 'Events: managers',
   push: 'Push notifications',
@@ -1802,6 +1807,61 @@ const routes: RouteDoc[] = [
     params: mods.modIdParams,
     noContent: true,
     problems: [{ status: 404, problems: ['notOfficial'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/admin/files',
+    tag: TAGS.filesAdmin,
+    summary: 'The files of the library',
+    description: 'Newest first, with what uses each one and the size of everything together.',
+    access: 'wardenAdmin',
+    response: files.fileList,
+  },
+  {
+    method: 'post',
+    path: '/api/admin/files',
+    tag: TAGS.filesAdmin,
+    summary: 'Upload a file',
+    description:
+      'The file is the raw request body (not multipart), up to 100 MB, streamed to disk while it is hashed. Its name and kind are in the query. Jars and zip archives must start like a zip archive; the type sent by the browser is ignored. The same bytes are stored once.',
+    access: 'wardenAdmin',
+    query: files.fileUploadQuery,
+    response: files.fileView,
+    created: true,
+    problems: [
+      { status: 400, problems: ['fileBadName', 'fileBadType', 'fileEmpty', 'fileUnreadable'] },
+      { status: 409, problems: ['fileDuplicate'] },
+      { status: 413, problems: ['fileTooLarge'] },
+    ],
+  },
+  {
+    method: 'delete',
+    path: '/api/admin/files/{id}',
+    tag: TAGS.filesAdmin,
+    summary: 'Delete a file',
+    description: 'Removes the file and its download link, unless something still uses it.',
+    access: 'wardenAdmin',
+    params: files.fileIdParams,
+    noContent: true,
+    problems: [
+      { status: 404, problems: ['fileNotFound'] },
+      { status: 409, problems: ['fileInUse'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/files/{sha256}/{name}',
+    tag: TAGS.files,
+    summary: 'Download a file',
+    description:
+      'A file of the library, without sign-in, found by the SHA-256 of its bytes. The name is only there to keep a readable download name: the one stored with the file is sent. Always an attachment of plain bytes, cached for a year.',
+    access: 'public',
+    params: files.fileDownloadParams,
+    response: {
+      description: 'The file.',
+      content: { 'application/octet-stream': {} },
+    },
+    problems: [{ status: 503, problems: ['disabled'] }],
   },
   // Events
   {
@@ -5556,6 +5616,14 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
         description: 'The Mods section of the admin area, `/admin/mods`.',
       },
       {
+        name: TAGS.files,
+        description: 'Downloads of the Files library, without sign-in. See `docs/files.md`.',
+      },
+      {
+        name: TAGS.filesAdmin,
+        description: 'The Files library, `/admin/mods/files`. See `docs/files.md`.',
+      },
+      {
         name: TAGS.push,
         description:
           'Notifications about events only, from the notification settings on `/account`. See `docs/push.md`.',
@@ -5598,7 +5666,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
         tags: [TAGS.wardenServer, TAGS.wardenClient, TAGS.wardenPlayer, TAGS.wardenAdmin],
       },
       { name: 'Anticheat', tags: [TAGS.anticheatServer, TAGS.anticheatAdmin] },
-      { name: 'Minecraft', tags: [TAGS.mods, TAGS.modsAdmin] },
+      { name: 'Minecraft', tags: [TAGS.mods, TAGS.modsAdmin, TAGS.files, TAGS.filesAdmin] },
       { name: 'Economy', tags: [TAGS.economyServer, TAGS.economy, TAGS.economyAdmin] },
       { name: 'Quests', tags: [TAGS.questsServer, TAGS.quests, TAGS.questsAdmin] },
       { name: 'Push', tags: [TAGS.push, TAGS.pushAdmin] },
