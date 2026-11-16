@@ -1,13 +1,9 @@
 <script setup lang="ts">
+// The suggestions moved under the vote. This keeps old bookmarks working.
 definePageMeta({ wardenAdmins: true });
-
-const { t } = useI18n();
+await navigateTo('/admin/mods/vote/suggestions', { replace: true });
 </script>
 
 <template>
-  <AdminPage :title="t('admin.nav.modSuggestions')" :parents="[{ label: t('admin.nav.mods') }]">
-    <div class="max-w-6xl">
-      <ModsAdminSuggestions />
-    </div>
-  </AdminPage>
+  <div />
 </template>

@@ -589,6 +589,7 @@
       "overview": "Overview",
       "mods": "Mods",
       "modList": "Mod list",
+      "modVote": "Mod vote",
       "modSuggestions": "Suggestions",
       "flags": "Feature flags",
       "rateLimit": "Rate limiting",
@@ -1080,8 +1081,8 @@
           "description": "Refuses new sign-ins from ISEG accounts. Admins can still sign in."
         },
         "modList": {
-          "label": "Mod list",
-          "description": "The public mod list page and everything it does."
+          "label": "Mod vote",
+          "description": "The public mod list page, where members vote on mods and suggest new ones, and everything it does."
         },
         "modList_voting": {
           "label": "Voting",
