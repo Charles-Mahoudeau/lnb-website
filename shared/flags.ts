@@ -21,6 +21,8 @@ export const FLAG_DEFINITIONS = [
   { key: 'modList.icons', parent: 'modList' },
   // The Files library's public downloads (docs/files.md). Uploading is admin-only, so never gated.
   { key: 'files' },
+  // The public modpack manifest the launcher reads (docs/modpack.md).
+  { key: 'modpack' },
   { key: 'warden' },
   { key: 'warden.linking', parent: 'warden' },
   { key: 'warden.appeals', parent: 'warden' },
