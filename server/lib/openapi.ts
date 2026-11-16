@@ -4632,6 +4632,36 @@ const routes: RouteDoc[] = [
     problems: [{ status: 409, problems: ['closed'] }],
   },
   {
+    method: 'post',
+    path: '/api/economy/admin/accounts/{accountId}/licenses',
+    tag: TAGS.economyAdmin,
+    summary: 'Give a casino license',
+    description:
+      'Gives the owner of a personal account one casino license, free of charge. It works like one bought in the game: the player uses it to make one of their shared accounts a casino.',
+    access: 'economyAdmin',
+    params: economy.economyAccountParams,
+    response: economy.economyAdminAccountDetail,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['sharedAccount', 'closed'] },
+    ],
+  },
+  {
+    method: 'delete',
+    path: '/api/economy/admin/accounts/{accountId}/licenses',
+    tag: TAGS.economyAdmin,
+    summary: 'Take back a casino license',
+    description:
+      "Takes back one of the owner's free casino licenses, a given one before a bought one. A license already used by a casino stays. Nothing is refunded.",
+    access: 'economyAdmin',
+    params: economy.economyAccountParams,
+    response: economy.economyAdminAccountDetail,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['sharedAccount', 'closed', 'noFreeLicense'] },
+    ],
+  },
+  {
     method: 'get',
     path: '/api/economy/admin/listings',
     tag: TAGS.economyAdmin,

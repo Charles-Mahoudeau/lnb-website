@@ -484,6 +484,64 @@ describe('casino licenses', () => {
   });
 });
 
+describe('licenses given by an admin', () => {
+  it('gives a free license that works like a bought one, and takes free ones back', async () => {
+    const admin = await player('License Admin');
+    const owner = await player();
+    const personal = (await economyServerService.lookup(owner.uuid)).defaultAccountId;
+    const given = await economyAdminService.grantLicense(admin.id, personal);
+    expect(given.licenses).toEqual({ total: 1, free: 1 });
+    // No money moved: the balance is untouched.
+    expect(given.balance).toBe(1000);
+    const [entry] = await db.select().from(adminAudit).where(eq(adminAudit.actorUserId, admin.id));
+    expect(entry).toMatchObject({
+      action: 'economy.licenseGrant',
+      targetUserId: owner.id,
+      data: { accountId: personal },
+    });
+
+    const account = await economyAccountService.create(owner.id, {
+      name: 'Prize Casino',
+      handle: handle(),
+    });
+    await economyAccountService.update(owner.id, account.id, { type: 'casino' });
+    expect((await economyAdminService.detail(personal)).licenses).toEqual({ total: 1, free: 0 });
+    // The one in use stays.
+    await expect(economyAdminService.revokeLicense(admin.id, personal)).rejects.toMatchObject({
+      statusCode: 409,
+      data: { problem: 'noFreeLicense' },
+    });
+
+    await license(owner.uuid);
+    await economyAdminService.grantLicense(admin.id, personal);
+    const taken = await economyAdminService.revokeLicense(admin.id, personal);
+    // The given one goes first; the bought one stays.
+    expect(taken.licenses).toEqual({ total: 2, free: 1 });
+    const [left] = await db
+      .select()
+      .from(economyCasinoLicense)
+      .where(
+        sql`${economyCasinoLicense.userId} = ${owner.id} and ${economyCasinoLicense.accountId} is null`,
+      );
+    expect(left?.grantedByUserId).toBeNull();
+    expect(left?.price).toBe(400);
+  });
+
+  it('refuses shared accounts', async () => {
+    const admin = await player('License Admin');
+    const owner = await player();
+    const account = await economyAccountService.create(owner.id, {
+      name: 'Not A Person',
+      handle: handle(),
+    });
+    expect((await economyAdminService.detail(account.id)).licenses).toBeNull();
+    await expect(economyAdminService.grantLicense(admin.id, account.id)).rejects.toMatchObject({
+      statusCode: 409,
+      data: { problem: 'sharedAccount' },
+    });
+  });
+});
+
 describe('mob drops', () => {
   it('mints on the personal account, once per key', async () => {
     const hunter = await player();

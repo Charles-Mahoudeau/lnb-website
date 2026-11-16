@@ -29,6 +29,8 @@ export const ECONOMY_PROBLEMS = [
   'lastOwner',
   'balanceNotZero',
   'personalAccount',
+  'sharedAccount',
+  'noFreeLicense',
   'alreadyReversed',
   'notReversible',
   'idempotencyMismatch',
@@ -726,6 +728,9 @@ export const economyAdminAccountDetail = economyAdminAccountRow.extend({
   members: z.array(economyMemberView),
   in30: z.number().describe('Money in over the last 30 days.'),
   out30: z.number().describe('Money out over the last 30 days.'),
+  licenses: economyLicenseCount
+    .nullable()
+    .describe("Personal accounts: the owner's casino licenses. Null for shared accounts."),
 });
 export type EconomyAdminAccountDetail = z.infer<typeof economyAdminAccountDetail>;
 

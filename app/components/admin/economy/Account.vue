@@ -91,6 +91,21 @@ async function onType(type: EconomyAccountType) {
   );
 }
 
+// Licenses belong to the owner of a personal account: given here, used in the game or on /minecraft/bank.
+async function onGrantLicense() {
+  await run(
+    () => economyAdminActions.grantLicense(props.id),
+    t('admin.economy.account.licenseGranted', { name: title.value }),
+  );
+}
+
+async function onRevokeLicense() {
+  await run(
+    () => economyAdminActions.revokeLicense(props.id),
+    t('admin.economy.account.licenseRevoked'),
+  );
+}
+
 async function onFreeze() {
   if (!data.value) return;
   if (data.value.frozenAt) {
@@ -277,6 +292,44 @@ function counterparty(item: EconomyTransactionView): string {
         </span>
       </div>
     </div>
+
+    <section
+      v-if="data.licenses"
+      class="flex flex-wrap items-center gap-4 rounded-lg bg-elevated px-6 py-5"
+      aria-labelledby="admin-economy-licenses"
+    >
+      <div class="flex min-w-64 flex-1 flex-col gap-1">
+        <h2 id="admin-economy-licenses" class="text-sm font-semibold text-muted">
+          {{ t('admin.economy.account.licenses') }}
+        </h2>
+        <span class="text-highlighted tabular-nums">
+          {{
+            t('admin.economy.account.licensesCount', {
+              free: data.licenses.free,
+              total: data.licenses.total,
+            })
+          }}
+        </span>
+        <span class="text-sm text-muted">{{ t('admin.economy.account.licensesHint') }}</span>
+      </div>
+      <div v-if="!data.closed" class="flex flex-wrap gap-2">
+        <UButton
+          color="neutral"
+          variant="soft"
+          icon="i-lucide-badge-plus"
+          :label="t('admin.economy.account.grantLicense')"
+          @click="onGrantLicense"
+        />
+        <UButton
+          v-if="data.licenses.free > 0"
+          color="neutral"
+          variant="ghost"
+          icon="i-lucide-badge-minus"
+          :label="t('admin.economy.account.revokeLicense')"
+          @click="onRevokeLicense"
+        />
+      </div>
+    </section>
 
     <EconomyBalanceSection :url="`/api/economy/admin/accounts/${id}/balance-history`" wide />
 

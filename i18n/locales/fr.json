@@ -878,7 +878,9 @@
         "quests_communityCreate": "{actor} a programmé la quête communautaire {name}.",
         "quests_communityUpdate": "{actor} a modifié la quête communautaire {name}.",
         "quests_communityCancel": "{actor} a annulé la quête communautaire {name}.",
-        "quests_communityTemplate": "{actor} a enregistré un modèle de quête communautaire."
+        "quests_communityTemplate": "{actor} a enregistré un modèle de quête communautaire.",
+        "economy_licenseGrant": "{actor} a donné une licence de casino à {name}.",
+        "economy_licenseRevoke": "{actor} a repris une licence de casino à {name}."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page.",
       "apiKeysSoon": "1 clé API expire dans moins de 30 jours | {n} clés API expirent dans moins de 30 jours",
@@ -2384,7 +2386,14 @@
         "members": "Membres",
         "history": "Historique",
         "type": "Type",
-        "typeSaved": "Type enregistré"
+        "typeSaved": "Type enregistré",
+        "licenses": "Licences de casino",
+        "licensesCount": "{free} libre(s) sur {total}",
+        "licensesHint": "Une licence libre permet au joueur de faire d’un de ses comptes partagés un casino.",
+        "grantLicense": "Donner une licence",
+        "revokeLicense": "En reprendre une",
+        "licenseGranted": "Licence donnée à {name}",
+        "licenseRevoked": "Licence reprise"
       },
       "adjust": {
         "title": "Ajuster {name}",
@@ -3881,7 +3890,9 @@
       "idempotencyMismatch": "Cette requête a déjà servi pour autre chose.",
       "invalidCursor": "La liste a changé. Rechargez la page.",
       "confirmMismatch": "Tapez la phrase exactement comme elle est écrite.",
-      "failed": "Ça n’a pas marché. Vérifiez votre connexion, puis réessayez."
+      "failed": "Ça n’a pas marché. Vérifiez votre connexion, puis réessayez.",
+      "sharedAccount": "Seul le titulaire d’un compte perso détient des licences.",
+      "noFreeLicense": "Ce joueur n’a aucune licence libre à reprendre."
     },
     "roles": {
       "owner": "Propriétaire",

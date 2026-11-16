@@ -96,6 +96,18 @@ export const economyAdminActions = {
         body,
       }),
     ),
+  grantLicense: (accountId: string) =>
+    call(() =>
+      $fetch<EconomyAdminAccountDetail>(`/api/economy/admin/accounts/${accountId}/licenses`, {
+        method: 'POST',
+      }),
+    ),
+  revokeLicense: (accountId: string) =>
+    call(() =>
+      $fetch<EconomyAdminAccountDetail>(`/api/economy/admin/accounts/${accountId}/licenses`, {
+        method: 'DELETE',
+      }),
+    ),
   reverse: (transactionId: number, reason: string) =>
     call(() =>
       $fetch<{ reversalId: number }>(

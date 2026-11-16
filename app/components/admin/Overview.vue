@@ -232,6 +232,8 @@ function describe(entry: AdminAuditView): string {
     case 'economy.shopEnable':
     case 'economy.listingRemove':
     case 'economy.accountType':
+    case 'economy.licenseGrant':
+    case 'economy.licenseRevoke':
     case 'quests.settings':
     case 'quests.create':
     case 'quests.update':
