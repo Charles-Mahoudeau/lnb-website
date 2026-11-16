@@ -108,6 +108,8 @@ export type AdminAuditAction =
   | 'economy.shopEnable'
   | 'economy.listingRemove'
   | 'economy.accountType'
+  | 'economy.licenseGrant'
+  | 'economy.licenseRevoke'
   | 'quests.settings'
   | 'quests.create'
   | 'quests.update'

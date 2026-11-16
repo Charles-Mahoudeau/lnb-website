@@ -874,7 +874,9 @@
         "quests_communityCreate": "{actor} planned the community quest {name}.",
         "quests_communityUpdate": "{actor} changed the community quest {name}.",
         "quests_communityCancel": "{actor} cancelled the community quest {name}.",
-        "quests_communityTemplate": "{actor} saved a community quest template."
+        "quests_communityTemplate": "{actor} saved a community quest template.",
+        "economy_licenseGrant": "{actor} gave a casino license to {name}.",
+        "economy_licenseRevoke": "{actor} took back a casino license from {name}."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page.",
       "apiKeysSoon": "1 API key expires within 30 days | {n} API keys expire within 30 days",
@@ -2380,7 +2382,14 @@
         "members": "Members",
         "history": "History",
         "type": "Type",
-        "typeSaved": "Type saved"
+        "typeSaved": "Type saved",
+        "licenses": "Casino licenses",
+        "licensesCount": "{free} free of {total}",
+        "licensesHint": "A free license lets the player make one of their shared accounts a casino.",
+        "grantLicense": "Give a license",
+        "revokeLicense": "Take one back",
+        "licenseGranted": "License given to {name}",
+        "licenseRevoked": "License taken back"
       },
       "adjust": {
         "title": "Adjust {name}",
@@ -3877,7 +3886,9 @@
       "idempotencyMismatch": "That request was already used for something else.",
       "invalidCursor": "The list changed. Reload the page.",
       "confirmMismatch": "Type the sentence exactly as shown.",
-      "failed": "That didn’t work. Check your connection, then try again."
+      "failed": "That didn’t work. Check your connection, then try again.",
+      "sharedAccount": "Only a personal account’s owner holds licenses.",
+      "noFreeLicense": "This player has no free license to take back."
     },
     "roles": {
       "owner": "Owner",

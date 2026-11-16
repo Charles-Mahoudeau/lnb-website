@@ -288,6 +288,13 @@
       "when": 1794664849071,
       "tag": "0040_gamesplanet-clicks",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1794872229013,
+      "tag": "0041_economy-license-grants",
+      "breakpoints": true
     }
   ]
 }

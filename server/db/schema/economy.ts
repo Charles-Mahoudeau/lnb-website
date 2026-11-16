@@ -124,8 +124,8 @@ export const economyInvitation = pgTable(
 
 /**
  * A casino license: what lets a player make one of their shared accounts a casino. Bought from the
- * game, for a price that is burned. It belongs to the LNB account and is free until it is bound to
- * an account, for good: closing the casino doesn't free it.
+ * game, for a price that is burned, or given by an economy admin. It belongs to the LNB account and
+ * is free until it is bound to an account, for good: closing the casino doesn't free it.
  */
 export const economyCasinoLicense = pgTable(
   'economy_casino_license',
@@ -134,18 +134,21 @@ export const economyCasinoLicense = pgTable(
     userId: text('user_id')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    // What it cost, and the account that paid. A price of 0 has no transaction.
+    // What it cost, and the account that paid. A price of 0 has no transaction. A license an
+    // admin gave cost nothing and has no payer.
     price: bigint('price', { mode: 'number' }).notNull(),
-    paidByAccountId: uuid('paid_by_account_id')
-      .notNull()
-      .references(() => economyAccount.id),
+    paidByAccountId: uuid('paid_by_account_id').references(() => economyAccount.id),
+    grantedByUserId: text('granted_by_user_id').references(() => user.id, {
+      onDelete: 'set null',
+    }),
     transactionId: bigint('transaction_id', { mode: 'number' }).references(
       (): AnyPgColumn => economyTransaction.id,
       { onDelete: 'set null' },
     ),
     // The key the server bought it with, so a retry doesn't buy two, and the request behind it.
-    idempotencyKey: uuid('idempotency_key').notNull().unique(),
-    fingerprint: text('fingerprint').notNull(),
+    // Null for a license an admin gave.
+    idempotencyKey: uuid('idempotency_key').unique(),
+    fingerprint: text('fingerprint'),
     // The casino it was used for. Null: still free.
     accountId: uuid('account_id')
       .unique()

@@ -18,6 +18,7 @@ import {
 import { adminAuditService } from '~~/server/services/admin-audit';
 
 import { economyLedger } from './ledger';
+import { licenseCount } from './licenses';
 import { bannedUsers, decodeCursor, PAGE_SIZE, refuse } from './shared';
 import type { Tx } from './shared';
 import { economyStatsService } from './stats';
@@ -32,6 +33,7 @@ import type {
   EconomyAdminAccountsQuery,
   EconomyExport,
   EconomyFreezeBody,
+  EconomyLicenseCount,
   EconomyLedgerPage,
   EconomyLedgerQuery,
   EconomyLedgerSide,
@@ -158,6 +160,10 @@ async function detail(accountId: string): Promise<EconomyAdminAccountDetail> {
       .where(and(eq(economyEntry.accountId, accountId), gte(economyTransaction.at, since))),
     bannedUsers(db, account.ownerUserId ? [account.ownerUserId] : []),
   ]);
+  const licenses: EconomyLicenseCount | null =
+    account.kind === 'personal' && account.ownerUserId
+      ? await licenseCount(db, account.ownerUserId)
+      : null;
   if (!row) refuse(404, 'notFound');
   const names = await playerNames(
     db,
@@ -178,6 +184,7 @@ async function detail(accountId: string): Promise<EconomyAdminAccountDetail> {
     })),
     in30: Number(flows[0]?.in ?? 0),
     out30: Number(flows[0]?.out ?? 0),
+    licenses,
   };
 }
 
@@ -237,6 +244,64 @@ async function setType(actorId: string, accountId: string, type: EconomyAccountT
       actorUserId: actorId,
       targetUserId: null,
       data: { name: await auditName(tx, account), accountId, from: account.type, type },
+    });
+  });
+  return detail(accountId);
+}
+
+/** The owner of a personal account, for the licenses given to them. */
+async function licenseHolder(tx: Tx, accountId: string) {
+  const account = await requireAccount(accountId, tx);
+  if (account.kind !== 'personal' || !account.ownerUserId) refuse(409, 'sharedAccount');
+  if (account.closedAt) refuse(409, 'closed');
+  return { account, userId: account.ownerUserId };
+}
+
+/**
+ * Gives the owner of a personal account a casino license, free of charge: for a prize, or to make
+ * up for one lost to a bug. It works like a bought one.
+ */
+async function grantLicense(actorId: string, accountId: string) {
+  await db.transaction(async (tx) => {
+    const { account, userId } = await licenseHolder(tx, accountId);
+    const [license] = await tx
+      .insert(economyCasinoLicense)
+      .values({ userId, price: 0, grantedByUserId: actorId })
+      .returning({ id: economyCasinoLicense.id });
+    await adminAuditService.record(tx, {
+      action: 'economy.licenseGrant',
+      actorUserId: actorId,
+      targetUserId: userId,
+      data: { name: await auditName(tx, account), accountId, licenseId: license?.id ?? null },
+    });
+  });
+  return detail(accountId);
+}
+
+/**
+ * Takes back one of the owner's free licenses, a given one first. A license bound to a casino
+ * stays: change the casino's type instead. Nothing is refunded.
+ */
+async function revokeLicense(actorId: string, accountId: string) {
+  await db.transaction(async (tx) => {
+    const { account, userId } = await licenseHolder(tx, accountId);
+    const [free] = await tx
+      .select({ id: economyCasinoLicense.id })
+      .from(economyCasinoLicense)
+      .where(and(eq(economyCasinoLicense.userId, userId), isNull(economyCasinoLicense.accountId)))
+      .orderBy(
+        sql`${economyCasinoLicense.grantedByUserId} is null`,
+        desc(economyCasinoLicense.createdAt),
+      )
+      .limit(1)
+      .for('update');
+    if (!free) refuse(409, 'noFreeLicense');
+    await tx.delete(economyCasinoLicense).where(eq(economyCasinoLicense.id, free.id));
+    await adminAuditService.record(tx, {
+      action: 'economy.licenseRevoke',
+      actorUserId: actorId,
+      targetUserId: userId,
+      data: { name: await auditName(tx, account), accountId, licenseId: free.id },
     });
   });
   return detail(accountId);
@@ -442,6 +507,8 @@ async function reset(actorId: string, confirm: string) {
 }
 
 export const economyAdminService = {
+  grantLicense,
+  revokeLicense,
   list,
   detail,
   transactions,

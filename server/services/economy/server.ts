@@ -232,11 +232,13 @@ async function previousLicense(
     if (other) refuse(409, 'idempotencyMismatch');
     return undefined;
   }
-  if (license.fingerprint !== print) refuse(409, 'idempotencyMismatch');
+  // Only bought licenses have a key, so a match always has a payer.
+  const paidBy = license.paidByAccountId;
+  if (license.fingerprint !== print || !paidBy) refuse(409, 'idempotencyMismatch');
   const [payer] = await dbx
     .select({ handle: economyAccount.handle, balance: economyAccount.balance })
     .from(economyAccount)
-    .where(eq(economyAccount.id, license.paidByAccountId));
+    .where(eq(economyAccount.id, paidBy));
   const [entry] = license.transactionId
     ? await dbx
         .select({ balanceAfter: economyEntry.balanceAfter })
@@ -244,7 +246,7 @@ async function previousLicense(
         .where(
           and(
             eq(economyEntry.transactionId, license.transactionId),
-            eq(economyEntry.accountId, license.paidByAccountId),
+            eq(economyEntry.accountId, paidBy),
           ),
         )
     : [];
@@ -253,7 +255,7 @@ async function previousLicense(
     replayed: true,
     amount: license.price,
     from: {
-      accountId: license.paidByAccountId,
+      accountId: paidBy,
       handle: payer?.handle ?? null,
       balance: entry?.balanceAfter ?? payer?.balance ?? 0,
     },
