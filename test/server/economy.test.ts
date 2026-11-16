@@ -201,6 +201,44 @@ describe('shared accounts', () => {
     return { owner, dealer, watcher, account, handle };
   }
 
+  it('finds players to invite by name, email or Minecraft username', async () => {
+    const owner = await player('Search Owner');
+    const target = await player('Zelda Searchable');
+    const account = await economyAccountService.create(owner.id, {
+      name: 'Search Club',
+      handle: `search-${String(++counter)}`,
+    });
+    for (const q of ['zelda search', target.username.slice(0, 6), target.id.slice(0, 12)]) {
+      const found = await economyAccountService.inviteSearch(owner.id, account.id, q);
+      expect(found.map((row) => row.userId)).toContain(target.id);
+    }
+    const hits = await economyAccountService.inviteSearch(owner.id, account.id, 'Zelda Searchable');
+    expect(hits.find((row) => row.userId === target.id)).toMatchObject({
+      userId: target.id,
+      username: target.username,
+      uuid: target.uuid,
+      invited: false,
+      member: false,
+    });
+    // The owner never finds themselves, and to others the account doesn't exist.
+    const self = await economyAccountService.inviteSearch(owner.id, account.id, 'Search Owner');
+    expect(self.map((row) => row.userId)).not.toContain(owner.id);
+    await expect(
+      economyAccountService.inviteSearch(target.id, account.id, 'Search Owner'),
+    ).rejects.toMatchObject({ statusCode: 404 });
+
+    await economyAccountService.invite(owner.id, account.id, { userId: target.id, role: 'viewer' });
+    const after = await economyAccountService.inviteSearch(
+      owner.id,
+      account.id,
+      'Zelda Searchable',
+    );
+    expect(after.find((row) => row.userId === target.id)?.invited).toBe(true);
+    await expect(
+      economyAccountService.invite(owner.id, account.id, { userId: 'nobody', role: 'member' }),
+    ).rejects.toMatchObject({ data: { problem: 'playerNotFound' } });
+  });
+
   it('lets members spend and viewers only read', async () => {
     const { owner, dealer, watcher, account, handle } = await casino();
     await pay(owner.uuid, { account: `#${handle}` }, 50);

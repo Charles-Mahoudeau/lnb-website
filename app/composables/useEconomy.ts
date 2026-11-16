@@ -5,6 +5,7 @@ import type {
   EconomyBaltop,
   EconomyCreateBody,
   EconomyInviteBody,
+  EconomyInviteOptions,
   EconomyMe,
   EconomyMePatchBody,
   EconomyPeriod,
@@ -96,6 +97,12 @@ export const economyActions = {
       $fetch<EconomyAccountDetail>(`/api/economy/accounts/${accountId}/invitations`, {
         method: 'POST',
         body,
+      }),
+    ),
+  inviteSearch: (accountId: string, q: string) =>
+    call(() =>
+      $fetch<EconomyInviteOptions>(`/api/economy/accounts/${accountId}/invite-search`, {
+        query: { q },
       }),
     ),
   cancelInvitation: (accountId: string, invitationId: string) =>

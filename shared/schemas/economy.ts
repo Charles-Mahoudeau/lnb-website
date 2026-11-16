@@ -293,11 +293,46 @@ export const economyMePatchBody = z
 export type EconomyMePatchBody = z.infer<typeof economyMePatchBody>;
 
 /** POST /api/economy/accounts/:accountId/invitations */
-export const economyInviteBody = z.object({
-  username: minecraftUsername.describe('A linked Minecraft username.'),
-  role: economyRole,
-});
+export const economyInviteBody = z
+  .object({
+    userId: z
+      .string()
+      .min(1)
+      .max(100)
+      .optional()
+      .describe('The LNB account to invite, as found by the invite search.'),
+    username: minecraftUsername.optional().describe('Or a linked Minecraft username.'),
+    role: economyRole,
+  })
+  .refine((body) => (body.userId === undefined) !== (body.username === undefined), {
+    message: 'Give userId or username, not both.',
+  });
 export type EconomyInviteBody = z.infer<typeof economyInviteBody>;
+
+/** GET /api/economy/accounts/:accountId/invite-search */
+export const economyInviteSearchQuery = z.object({
+  q: z
+    .string()
+    .trim()
+    .min(3)
+    .max(100)
+    .describe('Part of a name, an email or a Minecraft username.'),
+});
+
+export const economyInviteOption = z.object({
+  userId: z.string(),
+  name: z.string(),
+  image: z.string().nullable(),
+  school: z.string().nullable(),
+  email: z.string(),
+  username: z.string().describe('Their first linked Minecraft account.'),
+  uuid: z.string(),
+  invited: z.boolean().describe('An invitation to this account is waiting for them.'),
+  member: z.boolean().describe('Already in the account.'),
+});
+export const economyInviteOptions = z.object({ items: z.array(economyInviteOption) });
+export type EconomyInviteOption = z.infer<typeof economyInviteOption>;
+export type EconomyInviteOptions = z.infer<typeof economyInviteOptions>;
 
 /** PATCH /api/economy/accounts/:accountId/members/:userId */
 export const economyMemberRoleBody = z.object({ role: economyRole });

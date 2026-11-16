@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { WardenConfirmModal } from '#components';
 
-import type { EconomyAccountView, EconomyInviteBody, EconomyRole } from '#shared/schemas/economy';
-import { economyInviteBody } from '#shared/schemas/economy';
+import type { EconomyAccountView, EconomyRole } from '#shared/schemas/economy';
 
 // Who is in a shared account. Owners change roles, remove members and invite players.
 const props = defineProps<{ account: EconomyAccountView }>();
@@ -60,16 +59,10 @@ async function onRemove(userId: string, name: string) {
   }
 }
 
-const form = reactive<EconomyInviteBody>({ username: '', role: 'member' });
-const inviting = ref(false);
-async function onInvite() {
-  inviting.value = true;
-  const done = await run(
-    () => economyActions.invite(props.account.id, { ...form }),
-    t('economy.members.invited', { username: form.username }),
-  );
-  if (done) form.username = '';
-  inviting.value = false;
+// The new invitation shows in the pending list.
+async function onInvited() {
+  await refresh();
+  emit('changed');
 }
 
 const seats = computed(() =>
@@ -178,42 +171,12 @@ const seats = computed(() =>
         </h3>
         <p class="text-sm text-muted">{{ t('economy.members.inviteLede') }}</p>
       </div>
-      <UForm
-        :schema="economyInviteBody"
-        :state="form"
-        class="flex flex-col gap-4"
-        @submit="onInvite"
-      >
-        <div class="flex flex-wrap gap-4">
-          <UFormField
-            name="username"
-            :label="t('economy.members.username')"
-            class="min-w-48 flex-1"
-          >
-            <UInput v-model="form.username" class="w-full" autocomplete="off" />
-          </UFormField>
-          <UFormField name="role" :label="t('economy.members.role')" class="w-44">
-            <USelect v-model="form.role" :items="roleItems" class="w-full" />
-          </UFormField>
-        </div>
-        <ul class="flex flex-col gap-1 text-sm">
-          <li v-for="role in ['owner', 'member', 'viewer'] as const" :key="role">
-            <strong class="text-highlighted">{{ t(`economy.roles.${role}`) }}</strong>
-            <span class="text-muted"> {{ t(`economy.roleHints.${role}`) }}</span>
-          </li>
-        </ul>
-        <div class="flex flex-wrap items-center gap-3">
-          <UButton
-            type="submit"
-            :loading="inviting"
-            :disabled="seats >= data.maxMembers"
-            :label="t('economy.members.invite')"
-          />
-          <span v-if="seats >= data.maxMembers" class="text-sm text-muted">
-            {{ t('economy.members.full') }}
-          </span>
-        </div>
-      </UForm>
+      <EconomyInviteSearch
+        :account-id="account.id"
+        :full="seats >= data.maxMembers"
+        @invited="onInvited"
+        @failed="(caught) => emit('failed', caught)"
+      />
     </section>
   </div>
 </template>

@@ -3996,12 +3996,16 @@
       "invitedAs": "Invité en tant que {role}",
       "cancelInvitation": "Annuler l’invitation",
       "inviteTitle": "Inviter quelqu’un",
-      "inviteLede": "La personne rejoint le compte une fois qu’elle accepte sur le site.",
-      "username": "Pseudo Minecraft",
+      "inviteLede": "Cherchez par nom, e-mail ou pseudo Minecraft. La personne rejoint le compte une fois l’invitation acceptée, sur le site ou en jeu.",
       "role": "Rôle",
-      "invite": "Envoyer l’invitation",
       "invited": "Invitation envoyée à {username}",
-      "full": "Le compte est complet."
+      "full": "Le compte est complet.",
+      "search": "Joueur",
+      "searchPlaceholder": "Nom, e-mail ou pseudo Minecraft",
+      "searchNone": "Personne n’a été trouvé. Seuls les joueurs avec un compte Minecraft lié apparaissent.",
+      "inviteAction": "Inviter",
+      "alreadyInvited": "Invité",
+      "alreadyMember": "Membre"
     },
     "settings": {
       "hideFromBaltop": "Me cacher du baltop",
