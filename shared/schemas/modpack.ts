@@ -188,3 +188,42 @@ export const modpackExportResult = z.object({
     .describe('Mods whose source could not be reached. Nothing was changed for them.'),
 });
 export type ModpackExportResult = z.infer<typeof modpackExportResult>;
+
+const manifestHashes = z.object({
+  sha256: z.string().optional().describe('Only when the site knows it.'),
+  sha512: z.string(),
+});
+
+/** The public manifest the launcher reads. Bump `schema` for a change older launchers can't read. */
+export const modpackManifest = z.object({
+  schema: z.literal(1),
+  revision: z.number().describe('Goes up by one with every change an admin makes to the pack.'),
+  updatedAt: isoDate,
+  gameVersion: z.string(),
+  loader: z.string(),
+  mods: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      side: modpackSide,
+      optional: z.boolean(),
+      version: z.string(),
+      fileName: z.string(),
+      size: z.number(),
+      hashes: manifestHashes,
+      downloads: z.array(z.url()).describe('Absolute https addresses, tried in order.'),
+      source: modpackSource,
+      projectUrl: z.string().nullable(),
+    }),
+  ),
+  assets: z.array(
+    z.object({
+      name: z.string(),
+      kind: z.enum(['wrapper', 'asset']),
+      size: z.number(),
+      hashes: manifestHashes,
+      url: z.url(),
+    }),
+  ),
+});
+export type ModpackManifest = z.infer<typeof modpackManifest>;

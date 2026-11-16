@@ -102,6 +102,8 @@ const ADMIN_PREFIXES = [
 /** The rules for a request, all of which must pass. Empty when the route isn't limited here. */
 export function rulesFor(method: string, path: string): RateRule[] {
   if (path.startsWith('/go/')) return [GO_PER_IP];
+  // The launcher's stable address for the manifest, outside /api.
+  if (path === '/modpack/manifest.json') return [API_PER_IP];
   if (!path.startsWith('/api/')) return [];
   // Better Auth has its own limits (docs/authentication.md), and the health check must answer.
   if (path.startsWith('/api/auth/') || path === '/api/health') return [];
