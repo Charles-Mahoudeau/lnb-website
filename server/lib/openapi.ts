@@ -12,6 +12,7 @@ import * as files from '../../shared/schemas/files.ts';
 import * as flags from '../../shared/schemas/flags.ts';
 import * as gamesplanet from '../../shared/schemas/gamesplanet.ts';
 import { linkApproveBody, linkApproveResult, linkDenyBody } from '../../shared/schemas/link.ts';
+import * as modpack from '../../shared/schemas/modpack.ts';
 import * as mods from '../../shared/schemas/mods.ts';
 import * as partnerEvents from '../../shared/schemas/partner-events.ts';
 import * as partners from '../../shared/schemas/partners.ts';
@@ -346,6 +347,7 @@ const TAGS = {
   modsAdmin: 'Mod list: admins',
   files: 'Files',
   filesAdmin: 'Files: admins',
+  modpackAdmin: 'Modlist: admins',
   events: 'Events',
   eventsAdmin: 'Events: managers',
   push: 'Push notifications',
@@ -1807,6 +1809,77 @@ const routes: RouteDoc[] = [
     params: mods.modIdParams,
     noContent: true,
     problems: [{ status: 404, problems: ['notOfficial'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/minecraft/admin/modpack/mods',
+    tag: TAGS.modpackAdmin,
+    summary: 'The mods of the pack',
+    description:
+      'With the manifest revision and the download size of the whole pack. A mod needing attention has no usable file yet and is left out of the size.',
+    access: 'wardenAdmin',
+    response: modpack.modpackList,
+  },
+  {
+    method: 'post',
+    path: '/api/minecraft/admin/modpack/mods',
+    tag: TAGS.modpackAdmin,
+    summary: 'Add a mod to the pack',
+    description:
+      'From Modrinth or CurseForge, the newest file for the server is pinned. A CurseForge mod whose downloads are blocked, or with no compatible file, is added flagged and left out of the manifest. A custom link is downloaded and hashed by the site (https, public hosts only, 100 MB at most). An uploaded mod points at a mod jar of the Files library.',
+    access: 'wardenAdmin',
+    body: modpack.modpackAddBody,
+    response: modpack.modpackCreated,
+    created: true,
+    problems: [
+      {
+        status: 400,
+        problems: ['badUrl', 'unreachable', 'tooLarge', 'notAJar'],
+      },
+      { status: 404, problems: ['notFound', 'fileNotFound'] },
+      { status: 409, problems: ['duplicate', 'notModFile'] },
+      { status: 502, problems: ['sourceUnavailable'] },
+    ],
+  },
+  {
+    method: 'patch',
+    path: '/api/minecraft/admin/modpack/mods/{id}',
+    tag: TAGS.modpackAdmin,
+    summary: 'Edit a mod of the pack',
+    description:
+      "Changes its name, side or optional flag, and the version label of a custom or uploaded mod. Modrinth and CurseForge versions come from the source. Raises the manifest's revision.",
+    access: 'wardenAdmin',
+    params: modpack.modpackIdParams,
+    body: modpack.modpackPatchBody,
+    noContent: true,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'put',
+    path: '/api/minecraft/admin/modpack/mods/{id}/file',
+    tag: TAGS.modpackAdmin,
+    summary: 'Use a Files library jar for a mod',
+    description:
+      'Points the mod at an uploaded jar, with its version label, and clears its flag. This is how a CurseForge mod whose downloads are blocked gets its file.',
+    access: 'wardenAdmin',
+    params: modpack.modpackIdParams,
+    body: modpack.modpackPinBody,
+    noContent: true,
+    problems: [
+      { status: 404, problems: ['notFound', 'fileNotFound'] },
+      { status: 409, problems: ['notModFile'] },
+    ],
+  },
+  {
+    method: 'delete',
+    path: '/api/minecraft/admin/modpack/mods/{id}',
+    tag: TAGS.modpackAdmin,
+    summary: 'Remove a mod from the pack',
+    description: 'The mod leaves the manifest. A Files library jar it used stays in the library.',
+    access: 'wardenAdmin',
+    params: modpack.modpackIdParams,
+    noContent: true,
+    problems: [{ status: 404, problems: ['notFound'] }],
   },
   {
     method: 'get',
@@ -5624,6 +5697,10 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
         description: 'The Files library, `/admin/mods/files`. See `docs/files.md`.',
       },
       {
+        name: TAGS.modpackAdmin,
+        description: "The Modlist, `/admin/mods`: the launcher's modpack. See `docs/modpack.md`.",
+      },
+      {
         name: TAGS.push,
         description:
           'Notifications about events only, from the notification settings on `/account`. See `docs/push.md`.',
@@ -5666,7 +5743,10 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
         tags: [TAGS.wardenServer, TAGS.wardenClient, TAGS.wardenPlayer, TAGS.wardenAdmin],
       },
       { name: 'Anticheat', tags: [TAGS.anticheatServer, TAGS.anticheatAdmin] },
-      { name: 'Minecraft', tags: [TAGS.mods, TAGS.modsAdmin, TAGS.files, TAGS.filesAdmin] },
+      {
+        name: 'Minecraft',
+        tags: [TAGS.mods, TAGS.modsAdmin, TAGS.files, TAGS.filesAdmin, TAGS.modpackAdmin],
+      },
       { name: 'Economy', tags: [TAGS.economyServer, TAGS.economy, TAGS.economyAdmin] },
       { name: 'Quests', tags: [TAGS.questsServer, TAGS.quests, TAGS.questsAdmin] },
       { name: 'Push', tags: [TAGS.push, TAGS.pushAdmin] },

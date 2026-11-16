@@ -309,6 +309,13 @@
       "when": 1794920063615,
       "tag": "0043_files",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1794920082223,
+      "tag": "0044_modpack",
+      "breakpoints": true
     }
   ]
 }

@@ -85,6 +85,7 @@ const HEAVY = [
   /^\/api\/admin\/events\/images(\/import)?$/,
   /^\/api\/admin\/partners\/logo$/,
   /^\/api\/admin\/files$/,
+  /^\/api\/minecraft\/admin\/modpack\/mods$/,
   /^\/api\/admin\/gamesplanet\/sync$/,
   /^\/api\/admin\/events\/[^/]+\/(announce|announce-resend|push-impact|bde-sync)$/,
   /^\/api\/admin\/users\/bulk$/,
