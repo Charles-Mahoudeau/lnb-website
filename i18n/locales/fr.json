@@ -1172,6 +1172,10 @@
           "label": "Fichiers",
           "description": "Les téléchargements publics des fichiers de la bibliothèque. Les admins peuvent toujours téléverser et gérer les fichiers."
         },
+        "modpack": {
+          "label": "Manifeste du modpack",
+          "description": "Le manifeste public que lit le lanceur Minecraft. Désactivé, il répond 503 et les lanceurs gardent ce qu'ils ont."
+        },
         "warden": {
           "label": "Warden",
           "description": "Les pages Warden des joueurs : comptes liés, bannissements et sessions."
@@ -3479,6 +3483,12 @@
         "done": "Exporté : {added} ajoutés, {removed} retirés, {updated} modifiés.",
         "flagged": "{count} hors du manifeste faute de fichier.",
         "failed": "{count} injoignables, non ajoutés."
+      },
+      "manifest": {
+        "label": "Adresse du manifeste, publique",
+        "copy": "Copier",
+        "copied": "Copié",
+        "open": "Ouvrir"
       }
     }
   },
