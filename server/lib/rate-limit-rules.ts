@@ -65,6 +65,11 @@ const API_KEY_READ: RateRule = { name: 'api-key-read', points: 600, windowSecond
 const API_KEY_WRITE: RateRule = { name: 'api-key-write', points: 60, windowSeconds: 60, by: 'key' };
 
 // Searching for players to invite lists names and emails, so it is limited by account.
+// Searches that show names and emails: the tournaments' and the bank's invitations.
+const PLAYER_SEARCH = [
+  /^\/api\/events\/[^/]+\/team-players$/,
+  /^\/api\/economy\/accounts\/[^/]+\/invite-search$/,
+];
 const TEAM_SEARCH: RateRule = { name: 'team-search', points: 30, windowSeconds: 60, by: 'user' };
 
 const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
@@ -105,7 +110,7 @@ export function rulesFor(method: string, path: string): RateRule[] {
   }
 
   const rules = [API_PER_IP];
-  if (/^\/api\/events\/[^/]+\/team-players$/.test(path)) return [...rules, TEAM_SEARCH];
+  if (PLAYER_SEARCH.some((pattern) => pattern.test(path))) return [...rules, TEAM_SEARCH];
   if (!MUTATING.has(method.toUpperCase())) return rules;
   if (SENSITIVE.some((pattern) => pattern.test(path))) return [...rules, SENSITIVE_WRITE];
   if (HEAVY.some((pattern) => pattern.test(path))) return [...rules, HEAVY_WRITE];

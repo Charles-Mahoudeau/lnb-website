@@ -4444,12 +4444,29 @@ const routes: RouteDoc[] = [
     problems: [{ status: 503, problems: ['disabled'] }],
   },
   {
+    method: 'get',
+    path: '/api/economy/accounts/{accountId}/invite-search',
+    tag: TAGS.economy,
+    summary: 'Find players to invite',
+    description:
+      'Owners only. Part of a name, an email or a Minecraft username, 3 characters at least; 8 results. Only players who can have a bank account show (a linked Minecraft account, a school that plays, no ban). Shows emails, so it is rate-limited (`team-search`, 30 per minute per account).',
+    access: 'user',
+    params: economy.economyAccountParams,
+    query: economy.economyInviteSearchQuery,
+    response: economy.economyInviteOptions,
+    problems: [
+      { status: 403, problems: ['notAllowed'] },
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['personalAccount'] },
+    ],
+  },
+  {
     method: 'post',
     path: '/api/economy/accounts/{accountId}/invitations',
     tag: TAGS.economy,
     summary: 'Invite a player',
     description:
-      'Owners only, by a linked Minecraft username. The player joins once they accept on the site. Members and pending invitations count against the limit.',
+      'Owners only. Give `userId`, a player found by the invite search, or `username`, a linked Minecraft username. The player joins once they accept, on the site or in the game. Members and pending invitations count against the limit.',
     access: 'user',
     params: economy.economyAccountParams,
     body: economy.economyInviteBody,

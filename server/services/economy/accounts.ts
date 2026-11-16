@@ -1,4 +1,4 @@
-import { and, asc, count, eq, inArray, isNull, notExists, sql } from 'drizzle-orm';
+import { and, asc, count, eq, ilike, inArray, isNull, notExists, or, sql } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import {
@@ -26,6 +26,7 @@ import type {
   EconomyAccountView,
   EconomyCreateBody,
   EconomyInviteBody,
+  EconomyInviteOption,
   EconomyMe,
   EconomyMePatchBody,
   EconomyPeriod,
@@ -34,6 +35,7 @@ import type {
 } from '#shared/schemas/economy';
 import { economyHandle } from '#shared/schemas/economy';
 import { canLinkFromSchool, getLinkApp } from '#shared/utils/link-apps';
+import { schoolForTenant } from '#shared/utils/schools';
 
 // Bank accounts as players see them: their own, the shared ones they're in, invitations and
 // preferences. Money only moves through ledger.ts. See docs/economy.md.
@@ -385,16 +387,99 @@ async function seatsTaken(dbx: Db, accountId: string): Promise<number> {
 }
 
 /** Invites a player by their linked Minecraft username. They join once they accept. */
+/**
+ * Finds players an owner can invite, as the tournaments' search does: part of a name, an email or
+ * a Minecraft username, 8 results. Only players who can have an account show (a linked Minecraft
+ * account, a school that plays, no ban), with whether they're invited or in already.
+ */
+async function inviteSearch(
+  userId: string,
+  accountId: string,
+  q: string,
+): Promise<EconomyInviteOption[]> {
+  await owned(db, accountId, userId);
+  const pattern = `%${q.replace(/[\\%_]/g, '\\$&')}%`;
+  const found = await db
+    .selectDistinctOn([user.name, user.id], {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+      tenantId: user.tenantId,
+      username: minecraftAccount.username,
+      uuid: minecraftAccount.uuid,
+    })
+    .from(user)
+    .innerJoin(
+      minecraftAccount,
+      and(eq(minecraftAccount.userId, user.id), isNull(minecraftAccount.unlinkedAt)),
+    )
+    .where(
+      and(
+        or(
+          ilike(user.name, pattern),
+          ilike(user.email, pattern),
+          ilike(minecraftAccount.username, pattern),
+        ),
+        or(isNull(user.banned), eq(user.banned, false)),
+        sql`${user.id} <> ${userId}`,
+      ),
+    )
+    .orderBy(asc(user.name), asc(user.id), asc(minecraftAccount.linkedAt))
+    .limit(8);
+  const app = getLinkApp('warden');
+  const players = found.filter((row) => !app || canLinkFromSchool(app, row.tenantId));
+  const ids = players.map((row) => row.id);
+  const [invited, members] = ids.length
+    ? await Promise.all([
+        db
+          .select({ userId: economyInvitation.userId })
+          .from(economyInvitation)
+          .where(
+            and(eq(economyInvitation.accountId, accountId), inArray(economyInvitation.userId, ids)),
+          ),
+        db
+          .select({ userId: economyMember.userId })
+          .from(economyMember)
+          .where(and(eq(economyMember.accountId, accountId), inArray(economyMember.userId, ids))),
+      ])
+    : [[], []];
+  const invitedIds = new Set(invited.map((row) => row.userId));
+  const memberIds = new Set(members.map((row) => row.userId));
+  return players.map((row) => ({
+    userId: row.id,
+    name: row.name,
+    image: row.image,
+    school: schoolForTenant(row.tenantId) ?? null,
+    email: row.email,
+    username: row.username,
+    uuid: row.uuid,
+    invited: invitedIds.has(row.id),
+    member: memberIds.has(row.id),
+  }));
+}
+
+/** The LNB account behind an invitation: picked from the search, or named by a Minecraft username. */
+async function inviteTarget(tx: Tx, body: EconomyInviteBody): Promise<string> {
+  if (body.userId !== undefined) {
+    const [found] = await tx.select({ id: user.id }).from(user).where(eq(user.id, body.userId));
+    if (!found) refuse(404, 'playerNotFound');
+    return found.id;
+  }
+  const [target] = await tx
+    .select({ userId: minecraftAccount.userId })
+    .from(minecraftAccount)
+    .where(
+      and(eq(minecraftAccount.username, body.username ?? ''), isNull(minecraftAccount.unlinkedAt)),
+    );
+  if (!target) refuse(404, 'playerNotFound');
+  return target.userId;
+}
+
 async function invite(userId: string, accountId: string, body: EconomyInviteBody) {
   return db.transaction(async (tx) => {
     await owned(tx, accountId, userId);
-    const [target] = await tx
-      .select({ userId: minecraftAccount.userId })
-      .from(minecraftAccount)
-      .where(
-        and(eq(minecraftAccount.username, body.username), isNull(minecraftAccount.unlinkedAt)),
-      );
-    if (!target) refuse(404, 'playerNotFound');
+    const target = { userId: await inviteTarget(tx, body) };
     if (!(await isEligible(tx, target.userId))) refuse(409, 'notEligible');
     const [member] = await tx
       .select({ userId: economyMember.userId })
@@ -607,6 +692,7 @@ async function openAccounts(dbx: Db, ids: readonly string[]) {
 }
 
 export const economyAccountService = {
+  inviteSearch,
   isEligible,
   ensurePersonal,
   roleIn,

@@ -3992,12 +3992,16 @@
       "invitedAs": "Invited as {role}",
       "cancelInvitation": "Cancel invitation",
       "inviteTitle": "Invite someone",
-      "inviteLede": "They join once they accept on the site.",
-      "username": "Minecraft username",
+      "inviteLede": "Find them by name, email or Minecraft username. They join once they accept, on the site or in the game.",
       "role": "Role",
-      "invite": "Send invitation",
       "invited": "Invitation sent to {username}",
-      "full": "The account is full."
+      "full": "The account is full.",
+      "search": "Player",
+      "searchPlaceholder": "Name, email or Minecraft username",
+      "searchNone": "Nobody found. Only players with a linked Minecraft account show.",
+      "inviteAction": "Invite",
+      "alreadyInvited": "Invited",
+      "alreadyMember": "Member"
     },
     "settings": {
       "hideFromBaltop": "Hide me from the baltop",
