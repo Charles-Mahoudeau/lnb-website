@@ -12,6 +12,7 @@ import { createError } from 'nuxt/server';
 import { db } from '~~/server/db';
 import { isUniqueViolation } from '~~/server/db/errors';
 import { storedFile, user } from '~~/server/db/schema';
+import { usageOfFiles } from '~~/server/services/modpack/usage';
 import { wardenAuditService } from '~~/server/services/warden/audit';
 
 import { FILE_EXTENSIONS, MAX_FILE_BYTES, ZIP_EXTENSIONS } from '#shared/schemas/files';
@@ -56,12 +57,9 @@ function downloadUrl(sha256: string, name: string): string {
   return `${DOWNLOAD_PREFIX}${sha256}/${encodeURIComponent(name)}`;
 }
 
-/**
- * What points at each file, by file ID. The library is built before the modpack that will use it,
- * so nothing does yet. A file in use cannot be deleted.
- */
-function usageOf(_ids: string[]): Promise<Map<string, string[]>> {
-  return Promise.resolve(new Map<string, string[]>());
+/** What points at each file, by file ID: the Modlist's mods. A file in use cannot be deleted. */
+function usageOf(ids: string[]): Promise<Map<string, string[]>> {
+  return usageOfFiles(ids);
 }
 
 type Row = typeof storedFile.$inferSelect;

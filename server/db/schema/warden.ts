@@ -319,6 +319,11 @@ export const WARDEN_AUDIT_ACTIONS = [
   // The Files library (docs/files.md), run by the same staff.
   'file.upload',
   'file.delete',
+  // The Modlist (docs/modpack.md), run by the same staff.
+  'modpack.add',
+  'modpack.edit',
+  'modpack.pin',
+  'modpack.remove',
   // The anticheat (docs/anticheat.md), run by the same staff. The last two are written by the site
   // itself and exist to feed the event stream.
   'anticheat.approve',

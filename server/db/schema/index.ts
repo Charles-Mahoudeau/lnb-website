@@ -12,6 +12,7 @@ export * from './gamesplanet';
 export * from './minecraft-events';
 export * from './mods';
 export * from './partner-events';
+export * from './modpack';
 export * from './partners';
 export * from './posters';
 export * from './push';
