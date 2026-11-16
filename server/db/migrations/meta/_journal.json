@@ -302,6 +302,13 @@
       "when": 1794872973094,
       "tag": "0042_minecraft-server-events",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1794920063615,
+      "tag": "0043_files",
+      "breakpoints": true
     }
   ]
 }

@@ -591,6 +591,7 @@
       "modList": "Mod list",
       "modVote": "Mod vote",
       "modSuggestions": "Suggestions",
+      "files": "Files",
       "flags": "Feature flags",
       "rateLimit": "Rate limiting",
       "events": "Events",
@@ -1030,6 +1031,68 @@
         "done": "Suggestion removed"
       }
     },
+    "files": {
+      "upload": "Upload files",
+      "note": "Jars and assets the launcher downloads. Anyone with a file's link can download it, so only upload what you want to share.",
+      "copy": "Copy the download link",
+      "copied": "Copied",
+      "deleted": "File deleted",
+      "stats": {
+        "files": "Files",
+        "stored": "Stored",
+        "unused": "Not used by anything"
+      },
+      "drop": {
+        "title": "Drop files here",
+        "help": "Up to {size} each. Jars, zip archives and a few text formats. The same file is only stored once.",
+        "choose": "Choose files",
+        "addAs": "Add as"
+      },
+      "kinds": {
+        "auto": "Automatic",
+        "mod": "Mod jar",
+        "wrapper": "Wrapper jar",
+        "asset": "Asset"
+      },
+      "queue": {
+        "title": "Uploads",
+        "clear": "Clear finished",
+        "added": "Added",
+        "refused": "Refused",
+        "waiting": "Waiting"
+      },
+      "library": {
+        "title": "Library",
+        "search": "Search files",
+        "empty": "No file yet. Drop a jar above to add the first one.",
+        "noMatch": "No file matches.",
+        "notUsed": "Not used",
+        "usedBy": "Used by {name} | Used by {name} and {count} more | Used by {name} and {count} more"
+      },
+      "detail": {
+        "link": "Download link",
+        "usedBy": "Used by",
+        "unused": "Nothing uses this file, so it can be deleted.",
+        "uploaded": "Uploaded on {date} by {name}",
+        "uploadedNoName": "Uploaded on {date}",
+        "inUseNote": "Something points at this file, so it can't be deleted. Switch those entries to another file first.",
+        "download": "Download",
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "deleteConfirm": "Delete this file? Its download link stops working at once."
+      },
+      "errors": {
+        "failed": "Something went wrong. Try again.",
+        "fileNotFound": "This file doesn't exist any more.",
+        "fileTooLarge": "The file is larger than 100 MB.",
+        "fileEmpty": "The file is empty.",
+        "fileBadName": "The file name isn't usable. Rename it and try again.",
+        "fileBadType": "This kind of file isn't accepted here, or it isn't a valid jar or zip archive.",
+        "fileDuplicate": "This exact file is already in the library.",
+        "fileInUse": "Something still uses this file, so it can't be deleted.",
+        "fileUnreadable": "The upload was cut off. Try again."
+      }
+    },
     "rateLimit": {
       "title": "Rate limiting",
       "lede": "Pick what the site should do right now. A change applies within seconds and is logged on the Overview.",
@@ -1099,6 +1162,10 @@
         "modList_icons": {
           "label": "Mod icons",
           "description": "Mod icons, and the icons of search results."
+        },
+        "files": {
+          "label": "Files",
+          "description": "Public downloads of the files in the library. Admins can still upload and manage files."
         },
         "warden": {
           "label": "Warden",
@@ -3365,6 +3432,8 @@
       "modRestore": "Restored the suggestion {name}",
       "modDelete": "Removed {name} from the official list",
       "modSettingsUpdate": "Mod list settings changed",
+      "fileUpload": "Uploaded the file {name}",
+      "fileDelete": "Deleted the file {name}",
       "deviceLink": "Linked the device {device}",
       "deviceDeny": "Refused to link the device {device}",
       "deviceRevoke": "Revoked the device {device}",

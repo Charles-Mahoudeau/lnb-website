@@ -316,6 +316,9 @@ export const WARDEN_AUDIT_ACTIONS = [
   'mod.restore',
   'mod.delete',
   'modSettings.update',
+  // The Files library (docs/files.md), run by the same staff.
+  'file.upload',
+  'file.delete',
   // The anticheat (docs/anticheat.md), run by the same staff. The last two are written by the site
   // itself and exist to feed the event stream.
   'anticheat.approve',
