@@ -3,7 +3,7 @@ import type { EconomyAccountDetail, EconomyCreateBody } from '#shared/schemas/ec
 import { ECONOMY_ACCOUNT_TYPES, economyCreateBody } from '#shared/schemas/economy';
 
 // Opening a shared account. Closes with the new account, or null. A casino needs a free casino
-// licence, bought in the game.
+// license, bought in the game.
 const props = defineProps<{ freeLicenses: number }>();
 const emit = defineEmits<{ close: [account: EconomyAccountDetail | null] }>();
 const { t } = useI18n();

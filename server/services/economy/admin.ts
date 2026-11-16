@@ -222,8 +222,8 @@ async function adjust(actorId: string, accountId: string, body: EconomyAdjustBod
 }
 
 /**
- * Sets a shared account's type, with no licence needed: for casinos that were there before the
- * licences. A licence already bound to the account stays bound.
+ * Sets a shared account's type, with no license needed: for casinos that were there before the
+ * licenses. A license already bound to the account stays bound.
  */
 async function setType(actorId: string, accountId: string, type: EconomyAccountType) {
   await db.transaction(async (tx) => {
@@ -408,7 +408,7 @@ async function exportAll(): Promise<EconomyExport> {
 }
 
 /**
- * Deletes every account, the ledger, the casino licences and the daily stats. The settings stay. Personal accounts
+ * Deletes every account, the ledger, the casino licenses and the daily stats. The settings stay. Personal accounts
  * open again on the next need, with the starting balance. Site admins only, after typing the
  * confirmation.
  */
@@ -417,7 +417,7 @@ async function reset(actorId: string, confirm: string) {
   await db.transaction(async (tx) => {
     const [totals] = await tx.select({ supply: sum(economyAccount.balance) }).from(economyAccount);
     const accounts = await tx.select({ id: economyAccount.id }).from(economyAccount);
-    // Licences point at the transaction that paid for them and at accounts.
+    // Licenses point at the transaction that paid for them and at accounts.
     await tx.delete(economyCasinoLicense);
     await tx.delete(economyEntry);
     // Reversals point at the transaction they undo, so they go first.

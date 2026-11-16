@@ -3812,7 +3812,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.economyServer,
     summary: "A player's accounts",
     description:
-      'For the balance in the inventory and "My accounts": the personal account first (opened on first need, with the starting balance), then the shared accounts the player is in, the account that pays by default, their casino licences and what one costs.',
+      'For the balance in the inventory and "My accounts": the personal account first (opened on first need, with the starting balance), then the shared accounts the player is in, the account that pays by default, their casino licenses and what one costs.',
     access: 'wardenServer',
     params: economy.economyUuidParams,
     response: economy.economyServerPlayer,
@@ -3860,7 +3860,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.economyServer,
     summary: 'Open a shared account',
     description:
-      "From the game, with the player as its owner: the rules of the player route (the limit of owned accounts, unique handles). `type` is `team` without it; `casino` uses one of the player's free casino licences. Behind the `economy.sharedAccounts` flag too.",
+      "From the game, with the player as its owner: the rules of the player route (the limit of owned accounts, unique handles). `type` is `team` without it; `casino` uses one of the player's free casino licenses. Behind the `economy.sharedAccounts` flag too.",
     access: 'wardenServer',
     body: economy.economyServerCreateBody,
     response: economy.economyAccountView,
@@ -3878,7 +3878,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.economyServer,
     summary: 'Rename a shared account or change its type',
     description:
-      "Owners only. `name`, `type` or both. `team` and `shop` change freely; `casino` uses one of the player's free casino licences, and a casino never changes type again. Behind the `economy.sharedAccounts` flag too.",
+      "Owners only. `name`, `type` or both. `team` and `shop` change freely; `casino` uses one of the player's free casino licenses, and a casino never changes type again. Behind the `economy.sharedAccounts` flag too.",
     access: 'wardenServer',
     params: economy.economyHandleParams,
     body: economy.economyServerAccountPatchBody,
@@ -3997,9 +3997,9 @@ const routes: RouteDoc[] = [
     method: 'post',
     path: '/api/economy/server/licenses',
     tag: TAGS.economyServer,
-    summary: 'Buy a casino licence',
+    summary: 'Buy a casino license',
     description:
-      'The player buys one licence, which lets them make one of their shared accounts a casino. Its price (set by the admins) is burned from `account`, or their default account: one transaction of kind `burn`, reason `casinoLicense`. A price of 0 gives the licence with no transaction (`transactionId: null`). Carries an `idempotencyKey`, as transfers do. Behind the `economy.casinoLicenses` flag too.',
+      'The player buys one license, which lets them make one of their shared accounts a casino. Its price (set by the admins) is burned from `account`, or their default account: one transaction of kind `burn`, reason `casinoLicense`. A price of 0 gives the license with no transaction (`transactionId: null`). Carries an `idempotencyKey`, as transfers do. Behind the `economy.casinoLicenses` flag too.',
     access: 'wardenServer',
     body: economy.economyLicenseBody,
     response: economy.economyLicenseResult,
@@ -4361,7 +4361,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.economy,
     summary: 'Open a shared account',
     description:
-      "The caller becomes its owner. Handles are unique, kept after closing, and some are reserved (`server`, `lnb`, `admin`, `staff`, `bank`, `system`). `type` is `team` without it; `casino` uses one of the caller's free casino licences.",
+      "The caller becomes its owner. Handles are unique, kept after closing, and some are reserved (`server`, `lnb`, `admin`, `staff`, `bank`, `system`). `type` is `team` without it; `casino` uses one of the caller's free casino licenses.",
     access: 'user',
     body: economy.economyCreateBody,
     response: economy.economyAccountDetail,
@@ -4389,7 +4389,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.economy,
     summary: 'Rename a shared account or change its type',
     description:
-      "Owners only. `name`, `type` or both. The handle never changes. `team` and `shop` change freely; `casino` uses one of the caller's free casino licences, and a casino never changes type again.",
+      "Owners only. `name`, `type` or both. The handle never changes. `team` and `shop` change freely; `casino` uses one of the caller's free casino licenses, and a casino never changes type again.",
     access: 'user',
     params: economy.economyAccountParams,
     body: economy.economyAccountPatchBody,
@@ -4576,7 +4576,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.economyAdmin,
     summary: "Set a shared account's type",
     description:
-      'Any type, with no casino licence needed and even on a casino: for casinos that were there before the licences, and mistakes. Written to the audit log.',
+      'Any type, with no casino license needed and even on a casino: for casinos that were there before the licenses, and mistakes. Written to the audit log.',
     access: 'economyAdmin',
     params: economy.economyAccountParams,
     body: economy.economyAdminAccountPatchBody,
@@ -4731,7 +4731,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.economyAdmin,
     summary: 'Change the economy settings',
     description:
-      'The starting balance (minted on each new personal account), how many shared accounts a player can own, how many members one can have, the auction house tax, listings per player and listing length, and the price of a casino licence.',
+      'The starting balance (minted on each new personal account), how many shared accounts a player can own, how many members one can have, the auction house tax, listings per player and listing length, and the price of a casino license.',
     access: 'economyAdmin',
     body: economy.economySettingsBody,
     response: economy.economySettingsView,

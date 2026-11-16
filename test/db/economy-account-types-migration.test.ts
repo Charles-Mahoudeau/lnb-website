@@ -50,7 +50,7 @@ describe('economy account types migration', () => {
     ).rejects.toThrow(/economy_account_kind_fields/);
   });
 
-  it('prices a casino licence at 100000 by default', async () => {
+  it('prices a casino license at 100000 by default', async () => {
     const { rows } = await pool.query<{ casino_license_price: string }>(
       'SELECT casino_license_price FROM economy_settings',
     );

@@ -77,7 +77,7 @@ export const economyServerHandle = z
   .transform((handle) => handle.replace(/^#/, '').toLowerCase())
   .pipe(z.string().regex(/^[a-z\d](?:[a-z\d-]{1,22})[a-z\d]$/));
 
-/** What a shared account is for. `casino` needs a casino licence, and never changes again. */
+/** What a shared account is for. `casino` needs a casino license, and never changes again. */
 export const ECONOMY_ACCOUNT_TYPES = ['team', 'shop', 'casino'] as const;
 export const economyAccountType = z.enum(ECONOMY_ACCOUNT_TYPES);
 export type EconomyAccountType = z.infer<typeof economyAccountType>;
@@ -197,9 +197,9 @@ export type EconomyTransactionView = z.infer<typeof economyTransactionView>;
 export const economyTransactionPage = page(economyTransactionView);
 export type EconomyTransactionPage = z.infer<typeof economyTransactionPage>;
 
-/** A player's casino licences. */
+/** A player's casino licenses. */
 export const economyLicenseCount = z.object({
-  total: z.number().describe('Every licence the player bought.'),
+  total: z.number().describe('Every license the player bought.'),
   free: z.number().describe('Those not yet used for a casino.'),
 });
 export type EconomyLicenseCount = z.infer<typeof economyLicenseCount>;
@@ -263,7 +263,7 @@ export const economyCreateBody = z.object({
   handle: economyHandle,
   type: economyAccountType
     .optional()
-    .describe("`team` without it. `casino` uses one of the caller's free casino licences."),
+    .describe("`team` without it. `casino` uses one of the caller's free casino licenses."),
 });
 export type EconomyCreateBody = z.input<typeof economyCreateBody>;
 
@@ -272,7 +272,7 @@ export const economyAccountPatchBody = z
   .object({
     name: economyAccountName,
     type: economyAccountType.describe(
-      "`casino` uses one of the caller's free casino licences, and never changes again.",
+      "`casino` uses one of the caller's free casino licenses, and never changes again.",
     ),
   })
   .partial()
@@ -337,7 +337,7 @@ export const economyServerPlayer = z.object({
   defaultAccountId: z.uuid().describe('The account that pays when none is named.'),
   accounts: z.array(economyAccountView).describe('The personal account first.'),
   casinoLicenses: economyLicenseCount,
-  casinoLicensePrice: z.number().describe('What a casino licence costs now.'),
+  casinoLicensePrice: z.number().describe('What a casino license costs now.'),
 });
 export type EconomyServerPlayer = z.infer<typeof economyServerPlayer>;
 
@@ -434,7 +434,7 @@ export const economyServerCreateBody = z.object({
   name: economyAccountName,
   type: economyAccountType
     .optional()
-    .describe("`team` without it. `casino` uses one of the player's free casino licences."),
+    .describe("`team` without it. `casino` uses one of the player's free casino licenses."),
 });
 export type EconomyServerCreateBody = z.input<typeof economyServerCreateBody>;
 
@@ -524,12 +524,12 @@ export const economyServerInvitations = z.object({
 });
 export type EconomyServerInvitations = z.infer<typeof economyServerInvitations>;
 
-// Casino licences and mob drops: the two ways the game burns and mints money by itself.
+// Casino licenses and mob drops: the two ways the game burns and mints money by itself.
 
 /** POST /api/economy/server/licenses */
 export const economyLicenseBody = z.object({
   idempotencyKey: z.uuid(),
-  player: minecraftUuid.describe('The player who buys the licence, and gets it.'),
+  player: minecraftUuid.describe('The player who buys the license, and gets it.'),
   account: economyAccountRef
     .optional()
     .describe("The account that pays. The player's default one without it."),
@@ -537,7 +537,7 @@ export const economyLicenseBody = z.object({
 export type EconomyLicenseBody = z.input<typeof economyLicenseBody>;
 
 export const economyLicenseResult = z.object({
-  transactionId: z.number().nullable().describe('Null when the licence was free.'),
+  transactionId: z.number().nullable().describe('Null when the license was free.'),
   replayed: z.boolean().describe('True when the key had already been used: nothing was bought.'),
   amount: z.number().describe('The price paid, burned.'),
   from: transferSide,
@@ -731,7 +731,7 @@ export type EconomyAdminAccountDetail = z.infer<typeof economyAdminAccountDetail
 
 /** PATCH /api/economy/admin/accounts/:accountId */
 export const economyAdminAccountPatchBody = z.object({
-  type: economyAccountType.describe('Any type, with no licence needed.'),
+  type: economyAccountType.describe('Any type, with no license needed.'),
 });
 export type EconomyAdminAccountPatchBody = z.infer<typeof economyAdminAccountPatchBody>;
 
@@ -1059,7 +1059,7 @@ export const economySettingsView = z.object({
   auctionTaxPercent: z.number().describe('The auction house sale tax, burned, in percent.'),
   auctionMaxListings: z.number().describe('The most listings a player has up at once.'),
   auctionDays: z.number().describe('How many days a listing stays up.'),
-  casinoLicensePrice: z.number().describe('What a casino licence costs. Burned.'),
+  casinoLicensePrice: z.number().describe('What a casino license costs. Burned.'),
   updatedAt: isoDate,
 });
 export type EconomySettingsView = z.infer<typeof economySettingsView>;

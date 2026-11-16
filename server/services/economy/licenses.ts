@@ -7,11 +7,11 @@ import type { Db, Tx } from './shared';
 
 import type { EconomyLicenseCount } from '#shared/schemas/economy';
 
-// Casino licences: bought from the game (server.ts), and used here when a shared account becomes
-// a casino. A licence belongs to the LNB account and is bound to one casino for good. See
+// Casino licenses: bought from the game (server.ts), and used here when a shared account becomes
+// a casino. A license belongs to the LNB account and is bound to one casino for good. See
 // docs/economy.md.
 
-/** How many licences the player bought, and how many are still free. */
+/** How many licenses the player bought, and how many are still free. */
 export async function licenseCount(dbx: Db, userId: string): Promise<EconomyLicenseCount> {
   const [[total], [free]] = await Promise.all([
     dbx
@@ -27,8 +27,8 @@ export async function licenseCount(dbx: Db, userId: string): Promise<EconomyLice
 }
 
 /**
- * Uses one of the player's free licences for an account that becomes a casino. An account that
- * already holds a licence (an admin took its type away) needs no other one.
+ * Uses one of the player's free licenses for an account that becomes a casino. An account that
+ * already holds a license (an admin took its type away) needs no other one.
  */
 export async function bindLicense(tx: Tx, accountId: string, userId: string): Promise<void> {
   const [held] = await tx
@@ -36,7 +36,7 @@ export async function bindLicense(tx: Tx, accountId: string, userId: string): Pr
     .from(economyCasinoLicense)
     .where(eq(economyCasinoLicense.accountId, accountId));
   if (held) return;
-  // Locked, so two accounts made casinos at once can't share a licence.
+  // Locked, so two accounts made casinos at once can't share a license.
   const [free] = await tx
     .select({ id: economyCasinoLicense.id })
     .from(economyCasinoLicense)
