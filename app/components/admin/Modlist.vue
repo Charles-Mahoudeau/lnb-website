@@ -6,8 +6,11 @@ import type { ModpackModView } from '#shared/schemas/modpack';
 // The Modlist: the numbers of the pack, the filters, then the mods. A mod opens in a side drawer.
 // See docs/modpack.md.
 const { t, d, locale } = useI18n();
-// The page's button opens the Add modal.
-defineExpose({ add: () => onAdd() });
+const toast = useToast();
+const checking = ref(false);
+
+// The page's buttons open the Add modal and run the check.
+defineExpose({ add: () => onAdd(), check: () => onCheck(), checking });
 const { data, error, refresh } = await useAdminModpack();
 
 const overlay = useOverlay();
@@ -55,6 +58,55 @@ const initials = (name: string) =>
 async function onAdd() {
   const added: unknown = await adding.open().result;
   if (added === true) await refresh();
+}
+
+const adoptingAll = ref(false);
+
+async function onCheck() {
+  checking.value = true;
+  try {
+    const result = await modpackActions.check();
+    await refresh();
+    toast.add({
+      title: t('admin.modlist.checkDone', { count: result.updates }),
+      description: result.failed
+        ? t('admin.modlist.checkFailed', { count: result.failed })
+        : undefined,
+      color: result.failed ? 'warning' : 'success',
+      icon: 'i-lucide-circle-check',
+    });
+  } catch (error) {
+    const problem = error instanceof ModpackError ? error.problem : 'failed';
+    toast.add({
+      title: t(`admin.modlist.errors.${problem}`),
+      color: 'error',
+      icon: 'i-lucide-circle-alert',
+    });
+  } finally {
+    checking.value = false;
+  }
+}
+
+async function onAdoptAll() {
+  adoptingAll.value = true;
+  try {
+    const { adopted } = await modpackActions.adoptAll();
+    await refresh();
+    toast.add({
+      title: t('admin.modlist.adoptedAll', { count: adopted }),
+      color: 'success',
+      icon: 'i-lucide-circle-check',
+    });
+  } catch (error) {
+    const problem = error instanceof ModpackError ? error.problem : 'failed';
+    toast.add({
+      title: t(`admin.modlist.errors.${problem}`),
+      color: 'error',
+      icon: 'i-lucide-circle-alert',
+    });
+  } finally {
+    adoptingAll.value = false;
+  }
 }
 
 async function onOpen(mod: ModpackModView) {
@@ -119,6 +171,16 @@ async function onOpen(mod: ModpackModView) {
             @click="filter = item.value"
           />
         </div>
+        <UButton
+          v-if="counts.update > 0 && filter === 'update'"
+          class="ml-auto"
+          color="neutral"
+          variant="soft"
+          icon="i-lucide-check-check"
+          :label="t('admin.modlist.adoptAll', { count: counts.update })"
+          :loading="adoptingAll"
+          @click="onAdoptAll"
+        />
       </div>
 
       <p v-if="!data.items.length" class="text-muted">{{ t('admin.modlist.empty.none') }}</p>

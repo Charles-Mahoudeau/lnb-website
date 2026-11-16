@@ -1447,6 +1447,10 @@
         "jobs_pruneServerEvents": {
           "label": "Minecraft server events cleanup",
           "description": "The nightly removal of the live changes sent to the Minecraft server, after a day."
+        },
+        "jobs_modpackLatest": {
+          "label": "Check Modlist updates",
+          "description": "The nightly look for newer files of the Modlist's mods. It only notes them: nothing changes until an admin adopts."
         }
       }
     },
@@ -3410,7 +3414,9 @@
         "remove": "Remove from the pack",
         "removeConfirm": "Remove {name} from the pack?",
         "removeNote": "It leaves the manifest. A file it used stays in the library.",
-        "removeYes": "Remove"
+        "removeYes": "Remove",
+        "adopt": "Adopt {version}",
+        "acceptNew": "Accept the new file"
       },
       "errors": {
         "failed": "Something went wrong. Try again.",
@@ -3425,7 +3431,13 @@
         "fileNotFound": "That file isn't in the library.",
         "notModFile": "Only files added as a mod jar can be used.",
         "notUploaded": "That file wasn't uploaded."
-      }
+      },
+      "check": "Check for updates",
+      "checkDone": "Checked. No update found. | Checked. 1 update found. | Checked. {count} updates found.",
+      "checkFailed": "1 mod's source didn't answer. | {count} mods' sources didn't answer.",
+      "adoptAll": "Adopt all {count}",
+      "adoptedAll": "No mod adopted. | 1 update adopted. | {count} updates adopted.",
+      "adopted": "Update adopted"
     }
   },
   "wardenAdmin": {
@@ -3549,7 +3561,8 @@
       "modpackAdd": "Added {name} to the Modlist",
       "modpackEdit": "Edited {name} in the Modlist",
       "modpackPin": "Switched {name} to a library file",
-      "modpackRemove": "Removed {name} from the Modlist"
+      "modpackRemove": "Removed {name} from the Modlist",
+      "modpackAdopt": "Adopted a newer file of {name}"
     },
     "actors": {
       "console": "Console",

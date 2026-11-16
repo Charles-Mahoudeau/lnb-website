@@ -1451,6 +1451,10 @@
         "jobs_pruneServerEvents": {
           "label": "Nettoyage des événements du serveur Minecraft",
           "description": "La suppression nocturne des changements envoyés en direct au serveur Minecraft, après un jour."
+        },
+        "jobs_modpackLatest": {
+          "label": "Vérifier les mises à jour de la Modlist",
+          "description": "La recherche nocturne de fichiers plus récents pour les mods de la Modlist. Elle ne fait que les noter : rien ne change tant qu'un admin ne les adopte."
         }
       }
     },
@@ -3414,7 +3418,9 @@
         "remove": "Retirer du pack",
         "removeConfirm": "Retirer {name} du pack ?",
         "removeNote": "Il quitte le manifeste. Un fichier qu'il utilisait reste dans la bibliothèque.",
-        "removeYes": "Retirer"
+        "removeYes": "Retirer",
+        "adopt": "Adopter {version}",
+        "acceptNew": "Accepter le nouveau fichier"
       },
       "errors": {
         "failed": "Un problème est survenu. Réessayez.",
@@ -3429,7 +3435,13 @@
         "fileNotFound": "Ce fichier n'est pas dans la bibliothèque.",
         "notModFile": "Seuls les fichiers ajoutés comme jar de mod peuvent servir.",
         "notUploaded": "Ce fichier n'a pas été importé."
-      }
+      },
+      "check": "Chercher des mises à jour",
+      "checkDone": "Vérifié. Aucune mise à jour. | Vérifié. 1 mise à jour trouvée. | Vérifié. {count} mises à jour trouvées.",
+      "checkFailed": "La source d'1 mod n'a pas répondu. | Les sources de {count} mods n'ont pas répondu.",
+      "adoptAll": "Tout adopter ({count})",
+      "adoptedAll": "Aucun mod adopté. | 1 mise à jour adoptée. | {count} mises à jour adoptées.",
+      "adopted": "Mise à jour adoptée"
     }
   },
   "wardenAdmin": {
@@ -3553,7 +3565,8 @@
       "modpackAdd": "{name} ajouté à la Modlist",
       "modpackEdit": "{name} modifié dans la Modlist",
       "modpackPin": "{name} passé sur un fichier de la bibliothèque",
-      "modpackRemove": "{name} retiré de la Modlist"
+      "modpackRemove": "{name} retiré de la Modlist",
+      "modpackAdopt": "Fichier plus récent adopté pour {name}"
     },
     "actors": {
       "console": "Console",

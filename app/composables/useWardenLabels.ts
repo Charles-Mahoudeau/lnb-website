@@ -89,6 +89,7 @@ export function useWardenLabels() {
       case 'modpack.add':
       case 'modpack.edit':
       case 'modpack.pin':
+      case 'modpack.adopt':
       case 'modpack.remove': {
         const key = `modpack${entry.action.charAt(8).toUpperCase()}${entry.action.slice(9)}`;
         return t(`wardenAdmin.actions.${key}`, { name: text('name') });
