@@ -96,6 +96,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'jobs.questsCommunity', parent: 'jobs' },
   { key: 'jobs.pruneServerEvents', parent: 'jobs' },
   { key: 'jobs.modpackLatest', parent: 'jobs' },
+  { key: 'jobs.playtimePrune', parent: 'jobs' },
 ] as const satisfies readonly FlagDefinition[];
 
 export type FlagKey = (typeof FLAG_DEFINITIONS)[number]['key'];

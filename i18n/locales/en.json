@@ -1576,6 +1576,10 @@
         "jobs_modpackLatest": {
           "label": "Check Modlist updates",
           "description": "The nightly look for newer files of the Modlist's mods. It only notes them: nothing changes until an admin adopts."
+        },
+        "jobs_playtimePrune": {
+          "label": "Playtime cleanup",
+          "description": "The nightly removal of playtime ledger rows older than 26 weeks and the warnings of ended sessions."
         }
       }
     },
