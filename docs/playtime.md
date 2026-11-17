@@ -2,7 +2,7 @@
 
 A weekly limit on how long players can be on the Minecraft server during restricted hours (for example Monday to Friday, 9:00 to 17:00). The plan is `docs/plans/playtime-limits.md`, and the contract for the mod developers is `docs/plans/playtime-limits-mod.md`. This page says what is built.
 
-**Status:** the data, the counting, the player view and the Minecraft account page are built, in `observe` mode: everything is counted and shown, and nobody is denied or kicked. Warnings, grace, kicks and the login denial (slice 3), the admin screens (slice 4), event mode (slice 5) and the nightly prune (slice 6) are still to do. Until the admin screens exist, rules are changed through `playtimeAdminService` (`server/services/playtime/admin.ts`) or the database.
+**Status:** the data, the counting, the player view, the Minecraft account page and the enforcement (login denial, warnings, grace, kicks) are built. The mode starts in `observe`: everything is counted and shown, and nobody is denied, kicked or warned. The mod doesn't support the events yet, so switch to `enforce` only after it does. The admin screens (slice 4), event mode (slice 5) and the nightly prune (slice 6) are still to do. Until the admin screens exist, rules are changed through `playtimeAdminService` (`server/services/playtime/admin.ts`) or the database.
 
 ## The rules
 
@@ -29,6 +29,18 @@ The mode is `off`, `observe` or `enforce`, in `playtime_settings`. It starts in 
 - **The tick** (`server/plugins/playtime.ts`, every 5 seconds) advances the ledger of every online session in whole seconds from where it stopped. It skips sessions with no heartbeat for 3 minutes, which `warden:close-stale-sessions` closes. Work is locked per player (`pg_advisory_xact_lock`), so two sessions of one player never read the same total.
 - **Login** brings the player's online sessions up to date. **Closing a session** settles its ledger at the instant it ended: a normal end counts up to then, and a stale one takes back what was counted after its last heartbeat (grace first, then over, then counted). Both run in a savepoint and log instead of failing, so a bug here can't stop a player joining or a session closing.
 - **Evaluating** gives the state: `unlimited` (exempt, closed, or mode off), `free`, `counting`, `grace` or `blocked`, with `remainingSeconds`, `windowEndsAt`, `nextWindowStartsAt`, `graceEndsAt`, `resumesAt`, `resetsAt` and `nextChangeAt`. `observe` evaluates like `enforce`.
+
+## Enforcement
+
+Only in `enforce`. In `observe` and `off` the server is told nothing and nobody is denied: it counts and shows, and that is all. The contract the mod follows is in `docs/warden.md` and `docs/plans/playtime-limits-mod.md`.
+
+- **The timer** (`server/plugins/playtime.ts`, every 5 seconds) counts each online player's time, then in `enforce` (`server/services/playtime/enforcement.ts`) writes what is due as audit rows, which the events stream sends within a second: `playtime.warning`, `playtime.grace`, `playtime.update` and `playtime.kick`. They are hidden from the admin audit log, like the anticheat's stream events.
+- **Warnings** are sent at each "minutes left" mark of the allowance (30, 10, 5, 1), but only when the allowance really runs out before the window ends. A player online with nothing left gets the start warnings (5 and 1 minutes) before a window opens, then the kick when it does. Each notice is kept to once per session and week in `playtime_notice` (kinds like `2026-11-16:w10`), so the timer is safe to run twice. A player who joins with 3 minutes left gets one warning that says so, covering the marks already crossed.
+- **Grace**: when the allowance runs out in the last grace period of a window, `playtimeGrace` is sent once and nobody is kicked. A player who joins in grace is allowed with `grace: true` and is told again right after.
+- **Updates**: the timer remembers (in memory) the state it last saw for each session and sends `playtimeUpdate` when it changes: a window starts or ends, extra time is granted, an exemption or closure appears. The first look at a session, and the first look after a restart, is silent. The heartbeat answer carries the same state for every open session, so a missed event is repaired within a minute.
+- **Kick**: once per session and week, when the state is `blocked`. The session stays open until the server reports it ended, but the kick isn't repeated, so the mod's own fallback timer and the heartbeat answer cover a missed kick. The kick is at most about 6 seconds late.
+- **Login**: after the ban check, a player whose allowance is used up inside a window and not in grace is denied with `playtimeLimitReached` and the dates, in `enforce` only. The check counts their open sessions first, so the total is current. Anything that goes wrong in here lets the player in.
+- **Heartbeat and staff lookup**: both carry the same `playtime` object as the login answer (the lookup adds `state` and `usedSeconds`).
 
 ## Player routes
 
