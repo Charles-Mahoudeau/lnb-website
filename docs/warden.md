@@ -91,11 +91,12 @@ The checks run in this order:
 2. The ticket is unknown, used, expired, doesn't match the nonce or username, or its device is revoked or expired: `denied`, `invalidTicket`. The ticket is marked used atomically, whatever the result.
 3. The player's school is no longer allowed: `schoolNotAllowed`.
 4. An active ban: `banned`, with `ban`. This comes before linking.
-5. The account is linked to another LNB account: `linkedElsewhere`.
-6. Not linked (never linked, or unlinked by anyone), and the ticket says `link: false`: `notLinked`, with `limit`.
-7. Not linked, `link: true`, and the limit is reached: `accountLimitReached`, with `limit`.
-8. Not linked, `link: true`: the account is linked, with an audit entry. An unlinked account that belonged to this player keeps its history. One that belonged to another player is taken over (see below).
-9. A session is opened, recording the device: `allowed`.
+5. The player's weekly playtime is used up inside a restricted window, outside the grace period, and the mode is `enforce`: `playtimeLimitReached`, with `playtime: { windowEndsAt, resetsAt }` (see `docs/playtime.md`). In `observe` and `off` nobody is denied.
+6. The account is linked to another LNB account: `linkedElsewhere`.
+7. Not linked (never linked, or unlinked by anyone), and the ticket says `link: false`: `notLinked`, with `limit`.
+8. Not linked, `link: true`, and the limit is reached: `accountLimitReached`, with `limit`.
+9. Not linked, `link: true`: the account is linked, with an audit entry. An unlinked account that belonged to this player keeps its history. One that belonged to another player is taken over (see below).
+10. A session is opened, recording the device: `allowed`.
 
 Allowed:
 
@@ -110,18 +111,30 @@ Allowed:
     "roles": ["warden-admin"]
   },
   "account": { "uuid": "...", "username": "Notch" },
-  "warnings": [{ "id": "...", "body": "...", "createdAt": "..." }]
+  "warnings": [{ "id": "...", "body": "...", "createdAt": "..." }],
+  "playtime": {
+    "enforced": true,
+    "limited": true,
+    "counting": true,
+    "remainingSeconds": 7260,
+    "limitSeconds": 36000,
+    "windowEndsAt": "2026-11-20T16:00:00.000Z",
+    "nextWindowStartsAt": null,
+    "grace": false,
+    "graceEndsAt": null
+  }
 }
 ```
 
-`linked` is true when this login linked the account. Denied:
+`linked` is true when this login linked the account. `playtime` is the weekly limit of this Minecraft account, worked out by the site (see `docs/playtime.md`): `enforced` is false in `observe`, and the server then shows and does nothing with it; `limited` is false when no limit applies (exempt, closed, off); `counting` is true inside a restricted window; `grace` is true when the allowance is used up but the player may stay until `graceEndsAt`. Denied:
 
 ```json
 {
   "result": "denied",
-  "reason": "invalidTicket | schoolNotAllowed | banned | linkedElsewhere | notLinked | accountLimitReached",
+  "reason": "invalidTicket | schoolNotAllowed | banned | playtimeLimitReached | linkedElsewhere | notLinked | accountLimitReached",
   "ban": { "reason": "...", "expiresAt": "... or null" },
-  "limit": { "used": 1, "max": 1 }
+  "limit": { "used": 1, "max": 1 },
+  "playtime": { "windowEndsAt": "... or null", "resetsAt": "..." }
 }
 ```
 
@@ -133,7 +146,7 @@ A login records username changes. Past usernames (`pastUsernames`) are history o
 { "sessionIds": ["..."] }
 ```
 
-Returns `{ "unknown": ["..."] }`: sessions the site has closed, which the server should treat as ended (and usually kick).
+Returns `{ "unknown": ["..."], "playtime": { "<sessionId>": {...} } }`: `unknown` is the sessions the site has closed, which the server should treat as ended (and usually kick). `playtime` is the state of each open session, the same object as in the login answer: a safety net for missed events, to be treated like `playtimeUpdate`. The site counts a session's time up to its last heartbeat, so send it every 60 seconds at most.
 
 ### `POST /api/warden/server/sessions/end`
 
@@ -145,7 +158,7 @@ Returns 204.
 
 ### `GET /api/warden/server/players/:uuid`
 
-For staff commands: the LNB name and school, the linked accounts, the active ban, the number of warnings and the playtime. Problem: `notLinked` (404).
+For staff commands: the LNB name and school, the linked accounts, the active ban, the number of warnings, the playtime, and the week's limit (`playtime`, the login object with `state` and `usedSeconds`). Problem: `notLinked` (404).
 
 ### `POST /api/warden/server/players/:uuid/bans`
 
@@ -179,13 +192,16 @@ Returns the warning. The player sees it on `/minecraft/account` and in the next 
 
 Server-Sent Events. Each event's `id` is its audit log ID. Send `Last-Event-ID` when reconnecting to receive the events you missed. Without it, the stream starts from now. The site checks for new events every second, and sends a `ping` event after 25 quiet seconds so proxies keep the connection open.
 
-| Event              | Data                                                                                                                                |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `kick`             | `{ "uuids": [...], "reason": "banned \| unlinked \| deviceRevoked", "ban"?: {...} }`                                                |
-| `unban`            | `{ "uuids": [...] }`                                                                                                                |
-| `settings`         | `{ "defaultMaxAccounts": 1 }`                                                                                                       |
-| `anticheatVerdict` | `{ "sessionId", "uuid", "reportId", "verdict", "files": [...] }`: the verdict of an online player changed. See `docs/anticheat.md`. |
-| `anticheatAlert`   | `{ "kind", "userId", "uuid", "sha512", "name" }`: something an admin should look at (nullable fields).                              |
+| Event              | Data                                                                                                                                                         |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `kick`             | `{ "uuids": [...], "reason": "banned \| unlinked \| deviceRevoked \| playtimeLimit", "ban"?: {...}, "playtime"?: { "windowEndsAt", "resetsAt" } }`           |
+| `playtimeWarning`  | `{ "uuids": [...], "remainingSeconds", "kind": "allowance \| windowStart" }`: time is running out, or a window is about to open for a player with none left. |
+| `playtimeGrace`    | `{ "uuids": [...], "graceEndsAt" }`: the allowance ran out inside the grace period. The player stays until then.                                             |
+| `playtimeUpdate`   | `{ "uuids": [...], "playtime": {...} }`: the state changed while online (a window started or ended, extra time, limit switched off).                         |
+| `unban`            | `{ "uuids": [...] }`                                                                                                                                         |
+| `settings`         | `{ "defaultMaxAccounts": 1 }`                                                                                                                                |
+| `anticheatVerdict` | `{ "sessionId", "uuid", "reportId", "verdict", "files": [...] }`: the verdict of an online player changed. See `docs/anticheat.md`.                          |
+| `anticheatAlert`   | `{ "kind", "userId", "uuid", "sha512", "name" }`: something an admin should look at (nullable fields).                                                       |
 
 ## Player routes
 
