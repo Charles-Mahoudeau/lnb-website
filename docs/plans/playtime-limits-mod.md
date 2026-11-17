@@ -54,16 +54,17 @@ The `allowed` answer gets a `playtime` object:
 
 ## 3. Server-sent events: new events on `GET /api/warden/server/events`
 
-| Event             | Data                                                                                                                                                                                  |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `playtimeWarning` | `{ "uuids": [...], "remainingSeconds": 600 }`: sent at 30, 10, 5 and 1 minutes left (the site chooses the moments, configurable). The mod shows a title or chat message.              |
-| `playtimeGrace`   | `{ "uuids": [...], "graceEndsAt": "..." }`: the allowance ran out inside the grace period. Tell the player ("You used your time, but you can finish until 17:00"). Replaces the kick. |
-| `playtimeUpdate`  | `{ "uuids": [...], "playtime": { ... same object as login } }`: the state changed while online: a window started or ended, an admin granted time, the limit was switched off.         |
-| `kick` (existing) | A new `reason`: `playtimeLimit`, with `playtime: { windowEndsAt, resetsAt }`. The mod disconnects with the same screen as in section 1.                                               |
+| Event             | Data                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `playtimeWarning` | `{ "uuids": [...], "remainingSeconds": 600, "kind": "allowance" }`: sent at 30, 10, 5 and 1 minutes left (the site chooses the moments, per school or player). `kind` is `allowance` (time is running out) or `windowStart` (a player with no allowance left is online and counting starts soon: sent 5 and 1 minutes before, then a kick when it opens, with no grace). The mod shows a title or chat message. |
+| `playtimeGrace`   | `{ "uuids": [...], "graceEndsAt": "..." }`: the allowance ran out inside the grace period. Tell the player ("You used your time, but you can finish until 17:00"). Replaces the kick.                                                                                                                                                                                                                           |
+| `playtimeUpdate`  | `{ "uuids": [...], "playtime": { ... same object as login } }`: the state changed while online: a window started or ended, an admin granted time, the limit was switched off.                                                                                                                                                                                                                                   |
+| `kick` (existing) | A new `reason`: `playtimeLimit`, with `playtime: { windowEndsAt, resetsAt }`. The mod disconnects with the same screen as in section 1.                                                                                                                                                                                                                                                                         |
 
 - **To do:** handle the three events. `playtimeUpdate` must also be able to **cancel** a countdown (admin gave time or the window ended: the HUD goes away, no kick).
 - Warnings arrive per Minecraft UUID, because a player can have two accounts online.
-- The kick is sent by the site at the second the allowance reaches zero. The mod must not add its own delay.
+- The kick is sent by the site within about 6 seconds of the allowance reaching zero (a 5-second timer plus the stream). The mod must not add its own delay, and the local timer in section 4 is a backup only: an event from the site always replaces it.
+- Exemption is per Minecraft account: one UUID can be exempt while another of the same player is limited, so always act per UUID.
 
 ## 4. Fallback when the event stream is down
 
@@ -85,7 +86,7 @@ The stream can drop. A player must not play for free during that time, and must 
 
 - Don't count, store or compute playtime on the server side. Even a simple "player was online N hours" would drift from the site.
 - Don't kick on a timer the site didn't announce (see the fallback above).
-- Don't show the schedule or reasons for an exemption. A player can see their own state on the site (`/minecraft/playtime`), and that's enough.
+- Don't show the schedule or reasons for an exemption. A player can see their own state on the site (`/minecraft/account`), and that's enough.
 
 ## 7. Test cases we'd like to run together
 
