@@ -28,6 +28,8 @@ export const FLAG_DEFINITIONS = [
   { key: 'warden.appeals', parent: 'warden' },
   { key: 'warden.serverApi', parent: 'warden' },
   { key: 'warden.clientApi', parent: 'warden' },
+  // The weekly playtime limit (docs/playtime.md). Off stops warnings, denials and kicks at once; nothing is deleted.
+  { key: 'playtime' },
   { key: 'appLinking' },
   { key: 'avatars' },
   { key: 'avatars.microsoftPhoto', parent: 'avatars' },
