@@ -909,6 +909,7 @@
         "maxSuggestionsHelp": "Les propositions retirées par l’équipe comptent aussi. Celles retirées par leur auteur ou ajoutées à la liste officielle libèrent une place.",
         "gameVersion": "Version de Minecraft",
         "loader": "Loader",
+        "loaderVersion": "Version du loader",
         "serverHelp": "Les nouveaux mods doivent tourner sur cette version et ce loader. Les mods déjà dans la liste ne sont pas revérifiés.",
         "save": "Enregistrer les réglages",
         "saved": "Réglages enregistrés"

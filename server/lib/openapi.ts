@@ -1999,7 +1999,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.files,
     summary: 'The modpack manifest',
     description:
-      "What the launcher reads: the game version and loader, each mod pinned to one file with its hashes and download addresses, and the wrapper and asset files of the library. Mods flagged as needing attention are left out. Public. The ETag changes when the content does, so a launcher can ask with If-None-Match and get a 304. The same document is also served at `/modpack/manifest.json`, a shorter address that won't move.",
+      "What the launcher reads: the game version, the loader and its version, each mod pinned to one file with its hashes and download addresses, and the wrapper and asset files of the library. Mods flagged as needing attention are left out. Public. The ETag changes when the content does, so a launcher can ask with If-None-Match and get a 304. The same document is also served at `/modpack/manifest.json`, a shorter address that won't move.",
     access: 'public',
     response: modpack.modpackManifest,
     problems: [{ status: 503, problems: ['disabled'] }],

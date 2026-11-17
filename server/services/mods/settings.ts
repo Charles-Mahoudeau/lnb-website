@@ -13,6 +13,7 @@ const DEFAULTS: ModSettingsView = {
   maxSuggestions: 5,
   gameVersion: '1.21.1',
   loader: 'neoforge',
+  loaderVersion: '',
 };
 
 /** The global settings. The migration creates their single row. */
@@ -25,6 +26,7 @@ async function get(dbx: Db = db): Promise<ModSettingsView> {
       maxSuggestions: modListSettings.maxSuggestions,
       gameVersion: modListSettings.gameVersion,
       loader: modListSettings.loader,
+      loaderVersion: modListSettings.loaderVersion,
     })
     .from(modListSettings)
     .where(eq(modListSettings.id, 1));

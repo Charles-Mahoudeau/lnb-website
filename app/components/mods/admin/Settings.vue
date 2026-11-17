@@ -17,6 +17,7 @@ const state = reactive<ModSettingsView & { endsLocal: string }>({
   maxSuggestions: 5,
   gameVersion: '1.21.1',
   loader: 'neoforge',
+  loaderVersion: '',
 });
 watch(
   data,
@@ -123,6 +124,9 @@ async function onSave() {
         </UFormField>
         <UFormField :label="t('admin.mods.settings.loader')" name="loader">
           <USelect v-model="state.loader" :items="loaders" class="w-44" />
+        </UFormField>
+        <UFormField :label="t('admin.mods.settings.loaderVersion')" name="loaderVersion">
+          <UInput v-model="state.loaderVersion" placeholder="21.1.172" class="w-36" />
         </UFormField>
       </div>
       <span class="text-sm text-muted">{{ t('admin.mods.settings.serverHelp') }}</span>

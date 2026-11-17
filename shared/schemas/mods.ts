@@ -41,6 +41,9 @@ export const modSettingsView = z.object({
   maxSuggestions: z.number().describe('Suggestions each person can have in the list.'),
   gameVersion: z.string().describe('The Minecraft version of the server, such as 1.21.1.'),
   loader: modLoader,
+  loaderVersion: z
+    .string()
+    .describe("The loader's version, such as 21.1.172 for NeoForge. Empty when not set."),
 });
 export type ModSettingsView = z.infer<typeof modSettingsView>;
 
@@ -65,6 +68,10 @@ export const modSettingsPatchBody = z
       .trim()
       .regex(/^\d{1,2}\.\d{1,2}(?:\.\d{1,2})?$/, 'a Minecraft version, such as 1.21.1 or 26.1'),
     loader: modLoader,
+    loaderVersion: z
+      .string()
+      .trim()
+      .regex(/^(?:[0-9][0-9A-Za-z.+_-]{0,39})?$/, 'a loader version, such as 21.1.172'),
   })
   .partial();
 export type ModSettingsPatchBody = z.infer<typeof modSettingsPatchBody>;
@@ -104,7 +111,7 @@ export type ModRemovalNotice = z.infer<typeof modRemovalNotice>;
 
 /** GET /api/minecraft/mods: everything the page shows, in one request. */
 export const modListPage = z.object({
-  settings: modSettingsView.omit({ maxSuggestions: true }),
+  settings: modSettingsView.omit({ maxSuggestions: true, loaderVersion: true }),
   official: z.array(modView),
   suggestions: z.array(modView),
   me: z

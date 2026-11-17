@@ -201,6 +201,9 @@ export const modpackManifest = z.object({
   updatedAt: isoDate,
   gameVersion: z.string(),
   loader: z.string(),
+  loaderVersion: z
+    .string()
+    .describe("The loader's version, such as 21.1.172. Empty when an admin hasn't set it."),
   mods: z.array(
     z.object({
       id: z.string(),

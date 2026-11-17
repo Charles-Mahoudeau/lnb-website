@@ -60,6 +60,7 @@ async function build(): Promise<ModpackManifest> {
     updatedAt: (state?.updatedAt ?? new Date(0)).toISOString(),
     gameVersion: settings.gameVersion,
     loader: settings.loader,
+    loaderVersion: settings.loaderVersion,
     mods,
     assets: files.map((file) => ({
       name: file.name,

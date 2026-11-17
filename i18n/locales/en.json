@@ -905,6 +905,7 @@
         "maxSuggestionsHelp": "Removed suggestions count too. Withdrawn and promoted ones free a slot.",
         "gameVersion": "Minecraft version",
         "loader": "Loader",
+        "loaderVersion": "Loader version",
         "serverHelp": "New mods must run on this version and loader. Mods already in the list aren’t checked again.",
         "save": "Save settings",
         "saved": "Settings saved"
