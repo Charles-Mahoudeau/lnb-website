@@ -1,5 +1,4 @@
-import type { ModLoader } from '~~/server/db/schema/mods';
-
+// This file has no project imports on purpose: the unit test loads it directly.
 // The loader's newest version for a game version, from the loader's own metadata. The manifest
 // uses it while the admin hasn't set one in the Mods settings. See docs/modpack.md.
 
@@ -23,7 +22,7 @@ export function neoforgeVersion(versions: readonly string[], gameVersion: string
   return (stable.length ? stable : matching).at(-1) ?? '';
 }
 
-async function lookup(loader: ModLoader, gameVersion: string): Promise<string> {
+async function lookup(loader: string, gameVersion: string): Promise<string> {
   switch (loader) {
     case 'neoforge': {
       const body = await json<{ versions: string[] }>(
@@ -47,11 +46,13 @@ async function lookup(loader: ModLoader, gameVersion: string): Promise<string> {
       );
       return body.promos[`${gameVersion}-latest`] ?? '';
     }
+    default:
+      return '';
   }
 }
 
 /** The newest version, or '' when it can't be found. Cached, and never throws. */
-export async function latestLoaderVersion(loader: ModLoader, gameVersion: string): Promise<string> {
+export async function latestLoaderVersion(loader: string, gameVersion: string): Promise<string> {
   const key = `${loader}:${gameVersion}`;
   const hit = cache.get(key);
   if (hit && hit.expires > Date.now()) return hit.value;
