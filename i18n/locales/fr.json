@@ -689,6 +689,7 @@
       "players": "Joueurs",
       "appeals": "Contestations",
       "activity": "Activité",
+      "playtime": "Temps de jeu",
       "settings": "Réglages",
       "users": "Utilisateurs",
       "overview": "Vue d’ensemble",
@@ -3691,6 +3692,175 @@
         "warning": "Chaque launcher et le serveur Pelican téléchargent ce jar à leur prochain démarrage. Les fichiers ne sont pas signés : ne publiez qu'un jar que vous avez compilé.",
         "publish": "Publier",
         "done": "{name} {version} est maintenant actif"
+      }
+    },
+    "playtime": {
+      "title": "Temps de jeu",
+      "tabs": {
+        "rules": "Règles",
+        "closures": "Fermetures"
+      },
+      "loadFailed": "Les réglages du temps de jeu n’ont pas pu être chargés.",
+      "flagOff": "Le drapeau « playtime » est désactivé",
+      "flagOffBody": "Rien n’est compté, affiché ni appliqué, quel que soit le mode ci-dessous. Réactivez-le dans les drapeaux de fonctionnalités.",
+      "save": "Enregistrer",
+      "saved": "Enregistré. C’est appliqué dès maintenant.",
+      "forwardOnly": "S’applique dès l’enregistrement. Le temps déjà compté n’est jamais recalculé.",
+      "none": "Aucun",
+      "off": "Désactivé",
+      "hours": "{n} h",
+      "minutes": "{n} min",
+      "errors": {
+        "failed": "Ça n’a pas marché. Réessayez.",
+        "notFound": "Cette fermeture n’existe plus.",
+        "eventClosure": "Cette fermeture suit son événement. Modifiez-la depuis l’événement."
+      },
+      "days": {
+        "mon": "Lundi",
+        "tue": "Mardi",
+        "wed": "Mercredi",
+        "thu": "Jeudi",
+        "fri": "Vendredi",
+        "sat": "Samedi",
+        "sun": "Dimanche"
+      },
+      "daysShort": {
+        "mon": "Lun",
+        "tue": "Mar",
+        "wed": "Mer",
+        "thu": "Jeu",
+        "fri": "Ven",
+        "sat": "Sam",
+        "sun": "Dim"
+      },
+      "mode": {
+        "title": "Mode",
+        "lede": "Le drapeau de fonctionnalité « playtime » coupe toujours tout d’un coup, quel que soit le mode.",
+        "done": "Mode réglé sur {mode}.",
+        "enforceTitle": "Passer en application ?",
+        "enforceBody": "Les joueurs qui dépassent leur limite seront prévenus, expulsés et refusés à la connexion. Ne le faites que lorsque le mod Minecraft gère les événements de temps de jeu.",
+        "enforceConfirm": "Passer en application",
+        "off": {
+          "label": "Désactivé",
+          "description": "Rien n’est compté, affiché ni appliqué.",
+          "hint": "Pour tout arrêter d’un coup."
+        },
+        "observe": {
+          "label": "Observation",
+          "description": "Le temps est compté et les joueurs le voient. Personne n’est refusé, expulsé ni prévenu en jeu.",
+          "hint": "Surveillez les chiffres en direct pendant une semaine avant d’appliquer."
+        },
+        "enforce": {
+          "label": "Application",
+          "description": "Les joueurs sont prévenus, puis expulsés à zéro et refusés à la connexion.",
+          "hint": "Demande que le mod gère les événements de temps de jeu."
+        }
+      },
+      "defaults": {
+        "title": "Valeurs par défaut pour tous",
+        "lede": "Les écoles et chaque joueur peuvent redéfinir chacune de ces valeurs séparément.",
+        "allowance": "Temps autorisé par semaine",
+        "allowanceHint": "heures, remis à zéro le lundi à 00:00 (Paris)",
+        "grace": "Période de grâce",
+        "graceHint": "minutes à la fin d’une plage, 0 la désactive",
+        "warnings": "Avertissements",
+        "warningsHint": "Minutes restantes, séparées par des virgules. Chacun est envoyé une fois par session.",
+        "startWarnings": "Avant l’ouverture d’une plage",
+        "startWarningsHint": "Pour un joueur qui n’a plus de temps. Minutes avant la plage, séparées par des virgules.",
+        "minutesInvalid": "Utilisez des nombres entiers de 1 à 600, 10 au plus."
+      },
+      "schedule": {
+        "title": "Heures restreintes",
+        "lede": "Heure de Paris. Seul le temps passé dans ces plages compte dans le temps autorisé. Une plage ne peut pas passer minuit : finissez la journée à 24:00 et commencez la suivante à 00:00.",
+        "start": "Partir de",
+        "presets": {
+          "workdays": "Semaine 9–17",
+          "every": "Tous les jours 9–17",
+          "clear": "Vider"
+        },
+        "total": "{hours} d’heures restreintes par semaine",
+        "selectDay": "Sélectionner {day}",
+        "rangeLabel": "{day}, de {from} à {to}",
+        "free": "libre",
+        "addRangeOn": "Ajouter une plage le {day}",
+        "from": "De",
+        "to": "À",
+        "pickRange": "Sélectionnez une plage pour modifier ses heures exactes.",
+        "emptyDay": "Aucune heure restreinte, rien ne compte.",
+        "addRange": "Ajouter une plage",
+        "copyTo": "Copier ce jour vers",
+        "copyWorkdays": "La semaine",
+        "copyAll": "Tous les jours",
+        "removeRange": "Supprimer la plage",
+        "hint": "Sélectionnez un jour ou une plage pour la modifier, ou tracez une plage sur une ligne.",
+        "help": "Faites glisser sur une ligne vide pour tracer une plage, glissez une plage pour la déplacer, tirez ses bords pour la redimensionner. Les flèches déplacent une plage ciblée, Maj et flèches la redimensionnent, Suppr la supprime.",
+        "schoolsKeep": "{schools} a son propre horaire et le garde quand vous changez celui-ci. | {schools} ont leurs propres horaires et les gardent quand vous changez celui-ci.",
+        "save": "Enregistrer l’horaire"
+      },
+      "schools": {
+        "title": "Écoles",
+        "lede": "Une valeur propre remplace celle par défaut pour cette école, réglage par réglage.",
+        "school": "École",
+        "allowance": "Temps autorisé",
+        "grace": "Grâce",
+        "schedule": "Horaire",
+        "default": "Par défaut",
+        "own": "Horaire propre",
+        "edit": "Modifier",
+        "editAria": "Modifier {name}"
+      },
+      "school": {
+        "title": "{name} : valeurs propres",
+        "lede": "Activez un réglage pour donner à cette école sa propre valeur. Ce qui reste désactivé suit les valeurs par défaut.",
+        "allowance": "Temps autorisé par semaine (heures)",
+        "grace": "Période de grâce (minutes)",
+        "warnings": "Avertissements",
+        "startWarnings": "Avant l’ouverture d’une plage",
+        "schedule": "Heures restreintes propres",
+        "scheduleHint": "Remplace l’horaire par défaut dans son ensemble.",
+        "inherits": "Suit la valeur par défaut : {value}",
+        "clear": "Suivre à nouveau les valeurs par défaut"
+      },
+      "closures": {
+        "title": "Fermetures",
+        "lede": "Pendant une fermeture, rien ne compte et les joueurs voient qu’il n’y a pas de limite. Les fermetures créées pour un événement suivent l’événement et se modifient depuis celui-ci.",
+        "skip": "Sauter cette semaine",
+        "weekSkipped": "Cette semaine est sautée",
+        "skipped": "Cette semaine est sautée.",
+        "empty": "Aucune fermeture pour l’instant.",
+        "by": "(par {name})",
+        "event": {
+          "registered": "Événement : {name}, joueurs inscrits",
+          "everyone": "Événement : {name}, tout le monde"
+        },
+        "status": {
+          "past": "Passée",
+          "active": "En cours",
+          "upcoming": "À venir"
+        },
+        "openEvent": "Ouvrir l’événement",
+        "delete": "Supprimer",
+        "deleteAria": "Supprimer {label}",
+        "deleteTitle": "Supprimer {label} ?",
+        "deleteBody": "Le temps passé ces jours-là compte de nouveau à partir de maintenant. Le temps déjà joué reste tel quel.",
+        "deleted": "Fermeture supprimée.",
+        "add": "Ajouter une fermeture",
+        "addLede": "Faites glisser sur les jours du calendrier pour choisir les dates. Les jours grisés sont déjà fermés.",
+        "earlier": "Mois précédents",
+        "later": "Mois suivants",
+        "thisMonth": "Ce mois-ci",
+        "keyAll": "Tout le monde",
+        "keySchools": "Certaines écoles",
+        "label": "Nom",
+        "labelPlaceholder": "Vacances de printemps",
+        "from": "Du",
+        "to": "Au (inclus)",
+        "who": "Qui n’est pas limité",
+        "everyone": "Tout le monde",
+        "someSchools": "Certaines écoles",
+        "addButton": "Ajouter la fermeture",
+        "pickDates": "Choisissez d’abord les dates.",
+        "added": "Fermeture ajoutée."
       }
     }
   },
