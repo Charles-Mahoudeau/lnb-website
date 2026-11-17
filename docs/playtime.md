@@ -2,7 +2,7 @@
 
 A weekly limit on how long players can be on the Minecraft server during restricted hours (for example Monday to Friday, 9:00 to 17:00). The plan is `docs/plans/playtime-limits.md`, and the contract for the mod developers is `docs/plans/playtime-limits-mod.md`. This page says what is built.
 
-**Status:** the data, the counting, the player view, the Minecraft account page and the enforcement (login denial, warnings, grace, kicks) are built. The mode starts in `observe`: everything is counted and shown, and nobody is denied, kicked or warned. The mod doesn't support the events yet, so switch to `enforce` only after it does. The admin screens (slice 4), event mode (slice 5) and the nightly prune (slice 6) are still to do. Until the admin screens exist, rules are changed through `playtimeAdminService` (`server/services/playtime/admin.ts`) or the database.
+**Status:** the data, the counting, the player view, the Minecraft account page and the enforcement (login denial, warnings, grace, kicks) are built. The mode starts in `observe`: everything is counted and shown, and nobody is denied, kicked or warned. The mod doesn't support the events yet, so switch to `enforce` only after it does. The admin's Rules and Closures tabs are built (`/admin/warden/playtime`); the Live tab, the player panel, exemptions and grants (still only in `playtimeAdminService`), event mode (slice 5) and the nightly prune (slice 6) are still to do.
 
 ## The rules
 
@@ -41,6 +41,15 @@ Only in `enforce`. In `observe` and `off` the server is told nothing and nobody 
 - **Kick**: once per session and week, when the state is `blocked`. The session stays open until the server reports it ended, but the kick isn't repeated, so the mod's own fallback timer and the heartbeat answer cover a missed kick. The kick is at most about 6 seconds late.
 - **Login**: after the ban check, a player whose allowance is used up inside a window and not in grace is denied with `playtimeLimitReached` and the dates, in `enforce` only. The check counts their open sessions first, so the total is current. Anything that goes wrong in here lets the player in.
 - **Heartbeat and staff lookup**: both carry the same `playtime` object as the login answer (the lookup adds `state` and `usedSeconds`).
+
+## The admin screens
+
+`/admin/warden/playtime`, for site admins and `warden-admin` (the tab is in the URL hash).
+
+- **Rules:** the three mode cards (a card saves at once, and `enforce` asks first), the defaults (allowance in hours, grace in minutes, warning times), the restricted hours and the schools. The schedule editor draws one 24-hour line per weekday: drag on an empty line to draw a range, drag a range to move it, drag its edges to resize (15 minute steps). Selecting a range edits its exact times; arrow keys, Shift and Delete work on a focused range. A school's modal has one switch per setting: off follows the default, on gives the school its own value, and an own schedule replaces the default one as a whole.
+- **Closures:** the list with "Skip this week" first, then a three-month calendar where dragging across days fills the dates of the form. Closures made for an event show the event and can't be edited or deleted here.
+
+Routes, all `wardenAdmin` (see `/api/docs`, tag "Playtime: admins"): `GET`/`PATCH /api/playtime/admin/settings`, `PUT`/`DELETE /api/playtime/admin/schools/{tenantId}`, `GET`/`POST /api/playtime/admin/closures`, `POST /api/playtime/admin/closures/skip-week`, `PATCH`/`DELETE /api/playtime/admin/closures/{id}`. Every write answers with the data the screen shows.
 
 ## Player routes
 
