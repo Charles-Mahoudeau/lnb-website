@@ -16,6 +16,7 @@ import * as modpack from '../../shared/schemas/modpack.ts';
 import * as mods from '../../shared/schemas/mods.ts';
 import * as partnerEvents from '../../shared/schemas/partner-events.ts';
 import * as partners from '../../shared/schemas/partners.ts';
+import * as playtime from '../../shared/schemas/playtime.ts';
 import * as posters from '../../shared/schemas/posters.ts';
 import * as push from '../../shared/schemas/push.ts';
 import * as quests from '../../shared/schemas/quests.ts';
@@ -219,6 +220,7 @@ const responseSchemas = {
   WardenSessionView: warden.wardenSessionView,
   WardenSessionPage: warden.wardenSessionPage,
   WardenMe: warden.wardenMe,
+  PlaytimeMe: playtime.playtimeMe,
   AnticheatReportResponse: anticheat.anticheatReportResponse,
   AnticheatEventsResponse: anticheat.anticheatEventsResponse,
   AnticheatFilePage: anticheat.anticheatFilePage,
@@ -344,6 +346,7 @@ const TAGS = {
   wardenClient: 'Warden: clients',
   wardenPlayer: 'Warden: players',
   wardenAdmin: 'Warden: admins',
+  playtime: 'Playtime: players',
   mods: 'Mod list',
   modsAdmin: 'Mod list: admins',
   files: 'Files',
@@ -1235,6 +1238,17 @@ const routes: RouteDoc[] = [
     response: anticheat.anticheatSummary,
   },
 
+  // Playtime: players
+  {
+    method: 'get',
+    path: '/api/playtime/me',
+    tag: TAGS.playtime,
+    summary: 'My playtime this week',
+    description:
+      'Where the player stands in the weekly limit: the state (`unlimited`, `free`, `counting`, `grace` or `blocked`), what was played this week and ever, the allowance with grants, the instants the state may change, and the restricted hours. 503 `disabled` while the `playtime` flag is off. Reads the ledger as the five-second tick left it.',
+    access: 'user',
+    response: playtime.playtimeMe,
+  },
   // Warden: players
   {
     method: 'get',
@@ -5859,6 +5873,11 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       },
       { name: TAGS.wardenPlayer, description: 'The `/minecraft/warden` and `/link` pages.' },
       {
+        name: TAGS.playtime,
+        description:
+          'The weekly playtime limit, on the Minecraft account page. See `docs/playtime.md`.',
+      },
+      {
         name: TAGS.wardenAdmin,
         description: 'The Warden section of the admin area, `/admin/warden`.',
       },
@@ -5919,7 +5938,13 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       { name: 'Auth', tags: [TAGS.auth, TAGS.authDevice] },
       {
         name: 'Warden',
-        tags: [TAGS.wardenServer, TAGS.wardenClient, TAGS.wardenPlayer, TAGS.wardenAdmin],
+        tags: [
+          TAGS.wardenServer,
+          TAGS.wardenClient,
+          TAGS.wardenPlayer,
+          TAGS.playtime,
+          TAGS.wardenAdmin,
+        ],
       },
       { name: 'Anticheat', tags: [TAGS.anticheatServer, TAGS.anticheatAdmin] },
       {
