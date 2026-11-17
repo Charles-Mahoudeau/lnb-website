@@ -57,6 +57,9 @@ interface ModrinthVersion {
 const loadersFor = (target: ServerTarget) =>
   target.loader === 'quilt' ? ['quilt', 'fabric'] : [target.loader];
 
+/** Sources, javadoc and dev jars that sit beside the real file in a version. */
+const EXTRA_JAR = /-(sources?|javadoc|dev)\.jar$/i;
+
 async function modrinthLatest(id: string, target: ServerTarget): Promise<Resolution> {
   const params = new URLSearchParams({
     game_versions: JSON.stringify([target.gameVersion]),
@@ -68,7 +71,10 @@ async function modrinthLatest(id: string, target: ServerTarget): Promise<Resolut
   );
   // Newest first. A release beats a newer beta, so a pack doesn't drift onto pre-releases.
   const best = versions?.find((v) => v.version_type === 'release') ?? versions?.[0];
-  const file = best?.files.find((f) => f.primary) ?? best?.files[0];
+  // Some authors flag their sources jar as primary, so those are skipped unless nothing else is left.
+  const runnable = best?.files.filter((f) => !EXTRA_JAR.test(f.filename));
+  const candidates = runnable?.length ? runnable : best?.files;
+  const file = candidates?.find((f) => f.primary) ?? candidates?.[0];
   if (!best || !file) return { kind: 'none' };
   return {
     kind: 'file',
