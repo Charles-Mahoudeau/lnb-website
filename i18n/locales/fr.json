@@ -1211,6 +1211,10 @@
           "label": "API du mod",
           "description": "Ce que le mod LNB Warden appelle : liaison d’un appareil, tickets de connexion et présence. Le mod reçoit un 503 tant que c’est désactivé."
         },
+        "playtime": {
+          "label": "Limite de temps de jeu",
+          "description": "La limite hebdomadaire de temps de jeu sur le serveur Minecraft. Désactivée, personne n’est prévenu, refusé ou expulsé, et le temps est seulement noté comme libre. Rien n’est supprimé."
+        },
         "appLinking": {
           "label": "Liaison d’applications",
           "description": "La page /link, où le code à 6 chiffres d’une application est approuvé."

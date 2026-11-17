@@ -1207,6 +1207,10 @@
           "label": "Mod API",
           "description": "What the LNB Warden mod calls: linking a device, join tickets and presence. The mod gets a 503 while this is off."
         },
+        "playtime": {
+          "label": "Playtime limit",
+          "description": "The weekly playtime limit on the Minecraft server. Off, nothing is warned, denied or kicked, and time is only recorded as free. Nothing is deleted."
+        },
         "appLinking": {
           "label": "App linking",
           "description": "The /link page, where an app’s 6-digit code is approved."
