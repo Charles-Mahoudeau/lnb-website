@@ -447,3 +447,75 @@ export function hoursLines(
   }
   return lines;
 }
+
+/** What the timer owes a player online right now. Each notice kind is sent once per session and week. */
+export interface DueNotices {
+  /** A warning, with every notice kind it covers: the ones crossed since the last one sent. */
+  warning: {
+    kind: 'allowance' | 'windowStart';
+    remainingSeconds: number;
+    notices: string[];
+  } | null;
+  /** The allowance ran out inside the grace period: tell the player they can stay. */
+  grace: boolean;
+  /** The allowance is used up inside a window, outside the grace period: kick. */
+  kick: boolean;
+}
+
+/**
+ * What to tell or do for a player, given where they stand. Pure: the caller keeps each kind to
+ * once by writing the notices it returns. A player joining with 3 minutes left has crossed the 30,
+ * 10 and 5 minute marks, so one warning covers all three and says what is really left.
+ *
+ * - Counting: a warning at each "minutes left" mark, but only if the allowance really runs out
+ *   before the window ends. Otherwise the player will never reach zero today.
+ * - Free with nothing left, and a window about to open: a warning at each "start" mark, then the
+ *   kick comes from the window opening (`blocked`).
+ */
+export function dueNotices(
+  evaluation: Evaluation,
+  config: PlaytimeConfig,
+  now: number,
+): DueNotices {
+  const none: DueNotices = { warning: null, grace: false, kick: false };
+  switch (evaluation.state) {
+    case 'blocked':
+      return { ...none, kick: true };
+    case 'grace':
+      return { ...none, grace: true };
+    case 'counting': {
+      const { remainingSeconds, windowEndsAt } = evaluation;
+      if (remainingSeconds <= 0 || windowEndsAt === null) return none;
+      if (now + remainingSeconds * SECOND > windowEndsAt) return none;
+      const crossed = config.warningsMinutes.filter((minutes) => remainingSeconds <= minutes * 60);
+      if (crossed.length === 0) return none;
+      return {
+        ...none,
+        warning: {
+          kind: 'allowance',
+          remainingSeconds,
+          notices: crossed.map((minutes) => `w${String(minutes)}`),
+        },
+      };
+    }
+    case 'free': {
+      const { nextWindowStartsAt } = evaluation;
+      if (evaluation.remainingSeconds > 0 || nextWindowStartsAt === null) return none;
+      const secondsToStart = Math.max(0, Math.ceil((nextWindowStartsAt - now) / SECOND));
+      const crossed = config.startWarningsMinutes.filter(
+        (minutes) => secondsToStart <= minutes * 60,
+      );
+      if (crossed.length === 0) return none;
+      return {
+        ...none,
+        warning: {
+          kind: 'windowStart',
+          remainingSeconds: secondsToStart,
+          notices: crossed.map((minutes) => `s${String(minutes)}`),
+        },
+      };
+    }
+    default:
+      return none;
+  }
+}

@@ -10,6 +10,7 @@ import type { WardenEvent, WardenSettingsView } from '#shared/schemas/warden';
 
 type AnticheatVerdictEvent = Extract<WardenEvent, { type: 'anticheatVerdict' }>['data'];
 type AnticheatAlertEvent = Extract<WardenEvent, { type: 'anticheatAlert' }>['data'];
+type PlaytimeEvent<T extends WardenEvent['type']> = Extract<WardenEvent, { type: T }>['data'];
 
 // Events for the Minecraft server come from the audit log: every change that matters to the
 // server is audited in the same transaction, so reading the log after an ID gives exactly the
@@ -23,6 +24,10 @@ const EVENT_ACTIONS = [
   'settings.update',
   'anticheat.verdict',
   'anticheat.alert',
+  'playtime.warning',
+  'playtime.grace',
+  'playtime.update',
+  'playtime.kick',
 ] as const satisfies readonly WardenAuditAction[];
 
 /** The newest audit ID, where a server that sends no Last-Event-ID starts. */
@@ -95,6 +100,15 @@ async function toEvent(row: typeof wardenAudit.$inferSelect): Promise<WardenEven
       return { type: 'anticheatVerdict', data: data as AnticheatVerdictEvent };
     case 'anticheat.alert':
       return { type: 'anticheatAlert', data: data as AnticheatAlertEvent };
+    // The playtime timer writes the events it sends (docs/playtime.md): `uuids` and the rest.
+    case 'playtime.warning':
+      return { type: 'playtimeWarning', data: data as PlaytimeEvent<'playtimeWarning'> };
+    case 'playtime.grace':
+      return { type: 'playtimeGrace', data: data as PlaytimeEvent<'playtimeGrace'> };
+    case 'playtime.update':
+      return { type: 'playtimeUpdate', data: data as PlaytimeEvent<'playtimeUpdate'> };
+    case 'playtime.kick':
+      return { type: 'kick', data: data as PlaytimeEvent<'kick'> };
     default:
       return undefined;
   }

@@ -358,6 +358,11 @@ export const WARDEN_AUDIT_ACTIONS = [
   'playtime.closure',
   'playtime.exemption',
   'playtime.grant',
+  // Written by the site's playtime timer to feed the event stream, one per event.
+  'playtime.warning',
+  'playtime.grace',
+  'playtime.update',
+  'playtime.kick',
 ] as const;
 
 export type WardenAuditAction = (typeof WARDEN_AUDIT_ACTIONS)[number];

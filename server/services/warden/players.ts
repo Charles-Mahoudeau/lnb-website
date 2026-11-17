@@ -11,6 +11,8 @@ import {
   wardenPlayer,
   wardenSession,
 } from '~~/server/db/schema';
+import { playtimeSettingsService } from '~~/server/services/playtime/settings';
+import { fallbackPlaytime, playtimeStateService } from '~~/server/services/playtime/state';
 
 import { wardenAuditService } from './audit';
 import { wardenModerationService } from './moderation';
@@ -312,7 +314,31 @@ async function lookup(uuid: string): Promise<WardenServerPlayer> {
       : null,
     warnings: warnings?.count ?? 0,
     playtimeSeconds: await totalPlaytime(db, owner.userId),
+    playtime: await playtimeForLookup(owner.userId, uuid),
   };
+}
+
+/** The week's limit of the account, for staff commands. */
+async function playtimeForLookup(
+  userId: string,
+  uuid: string,
+): Promise<WardenServerPlayer['playtime']> {
+  try {
+    const mode = await playtimeSettingsService.activeMode();
+    const state = (
+      await playtimeStateService.forAccounts(db, userId, [uuid], Date.now(), mode)
+    ).get(uuid);
+    if (state) {
+      return {
+        ...state.playtime,
+        state: state.evaluation.state,
+        usedSeconds: state.evaluation.usedSeconds,
+      };
+    }
+  } catch (error) {
+    console.error('[playtime] lookup state failed:', error);
+  }
+  return { ...fallbackPlaytime(), state: 'unlimited', usedSeconds: 0 };
 }
 
 export const wardenPlayerService = {

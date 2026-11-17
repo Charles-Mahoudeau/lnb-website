@@ -732,7 +732,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.wardenServer,
     summary: 'Let a player join',
     description:
-      'Called when a player joins, with the `ticket` their mod got from `POST /api/warden/client/join-tickets`. The server runs in offline mode, so `uuid` must be the offline UUID of `username` (`UUID.nameUUIDFromBytes(("OfflinePlayer:" + username).getBytes(UTF_8))`, case-sensitive), else the answer is a 400 `invalidUuid`. The ticket is used up whatever the outcome. Checks, in order, each stopping with `denied` and its `reason`: `invalidTicket` (unknown, used, expired, another `nonce` or `username`, or its device revoked or expired), `schoolNotAllowed`, `banned` (with `ban`, checked before linking), `linkedElsewhere` (the account belongs to another LNB account), `notLinked` (with `limit`, when the ticket did not ask to link), `accountLimitReached` (with `limit`, when it did). Otherwise the account is linked if the ticket asked to (`linked` is true, recorded as `link`), and `allowed` opens a session for the device.',
+      'Called when a player joins, with the `ticket` their mod got from `POST /api/warden/client/join-tickets`. The server runs in offline mode, so `uuid` must be the offline UUID of `username` (`UUID.nameUUIDFromBytes(("OfflinePlayer:" + username).getBytes(UTF_8))`, case-sensitive), else the answer is a 400 `invalidUuid`. The ticket is used up whatever the outcome. Checks, in order, each stopping with `denied` and its `reason`: `invalidTicket` (unknown, used, expired, another `nonce` or `username`, or its device revoked or expired), `schoolNotAllowed`, `banned` (with `ban`, checked before linking), `playtimeLimitReached` (with `playtime`, in `enforce` only: the weekly allowance is used up inside a restricted window and the player is not in the grace period), `linkedElsewhere` (the account belongs to another LNB account), `notLinked` (with `limit`, when the ticket did not ask to link), `accountLimitReached` (with `limit`, when it did). Otherwise the account is linked if the ticket asked to (`linked` is true, recorded as `link`), and `allowed` opens a session for the device. The answer carries `playtime`, the weekly limit of the account.',
     access: 'wardenServer',
     body: warden.wardenLoginBody,
     response: warden.wardenLogin,
@@ -744,7 +744,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.wardenServer,
     summary: 'Keep sessions open',
     description:
-      'Send every 60 seconds with the sessions of online players. Sessions with no heartbeat for 3 minutes are closed at their last heartbeat.',
+      'Send every 60 seconds with the sessions of online players. Sessions with no heartbeat for 3 minutes are closed at their last heartbeat, and the site counts playtime only up to it. The answer carries `playtime` for each open session: treat it like a `playtimeUpdate`, in case an event was missed.',
     access: 'wardenServer',
     body: warden.wardenHeartbeatBody,
     response: warden.wardenHeartbeat,
@@ -823,7 +823,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.wardenServer,
     summary: 'Live changes',
     description: [
-      'Server-Sent Events. Keep it open: when a player is banned, unlinked or gets a new token on the site, a `kick` event says whom to disconnect.',
+      'Server-Sent Events. Keep it open: when a player is banned, unlinked or gets a new token on the site, a `kick` event says whom to disconnect. The playtime limit adds `playtimeWarning`, `playtimeGrace` and `playtimeUpdate`, and a `kick` with the reason `playtimeLimit`.',
       '',
       "Each event's `id` is its audit log ID, its `event` is the type, and its `data` is the JSON below. The site checks for new events every second, and sends a `ping` event after 25 quiet seconds so proxies keep the connection open.",
     ].join('\n'),
