@@ -379,8 +379,15 @@ async function auditEntries(query: {
         query.userId ? eq(wardenAudit.targetUserId, query.userId) : undefined,
         query.action
           ? eq(wardenAudit.action, query.action as WardenAuditAction)
-          : // The anticheat's stream events would bury everything else.
-            notInArray(wardenAudit.action, ['anticheat.verdict', 'anticheat.alert']),
+          : // The stream events of the anticheat and the playtime limit would bury everything else.
+            notInArray(wardenAudit.action, [
+              'anticheat.verdict',
+              'anticheat.alert',
+              'playtime.warning',
+              'playtime.grace',
+              'playtime.update',
+              'playtime.kick',
+            ]),
         query.source ? eq(wardenAudit.source, query.source) : undefined,
         query.cursor ? lt(wardenAudit.id, query.cursor) : undefined,
       ),

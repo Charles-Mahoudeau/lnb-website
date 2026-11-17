@@ -7,7 +7,7 @@ import type { PlayerContext } from './context';
 import { advanceLedger, tailByWeek, takeBack, weekBounds, weekStart } from './rules';
 import type { LedgerDelta } from './rules';
 import { playtimeSettingsService } from './settings';
-import type { Tx } from './shared';
+import type { Db, Tx } from './shared';
 
 import type { PlaytimeMode } from '#shared/schemas/playtime';
 
@@ -38,7 +38,7 @@ async function countedUntil(tx: Tx, session: SessionRef): Promise<number> {
 
 /** The counted seconds of a player in each of the given weeks, over every account and session. */
 async function usedByWeek(
-  tx: Tx,
+  tx: Db,
   userId: string,
   weeks: string[],
 ): Promise<Record<string, number>> {

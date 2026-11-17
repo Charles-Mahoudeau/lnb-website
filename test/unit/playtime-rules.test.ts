@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   advanceLedger,
+  dueNotices,
   evaluate,
   hoursLines,
   resolveConfig,
@@ -474,5 +475,67 @@ describe('the schedule schema', () => {
     expect(hoursLines(DEFAULT_PLAYTIME_SCHEDULE)).toEqual([
       { days: ['mon', 'tue', 'wed', 'thu', 'fri'], ranges: [['09:00', '17:00']] },
     ]);
+  });
+});
+
+describe('dueNotices', () => {
+  const due = (now: number, options: Partial<Parameters<typeof evaluate>[0]> = {}) =>
+    dueNotices(evaluateAt(now, options), config, now);
+
+  it('warns at each mark, and says what is really left', () => {
+    const now = at(MON, '10:00');
+    expect(due(now, { usedSeconds: 10 * H - 29 * 60 }).warning).toEqual({
+      kind: 'allowance',
+      remainingSeconds: 29 * 60,
+      notices: ['w30'],
+    });
+    // Joining with 3 minutes left has crossed the 30, 10 and 5 minute marks: one warning.
+    expect(due(now, { usedSeconds: 10 * H - 180 }).warning).toEqual({
+      kind: 'allowance',
+      remainingSeconds: 180,
+      notices: ['w30', 'w10', 'w5'],
+    });
+    expect(due(now, { usedSeconds: 5 * H }).warning).toBeNull();
+  });
+
+  it('does not warn when the window ends before the allowance would', () => {
+    // 20 minutes left, but the window ends in 10: the player never reaches zero today.
+    expect(due(at(MON, '16:50'), { usedSeconds: 10 * H - 20 * 60 }).warning).toBeNull();
+  });
+
+  it('kicks when the allowance is used up outside the grace period, and not inside it', () => {
+    expect(due(at(MON, '10:00'), { usedSeconds: 10 * H })).toMatchObject({
+      kick: true,
+      grace: false,
+    });
+    expect(due(at(MON, '16:30'), { usedSeconds: 10 * H })).toMatchObject({
+      kick: false,
+      grace: true,
+    });
+  });
+
+  it('warns a player with nothing left before a window opens, then the kick follows', () => {
+    const used = { usedSeconds: 10 * H };
+    expect(due(at(TUE, '08:50'), used).warning).toBeNull();
+    expect(due(at(TUE, '08:56'), used).warning).toEqual({
+      kind: 'windowStart',
+      remainingSeconds: 240,
+      notices: ['s5'],
+    });
+    expect(due(at(TUE, '08:59') + 10_000, used).warning?.notices).toEqual(['s5', 's1']);
+    expect(due(at(TUE, '09:00') + 1000, used).kick).toBe(true);
+  });
+
+  it('says nothing to a player with allowance left outside a window, or with no limit', () => {
+    expect(due(at(TUE, '08:59'), { usedSeconds: 0 })).toEqual({
+      warning: null,
+      grace: false,
+      kick: false,
+    });
+    expect(due(at(MON, '10:00'), { usedSeconds: 10 * H, exempt: true })).toEqual({
+      warning: null,
+      grace: false,
+      kick: false,
+    });
   });
 });

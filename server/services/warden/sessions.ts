@@ -24,7 +24,12 @@ import { hashSecret, SESSION_TIMEOUT_MS, shortName } from './rules';
 import { refuse } from './shared';
 import type { Tx } from './shared';
 
-import type { WardenLogin, WardenLoginBody } from '#shared/schemas/warden';
+import type {
+  WardenHeartbeat,
+  WardenLogin,
+  WardenLoginBody,
+  WardenPlaytimeBlock,
+} from '#shared/schemas/warden';
 import { canLinkFromSchool, getLinkApp } from '#shared/utils/link-apps';
 import { isWardenAdmin, WARDEN_ADMIN_ROLE } from '#shared/utils/roles';
 
@@ -59,6 +64,9 @@ async function login(body: WardenLoginBody): Promise<WardenLogin> {
     // Before linking, so a banned player can't use up a slot.
     const ban = await wardenModerationService.activeBan(player.userId, tx);
     if (ban) return denied('banned', { ban });
+    // Only in `enforce`. Counts the player's other open sessions first, so the total is current.
+    const blocked = await playtimeService.loginGate(tx, player.userId, body.uuid);
+    if (blocked) return denied('playtimeLimitReached', { playtime: blocked });
 
     let [account] = await tx
       .select()
@@ -97,6 +105,7 @@ async function login(body: WardenLoginBody): Promise<WardenLogin> {
       .returning({ id: wardenSession.id });
     // Brings the player's other online sessions up to date, so the weekly total is current.
     await playtimeService.advanceAtLogin(tx, player.userId);
+    const playtime = await playtimeService.stateAtLogin(tx, player.userId, account.uuid);
 
     // Warnings since the account was last seen, so the server can show them once.
     const warnings = await tx
@@ -121,6 +130,7 @@ async function login(body: WardenLoginBody): Promise<WardenLogin> {
       },
       account: { uuid: account.uuid, username: body.username },
       warnings: warnings.map((w) => ({ ...w, createdAt: w.createdAt.toISOString() })),
+      playtime,
     } satisfies WardenLogin;
   });
 }
@@ -291,26 +301,35 @@ function denied(
   extra: {
     ban?: { reason: string; expiresAt: Date | null };
     limit?: { used: number; max: number };
+    playtime?: WardenPlaytimeBlock;
   } = {},
 ): Exclude<WardenLogin, { result: 'allowed' }> {
-  const { ban, limit } = extra;
+  const { ban, limit, playtime } = extra;
   return {
     result: 'denied',
     reason,
     ...(ban && { ban: { reason: ban.reason, expiresAt: ban.expiresAt?.toISOString() ?? null } }),
     ...(limit && { limit }),
+    ...(playtime && { playtime }),
   };
 }
 
-/** Keeps open sessions alive. Returns the IDs the site no longer knows as open. */
-async function heartbeat(sessionIds: string[]): Promise<{ unknown: string[] }> {
-  if (sessionIds.length === 0) return { unknown: [] };
+/**
+ * Keeps open sessions alive. Returns the IDs the site no longer knows as open, and the playtime
+ * state of the ones that are, in case the server missed an event.
+ */
+async function heartbeat(sessionIds: string[]): Promise<WardenHeartbeat> {
+  if (sessionIds.length === 0) return { unknown: [], playtime: {} };
   const now = new Date();
   const alive = await db
     .update(wardenSession)
     .set({ lastHeartbeatAt: now })
     .where(and(inArray(wardenSession.id, sessionIds), isNull(wardenSession.endedAt)))
-    .returning({ id: wardenSession.id, minecraftUuid: wardenSession.minecraftUuid });
+    .returning({
+      id: wardenSession.id,
+      userId: wardenSession.userId,
+      minecraftUuid: wardenSession.minecraftUuid,
+    });
   if (alive.length) {
     await db
       .update(minecraftAccount)
@@ -323,7 +342,10 @@ async function heartbeat(sessionIds: string[]): Promise<{ unknown: string[] }> {
       );
   }
   const known = new Set(alive.map((s) => s.id));
-  return { unknown: sessionIds.filter((id) => !known.has(id)) };
+  return {
+    unknown: sessionIds.filter((id) => !known.has(id)),
+    playtime: await playtimeService.statesOf(alive),
+  };
 }
 
 /** Closes a session when the player leaves. Closing it twice does nothing. */

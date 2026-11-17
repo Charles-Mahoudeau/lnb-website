@@ -77,12 +77,41 @@ export const WARDEN_DENY_REASONS = [
   'invalidTicket',
   'schoolNotAllowed',
   'banned',
+  'playtimeLimitReached',
   'linkedElsewhere',
   'notLinked',
   'accountLimitReached',
 ] as const;
 
 const banSummary = z.object({ reason: z.string(), expiresAt: isoDate.nullable() });
+
+/**
+ * One Minecraft account's playtime state, as the server shows and obeys it (docs/playtime.md). The
+ * site works everything out. `enforced` is false in `observe`: show nothing, kick nobody.
+ */
+export const wardenPlaytime = z.object({
+  enforced: z.boolean().describe('False in `observe`: nothing is denied, kicked or announced.'),
+  limited: z
+    .boolean()
+    .describe('False when no limit applies to this account (exempt, closed, switched off).'),
+  counting: z.boolean().describe('Whether the time played now counts: inside a restricted window.'),
+  remainingSeconds: z.number().int().nonnegative(),
+  limitSeconds: z.number().int().nonnegative().describe("The week's allowance, with extra time."),
+  windowEndsAt: isoDate.nullable(),
+  nextWindowStartsAt: isoDate.nullable(),
+  grace: z.boolean().describe('The allowance is used up but the player may stay until the end.'),
+  graceEndsAt: isoDate.nullable(),
+});
+export type WardenPlaytime = z.infer<typeof wardenPlaytime>;
+
+/** When a player denied or kicked for their limit can play again. */
+export const wardenPlaytimeBlock = z.object({
+  windowEndsAt: isoDate
+    .nullable()
+    .describe('When they can join again: the end of the window. Null: not before the reset.'),
+  resetsAt: isoDate.describe('The next Monday 00:00 in Paris, when the allowance resets.'),
+});
+export type WardenPlaytimeBlock = z.infer<typeof wardenPlaytimeBlock>;
 
 export const wardenLogin = z.discriminatedUnion('result', [
   z.object({
@@ -101,6 +130,7 @@ export const wardenLogin = z.discriminatedUnion('result', [
     warnings: z
       .array(z.object({ id: z.string(), body: z.string(), createdAt: isoDate }))
       .describe('Warnings given since the account was last seen.'),
+    playtime: wardenPlaytime,
   }),
   z.object({
     result: z.literal('denied'),
@@ -109,6 +139,7 @@ export const wardenLogin = z.discriminatedUnion('result', [
     limit: wardenLimit
       .optional()
       .describe('For `notLinked` and `accountLimitReached`: accounts linked and allowed.'),
+    playtime: wardenPlaytimeBlock.optional().describe('For `playtimeLimitReached`.'),
   }),
 ]);
 export type WardenLogin = z.infer<typeof wardenLogin>;
@@ -120,7 +151,14 @@ export const wardenHeartbeat = z.object({
   unknown: z
     .array(z.string())
     .describe('Sessions the site has closed. Treat them as ended, and usually kick the player.'),
+  playtime: z
+    .record(z.string(), wardenPlaytime)
+    .describe(
+      'The playtime state of each open session, by session ID. A safety net for missed events: treat it like `playtimeUpdate`.',
+    ),
 });
+
+export type WardenHeartbeat = z.infer<typeof wardenHeartbeat>;
 
 /** Body of POST /api/warden/server/sessions/end. */
 export const wardenSessionEndBody = z.object({
@@ -372,6 +410,12 @@ export const wardenServerPlayer = z.object({
     .nullable(),
   warnings: z.number().describe('How many warnings the player has had.'),
   playtimeSeconds: z.number(),
+  playtime: wardenPlaytime
+    .extend({
+      state: z.enum(['unlimited', 'free', 'counting', 'grace', 'blocked']),
+      usedSeconds: z.number().int().nonnegative().describe('Counted this week.'),
+    })
+    .describe("The week's limit for the player's first linked account."),
 });
 export type WardenServerPlayer = z.infer<typeof wardenServerPlayer>;
 
@@ -509,9 +553,34 @@ export const wardenEvent = z.discriminatedUnion('type', [
     type: z.literal('kick'),
     data: z.object({
       uuids: z.array(z.string()),
-      reason: z.enum(['banned', 'unlinked', 'deviceRevoked']),
+      reason: z.enum(['banned', 'unlinked', 'deviceRevoked', 'playtimeLimit']),
       ban: banSummary.optional(),
+      playtime: wardenPlaytimeBlock.optional().describe('For `playtimeLimit`.'),
     }),
+  }),
+  z.object({
+    type: z.literal('playtimeWarning'),
+    data: z.object({
+      uuids: z.array(z.string()),
+      remainingSeconds: z
+        .number()
+        .int()
+        .nonnegative()
+        .describe('For `allowance`, the time left. For `windowStart`, the time until counting.'),
+      kind: z
+        .enum(['allowance', 'windowStart'])
+        .describe(
+          '`allowance`: the allowance is running out. `windowStart`: the player has none left and a window is about to open, when they will be kicked.',
+        ),
+    }),
+  }),
+  z.object({
+    type: z.literal('playtimeGrace'),
+    data: z.object({ uuids: z.array(z.string()), graceEndsAt: isoDate }),
+  }),
+  z.object({
+    type: z.literal('playtimeUpdate'),
+    data: z.object({ uuids: z.array(z.string()), playtime: wardenPlaytime }),
   }),
   z.object({ type: z.literal('unban'), data: z.object({ uuids: z.array(z.string()) }) }),
   z.object({ type: z.literal('settings'), data: wardenSettingsView }),
