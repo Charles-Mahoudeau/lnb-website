@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { gamesplanetAdminGame, gamesplanetDeal } from './gamesplanet.ts';
+import { playtimeEventScope } from './playtime.ts';
 import { DEFAULT_REMINDER_OFFSETS, reminderOffsets } from './push.ts';
 import { teamSizeProblem } from '../utils/event-teams.ts';
 import { SCHOOLS } from '../utils/schools.ts';
@@ -266,6 +267,12 @@ export const eventBody = z
       .default(DEFAULT_REMINDER_OFFSETS)
       .describe('Minutes before the start when registered people get a reminder notification.'),
     bdeSync: z.boolean().describe('Publish the event on the BDE website too.'),
+    playtimeFree: playtimeEventScope
+      .nullable()
+      .default(null)
+      .describe(
+        'Event mode of the playtime limit: `registered` frees the players with a place, `everyone` frees all players, on the Paris days of the event. Null: the limit stays.',
+      ),
     banner: eventImageInput.nullable().default(null).describe('Null: no art.'),
     embed: eventImageInput
       .nullable()
@@ -365,6 +372,7 @@ export type EventAdminQuery = z.input<typeof eventAdminQuery>;
 const eventImageView = eventImageInput.extend({ url: z.string() }).nullable();
 
 export const eventAdminView = eventAdminRow.extend({
+  playtimeFree: playtimeEventScope.nullable(),
   description: z.string(),
   banner: eventImageView,
   embed: eventImageView,
