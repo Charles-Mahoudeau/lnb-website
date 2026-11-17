@@ -6,7 +6,7 @@ The currency is the **LNBit**: whole numbers, no decimals.
 
 ## Accounts
 
-- Every LNB account with a Minecraft account linked through Warden (so, for now, Epitech students: see `docs/warden.md`) gets one **personal account**, opened on first need: the first look-up by the server, or the first visit to `/minecraft/bank`. The starting balance (0 by default, set in the admin) is minted on it.
+- Every LNB account with a Minecraft account linked through Warden (so students of the schools Warden is open to: see `docs/warden.md`) gets one **personal account**, opened on first need: the first look-up by the server, or the first visit to `/minecraft/bank`. The starting balance (0 by default, set in the admin) is minted on it.
 - Money belongs to the LNB account, not to a Minecraft account: two linked Minecraft accounts share the same money, and unlinking one changes nothing.
 - **Shared accounts** are for a team, a shop or a casino. Each has a name and a unique **handle**: 3 to 24 lower-case letters, digits or dashes, always written with a `#` (`#casino-royal`). `server`, `lnb`, `admin`, `staff`, `bank` and `system` are reserved. A handle never changes and stays taken after its account is closed, so nobody can pose as a closed casino.
 - A shared account has a **type**: `team` (the default), `shop` or `casino`. Personal accounts have none (`type: null`). Owners switch between `team` and `shop` freely. `casino` needs a **casino license** (see below), and a casino stays a casino: its type can't change any more. Admins set any type without a license, to tag the casinos that were there before.

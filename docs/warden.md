@@ -7,7 +7,7 @@ Warden links Minecraft accounts to LNB accounts and tells the LNB Minecraft serv
 - An LNB account can link several Minecraft accounts, up to its limit. The limit is a global setting (1 by default), and admins can override it for one player.
 - A Minecraft account, identified by its UUID, belongs to at most one LNB account.
 - Unlinking keeps the account: its sessions and playtime stay, it only stops counting as linked (`unlinked_at`), and it stops counting against the limit. The same player can link it again and get their history back. See "Account takeovers".
-- Warden is open to the schools listed for the `warden` app in `shared/utils/link-apps.ts` (Epitech for now).
+- Warden is open to the schools listed for the `warden` app in `shared/utils/link-apps.ts` (Epitech, e-artsup and ISEG, the same schools as sign-in).
 - The Minecraft server is mod-only and runs in offline mode. A Minecraft account's UUID is the offline UUID of its username, `UUID.nameUUIDFromBytes("OfflinePlayer:" + username)`, and usernames are case-sensitive. The site checks this on every login.
 - The LNB Warden mod proves who the player is. It holds a device token, created when the player approves the device on `/link`, and asks the site for a single-use join ticket before each join. The player can revoke a device at any time from `/minecraft/warden`, which signs out its online sessions.
 - Bans apply to the LNB account, so they cover all of its Minecraft accounts. There is at most one active ban per player. A new ban replaces the active one. Warden bans are separate from site bans.
