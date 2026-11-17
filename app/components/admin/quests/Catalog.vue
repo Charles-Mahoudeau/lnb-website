@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // The quest catalogue (docs/quests.md): a table with a family filter, import and export of the
-// server's quests.json, and a drawer to create or edit a quest. A row's switch turns it on or off.
+// server's quests.json (categories included), and a drawer to create or edit a quest. A row's
+// switch turns it on or off.
 import { AdminQuestsEditor } from '#components';
 
 import type { QuestDefinitionInput } from '#shared/schemas/quests';
@@ -11,7 +12,7 @@ const overlay = useOverlay();
 const editor = overlay.create(AdminQuestsEditor);
 
 const { data, error, refresh } = await useQuestsAdminCatalog();
-const filter = ref<'all' | 'individual' | 'server' | 'flash'>('all');
+const filter = ref<'all' | 'individual' | 'server' | 'flash' | 'daily'>('all');
 const rows = computed(() =>
   (data.value ?? []).filter((row) => filter.value === 'all' || row.family === filter.value),
 );
@@ -27,6 +28,16 @@ function summary(row: NonNullable<typeof data.value>[number]) {
   }
   if (quest.family === 'server') {
     return { objective: quest.advancement, base: formatLnbits(quest.reward, locale.value) };
+  }
+  if (quest.family === 'daily') {
+    return {
+      objective: t('admin.quests.catalog.dailyRange', {
+        min: quest.range.min,
+        max: quest.range.max,
+        type: t(`admin.quests.objective.${quest.objective.type}`),
+      }),
+      base: t('admin.quests.catalog.perUnit', { n: quest.rewardPerUnit }),
+    };
   }
   return {
     objective: t('admin.quests.catalog.range', {
@@ -83,12 +94,22 @@ async function importJson(event: Event) {
     const quests = Array.isArray(parsed)
       ? parsed
       : ((parsed as { quests?: unknown[] }).quests ?? []);
-    const result = await questAdminActions.importCatalog(quests, overwrite.value);
+    const categories = Array.isArray(parsed)
+      ? []
+      : ((parsed as { categories?: unknown[] }).categories ?? []);
+    const result = await questAdminActions.importCatalog(quests, categories, overwrite.value);
     toast.add({
       title: t('admin.quests.catalog.imported', {
         added: result.added.length,
         replaced: result.replaced.length,
       }),
+      description:
+        result.categoriesAdded.length + result.categoriesReplaced.length
+          ? t('admin.quests.catalog.importedCategories', {
+              added: result.categoriesAdded.length,
+              replaced: result.categoriesReplaced.length,
+            })
+          : undefined,
       color: 'success',
       icon: 'i-lucide-circle-check',
     });
@@ -111,7 +132,7 @@ async function importJson(event: Event) {
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex flex-wrap gap-2" role="group" :aria-label="t('admin.quests.catalog.filter')">
         <UButton
-          v-for="option in ['all', 'individual', 'server', 'flash'] as const"
+          v-for="option in ['all', 'individual', 'server', 'flash', 'daily'] as const"
           :key="option"
           size="md"
           :color="filter === option ? 'secondary' : 'neutral'"

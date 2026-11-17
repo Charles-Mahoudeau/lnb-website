@@ -7,6 +7,8 @@ import {
   minecraftAccount,
   quest,
   questCompletion,
+  questDailyCompletion,
+  questDailyDraw,
   questFlashRun,
   questIndexDay,
   questSeason,
@@ -16,7 +18,8 @@ import {
 import { adminAuditService } from '~~/server/services/admin-audit';
 import { minecraftEventService } from '~~/server/services/minecraft-events';
 
-import { computeIndex, familyBudget } from './formula';
+import { questCategoryService } from './categories';
+import { computeIndex, familyBudget, parisDay } from './formula';
 import {
   circulation,
   currentSeason,
@@ -43,10 +46,7 @@ import { hasRole } from '#shared/utils/roles';
 
 // The quests admin: the catalogue, settings, the daily index and seasons. See docs/quests.md.
 
-/** Today in Paris, as YYYY-MM-DD. */
-export function parisDay(at = new Date()) {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris' }).format(at);
-}
+export { parisDay };
 
 /** The personal balances of the active players, staff left out. */
 async function activeBalances(dbx: Db, settings: QuestSettings) {
@@ -156,7 +156,12 @@ async function catalog() {
     .from(questCompletion)
     .where(eq(questCompletion.seasonId, season.id))
     .groupBy(questCompletion.questId);
-  const countOf = new Map(counts.map((row) => [row.questId, row.n]));
+  const daily = await db
+    .select({ questId: questDailyCompletion.questId, n: sql<number>`count(*)::int` })
+    .from(questDailyCompletion)
+    .where(eq(questDailyCompletion.seasonId, season.id))
+    .groupBy(questDailyCompletion.questId);
+  const countOf = new Map([...counts, ...daily].map((row) => [row.questId, row.n]));
   return rows.map((row) => ({
     id: row.id,
     family: row.family,
@@ -177,6 +182,7 @@ function split(definition: QuestDefinition) {
 
 async function createQuest(actorId: string, input: unknown) {
   const definition = validate(questDefinition, input);
+  await questCategoryService.checkQuests(db, [definition]);
   const { id, enabled, rest } = split(definition);
   await db.transaction(async (tx) => {
     const inserted = await tx
@@ -214,6 +220,7 @@ async function updateQuest(actorId: string, id: string, input: unknown) {
       enabled: row.enabled,
     });
     if (definition.family !== row.family) refuse(409, 'questInUse');
+    await questCategoryService.checkQuests(db, [definition]);
     set = { ...set, definition: split(definition).rest };
   }
   if (body.enabled !== undefined) set.enabled = body.enabled;
@@ -244,7 +251,12 @@ async function deleteQuest(actorId: string, id: string) {
       .from(questFlashRun)
       .where(eq(questFlashRun.questId, id))
       .limit(1);
-    if (used || raced) refuse(409, 'questInUse');
+    const [drawn] = await tx
+      .select({ day: questDailyDraw.day })
+      .from(questDailyDraw)
+      .where(eq(questDailyDraw.questId, id))
+      .limit(1);
+    if (used || raced || drawn) refuse(409, 'questInUse');
     const deleted = await tx.delete(quest).where(eq(quest.id, id)).returning({ id: quest.id });
     if (!deleted.length) refuse(404, 'notFound');
     await adminAuditService.record(tx, {
@@ -258,11 +270,13 @@ async function deleteQuest(actorId: string, id: string) {
 
 /** The catalogue as the server's quests.json. */
 async function exportCatalog() {
-  return { quests: await loadCatalog(db) };
+  const categories = await questCategoryService.list();
+  return { categories, quests: await loadCatalog(db) };
 }
 
 async function importCatalog(actorId: string, input: unknown) {
   const body = validate(questImportBody, input);
+  const categories = questCategoryService.parseAll(body.categories);
   const parsed = body.quests.map((entry, index) => {
     const result = questDefinition.safeParse(entry);
     if (!result.success)
@@ -274,7 +288,13 @@ async function importCatalog(actorId: string, input: unknown) {
   });
   const added: string[] = [];
   const replaced: string[] = [];
+  let categoriesResult = { added: [] as string[], replaced: [] as string[] };
   await db.transaction(async (tx) => {
+    categoriesResult = await questCategoryService.upsert(tx, categories, {
+      overwrite: body.overwrite,
+      source: 'site',
+    });
+    await questCategoryService.checkQuests(tx, parsed);
     for (const definition of parsed) {
       const { id, enabled, rest } = split(definition);
       const [existing] = await tx
@@ -303,10 +323,15 @@ async function importCatalog(actorId: string, input: unknown) {
       action: 'quests.import',
       actorUserId: actorId,
       targetUserId: null,
-      data: { added, replaced },
+      data: { added, replaced, categories: categoriesResult },
     });
   });
-  return { added, replaced };
+  return {
+    added,
+    replaced,
+    categoriesAdded: categoriesResult.added,
+    categoriesReplaced: categoriesResult.replaced,
+  };
 }
 
 async function seasons() {
@@ -347,6 +372,10 @@ function tellingServer<A extends unknown[], R>(change: (...args: A) => Promise<R
 }
 
 export const questAdminService = {
+  categories: () => questCategoryService.list(),
+  createCategory: tellingServer(questCategoryService.create),
+  updateCategory: tellingServer(questCategoryService.update),
+  deleteCategory: tellingServer(questCategoryService.remove),
   runIndex,
   indexView,
   settingsView,

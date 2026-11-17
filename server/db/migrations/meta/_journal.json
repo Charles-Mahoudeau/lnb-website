@@ -337,6 +337,13 @@
       "when": 1794920134795,
       "tag": "0047_modpack_tools",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1794945366725,
+      "tag": "0048_quest_categories_daily",
+      "breakpoints": true
     }
   ]
 }

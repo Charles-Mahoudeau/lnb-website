@@ -14,6 +14,7 @@ import {
   questCommunity,
   questCommunityContribution,
   questCompletion,
+  questDailyCompletion,
   questFlashRun,
   questIndexDay,
   questSeason,
@@ -114,6 +115,13 @@ export async function spentLast30Days(dbx: Db, family: QuestShareFamily): Promis
       .select({ total: sum(questCompletion.amount) })
       .from(questCompletion)
       .where(and(eq(questCompletion.family, family), gt(questCompletion.completedAt, since)));
+    return Number(row?.total ?? 0);
+  }
+  if (family === 'daily') {
+    const [row] = await dbx
+      .select({ total: sum(questDailyCompletion.amount) })
+      .from(questDailyCompletion)
+      .where(gt(questDailyCompletion.completedAt, since));
     return Number(row?.total ?? 0);
   }
   if (family === 'flash') {

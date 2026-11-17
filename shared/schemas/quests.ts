@@ -24,20 +24,19 @@ export const QUEST_PROBLEMS = [
   'idempotencyMismatch',
   'confirmationMismatch',
   'disabled',
+  'unknownCategory',
+  'categoryInUse',
+  'notDrawn',
+  'expired',
 ] as const;
 export type QuestProblem = (typeof QUEST_PROBLEMS)[number];
 
 // The catalogue.
 
-export const QUEST_FAMILIES = ['individual', 'server', 'flash'] as const;
-export const QUEST_CATEGORIES = [
-  'mining',
-  'combat',
-  'fishing',
-  'exploration',
-  'crafting',
-  'delivery',
-] as const;
+export const QUEST_FAMILIES = ['individual', 'server', 'flash', 'daily'] as const;
+/** The families whose quests are sorted in categories: chapters for individual, Records groups for server. */
+export const QUEST_CATEGORY_FAMILIES = ['individual', 'server'] as const;
+export type QuestCategoryFamily = (typeof QUEST_CATEGORY_FAMILIES)[number];
 export const QUEST_OBJECTIVES = [
   'kill',
   'mine',
@@ -47,7 +46,7 @@ export const QUEST_OBJECTIVES = [
   'deliver',
   'advancement',
 ] as const;
-/** Objectives a flash race can use: delivering would reward a full chest, not the race. */
+/** Objectives a flash race or a daily quest can use: delivering would reward a full chest, not the day's work. */
 export const FLASH_OBJECTIVES = ['kill', 'mine', 'fish', 'craft', 'travel'] as const;
 
 export const questId = z
@@ -56,6 +55,12 @@ export const questId = z
   .describe('Stable key of the quest: 3 to 48 lower-case letters, digits or underscores.');
 
 const localized = z.object({ fr: z.string().min(1).max(80), en: z.string().min(1).max(80) });
+
+/** A category's or subcategory's key, unique within its family (subcategories: within their category). */
+export const questCategoryId = z
+  .string()
+  .regex(/^[a-z0-9_]{2,32}$/)
+  .describe('2 to 32 lower-case letters, digits or underscores.');
 const localizedText = z.object({ fr: z.string().max(280), en: z.string().max(280) });
 /** A namespaced id, or a tag with `#`. */
 const resourceRef = z.string().regex(/^#?[a-z0-9_.-]+:[a-z0-9_./-]+$/);
@@ -93,10 +98,15 @@ const base = {
 /** Rbase: LNBits at the reference index. */
 const reward = z.number().min(0).max(1_000_000);
 
+const subcategory = questCategoryId
+  .optional()
+  .describe('A subcategory of the category, shown as a heading inside it.');
+
 export const questIndividual = z.object({
   ...base,
   family: z.literal('individual'),
-  category: z.enum(QUEST_CATEGORIES),
+  category: questCategoryId.describe('The chapter: an `individual` category.'),
+  subcategory,
   tiers: z
     .array(z.object({ amount: z.int().min(1).max(1_000_000_000), reward, items }))
     .min(1)
@@ -109,6 +119,12 @@ export const questIndividual = z.object({
 export const questServer = z.object({
   ...base,
   family: z.literal('server'),
+  category: questCategoryId
+    .optional()
+    .describe(
+      'The Records group: a `server` category. Without one, the game guesses from the advancement.',
+    ),
+  subcategory,
   advancement: resourceRef,
   tier: z.enum(['rare', 'epic', 'legendary']),
   reward,
@@ -134,13 +150,52 @@ export const questFlash = z.object({
   hours: questHours.optional(),
 });
 
+/** Drawn each day (Paris), the same for everyone; each player who reaches the quantity before midnight is paid. */
+export const questDaily = z.object({
+  ...base,
+  family: z.literal('daily'),
+  objective: questObjective.extend({ type: z.enum(FLASH_OBJECTIVES) }),
+  range: z
+    .object({ min: z.int().min(1).max(1_000_000), max: z.int().min(1).max(1_000_000) })
+    .refine((range) => range.max >= range.min, { message: 'max must be at least min.' }),
+  rewardPerUnit: z.number().min(0).max(100_000),
+  weight: z.int().min(1).max(100).default(1),
+});
+
 export const questDefinition = z.discriminatedUnion('family', [
   questIndividual,
   questServer,
   questFlash,
+  questDaily,
 ]);
 export type QuestDefinition = z.infer<typeof questDefinition>;
 export type QuestDefinitionInput = z.input<typeof questDefinition>;
+
+// Categories.
+
+export const questSubcategory = z.object({ id: questCategoryId, name: localized });
+
+export const questCategory = z.object({
+  id: questCategoryId,
+  family: z.enum(QUEST_CATEGORY_FAMILIES),
+  name: localized,
+  icon: resourceRef.describe('An item id: the chapter or group icon in the game.'),
+  siteIcon: z
+    .string()
+    .regex(/^i-lucide-[a-z0-9-]+$/)
+    .optional()
+    .describe('A Lucide icon for the site, like `i-lucide-pickaxe`.'),
+  subcategories: z
+    .array(questSubcategory)
+    .max(30)
+    .default([])
+    .refine((list) => new Set(list.map((entry) => entry.id)).size === list.length, {
+      message: 'Two subcategories share an id.',
+    }),
+  sortOrder: z.int().min(0).max(100_000).optional(),
+});
+export type QuestCategory = z.infer<typeof questCategory>;
+export type QuestCategoryInput = z.input<typeof questCategory>;
 
 // Community quests.
 
@@ -166,7 +221,13 @@ export const questCommunityTemplateDefinition = questCommunityDefinition
 
 // Settings.
 
-export const QUEST_SHARE_FAMILIES = ['individual', 'server', 'community', 'flash'] as const;
+export const QUEST_SHARE_FAMILIES = [
+  'individual',
+  'server',
+  'community',
+  'flash',
+  'daily',
+] as const;
 export type QuestShareFamily = (typeof QUEST_SHARE_FAMILIES)[number];
 
 export const questSettings = z.object({
@@ -202,6 +263,7 @@ export const questSettings = z.object({
           server: z.number().min(0).max(100).default(30),
           community: z.number().min(0).max(100).default(20),
           flash: z.number().min(0).max(100).default(10),
+          daily: z.number().min(0).max(100).default(10),
         })
         .prefault({}),
     })
@@ -218,6 +280,10 @@ export const questSettings = z.object({
       hours: questHours.optional(),
     })
     .prefault({}),
+  daily: z
+    .object({ count: z.int().min(0).max(10).default(3) })
+    .prefault({})
+    .describe('How many daily quests are drawn each day (Paris). 0 turns them off.'),
   antiCheat: z
     .object({
       ignorePlacedBlocks: z.boolean().default(true),
@@ -242,10 +308,14 @@ export const questIndex = z.object({
 
 const idempotencyKey = z.uuid();
 
-export const questCatalogBody = z.object({ quests: z.array(z.unknown()).max(500) });
+export const questCatalogBody = z.object({
+  categories: z.array(z.unknown()).max(200).default([]),
+  quests: z.array(z.unknown()).max(500),
+});
 export const questCatalogResult = z.object({
   added: z.array(z.string()),
   kept: z.array(z.string()),
+  categoriesAdded: z.array(z.string()),
 });
 
 export const questProgressBody = z.object({
@@ -335,6 +405,36 @@ export const questFlashResult = z.object({
 });
 export type QuestFlashResult = z.infer<typeof questFlashResult>;
 
+/** A Paris day, "YYYY-MM-DD". */
+const parisDay = z.iso.date();
+
+export const questDailyBody = z.object({
+  idempotencyKey,
+  player: minecraftUuid,
+  day: parisDay.describe('The Paris day the quest was drawn for.'),
+  quest: questId,
+});
+export type QuestDailyBody = z.input<typeof questDailyBody>;
+
+export const questDailyResult = z.object({
+  replayed: z.boolean(),
+  completionId: z.uuid(),
+  quantity: z.int(),
+  amount: z.number(),
+  capped: z.boolean(),
+  transactionId: z.number().nullable(),
+  to: paidTo,
+});
+export type QuestDailyResult = z.infer<typeof questDailyResult>;
+
+/** Today's daily quests: the same draw for everyone until Paris midnight. */
+export const questDailyView = z.object({
+  day: parisDay,
+  endsAt: isoDate,
+  quests: z.array(z.object({ quest: questId, quantity: z.int() })),
+});
+export type QuestDailyView = z.infer<typeof questDailyView>;
+
 export const questContributionBody = z.object({
   idempotencyKey,
   items: z
@@ -372,6 +472,8 @@ export const questConfigResult = z.object({
   quests: z
     .array(z.unknown())
     .describe('Every enabled quest of the catalogue, as `questDefinition`.'),
+  categories: z.array(questCategory).describe('Categories in display order.'),
+  daily: questDailyView,
   flash: z.object({
     intervalMinutes: z.int(),
     minPlayers: z.int(),
@@ -401,6 +503,7 @@ export const questServerPlayerResult = z.object({
   ranks: z.record(z.string(), z.int()),
   kPlayer: z.number(),
   community: z.object({ contribution: z.number(), qualified: z.boolean() }).nullable(),
+  daily: z.array(questId).describe("Today's daily quests this person completed, with any account."),
 });
 export type QuestServerPlayerResult = z.infer<typeof questServerPlayerResult>;
 
@@ -413,8 +516,13 @@ export const questCommunityCreateBody = z.object({
 });
 export const questCommunityPatchBody = questCommunityCreateBody.partial();
 export const questImportBody = z.object({
+  categories: z.array(z.unknown()).max(200).default([]),
   quests: z.array(z.unknown()).max(500),
   overwrite: z.boolean().default(false),
+});
+export const questCategoryParams = z.object({
+  family: z.enum(QUEST_CATEGORY_FAMILIES),
+  id: questCategoryId,
 });
 export const questSeasonBody = z.object({ confirmation: z.literal('new season') });
 export const questAdminPatchBody = z.object({

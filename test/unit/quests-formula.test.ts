@@ -3,9 +3,13 @@ import { describe, expect, it } from 'vitest';
 import {
   applyCap,
   computeIndex,
+  drawDaily,
+  endOfParisDay,
   familyBudget,
   kGlobal,
   kPlayer,
+  parisDay,
+  previousDay,
   quantile,
   reward,
   withinHours,
@@ -62,8 +66,10 @@ describe('quest reward formula', () => {
   });
 
   it('splits the cap between families and cuts what is over', () => {
-    expect(familyBudget('individual', 1_000_000, settings.cap)).toBe(20_000);
-    expect(familyBudget('flash', 1_000_000, settings.cap)).toBe(5_000);
+    // 5 % of 1,000,000, by shares 40 / 30 / 20 / 10 / 10 (out of 110).
+    expect(familyBudget('individual', 1_000_000, settings.cap)).toBe(18_181);
+    expect(familyBudget('flash', 1_000_000, settings.cap)).toBe(4_545);
+    expect(familyBudget('daily', 1_000_000, settings.cap)).toBe(4_545);
     expect(familyBudget('flash', 1_000_000, { ...settings.cap, percent: 0 })).toBeNull();
     expect(applyCap(500, 5_000, 4_800)).toEqual({ amount: 200, capped: true });
     expect(applyCap(500, 5_000, 6_000)).toEqual({ amount: 0, capped: true });
@@ -75,5 +81,41 @@ describe('quest reward formula', () => {
     expect(withinHours('00:30', { from: '18:00', to: '01:00' })).toBe(true);
     expect(withinHours('12:00', { from: '18:00', to: '01:00' })).toBe(false);
     expect(withinHours('12:00', undefined)).toBe(true);
+  });
+
+  it('finds the Paris day and when it ends, across both clock changes', () => {
+    expect(parisDay(new Date('2026-11-17T22:59:59Z'))).toBe('2026-11-17');
+    expect(parisDay(new Date('2026-11-17T23:00:00Z'))).toBe('2026-11-18');
+    expect(endOfParisDay('2026-11-17').toISOString()).toBe('2026-11-17T23:00:00.000Z');
+    expect(endOfParisDay('2026-07-01').toISOString()).toBe('2026-07-01T22:00:00.000Z');
+    // The nights of the clock changes: the day ends at the next midnight's offset.
+    expect(endOfParisDay('2026-03-28').toISOString()).toBe('2026-03-28T23:00:00.000Z');
+    expect(endOfParisDay('2026-10-24').toISOString()).toBe('2026-10-24T22:00:00.000Z');
+    expect(endOfParisDay('2026-03-29').toISOString()).toBe('2026-03-29T22:00:00.000Z');
+    expect(endOfParisDay('2026-10-25').toISOString()).toBe('2026-10-25T23:00:00.000Z');
+    expect(previousDay('2026-03-01')).toBe('2026-02-28');
+  });
+
+  it('draws distinct daily quests by weight, with a quantity in range', () => {
+    const quests = [
+      { id: 'a', weight: 1, range: { min: 5, max: 5 } },
+      { id: 'b', weight: 3, range: { min: 10, max: 20 } },
+      { id: 'c', weight: 1, range: { min: 1, max: 2 } },
+    ];
+    const draws = Array.from({ length: 200 }, () => drawDaily(quests, 2));
+    for (const draw of draws) {
+      expect(draw).toHaveLength(2);
+      expect(new Set(draw.map((entry) => entry.quest.id)).size).toBe(2);
+      for (const entry of draw) {
+        expect(entry.quantity).toBeGreaterThanOrEqual(entry.quest.range.min);
+        expect(entry.quantity).toBeLessThanOrEqual(entry.quest.range.max);
+      }
+    }
+    const firstB = draws.filter((draw) => draw[0]!.quest.id === 'b').length;
+    expect(firstB).toBeGreaterThan(80);
+    expect(drawDaily(quests, 10)).toHaveLength(3);
+    expect(drawDaily([], 3)).toEqual([]);
+    // random() just below 1 picks the last quest and the top of its range.
+    expect(drawDaily(quests, 1, () => 0.999_999)).toEqual([{ quest: quests[2], quantity: 2 }]);
   });
 });

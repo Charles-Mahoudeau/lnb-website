@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // The quests page (docs/quests.md): the season, the signed-in player's summary, then pill tabs
-// for the four families and the leaderboard. Public: signed-out visitors see everything but
+// for the five families and the leaderboard. Public: signed-out visitors see everything but
 // their own progress.
 definePageMeta({ auth: false, flag: 'economy.quests' });
 
@@ -15,7 +15,7 @@ const season = ref<number | undefined>(
 );
 const { data, error, refresh } = await useQuests(season);
 
-const TABS = ['individual', 'server', 'community', 'flash', 'leaderboard'] as const;
+const TABS = ['individual', 'daily', 'server', 'community', 'flash', 'leaderboard'] as const;
 type Tab = (typeof TABS)[number];
 const tab = computed<Tab>({
   get: () => (TABS.includes(route.query.tab as Tab) ? (route.query.tab as Tab) : 'individual'),
@@ -23,6 +23,7 @@ const tab = computed<Tab>({
 });
 const tabItems = computed(() => [
   { value: 'individual', label: t('quests.tabs.individual'), icon: 'i-lucide-user-round' },
+  { value: 'daily', label: t('quests.tabs.daily'), icon: 'i-lucide-calendar-check' },
   { value: 'server', label: t('quests.tabs.server'), icon: 'i-lucide-trophy' },
   { value: 'community', label: t('quests.tabs.community'), icon: 'i-lucide-users' },
   { value: 'flash', label: t('quests.tabs.flash'), icon: 'i-lucide-zap' },
@@ -122,6 +123,7 @@ const bonus = computed(() =>
       <UTabs v-model="tab" :items="tabItems" variant="pill" :content="false" class="self-start" />
 
       <QuestsIndividual v-if="tab === 'individual'" :data="data" @claimed="refresh()" />
+      <QuestsDaily v-else-if="tab === 'daily'" :data="data" />
       <QuestsServer v-else-if="tab === 'server'" :data="data" />
       <QuestsCommunity v-else-if="tab === 'community'" :data="data" />
       <QuestsFlash v-else-if="tab === 'flash'" :data="data" />

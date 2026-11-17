@@ -2,18 +2,13 @@
 // Creates a quest, or edits one, in a side drawer (docs/quests.md). Closes with true once saved.
 // A quest's id and family can't change after creation: the server and completions use them.
 // Items are given as SNBT, the way the game saves a stack (`/quests reward add` captures one).
-import {
-  FLASH_OBJECTIVES,
-  QUEST_CATEGORIES,
-  QUEST_OBJECTIVES,
-  questItemReward,
-} from '#shared/schemas/quests';
+import { FLASH_OBJECTIVES, QUEST_OBJECTIVES, questItemReward } from '#shared/schemas/quests';
 import type { QuestDefinitionInput } from '#shared/schemas/quests';
 
 const props = defineProps<{ quest?: QuestDefinitionInput }>();
 const emit = defineEmits<{ close: [saved: boolean] }>();
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const toast = useToast();
 
 const editing = computed(() => !!props.quest);
@@ -21,6 +16,9 @@ const q = props.quest;
 const ind = q?.family === 'individual' ? q : undefined;
 const srv = q?.family === 'server' ? q : undefined;
 const fla = q?.family === 'flash' ? q : undefined;
+const day = q?.family === 'daily' ? q : undefined;
+// Not awaited: the drawer opens at once, the lists fill in when they arrive.
+const { data: categories } = useQuestsAdminCategories();
 
 const state = reactive({
   family: q?.family ?? 'individual',
@@ -33,8 +31,10 @@ const state = reactive({
   enabled: q?.enabled ?? true,
   objectiveType: q?.objective.type ?? 'mine',
   objectiveTarget: q?.objective.target ?? '',
+  // individual and server
+  category: ind?.category ?? srv?.category ?? '',
+  subcategory: ind?.subcategory ?? srv?.subcategory ?? '',
   // individual
-  category: ind?.category ?? 'mining',
   tiers: (ind?.tiers ?? [{ amount: 1000, reward: 50, items: [] }]).map((tier) => ({
     amount: tier.amount,
     reward: tier.reward,
@@ -48,30 +48,57 @@ const state = reactive({
   restShare: srv?.restShare ?? 2,
   items: JSON.stringify(srv?.items ?? [], null, 2),
   hidden: srv?.hidden ?? false,
-  // flash
-  min: fla?.range.min ?? 5,
-  max: fla?.range.max ?? 12,
-  rewardPerUnit: fla?.rewardPerUnit ?? 4,
-  weight: fla?.weight ?? 1,
+  // flash and daily
+  min: fla?.range.min ?? day?.range.min ?? 5,
+  max: fla?.range.max ?? day?.range.max ?? 12,
+  rewardPerUnit: fla?.rewardPerUnit ?? day?.rewardPerUnit ?? 4,
+  weight: fla?.weight ?? day?.weight ?? 1,
   minPlayers: fla?.minPlayers ?? 2,
 });
 const pending = ref(false);
 const openItems = ref<number | null>(null);
 
 const familyItems = computed(() =>
-  (['individual', 'server', 'flash'] as const).map((value) => ({
+  (['individual', 'server', 'flash', 'daily'] as const).map((value) => ({
     value,
     label: t(`admin.quests.family.${value}`),
   })),
 );
 const objectiveItems = computed(() =>
-  (state.family === 'flash' ? FLASH_OBJECTIVES : QUEST_OBJECTIVES).map((value) => ({
-    value,
-    label: t(`admin.quests.objective.${value}`),
-  })),
+  (state.family === 'flash' || state.family === 'daily' ? FLASH_OBJECTIVES : QUEST_OBJECTIVES).map(
+    (value) => ({
+      value,
+      label: t(`admin.quests.objective.${value}`),
+    }),
+  ),
 );
-const categoryItems = computed(() =>
-  QUEST_CATEGORIES.map((value) => ({ value, label: t(`quests.category.${value}`) })),
+const familyCategories = computed(() =>
+  (categories.value ?? []).filter((category) => category.family === state.family),
+);
+const categoryItems = computed(() => [
+  ...(state.family === 'server' ? [{ value: '', label: t('admin.quests.editor.guessed') }] : []),
+  ...familyCategories.value.map((category) => ({
+    value: category.id,
+    label: questName(category.name, locale.value),
+  })),
+]);
+const subcategoryItems = computed(() => [
+  { value: '', label: t('admin.quests.editor.noSubcategory') },
+  ...(
+    familyCategories.value.find((category) => category.id === state.category)?.subcategories ?? []
+  ).map((sub) => ({ value: sub.id, label: questName(sub.name, locale.value) })),
+]);
+watch(
+  () => [state.family, state.category, categories.value] as const,
+  () => {
+    if (!categories.value) return;
+    // An individual quest needs a chapter; a server quest may go without (the game guesses).
+    if (!familyCategories.value.some((c) => c.id === state.category))
+      state.category = state.family === 'individual' ? (familyCategories.value[0]?.id ?? '') : '';
+    if (!subcategoryItems.value.some((item) => item.value === state.subcategory))
+      state.subcategory = '';
+  },
+  { immediate: true },
 );
 const tierItems = computed(() =>
   (['rare', 'epic', 'legendary'] as const).map((value) => ({
@@ -101,10 +128,14 @@ function definition() {
       ...(state.objectiveTarget.trim() ? { target: state.objectiveTarget.trim() } : {}),
     },
   };
+  const placement = {
+    ...(state.category ? { category: state.category } : {}),
+    ...(state.category && state.subcategory ? { subcategory: state.subcategory } : {}),
+  };
   if (state.family === 'individual') {
     return {
       ...base,
-      category: state.category,
+      ...placement,
       tiers: state.tiers.map((tier) => ({
         amount: tier.amount,
         reward: tier.reward,
@@ -115,6 +146,7 @@ function definition() {
   if (state.family === 'server') {
     return {
       ...base,
+      ...placement,
       advancement: state.advancement.trim(),
       tier: state.tier,
       reward: state.reward,
@@ -125,6 +157,14 @@ function definition() {
       restShare: state.restShare,
       items: parseItems(state.items),
       hidden: state.hidden,
+    };
+  }
+  if (state.family === 'daily') {
+    return {
+      ...base,
+      range: { min: state.min, max: state.max },
+      rewardPerUnit: state.rewardPerUnit,
+      weight: state.weight,
     };
   }
   return {
@@ -290,11 +330,22 @@ async function onDelete() {
               />
             </UFormField>
             <UFormField
-              v-if="state.family === 'individual'"
+              v-if="state.family === 'individual' || state.family === 'server'"
               :label="t('admin.quests.editor.category')"
               name="category"
+              :help="state.family === 'server' ? t('admin.quests.editor.categoryHelp') : undefined"
             >
               <USelect v-model="state.category" :items="categoryItems" class="w-full" />
+            </UFormField>
+            <UFormField
+              v-if="
+                (state.family === 'individual' || state.family === 'server') &&
+                subcategoryItems.length > 1
+              "
+              :label="t('admin.quests.editor.subcategory')"
+              name="subcategory"
+            >
+              <USelect v-model="state.subcategory" :items="subcategoryItems" class="w-full" />
             </UFormField>
             <UFormField
               v-if="state.family === 'server'"
@@ -429,10 +480,18 @@ async function onDelete() {
           />
         </fieldset>
 
-        <fieldset v-if="state.family === 'flash'" class="flex flex-col gap-4">
+        <fieldset
+          v-if="state.family === 'flash' || state.family === 'daily'"
+          class="flex flex-col gap-4"
+        >
           <legend class="mb-3 font-semibold text-highlighted">
-            {{ t('admin.quests.editor.race') }}
+            {{
+              t(state.family === 'daily' ? 'admin.quests.editor.daily' : 'admin.quests.editor.race')
+            }}
           </legend>
+          <p v-if="state.family === 'daily'" class="text-sm text-muted">
+            {{ t('admin.quests.editor.dailyHelp') }}
+          </p>
           <div class="grid gap-4 sm:grid-cols-3">
             <UFormField :label="t('admin.quests.editor.min')" name="min">
               <UInput v-model.number="state.min" type="number" min="1" class="w-full" />
@@ -456,7 +515,11 @@ async function onDelete() {
             >
               <UInput v-model.number="state.weight" type="number" min="1" class="w-full" />
             </UFormField>
-            <UFormField :label="t('admin.quests.editor.minPlayers')" name="minPlayers">
+            <UFormField
+              v-if="state.family === 'flash'"
+              :label="t('admin.quests.editor.minPlayers')"
+              name="minPlayers"
+            >
               <UInput v-model.number="state.minPlayers" type="number" min="1" class="w-full" />
             </UFormField>
           </div>

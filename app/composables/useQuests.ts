@@ -38,6 +38,7 @@ export function useQuests(season: Ref<number | undefined>) {
 export type QuestOverview = NonNullable<Awaited<ReturnType<typeof useQuests>>['data']['value']>;
 export type QuestCatalogEntry = QuestOverview['quests'][number];
 export type QuestCommunity = NonNullable<QuestOverview['community']>;
+export type QuestCategoryEntry = QuestOverview['categories'][number];
 
 export const questActions = {
   claim: (completionId: string) =>
@@ -65,6 +66,32 @@ export const QUEST_ICONS: Record<string, string> = {
   deliver: 'i-lucide-package',
   advancement: 'i-lucide-trophy',
 };
+
+/** A category's icon on the site: its own Lucide icon, else a folder. */
+export function categoryIcon(category: { siteIcon?: string } | undefined) {
+  return category?.siteIcon ?? 'i-lucide-folder';
+}
+
+/**
+ * Quests grouped by subcategory, in the category's order: quests without one first (no heading),
+ * then each subcategory that has quests.
+ */
+export function bySubcategory<T extends { subcategory?: string }>(
+  quests: readonly T[],
+  category: { subcategories: { id: string; name: { fr: string; en: string } }[] } | undefined,
+) {
+  const groups: { id: string | null; name: { fr: string; en: string } | null; quests: T[] }[] = [];
+  const loose = quests.filter(
+    (quest) =>
+      !quest.subcategory || !category?.subcategories.some((sub) => sub.id === quest.subcategory),
+  );
+  if (loose.length) groups.push({ id: null, name: null, quests: loose });
+  for (const sub of category?.subcategories ?? []) {
+    const list = quests.filter((quest) => quest.subcategory === sub.id);
+    if (list.length) groups.push({ id: sub.id, name: sub.name, quests: list });
+  }
+  return groups;
+}
 
 /** A quest's name in the page's language. */
 export function questName(name: { fr: string; en: string }, locale: string) {
@@ -95,6 +122,9 @@ export function useQuestsAdminIndex() {
 export function useQuestsAdminCommunity() {
   return useFetch('/api/quests/admin/community', { key: 'quests-admin-community' });
 }
+export function useQuestsAdminCategories() {
+  return useFetch('/api/quests/admin/categories', { key: 'quests-admin-categories' });
+}
 export function useQuestsAdminSeasons() {
   return useFetch('/api/quests/admin/seasons', { key: 'quests-admin-seasons' });
 }
@@ -107,8 +137,21 @@ export const questAdminActions = {
   remove: (id: string) =>
     call(() => $fetch(`/api/quests/admin/quests/${id}`, { method: 'DELETE' })),
   exportCatalog: () => call(() => $fetch('/api/quests/admin/export')),
-  importCatalog: (quests: unknown[], overwrite: boolean) =>
-    call(() => $fetch('/api/quests/admin/import', { method: 'POST', body: { quests, overwrite } })),
+  importCatalog: (quests: unknown[], categories: unknown[], overwrite: boolean) =>
+    call(() =>
+      $fetch('/api/quests/admin/import', {
+        method: 'POST',
+        body: { quests, categories, overwrite },
+      }),
+    ),
+  createCategory: (category: object) =>
+    call(() => $fetch('/api/quests/admin/categories', { method: 'POST', body: category })),
+  updateCategory: (family: string, id: string, category: object) =>
+    call(() =>
+      $fetch(`/api/quests/admin/categories/${family}/${id}`, { method: 'PATCH', body: category }),
+    ),
+  removeCategory: (family: string, id: string) =>
+    call(() => $fetch(`/api/quests/admin/categories/${family}/${id}`, { method: 'DELETE' })),
   updateSettings: (patch: object) =>
     call(() => $fetch('/api/quests/admin/settings', { method: 'PATCH', body: patch })),
   createCommunity: (body: object) =>
