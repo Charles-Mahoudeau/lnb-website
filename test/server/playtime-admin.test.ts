@@ -220,3 +220,54 @@ describe('exemptions and grants', () => {
     ).rejects.toThrow();
   });
 });
+
+describe('what the admin screens read', () => {
+  it('lists every allowed school with its overrides, null when it follows the rules', async () => {
+    const { actor } = await account();
+    await playtimeAdminService.clearSchool(actor, EARTSUP);
+    await playtimeAdminService.setSchool(actor, EPITECH, {
+      allowanceSeconds: 28_800,
+      schedule: null,
+      graceSeconds: null,
+      warningsMinutes: null,
+      startWarningsMinutes: null,
+    });
+    const settings = await playtimeAdminService.settings();
+    expect(settings.schools.map((school) => school.name)).toEqual(['Epitech', 'e-artsup', 'ISEG']);
+    const epitech = settings.schools.find((school) => school.tenantId === EPITECH);
+    expect(epitech?.overrides.allowanceSeconds).toBe(28_800);
+    expect(epitech?.overrides.schedule).toBeNull();
+    const eartsup = settings.schools.find((school) => school.tenantId === EARTSUP);
+    expect(Object.values(eartsup?.overrides ?? {}).every((value) => value === null)).toBe(true);
+    expect(settings.flagEnabled).toBeTypeOf('boolean');
+    await playtimeAdminService.clearSchool(actor, EPITECH);
+  });
+
+  it('lists closures with who made them, the latest start first', async () => {
+    const { id, actor } = await account();
+    const early = await playtimeAdminService.createClosure(actor, {
+      label: 'List early',
+      startsOn: '2031-01-05',
+      endsOn: '2031-01-06',
+      tenantIds: null,
+    });
+    const late = await playtimeAdminService.createClosure(actor, {
+      label: 'List late',
+      startsOn: '2031-03-01',
+      endsOn: '2031-03-02',
+      tenantIds: [EPITECH],
+    });
+    const rows = (await playtimeAdminService.closures()).filter((row) =>
+      [early.id, late.id].includes(row.id),
+    );
+    expect(rows.map((row) => row.label)).toEqual(['List late', 'List early']);
+    expect(rows[0]).toMatchObject({
+      tenantIds: [EPITECH],
+      event: null,
+      createdByName: 'Admin Tester',
+    });
+    await playtimeAdminService.deleteClosure(actor, early.id);
+    await playtimeAdminService.deleteClosure(actor, late.id);
+    expect(id).toBeTruthy();
+  });
+});
