@@ -1,16 +1,19 @@
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, asc, desc, eq, isNull } from 'drizzle-orm';
 import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
 import {
+  event as eventTable,
   minecraftAccount,
   playtimeClosure,
   playtimeExemption,
   playtimeGrant,
   playtimeSchool,
   playtimeSettings,
+  user,
   wardenPlayer,
 } from '~~/server/db/schema';
+import { flagService } from '~~/server/services/flags';
 import { wardenAuditService } from '~~/server/services/warden/audit';
 import { wardenPlayerService } from '~~/server/services/warden/players';
 
@@ -18,13 +21,16 @@ import { playtimeSettingsService } from './settings';
 
 import type {
   PlaytimeClosureBody,
+  PlaytimeClosureRow,
   PlaytimeExemptionBody,
   PlaytimeGrantBody,
   PlaytimePlayerOverridesBody,
   PlaytimeSchoolBody,
   PlaytimeSettingsPatch,
+  PlaytimeSettingsResponse,
 } from '#shared/schemas/playtime';
 import { mondayOf, parisDate, addDays } from '#shared/utils/paris-time';
+import { SCHOOLS } from '#shared/utils/schools';
 
 // What admins change: the rules, a school's, a player's, closures, exemptions and grants. Each
 // change is audited in the same transaction (docs/playtime.md). Who may do what is decided by the
@@ -35,6 +41,57 @@ type Actor = { source: 'web'; userId: string };
 
 function problem(status: number, statusText: string): never {
   throw createError({ status, statusText, data: { problem: statusText } });
+}
+
+/** The rules and the mode as the admin screen shows them, with every school's overrides. */
+async function settings(): Promise<PlaytimeSettingsResponse> {
+  const current = await playtimeSettingsService.get();
+  return {
+    mode: current.mode,
+    flagEnabled: await flagService.isEnabled('playtime'),
+    ...current.config,
+    schools: Object.entries(SCHOOLS).map(([tenantId, name]) => {
+      const o = current.schools.get(tenantId);
+      return {
+        tenantId,
+        name,
+        overrides: {
+          allowanceSeconds: o?.allowanceSeconds ?? null,
+          schedule: o?.schedule ?? null,
+          graceSeconds: o?.graceSeconds ?? null,
+          warningsMinutes: o?.warningsMinutes ?? null,
+          startWarningsMinutes: o?.startWarningsMinutes ?? null,
+        },
+      };
+    }),
+  };
+}
+
+/** Every closure, the latest start first, with the event it follows and who made it. */
+async function closures(): Promise<PlaytimeClosureRow[]> {
+  const rows = await db
+    .select({
+      closure: playtimeClosure,
+      eventName: eventTable.name,
+      createdByName: user.name,
+    })
+    .from(playtimeClosure)
+    .leftJoin(eventTable, eq(eventTable.id, playtimeClosure.eventId))
+    .leftJoin(user, eq(user.id, playtimeClosure.createdByUserId))
+    .orderBy(desc(playtimeClosure.startsOn), asc(playtimeClosure.id));
+  return rows.map(({ closure, eventName, createdByName }) => ({
+    id: closure.id,
+    label: closure.label,
+    startsOn: closure.startsOn,
+    endsOn: closure.endsOn,
+    tenantIds: closure.tenantIds,
+    event:
+      closure.eventId && closure.eventScope
+        ? { id: closure.eventId, name: eventName ?? '', scope: closure.eventScope }
+        : null,
+    createdByName,
+    createdAt: closure.createdAt.toISOString(),
+  }));
 }
 
 /** Changes the global rules and the mode. A field left out is unchanged. */
@@ -283,6 +340,8 @@ async function revokeGrant(actor: Actor, userId: string, id: number) {
 }
 
 export const playtimeAdminService = {
+  settings,
+  closures,
   updateSettings,
   setSchool,
   clearSchool,

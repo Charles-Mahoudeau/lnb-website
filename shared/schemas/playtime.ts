@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { WEEKDAYS } from '../utils/paris-time.ts';
+import { SCHOOLS } from '../utils/schools.ts';
 
 // Playtime limit contracts, shared by the routes, the services and the pages. See docs/playtime.md.
 
@@ -184,3 +185,51 @@ export const playtimeGrantBody = z.object({
   weekStart: parisDay.optional(),
 });
 export type PlaytimeGrantBody = z.infer<typeof playtimeGrantBody>;
+
+// What the admin screens read.
+
+/** The rules, with a school's overrides on top. A null field inherits the global value. */
+const schoolOverrides = z.object({
+  allowanceSeconds: z.number().int().nonnegative().nullable(),
+  schedule: playtimeSchedule.nullable(),
+  graceSeconds: z.number().int().nonnegative().nullable(),
+  warningsMinutes: playtimeWarningMinutes.nullable(),
+  startWarningsMinutes: playtimeWarningMinutes.nullable(),
+});
+
+export const playtimeSettingsResponse = z.object({
+  mode: playtimeMode,
+  /** The `playtime` feature flag. When it is off, nothing runs whatever the mode. */
+  flagEnabled: z.boolean(),
+  allowanceSeconds: z.number().int().nonnegative(),
+  schedule: playtimeSchedule,
+  graceSeconds: z.number().int().nonnegative(),
+  warningsMinutes: playtimeWarningMinutes,
+  startWarningsMinutes: playtimeWarningMinutes,
+  /** Every allowed school, with its overrides (all null when it follows the global rules). */
+  schools: z.array(
+    z.object({ tenantId: z.string(), name: z.string(), overrides: schoolOverrides }),
+  ),
+});
+export type PlaytimeSettingsResponse = z.infer<typeof playtimeSettingsResponse>;
+
+export const playtimeClosureRow = z.object({
+  id: z.number().int(),
+  label: z.string(),
+  startsOn: z.string().meta({ format: 'date' }),
+  endsOn: z.string().meta({ format: 'date' }),
+  tenantIds: z.array(z.string()).nullable(),
+  /** Set for a closure kept in step with an event: it can't be edited here. */
+  event: z
+    .object({ id: z.uuid(), name: z.string(), scope: z.enum(['registered', 'everyone']) })
+    .nullable(),
+  createdByName: z.string().nullable(),
+  createdAt: isoDate,
+});
+export type PlaytimeClosureRow = z.infer<typeof playtimeClosureRow>;
+export const playtimeClosureList = z.array(playtimeClosureRow);
+
+export const playtimeClosureParams = z.object({ id: z.coerce.number().int().positive() });
+export const playtimeSchoolParams = z.object({
+  tenantId: z.string().refine((id) => id.toLowerCase() in SCHOOLS, 'Unknown school.'),
+});
