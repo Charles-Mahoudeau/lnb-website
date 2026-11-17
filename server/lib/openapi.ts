@@ -38,6 +38,7 @@ type Access =
   | 'user'
   | 'wardenAdmin'
   | 'eventsManager'
+  | 'playtimeGranter'
   | 'economyAdmin'
   | 'admin'
   | 'wardenServer'
@@ -76,6 +77,9 @@ type OpenApiObject = Record<string, unknown>;
 // Named schemas, listed under Models in the reference. Requests are described as they're sent,
 // responses as they're returned.
 const requestSchemas = {
+  PlaytimePlayerOverridesBody: playtime.playtimePlayerOverridesBody,
+  PlaytimePlayerExemptionBody: playtime.playtimePlayerExemptionBody,
+  PlaytimeGrantBody: playtime.playtimeGrantBody,
   PlaytimeSettingsPatch: playtime.playtimeSettingsPatch,
   PlaytimeSchoolBody: playtime.playtimeSchoolBody,
   PlaytimeClosureBody: playtime.playtimeClosureBody,
@@ -226,6 +230,8 @@ const responseSchemas = {
   PlaytimeMe: playtime.playtimeMe,
   PlaytimeSettingsResponse: playtime.playtimeSettingsResponse,
   PlaytimeClosureRow: playtime.playtimeClosureRow,
+  PlaytimeLive: playtime.playtimeLive,
+  PlaytimeAdminPlayer: playtime.playtimeAdminPlayer,
   AnticheatReportResponse: anticheat.anticheatReportResponse,
   AnticheatEventsResponse: anticheat.anticheatEventsResponse,
   AnticheatFilePage: anticheat.anticheatFilePage,
@@ -1359,6 +1365,89 @@ const routes: RouteDoc[] = [
       { status: 404, problems: ['notFound'] },
       { status: 409, problems: ['eventClosure'] },
     ],
+  },
+  {
+    method: 'get',
+    path: '/api/playtime/admin/live',
+    tag: TAGS.playtimeAdmin,
+    summary: 'Who is online and where they stand',
+    description:
+      'The Minecraft accounts online now with their state, time used and time left, and the week’s totals: hours counted, players, players who reached their limit and players who used grace. `mode` is `off` while the flag is off.',
+    access: 'wardenAdmin',
+    response: playtime.playtimeLive,
+  },
+  {
+    method: 'get',
+    path: '/api/playtime/admin/players/{userId}',
+    tag: TAGS.playtimeAdmin,
+    summary: 'One player’s playtime',
+    description:
+      'The player’s own view of the week plus what an admin can change: their overrides and what each setting would be without them, active exemptions, this week’s grants and the last 8 weeks.',
+    access: 'wardenAdmin',
+    params: playtime.playtimeUserParams,
+    response: playtime.playtimeAdminPlayer,
+    problems: [{ status: 404, problems: [] }],
+  },
+  {
+    method: 'put',
+    path: '/api/playtime/admin/players/{userId}/overrides',
+    tag: TAGS.playtimeAdmin,
+    summary: 'Set a player’s overrides',
+    description:
+      'The allowance, the grace length and the warning times. A null field follows the school, then the defaults. Audited.',
+    access: 'wardenAdmin',
+    params: playtime.playtimeUserParams,
+    body: playtime.playtimePlayerOverridesBody,
+    response: playtime.playtimeAdminPlayer,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/playtime/admin/players/{userId}/exemptions',
+    tag: TAGS.playtimeAdmin,
+    summary: 'Exempt a player',
+    description:
+      'Without `minecraftUuid` the whole LNB account is exempt, with it only that Minecraft account (which must be the player’s). A reason is required and the player never sees it. Audited.',
+    access: 'wardenAdmin',
+    params: playtime.playtimeUserParams,
+    body: playtime.playtimePlayerExemptionBody,
+    response: playtime.playtimeAdminPlayer,
+    created: true,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'delete',
+    path: '/api/playtime/admin/players/{userId}/exemptions/{id}',
+    tag: TAGS.playtimeAdmin,
+    summary: 'Revoke an exemption',
+    access: 'wardenAdmin',
+    params: playtime.playtimeUserItemParams,
+    response: playtime.playtimeAdminPlayer,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/playtime/admin/players/{userId}/grants',
+    tag: TAGS.playtimeAdmin,
+    summary: 'Give extra time',
+    description:
+      'Adds up to 5 hours to the player’s allowance for this week (or the week of `weekStart`). It ends at the Monday reset. A reason is required. Audited with the granter. Open to Warden admins and events managers.',
+    access: 'playtimeGranter',
+    params: playtime.playtimeUserParams,
+    body: playtime.playtimeGrantBody,
+    response: playtime.playtimeAdminPlayer,
+    created: true,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'delete',
+    path: '/api/playtime/admin/players/{userId}/grants/{id}',
+    tag: TAGS.playtimeAdmin,
+    summary: 'Revoke a grant',
+    access: 'playtimeGranter',
+    params: playtime.playtimeUserItemParams,
+    response: playtime.playtimeAdminPlayer,
+    problems: [{ status: 404, problems: ['notFound'] }],
   },
   // Warden: players
   {
@@ -5642,6 +5731,14 @@ const ACCESS: Record<Access, { security?: OpenApiObject[]; note?: string; errors
       { status: 403, problems: [] },
     ],
   },
+  playtimeGranter: {
+    security: [{ session: [] }],
+    note: 'Warden admins, events managers and site admins only.',
+    errors: [
+      { status: 401, problems: [] },
+      { status: 403, problems: [] },
+    ],
+  },
   economyAdmin: {
     security: [{ session: [] }],
     note: 'Economy admins and site admins only.',
@@ -5991,7 +6088,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       {
         name: TAGS.playtimeAdmin,
         description:
-          'The playtime rules, schools and closures, at `/admin/warden/playtime`. Warden admins only. See `docs/playtime.md`.',
+          'The playtime rules, schools, closures, live view and each player’s panel, at `/admin/warden/playtime`. Warden admins only, except grants. See `docs/playtime.md`.',
       },
       {
         name: TAGS.wardenAdmin,

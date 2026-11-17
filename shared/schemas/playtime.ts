@@ -233,3 +233,102 @@ export const playtimeClosureParams = z.object({ id: z.coerce.number().int().posi
 export const playtimeSchoolParams = z.object({
   tenantId: z.string().refine((id) => id.toLowerCase() in SCHOOLS, 'Unknown school.'),
 });
+
+// The Live tab and the player panel.
+
+export const playtimeLiveRow = z.object({
+  userId: z.string(),
+  name: z.string(),
+  school: z.string().nullable(),
+  uuid: z.uuid(),
+  username: z.string(),
+  state: playtimeState,
+  reason: z.enum(PLAYTIME_UNLIMITED_REASONS).nullable(),
+  usedSeconds: z.number().int().nonnegative(),
+  allowanceSeconds: z.number().int().nonnegative(),
+  remainingSeconds: z.number().int().nonnegative(),
+  graceEndsAt: isoDate.nullable(),
+  startedAt: isoDate,
+});
+
+export const playtimeLive = z.object({
+  /** What the limit does right now: `off` while the flag is off. */
+  mode: playtimeMode,
+  /** The default schedule's current window end and next start, ignoring closures and schools. */
+  windowEndsAt: isoDate.nullable(),
+  nextWindowStartsAt: isoDate.nullable(),
+  /** Minecraft accounts online now, one row each. */
+  online: z.array(playtimeLiveRow),
+  week: z.object({
+    weekStart: z.string().meta({ format: 'date' }),
+    countedSeconds: z.number().int().nonnegative(),
+    /** Players with any time on the server this week. */
+    players: z.number().int().nonnegative(),
+    /** Players who used up their allowance, with grants. */
+    reachedLimit: z.number().int().nonnegative(),
+    /** Players who played on in a grace period. */
+    usedGrace: z.number().int().nonnegative(),
+  }),
+});
+export type PlaytimeLive = z.infer<typeof playtimeLive>;
+
+export const playtimeUserParams = z.object({ userId: z.string().min(1) });
+export const playtimeUserItemParams = playtimeUserParams.extend({
+  id: z.coerce.number().int().positive(),
+});
+
+/** An exemption the player panel lists: the whole LNB account, or one Minecraft account. */
+export const playtimeExemptionRow = z.object({
+  id: z.number().int(),
+  scope: z.enum(['user', 'minecraft']),
+  username: z.string().nullable(),
+  reason: z.string(),
+  until: isoDate.nullable(),
+  setByName: z.string().nullable(),
+  createdAt: isoDate,
+});
+
+export const playtimeGrantRow = z.object({
+  id: z.number().int(),
+  seconds: z.number().int(),
+  reason: z.string(),
+  grantedByName: z.string().nullable(),
+  createdAt: isoDate,
+});
+
+const overridable = z.object({
+  allowanceSeconds: z.number().int().nonnegative(),
+  graceSeconds: z.number().int().nonnegative(),
+  warningsMinutes: playtimeWarningMinutes,
+});
+
+/** One player's playtime as admins see it: the player's own view plus what can be changed. */
+export const playtimeAdminPlayer = playtimeMe.extend({
+  school: z.string().nullable(),
+  /** The player's own overrides: null follows the school, then the defaults. */
+  overrides: playtimePlayerOverridesBody,
+  /** What each setting is without the player's overrides. */
+  inherited: overridable,
+  exemptions: z.array(playtimeExemptionRow),
+  /** This week's grants that are still in force. */
+  grants: z.array(playtimeGrantRow),
+  /** The last 8 weeks, oldest first, with the current one last. */
+  weeks: z.array(
+    z.object({
+      weekStart: z.string().meta({ format: 'date' }),
+      countedSeconds: z.number().int().nonnegative(),
+      allowanceSeconds: z.number().int().nonnegative(),
+      /** A closure covers the whole week. */
+      closed: z.boolean(),
+    }),
+  ),
+});
+export type PlaytimeAdminPlayer = z.infer<typeof playtimeAdminPlayer>;
+
+/** An exemption from the player panel: the whole account, or one of their Minecraft accounts. */
+export const playtimePlayerExemptionBody = z.object({
+  minecraftUuid: z.uuid().optional(),
+  reason,
+  until: z.iso.datetime().nullable().optional(),
+});
+export type PlaytimePlayerExemptionBody = z.infer<typeof playtimePlayerExemptionBody>;
