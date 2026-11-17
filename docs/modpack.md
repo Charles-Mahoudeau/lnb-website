@@ -88,12 +88,35 @@ CurseForge needs `CURSEFORGE_API_KEY`; without it those lookups answer `sourceUn
 
 - Mods with an attention flag, or no pinned hash, are left out. Files of the library are served from this site's own `/api/files/<sha256>/<name>` (absolute address, from `BETTER_AUTH_URL`).
 - `hashes.sha512` is always there. `sha256` only when the site knows it (uploaded files and downloaded ones).
-- `assets` lists the library's wrapper and asset files. The game version, loader and loader version come from the Mods settings. The loader version is mandatory there: a version such as `21.1.267`, or `latest` (the default) to follow the loader's newest version for the game version (NeoForge's maven, Fabric's and Quilt's meta, Forge's promotions, cached for an hour). The settings show that newest version next to the field, and the manifest resolves `latest` to it, so the two agree. If the lookup fails, a `latest` manifest says an empty string.
+- `assets` lists the library's asset files (not the tools). The game version, loader and loader version come from the Mods settings. The loader version is mandatory there: a version such as `21.1.267`, or `latest` (the default) to follow the loader's newest version for the game version (NeoForge's maven, Fabric's and Quilt's meta, Forge's promotions, cached for an hour). The settings show that newest version next to the field, and the manifest resolves `latest` to it, so the two agree. If the lookup fails, a `latest` manifest says an empty string.
 - The `ETag` is a hash of the content, so it also changes when the settings or an asset change, not only when `revision` does. A launcher sends `If-None-Match` and gets a 304. `Cache-Control` is 60 seconds.
 - `revision` goes up with every change an admin makes to the mods. A launcher can compare it to know whether its pack is current.
 - Change the format only by adding fields. A break means a new `schema` number.
 
 The Modlist page shows the address with Copy and Open buttons.
+
+## The launcher's tools
+
+Two jars of the Files library are the launcher's own tools: `lnb-modsync-launcher` (file kind `wrapper`) and `lnb-modsync-updater` (kind `updater`). The launcher is what the Prism instance and the Pelican server start. It updates the updater, which updates the mods, the loader and the launcher when needed. A tool is not a mod: it isn't in `mods`, and the manifest lists it in `tools`, not `assets`.
+
+- `modpack_tool` (`server/db/schema/modpack.ts`): one row per tool (`launcher`, `updater`), pointing at the **current** file, with a version label, release notes, and who published it and when. Only one version is current, and there is no channel.
+- `GET /api/minecraft/admin/modpack/tools` lists the current files. `PUT .../tools/{tool}` (`{fileId, version, notes}`) publishes one: the file must be of the tool's kind (`notToolFile`), it raises the revision and is written to `warden_audit` (`modpack.tool`, with the old and new versions). **Rolling back is publishing the previous file again**, which is why old files stay in the library. A file that is current can't be deleted (`fileInUse`).
+- No signing for now: a launcher trusts the hashes the manifest gives it, over https. Whoever can publish a tool, or reach the VPS, can run code on every client, so only full Warden admins can.
+
+In the manifest:
+
+```json
+"tools": {
+  "launcher": { "version": "1.0.0", "fileName": "lnb-modsync-launcher.jar", "size": 91234, "hashes": { "sha256": "…", "sha512": "…" }, "url": "https://…/api/files/<sha256>/lnb-modsync-launcher.jar" },
+  "updater": { … }
+}
+```
+
+A tool nobody has published is missing. A client compares `hashes.sha256` with its own jar to know whether to update, so the version label is only for people.
+
+**First installs.** `GET /modpack/launcher.jar` and `GET /modpack/updater.jar` (outside `/api`, no sign-in, behind the `modpack` flag) answer a 302 to the current file, with no cache, for the Prism instance's pre-launch command and the Pelican egg's startup script. 404 while none is published. After the first install, everything updates through the manifest.
+
+**Updating each other.** A jar can't be replaced while it runs (Windows locks it), so each one replaces the other only while the other isn't running: the launcher replaces the updater before starting it, and the updater replaces the launcher and leaves it to be restarted. Download to a temporary file, check the SHA-256, then rename.
 
 ## Page
 
