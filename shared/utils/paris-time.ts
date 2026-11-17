@@ -50,3 +50,41 @@ export function isoToParisLocal(iso: string): string {
   const wall = new Date(instant + offsetAt(instant) * 60_000);
   return wall.toISOString().slice(0, 16);
 }
+
+// Calendar helpers for the playtime limits, which work on Paris dates ("2026-11-04") and minutes
+// since Paris midnight. All of them go through the same offset logic, so they stay right on the two
+// clock-change days.
+
+const DAY_MS = 86_400_000;
+
+/** The Paris calendar date of an instant, as "YYYY-MM-DD". */
+export function parisDate(instant: number): string {
+  return new Date(instant + offsetAt(instant) * 60_000).toISOString().slice(0, 10);
+}
+
+/** The instant at `minutes` after midnight, Paris time, on a Paris date. 1440 is the next midnight. */
+export function parisInstant(date: string, minutes: number): number {
+  const [y, m, d] = date.split('-').map(Number) as [number, number, number];
+  const wall = Date.UTC(y, m - 1, d) + minutes * 60_000;
+  let instant = wall - offsetAt(wall) * 60_000;
+  instant = wall - offsetAt(instant) * 60_000;
+  return instant;
+}
+
+/** A date plus or minus whole days. Calendar arithmetic, so a clock change doesn't matter. */
+export function addDays(date: string, days: number): string {
+  return new Date(Date.parse(`${date}T00:00:00Z`) + days * DAY_MS).toISOString().slice(0, 10);
+}
+
+export const WEEKDAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
+export type Weekday = (typeof WEEKDAYS)[number];
+
+/** The weekday of a date. */
+export function weekdayOf(date: string): Weekday {
+  return WEEKDAYS[(new Date(`${date}T00:00:00Z`).getUTCDay() + 6) % 7]!;
+}
+
+/** The Monday of the week containing a Paris date. */
+export function mondayOf(date: string): string {
+  return addDays(date, -WEEKDAYS.indexOf(weekdayOf(date)));
+}
