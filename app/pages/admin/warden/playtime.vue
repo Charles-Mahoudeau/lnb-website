@@ -6,7 +6,7 @@ const route = useRoute();
 const router = useRouter();
 
 // The tabs are in the hash, so a link can open one.
-const TABS = ['rules', 'closures'] as const;
+const TABS = ['rules', 'closures', 'live'] as const;
 type Tab = (typeof TABS)[number];
 const tab = computed<Tab>({
   get: () => TABS.find((id) => route.hash === `#${id}`) ?? 'rules',
@@ -25,7 +25,8 @@ const items = computed(() =>
     <div class="flex flex-col gap-6">
       <UTabs v-model="tab" :items="items" :content="false" class="max-w-4xl" />
       <AdminPlaytimeRules v-if="tab === 'rules'" />
-      <AdminPlaytimeClosures v-else />
+      <AdminPlaytimeClosures v-else-if="tab === 'closures'" />
+      <AdminPlaytimeLive v-else />
     </div>
   </AdminPage>
 </template>

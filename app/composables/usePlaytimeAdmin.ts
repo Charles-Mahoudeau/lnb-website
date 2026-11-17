@@ -1,6 +1,11 @@
 import type {
+  PlaytimeAdminPlayer,
   PlaytimeClosureBody,
   PlaytimeClosureRow,
+  PlaytimeGrantBody,
+  PlaytimeLive,
+  PlaytimePlayerExemptionBody,
+  PlaytimePlayerOverridesBody,
   PlaytimeSchoolBody,
   PlaytimeSettingsPatch,
   PlaytimeSettingsResponse,
@@ -38,6 +43,35 @@ export function usePlaytimeSettings() {
 
 export function usePlaytimeClosures() {
   return useFetch<PlaytimeClosureRow[]>(`${base}/closures`, { key: 'playtime-closures' });
+}
+
+export function usePlaytimeLive() {
+  return useFetch<PlaytimeLive>(`${base}/live`, { key: 'playtime-live' });
+}
+
+export function usePlaytimePlayer(userId: string) {
+  return useFetch<PlaytimeAdminPlayer>(`${base}/players/${encodeURIComponent(userId)}`, {
+    key: `playtime-player-${userId}`,
+  });
+}
+
+/** The writes of the player panel. Each answers with the refreshed panel. */
+export function playtimePlayerActions(userId: string) {
+  const url = `${base}/players/${encodeURIComponent(userId)}`;
+  return {
+    saveOverrides: (body: PlaytimePlayerOverridesBody) =>
+      call(() => $fetch<PlaytimeAdminPlayer>(`${url}/overrides`, { method: 'PUT', body })),
+    addExemption: (body: PlaytimePlayerExemptionBody) =>
+      call(() => $fetch<PlaytimeAdminPlayer>(`${url}/exemptions`, { method: 'POST', body })),
+    revokeExemption: (id: number) =>
+      call(() =>
+        $fetch<PlaytimeAdminPlayer>(`${url}/exemptions/${String(id)}`, { method: 'DELETE' }),
+      ),
+    addGrant: (body: PlaytimeGrantBody) =>
+      call(() => $fetch<PlaytimeAdminPlayer>(`${url}/grants`, { method: 'POST', body })),
+    revokeGrant: (id: number) =>
+      call(() => $fetch<PlaytimeAdminPlayer>(`${url}/grants/${String(id)}`, { method: 'DELETE' })),
+  };
 }
 
 export const playtimeAdminActions = {
