@@ -1580,6 +1580,10 @@
         "jobs_modpackLatest": {
           "label": "Vérifier les mises à jour de la Modlist",
           "description": "La recherche nocturne de fichiers plus récents pour les mods de la Modlist. Elle ne fait que les noter : rien ne change tant qu'un admin ne les adopte."
+        },
+        "jobs_playtimePrune": {
+          "label": "Nettoyage du temps de jeu",
+          "description": "La suppression nocturne des lignes du registre de temps de jeu de plus de 26 semaines et des avertissements des sessions terminées."
         }
       }
     },
