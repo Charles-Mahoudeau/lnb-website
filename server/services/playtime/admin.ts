@@ -1,0 +1,298 @@
+import { and, eq, isNull } from 'drizzle-orm';
+import { createError } from 'nuxt/server';
+
+import { db } from '~~/server/db';
+import {
+  minecraftAccount,
+  playtimeClosure,
+  playtimeExemption,
+  playtimeGrant,
+  playtimeSchool,
+  playtimeSettings,
+  wardenPlayer,
+} from '~~/server/db/schema';
+import { wardenAuditService } from '~~/server/services/warden/audit';
+import { wardenPlayerService } from '~~/server/services/warden/players';
+
+import { playtimeSettingsService } from './settings';
+
+import type {
+  PlaytimeClosureBody,
+  PlaytimeExemptionBody,
+  PlaytimeGrantBody,
+  PlaytimePlayerOverridesBody,
+  PlaytimeSchoolBody,
+  PlaytimeSettingsPatch,
+} from '#shared/schemas/playtime';
+import { mondayOf, parisDate, addDays } from '#shared/utils/paris-time';
+
+// What admins change: the rules, a school's, a player's, closures, exemptions and grants. Each
+// change is audited in the same transaction (docs/playtime.md). Who may do what is decided by the
+// routes: rules, closures and exemptions need a site admin or `warden-admin`, and grants also an
+// events manager.
+
+type Actor = { source: 'web'; userId: string };
+
+function problem(status: number, statusText: string): never {
+  throw createError({ status, statusText, data: { problem: statusText } });
+}
+
+/** Changes the global rules and the mode. A field left out is unchanged. */
+async function updateSettings(actor: Actor, patch: PlaytimeSettingsPatch) {
+  await db.transaction(async (tx) => {
+    const [before] = await tx.select().from(playtimeSettings).where(eq(playtimeSettings.id, 1));
+    await tx
+      .update(playtimeSettings)
+      .set({ ...patch, updatedAt: new Date(), updatedByUserId: actor.userId })
+      .where(eq(playtimeSettings.id, 1));
+    await wardenAuditService.record(tx, {
+      action: 'playtime.settings',
+      actor,
+      data: { scope: 'global', before: pick(before, patch), after: patch },
+    });
+  });
+  playtimeSettingsService.clearCache();
+}
+
+function pick(row: object | undefined, patch: object): Record<string, unknown> {
+  const source = (row ?? {}) as Record<string, unknown>;
+  return Object.fromEntries(Object.keys(patch).map((key) => [key, source[key]]));
+}
+
+/** Sets a school's overrides. A null field inherits the global value. */
+async function setSchool(actor: Actor, tenantId: string, body: PlaytimeSchoolBody) {
+  await db.transaction(async (tx) => {
+    const [before] = await tx
+      .select()
+      .from(playtimeSchool)
+      .where(eq(playtimeSchool.tenantId, tenantId));
+    await tx
+      .insert(playtimeSchool)
+      .values({ tenantId, ...body, updatedByUserId: actor.userId })
+      .onConflictDoUpdate({
+        target: playtimeSchool.tenantId,
+        set: { ...body, updatedAt: new Date(), updatedByUserId: actor.userId },
+      });
+    await wardenAuditService.record(tx, {
+      action: 'playtime.school',
+      actor,
+      data: { tenantId, before: before ?? null, after: body },
+    });
+  });
+  playtimeSettingsService.clearCache();
+}
+
+/** Removes a school's overrides, so it follows the global rules again. */
+async function clearSchool(actor: Actor, tenantId: string) {
+  await db.transaction(async (tx) => {
+    const [before] = await tx
+      .delete(playtimeSchool)
+      .where(eq(playtimeSchool.tenantId, tenantId))
+      .returning();
+    if (!before) return;
+    await wardenAuditService.record(tx, {
+      action: 'playtime.school',
+      actor,
+      data: { tenantId, before, after: null },
+    });
+  });
+  playtimeSettingsService.clearCache();
+}
+
+/** Sets one player's allowance, grace length and warning times. A null field inherits. */
+async function setPlayerOverrides(actor: Actor, userId: string, body: PlaytimePlayerOverridesBody) {
+  await db.transaction(async (tx) => {
+    await wardenPlayerService.ensure(tx, userId);
+    const [before] = await tx
+      .select({
+        allowanceSeconds: wardenPlayer.playtimeAllowanceSeconds,
+        graceSeconds: wardenPlayer.playtimeGraceSeconds,
+        warningsMinutes: wardenPlayer.playtimeWarningsMinutes,
+      })
+      .from(wardenPlayer)
+      .where(eq(wardenPlayer.userId, userId));
+    await tx
+      .update(wardenPlayer)
+      .set({
+        playtimeAllowanceSeconds: body.allowanceSeconds,
+        playtimeGraceSeconds: body.graceSeconds,
+        playtimeWarningsMinutes: body.warningsMinutes,
+      })
+      .where(eq(wardenPlayer.userId, userId));
+    await wardenAuditService.record(tx, {
+      action: 'playtime.settings',
+      actor,
+      targetUserId: userId,
+      data: { scope: 'player', before: before ?? null, after: body },
+    });
+  });
+}
+
+/** Adds a closure. Nothing counts on its days, for everyone or for the schools it names. */
+async function createClosure(actor: Actor, body: PlaytimeClosureBody) {
+  return db.transaction(async (tx) => {
+    const [closure] = await tx
+      .insert(playtimeClosure)
+      .values({ ...body, createdByUserId: actor.userId })
+      .returning();
+    await wardenAuditService.record(tx, {
+      action: 'playtime.closure',
+      actor,
+      data: { change: 'create', closure },
+    });
+    return closure!;
+  });
+}
+
+/** "Skip this week": a closure for this Monday to Sunday, for everyone. */
+async function skipWeek(actor: Actor, now = Date.now()) {
+  const monday = mondayOf(parisDate(now));
+  return createClosure(actor, {
+    label: 'Skipped week',
+    startsOn: monday,
+    endsOn: addDays(monday, 6),
+    tenantIds: null,
+  });
+}
+
+/** Changes a closure. A closure made for an event follows the event and can't be edited here. */
+async function updateClosure(actor: Actor, id: number, body: PlaytimeClosureBody) {
+  await db.transaction(async (tx) => {
+    const [before] = await tx.select().from(playtimeClosure).where(eq(playtimeClosure.id, id));
+    if (!before) problem(404, 'notFound');
+    if (before.eventId) problem(409, 'eventClosure');
+    await tx.update(playtimeClosure).set(body).where(eq(playtimeClosure.id, id));
+    await wardenAuditService.record(tx, {
+      action: 'playtime.closure',
+      actor,
+      data: { change: 'update', before, after: body },
+    });
+  });
+}
+
+async function deleteClosure(actor: Actor, id: number) {
+  await db.transaction(async (tx) => {
+    const [before] = await tx.select().from(playtimeClosure).where(eq(playtimeClosure.id, id));
+    if (!before) problem(404, 'notFound');
+    if (before.eventId) problem(409, 'eventClosure');
+    await tx.delete(playtimeClosure).where(eq(playtimeClosure.id, id));
+    await wardenAuditService.record(tx, {
+      action: 'playtime.closure',
+      actor,
+      data: { change: 'delete', closure: before },
+    });
+  });
+}
+
+/** Takes an LNB account, or one Minecraft account, out of the limit. */
+async function addExemption(actor: Actor, body: PlaytimeExemptionBody) {
+  return db.transaction(async (tx) => {
+    let targetUserId = body.userId ?? null;
+    if (body.minecraftUuid) {
+      const [account] = await tx
+        .select({ userId: minecraftAccount.userId })
+        .from(minecraftAccount)
+        .where(eq(minecraftAccount.uuid, body.minecraftUuid));
+      if (!account) problem(404, 'notFound');
+      targetUserId = account.userId;
+    }
+    const [exemption] = await tx
+      .insert(playtimeExemption)
+      .values({
+        userId: body.userId ?? null,
+        minecraftUuid: body.minecraftUuid ?? null,
+        reason: body.reason,
+        until: body.until ? new Date(body.until) : null,
+        setByUserId: actor.userId,
+      })
+      .returning();
+    await wardenAuditService.record(tx, {
+      action: 'playtime.exemption',
+      actor,
+      targetUserId,
+      targetMinecraftUuid: body.minecraftUuid ?? null,
+      data: { change: 'add', exemption },
+    });
+    return exemption!;
+  });
+}
+
+async function revokeExemption(actor: Actor, id: number) {
+  await db.transaction(async (tx) => {
+    const [exemption] = await tx
+      .update(playtimeExemption)
+      .set({ revokedAt: new Date() })
+      .where(and(eq(playtimeExemption.id, id), isNull(playtimeExemption.revokedAt)))
+      .returning();
+    if (!exemption) problem(404, 'notFound');
+    await wardenAuditService.record(tx, {
+      action: 'playtime.exemption',
+      actor,
+      targetUserId: exemption.userId,
+      targetMinecraftUuid: exemption.minecraftUuid,
+      data: { change: 'revoke', exemption },
+    });
+  });
+}
+
+/** Adds minutes to one player's allowance for a week. It ends with the week. */
+async function addGrant(actor: Actor, userId: string, body: PlaytimeGrantBody, now = Date.now()) {
+  const weekStart = mondayOf(body.weekStart ?? parisDate(now));
+  return db.transaction(async (tx) => {
+    const [grant] = await tx
+      .insert(playtimeGrant)
+      .values({
+        userId,
+        weekStart,
+        seconds: body.seconds,
+        reason: body.reason,
+        grantedByUserId: actor.userId,
+      })
+      .returning();
+    await wardenAuditService.record(tx, {
+      action: 'playtime.grant',
+      actor,
+      targetUserId: userId,
+      data: { change: 'add', grant },
+    });
+    return grant!;
+  });
+}
+
+async function revokeGrant(actor: Actor, userId: string, id: number) {
+  await db.transaction(async (tx) => {
+    const [grant] = await tx
+      .update(playtimeGrant)
+      .set({ revokedAt: new Date() })
+      .where(
+        and(
+          eq(playtimeGrant.id, id),
+          eq(playtimeGrant.userId, userId),
+          isNull(playtimeGrant.revokedAt),
+        ),
+      )
+      .returning();
+    if (!grant) problem(404, 'notFound');
+    await wardenAuditService.record(tx, {
+      action: 'playtime.grant',
+      actor,
+      targetUserId: userId,
+      data: { change: 'revoke', grant },
+    });
+  });
+}
+
+export const playtimeAdminService = {
+  updateSettings,
+  setSchool,
+  clearSchool,
+  setPlayerOverrides,
+  createClosure,
+  skipWeek,
+  updateClosure,
+  deleteClosure,
+  addExemption,
+  revokeExemption,
+  addGrant,
+  revokeGrant,
+};

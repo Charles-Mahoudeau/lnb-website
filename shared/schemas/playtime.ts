@@ -113,3 +113,74 @@ export const playtimeMe = z.object({
   accounts: z.array(playtimeAccountView),
 });
 export type PlaytimeMe = z.infer<typeof playtimeMe>;
+
+// What admins send. Routes parse these, and the services take the parsed values.
+
+const allowanceSeconds = z.number().int().min(0).max(PLAYTIME_MAX_ALLOWANCE_SECONDS);
+const graceSeconds = z.number().int().min(0).max(PLAYTIME_MAX_GRACE_SECONDS);
+const startWarnings = playtimeWarningMinutes;
+const reason = z.string().trim().min(1).max(300);
+const parisDay = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
+export const playtimeSettingsPatch = z.object({
+  mode: playtimeMode.optional(),
+  allowanceSeconds: allowanceSeconds.optional(),
+  schedule: playtimeSchedule.optional(),
+  graceSeconds: graceSeconds.optional(),
+  warningsMinutes: playtimeWarningMinutes.optional(),
+  startWarningsMinutes: startWarnings.optional(),
+});
+export type PlaytimeSettingsPatch = z.infer<typeof playtimeSettingsPatch>;
+
+/** A school's overrides: a null field inherits the global value. */
+export const playtimeSchoolBody = z.object({
+  allowanceSeconds: allowanceSeconds.nullable(),
+  schedule: playtimeSchedule.nullable(),
+  graceSeconds: graceSeconds.nullable(),
+  warningsMinutes: playtimeWarningMinutes.nullable(),
+  startWarningsMinutes: startWarnings.nullable(),
+});
+export type PlaytimeSchoolBody = z.infer<typeof playtimeSchoolBody>;
+
+/** A player's own overrides: the allowance, the grace length and the warning times only. */
+export const playtimePlayerOverridesBody = z.object({
+  allowanceSeconds: allowanceSeconds.nullable(),
+  graceSeconds: graceSeconds.nullable(),
+  warningsMinutes: playtimeWarningMinutes.nullable(),
+});
+export type PlaytimePlayerOverridesBody = z.infer<typeof playtimePlayerOverridesBody>;
+
+export const playtimeClosureBody = z
+  .object({
+    label: z.string().trim().min(1).max(120),
+    startsOn: parisDay,
+    endsOn: parisDay,
+    /** Tenant IDs of the schools it applies to. Null is every school. */
+    tenantIds: z.array(z.string().min(1)).min(1).nullable(),
+  })
+  .refine((closure) => closure.endsOn >= closure.startsOn, {
+    message: 'The end date is before the start date.',
+    path: ['endsOn'],
+  });
+export type PlaytimeClosureBody = z.infer<typeof playtimeClosureBody>;
+
+export const playtimeExemptionBody = z
+  .object({
+    /** An LNB account, or one Minecraft account, not both. */
+    userId: z.string().min(1).optional(),
+    minecraftUuid: z.uuid().optional(),
+    reason,
+    until: z.iso.datetime().nullable().optional(),
+  })
+  .refine((body) => (body.userId === undefined) !== (body.minecraftUuid === undefined), {
+    message: 'Give an LNB account or a Minecraft account, not both.',
+  });
+export type PlaytimeExemptionBody = z.infer<typeof playtimeExemptionBody>;
+
+export const playtimeGrantBody = z.object({
+  seconds: z.number().int().min(1).max(PLAYTIME_MAX_GRANT_SECONDS),
+  reason,
+  /** The Monday of the week it is for. This week when left out. */
+  weekStart: parisDay.optional(),
+});
+export type PlaytimeGrantBody = z.infer<typeof playtimeGrantBody>;
