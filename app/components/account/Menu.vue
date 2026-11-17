@@ -39,10 +39,10 @@ const items = computed<DropdownMenuItem[][]>(() => [
     ...(canUseWarden.value
       ? [
           {
-            label: t('warden.title'),
+            label: t('minecraftAccount.title'),
             description: t('account.menu.warden'),
             icon: 'i-lucide-pickaxe',
-            to: '/minecraft/warden',
+            to: '/minecraft/account',
           },
         ]
       : []),

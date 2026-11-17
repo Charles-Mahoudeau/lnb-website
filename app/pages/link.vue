@@ -82,7 +82,7 @@ function onLink(appId: string) {
   return run(async () => {
     const { redirectTo } = await linkCode.approve(code.value, redirect.value);
     if (appId === 'warden') {
-      // /minecraft/warden keeps its data cached under these keys: drop it so the new device shows.
+      // /minecraft/account keeps its data cached under these keys: drop it so the new device shows.
       clearNuxtData(['warden-me', 'warden-devices']);
       // The device is created when the mod next polls, a few seconds after this approval.
       useState<number | null>('warden-linked-at').value = Date.now();

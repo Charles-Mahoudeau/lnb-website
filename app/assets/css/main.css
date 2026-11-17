@@ -80,6 +80,12 @@
   background: linear-gradient(120deg, #0f1340, #1b2f78);
 }
 
+/* The grace period of the playtime limit: the allowance is used, the player finishes their game.
+   Teal, so it isn't read as a warning (amber) or a stop (red). Deep in light mode, soft in dark. */
+@theme inline {
+  --color-grace: var(--lnb-grace);
+}
+
 /* Partner logos sit on a light plate in both color modes, so one upload works everywhere. */
 @theme inline {
   --color-plate: var(--lnb-plate);
@@ -119,6 +125,7 @@
   --lnb-action-hover: var(--color-crimson-800);
   --ui-secondary: var(--ui-color-secondary-700);
   --lnb-plate: #fff;
+  --lnb-grace: #0f766e;
   --lnb-avatar-1: #ddd8f7;
   --lnb-avatar-ink-1: #4a3f9c;
   --lnb-avatar-2: #d3e3fb;
@@ -163,6 +170,7 @@
   --lnb-action-hover: var(--color-crimson-700);
   --ui-secondary: var(--ui-color-secondary-400);
   --lnb-plate: var(--color-night-100);
+  --lnb-grace: #2dd4bf;
   --lnb-avatar-1: #2f2a63;
   --lnb-avatar-ink-1: #cfc8ff;
   --lnb-avatar-2: #233a73;

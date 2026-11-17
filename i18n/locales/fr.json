@@ -18,7 +18,7 @@
     "minecraft": "Minecraft",
     "mods": "Mods",
     "modsDescription": "Votes et propositions pour les mods du serveur",
-    "wardenDescription": "Ton compte Minecraft lié et tes appareils",
+    "wardenDescription": "Ton temps, tes comptes, ta banque et tes appareils",
     "events": "Événements",
     "team": "L’équipe",
     "partners": "Partenaires",
@@ -260,7 +260,7 @@
     "theme": "Thème",
     "menu": {
       "account": "Profil, thème et langue",
-      "warden": "Tes comptes Minecraft",
+      "warden": "Ton compte Minecraft",
       "admin": "Gérer le site"
     },
     "myEvents": "Mes événements",
@@ -321,6 +321,107 @@
     "warden": {
       "identity": "Ton prénom et l’initiale de ton nom, affichés en jeu sous ton pseudo sauf si tu les masques",
       "deviceTitle": "Associer {device} à ton compte"
+    }
+  },
+  "minecraftAccount": {
+    "title": "Compte Minecraft",
+    "lede": "Ton temps de jeu, tes comptes et tes LNBits sur le serveur LNB.",
+    "exempt": "Exempté",
+    "playtime": {
+      "title": "Temps de jeu",
+      "played": "Joué cette semaine",
+      "total": "{time} au total sur tes comptes.",
+      "percentUsed": "{percent} % utilisé",
+      "resets": "Le quota repart {when}",
+      "graceEnds": "Le délai de grâce finit aujourd’hui à {time}",
+      "resumes": "Tu pourras rejouer {when}",
+      "hours": "Seul le temps passé pendant les heures restreintes compte :",
+      "dayRange": "{from} au {to}",
+      "timeRange": "{from} à {to}",
+      "observe": "La limite n’est pas encore appliquée. Rien ne t’empêche de jouer : ceci montre ce qui compterait.",
+      "bar": {
+        "counting": "Quota, décompté jusqu’à {until}",
+        "grace": "Quota utilisé, délai de grâce jusqu’à {until}",
+        "blocked": "Quota utilisé",
+        "free": "Quota, pas décompté en ce moment"
+      },
+      "states": {
+        "counting": {
+          "title": "Décompté maintenant",
+          "line": "Ce temps compte dans ta limite, jusqu’à {until}."
+        },
+        "low": {
+          "title": "Décompté maintenant",
+          "line": "Ce temps compte, et ton quota est presque épuisé. Jusqu’à {until}."
+        },
+        "grace": {
+          "title": "Délai de grâce",
+          "line": "Ton quota est épuisé, mais tu peux finir ta partie jusqu’à {until}. Ce temps ne compte pas."
+        },
+        "free": {
+          "title": "Temps libre",
+          "line": "Ce temps ne compte pas. Le décompte reprend {when}."
+        },
+        "freeNoWindow": {
+          "title": "Temps libre",
+          "line": "Ce temps ne compte pas."
+        },
+        "blocked": {
+          "title": "En pause",
+          "line": "Ton quota est épuisé. Tu pourras rejouer {when}."
+        },
+        "unlimited": {
+          "off": {
+            "title": "Pas de limite",
+            "line": "La limite de temps de jeu est désactivée."
+          },
+          "exempt": {
+            "title": "Pas de limite",
+            "line": "Ton compte n’a pas de limite de temps de jeu."
+          },
+          "closed": {
+            "title": "Pas de limite pour l’instant",
+            "line": "Rien ne compte en ce moment. La limite revient {until}."
+          },
+          "closedOpen": {
+            "title": "Pas de limite pour l’instant",
+            "line": "Rien ne compte en ce moment."
+          }
+        }
+      }
+    },
+    "bank": {
+      "rank": "n° {rank} au baltop",
+      "unit": "LNBits",
+      "shared": "Comptes partagés",
+      "open": "Ouvrir la banque"
+    },
+    "quests": {
+      "done": "quête terminée | quêtes terminées",
+      "earned": "{amount} LNBits gagnés",
+      "ready": "{count} à récupérer",
+      "open": "Voir toutes les quêtes"
+    },
+    "standing": {
+      "title": "Avertissements et bannissements",
+      "history": {
+        "badge": "Anciennes entrées",
+        "body": "Aucun bannissement en cours. {count} entrée dans ton historique. | Aucun bannissement en cours. {count} entrées dans ton historique."
+      },
+      "good": {
+        "badge": "Aucun souci",
+        "body": "Aucun bannissement ni avertissement. Si le staff t’avertit, ça s’affiche ici, et tu peux faire appel d’un bannissement."
+      },
+      "banned": {
+        "badge": "Banni",
+        "body": "Tu as un bannissement en cours. Le détail et ton appel sont en haut de cette page."
+      }
+    },
+    "history": {
+      "title": "Historique des avertissements et bannissements",
+      "lede": "Tous les bannissements et avertissements de ton compte, du plus récent au plus ancien.",
+      "back": "Retour à ton compte Minecraft",
+      "empty": "Rien ici : aucun bannissement ni avertissement."
     }
   },
   "warden": {

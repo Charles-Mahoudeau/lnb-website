@@ -8,6 +8,7 @@ import type { EventTeamsView, EventTeamView } from '#shared/schemas/event-teams'
 import type { EventAdminView, EventSummary, EventView } from '#shared/schemas/events';
 import type { ModView } from '#shared/schemas/mods';
 import type { PartnerPublicKind } from '#shared/schemas/partners';
+import type { PlaytimeMe } from '#shared/schemas/playtime';
 import { allColors } from '#shared/utils/posters';
 
 // A living reference for docs/design.md, built from the real themed components.
@@ -35,6 +36,68 @@ const colors = [
   { name: 'Text on banners', variable: '--color-on-banner', usage: 'text-on-banner' },
   { name: 'Success', variable: '--ui-success', usage: 'color="success"' },
   { name: 'Warning', variable: '--ui-warning', usage: 'color="warning"' },
+  { name: 'Grace period', variable: '--lnb-grace', usage: 'bg-grace, text-grace' },
+];
+
+// The playtime card in each state (the Minecraft account page).
+const playtimeBase: PlaytimeMe = {
+  mode: 'enforce',
+  state: 'counting',
+  reason: null,
+  weekStart: '2026-11-16',
+  playedSeconds: 9 * 3600 + 42 * 60,
+  totalPlayedSeconds: 50 * 3600,
+  allowanceSeconds: 10 * 3600,
+  usedSeconds: 4 * 3600 + 10 * 60,
+  remainingSeconds: 5 * 3600 + 50 * 60,
+  percentUsed: 42,
+  windowEndsAt: new Date(Date.now() + 3 * 3600_000).toISOString(),
+  nextWindowStartsAt: null,
+  graceEndsAt: null,
+  resumesAt: null,
+  resetsAt: '2026-11-22T23:00:00.000Z',
+  nextChangeAt: null,
+  hours: [{ days: ['mon', 'tue', 'wed', 'thu', 'fri'], ranges: [['09:00', '17:00']] }],
+  accounts: [],
+};
+const playtimeSamples: { label: string; me: PlaytimeMe }[] = [
+  { label: 'Counting', me: playtimeBase },
+  {
+    label: 'Almost out',
+    me: { ...playtimeBase, usedSeconds: 8.8 * 3600, remainingSeconds: 1.2 * 3600, percentUsed: 88 },
+  },
+  {
+    label: 'Grace period',
+    me: {
+      ...playtimeBase,
+      state: 'grace',
+      usedSeconds: 10 * 3600,
+      remainingSeconds: 0,
+      percentUsed: 100,
+      graceEndsAt: playtimeBase.windowEndsAt,
+    },
+  },
+  {
+    label: 'Paused',
+    me: {
+      ...playtimeBase,
+      state: 'blocked',
+      usedSeconds: 10 * 3600,
+      remainingSeconds: 0,
+      percentUsed: 100,
+      resumesAt: new Date(Date.now() + 20 * 3600_000).toISOString(),
+    },
+  },
+  {
+    label: 'Free time',
+    me: {
+      ...playtimeBase,
+      state: 'free',
+      windowEndsAt: null,
+      nextWindowStartsAt: new Date(Date.now() + 16 * 3600_000).toISOString(),
+    },
+  },
+  { label: 'No limit', me: { ...playtimeBase, state: 'unlimited', reason: 'exempt' } },
 ];
 
 // Posters with the edge cases that matter: a sticker, a long title with a footer, mixed colours.
@@ -1033,6 +1096,20 @@ const sampleGamesplanet = {
         <WardenMinecraftHead uuid="069a79f4-44e9-4726-a5be-fca90e38aaf5" size="lg" />
         <WardenNametag username="Renard_Lunaire" name="Charles M." />
         <WardenNametag username="Renard_Lunaire" />
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Playtime card</h2>
+      <p class="max-w-2xl text-muted">
+        The Minecraft account page's playtime card, in each state. Violet counts, amber warns, teal
+        is the grace period, green is free time, red is a pause and muted means no limit.
+      </p>
+      <div class="grid gap-4 md:grid-cols-2">
+        <div v-for="sample in playtimeSamples" :key="sample.label" class="flex flex-col gap-2">
+          <span class="text-sm text-muted">{{ sample.label }}</span>
+          <MinecraftAccountPlaytime :me="sample.me" />
+        </div>
       </div>
     </section>
 

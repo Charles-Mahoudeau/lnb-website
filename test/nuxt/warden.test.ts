@@ -1,7 +1,7 @@
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import WardenPage from '~/pages/minecraft/warden.vue';
+import WardenPage from '~/pages/minecraft/account/index.vue';
 
 import type { WardenDeviceView, WardenMe } from '#shared/schemas/warden';
 
@@ -40,7 +40,7 @@ registerEndpoint('/api/warden/me/devices', () => devices);
 const session = { user: { id: 'u1', name: 'Alex Laurent', tenantId: EPITECH }, session: {} };
 registerEndpoint('/api/auth/get-session', () => session);
 
-describe('/minecraft/warden', () => {
+describe('/minecraft/account', () => {
   beforeEach(() => {
     clearNuxtData('warden-me');
     clearNuxtData('warden-devices');

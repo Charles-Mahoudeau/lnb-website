@@ -807,7 +807,7 @@ const routes: RouteDoc[] = [
     path: '/api/warden/server/players/{uuid}/warnings',
     tag: TAGS.wardenServer,
     summary: 'Warn a player',
-    description: "The player sees it on `/minecraft/warden` and in the next login's `warnings`.",
+    description: "The player sees it on `/minecraft/account` and in the next login's `warnings`.",
     access: 'wardenServer',
     params: warden.wardenUuidParams,
     body: warden.wardenServerWarningBody,
@@ -1256,7 +1256,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.wardenPlayer,
     summary: 'My Warden page',
     description:
-      'Everything `/minecraft/warden` shows: the server address, the limit, linked accounts, the active ban and its appeal, the history of bans and warnings (without staff names), and the first page of sessions.',
+      'Everything `/minecraft/account` shows: the server address, the limit, linked accounts, the active ban and its appeal, the history of bans and warnings (without staff names), and the first page of sessions.',
     access: 'user',
     response: warden.wardenMe,
     problems: [{ status: 403, problems: ['schoolNotAllowed'] }],
@@ -5871,7 +5871,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
         description:
           'Called by the LNB Warden mod, on a player’s computer. The link requests need no token, the rest need the device’s.',
       },
-      { name: TAGS.wardenPlayer, description: 'The `/minecraft/warden` and `/link` pages.' },
+      { name: TAGS.wardenPlayer, description: 'The `/minecraft/account` and `/link` pages.' },
       {
         name: TAGS.playtime,
         description:

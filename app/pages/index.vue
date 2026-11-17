@@ -160,13 +160,13 @@ const showMinecraft = computed(() => showModList.value || canUseWarden.value);
             </NuxtLink>
             <NuxtLink
               v-if="canUseWarden"
-              to="/minecraft/warden"
+              to="/minecraft/account"
               class="group flex items-center gap-3"
             >
               <IconTile icon="i-lucide-pickaxe" />
               <span class="flex flex-col">
                 <span class="font-semibold text-highlighted group-hover:underline">
-                  {{ t('warden.title') }}
+                  {{ t('minecraftAccount.title') }}
                 </span>
                 <span class="text-sm text-muted">{{ t('nav.wardenDescription') }}</span>
               </span>

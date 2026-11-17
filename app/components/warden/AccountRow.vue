@@ -2,7 +2,7 @@
 import type { WardenAccountView } from '#shared/schemas/warden';
 
 // One linked Minecraft account: its head, type, state, playtime and past usernames.
-defineProps<{ account: WardenAccountView }>();
+defineProps<{ account: WardenAccountView; exempt?: boolean }>();
 const emit = defineEmits<{ unlink: [] }>();
 
 const { t, locale } = useI18n();
@@ -20,6 +20,12 @@ const { t, locale } = useI18n();
           variant="subtle"
           icon="i-lucide-gamepad-2"
           :label="t('warden.accounts.playing')"
+        />
+        <UBadge
+          v-if="exempt"
+          color="neutral"
+          variant="outline"
+          :label="t('minecraftAccount.exempt')"
         />
       </div>
       <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted">

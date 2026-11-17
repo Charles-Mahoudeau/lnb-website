@@ -29,7 +29,7 @@ export const LINK_APPS: Readonly<Record<string, LinkApp>> = {
   warden: {
     name: 'LNB Warden',
     schools: Object.keys(SCHOOLS), // Epitech, e-artsup and ISEG
-    redirectAfterLink: '/minecraft/warden',
+    redirectAfterLink: '/minecraft/account',
     issuedByServer: true,
   },
 };
