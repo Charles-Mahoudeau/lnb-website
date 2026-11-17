@@ -9,6 +9,9 @@ import type {
   ModpackPatchBody,
   ModpackPinBody,
   ModpackProblem,
+  ModpackTool,
+  ModpackToolBody,
+  ModpackToolList,
 } from '#shared/schemas/modpack';
 
 // The Modlist of the admin area. Writes throw a ModpackError with the API's problem.
@@ -32,11 +35,17 @@ async function call<T>(request: () => Promise<T>): Promise<T> {
 }
 
 const BASE = '/api/minecraft/admin/modpack/mods';
+const TOOLS = '/api/minecraft/admin/modpack/tools';
 const EXPORT = '/api/minecraft/admin/modpack/export';
 
 /** Every mod of the pack, with the manifest's revision. */
 export function useAdminModpack() {
   return useFetch<ModpackList>(BASE, { key: 'modpack-admin' });
+}
+
+/** The current jar of the launcher and of the updater. */
+export function useAdminModpackTools() {
+  return useFetch<ModpackToolList>(TOOLS, { key: 'modpack-tools-admin' });
 }
 
 /** What admins can do to the pack. Each throws a ModpackError when refused. */
@@ -54,4 +63,6 @@ export const modpackActions = {
   exportApply: (mode: ModpackExportMode, keys: string[]) =>
     call(() => $fetch<ModpackExportResult>(EXPORT, { method: 'POST', body: { mode, keys } })),
   remove: (id: string) => call(() => $fetch(`${BASE}/${id}`, { method: 'DELETE' })),
+  publishTool: (tool: ModpackTool, body: ModpackToolBody) =>
+    call(() => $fetch(`${TOOLS}/${tool}`, { method: 'PUT', body })),
 };

@@ -3440,7 +3440,8 @@
         "notAJar": "That file isn't a jar.",
         "fileNotFound": "That file isn't in the library.",
         "notModFile": "Only files added as a mod jar can be used.",
-        "notUploaded": "That file wasn't uploaded."
+        "notUploaded": "That file wasn't uploaded.",
+        "notToolFile": "That file isn't the right kind for this tool."
       },
       "check": "Check for updates",
       "checkDone": "Checked. No update found. | Checked. 1 update found. | Checked. {count} updates found.",
@@ -3491,6 +3492,36 @@
         "copy": "Copy",
         "copied": "Copied",
         "open": "Open"
+      },
+      "tools": {
+        "file": "File",
+        "published": "Published",
+        "publishedBy": "{date} by {name}",
+        "someone": "someone",
+        "notes": "Notes",
+        "none": "Nothing published yet. Clients can't install or update this tool until a jar is current.",
+        "publishFirst": "Publish a version",
+        "publishNew": "Publish a new version",
+        "launcher": {
+          "name": "lnb-modsync-launcher",
+          "blurb": "Starts the Prism instance and the Pelican server. Updates the updater."
+        },
+        "updater": {
+          "name": "lnb-modsync-updater",
+          "blurb": "Updates the mods, NeoForge and, when needed, the launcher."
+        },
+        "modalTitle": "Publish {name}",
+        "modalLede": "Pick a jar of the Files library. It becomes the current one. To roll back, pick an older jar.",
+        "pickLabel": "Jar",
+        "pickFile": "Pick a jar",
+        "noJars": "No jar of this kind in the Files library yet. Upload one there first.",
+        "openFiles": "Open the Files library",
+        "currentTag": "current",
+        "versionHelp": "Written by hand, such as 1.5.0. Only people read it: clients compare hashes.",
+        "notesLabel": "Release notes (optional)",
+        "warning": "Every launcher and the Pelican server download this jar the next time they start. Files aren't signed, so only publish a jar you built.",
+        "publish": "Publish",
+        "done": "{name} {version} is now current"
       }
     }
   },
