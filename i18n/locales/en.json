@@ -1374,6 +1374,10 @@
         "push_partnerEvents": {
           "label": "Partner event notifications",
           "description": "Announcing a partner event. Nothing is queued while this is off."
+        },
+        "jobs_pruneServerEvents": {
+          "label": "Minecraft server events cleanup",
+          "description": "The nightly removal of the live changes sent to the Minecraft server, after a day."
         }
       }
     },

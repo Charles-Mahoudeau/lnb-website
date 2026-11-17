@@ -17,6 +17,7 @@ import {
 } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 
+import { economyEvents } from './events';
 import { economyLedger } from './ledger';
 import { licenseCount } from './licenses';
 import { bannedUsers, decodeCursor, PAGE_SIZE, refuse } from './shared';
@@ -225,6 +226,7 @@ async function adjust(actorId: string, accountId: string, body: EconomyAdjustBod
       },
     });
   });
+  await economyEvents.accountsChanged({ accountIds: [accountId] });
   return detail(accountId);
 }
 
@@ -246,6 +248,7 @@ async function setType(actorId: string, accountId: string, type: EconomyAccountT
       data: { name: await auditName(tx, account), accountId, from: account.type, type },
     });
   });
+  await economyEvents.accountsChanged({ accountIds: [accountId] });
   return detail(accountId);
 }
 
@@ -275,6 +278,7 @@ async function grantLicense(actorId: string, accountId: string) {
       data: { name: await auditName(tx, account), accountId, licenseId: license?.id ?? null },
     });
   });
+  await economyEvents.accountsChanged({ accountIds: [accountId] });
   return detail(accountId);
 }
 
@@ -304,6 +308,7 @@ async function revokeLicense(actorId: string, accountId: string) {
       data: { name: await auditName(tx, account), accountId, licenseId: free.id },
     });
   });
+  await economyEvents.accountsChanged({ accountIds: [accountId] });
   return detail(accountId);
 }
 
@@ -335,6 +340,7 @@ async function freeze(actorId: string, accountId: string, body: EconomyFreezeBod
       data: { name: await auditName(tx, account), accountId, reason: body.reason ?? null },
     });
   });
+  await economyEvents.accountsChanged({ accountIds: [accountId] });
   return detail(accountId);
 }
 

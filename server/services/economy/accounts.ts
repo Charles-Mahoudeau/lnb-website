@@ -11,6 +11,7 @@ import {
 } from '~~/server/db/schema';
 
 import { economyBaltopService } from './baltop';
+import { economyEvents } from './events';
 import { economyLedger } from './ledger';
 import { bindLicense, licenseCount } from './licenses';
 import { canManage, canSpend } from './rules';
@@ -691,6 +692,67 @@ async function openAccounts(dbx: Db, ids: readonly string[]) {
     .where(and(inArray(economyAccount.id, [...ids]), isNull(economyAccount.closedAt)));
 }
 
+// The changes below also reach the Minecraft server at once (server/services/economy/events.ts).
+
+async function createAndTell(userId: string, body: EconomyCreateBody) {
+  const created = await create(userId, body);
+  await economyEvents.accountsChanged({ userIds: [userId] });
+  return created;
+}
+
+async function updateAndTell(userId: string, accountId: string, body: EconomyAccountPatchBody) {
+  await update(userId, accountId, body);
+  await economyEvents.accountsChanged({ accountIds: [accountId] });
+}
+
+async function closeAndTell(userId: string, accountId: string) {
+  const members = await economyEvents.membersOf([accountId]);
+  await close(userId, accountId);
+  await economyEvents.accountsChanged({ userIds: [userId, ...members] });
+}
+
+async function inviteAndTell(userId: string, accountId: string, body: EconomyInviteBody) {
+  const created = await invite(userId, accountId, body);
+  await economyEvents.invited(created.id);
+  await economyEvents.accountsChanged({ userIds: [created.userId] });
+  return created;
+}
+
+async function cancelInvitationAndTell(userId: string, accountId: string, invitationId: string) {
+  const [invitation] = await db
+    .select({ userId: economyInvitation.userId })
+    .from(economyInvitation)
+    .where(eq(economyInvitation.id, invitationId));
+  await cancelInvitation(userId, accountId, invitationId);
+  await economyEvents.accountsChanged({ userIds: invitation ? [invitation.userId] : [] });
+}
+
+async function answerInvitationAndTell(userId: string, invitationId: string, accept: boolean) {
+  const accountId = await answerInvitation(userId, invitationId, accept);
+  await economyEvents.accountsChanged({ userIds: [userId], accountIds: [accountId] });
+  return accountId;
+}
+
+async function setMemberRoleAndTell(
+  actorId: string,
+  accountId: string,
+  targetUserId: string,
+  role: EconomyRole,
+) {
+  await setMemberRole(actorId, accountId, targetUserId, role);
+  await economyEvents.accountsChanged({ userIds: [targetUserId] });
+}
+
+async function removeMemberAndTell(actorId: string, accountId: string, targetUserId: string) {
+  await removeMember(actorId, accountId, targetUserId);
+  await economyEvents.accountsChanged({ userIds: [targetUserId] });
+}
+
+async function updateMeAndTell(userId: string, body: EconomyMePatchBody) {
+  await updateMe(userId, body);
+  await economyEvents.accountsChanged({ userIds: [userId] });
+}
+
 export const economyAccountService = {
   inviteSearch,
   isEligible,
@@ -707,17 +769,17 @@ export const economyAccountService = {
   detail,
   transactions,
   balanceHistory,
-  create,
-  update,
-  close,
-  invite,
-  cancelInvitation,
+  create: createAndTell,
+  update: updateAndTell,
+  close: closeAndTell,
+  invite: inviteAndTell,
+  cancelInvitation: cancelInvitationAndTell,
   acceptInvitation: (userId: string, invitationId: string) =>
-    answerInvitation(userId, invitationId, true),
+    answerInvitationAndTell(userId, invitationId, true),
   declineInvitation: (userId: string, invitationId: string) =>
-    answerInvitation(userId, invitationId, false),
-  setMemberRole,
-  removeMember,
-  updateMe,
+    answerInvitationAndTell(userId, invitationId, false),
+  setMemberRole: setMemberRoleAndTell,
+  removeMember: removeMemberAndTell,
+  updateMe: updateMeAndTell,
   sweepOrphans,
 };
