@@ -55,3 +55,16 @@ export async function requireEconomyAdmin(event: RequestEvent): Promise<AuthSess
   }
   return user;
 }
+
+/**
+ * The signed-in person who may give extra playtime: a site admin, a Warden admin or an events
+ * manager. Throws a 401 when signed out, else a 403. Rules, closures and exemptions stay with
+ * `requireWardenAdmin`.
+ */
+export async function requirePlaytimeGranter(event: RequestEvent): Promise<AuthSession['user']> {
+  const user = await requireUser(event);
+  if (!isWardenAdmin(user.role) && !isEventsManager(user.role)) {
+    throw createError({ status: 403, statusText: 'Forbidden' });
+  }
+  return user;
+}

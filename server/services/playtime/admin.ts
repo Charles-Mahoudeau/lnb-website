@@ -111,6 +111,14 @@ async function updateSettings(actor: Actor, patch: PlaytimeSettingsPatch) {
   playtimeSettingsService.clearCache();
 }
 
+async function requireUser(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  userId: string,
+) {
+  const [found] = await tx.select({ id: user.id }).from(user).where(eq(user.id, userId));
+  if (!found) problem(404, 'notFound');
+}
+
 function pick(row: object | undefined, patch: object): Record<string, unknown> {
   const source = (row ?? {}) as Record<string, unknown>;
   return Object.fromEntries(Object.keys(patch).map((key) => [key, source[key]]));
@@ -159,6 +167,7 @@ async function clearSchool(actor: Actor, tenantId: string) {
 /** Sets one player's allowance, grace length and warning times. A null field inherits. */
 async function setPlayerOverrides(actor: Actor, userId: string, body: PlaytimePlayerOverridesBody) {
   await db.transaction(async (tx) => {
+    await requireUser(tx, userId);
     await wardenPlayerService.ensure(tx, userId);
     const [before] = await tx
       .select({
@@ -242,15 +251,19 @@ async function deleteClosure(actor: Actor, id: number) {
 }
 
 /** Takes an LNB account, or one Minecraft account, out of the limit. */
-async function addExemption(actor: Actor, body: PlaytimeExemptionBody) {
+async function addExemption(actor: Actor, body: PlaytimeExemptionBody, forUserId?: string) {
   return db.transaction(async (tx) => {
     let targetUserId = body.userId ?? null;
+    if (body.userId) await requireUser(tx, body.userId);
     if (body.minecraftUuid) {
       const [account] = await tx
         .select({ userId: minecraftAccount.userId })
         .from(minecraftAccount)
         .where(eq(minecraftAccount.uuid, body.minecraftUuid));
-      if (!account) problem(404, 'notFound');
+      // With `forUserId`, the account has to be that player's.
+      if (!account || (forUserId !== undefined && account.userId !== forUserId)) {
+        problem(404, 'notFound');
+      }
       targetUserId = account.userId;
     }
     const [exemption] = await tx
@@ -274,8 +287,25 @@ async function addExemption(actor: Actor, body: PlaytimeExemptionBody) {
   });
 }
 
-async function revokeExemption(actor: Actor, id: number) {
+async function revokeExemption(actor: Actor, id: number, forUserId?: string) {
   await db.transaction(async (tx) => {
+    if (forUserId !== undefined) {
+      const [owned] = await tx
+        .select({ userId: playtimeExemption.userId, uuid: playtimeExemption.minecraftUuid })
+        .from(playtimeExemption)
+        .leftJoin(minecraftAccount, eq(minecraftAccount.uuid, playtimeExemption.minecraftUuid))
+        .where(eq(playtimeExemption.id, id));
+      const owner = owned?.userId ?? null;
+      if (!owned) problem(404, 'notFound');
+      if (owner !== null && owner !== forUserId) problem(404, 'notFound');
+      if (owner === null) {
+        const [account] = await tx
+          .select({ userId: minecraftAccount.userId })
+          .from(minecraftAccount)
+          .where(eq(minecraftAccount.uuid, owned.uuid!));
+        if (account?.userId !== forUserId) problem(404, 'notFound');
+      }
+    }
     const [exemption] = await tx
       .update(playtimeExemption)
       .set({ revokedAt: new Date() })
@@ -296,6 +326,7 @@ async function revokeExemption(actor: Actor, id: number) {
 async function addGrant(actor: Actor, userId: string, body: PlaytimeGrantBody, now = Date.now()) {
   const weekStart = mondayOf(body.weekStart ?? parisDate(now));
   return db.transaction(async (tx) => {
+    await requireUser(tx, userId);
     const [grant] = await tx
       .insert(playtimeGrant)
       .values({
