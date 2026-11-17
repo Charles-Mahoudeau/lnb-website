@@ -59,7 +59,35 @@ const state = reactive({
   hidden: initial?.hidden ?? true,
   reminderOffsets: initial?.reminderOffsets ?? [...DEFAULT_REMINDER_OFFSETS],
   bdeSync: initial?.bdeSync ?? false,
+  playtimeFree: initial?.playtimeFree ?? null,
 });
+
+// The playtime limit lifted for this event: a switch, and who it frees.
+const playtimeFreeOn = computed({
+  get: () => state.playtimeFree !== null,
+  set: (on: boolean) => {
+    state.playtimeFree = on ? 'registered' : null;
+  },
+});
+// The radio group takes a string, and is only shown while the switch is on.
+const playtimeScope = computed({
+  get: () => state.playtimeFree ?? undefined,
+  set: (scope: string | undefined) => {
+    state.playtimeFree = scope === 'everyone' ? 'everyone' : 'registered';
+  },
+});
+const playtimeFreeItems = computed(() => [
+  {
+    value: 'registered',
+    label: t('admin.events.form.playtimeRegistered'),
+    description: t('admin.events.form.playtimeRegisteredHelp'),
+  },
+  {
+    value: 'everyone',
+    label: t('admin.events.form.playtimeEveryone'),
+    description: t('admin.events.form.playtimeEveryoneHelp'),
+  },
+]);
 
 function toggleReminder(minutes: number) {
   state.reminderOffsets = state.reminderOffsets.includes(minutes)
@@ -99,6 +127,7 @@ function body(): EventBody {
     hidden: state.hidden,
     reminderOffsets: state.reminderOffsets,
     bdeSync: state.bdeSync,
+    playtimeFree: state.playtimeFree,
     banner: state.banner && {
       key: state.banner.key,
       focusX: state.banner.focusX,
@@ -530,6 +559,18 @@ const preview = computed(() => ({
           :description="
             bde?.configured ? t('admin.events.form.bdeSyncHelp') : t('admin.events.form.bdeOff')
           "
+        />
+        <USwitch
+          v-if="isEnabled('playtime')"
+          v-model="playtimeFreeOn"
+          :label="t('admin.events.form.playtime')"
+          :description="t('admin.events.form.playtimeHelp')"
+        />
+        <URadioGroup
+          v-if="playtimeFreeOn"
+          v-model="playtimeScope"
+          :items="playtimeFreeItems"
+          :legend="t('admin.events.form.playtime')"
         />
         <EventsAdminBdeStatus
           v-if="event && (event.bdeSync || event.bdeStatus)"
