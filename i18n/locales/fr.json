@@ -1062,6 +1062,7 @@
         "auto": "Automatique",
         "mod": "Jar de mod",
         "wrapper": "Jar du wrapper",
+        "updater": "Jar du programme de mise à jour",
         "asset": "Ressource"
       },
       "queue": {
@@ -3620,6 +3621,7 @@
       "modpackPin": "{name} passé sur un fichier de la bibliothèque",
       "modpackRemove": "{name} retiré de la Modlist",
       "modpackAdopt": "Fichier plus récent adopté pour {name}",
+      "modpackTool": "Nouvelle version publiée pour {name}",
       "modpackExport": "Liste du vote exportée vers la Modlist"
     },
     "actors": {

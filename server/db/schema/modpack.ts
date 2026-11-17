@@ -12,6 +12,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 
+import { user } from './auth';
 import { storedFile } from './files';
 import { mod } from './mods';
 
@@ -85,3 +86,21 @@ export const modpackMod = pgTable(
       .where(sql`${table.sourceId} IS NOT NULL`),
   ],
 );
+
+/**
+ * The launcher's own tools, each pointing at the Files library jar that is current. Publishing
+ * another file raises the manifest's revision. A file in use can't be deleted from the library.
+ */
+export const modpackTool = pgTable('modpack_tool', {
+  // One of MODPACK_TOOLS (shared/schemas/modpack.ts).
+  tool: text('tool').primaryKey(),
+  fileId: uuid('file_id')
+    .notNull()
+    .references(() => storedFile.id, { onDelete: 'restrict' }),
+  version: text('version').notNull(),
+  notes: text('notes').default('').notNull(),
+  publishedAt: timestamp('published_at').defaultNow().notNull(),
+  publishedByUserId: text('published_by_user_id').references(() => user.id, {
+    onDelete: 'set null',
+  }),
+});

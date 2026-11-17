@@ -5,7 +5,8 @@ import { mod, modpackMod, modpackState } from '~~/server/db/schema';
 import { wardenAuditService } from '~~/server/services/warden/audit';
 import type { WardenActor } from '~~/server/services/warden/shared';
 
-import { bump, valuesFor } from './index';
+import { valuesFor } from './index';
+import { bump } from './revision';
 
 import type {
   ModpackExportItem,

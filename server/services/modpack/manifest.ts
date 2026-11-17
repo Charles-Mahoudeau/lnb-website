@@ -1,11 +1,12 @@
 import { createHash } from 'node:crypto';
 
-import { and, eq, inArray, isNull, isNotNull } from 'drizzle-orm';
+import { and, eq, isNull, isNotNull } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import { modpackMod, modpackState, storedFile } from '~~/server/db/schema';
 import { siteUrl } from '~~/server/lib/site';
 import { latestLoaderVersion } from '~~/server/services/modpack/loader-version';
+import { modpackToolService } from '~~/server/services/modpack/tools';
 import { modSettingsService } from '~~/server/services/mods/settings';
 
 import type { ModpackManifest, ModpackSide, ModpackSource } from '#shared/schemas/modpack';
@@ -27,8 +28,19 @@ async function build(): Promise<ModpackManifest> {
   const files = await db
     .select()
     .from(storedFile)
-    .where(inArray(storedFile.kind, ['wrapper', 'asset']))
+    .where(eq(storedFile.kind, 'asset'))
     .orderBy(storedFile.name);
+
+  const tools: ModpackManifest['tools'] = {};
+  for (const tool of (await modpackToolService.list()).items) {
+    tools[tool.tool] = {
+      version: tool.version,
+      fileName: tool.fileName,
+      size: tool.size,
+      hashes: { sha256: tool.sha256, sha512: tool.sha512 },
+      url: siteUrl(tool.url),
+    };
+  }
 
   const mods: ModpackManifest['mods'] = [];
   for (const row of rows) {
@@ -67,9 +79,10 @@ async function build(): Promise<ModpackManifest> {
         ? await latestLoaderVersion(settings.loader, settings.gameVersion)
         : settings.loaderVersion,
     mods,
+    tools,
     assets: files.map((file) => ({
       name: file.name,
-      kind: file.kind as 'wrapper' | 'asset',
+      kind: 'asset',
       size: file.size,
       hashes: { sha256: file.sha256, sha512: file.sha512 },
       url: siteUrl(libraryPath(file.sha256, file.name)),

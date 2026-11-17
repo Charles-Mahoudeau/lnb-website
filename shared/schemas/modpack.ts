@@ -22,6 +22,7 @@ export const MODPACK_PROBLEMS = [
   'notModFile',
   'notUploaded',
   'nothingToAdopt',
+  'notToolFile',
 ] as const;
 export type ModpackProblem = (typeof MODPACK_PROBLEMS)[number];
 
@@ -132,6 +133,44 @@ export type ModpackPatchBody = z.infer<typeof modpackPatchBody>;
 export const modpackPinBody = z.object({ fileId: z.uuid(), version });
 export type ModpackPinBody = z.infer<typeof modpackPinBody>;
 
+/** The launcher's own tools. Each is a jar of the Files library: `launcher` is a wrapper, `updater` an updater. */
+export const MODPACK_TOOLS = ['launcher', 'updater'] as const;
+export const modpackTool = z.enum(MODPACK_TOOLS);
+export type ModpackTool = z.infer<typeof modpackTool>;
+
+/** The Files library kind each tool's jar must have. */
+export const MODPACK_TOOL_KINDS = { launcher: 'wrapper', updater: 'updater' } as const;
+
+export const modpackToolParams = z.object({ tool: modpackTool });
+
+/** Body of PUT /api/minecraft/admin/modpack/tools/{tool}: make a library jar the current one. */
+export const modpackToolBody = z.object({
+  fileId: z.uuid(),
+  version,
+  notes: z.string().trim().max(500).default(''),
+});
+export type ModpackToolBody = z.infer<typeof modpackToolBody>;
+
+export const modpackToolView = z.object({
+  tool: modpackTool,
+  version: z.string(),
+  notes: z.string(),
+  fileId: z.uuid(),
+  fileName: z.string(),
+  size: z.number(),
+  sha256: z.string(),
+  sha512: z.string(),
+  url: z.string().describe('The public download link, a path on this site.'),
+  publishedAt: isoDate,
+  publishedBy: z.string().nullable().describe('The first name of who published it, or null.'),
+});
+export type ModpackToolView = z.infer<typeof modpackToolView>;
+
+export const modpackToolList = z.object({
+  items: z.array(modpackToolView).describe('The tools that have a current file.'),
+});
+export type ModpackToolList = z.infer<typeof modpackToolList>;
+
 export const modpackCreated = z.object({ id: z.uuid() });
 
 /** What a check for newer files found. */
@@ -194,6 +233,14 @@ const manifestHashes = z.object({
   sha512: z.string(),
 });
 
+const manifestTool = z.object({
+  version: z.string(),
+  fileName: z.string(),
+  size: z.number(),
+  hashes: manifestHashes,
+  url: z.url(),
+});
+
 /** The public manifest the launcher reads. Bump `schema` for a change older launchers can't read. */
 export const modpackManifest = z.object({
   schema: z.literal(1),
@@ -219,10 +266,18 @@ export const modpackManifest = z.object({
       projectUrl: z.string().nullable(),
     }),
   ),
+  tools: z
+    .object({
+      launcher: manifestTool.optional(),
+      updater: manifestTool.optional(),
+    })
+    .describe(
+      "The launcher's own jars, each the current one. A tool nobody has published is missing. The launcher updates the updater, and the updater updates the launcher, by comparing these hashes with its own.",
+    ),
   assets: z.array(
     z.object({
       name: z.string(),
-      kind: z.enum(['wrapper', 'asset']),
+      kind: z.literal('asset'),
       size: z.number(),
       hashes: manifestHashes,
       url: z.url(),

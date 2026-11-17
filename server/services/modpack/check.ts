@@ -8,8 +8,9 @@ import { wardenAuditService } from '~~/server/services/warden/audit';
 import type { WardenActor } from '~~/server/services/warden/shared';
 
 import { downloadAndHash, DownloadError } from './download';
-import { bump, statusOf } from './index';
+import { statusOf } from './index';
 import { resolveLatest, SourceUnavailableError } from './latest';
+import { bump } from './revision';
 
 import type { ModpackCheckResult, ModpackProblem, ModpackSource } from '#shared/schemas/modpack';
 

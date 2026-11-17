@@ -1,8 +1,7 @@
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
-import type { Tx } from '~~/server/db';
 import { isUniqueViolation } from '~~/server/db/errors';
 import { modpackMod, modpackState, storedFile } from '~~/server/db/schema';
 import { modCatalog, CatalogUnavailableError } from '~~/server/services/mods/catalog';
@@ -12,6 +11,7 @@ import type { WardenActor } from '~~/server/services/warden/shared';
 
 import { downloadAndHash, DownloadError } from './download';
 import { resolveLatest, SourceUnavailableError } from './latest';
+import { bump } from './revision';
 
 import type {
   ModpackAddBody,
@@ -104,14 +104,6 @@ function toView(row: Row): ModpackModView {
     latestCheckedAt: row.latestCheckedAt?.toISOString() ?? null,
     updatedAt: row.updatedAt.toISOString(),
   };
-}
-
-/** Raises the revision: what a launcher reads from the manifest has changed. */
-export async function bump(tx: Tx): Promise<void> {
-  await tx
-    .update(modpackState)
-    .set({ revision: sql`${modpackState.revision} + 1`, updatedAt: new Date() })
-    .where(eq(modpackState.id, 1));
 }
 
 async function list(): Promise<ModpackList> {

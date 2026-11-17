@@ -1941,6 +1941,32 @@ const routes: RouteDoc[] = [
   },
   {
     method: 'get',
+    path: '/api/minecraft/admin/modpack/tools',
+    tag: TAGS.modpackAdmin,
+    summary: "The launcher's tools",
+    description:
+      'The current jar of the launcher (`lnb-modsync-launcher`) and of the updater (`lnb-modsync-updater`). A tool nobody has published is missing.',
+    access: 'wardenAdmin',
+    response: modpack.modpackToolList,
+  },
+  {
+    method: 'put',
+    path: '/api/minecraft/admin/modpack/tools/{tool}',
+    tag: TAGS.modpackAdmin,
+    summary: 'Publish a tool',
+    description:
+      'Makes a Files library jar the current one of the tool, with its version label and release notes, and raises the manifest revision. The launcher takes a `wrapper` file and the updater an `updater` file. Publishing the previous file again is the rollback.',
+    access: 'wardenAdmin',
+    params: modpack.modpackToolParams,
+    body: modpack.modpackToolBody,
+    noContent: true,
+    problems: [
+      { status: 404, problems: ['fileNotFound'] },
+      { status: 409, problems: ['notToolFile'] },
+    ],
+  },
+  {
+    method: 'get',
     path: '/api/admin/files',
     tag: TAGS.filesAdmin,
     summary: 'The files of the library',
@@ -2000,7 +2026,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.files,
     summary: 'The modpack manifest',
     description:
-      "What the launcher reads: the game version, the loader and its version, each mod pinned to one file with its hashes and download addresses, and the wrapper and asset files of the library. Mods flagged as needing attention are left out. Public. The ETag changes when the content does, so a launcher can ask with If-None-Match and get a 304. The same document is also served at `/modpack/manifest.json`, a shorter address that won't move.",
+      "What the launcher reads: the game version, the loader and its version, each mod pinned to one file with its hashes and download addresses, the current launcher and updater jars, and the asset files of the library. Mods flagged as needing attention are left out. Public. The ETag changes when the content does, so a launcher can ask with If-None-Match and get a 304. The same document is also served at `/modpack/manifest.json`, a shorter address that won't move. The current jars of the tools are also at `/modpack/launcher.jar` and `/modpack/updater.jar` (outside `/api`): a 302 to the file with its hash in the address, for first installs; 404 while none is published.",
     access: 'public',
     response: modpack.modpackManifest,
     problems: [{ status: 503, problems: ['disabled'] }],
