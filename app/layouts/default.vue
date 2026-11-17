@@ -26,8 +26,18 @@ const canUseWarden = computed(
 );
 
 const navItems = computed<NavigationMenuItem[]>(() => {
-  // The mod list is public, so everyone gets it, unless its feature flag is off.
+  // The account comes first, then the mod list, which is public (unless its feature flag is off).
   const minecraft: NavigationMenuItem[] = [
+    ...(canUseWarden.value
+      ? [
+          {
+            label: t('nav.account'),
+            description: t('nav.wardenDescription'),
+            icon: 'i-lucide-pickaxe',
+            to: '/minecraft/account',
+          },
+        ]
+      : []),
     ...(isEnabled('modList')
       ? [
           {
@@ -35,16 +45,6 @@ const navItems = computed<NavigationMenuItem[]>(() => {
             description: t('nav.modsDescription'),
             icon: 'i-lucide-puzzle',
             to: '/minecraft/mod-list',
-          },
-        ]
-      : []),
-    ...(canUseWarden.value
-      ? [
-          {
-            label: t('minecraftAccount.title'),
-            description: t('nav.wardenDescription'),
-            icon: 'i-lucide-pickaxe',
-            to: '/minecraft/account',
           },
         ]
       : []),
