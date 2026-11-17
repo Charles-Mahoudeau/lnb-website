@@ -3698,7 +3698,8 @@
       "title": "Temps de jeu",
       "tabs": {
         "rules": "Règles",
-        "closures": "Fermetures"
+        "closures": "Fermetures",
+        "live": "En direct"
       },
       "loadFailed": "Les réglages du temps de jeu n’ont pas pu être chargés.",
       "flagOff": "Le drapeau « playtime » est désactivé",
@@ -3861,6 +3862,97 @@
         "addButton": "Ajouter la fermeture",
         "pickDates": "Choisissez d’abord les dates.",
         "added": "Fermeture ajoutée."
+      },
+      "live": {
+        "callout": {
+          "observe": "Rien de ceci n’est envoyé au serveur. Les joueurs « Temps écoulé » seraient expulsés en mode enforce.",
+          "off": "La limite est désactivée. Rien n’est compté : tous les états ci-dessous sont du temps libre."
+        },
+        "windowEnds": "La plage restreinte se termine à {time}.",
+        "nextWindow": "La prochaine plage restreinte commence {time}.",
+        "filters": "Filtrer les joueurs en ligne",
+        "tiles": {
+          "all": "En ligne",
+          "counting": "Décompté",
+          "grace": "En grâce",
+          "blocked": "Temps écoulé"
+        },
+        "empty": "Personne ne correspond pour le moment.",
+        "columns": {
+          "player": "Joueur",
+          "state": "État",
+          "week": "Cette semaine",
+          "left": "Restant",
+          "online": "En ligne"
+        },
+        "states": {
+          "counting": "Décompté",
+          "grace": "Grâce",
+          "free": "Temps libre",
+          "blocked": "Temps écoulé",
+          "exempt": "Exempté",
+          "off": "Sans limite",
+          "closed": "Fermé"
+        },
+        "graceUntil": "jusqu’à {time}",
+        "noLimit": "Sans limite",
+        "week": "Cette semaine",
+        "counted": "décompté sur le serveur",
+        "stats": {
+          "players": "Joueurs ayant joué",
+          "reachedLimit": "Limite atteinte",
+          "usedGrace": "Grâce utilisée",
+          "exempt": "Exemptés en ligne"
+        }
+      },
+      "player": {
+        "title": "Temps de jeu",
+        "reason": "Raison (le joueur ne la voit jamais)",
+        "revoke": "Révoquer",
+        "mode": {
+          "observe": "Mode observe : rien n’est encore appliqué.",
+          "off": "La limite est désactivée."
+        },
+        "figures": {
+          "counted": "Décompté cette semaine",
+          "allowance": "Quota",
+          "total": "Joué au total",
+          "accounts": "Comptes"
+        },
+        "weeks": {
+          "title": "8 dernières semaines",
+          "closed": "fermé",
+          "legend": "Heures décomptées par semaine. La ligne en pointillés est le quota."
+        },
+        "overrides": {
+          "title": "Dérogations",
+          "lede": "Laissez un champ vide pour suivre l’école ({school}), puis les valeurs par défaut.",
+          "inherits": "Sinon {value}",
+          "invalid": "Saisissez un nombre valide.",
+          "saved": "Dérogations enregistrées."
+        },
+        "grants": {
+          "title": "Temps supplémentaire",
+          "lede": "Ajouté au quota de cette semaine et supprimé à la remise à zéro du lundi. 5 heures au plus chacun.",
+          "add": "Donner du temps",
+          "added": "Temps supplémentaire donné.",
+          "revokeTitle": "Révoquer ce temps supplémentaire ?",
+          "revokeBody": "Le joueur le perd immédiatement.",
+          "revoked": "Temps supplémentaire révoqué."
+        },
+        "exemptions": {
+          "title": "Exemptions",
+          "lede": "Un compte exempté n’a pas de limite. Le joueur ne voit jamais la raison ni qui l’a décidée.",
+          "wholeAccount": "Tout le compte LNB",
+          "oneAccount": "Compte Minecraft {username}",
+          "until": "Se termine le (facultatif)",
+          "endsOn": "jusqu’au {date}",
+          "add": "Exempter",
+          "added": "Exemption ajoutée.",
+          "revokeTitle": "Révoquer cette exemption ?",
+          "revokeBody": "La limite s’applique de nouveau immédiatement.",
+          "revoked": "Exemption révoquée."
+        }
       }
     }
   },

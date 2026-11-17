@@ -3694,7 +3694,8 @@
       "title": "Playtime",
       "tabs": {
         "rules": "Rules",
-        "closures": "Closures"
+        "closures": "Closures",
+        "live": "Live"
       },
       "loadFailed": "The playtime settings could not be loaded.",
       "flagOff": "The playtime flag is off",
@@ -3857,6 +3858,97 @@
         "addButton": "Add closure",
         "pickDates": "Pick the dates first.",
         "added": "Closure added."
+      },
+      "live": {
+        "callout": {
+          "observe": "Nothing below is sent to the server. Players marked Out of time would be kicked in enforce.",
+          "off": "The limit is off. Nothing is counted, so every state below is free time."
+        },
+        "windowEnds": "The restricted window ends at {time}.",
+        "nextWindow": "The next restricted window starts {time}.",
+        "filters": "Filter the players online",
+        "tiles": {
+          "all": "Online now",
+          "counting": "Counting",
+          "grace": "In grace",
+          "blocked": "Out of time"
+        },
+        "empty": "Nobody matches right now.",
+        "columns": {
+          "player": "Player",
+          "state": "State",
+          "week": "This week",
+          "left": "Left",
+          "online": "Online"
+        },
+        "states": {
+          "counting": "Counting",
+          "grace": "Grace",
+          "free": "Free time",
+          "blocked": "Out of time",
+          "exempt": "Exempt",
+          "off": "No limit",
+          "closed": "Closed"
+        },
+        "graceUntil": "until {time}",
+        "noLimit": "No limit",
+        "week": "This week",
+        "counted": "counted on the server",
+        "stats": {
+          "players": "Players who played",
+          "reachedLimit": "Reached the limit",
+          "usedGrace": "Used grace",
+          "exempt": "Exempt, online now"
+        }
+      },
+      "player": {
+        "title": "Playtime",
+        "reason": "Reason (the player never sees it)",
+        "revoke": "Revoke",
+        "mode": {
+          "observe": "Observe mode: nothing is enforced yet.",
+          "off": "The limit is off."
+        },
+        "figures": {
+          "counted": "Counted this week",
+          "allowance": "Allowance",
+          "total": "Played in total",
+          "accounts": "Accounts"
+        },
+        "weeks": {
+          "title": "Last 8 weeks",
+          "closed": "closed",
+          "legend": "Counted hours per week. The dashed line is the allowance."
+        },
+        "overrides": {
+          "title": "Overrides",
+          "lede": "Leave a field empty to follow the school ({school}), then the defaults.",
+          "inherits": "Otherwise {value}",
+          "invalid": "Enter a valid number.",
+          "saved": "Overrides saved."
+        },
+        "grants": {
+          "title": "Extra time",
+          "lede": "Added to this week’s allowance and gone at the Monday reset. Up to 5 hours each.",
+          "add": "Give time",
+          "added": "Extra time given.",
+          "revokeTitle": "Revoke this extra time?",
+          "revokeBody": "The player loses it right away.",
+          "revoked": "Extra time revoked."
+        },
+        "exemptions": {
+          "title": "Exemptions",
+          "lede": "An exempt account has no limit. The player never sees the reason or who set it.",
+          "wholeAccount": "Whole LNB account",
+          "oneAccount": "Minecraft account {username}",
+          "until": "Ends on (optional)",
+          "endsOn": "until {date}",
+          "add": "Exempt",
+          "added": "Exemption added.",
+          "revokeTitle": "Revoke this exemption?",
+          "revokeBody": "The limit applies again right away.",
+          "revoked": "Exemption revoked."
+        }
       }
     }
   },
