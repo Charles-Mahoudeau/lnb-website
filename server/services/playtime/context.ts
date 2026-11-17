@@ -9,6 +9,7 @@ import {
   wardenPlayer,
 } from '~~/server/db/schema';
 
+import { closureAppliesTo } from './closure-scope';
 import { resolveConfig } from './rules';
 import type { ClosureRange, PlaytimeConfig, PlaytimeOverrides } from './rules';
 import { playtimeSettingsService } from './settings';
@@ -36,8 +37,8 @@ export interface PlayerContext {
 /**
  * Loads a player's effective rules: settings resolved for their school and overrides, the closures
  * that apply to them around `now` (a month each way covers any week and a session), exemptions and
- * grants. Event closures for "registered players" apply once the events slice decides who is
- * registered; until then only closures for everyone and the manual ones do.
+ * grants. An event closure applies to everyone or to the players holding a place (see
+ * `closureAppliesTo`).
  */
 async function load(dbx: Db, userId: string, now: number): Promise<PlayerContext | null> {
   const [row] = await dbx
@@ -68,11 +69,7 @@ async function load(dbx: Db, userId: string, now: number): Promise<PlayerContext
       and(
         lte(playtimeClosure.startsOn, addDays(today, 40)),
         gte(playtimeClosure.endsOn, addDays(today, -40)),
-        or(
-          isNull(playtimeClosure.tenantIds),
-          sql`${row.tenantId} = ANY(${playtimeClosure.tenantIds})`,
-        ),
-        or(isNull(playtimeClosure.eventId), eq(playtimeClosure.eventScope, 'everyone')),
+        closureAppliesTo(row.tenantId, userId),
       ),
     );
 

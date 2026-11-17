@@ -12,6 +12,10 @@ export const PLAYTIME_MODES = ['off', 'observe', 'enforce'] as const;
 export type PlaytimeMode = (typeof PLAYTIME_MODES)[number];
 export const playtimeMode = z.enum(PLAYTIME_MODES);
 
+/** Who an event frees from the playtime limit during its days: players with a place, or everyone. */
+export const playtimeEventScope = z.enum(['registered', 'everyone']);
+export type PlaytimeEventScope = z.infer<typeof playtimeEventScope>;
+
 /** `unlimited` is an exempt player, a closure or the mode `off`. */
 export const PLAYTIME_STATES = ['unlimited', 'free', 'counting', 'grace', 'blocked'] as const;
 export type PlaytimeState = (typeof PLAYTIME_STATES)[number];

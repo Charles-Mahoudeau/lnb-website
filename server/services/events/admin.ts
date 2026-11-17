@@ -11,6 +11,7 @@ import {
 } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 import { gamesplanetDealsService } from '~~/server/services/gamesplanet-deals';
+import { playtimeEventService } from '~~/server/services/playtime/events';
 import { posterService } from '~~/server/services/posters';
 
 import { bdeSyncService } from './bde';
@@ -58,7 +59,11 @@ function adminRow(row: SelectedEvent): EventAdminRow {
   };
 }
 
-function adminView(row: SelectedEvent, gamesplanet: EventAdminView['gamesplanet']): EventAdminView {
+function adminView(
+  row: SelectedEvent,
+  gamesplanet: EventAdminView['gamesplanet'],
+  playtimeFree: EventAdminView['playtimeFree'],
+): EventAdminView {
   const e = row.event;
   return {
     ...adminRow(row),
@@ -82,6 +87,7 @@ function adminView(row: SelectedEvent, gamesplanet: EventAdminView['gamesplanet'
     gamesplanetUid: e.gamesplanetUid,
     gamesplanet,
     reminderOffsets: e.reminderOffsets,
+    playtimeFree,
     announcedAt: e.announcedAt?.toISOString() ?? null,
     bde: {
       attempts: e.bdeAttempts,
@@ -118,7 +124,7 @@ async function get(id: string): Promise<EventAdminView> {
   const game = row.event.gamesplanetUid
     ? await gamesplanetDealsService.dealByUid(row.event.gamesplanetUid)
     : null;
-  return adminView(row, game);
+  return adminView(row, game, await playtimeEventService.scopeOf(db, id));
 }
 
 /** The room and type an event points to must exist. Archived ones are refused on new choices. */
@@ -204,12 +210,18 @@ async function create(input: { actorId: string; body: EventBody }): Promise<{ id
     const [row] = await tx
       .insert(event)
       .values({ ...columns(input.body), ...images, createdByUserId: input.actorId })
-      .returning({ id: event.id, name: event.name });
+      .returning({
+        id: event.id,
+        name: event.name,
+        startsAt: event.startsAt,
+        endsAt: event.endsAt,
+      });
+    await playtimeEventService.sync(tx, row!, input.body.playtimeFree ?? null);
     await adminAuditService.record(tx, {
       action: 'event.create',
       actorUserId: input.actorId,
       targetUserId: null,
-      data: { eventId: row!.id, name: row!.name },
+      data: { eventId: row!.id, name: row!.name, playtimeFree: input.body.playtimeFree ?? null },
     });
     await bdeSyncService.markPending(tx, row!.id);
     return { id: row!.id };
@@ -251,11 +263,21 @@ async function update(input: { actorId: string; id: string; body: EventBody }): 
     await eventRegistrationService.promoteAfterChange(tx, input.id);
     // New team sizes or places: teams become valid or incomplete, and the waitlist moves.
     await eventTeamService.settle(tx, await lockEvent(tx, input.id));
+    // The playtime closure follows the event: its name, its days, and whether it is on.
+    await playtimeEventService.sync(
+      tx,
+      { id: input.id, name: cols.name, startsAt: cols.startsAt, endsAt: cols.endsAt },
+      input.body.playtimeFree ?? null,
+    );
     await adminAuditService.record(tx, {
       action: 'event.update',
       actorUserId: input.actorId,
       targetUserId: null,
-      data: { eventId: input.id, name: input.body.name },
+      data: {
+        eventId: input.id,
+        name: input.body.name,
+        playtimeFree: input.body.playtimeFree ?? null,
+      },
     });
     await bdeSyncService.markPending(tx, input.id);
   });
@@ -281,6 +303,8 @@ async function cancel(input: { actorId: string; id: string }): Promise<void> {
       data: { eventId: row.id, name: row.name },
     });
     await eventPushService.onCancelled(tx, row.id);
+    // Nobody is freed from the limit for an event that doesn't happen.
+    await playtimeEventService.clear(tx, row.id);
     // A cancelled event comes down from the BDE website.
     await bdeSyncService.markPending(tx, row.id);
   });
@@ -354,6 +378,12 @@ async function duplicate(input: {
         createdByUserId: input.actorId,
       })
       .returning({ id: event.id });
+    // The copy keeps the playtime setting, moved to its new days.
+    await playtimeEventService.sync(
+      tx,
+      { id: row!.id, name: source.name, startsAt, endsAt: new Date(input.body.endsAt) },
+      await playtimeEventService.scopeOf(tx, source.id),
+    );
     await adminAuditService.record(tx, {
       action: 'event.create',
       actorUserId: input.actorId,

@@ -14,6 +14,7 @@ import {
 } from '~~/server/db/schema';
 import { SESSION_TIMEOUT_MS } from '~~/server/services/warden/rules';
 
+import { closureAppliesTo } from './closure-scope';
 import { playtimeContextService } from './context';
 import { playtimeLedgerService } from './ledger';
 import { evaluate, resolveConfig, weekStart } from './rules';
@@ -215,11 +216,7 @@ async function player(userId: string, now = Date.now()): Promise<PlaytimeAdminPl
       and(
         lte(playtimeClosure.startsOn, addDays(current, 6)),
         gte(playtimeClosure.endsOn, mondays[0]!),
-        or(
-          isNull(playtimeClosure.tenantIds),
-          sql`${row.tenantId} = ANY(${playtimeClosure.tenantIds})`,
-        ),
-        or(isNull(playtimeClosure.eventId), eq(playtimeClosure.eventScope, 'everyone')),
+        closureAppliesTo(row.tenantId, userId),
       ),
     );
   const baseAllowance = row.allowanceSeconds ?? inherited.allowanceSeconds;
