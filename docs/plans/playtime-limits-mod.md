@@ -8,7 +8,7 @@ Contract for the mod developers. **The site side is built and matches this docum
 
 - Each LNB account has a weekly allowance (for example 10 hours). Time only counts while it is played **inside the restricted windows** (for example Monday to Friday, 9:00 to 17:00, Europe/Paris). Time outside the windows is shown, but not counted.
 - The week starts Monday 00:00 (Europe/Paris) and the allowance resets then.
-- The site can switch the limit off for a whole account, for one Minecraft account of it, for a school, for a day or for a whole week (holidays, "skip this week"), and admins can grant extra time. All of this is worked out on the site. The mod sees only the result below.
+- The site can switch the limit off for a whole account, for one Minecraft account of it, for a school, for a day or for a whole week (holidays, "skip this week"), and for the days of an event, and admins can grant extra time. All of this is worked out on the site. The mod sees only the result below.
 - When the allowance runs out inside a window, the player is kicked at once. They can't join again until the window ends or the week resets. Outside the windows they can always play.
 - **Grace period.** When the allowance runs out in the last hour before the window ends (or before the weekly reset), the player isn't kicked: they enter a grace period and can keep playing until the window ends. The time played in grace isn't counted against anything. It's shown on the site. Joining during the last hour with no allowance left is allowed the same way. The length (1 hour by default) is set in the admin.
 
