@@ -685,6 +685,7 @@
       "players": "Players",
       "appeals": "Appeals",
       "activity": "Activity",
+      "playtime": "Playtime",
       "settings": "Settings",
       "users": "Users",
       "overview": "Overview",
@@ -3687,6 +3688,175 @@
         "warning": "Every launcher and the Pelican server download this jar the next time they start. Files aren't signed, so only publish a jar you built.",
         "publish": "Publish",
         "done": "{name} {version} is now current"
+      }
+    },
+    "playtime": {
+      "title": "Playtime",
+      "tabs": {
+        "rules": "Rules",
+        "closures": "Closures"
+      },
+      "loadFailed": "The playtime settings could not be loaded.",
+      "flagOff": "The playtime flag is off",
+      "flagOffBody": "Nothing is counted, shown or enforced, whatever the mode below. Switch the flag on from Feature flags.",
+      "save": "Save",
+      "saved": "Saved. It applies from now on.",
+      "forwardOnly": "Applies from the moment it is saved. Time already counted is never recounted.",
+      "none": "None",
+      "off": "Off",
+      "hours": "{n} h",
+      "minutes": "{n} min",
+      "errors": {
+        "failed": "That did not work. Try again.",
+        "notFound": "That closure no longer exists.",
+        "eventClosure": "This closure follows its event. Change it from the event."
+      },
+      "days": {
+        "mon": "Monday",
+        "tue": "Tuesday",
+        "wed": "Wednesday",
+        "thu": "Thursday",
+        "fri": "Friday",
+        "sat": "Saturday",
+        "sun": "Sunday"
+      },
+      "daysShort": {
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat",
+        "sun": "Sun"
+      },
+      "mode": {
+        "title": "Mode",
+        "lede": "The playtime feature flag still switches everything off at once, whatever the mode.",
+        "done": "Mode set to {mode}.",
+        "enforceTitle": "Switch to enforce?",
+        "enforceBody": "Players over their limit will be warned, kicked and refused at login. Do this only once the Minecraft mod handles the playtime events.",
+        "enforceConfirm": "Switch to enforce",
+        "off": {
+          "label": "Off",
+          "description": "Nothing is counted, shown or enforced.",
+          "hint": "Use it to stop everything at once."
+        },
+        "observe": {
+          "label": "Observe",
+          "description": "Time is counted and players see it. Nobody is denied, kicked or warned in game.",
+          "hint": "Watch the live numbers for a week before enforcing."
+        },
+        "enforce": {
+          "label": "Enforce",
+          "description": "Players are warned, then kicked at zero and refused at login.",
+          "hint": "Needs the mod to handle the playtime events."
+        }
+      },
+      "defaults": {
+        "title": "Defaults for everyone",
+        "lede": "Schools and single players can override each of these on its own.",
+        "allowance": "Allowance a week",
+        "allowanceHint": "hours, resets Monday 00:00 (Paris)",
+        "grace": "Grace period",
+        "graceHint": "minutes at the end of a window, 0 switches it off",
+        "warnings": "Warnings",
+        "warningsHint": "Minutes left, separated by commas. Each is sent once per session.",
+        "startWarnings": "Before a window opens",
+        "startWarningsHint": "For a player with nothing left. Minutes before the window, separated by commas.",
+        "minutesInvalid": "Use whole numbers from 1 to 600, at most 10."
+      },
+      "schedule": {
+        "title": "Restricted hours",
+        "lede": "Europe/Paris time. Only time inside these ranges counts toward the allowance. A range cannot cross midnight: end a day at 24:00 and start the next at 00:00.",
+        "start": "Start from",
+        "presets": {
+          "workdays": "Weekdays 9–17",
+          "every": "Every day 9–17",
+          "clear": "Clear"
+        },
+        "total": "{hours} of restricted hours a week",
+        "selectDay": "Select {day}",
+        "rangeLabel": "{day}, {from} to {to}",
+        "free": "free",
+        "addRangeOn": "Add a range on {day}",
+        "from": "From",
+        "to": "To",
+        "pickRange": "Select a range to edit its exact times.",
+        "emptyDay": "No restricted hours, nothing counts.",
+        "addRange": "Add a range",
+        "copyTo": "Copy this day to",
+        "copyWorkdays": "Weekdays",
+        "copyAll": "All days",
+        "removeRange": "Delete range",
+        "hint": "Select a day or a range to edit it, or draw a range on a line.",
+        "help": "Drag on an empty line to draw a range, drag a range to move it, drag its edges to resize. Arrow keys move a focused range, Shift and arrows resize it, Delete removes it.",
+        "schoolsKeep": "{schools} has its own schedule and keeps it when you change this one. | {schools} have their own schedules and keep them when you change this one.",
+        "save": "Save schedule"
+      },
+      "schools": {
+        "title": "Schools",
+        "lede": "An override replaces the default for that school, setting by setting.",
+        "school": "School",
+        "allowance": "Allowance",
+        "grace": "Grace",
+        "schedule": "Schedule",
+        "default": "Default",
+        "own": "Own schedule",
+        "edit": "Edit",
+        "editAria": "Edit {name}"
+      },
+      "school": {
+        "title": "{name}: overrides",
+        "lede": "Switch a setting on to give this school its own value. Anything left off follows the defaults.",
+        "allowance": "Allowance a week (hours)",
+        "grace": "Grace period (minutes)",
+        "warnings": "Warnings",
+        "startWarnings": "Before a window opens",
+        "schedule": "Own restricted hours",
+        "scheduleHint": "Replaces the default schedule as a whole.",
+        "inherits": "Follows the default: {value}",
+        "clear": "Follow the defaults again"
+      },
+      "closures": {
+        "title": "Closures",
+        "lede": "During a closure nothing counts and players see that there is no limit. Closures made for an event follow the event and are changed from there.",
+        "skip": "Skip this week",
+        "weekSkipped": "This week is skipped",
+        "skipped": "This week is skipped.",
+        "empty": "No closures yet.",
+        "by": "(by {name})",
+        "event": {
+          "registered": "Event: {name}, registered players",
+          "everyone": "Event: {name}, everyone"
+        },
+        "status": {
+          "past": "Past",
+          "active": "Active now",
+          "upcoming": "Upcoming"
+        },
+        "openEvent": "Open event",
+        "delete": "Delete",
+        "deleteAria": "Delete {label}",
+        "deleteTitle": "Delete {label}?",
+        "deleteBody": "Time on those days counts again from now on. Time already played stays as it was.",
+        "deleted": "Closure deleted.",
+        "add": "Add a closure",
+        "addLede": "Drag across days on the calendar to choose the dates. Shaded days are already closed.",
+        "earlier": "Earlier months",
+        "later": "Later months",
+        "thisMonth": "This month",
+        "keyAll": "Everyone",
+        "keySchools": "Some schools",
+        "label": "Label",
+        "labelPlaceholder": "Spring break",
+        "from": "From",
+        "to": "To (included)",
+        "who": "Who is not limited",
+        "everyone": "Everyone",
+        "someSchools": "Some schools",
+        "addButton": "Add closure",
+        "pickDates": "Pick the dates first.",
+        "added": "Closure added."
       }
     }
   },
