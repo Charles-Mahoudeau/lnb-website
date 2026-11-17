@@ -383,6 +383,7 @@ function sampleAdmin(overrides: Partial<EventAdminView>): EventAdminView {
     gamesplanetUid: null,
     gamesplanet: null,
     reminderOffsets: [60],
+    playtimeFree: null,
     announcedAt: null,
     bde: {
       attempts: 0,

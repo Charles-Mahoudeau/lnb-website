@@ -1780,6 +1780,12 @@
         "bdeSync": "Publish on the BDE website too",
         "bdeSyncHelp": "Its S’inscrire button sends students here. A draft stays hidden there, and a cancelled event comes down.",
         "bdeOff": "Not set up: the site needs the token the BDE office gives (BDE_API_TOKEN).",
+        "playtime": "Lift the playtime limit",
+        "playtimeHelp": "Nobody it covers is limited, kicked or warned on the days of the event, from the start day to the end day.",
+        "playtimeRegistered": "Registered players",
+        "playtimeRegisteredHelp": "Only people with a place. The waitlist stays limited.",
+        "playtimeEveryone": "Everyone",
+        "playtimeEveryoneHelp": "Every player on the Minecraft server, registered or not.",
         "reminders": "Reminders",
         "remindersHelp": "Sent to registered people only, before the start. Pick as many as you need, or none.",
         "reminderOffsets": {

@@ -1784,6 +1784,12 @@
         "bdeSync": "Publier aussi sur le site du BDE",
         "bdeSyncHelp": "Son bouton S’inscrire renvoie ici. Un brouillon y reste masqué, et un événement annulé en est retiré.",
         "bdeOff": "Pas configuré : il faut le jeton que donne le bureau du BDE (BDE_API_TOKEN).",
+        "playtime": "Lever la limite de temps de jeu",
+        "playtimeHelp": "Personne n’est limité, expulsé ni prévenu pendant les jours de l’événement, du jour de début au jour de fin.",
+        "playtimeRegistered": "Joueurs inscrits",
+        "playtimeRegisteredHelp": "Seulement les personnes qui ont une place. La liste d’attente reste limitée.",
+        "playtimeEveryone": "Tout le monde",
+        "playtimeEveryoneHelp": "Tous les joueurs du serveur Minecraft, inscrits ou non.",
         "reminders": "Rappels",
         "remindersHelp": "Envoyés uniquement aux personnes inscrites, avant le début. Choisissez-en autant que nécessaire, ou aucun.",
         "reminderOffsets": {
