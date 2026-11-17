@@ -8,6 +8,10 @@ vi.mock('~~/server/lib/site', () => ({
   siteUrl: (path: string) => new URL(path, 'https://lnb.example').toString(),
 }));
 
+vi.mock('~~/server/services/modpack/loader-version', () => ({
+  latestLoaderVersion: () => Promise.resolve('21.1.200'),
+}));
+
 beforeEach(async () => {
   await db.delete(modpackMod);
   await db.delete(storedFile);
@@ -61,7 +65,7 @@ describe('manifest', () => {
       schema: 1,
       gameVersion: '1.21.1',
       loader: 'neoforge',
-      loaderVersion: '',
+      loaderVersion: '21.1.200',
     });
     expect(manifest.mods.map((m) => m.name)).toEqual(['Ours', 'Sodium']);
     expect(manifest.mods[0]).toMatchObject({
