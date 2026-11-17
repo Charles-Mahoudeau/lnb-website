@@ -33,7 +33,8 @@ Three custom palettes, wired into Nuxt UI as `neutral: 'night'`, `primary: 'crim
   - the big date numbers in event lists (`text-secondary`, the month stays muted);
   - icons in small tinted tiles: activities, menu items, admin overview items, team poles (the `IconTile` component, `bg-secondary/15 text-secondary`);
   - the scattered activity icons on an event hero or the sign-in banner without banner art (see Imagery);
-  - the current page in navigation menus (header and admin sidebar) and the selected tab (Nuxt UI's `secondary` color, set globally in `app.config.ts`).
+  - the current page in navigation menus (header and admin sidebar) and the selected tab (Nuxt UI's `secondary` color, set globally in `app.config.ts`);
+  - the counting state of the playtime band on the Minecraft account page, and its allowance bar (see Minecraft account).
 
   Nowhere else: no violet buttons, links, headings, large surfaces or decoration. Status colors and your own vote on a mod stay as they are.
 
@@ -176,6 +177,19 @@ Original mock (not code to port): [quests mocks](https://claude.ai/artifact/CJ8W
 - **Community band** (`QuestsCommunityBand`): the running community quest on `bg-banner-fallback` with the corner mark (the objective's icon), dark in both color modes like the event hero. Pills for the label and the time left, the title, one line, a light plate button (never red), then the progress on a neutral meter with a tick per tier and the tier's reward under it. On the home page it sits in the container right under the hero.
 - **Quests page**: the player's season as a raised band of figures, then pill tabs. Personal quests are categories on a raised list (the chosen one in the second accent) beside chains of tiers: claimed (neutral outline badge), ready (success badge and the solid "Claim", the one red button of the tier), in progress (second-accent badge and a neutral meter) or locked (dimmed, a lock icon). Server quests are rows with up to three podium slots (skin head, username, amount) and dashed free slots showing today's amount. The leaderboard copies the baltop.
 - Amounts follow the economy rule: text, never color.
+
+## Minecraft account
+
+Original mock (not code to port): [Minecraft account mocks](https://claude.ai/artifact/Emp7XZbq4adjKHCqu7BQEs), layout A, "Playtime on top". One page for everything a player has on the server: playtime, linked accounts, bank and quests, then devices, warnings and sessions. It holds the weekly playtime limit (see `docs/plans/playtime-limits-mod.md`), so playtime has no page of its own. There is no solid red button: nothing here is the main action, and every link out is a neutral soft button.
+
+- **Order**: header, Playtime (full width), Bank and Quests side by side, Linked accounts, then Devices and Warnings and bans (two per row at most, one on phones), then Recent sessions full width. A section hidden by a flag or by a role drops out and the rest closes up.
+- **Playtime** leads with what the player did, not with what is left: "Played this week" in the display font, all time included, even outside the restricted hours, then one friendly line and the all-time total. It is a positivity-first card: no counted/free breakdown, never a ranking.
+- **State band** (first thing in the card): a tinted band (16 × 20 px padding, 32 px round icon, the state in semibold and one line) that says what the time played right now does. States: counting (violet, a clock), counting with 25% or less left (warning, a clock), free time (success, a check), grace period (teal, a heart), paused (error, a pause) and no limit (muted, an infinity sign). Never a small badge: it was too easy to miss.
+- **Allowance bar**: one bar only, in percent ("42% used"), with a label that says whether it is running: "Allowance, counting until 17:00", "Allowance, not counting until Thursday 9:00", "Allowance used, grace until 17:00", "Allowance used, free play from 17:00". The fill is violet while counting, warning at 25% or less left, error when used up, and muted (with a muted percentage) in free time, when the allowance is waiting. A grace period adds a short hatched teal strip at the end of the bar, with no caption. When the allowance is used up, a line under the bar says when play resumes and, on the right, when the allowance resets ("Allowance resets Monday 23 Nov, 00:00"). With no limit that week there is no bar.
+- **Grace** is teal (`--g-teal`: dark `#2DD4BF`, light `#0F766E`), used for the grace state only: the band, the strip and nothing else. It needs a semantic color (`grace`) in `app/assets/css/main.css` when it is built, like the other state colors.
+- The restricted hours sentence ("Only time inside the restricted hours counts: Monday to Friday, 9:00 to 17:00 (Paris). The rest is free.") stays at the bottom of the card, in muted text.
+- **Bank** and **Quests** are larger summary cards, each with one button to its full page. Bank: the balance large with the LNBits unit, the baltop rank as a neutral pill, the gain over 14 days in muted text, the shared accounts as rows, no graph. Quests: the current tier large, its progress as text ("62% done · next payout 1,500 LNBits") and the next three goals as rows with their progress as text. Quests never show progress bars here.
+- **Linked accounts** are rows with a 40 px skin head, the username, last seen and playtime, an "Exempt" outline badge on an account the limit doesn't apply to, and a ghost Unlink button.
 
 ## Partner event page
 
