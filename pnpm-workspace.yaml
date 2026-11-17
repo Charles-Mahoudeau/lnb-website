@@ -34,6 +34,10 @@ auditConfig:
     - GHSA-gcqx-w48m-w2h4
     # braces (no fix yet), via globby: build time, with our own patterns only.
     - GHSA-vfj7-8cjw-p6xm
+    # picomatch (no fix yet), via anymatch, micromatch and tinyglobby (unstorage, fast-glob): glob
+    # patterns from our own config and dependencies, never from a request. Temporary: drop it once
+    # a fixed picomatch ships.
+    - GHSA-fc5q-39xc-vjpf
     # simple-git 3, via @nuxt/devtools: local dev only. Overriding to simple-git 4 breaks devtools.
     - GHSA-v5rq-49vh-5v5c
     - GHSA-x6jw-m9v5-85vh
