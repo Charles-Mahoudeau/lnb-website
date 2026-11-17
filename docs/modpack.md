@@ -105,6 +105,7 @@ Two jars of the Files library are the launcher's own tools: `lnb-modsync-launche
 
 - `modpack_tool` (`server/db/schema/modpack.ts`): one row per tool (`launcher`, `updater`), pointing at the **current** file, with a version label, release notes, and who published it and when. Only one version is current, and there is no channel.
 - `GET /api/minecraft/admin/modpack/tools` lists the current files. `PUT .../tools/{tool}` (`{fileId, version, notes}`) publishes one: the file must be of the tool's kind (`notToolFile`), it raises the revision and is written to `warden_audit` (`modpack.tool`, with the old and new versions). **Rolling back is publishing the previous file again**, which is why old files stay in the library. A file that is current can't be deleted (`fileInUse`).
+- **The page**: two cards between the four numbers and the manifest address, one per tool (proposition A of [the Tools mocks](https://claude.ai/artifact/E3PL3roBewr5ovcbBzQh43)): version, file, short SHA-256, who published it and when, and the notes. "Publish a new version" opens a modal (`AdminModlistToolPublish`) with the library's jars of the tool's kind, a typed version and notes. A rollback is the same modal with an older jar. There is no release history on the page, only the library.
 - No signing for now: a launcher trusts the hashes the manifest gives it, over https. Whoever can publish a tool, or reach the VPS, can run code on every client, so only full Warden admins can.
 
 In the manifest (`tools` comes before `mods` and `assets`, so a launcher reads its own update first):

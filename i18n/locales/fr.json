@@ -3444,7 +3444,8 @@
         "notAJar": "Ce fichier n'est pas un jar.",
         "fileNotFound": "Ce fichier n'est pas dans la bibliothèque.",
         "notModFile": "Seuls les fichiers ajoutés comme jar de mod peuvent servir.",
-        "notUploaded": "Ce fichier n'a pas été importé."
+        "notUploaded": "Ce fichier n'a pas été importé.",
+        "notToolFile": "Ce fichier n'est pas du bon type pour cet outil."
       },
       "check": "Chercher des mises à jour",
       "checkDone": "Vérifié. Aucune mise à jour. | Vérifié. 1 mise à jour trouvée. | Vérifié. {count} mises à jour trouvées.",
@@ -3495,6 +3496,36 @@
         "copy": "Copier",
         "copied": "Copié",
         "open": "Ouvrir"
+      },
+      "tools": {
+        "file": "Fichier",
+        "published": "Publié",
+        "publishedBy": "{date} par {name}",
+        "someone": "quelqu'un",
+        "notes": "Notes",
+        "none": "Rien n'est publié. Les clients ne peuvent ni installer ni mettre à jour cet outil tant qu'aucun jar n'est actif.",
+        "publishFirst": "Publier une version",
+        "publishNew": "Publier une nouvelle version",
+        "launcher": {
+          "name": "lnb-modsync-launcher",
+          "blurb": "Lance l'instance Prism et le serveur Pelican. Met à jour l'updater."
+        },
+        "updater": {
+          "name": "lnb-modsync-updater",
+          "blurb": "Met à jour les mods, NeoForge et, si besoin, le launcher."
+        },
+        "modalTitle": "Publier {name}",
+        "modalLede": "Choisissez un jar de la bibliothèque de fichiers. Il devient le jar actif. Pour revenir en arrière, choisissez un jar plus ancien.",
+        "pickLabel": "Jar",
+        "pickFile": "Choisir un jar",
+        "noJars": "Aucun jar de ce type dans la bibliothèque de fichiers. Importez-en un d'abord.",
+        "openFiles": "Ouvrir la bibliothèque de fichiers",
+        "currentTag": "actif",
+        "versionHelp": "Écrite à la main, comme 1.5.0. Seules les personnes la lisent : les clients comparent les empreintes.",
+        "notesLabel": "Notes de version (facultatif)",
+        "warning": "Chaque launcher et le serveur Pelican téléchargent ce jar à leur prochain démarrage. Les fichiers ne sont pas signés : ne publiez qu'un jar que vous avez compilé.",
+        "publish": "Publier",
+        "done": "{name} {version} est maintenant actif"
       }
     }
   },

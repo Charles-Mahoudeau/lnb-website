@@ -17,6 +17,11 @@ defineExpose({
   checking,
 });
 const { data, error, refresh } = await useAdminModpack();
+const { data: tools, refresh: refreshTools } = await useAdminModpackTools();
+// Publishing a tool raises the revision, so both are read again.
+async function onToolChanged() {
+  await Promise.all([refresh(), refreshTools()]);
+}
 
 const overlay = useOverlay();
 const detail = overlay.create(AdminModlistDetail);
@@ -173,6 +178,7 @@ async function onOpen(mod: ModpackModView) {
       </div>
     </dl>
 
+    <AdminModlistTools :tools="tools?.items ?? []" @changed="onToolChanged" />
     <div
       v-if="isEnabled('modpack')"
       class="flex flex-wrap items-center gap-3 rounded-lg bg-elevated p-4"
