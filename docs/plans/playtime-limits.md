@@ -159,7 +159,7 @@ Frontend design starts with a mock offering several propositions, so ask the use
 
 The events admin gets the switch and its scope. The event service keeps its closure in step when the event is created, moved, cancelled or deleted. Tournament registrations decide "registered players".
 
-### Slice 6: maintenance
+### Slice 6: maintenance (built)
 
 A nightly job `playtime:prune` (flag `jobs.playtimePrune`) removes ledger rows older than 26 weeks and notices of closed sessions. Check that account deletion removes the ledger, grants and exemptions. Add the economy-style retention sentence to `docs/playtime.md`.
 
