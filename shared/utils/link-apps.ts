@@ -1,3 +1,5 @@
+import { SCHOOLS } from './schools.ts';
+
 export interface LinkApp {
   name: string;
   /** Tenant IDs of the schools whose students can link this app. Every school when left out. */
@@ -26,7 +28,7 @@ export const LINK_APPS: Readonly<Record<string, LinkApp>> = {
   // The LNB Warden Minecraft mod: its devices link with a code. See docs/warden.md.
   warden: {
     name: 'LNB Warden',
-    schools: ['901cb4ca-b862-4029-9306-e5cd0f6d9f86'], // Epitech
+    schools: Object.keys(SCHOOLS), // Epitech, e-artsup and ISEG
     redirectAfterLink: '/minecraft/warden',
     issuedByServer: true,
   },
