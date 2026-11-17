@@ -14,6 +14,7 @@ import {
   anticheatProject,
   anticheatUsage,
   mod,
+  user,
   wardenAudit,
 } from '~~/server/db/schema';
 import { anticheatAdminService } from '~~/server/services/anticheat/admin';
@@ -514,20 +515,28 @@ describe('bulk actions on the players of a file', () => {
 
 describe('players', () => {
   it('lists the lowest scores first and filters by band', async () => {
+    // Other tests share the database and leave players behind, more than a page of them, so the
+    // checks only look at this test's two players, found by a name nobody else has.
+    const tag = `Roster ${crypto.randomUUID()}`;
     const low = (await session()).userId;
     const high = (await session()).userId;
+    await db
+      .update(user)
+      .set({ name: `${tag} low` })
+      .where(eq(user.id, low));
+    await db
+      .update(user)
+      .set({ name: `${tag} high` })
+      .where(eq(user.id, high));
     await anticheatTrustService.adjust({ actor, userId: low, score: 5, reason: 'seen cheating' });
     await anticheatTrustService.adjust({ actor, userId: high, score: 90, reason: 'vouched for' });
-    const page = await anticheatRosterService.players({});
-    const ids = page.items.map((row) => row.player.userId);
-    expect(ids.indexOf(low)).toBeLessThan(ids.indexOf(high));
-    expect(page.items.find((row) => row.player.userId === low)).toMatchObject({ band: 'held' });
 
-    const trusted = await anticheatRosterService.players({ band: 'trusted' });
-    expect(trusted.items.map((row) => row.player.userId)).toContain(high);
-    expect(trusted.items.map((row) => row.player.userId)).not.toContain(low);
-    const found = await anticheatRosterService.players({ q: 'Anticheat Tester' });
-    expect(found.items.length).toBeGreaterThan(0);
+    const page = await anticheatRosterService.players({ q: tag });
+    expect(page.items.map((row) => row.player.userId)).toEqual([low, high]);
+    expect(page.items[0]).toMatchObject({ band: 'held' });
+
+    const trusted = await anticheatRosterService.players({ q: tag, band: 'trusted' });
+    expect(trusted.items.map((row) => row.player.userId)).toEqual([high]);
   });
 
   it('shows one player with the timeline, hold and usage, fewest other users first', async () => {
