@@ -322,6 +322,14 @@ export const eventBody = z
   });
 export type EventBody = z.input<typeof eventBody>;
 
+/** PUT /api/admin/events/:id?silent=true: save without notifying anyone. */
+export const eventSaveQuery = z.object({
+  silent: z
+    .enum(['true', 'false'])
+    .optional()
+    .transform((value) => value === 'true'),
+});
+
 /** POST /api/admin/events/:id/duplicate: the copy's dates. The registration window follows. */
 export const eventDuplicateBody = z
   .object({ startsAt: dateInput, endsAt: dateInput })

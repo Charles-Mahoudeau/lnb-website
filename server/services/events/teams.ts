@@ -49,7 +49,12 @@ export interface SettleResult {
  * run it after any change to teams, registrations or the event's limits. Nothing happens for an
  * event without teams or a cancelled one.
  */
-async function settle(tx: Tx, row: EventRow, now = new Date()): Promise<SettleResult> {
+async function settle(
+  tx: Tx,
+  row: EventRow,
+  now = new Date(),
+  silent = false,
+): Promise<SettleResult> {
   const result: SettleResult = { promoted: [], validated: [] };
   if (!row.teamMode || row.cancelledAt || row.teamMin === null || row.teamMax === null) {
     return result;
@@ -139,7 +144,7 @@ async function settle(tx: Tx, row: EventRow, now = new Date()): Promise<SettleRe
         .where(eq(eventTeam.id, t.team.id));
     }
   }
-  await notifyPlaces(tx, row.id, result, teams, byTeam, now);
+  if (!silent) await notifyPlaces(tx, row.id, result, teams, byTeam, now);
   return result;
 }
 

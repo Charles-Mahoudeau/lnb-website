@@ -1667,6 +1667,7 @@
       "create": "Create the event",
       "created": "Event created, as a draft",
       "save": "Save",
+      "saveSilently": "Save without notifying",
       "saved": "Event saved",
       "duplicate": "Duplicate",
       "duplicated": "Copy created, as a draft",

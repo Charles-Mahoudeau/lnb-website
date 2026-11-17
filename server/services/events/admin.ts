@@ -237,7 +237,14 @@ async function lockEvent(tx: Tx, id: string): Promise<EventRow> {
 }
 
 /** Replaces the whole event. A cancelled event can't be edited. */
-async function update(input: { actorId: string; id: string; body: EventBody }): Promise<void> {
+async function update(input: {
+  actorId: string;
+  id: string;
+  body: EventBody;
+  /** Save without telling anyone: no move, waitlist or team notification is queued. */
+  silent?: boolean;
+}): Promise<void> {
+  const silent = input.silent ?? false;
   const images = await imageColumns(input.body);
   await db.transaction(async (tx) => {
     const current = await lockEvent(tx, input.id);
@@ -258,11 +265,11 @@ async function update(input: { actorId: string; id: string; body: EventBody }): 
       .set({ ...cols, ...images })
       .where(eq(event.id, input.id));
     // A new start time tells everyone on the event, and the old reminders are dropped.
-    await eventPushService.onRescheduled(tx, current, cols.startsAt);
+    await eventPushService.onRescheduled(tx, current, cols.startsAt, silent);
     // More places, or no limit any more: the waitlist moves up at once.
-    await eventRegistrationService.promoteAfterChange(tx, input.id);
+    await eventRegistrationService.promoteAfterChange(tx, input.id, silent);
     // New team sizes or places: teams become valid or incomplete, and the waitlist moves.
-    await eventTeamService.settle(tx, await lockEvent(tx, input.id));
+    await eventTeamService.settle(tx, await lockEvent(tx, input.id), new Date(), silent);
     // The playtime closure follows the event: its name, its days, and whether it is on.
     await playtimeEventService.sync(
       tx,
@@ -277,6 +284,7 @@ async function update(input: { actorId: string; id: string; body: EventBody }): 
         eventId: input.id,
         name: input.body.name,
         playtimeFree: input.body.playtimeFree ?? null,
+        ...(silent ? { silent } : {}),
       },
     });
     await bdeSyncService.markPending(tx, input.id);
