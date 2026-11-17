@@ -34,7 +34,8 @@ Three custom palettes, wired into Nuxt UI as `neutral: 'night'`, `primary: 'crim
   - icons in small tinted tiles: activities, menu items, admin overview items, team poles (the `IconTile` component, `bg-secondary/15 text-secondary`);
   - the scattered activity icons on an event hero or the sign-in banner without banner art (see Imagery);
   - the current page in navigation menus (header and admin sidebar) and the selected tab (Nuxt UI's `secondary` color, set globally in `app.config.ts`);
-  - the counting state of the playtime band on the Minecraft account page, and its allowance bar (see Minecraft account).
+  - the counting state of the playtime band on the Minecraft account page, and its allowance bar (see Minecraft account);
+  - selection in the playtime admin: the selected range and day of the schedule editor, the days picked on the closures calendar and the days closed for some schools only.
 
   Nowhere else: no violet buttons, links, headings, large surfaces or decoration. Status colors and your own vote on a mod stay as they are.
 
