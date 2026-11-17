@@ -1,0 +1,1 @@
+ALTER TABLE "mod_list_settings" ADD COLUMN "loader_version" text DEFAULT '' NOT NULL;

@@ -57,7 +57,12 @@ describe('manifest', () => {
       },
     ]);
     const manifest = await modpackManifestService.build();
-    expect(manifest).toMatchObject({ schema: 1, gameVersion: '1.21.1', loader: 'neoforge' });
+    expect(manifest).toMatchObject({
+      schema: 1,
+      gameVersion: '1.21.1',
+      loader: 'neoforge',
+      loaderVersion: '',
+    });
     expect(manifest.mods.map((m) => m.name)).toEqual(['Ours', 'Sodium']);
     expect(manifest.mods[0]).toMatchObject({
       downloads: [`https://lnb.example/api/files/${'f'.repeat(64)}/Own%20Mod.jar`],
