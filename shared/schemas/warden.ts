@@ -316,7 +316,7 @@ export const wardenSessionView = z.object({
 export type WardenSessionView = z.infer<typeof wardenSessionView>;
 export const wardenSessionPage = wardenPage(wardenSessionView);
 
-/** A device of the LNB Warden mod, as the player sees it on /minecraft/warden. */
+/** A device of the LNB Warden mod, as the player sees it on /minecraft/account. */
 export const wardenDeviceView = z.object({
   id: z.uuid(),
   name: z.string(),

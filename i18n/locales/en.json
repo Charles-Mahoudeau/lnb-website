@@ -18,7 +18,7 @@
     "minecraft": "Minecraft",
     "mods": "Mods",
     "modsDescription": "Votes and suggestions for the server’s mods",
-    "wardenDescription": "Your linked Minecraft account and devices",
+    "wardenDescription": "Your time, accounts, bank and devices",
     "events": "Events",
     "team": "Team",
     "partners": "Partners",
@@ -260,7 +260,7 @@
     "theme": "Theme",
     "menu": {
       "account": "Profile, theme and language",
-      "warden": "Your Minecraft accounts",
+      "warden": "Your Minecraft account",
       "admin": "Manage the site"
     },
     "myEvents": "My events",
@@ -321,6 +321,107 @@
     "warden": {
       "identity": "Your first name and last initial, shown in-game under your username unless you hide it",
       "deviceTitle": "Link {device} to your account"
+    }
+  },
+  "minecraftAccount": {
+    "title": "Minecraft account",
+    "lede": "Your time, accounts and LNBits on the LNB server.",
+    "exempt": "Exempt",
+    "playtime": {
+      "title": "Playtime",
+      "played": "Played this week",
+      "total": "{time} in total on your accounts.",
+      "percentUsed": "{percent}% used",
+      "resets": "Allowance resets {when}",
+      "graceEnds": "Grace ends today at {time}",
+      "resumes": "You can play again {when}",
+      "hours": "Only time inside the restricted hours counts:",
+      "dayRange": "{from} to {to}",
+      "timeRange": "{from} to {to}",
+      "observe": "The limit isn’t enforced yet. Nothing stops you from playing: this shows what would count.",
+      "bar": {
+        "counting": "Allowance, counting until {until}",
+        "grace": "Allowance used, grace until {until}",
+        "blocked": "Allowance used",
+        "free": "Allowance, not counting right now"
+      },
+      "states": {
+        "counting": {
+          "title": "Counting now",
+          "line": "This time counts toward your limit, until {until}."
+        },
+        "low": {
+          "title": "Counting now",
+          "line": "This time counts, and your allowance is almost used. Until {until}."
+        },
+        "grace": {
+          "title": "Grace period",
+          "line": "Your allowance is used, but you can finish your game until {until}. It does not count."
+        },
+        "free": {
+          "title": "Free time",
+          "line": "This time does not count. Counting starts again {when}."
+        },
+        "freeNoWindow": {
+          "title": "Free time",
+          "line": "This time does not count."
+        },
+        "blocked": {
+          "title": "Paused",
+          "line": "Your allowance is used. You can play again {when}."
+        },
+        "unlimited": {
+          "off": {
+            "title": "No limit",
+            "line": "The playtime limit is switched off."
+          },
+          "exempt": {
+            "title": "No limit",
+            "line": "Your account has no playtime limit."
+          },
+          "closed": {
+            "title": "No limit right now",
+            "line": "Nothing counts at the moment. The limit is back {until}."
+          },
+          "closedOpen": {
+            "title": "No limit right now",
+            "line": "Nothing counts at the moment."
+          }
+        }
+      }
+    },
+    "bank": {
+      "rank": "#{rank} on the baltop",
+      "unit": "LNBits",
+      "shared": "Shared accounts",
+      "open": "Open the bank"
+    },
+    "quests": {
+      "done": "quest done | quests done",
+      "earned": "{amount} LNBits earned",
+      "ready": "{count} ready to claim",
+      "open": "See all quests"
+    },
+    "standing": {
+      "title": "Warnings and bans",
+      "history": {
+        "badge": "Past entries",
+        "body": "No ban in force. {count} entry in your history. | No ban in force. {count} entries in your history."
+      },
+      "good": {
+        "badge": "In good standing",
+        "body": "No ban and no warning. If staff warn you, it shows here, and you can appeal a ban."
+      },
+      "banned": {
+        "badge": "Banned",
+        "body": "You have a ban in force. The details and your appeal are at the top of this page."
+      }
+    },
+    "history": {
+      "title": "Warnings and bans history",
+      "lede": "Every ban and warning on your account, newest first.",
+      "back": "Back to your Minecraft account",
+      "empty": "Nothing here: no ban and no warning."
     }
   },
   "warden": {

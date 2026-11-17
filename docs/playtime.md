@@ -2,7 +2,7 @@
 
 A weekly limit on how long players can be on the Minecraft server during restricted hours (for example Monday to Friday, 9:00 to 17:00). The plan is `docs/plans/playtime-limits.md`, and the contract for the mod developers is `docs/plans/playtime-limits-mod.md`. This page says what is built.
 
-**Status:** the data, the counting and the player view are built, in `observe` mode: everything is counted and shown, and nobody is denied or kicked. Warnings, grace, kicks and the login denial (slice 3), the Minecraft account page (slice 2), the admin screens (slice 4), event mode (slice 5) and the nightly prune (slice 6) are still to do. Until the admin screens exist, rules are changed through `playtimeAdminService` (`server/services/playtime/admin.ts`) or the database.
+**Status:** the data, the counting, the player view and the Minecraft account page are built, in `observe` mode: everything is counted and shown, and nobody is denied or kicked. Warnings, grace, kicks and the login denial (slice 3), the admin screens (slice 4), event mode (slice 5) and the nightly prune (slice 6) are still to do. Until the admin screens exist, rules are changed through `playtimeAdminService` (`server/services/playtime/admin.ts`) or the database.
 
 ## The rules
 
@@ -35,6 +35,10 @@ The mode is `off`, `observe` or `enforce`, in `playtime_settings`. It starts in 
 | Route                  | What it does                                                                                                                                                                                                                                     |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `GET /api/playtime/me` | The week: mode, state, played this week and ever, allowance (with grants), used, remaining, percent, the instants above, the restricted hours as lines, and per account `{ uuid, username, exempt, playedSeconds }`. Behind the `playtime` flag. |
+
+## The Minecraft account page
+
+`/minecraft/account` (components in `app/components/minecraft-account/`, composable `usePlaytime`, wording helpers in `app/utils/playtime.ts`) replaced `/minecraft/warden`, which redirects to it. The Playtime card comes first: the state band, the hours played this week, then one allowance bar and the reset line. Colors: violet while counting, amber at 25% or less left, teal (`grace`) in the grace period, green in free time, red when paused, muted with no limit. In `observe` the card says nothing is enforced yet. It hides itself when the `playtime` flag is off or the player has no linked account. The card refetches every 30 seconds. The Bank and Quests cards reuse the bank's and quests' own endpoints, and ban history moved to `/minecraft/account/history`. Design notes are in `docs/design.md`.
 
 ## Data
 

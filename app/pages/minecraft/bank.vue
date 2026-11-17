@@ -101,7 +101,7 @@ const canCreate = computed(
         {{ t('economy.bank.notEligible.title') }}
       </h2>
       <p class="max-w-md text-muted">{{ t('economy.bank.notEligible.lede') }}</p>
-      <UButton to="/minecraft/warden" :label="t('economy.bank.notEligible.action')" />
+      <UButton to="/minecraft/account" :label="t('economy.bank.notEligible.action')" />
     </div>
 
     <div v-else-if="me && selected" class="flex flex-wrap items-start gap-8">

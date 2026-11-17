@@ -41,10 +41,10 @@ const navItems = computed<NavigationMenuItem[]>(() => {
     ...(canUseWarden.value
       ? [
           {
-            label: t('warden.title'),
+            label: t('minecraftAccount.title'),
             description: t('nav.wardenDescription'),
             icon: 'i-lucide-pickaxe',
-            to: '/minecraft/warden',
+            to: '/minecraft/account',
           },
         ]
       : []),
