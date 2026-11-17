@@ -228,9 +228,10 @@ async function onCancelled(tx: Tx, eventId: string): Promise<void> {
 }
 
 /** In the editing transaction, when the start moved: old reminders go, everyone hears. */
-async function onRescheduled(tx: Tx, row: EventRow, startsAt: Date): Promise<void> {
+async function onRescheduled(tx: Tx, row: EventRow, startsAt: Date, silent = false): Promise<void> {
   if (row.hidden || row.startsAt.getTime() === startsAt.getTime()) return;
   await pushQueueService.dropPending(tx, row.id, ['reminder', 'rescheduled']);
+  if (silent) return;
   await pushQueueService.enqueue(tx, {
     kind: 'rescheduled',
     eventId: row.id,

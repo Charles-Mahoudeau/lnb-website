@@ -20,7 +20,7 @@ Design: see Notifications in `docs/design.md` and the [push mock](https://claude
 
 Partner events are another organization's, so unlike the other switches the partner events one is off until the account turns it on, and an account with no preferences row doesn't get it. The announcement waits during the quiet hours like a new-event one. A student who turns down an invitation sends nothing to the captain. `push_notification.partner_event_id` stands in for `event_id`; the text is `buildPartnerMessage` and a tap opens `/special/<slug>`. See `docs/partner-events.md`.
 
-Removing someone by hand sends nothing. Events default to one reminder, 1 hour before. A moved event reminds again at its new time.
+Removing someone by hand sends nothing. "Save without notifying" on a published event's form (`PUT /api/admin/events/:id?silent=true`) saves it with no move, waitlist-place or team notification: the waitlist still moves up and old reminders are still dropped, but nobody is told. It is written to `admin_audit` as `silent`. Events default to one reminder, 1 hour before. A moved event reminds again at its new time.
 
 ## The weekly limit warns, it never blocks
 

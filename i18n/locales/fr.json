@@ -1671,6 +1671,7 @@
       "create": "Créer l’événement",
       "created": "Événement créé, en brouillon",
       "save": "Enregistrer",
+      "saveSilently": "Enregistrer sans notifier",
       "saved": "Événement enregistré",
       "duplicate": "Dupliquer",
       "duplicated": "Copie créée, en brouillon",

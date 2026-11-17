@@ -99,7 +99,14 @@ const base = (id: string) => `/api/admin/events/${id}`;
 export const eventActions = {
   create: (body: EventBody) =>
     call(() => $fetch<{ id: string }>('/api/admin/events', { method: 'POST', body })),
-  update: (id: string, body: EventBody) => call(() => $fetch(base(id), { method: 'PUT', body })),
+  update: (id: string, body: EventBody, options: { silent?: boolean } = {}) =>
+    call(() =>
+      $fetch(base(id), {
+        method: 'PUT',
+        body,
+        ...(options.silent ? { query: { silent: 'true' } } : {}),
+      }),
+    ),
   cancel: (id: string) => call(() => $fetch(`${base(id)}/cancel`, { method: 'POST' })),
   remove: (id: string) => call(() => $fetch(base(id), { method: 'DELETE' })),
   duplicate: (id: string, body: EventDuplicateBody) =>

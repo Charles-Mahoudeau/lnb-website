@@ -107,9 +107,17 @@ async function confirmSave(body: EventBody): Promise<boolean> {
   return true;
 }
 
+// Set by the button that submits the form: "Save without notifying" skips the question and the
+// notifications it would be about.
+const silent = ref(false);
+
 async function onSubmit(body: EventBody) {
-  if (!(await confirmSave(body))) return;
-  if (await act(() => eventActions.update(id, body), t('admin.events.saved'))) await refresh();
+  const quiet = silent.value;
+  silent.value = false;
+  if (!quiet && !(await confirmSave(body))) return;
+  if (await act(() => eventActions.update(id, body, { silent: quiet }), t('admin.events.saved'))) {
+    await refresh();
+  }
 }
 
 const confirm = overlay.create(WardenConfirmModal);
@@ -287,11 +295,22 @@ async function onRegistrationsChanged() {
         />
       </UDropdownMenu>
       <UButton
+        v-if="tab === 'event' && !event.cancelledAt && !event.hidden"
+        type="submit"
+        form="event-form"
+        color="neutral"
+        variant="ghost"
+        :disabled="pending"
+        :label="t('admin.events.saveSilently')"
+        @click="silent = true"
+      />
+      <UButton
         v-if="tab === 'event' && !event.cancelledAt"
         type="submit"
         form="event-form"
         :loading="pending"
         :label="t('admin.events.save')"
+        @click="silent = false"
       />
     </template>
 

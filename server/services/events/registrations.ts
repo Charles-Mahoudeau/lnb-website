@@ -36,7 +36,7 @@ async function counts(tx: Tx, eventId: string) {
 }
 
 /** Moves the first people on the waitlist to the free places. Returns who got one. */
-async function promote(tx: Tx, row: EventRow, now = new Date()): Promise<string[]> {
+async function promote(tx: Tx, row: EventRow, now = new Date(), silent = false): Promise<string[]> {
   const n = placesToPromote(
     { ...row, capacity: peopleCapacity(row), ...(await counts(tx, row.id)) },
     now,
@@ -57,7 +57,9 @@ async function promote(tx: Tx, row: EventRow, now = new Date()): Promise<string[
         next.map((r) => r.id),
       ),
     );
-  // They hear about it in the same transaction, so a place is never given silently.
+  // They hear about it in the same transaction, so a place is never given silently, unless a
+  // manager saved the event without notifying.
+  if (silent) return next.map((r) => r.userId);
   const registrationOf = new Map(next.map((r) => [r.userId, r.id]));
   await pushQueueService.enqueue(tx, {
     kind: 'spot',
@@ -69,8 +71,8 @@ async function promote(tx: Tx, row: EventRow, now = new Date()): Promise<string[
 }
 
 /** After a capacity change: promotes into the new places. The caller holds the event lock. */
-async function promoteAfterChange(tx: Tx, eventId: string): Promise<string[]> {
-  return promote(tx, await lockEvent(tx, eventId));
+async function promoteAfterChange(tx: Tx, eventId: string, silent = false): Promise<string[]> {
+  return promote(tx, await lockEvent(tx, eventId), new Date(), silent);
 }
 
 /**
