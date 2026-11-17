@@ -14,6 +14,7 @@ import {
   user,
 } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
+import { minecraftEventService } from '~~/server/services/minecraft-events';
 
 import { computeIndex, familyBudget } from './formula';
 import {
@@ -336,17 +337,26 @@ async function newSeason(actorId: string, input: unknown) {
   return seasons();
 }
 
+// Every change to what the game shows reaches lnb-quests at once: it reads its config again.
+function tellingServer<A extends unknown[], R>(change: (...args: A) => Promise<R>) {
+  return async (...args: A): Promise<R> => {
+    const result = await change(...args);
+    await minecraftEventService.emit('quests', 'config', {});
+    return result;
+  };
+}
+
 export const questAdminService = {
   runIndex,
   indexView,
   settingsView,
-  updateSettings,
+  updateSettings: tellingServer(updateSettings),
   catalog,
-  createQuest,
-  updateQuest,
-  deleteQuest,
+  createQuest: tellingServer(createQuest),
+  updateQuest: tellingServer(updateQuest),
+  deleteQuest: tellingServer(deleteQuest),
   exportCatalog,
-  importCatalog,
+  importCatalog: tellingServer(importCatalog),
   seasons,
-  newSeason,
+  newSeason: tellingServer(newSeason),
 };

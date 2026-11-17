@@ -437,3 +437,22 @@ export const questTemplateBody = z.object({
   definition: z.unknown(),
   enabled: z.boolean().optional(),
 });
+
+/** The `data` of each event of GET /api/quests/server/events, by its `event` type. */
+export const questServerEvent = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('config'),
+    data: z
+      .object({})
+      .describe(
+        'A quest, the settings, the season or the community quest changed: read the config.',
+      ),
+  }),
+  z.object({
+    type: z.literal('player'),
+    data: z.object({
+      uuids: z.array(z.string()).describe('These players claimed a reward on the site.'),
+    }),
+  }),
+]);
+export type QuestServerEvent = z.infer<typeof questServerEvent>;

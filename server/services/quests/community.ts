@@ -9,6 +9,7 @@ import {
 } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 import { player } from '~~/server/services/economy/server';
+import { minecraftEventService } from '~~/server/services/minecraft-events';
 
 import { applyCap, familyBudget, kPlayer, reward } from './formula';
 import {
@@ -200,12 +201,18 @@ function nextMonday(from: Date) {
  * The task: pays ended quests, starts the scheduled one whose time came, and draws a new one
  * from the templates when the rotation is on and nothing is planned.
  */
+/** The community quest the game shows changed: lnb-quests reads its config again. */
+async function tellServer() {
+  await minecraftEventService.emit('quests', 'config', {});
+}
+
 async function tick(now = new Date()) {
   const ended = await db
     .select({ id: questCommunity.id })
     .from(questCommunity)
     .where(and(eq(questCommunity.status, 'running'), lte(questCommunity.endsAt, now)));
   for (const row of ended) await pay(row.id);
+  if (ended.length) await tellServer();
 
   const [due] = await db
     .select()
@@ -219,6 +226,7 @@ async function tick(now = new Date()) {
     .where(eq(questCommunity.status, 'running'));
   if (due && !live) {
     await db.update(questCommunity).set({ status: 'running' }).where(eq(questCommunity.id, due.id));
+    await tellServer();
     return;
   }
 
@@ -401,9 +409,20 @@ export const communityService = {
   list,
   past,
   topContributors,
-  create,
-  update,
-  cancel,
+  create: async (actorId: string, input: unknown) => {
+    const created = await create(actorId, input);
+    await tellServer();
+    return created;
+  },
+  update: async (actorId: string, id: string, input: unknown) => {
+    const updated = await update(actorId, id, input);
+    await tellServer();
+    return updated;
+  },
+  cancel: async (actorId: string, id: string) => {
+    await cancel(actorId, id);
+    await tellServer();
+  },
   templates,
   saveTemplate,
   nextMonday,

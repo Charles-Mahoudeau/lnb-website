@@ -48,6 +48,8 @@ Under `/api/quests/server`, with `Authorization: Bearer <WARDEN_SERVER_SECRET>`,
 | `POST /flash`                       | `{ idempotencyKey, quest, quantity, startedAt, endedAt, winner }`: a race ended. Stored; the winner, if any, is paid `rewardPerUnit × quantity` through the formula.                                                                                                                       |
 | `POST /community/:id/contributions` | `{ idempotencyKey, items: [{ player, amount }] }`: what players brought since the last call. `{ replayed, progress, goal }`. `communityClosed` (409) once the quest ended or was cancelled: the server drops what it held.                                                                 |
 
+`GET /events` is a Server-Sent Events stream, like `GET /api/economy/server/events` (`docs/economy.md`, topic `quests`): `config` when a quest, the settings, the season or the community quest changed on the site (an admin, or the community job starting or paying one), so the mod reads `/config` again at once; `player` `{ uuids }` when players claimed a reward on the site, so their quest screen and badge follow.
+
 ## Player routes
 
 Behind `economy.quests`.

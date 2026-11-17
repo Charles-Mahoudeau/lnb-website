@@ -1144,3 +1144,31 @@ export const economyExport = z.object({
   ),
 });
 export type EconomyExport = z.infer<typeof economyExport>;
+
+// ---- Live changes for the Minecraft server ----------------------------------------------------
+
+/** The `data` of each event of GET /api/economy/server/events, by its `event` type. */
+export const economyServerEvent = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('accounts'),
+    data: z.object({
+      uuids: z.array(z.string()).describe("Read these players' accounts and invitations again."),
+    }),
+  }),
+  z.object({
+    type: z.literal('invitation'),
+    data: z.object({
+      uuids: z.array(z.string()).describe("The invited player's Minecraft accounts."),
+      id: z.uuid(),
+      account: z.object({
+        id: z.uuid(),
+        handle: z.string(),
+        name: z.string(),
+        type: economyAccountType.nullable(),
+      }),
+      role: economyRole,
+      invitedBy: z.string().describe("The inviter's Minecraft username, or their short name."),
+    }),
+  }),
+]);
+export type EconomyServerEvent = z.infer<typeof economyServerEvent>;

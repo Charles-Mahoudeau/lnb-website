@@ -1378,6 +1378,10 @@
         "push_partnerEvents": {
           "label": "Notifications d’événements partenaires",
           "description": "L’annonce d’un événement partenaire. Rien n’est mis en file tant que c’est désactivé."
+        },
+        "jobs_pruneServerEvents": {
+          "label": "Nettoyage des événements du serveur Minecraft",
+          "description": "La suppression nocturne des changements envoyés en direct au serveur Minecraft, après un jour."
         }
       }
     },

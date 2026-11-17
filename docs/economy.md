@@ -111,6 +111,17 @@ The game does what `/minecraft/bank` does, for the player the server names: `pla
 
 Every one of them also answers `disabled` (503) while `economy.serverApi` or `economy.sharedAccounts` is off. An invitation that isn't the player's is `notFound`.
 
+### Live changes
+
+`GET /events` is a Server-Sent Events stream, like Warden's (`docs/warden.md`): the mod keeps it open and refreshes in a second what it would otherwise read again at its next poll. Events live in `minecraft_server_event` (topic `economy`), numbered; `Last-Event-ID` resumes after a reconnection, and the nightly `minecraft:prune-events` (`jobs.pruneServerEvents`) deletes them after a day. Recording one never fails the change behind it.
+
+| Event        | Data                                                                  | Sent when                                                                                                                                                                                                                                         |
+| ------------ | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `accounts`   | `{ uuids }`                                                           | Players' accounts or invitations changed: an account opened, renamed, retyped or closed, an invitation sent, cancelled or answered, a role changed, a member gone, a default account picked, an admin adjustment, type change, freeze or license. |
+| `invitation` | `{ uuids, id, account: { id, handle, name, type }, role, invitedBy }` | A player was invited, from the site or the game: the mod shows it to them at once. `invitedBy` is the inviter's Minecraft username, or their short name.                                                                                          |
+
+The changes the game makes itself also send them: the mod refreshing twice is harmless, and an invitation sent in the game reaches the invitee the same way as one sent on the site.
+
 ### Casino licenses
 
 `POST /licenses` takes `{ idempotencyKey, player, account? }`: the player buys one license. `account` pays, or their default account; they must be able to spend from it. The price is burned in one `burn` transaction with the reason `casinoLicense` and the memo `Casino license`.

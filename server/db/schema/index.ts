@@ -8,6 +8,7 @@ export * from './economy';
 export * from './events';
 export * from './flags';
 export * from './gamesplanet';
+export * from './minecraft-events';
 export * from './mods';
 export * from './partner-events';
 export * from './partners';

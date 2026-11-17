@@ -242,6 +242,8 @@ const responseSchemas = {
   WardenPlayerDetail: warden.wardenPlayerDetail,
   WardenSettingsView: warden.wardenSettingsView,
   WardenEvent: warden.wardenEvent,
+  EconomyServerEvent: economy.economyServerEvent,
+  QuestServerEvent: quests.questServerEvent,
   WardenUserOption: warden.wardenUserOption,
   ModView: mods.modView,
   ModRemovalNotice: mods.modRemovalNotice,
@@ -3994,6 +3996,24 @@ const routes: RouteDoc[] = [
     ],
   },
   {
+    method: 'get',
+    path: '/api/economy/server/events',
+    tag: TAGS.economyServer,
+    summary: 'Live changes',
+    description: [
+      "Keep it open: `accounts` when players' accounts or invitations changed on the site (or by another route), `invitation` when a player was invited, to tell them in the game.",
+      '',
+      "Server-Sent Events, as `/api/warden/server/events`: each event's `id` is its number, its `event` the type and its `data` the JSON below. Send `Last-Event-ID` when reconnecting to get the events missed (kept a day); without it, the stream starts from now. The site checks for new events every second and sends a `ping` event after 25 quiet seconds. Behind `economy.serverApi`.",
+    ].join('\n'),
+    access: 'wardenServer',
+    response: {
+      description: 'An event stream. The `data` of each event is shown here.',
+      content: {
+        'text/event-stream': { schema: { $ref: '#/components/schemas/EconomyServerEvent' } },
+      },
+    },
+  },
+  {
     method: 'post',
     path: '/api/economy/server/licenses',
     tag: TAGS.economyServer,
@@ -4803,6 +4823,24 @@ const routes: RouteDoc[] = [
     body: economy.economyResetBody,
     noContent: true,
     problems: [{ status: 400, problems: ['confirmMismatch'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/quests/server/events',
+    tag: TAGS.questsServer,
+    summary: 'Live changes',
+    description: [
+      'Keep it open: `config` when a quest, the settings, the season or the community quest changed on the site, `player` when players claimed a reward there.',
+      '',
+      "Server-Sent Events, as `/api/warden/server/events`: each event's `id` is its number, its `event` the type and its `data` the JSON below. Send `Last-Event-ID` when reconnecting to get the events missed (kept a day); without it, the stream starts from now. The site checks for new events every second and sends a `ping` event after 25 quiet seconds. Behind `economy.serverApi` and `economy.quests`.",
+    ].join('\n'),
+    access: 'wardenServer',
+    response: {
+      description: 'An event stream. The `data` of each event is shown here.',
+      content: {
+        'text/event-stream': { schema: { $ref: '#/components/schemas/QuestServerEvent' } },
+      },
+    },
   },
   {
     method: 'get',
