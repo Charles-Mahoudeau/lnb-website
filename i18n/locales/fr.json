@@ -883,7 +883,10 @@
         "quests_communityCancel": "{actor} a annulé la quête communautaire {name}.",
         "quests_communityTemplate": "{actor} a enregistré un modèle de quête communautaire.",
         "economy_licenseGrant": "{actor} a donné une licence de casino à {name}.",
-        "economy_licenseRevoke": "{actor} a repris une licence de casino à {name}."
+        "economy_licenseRevoke": "{actor} a repris une licence de casino à {name}.",
+        "quests_categoryCreate": "{actor} a créé une catégorie de quêtes.",
+        "quests_categoryUpdate": "{actor} a modifié une catégorie de quêtes.",
+        "quests_categoryDelete": "{actor} a supprimé une catégorie de quêtes."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page.",
       "apiKeysSoon": "1 clé API expire dans moins de 30 jours | {n} clés API expirent dans moins de 30 jours",
@@ -3068,13 +3071,15 @@
         "catalog": "Catalogue",
         "community": "Communautaires",
         "settings": "Réglages",
-        "index": "Indice des récompenses"
+        "index": "Indice des récompenses",
+        "categories": "Catégories"
       },
       "family": {
         "individual": "Individuelle",
         "server": "Serveur",
         "community": "Communautaire",
-        "flash": "Flash"
+        "flash": "Flash",
+        "daily": "Quotidienne"
       },
       "objective": {
         "kill": "Tuer",
@@ -3107,7 +3112,9 @@
         "empty": {
           "title": "Pas encore de quête",
           "body": "Démarre le serveur Minecraft avec le mod de quêtes pour charger son catalogue, ou crée une quête ici."
-        }
+        },
+        "dailyRange": "{type} de {min} à {max} par jour",
+        "importedCategories": "Catégories : {added} ajoutées, {replaced} remplacées"
       },
       "editor": {
         "newTitle": "Nouvelle quête",
@@ -3158,7 +3165,13 @@
         "deleted": "Quête supprimée",
         "badItems": "Les objets ne sont pas un JSON valide. Vérifie la liste, puis enregistre à nouveau.",
         "hidden": "Achievement secret",
-        "hiddenHelp": "Affiché « ??? » sur la page et dans le jeu jusqu'à ce que quelqu'un prenne la 1re place."
+        "hiddenHelp": "Affiché « ??? » sur la page et dans le jeu jusqu'à ce que quelqu'un prenne la 1re place.",
+        "subcategory": "Sous-catégorie",
+        "noSubcategory": "Aucune",
+        "guessed": "Devinée depuis l’achievement",
+        "categoryHelp": "Le groupe des Records dans le jeu.",
+        "daily": "Tirage quotidien",
+        "dailyHelp": "Chaque jour, la quantité est tirée dans la plage. Chaque joueur qui l’atteint avant minuit reçoit la base par unité × la quantité."
       },
       "community": {
         "lede": "Tout le serveur vise un objectif. À la fin, chaque joueur au-dessus du seuil est payé pour chaque palier atteint.",
@@ -3220,7 +3233,7 @@
         "share": "Part de {family}",
         "used": "{spent} sur {budget}",
         "sharesTotal": "Les parts font {n} % au total : elles sont ramenées à 100 %.",
-        "flash": "Quêtes flash",
+        "flash": "Flash et quotidiennes",
         "flashHelp": "Elles remplacent les valeurs de la config du mod.",
         "interval": "Tirage toutes les (minutes)",
         "flashPlayers": "Joueurs connectés au moins",
@@ -3243,7 +3256,9 @@
         "fallback": "Trop peu de joueurs actifs : l’indice de référence est utilisé.",
         "base": "Base",
         "balance": "Solde {n}",
-        "atIndex": "Solde ≥ I"
+        "atIndex": "Solde ≥ I",
+        "dailyCount": "Quêtes quotidiennes par jour",
+        "dailyCountHelp": "Tirées à minuit (Paris). 0 les désactive."
       },
       "season": {
         "title": "Saisons",
@@ -3276,6 +3291,45 @@
         "invalid": "Quelque chose dans le formulaire n’est pas valide.",
         "idTaken": "Une quête a déjà cet identifiant.",
         "questInUse": "Des joueurs ont déjà fait cette quête : désactive-la plutôt."
+      },
+      "categories": {
+        "family": {
+          "individual": "Chapitres individuels",
+          "server": "Groupes des Records"
+        },
+        "familyLabel": "Type",
+        "help": {
+          "individual": "Les chapitres à gauche du livre de quêtes et de la page Quêtes.",
+          "server": "Les groupes de l’onglet Records. Une quête serveur sans catégorie est rangée d’après son achievement."
+        },
+        "new": "Nouvelle catégorie",
+        "newTitle": "Nouvelle catégorie",
+        "editTitle": "Modifier {name}",
+        "editorLede": "Les quêtes la nomment par son identifiant, qui ne change plus ensuite.",
+        "id": "Identifiant",
+        "idHelp": "2 à 32 caractères : minuscules, chiffres et _.",
+        "order": "Ordre",
+        "orderHelp": "Les plus petits d’abord.",
+        "icon": "Icône dans le jeu",
+        "iconHelp": "L’identifiant d’un objet, comme minecraft:compass.",
+        "siteIcon": "Icône sur le site",
+        "siteIconHelp": "Une icône Lucide, comme i-lucide-compass.",
+        "subcategories": "Sous-catégories",
+        "subcategoriesHelp": "Des intertitres à l’intérieur de la catégorie, dans cet ordre.",
+        "addSub": "Ajouter une sous-catégorie",
+        "removeSub": "Retirer la sous-catégorie",
+        "delete": "Supprimer",
+        "saved": "Catégorie enregistrée.",
+        "created": "Catégorie créée.",
+        "deleted": "Catégorie supprimée.",
+        "empty": "Aucune catégorie.",
+        "quests": "Aucune quête | 1 quête | {n} quêtes",
+        "note": "Le fichier quests.json du serveur peut aussi ajouter des catégories, dans une liste « categories ». Celles que le site connaît déjà gardent leurs réglages.",
+        "errors": {
+          "idTaken": "Une catégorie a déjà cet identifiant.",
+          "categoryInUse": "Des quêtes utilisent encore cette catégorie ou sous-catégorie.",
+          "invalid": "Quelque chose dans le formulaire n’est pas valide."
+        }
       }
     },
     "gamesplanet": {
@@ -4575,7 +4629,8 @@
       "server": "Serveur",
       "community": "Communauté",
       "flash": "Flash",
-      "leaderboard": "Classement"
+      "leaderboard": "Classement",
+      "daily": "Quotidiennes"
     },
     "season": {
       "label": "Saison",
@@ -4647,7 +4702,8 @@
         "3": "3e",
         "4": "{n}e"
       },
-      "secret": "Secret : révélé dès que quelqu'un prend la 1re place."
+      "secret": "Secret : révélé dès que quelqu'un prend la 1re place.",
+      "other": "Autres"
     },
     "community": {
       "label": "Quête communautaire",
@@ -4709,6 +4765,17 @@
       "failed": "Ça n’a pas marché. Réessaie dans un instant.",
       "alreadyClaimed": "Cette récompense a déjà été réclamée.",
       "frozen": "Ton compte est gelé : rien ne peut y être versé."
+    },
+    "daily": {
+      "how": "Chaque jour à minuit, de nouvelles quêtes sont tirées au sort, les mêmes pour tout le monde. Termine-les avant minuit : chacune paie une fois par jour.",
+      "endsIn": "Fin dans {h} h {m} min",
+      "goal": "Objectif : {n}.",
+      "done": "Terminée",
+      "finished": "Personne ne l’a terminée pour l’instant. | 1 joueur l’a terminée. | {n} joueurs l’ont terminée.",
+      "empty": {
+        "title": "Pas de quête aujourd’hui",
+        "body": "Aucune quête quotidienne n’est tirée pour l’instant. Reviens demain."
+      }
     }
   },
   "gamesplanet": {

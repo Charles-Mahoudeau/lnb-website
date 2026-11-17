@@ -244,6 +244,9 @@ function describe(entry: AdminAuditView): string {
     case 'quests.communityUpdate':
     case 'quests.communityCancel':
     case 'quests.communityTemplate':
+    case 'quests.categoryCreate':
+    case 'quests.categoryUpdate':
+    case 'quests.categoryDelete':
       return t(`admin.overview.log.${entry.action.replace('.', '_')}`, {
         actor,
         target,

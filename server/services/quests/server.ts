@@ -14,7 +14,9 @@ import {
 } from '~~/server/db/schema';
 import { ownerOf, player } from '~~/server/services/economy/server';
 
+import { questCategoryService } from './categories';
 import { communityService } from './community';
+import { questDailyService } from './daily';
 import { kPlayer } from './formula';
 import {
   currentSeason,
@@ -62,15 +64,19 @@ import {
 /** Everything the server needs to run quests, polled every `pollSeconds`. */
 async function config(): Promise<QuestConfigResult> {
   const settings = await getSettings();
-  const [season, quests, index, community] = await Promise.all([
+  const [season, quests, index, community, categories, daily] = await Promise.all([
     currentSeason(),
     loadCatalog(db, true),
     todayIndex(db, settings),
     communityService.running(),
+    questCategoryService.list(),
+    questDailyService.today(),
   ]);
   return {
     season: { id: season.id, number: season.number, startedAt: season.startedAt.toISOString() },
     quests,
+    categories,
+    daily,
     flash: { ...settings.flash, hours: settings.flash.hours ?? null },
     antiCheat: settings.antiCheat,
     community,
@@ -79,9 +85,13 @@ async function config(): Promise<QuestConfigResult> {
   };
 }
 
-/** Adds the quests of the server's quests.json the site doesn't know. Site edits always win. */
+/**
+ * Adds the categories and quests of the server's quests.json the site doesn't know. Site edits
+ * always win.
+ */
 async function seedCatalog(input: unknown) {
   const body = validate(questCatalogBody, input);
+  const categories = questCategoryService.parseAll(body.categories);
   const parsed = body.quests.map((entry, index) => {
     const result = questDefinition.safeParse(entry);
     if (!result.success) {
@@ -89,6 +99,17 @@ async function seedCatalog(input: unknown) {
     }
     return result.data;
   });
+  const categoriesAdded = categories.length
+    ? await db.transaction(
+        async (tx) =>
+          (
+            await questCategoryService.upsert(tx, categories, {
+              overwrite: false,
+              source: 'catalog',
+            })
+          ).added,
+      )
+    : [];
   const existing = parsed.length
     ? await db
         .select({ id: quest.id })
@@ -101,6 +122,11 @@ async function seedCatalog(input: unknown) {
         )
     : [];
   const known = new Set(existing.map((row) => row.id));
+  // Only the quests being added: the site's own edits to known ones stay as they are.
+  await questCategoryService.checkQuests(
+    db,
+    parsed.filter((entry) => !known.has(entry.id)),
+  );
   const added: string[] = [];
   for (const [order, definition] of parsed.entries()) {
     if (known.has(definition.id)) continue;
@@ -119,7 +145,7 @@ async function seedCatalog(input: unknown) {
       .returning({ id: quest.id });
     if (inserted.length) added.push(id);
   }
-  return { added, kept: [...known] };
+  return { added, kept: [...known], categoriesAdded };
 }
 
 function createBadQuest(index: number, message: string): never {
@@ -376,6 +402,7 @@ async function playerView(uuid: string): Promise<QuestServerPlayerResult> {
     });
   }
   const community = await communityService.contributionOf(userId);
+  const daily = await questDailyService.doneBy(userId);
   return {
     completions: completions
       .filter((row) => row.family === 'individual')
@@ -396,6 +423,7 @@ async function playerView(uuid: string): Promise<QuestServerPlayerResult> {
     ),
     kPlayer: kPlayer(personal?.personal.balance ?? 0, today.index, settings.formula),
     community,
+    daily,
   };
 }
 

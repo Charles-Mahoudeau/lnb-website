@@ -6,13 +6,16 @@ import {
   minecraftAccount,
   questCommunity,
   questCompletion,
+  questDailyCompletion,
   questFlashRun,
   questIndexDay,
   questProgress,
   questSeason,
 } from '~~/server/db/schema';
 
+import { questCategoryService } from './categories';
 import { communityService } from './community';
+import { questDailyService } from './daily';
 import { kPlayer, reward } from './formula';
 import { currentSeason, getSettings, loadCatalog, todayIndex } from './shared';
 
@@ -27,11 +30,14 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
   const seasons = await db.select().from(questSeason).orderBy(desc(questSeason.number));
   const season = seasons.find((row) => row.number === input.seasonNumber) ?? current;
   const isCurrent = season.id === current.id;
-  const [catalog, today, indexDays] = await Promise.all([
+  const [catalog, today, indexDays, categories] = await Promise.all([
     loadCatalog(db, true),
     todayIndex(db, settings),
     db.select().from(questIndexDay).orderBy(desc(questIndexDay.day)).limit(30),
+    questCategoryService.list(),
   ]);
+  const daily = isCurrent ? await questDailyService.today() : null;
+  const dailyCounts = daily ? await questDailyService.countsFor(daily.day) : {};
 
   const completions = await db
     .select({
@@ -89,6 +95,9 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
       select winner_user_id, winner_minecraft_uuid, winner_username, amount from quest_flash_run
         where season_id = ${season.id} and winner_user_id is not null
       union all
+      select user_id, minecraft_uuid, username, amount from quest_daily_completion
+        where season_id = ${season.id} and user_id is not null
+      union all
       select c.user_id, null, c.username, coalesce(c.payout, 0) from quest_community_contribution c
         join quest_community q on q.id = c.community_id
         where q.season_id = ${season.id} and c.payout > 0
@@ -127,6 +136,18 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
         .from(questProgress)
         .where(and(eq(questProgress.seasonId, season.id), eq(questProgress.userId, userId)));
       const mine = completions.filter((row) => row.userId === userId);
+      const [dailyEarned] = await db
+        .select({
+          n: sql<number>`count(*)::int`,
+          total: sql<string>`coalesce(sum(${questDailyCompletion.amount}), 0)::bigint`,
+        })
+        .from(questDailyCompletion)
+        .where(
+          and(
+            eq(questDailyCompletion.seasonId, season.id),
+            eq(questDailyCompletion.userId, userId),
+          ),
+        );
       me = {
         username: linked.username,
         uuid: linked.uuid,
@@ -146,8 +167,10 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
           mine.filter((row) => row.rank !== null).map((row) => [row.questId, row.rank]),
         ),
         community: isCurrent ? await communityService.contributionOf(userId) : null,
-        earned: mine.reduce((total, row) => total + row.amount, 0),
-        done: mine.length,
+        daily: daily ? await questDailyService.doneBy(userId, daily.day) : [],
+        earned:
+          mine.reduce((total, row) => total + row.amount, 0) + Number(dailyEarned?.total ?? 0),
+        done: mine.length + (dailyEarned?.n ?? 0),
       };
     }
   }
@@ -164,6 +187,13 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
       endedAt: row.endedAt?.toISOString() ?? null,
     })),
     index: { ...today, baseline: settings.formula.baselineIndex },
+    categories,
+    daily: daily
+      ? {
+          ...daily,
+          quests: daily.quests.map((entry) => ({ ...entry, done: dailyCounts[entry.quest] ?? 0 })),
+        }
+      : null,
     indexDays: indexDays
       .reverse()
       .map((row) => ({ day: row.day, index: row.index, kGlobal: row.kGlobal })),
@@ -176,7 +206,16 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
             ? [...quest.ranks, quest.restShare].map((share) =>
                 reward((quest.reward * share) / 100, today.kGlobal, 1),
               )
-            : [reward(quest.rewardPerUnit, today.kGlobal, 1)],
+            : quest.family === 'daily'
+              ? [
+                  reward(
+                    quest.rewardPerUnit *
+                      (daily?.quests.find((entry) => entry.quest === quest.id)?.quantity ?? 1),
+                    today.kGlobal,
+                    1,
+                  ),
+                ]
+              : [reward(quest.rewardPerUnit, today.kGlobal, 1)],
     })),
     podiums,
     rest,

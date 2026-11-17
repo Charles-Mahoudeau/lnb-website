@@ -879,7 +879,10 @@
         "quests_communityCancel": "{actor} cancelled the community quest {name}.",
         "quests_communityTemplate": "{actor} saved a community quest template.",
         "economy_licenseGrant": "{actor} gave a casino license to {name}.",
-        "economy_licenseRevoke": "{actor} took back a casino license from {name}."
+        "economy_licenseRevoke": "{actor} took back a casino license from {name}.",
+        "quests_categoryCreate": "{actor} created a quest category.",
+        "quests_categoryUpdate": "{actor} changed a quest category.",
+        "quests_categoryDelete": "{actor} deleted a quest category."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page.",
       "apiKeysSoon": "1 API key expires within 30 days | {n} API keys expire within 30 days",
@@ -3064,13 +3067,15 @@
         "catalog": "Catalogue",
         "community": "Community",
         "settings": "Settings",
-        "index": "Reward index"
+        "index": "Reward index",
+        "categories": "Categories"
       },
       "family": {
         "individual": "Personal",
         "server": "Server",
         "community": "Community",
-        "flash": "Flash"
+        "flash": "Flash",
+        "daily": "Daily"
       },
       "objective": {
         "kill": "Kill",
@@ -3103,7 +3108,9 @@
         "empty": {
           "title": "No quest yet",
           "body": "Start the Minecraft server with the quests mod to load its catalogue, or create one here."
-        }
+        },
+        "dailyRange": "{type} {min} to {max} a day",
+        "importedCategories": "Categories: {added} added, {replaced} replaced"
       },
       "editor": {
         "newTitle": "New quest",
@@ -3154,7 +3161,13 @@
         "deleted": "Quest deleted",
         "badItems": "The items aren’t valid JSON. Check the list, then save again.",
         "hidden": "Secret advancement",
-        "hiddenHelp": "Shown as \"???\" on the page and in the game until someone takes first place."
+        "hiddenHelp": "Shown as \"???\" on the page and in the game until someone takes first place.",
+        "subcategory": "Subcategory",
+        "noSubcategory": "None",
+        "guessed": "Guessed from the advancement",
+        "categoryHelp": "The Records group in the game.",
+        "daily": "Daily draw",
+        "dailyHelp": "Each day, the quantity is drawn in the range. Every player who reaches it before midnight gets the base per unit × the quantity."
       },
       "community": {
         "lede": "The whole server works towards one goal. When it ends, everyone above the threshold is paid for each tier reached.",
@@ -3216,7 +3229,7 @@
         "share": "Share of {family}",
         "used": "{spent} of {budget}",
         "sharesTotal": "The shares add up to {n} %: they are scaled to 100 %.",
-        "flash": "Flash quests",
+        "flash": "Flash races and daily quests",
         "flashHelp": "These replace the values in the mod’s config.",
         "interval": "Draw every (minutes)",
         "flashPlayers": "Players online at least",
@@ -3239,7 +3252,9 @@
         "fallback": "Too few active players: the reference index is used.",
         "base": "Base",
         "balance": "Balance {n}",
-        "atIndex": "Balance ≥ I"
+        "atIndex": "Balance ≥ I",
+        "dailyCount": "Daily quests per day",
+        "dailyCountHelp": "Drawn at midnight (Paris). 0 turns them off."
       },
       "season": {
         "title": "Seasons",
@@ -3272,6 +3287,45 @@
         "invalid": "Something in the form isn’t valid.",
         "idTaken": "A quest already has this ID.",
         "questInUse": "Players already did this quest: turn it off instead."
+      },
+      "categories": {
+        "family": {
+          "individual": "Individual chapters",
+          "server": "Records groups"
+        },
+        "familyLabel": "Type",
+        "help": {
+          "individual": "The chapters on the left of the quest book and the Quests page.",
+          "server": "The groups of the Records tab. A server quest without a category is placed from its advancement."
+        },
+        "new": "New category",
+        "newTitle": "New category",
+        "editTitle": "Edit {name}",
+        "editorLede": "Quests name it by its id, which can't change afterwards.",
+        "id": "Id",
+        "idHelp": "2 to 32 characters: lower-case letters, digits and _.",
+        "order": "Order",
+        "orderHelp": "Smallest first.",
+        "icon": "Icon in the game",
+        "iconHelp": "An item id, like minecraft:compass.",
+        "siteIcon": "Icon on the site",
+        "siteIconHelp": "A Lucide icon, like i-lucide-compass.",
+        "subcategories": "Subcategories",
+        "subcategoriesHelp": "Headings inside the category, in this order.",
+        "addSub": "Add a subcategory",
+        "removeSub": "Remove the subcategory",
+        "delete": "Delete",
+        "saved": "Category saved.",
+        "created": "Category created.",
+        "deleted": "Category deleted.",
+        "empty": "No category.",
+        "quests": "No quest | 1 quest | {n} quests",
+        "note": "The server's quests.json can add categories too, in a \"categories\" list. The ones the site already knows keep their settings.",
+        "errors": {
+          "idTaken": "A category already has this id.",
+          "categoryInUse": "Quests still use this category or subcategory.",
+          "invalid": "Something in the form isn't valid."
+        }
       }
     },
     "gamesplanet": {
@@ -4571,7 +4625,8 @@
       "server": "Server",
       "community": "Community",
       "flash": "Flash",
-      "leaderboard": "Leaderboard"
+      "leaderboard": "Leaderboard",
+      "daily": "Daily"
     },
     "season": {
       "label": "Season",
@@ -4643,7 +4698,8 @@
         "3": "3rd",
         "4": "{n}th"
       },
-      "secret": "Secret: revealed once someone takes first place."
+      "secret": "Secret: revealed once someone takes first place.",
+      "other": "Other"
     },
     "community": {
       "label": "Community quest",
@@ -4705,6 +4761,17 @@
       "failed": "That didn’t work. Try again in a moment.",
       "alreadyClaimed": "This reward was already claimed.",
       "frozen": "Your bank account is frozen: nothing can be paid to it."
+    },
+    "daily": {
+      "how": "Every day at midnight, new quests are drawn, the same for everyone. Finish them before midnight: each pays once a day.",
+      "endsIn": "Ends in {h} h {m} min",
+      "goal": "Goal: {n}.",
+      "done": "Done",
+      "finished": "Nobody finished it yet. | 1 player finished it. | {n} players finished it.",
+      "empty": {
+        "title": "No quest today",
+        "body": "No daily quest is drawn right now. Come back tomorrow."
+      }
     }
   },
   "gamesplanet": {

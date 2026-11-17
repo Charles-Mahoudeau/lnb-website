@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, notInArray, sql } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { db } from '~~/server/db';
@@ -10,7 +10,9 @@ import {
   economySettings,
   economyTransaction,
   minecraftAccount,
+  quest,
   questCommunity,
+  questDailyDraw,
   questIndexDay,
   questSettingsRow,
   user,
@@ -19,6 +21,8 @@ import { offlineUuid } from '~~/server/lib/minecraft';
 import { economyServerService } from '~~/server/services/economy/server';
 import { questAdminService } from '~~/server/services/quests/admin';
 import { communityService } from '~~/server/services/quests/community';
+import { questDailyService } from '~~/server/services/quests/daily';
+import { parisDay, previousDay } from '~~/server/services/quests/formula';
 import { questPublicService } from '~~/server/services/quests/public';
 import { questServerService } from '~~/server/services/quests/server';
 import { currentSeason } from '~~/server/services/quests/shared';
@@ -129,7 +133,7 @@ describe('catalogue', () => {
     const again = await questServerService.seedCatalog({
       quests: [{ ...individual(id), name: { fr: 'Autre', en: 'Other' } }],
     });
-    expect(again).toEqual({ added: [], kept: [id] });
+    expect(again).toEqual({ added: [], kept: [id], categoriesAdded: [] });
     const config = await questServerService.config();
     const quest = config.quests.find((entry) => (entry as { id: string }).id === id) as {
       name: { fr: string };
@@ -448,5 +452,230 @@ describe('index, cap and seasons', () => {
     const page = await questPublicService.overview({ userId: admin.id });
     expect(page.season.number).toBe(before.number + 1);
     expect(page.me?.done).toBe(0);
+  });
+});
+
+function dailyQuest(id: string, quantity: number) {
+  return {
+    id,
+    family: 'daily',
+    name: { fr: 'Bûcheron du jour', en: "Today's lumberjack" },
+    icon: 'minecraft:oak_log',
+    objective: { type: 'mine', target: '#minecraft:logs' },
+    range: { min: quantity, max: quantity },
+    rewardPerUnit: 5,
+  };
+}
+
+describe('categories', () => {
+  it('starts with the chapters and Records groups the game hard-coded', async () => {
+    const config = await questServerService.config();
+    const ids = config.categories.map((category) => `${category.family}:${category.id}`);
+    expect(ids).toEqual(
+      expect.arrayContaining(['individual:mining', 'individual:delivery', 'server:nether']),
+    );
+    expect(ids.indexOf('individual:mining')).toBeLessThan(ids.indexOf('individual:combat'));
+  });
+
+  it("adds quests.json's categories and checks the quests' names against them", async () => {
+    const category = `early_${suffix()}`;
+    const id = `early_${suffix()}`;
+    const result = await questServerService.seedCatalog({
+      categories: [
+        {
+          id: category,
+          family: 'individual',
+          name: { fr: 'Début de partie', en: 'Early game' },
+          icon: 'minecraft:wooden_pickaxe',
+          subcategories: [{ id: 'tools', name: { fr: 'Outils', en: 'Tools' } }],
+        },
+      ],
+      quests: [{ ...individual(id), category, subcategory: 'tools' }],
+    });
+    expect(result).toMatchObject({ added: [id], categoriesAdded: [`individual:${category}`] });
+    const config = await questServerService.config();
+    expect(config.categories.find((entry) => entry.id === category)).toMatchObject({
+      name: { en: 'Early game' },
+      subcategories: [{ id: 'tools' }],
+    });
+
+    await expect(
+      questServerService.seedCatalog({
+        quests: [{ ...individual(`x_${suffix()}`), category: 'nowhere' }],
+      }),
+    ).rejects.toMatchObject({ statusCode: 400, data: { problem: 'unknownCategory' } });
+    await expect(
+      questServerService.seedCatalog({
+        quests: [{ ...individual(`x_${suffix()}`), category, subcategory: 'weapons' }],
+      }),
+    ).rejects.toMatchObject({ statusCode: 400 });
+    // A server quest without a category is fine: the game places it from its advancement.
+    const free = `deeper_${suffix()}`;
+    expect((await questServerService.seedCatalog({ quests: [serverQuest(free)] })).added).toEqual([
+      free,
+    ]);
+  });
+
+  it('refuses to delete a category or drop a subcategory that quests use', async () => {
+    const admin = await player();
+    const category = `cat_${suffix()}`;
+    await questAdminService.createCategory(admin.id, {
+      id: category,
+      family: 'server',
+      name: { fr: 'Aventure', en: 'Adventure' },
+      icon: 'minecraft:map',
+      subcategories: [{ id: 'far', name: { fr: 'Loin', en: 'Far' } }],
+    });
+    await expect(
+      questAdminService.createCategory(admin.id, {
+        id: category,
+        family: 'server',
+        name: { fr: 'Encore', en: 'Again' },
+        icon: 'minecraft:map',
+      }),
+    ).rejects.toMatchObject({ data: { problem: 'idTaken' } });
+    const id = `adventure_${suffix()}`;
+    await questAdminService.createQuest(admin.id, {
+      ...serverQuest(id),
+      category,
+      subcategory: 'far',
+    });
+    await expect(
+      questAdminService.deleteCategory(admin.id, 'server', category),
+    ).rejects.toMatchObject({ data: { problem: 'categoryInUse' } });
+    await expect(
+      questAdminService.updateCategory(admin.id, 'server', category, {
+        name: { fr: 'Aventure', en: 'Adventure' },
+        icon: 'minecraft:map',
+        subcategories: [],
+      }),
+    ).rejects.toMatchObject({ data: { problem: 'categoryInUse' } });
+
+    await questAdminService.updateQuest(admin.id, id, {
+      definition: { ...serverQuest(id), category: 'nether' },
+    });
+    await questAdminService.deleteCategory(admin.id, 'server', category);
+    expect((await questAdminService.categories()).some((entry) => entry.id === category)).toBe(
+      false,
+    );
+  });
+
+  it('imports and exports categories with the quests', async () => {
+    const admin = await player();
+    const category = `imp_${suffix()}`;
+    const id = `imp_${suffix()}`;
+    const result = await questAdminService.importCatalog(admin.id, {
+      categories: [
+        {
+          id: category,
+          family: 'individual',
+          name: { fr: 'Importée', en: 'Imported' },
+          icon: 'minecraft:chest',
+        },
+      ],
+      quests: [{ ...individual(id), category }],
+    });
+    expect(result).toMatchObject({ added: [id], categoriesAdded: [`individual:${category}`] });
+    const exported = await questAdminService.exportCatalog();
+    expect(exported.categories.some((entry) => entry.id === category)).toBe(true);
+    expect(exported.quests.find((entry) => entry.id === id)).toMatchObject({ category });
+  });
+});
+
+describe('daily quests', () => {
+  /** Only these daily quests can be drawn, `count` a day, and today isn't drawn yet. */
+  async function onlyThese(ids: string[], count: number) {
+    await db
+      .update(quest)
+      .set({ enabled: false })
+      .where(and(eq(quest.family, 'daily'), notInArray(quest.id, ids)));
+    await db.delete(questDailyDraw).where(eq(questDailyDraw.day, parisDay()));
+    await questAdminService.updateSettings((await player()).id, { daily: { count } });
+  }
+
+  it('draws the same quests for everyone and pays each player once', async () => {
+    const a = `daily_${suffix()}`;
+    const b = `daily_${suffix()}`;
+    await questServerService.seedCatalog({ quests: [dailyQuest(a, 4), dailyQuest(b, 6)] });
+    await onlyThese([a, b], 2);
+
+    const config = await questServerService.config();
+    expect(config.daily.day).toBe(parisDay());
+    expect(config.daily.quests).toHaveLength(2);
+    expect(config.daily.quests).toEqual(
+      expect.arrayContaining([
+        { quest: a, quantity: 4 },
+        { quest: b, quantity: 6 },
+      ]),
+    );
+    // Asked again, the day keeps its draw.
+    expect((await questDailyService.today()).quests).toEqual(config.daily.quests);
+    expect(new Date(config.daily.endsAt).getTime()).toBeGreaterThan(Date.now());
+
+    const who = await player(5000);
+    const key = randomUUID();
+    const paid = await questDailyService.complete({
+      idempotencyKey: key,
+      player: who.uuid,
+      day: parisDay(),
+      quest: a,
+    });
+    expect(paid).toMatchObject({ replayed: false, quantity: 4, amount: 20, capped: false });
+    expect(await balanceOf(who.id)).toBe(5020);
+    const again = await questDailyService.complete({
+      idempotencyKey: key,
+      player: who.uuid,
+      day: parisDay(),
+      quest: a,
+    });
+    expect(again).toMatchObject({ replayed: true, amount: 20 });
+    await expect(
+      questDailyService.complete({
+        idempotencyKey: randomUUID(),
+        player: who.uuid,
+        day: parisDay(),
+        quest: a,
+      }),
+    ).rejects.toMatchObject({ data: { problem: 'alreadyCompleted' } });
+    expect(await balanceOf(who.id)).toBe(5020);
+
+    const view = await questServerService.playerView(who.uuid);
+    expect(view.daily).toEqual([a]);
+    const page = await questPublicService.overview({ userId: who.id });
+    expect(page.me?.daily).toEqual([a]);
+    expect(page.daily?.quests.find((entry) => entry.quest === a)?.done).toBe(1);
+    expect(page.leaderboard.some((row) => row.username === who.username)).toBe(true);
+  });
+
+  it("refuses a quest that wasn't drawn, or a day that is over", async () => {
+    const a = `daily_${suffix()}`;
+    const other = `daily_${suffix()}`;
+    await questServerService.seedCatalog({ quests: [dailyQuest(a, 3), dailyQuest(other, 3)] });
+    await onlyThese([a], 1);
+    await questDailyService.today();
+    const who = await player();
+    await expect(
+      questDailyService.complete({
+        idempotencyKey: randomUUID(),
+        player: who.uuid,
+        day: parisDay(),
+        quest: other,
+      }),
+    ).rejects.toMatchObject({ data: { problem: 'notDrawn' } });
+    await expect(
+      questDailyService.complete({
+        idempotencyKey: randomUUID(),
+        player: who.uuid,
+        day: previousDay(previousDay(parisDay())),
+        quest: a,
+      }),
+    ).rejects.toMatchObject({ data: { problem: 'expired' } });
+  });
+
+  it('draws nothing when the count is 0', async () => {
+    const a = `daily_${suffix()}`;
+    await questServerService.seedCatalog({ quests: [dailyQuest(a, 3)] });
+    await onlyThese([a], 0);
+    expect((await questDailyService.today()).quests).toEqual([]);
   });
 });

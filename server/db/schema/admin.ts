@@ -119,7 +119,10 @@ export type AdminAuditAction =
   | 'quests.communityCreate'
   | 'quests.communityUpdate'
   | 'quests.communityCancel'
-  | 'quests.communityTemplate';
+  | 'quests.communityTemplate'
+  | 'quests.categoryCreate'
+  | 'quests.categoryUpdate'
+  | 'quests.categoryDelete';
 
 // Rows outlive the accounts they name: a deleted actor or target becomes null, so the log keeps
 // what happened without keeping who it happened to.

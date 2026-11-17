@@ -22,10 +22,11 @@ import { user } from './auth';
 import { economyTransaction } from './economy';
 
 // Quests on the Minecraft server: tiers each player climbs, advancements paid by rank, community
-// goals and flash races. Rewards are LNBits minted with the reason `questReward`, sized by a daily
+// goals, flash races and daily quests. Rewards are LNBits minted with the reason `questReward`, sized by a daily
 // index of the players' wealth. See docs/quests.md.
 
-export type QuestFamily = 'individual' | 'server' | 'flash';
+export type QuestFamily = 'individual' | 'server' | 'flash' | 'daily';
+export type QuestCategoryFamily = 'individual' | 'server';
 export type QuestSource = 'catalog' | 'site';
 export type QuestCommunityStatus = 'scheduled' | 'running' | 'paid' | 'cancelled';
 
@@ -65,6 +66,31 @@ export const quest = pgTable('quest', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+/**
+ * A category: an individual chapter or a Records group, with its subcategories (headings inside it).
+ * Quests name it in their definition. Brought by quests.json or made by an admin; one a quest uses
+ * can't be deleted.
+ */
+export const questCategory = pgTable(
+  'quest_category',
+  {
+    family: text('family').$type<QuestCategoryFamily>().notNull(),
+    id: text('id').notNull(),
+    name: jsonb('name').$type<{ fr: string; en: string }>().notNull(),
+    icon: text('icon').notNull(),
+    siteIcon: text('site_icon'),
+    subcategories: jsonb('subcategories')
+      .$type<{ id: string; name: { fr: string; en: string } }[]>()
+      .default([])
+      .notNull(),
+    sortOrder: integer('sort_order').default(0).notNull(),
+    source: text('source').$type<QuestSource>().notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.family, table.id] })],
+);
 
 /**
  * A reward earned: an individual tier reached, or a rank on a server quest. The amount is frozen
@@ -161,6 +187,57 @@ export const questFlashRun = pgTable(
     fingerprint: text('fingerprint').notNull(),
   },
   (table) => [index('quest_flash_run_ended_idx').on(table.endedAt)],
+);
+
+/** A daily quest drawn for one Paris day, the same for everyone. Drawn when first asked for. */
+export const questDailyDraw = pgTable(
+  'quest_daily_draw',
+  {
+    day: date('day', { mode: 'string' }).notNull(),
+    slot: smallint('slot').notNull(),
+    questId: text('quest_id')
+      .notNull()
+      .references(() => quest.id),
+    quantity: integer('quantity').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.day, table.slot] }),
+    uniqueIndex('quest_daily_draw_quest_idx').on(table.day, table.questId),
+  ],
+);
+
+/** A daily quest one person finished, paid at once. Once per day, quest and LNB account. */
+export const questDailyCompletion = pgTable(
+  'quest_daily_completion',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    seasonId: integer('season_id')
+      .notNull()
+      .references(() => questSeason.id),
+    day: date('day', { mode: 'string' }).notNull(),
+    questId: text('quest_id')
+      .notNull()
+      .references(() => quest.id),
+    userId: text('user_id').references(() => user.id, { onDelete: 'set null' }),
+    minecraftUuid: uuid('minecraft_uuid').notNull(),
+    username: text('username').notNull(),
+    quantity: integer('quantity').notNull(),
+    amount: bigint('amount', { mode: 'number' }).notNull(),
+    capped: boolean('capped').default(false).notNull(),
+    kGlobal: real('k_global').notNull(),
+    kPlayer: real('k_player').notNull(),
+    transactionId: bigint('transaction_id', { mode: 'number' }).references(
+      () => economyTransaction.id,
+    ),
+    idempotencyKey: uuid('idempotency_key').notNull().unique(),
+    fingerprint: text('fingerprint').notNull(),
+    completedAt: timestamp('completed_at').defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex('quest_daily_completion_user_idx').on(table.day, table.questId, table.userId),
+    index('quest_daily_completion_completed_idx').on(table.completedAt),
+  ],
 );
 
 /** A community quest: the whole server works towards one goal, paid by tier when it ends. */

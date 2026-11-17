@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// Individual quests (docs/quests.md): categories beside chains of cumulative tiers. A tier shows
-// as claimed, ready to claim (on the site or in the game), in progress, or locked until the one
-// before it is done.
+// Individual quests (docs/quests.md): categories beside chains of cumulative tiers, grouped by
+// subcategory. A tier shows as claimed, ready to claim (on the site or in the game), in progress,
+// or locked until the one before it is done.
 import type { QuestOverview } from '~/composables/useQuests';
 
 const props = defineProps<{ data: QuestOverview }>();
@@ -10,19 +10,24 @@ const emit = defineEmits<{ claimed: [] }>();
 const { t, locale } = useI18n();
 const toast = useToast();
 
-const categories = ['mining', 'combat', 'fishing', 'exploration', 'crafting', 'delivery'] as const;
 const quests = computed(() =>
   props.data.quests.flatMap((quest) => (quest.family === 'individual' ? [quest] : [])),
 );
-const counts = computed(() =>
-  Object.fromEntries(
-    categories.map((c) => [c, quests.value.filter((q) => q.category === c).length]),
+// Categories with at least one quest, in the admin's order.
+const categories = computed(() =>
+  props.data.categories.filter(
+    (c) => c.family === 'individual' && quests.value.some((q) => q.category === c.id),
   ),
 );
-const category = ref<(typeof categories)[number]>(
-  categories.find((c) => quests.value.some((q) => q.category === c)) ?? 'mining',
+const counts = computed(() =>
+  Object.fromEntries(
+    categories.value.map((c) => [c.id, quests.value.filter((q) => q.category === c.id).length]),
+  ),
 );
+const category = ref(categories.value[0]?.id ?? '');
+const current = computed(() => categories.value.find((c) => c.id === category.value));
 const shown = computed(() => quests.value.filter((quest) => quest.category === category.value));
+const groups = computed(() => bySubcategory(shown.value, current.value));
 
 function completion(questId: string, tier: number) {
   return props.data.me?.completions.find((c) => c.quest === questId && c.tier === tier);
@@ -80,18 +85,18 @@ async function claim(id: string) {
     >
       <button
         v-for="c in categories"
-        :key="c"
+        :key="c.id"
         type="button"
         class="flex shrink-0 items-center gap-3 rounded-md px-2.5 py-2 text-left font-medium"
         :class="
-          c === category ? 'bg-secondary/15 text-secondary' : 'text-default hover:bg-accented'
+          c.id === category ? 'bg-secondary/15 text-secondary' : 'text-default hover:bg-accented'
         "
-        :aria-pressed="c === category"
-        @click="category = c"
+        :aria-pressed="c.id === category"
+        @click="category = c.id"
       >
-        <IconTile :icon="QUEST_ICONS[c]!" />
-        <span class="flex-1">{{ t(`quests.category.${c}`) }}</span>
-        <span class="text-sm text-muted tabular-nums">{{ counts[c] }}</span>
+        <IconTile :icon="categoryIcon(c)" />
+        <span class="flex-1">{{ questName(c.name, locale) }}</span>
+        <span class="text-sm text-muted tabular-nums">{{ counts[c.id] }}</span>
       </button>
     </nav>
 
@@ -99,111 +104,116 @@ async function claim(id: string) {
       <p v-if="!shown.length" class="rounded-lg bg-elevated p-6 text-muted">
         {{ t('quests.individual.empty') }}
       </p>
-      <article
-        v-for="quest in shown"
-        :key="quest.id"
-        class="flex flex-col gap-4 rounded-lg bg-elevated px-6 py-5"
-      >
-        <div class="flex items-center gap-3">
-          <IconTile :icon="QUEST_ICONS[quest.category]!" />
-          <div class="min-w-0">
-            <h3 class="font-bold text-highlighted">{{ questName(quest.name, locale) }}</h3>
-            <p class="text-sm text-muted">
-              {{
-                quest.description
-                  ? questName(quest.description, locale)
-                  : t(`quests.objective.${quest.objective.type}`)
-              }}
-              {{ t('quests.individual.cumulative') }}
-            </p>
-          </div>
-        </div>
-        <ol class="grid gap-3 sm:grid-cols-3">
-          <li
-            v-for="(tier, index) in quest.tiers"
-            :key="index"
-            class="flex flex-col gap-2 rounded-md bg-default p-4"
-            :class="state(quest.id, index + 1) === 'locked' ? 'opacity-60' : ''"
-          >
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <span class="text-sm text-muted">{{
-                t('quests.individual.tier', { n: index + 1 })
-              }}</span>
-              <UBadge
-                v-if="state(quest.id, index + 1) === 'claimed'"
-                color="neutral"
-                variant="outline"
-                icon="i-lucide-check"
-                :label="t('quests.individual.state.claimed')"
-              />
-              <UBadge
-                v-else-if="state(quest.id, index + 1) === 'ready'"
-                color="success"
-                variant="subtle"
-                icon="i-lucide-gift"
-                :label="t('quests.individual.state.ready')"
-              />
-              <UBadge
-                v-else-if="state(quest.id, index + 1) === 'progress' && data.me"
-                color="secondary"
-                variant="subtle"
-                :label="t('quests.individual.state.progress')"
-              />
-              <UIcon
-                v-else-if="state(quest.id, index + 1) === 'locked'"
-                name="i-lucide-lock"
-                class="size-4 text-dimmed"
-              />
+      <template v-for="group in groups" :key="group.id ?? '-'">
+        <h3 v-if="group.name" class="mt-2 text-sm font-semibold tracking-wide text-muted uppercase">
+          {{ questName(group.name, locale) }}
+        </h3>
+        <article
+          v-for="quest in group.quests"
+          :key="quest.id"
+          class="flex flex-col gap-4 rounded-lg bg-elevated px-6 py-5"
+        >
+          <div class="flex items-center gap-3">
+            <IconTile :icon="categoryIcon(current)" />
+            <div class="min-w-0">
+              <h3 class="font-bold text-highlighted">{{ questName(quest.name, locale) }}</h3>
+              <p class="text-sm text-muted">
+                {{
+                  quest.description
+                    ? questName(quest.description, locale)
+                    : t(`quests.objective.${quest.objective.type}`)
+                }}
+                {{ t('quests.individual.cumulative') }}
+              </p>
             </div>
-            <template v-if="state(quest.id, index + 1) === 'locked'">
-              <p class="text-sm text-muted">{{ t('quests.individual.locked', { n: index }) }}</p>
-            </template>
-            <template v-else>
-              <span class="font-semibold text-highlighted tabular-nums">{{
-                formatLnbits(tier.amount, locale)
-              }}</span>
-              <template v-if="state(quest.id, index + 1) === 'progress' && data.me">
-                <UProgress
+          </div>
+          <ol class="grid gap-3 sm:grid-cols-3">
+            <li
+              v-for="(tier, index) in quest.tiers"
+              :key="index"
+              class="flex flex-col gap-2 rounded-md bg-default p-4"
+              :class="state(quest.id, index + 1) === 'locked' ? 'opacity-60' : ''"
+            >
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-sm text-muted">{{
+                  t('quests.individual.tier', { n: index + 1 })
+                }}</span>
+                <UBadge
+                  v-if="state(quest.id, index + 1) === 'claimed'"
                   color="neutral"
-                  size="sm"
-                  :model-value="Math.min(data.me.progress[quest.id] ?? 0, tier.amount)"
-                  :max="tier.amount"
+                  variant="outline"
+                  icon="i-lucide-check"
+                  :label="t('quests.individual.state.claimed')"
                 />
-                <span class="text-xs text-muted tabular-nums">
-                  {{ formatLnbits(data.me.progress[quest.id] ?? 0, locale) }} /
-                  {{ formatLnbits(tier.amount, locale) }}
+                <UBadge
+                  v-else-if="state(quest.id, index + 1) === 'ready'"
+                  color="success"
+                  variant="subtle"
+                  icon="i-lucide-gift"
+                  :label="t('quests.individual.state.ready')"
+                />
+                <UBadge
+                  v-else-if="state(quest.id, index + 1) === 'progress' && data.me"
+                  color="secondary"
+                  variant="subtle"
+                  :label="t('quests.individual.state.progress')"
+                />
+                <UIcon
+                  v-else-if="state(quest.id, index + 1) === 'locked'"
+                  name="i-lucide-lock"
+                  class="size-4 text-dimmed"
+                />
+              </div>
+              <template v-if="state(quest.id, index + 1) === 'locked'">
+                <p class="text-sm text-muted">{{ t('quests.individual.locked', { n: index }) }}</p>
+              </template>
+              <template v-else>
+                <span class="font-semibold text-highlighted tabular-nums">{{
+                  formatLnbits(tier.amount, locale)
+                }}</span>
+                <template v-if="state(quest.id, index + 1) === 'progress' && data.me">
+                  <UProgress
+                    color="neutral"
+                    size="sm"
+                    :model-value="Math.min(data.me.progress[quest.id] ?? 0, tier.amount)"
+                    :max="tier.amount"
+                  />
+                  <span class="text-xs text-muted tabular-nums">
+                    {{ formatLnbits(data.me.progress[quest.id] ?? 0, locale) }} /
+                    {{ formatLnbits(tier.amount, locale) }}
+                  </span>
+                </template>
+                <UButton
+                  v-if="state(quest.id, index + 1) === 'ready'"
+                  class="self-start"
+                  size="md"
+                  :loading="claiming === completion(quest.id, index + 1)?.id"
+                  :label="t('quests.individual.claim')"
+                  @click="claim(completion(quest.id, index + 1)!.id)"
+                />
+                <div>
+                  <span class="font-display text-lg font-medium text-highlighted tabular-nums">
+                    <template v-if="completion(quest.id, index + 1)">
+                      {{ formatLnbits(completion(quest.id, index + 1)!.amount, locale) }}
+                    </template>
+                    <template v-else
+                      >≈ {{ formatLnbits(quest.today[index]! * kPlayer, locale) }}</template
+                    >
+                  </span>
+                  <span class="text-sm text-muted"> LNBits</span>
+                </div>
+                <span v-if="tier.items.length" class="text-xs text-muted">
+                  {{
+                    t('quests.individual.plusItems', {
+                      items: tier.items.map((item) => `${item.count} × ${item.name}`).join(', '),
+                    })
+                  }}
                 </span>
               </template>
-              <UButton
-                v-if="state(quest.id, index + 1) === 'ready'"
-                class="self-start"
-                size="md"
-                :loading="claiming === completion(quest.id, index + 1)?.id"
-                :label="t('quests.individual.claim')"
-                @click="claim(completion(quest.id, index + 1)!.id)"
-              />
-              <div>
-                <span class="font-display text-lg font-medium text-highlighted tabular-nums">
-                  <template v-if="completion(quest.id, index + 1)">
-                    {{ formatLnbits(completion(quest.id, index + 1)!.amount, locale) }}
-                  </template>
-                  <template v-else
-                    >≈ {{ formatLnbits(quest.today[index]! * kPlayer, locale) }}</template
-                  >
-                </span>
-                <span class="text-sm text-muted"> LNBits</span>
-              </div>
-              <span v-if="tier.items.length" class="text-xs text-muted">
-                {{
-                  t('quests.individual.plusItems', {
-                    items: tier.items.map((item) => `${item.count} × ${item.name}`).join(', '),
-                  })
-                }}
-              </span>
-            </template>
-          </li>
-        </ol>
-      </article>
+            </li>
+          </ol>
+        </article>
+      </template>
       <p class="border-l-2 border-secondary pl-3 text-sm text-muted">
         {{
           data.me

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Quest settings (docs/quests.md): the reward formula from the economy spec, who counts as
-// active, the 30-day cap and its family shares, flash races, anti-cheat and the server's polling.
+// active, the 30-day cap and its family shares, flash races, daily quests, anti-cheat and the
+// server's polling.
 // A preview recomputes today's index with the values being edited. New seasons start here too.
 import type { QuestSettings } from '#shared/schemas/quests';
 
@@ -236,7 +237,7 @@ const current = computed(() => seasons.value?.find((season) => !season.endedAt))
         </UFormField>
         <ul class="flex flex-col divide-y divide-default">
           <li
-            v-for="family in ['individual', 'server', 'community', 'flash'] as const"
+            v-for="family in ['individual', 'server', 'community', 'flash', 'daily'] as const"
             :key="family"
             class="grid grid-cols-2 items-center gap-3 py-2.5 sm:grid-cols-4"
           >
@@ -301,6 +302,19 @@ const current = computed(() => seasons.value?.find((season) => !season.endedAt))
               v-model.number="state.flash.durationMinutes"
               type="number"
               min="1"
+              class="w-full"
+            />
+          </UFormField>
+          <UFormField
+            :label="t('admin.quests.settings.dailyCount')"
+            name="dailyCount"
+            :help="t('admin.quests.settings.dailyCountHelp')"
+          >
+            <UInput
+              v-model.number="state.daily.count"
+              type="number"
+              min="0"
+              max="10"
               class="w-full"
             />
           </UFormField>
