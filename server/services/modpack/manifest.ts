@@ -5,6 +5,7 @@ import { and, eq, inArray, isNull, isNotNull } from 'drizzle-orm';
 import { db } from '~~/server/db';
 import { modpackMod, modpackState, storedFile } from '~~/server/db/schema';
 import { siteUrl } from '~~/server/lib/site';
+import { latestLoaderVersion } from '~~/server/services/modpack/loader-version';
 import { modSettingsService } from '~~/server/services/mods/settings';
 
 import type { ModpackManifest, ModpackSide, ModpackSource } from '#shared/schemas/modpack';
@@ -60,7 +61,9 @@ async function build(): Promise<ModpackManifest> {
     updatedAt: (state?.updatedAt ?? new Date(0)).toISOString(),
     gameVersion: settings.gameVersion,
     loader: settings.loader,
-    loaderVersion: settings.loaderVersion,
+    // The admin's value wins. Otherwise the loader's newest version for the game version.
+    loaderVersion:
+      settings.loaderVersion || (await latestLoaderVersion(settings.loader, settings.gameVersion)),
     mods,
     assets: files.map((file) => ({
       name: file.name,
