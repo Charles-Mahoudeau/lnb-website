@@ -1,7 +1,8 @@
+import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { db } from '~~/server/db';
-import { modpackMod, storedFile } from '~~/server/db/schema';
+import { modListSettings, modpackMod, storedFile } from '~~/server/db/schema';
 import { modpackManifestService } from '~~/server/services/modpack/manifest';
 
 vi.mock('~~/server/lib/site', () => ({
@@ -94,5 +95,18 @@ describe('manifest', () => {
       pinnedSha512: 'n',
     });
     expect((await modpackManifestService.render()).etag).not.toBe(first.etag);
+  });
+
+  it('resolves latest, and keeps a version an admin pinned', async () => {
+    expect((await modpackManifestService.build()).loaderVersion).toBe('21.1.200');
+    await db
+      .update(modListSettings)
+      .set({ loaderVersion: '21.1.100' })
+      .where(eq(modListSettings.id, 1));
+    expect((await modpackManifestService.build()).loaderVersion).toBe('21.1.100');
+    await db
+      .update(modListSettings)
+      .set({ loaderVersion: 'latest' })
+      .where(eq(modListSettings.id, 1));
   });
 });

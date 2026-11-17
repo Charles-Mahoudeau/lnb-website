@@ -61,9 +61,11 @@ async function build(): Promise<ModpackManifest> {
     updatedAt: (state?.updatedAt ?? new Date(0)).toISOString(),
     gameVersion: settings.gameVersion,
     loader: settings.loader,
-    // The admin's value wins. Otherwise the loader's newest version for the game version.
+    // `latest` follows the loader's newest version for the game version.
     loaderVersion:
-      settings.loaderVersion || (await latestLoaderVersion(settings.loader, settings.gameVersion)),
+      settings.loaderVersion === 'latest'
+        ? await latestLoaderVersion(settings.loader, settings.gameVersion)
+        : settings.loaderVersion,
     mods,
     assets: files.map((file) => ({
       name: file.name,

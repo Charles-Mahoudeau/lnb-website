@@ -910,6 +910,10 @@
         "gameVersion": "Version de Minecraft",
         "loader": "Loader",
         "loaderVersion": "Version du loader",
+        "loaderVersionLatest": "Dernière : {version}. Saisissez « latest » pour toujours la suivre.",
+        "loaderVersionUnknown": "Impossible de trouver la dernière version. Saisissez « latest » pour la suivre dès que possible.",
+        "loaderVersionUseLatest": "Utiliser latest",
+        "loaderVersionInvalid": "Une version comme 21.1.172, ou « latest ».",
         "serverHelp": "Les nouveaux mods doivent tourner sur cette version et ce loader. Les mods déjà dans la liste ne sont pas revérifiés.",
         "save": "Enregistrer les réglages",
         "saved": "Réglages enregistrés"

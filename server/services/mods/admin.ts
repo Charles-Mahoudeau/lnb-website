@@ -7,6 +7,7 @@ import { mod, modListSettings, modVote, user } from '~~/server/db/schema';
 import { anticheatReportService } from '~~/server/services/anticheat/reports';
 import { anticheatScoringService } from '~~/server/services/anticheat/scoring';
 import type { ModpackEntry } from '~~/server/services/anticheat/scoring';
+import { latestLoaderVersion } from '~~/server/services/modpack/loader-version';
 import { wardenAuditService } from '~~/server/services/warden/audit';
 import type { WardenActor } from '~~/server/services/warden/shared';
 
@@ -19,11 +20,11 @@ import { modsWithVotes } from './views';
 import type {
   ModAddBody,
   ModAdminPatchBody,
+  ModAdminSettingsView,
   ModAdminRow,
   ModConvertBody,
   ModListName,
   ModSettingsPatchBody,
-  ModSettingsView,
 } from '#shared/schemas/mods';
 
 // The Mods section of the admin area. Every change is written to warden_audit, since the
@@ -395,10 +396,19 @@ async function deleteOfficial(input: { modId: number; actor: WebActor }) {
   await notifyRescored(changed);
 }
 
+/** The settings with the newest loader version, shown next to the one in use. */
+async function adminSettings(): Promise<ModAdminSettingsView> {
+  const settings = await modSettingsService.get();
+  return {
+    ...settings,
+    latestLoaderVersion: await latestLoaderVersion(settings.loader, settings.gameVersion),
+  };
+}
+
 async function updateSettings(input: {
   patch: ModSettingsPatchBody;
   actor: WebActor;
-}): Promise<ModSettingsView> {
+}): Promise<ModAdminSettingsView> {
   await db.transaction(async (tx) => {
     await tx
       .update(modListSettings)
@@ -421,7 +431,7 @@ async function updateSettings(input: {
       data: { changed: input.patch },
     });
   });
-  return modSettingsService.get();
+  return adminSettings();
 }
 
 export const modAdminService = {
@@ -433,6 +443,6 @@ export const modAdminService = {
   remove,
   restore,
   deleteOfficial,
-  settings: () => modSettingsService.get(),
+  settings: adminSettings,
   updateSettings,
 };
