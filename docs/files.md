@@ -20,6 +20,10 @@
 
 If the reverse proxy limits request bodies (Traefik in Coolify doesn't by default), it has to allow 100 MB on this route.
 
+## Changing the type
+
+`PATCH /api/admin/files/<id>` with `{kind}`, from a "Type" selector in the file's drawer. The new kind has to accept the file's extension (`fileBadType`), and a file that a mod or a tool uses keeps its kind (`fileInUse`), since that use depends on it. So in practice only jars move, between mod jar, wrapper and updater: no extension is accepted by both a jar kind and asset. It is written to `warden_audit` (`file.kind`). Use it when a jar was uploaded as the wrong kind, instead of deleting and uploading it again.
+
 ## Downloading
 
 `GET /api/files/<sha256>/<name>`, without sign-in, so the launcher can fetch it. The address holds the hash of the bytes, which never change, so it is cached for a year (`ETag` is the hash). The name after it is only there so the link reads well: the response always uses the name stored with the file. Every file is sent as `application/octet-stream`, as an attachment, with `nosniff`, so nothing in a file runs in a browser, whatever it is.

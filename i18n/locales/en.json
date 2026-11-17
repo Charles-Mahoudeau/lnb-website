@@ -1086,7 +1086,13 @@
         "download": "Download",
         "delete": "Delete",
         "cancel": "Cancel",
-        "deleteConfirm": "Delete this file? Its download link stops working at once."
+        "deleteConfirm": "Delete this file? Its download link stops working at once.",
+        "kindTitle": "Type",
+        "kindHelp": "What the file is for. It decides where it shows up: the manifest's assets, the mod jars, or one of the launcher's tools.",
+        "kindSave": "Change the type",
+        "kindLocked": "Something uses this file, so its type is fixed.",
+        "kindChanged": "Type changed",
+        "kindOnly": "Its extension only allows this type."
       },
       "errors": {
         "failed": "Something went wrong. Try again.",
@@ -1096,7 +1102,7 @@
         "fileBadName": "The file name isn't usable. Rename it and try again.",
         "fileBadType": "This kind of file isn't accepted here, or it isn't a valid jar or zip archive.",
         "fileDuplicate": "This exact file is already in the library.",
-        "fileInUse": "Something still uses this file, so it can't be deleted.",
+        "fileInUse": "Something still uses this file, so it can't be deleted or changed.",
         "fileUnreadable": "The upload was cut off. Try again."
       }
     },
@@ -3649,7 +3655,8 @@
       "modpackRemove": "Removed {name} from the Modlist",
       "modpackAdopt": "Adopted a newer file of {name}",
       "modpackTool": "Published a new {name}",
-      "modpackExport": "Exported the vote list to the Modlist"
+      "modpackExport": "Exported the vote list to the Modlist",
+      "fileKind": "Changed the type of {name}"
     },
     "actors": {
       "console": "Console",

@@ -42,8 +42,18 @@ export const FILE_EXTENSIONS: Record<FileKind, readonly string[]> = {
   asset: ['zip', 'txt', 'json', 'dat', 'toml', 'properties', 'cfg'],
 };
 
+/** The kinds a file can have, from its name's extension: what an admin can switch it to. */
+export function kindsFor(name: string): FileKind[] {
+  const extension = name.slice(name.lastIndexOf('.') + 1).toLowerCase();
+  return FILE_KINDS.filter((kind) => FILE_EXTENSIONS[kind].includes(extension));
+}
+
 /** The kinds whose files are zip archives, so their first bytes are checked. */
 export const ZIP_EXTENSIONS: readonly string[] = ['jar', 'zip'];
+
+/** Body of PATCH /api/admin/files/{id}. */
+export const fileKindBody = z.object({ kind: fileKind });
+export type FileKindBody = z.infer<typeof fileKindBody>;
 
 export const fileIdParams = z.object({ id: z.uuid() });
 export const fileDownloadParams = z.object({

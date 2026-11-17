@@ -4,10 +4,11 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
 
+import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { db } from '~~/server/db';
-import { storedFile, user, wardenAudit } from '~~/server/db/schema';
+import { modpackTool, storedFile, user, wardenAudit } from '~~/server/db/schema';
 import { cleanFileName, fileService } from '~~/server/services/files';
 
 import { MAX_FILE_BYTES } from '#shared/schemas/files';
@@ -211,5 +212,41 @@ describe('the library', () => {
     const view = await upload(bytes);
     await fileService.remove({ id: view.id, actorUserId: ADMIN });
     expect((await upload(bytes)).sha256).toBe(view.sha256);
+  });
+
+  it('changes the kind of a file and audits it', async () => {
+    const view = await upload(jar(unique()), 'tool.jar');
+    expect(
+      (await fileService.setKind({ id: view.id, kind: 'wrapper', actorUserId: ADMIN })).kind,
+    ).toBe('wrapper');
+    const audit = await db.select().from(wardenAudit).where(eq(wardenAudit.action, 'file.kind'));
+    expect(audit.length).toBeGreaterThan(0);
+
+    const text = await upload(Buffer.from(unique()), 'notes.txt', 'asset');
+    expect(
+      await problemOf(fileService.setKind({ id: text.id, kind: 'mod', actorUserId: ADMIN })),
+    ).toBe('fileBadType');
+    const zip = await upload(jar(unique()), 'pack.zip', 'asset');
+    expect(
+      await problemOf(fileService.setKind({ id: zip.id, kind: 'wrapper', actorUserId: ADMIN })),
+    ).toBe('fileBadType');
+    // A jar can't be an asset: its extension isn't one an asset accepts.
+    expect(
+      await problemOf(fileService.setKind({ id: view.id, kind: 'asset', actorUserId: ADMIN })),
+    ).toBe('fileBadType');
+    expect(
+      await problemOf(
+        fileService.setKind({ id: crypto.randomUUID(), kind: 'mod', actorUserId: ADMIN }),
+      ),
+    ).toBe('fileNotFound');
+  });
+
+  it('keeps the kind of a file that a tool uses', async () => {
+    const view = await upload(jar(unique()), 'launcher.jar', 'wrapper');
+    await db.insert(modpackTool).values({ tool: 'launcher', fileId: view.id, version: '1' });
+    expect(
+      await problemOf(fileService.setKind({ id: view.id, kind: 'mod', actorUserId: ADMIN })),
+    ).toBe('fileInUse');
+    await db.delete(modpackTool);
   });
 });

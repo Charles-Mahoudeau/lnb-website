@@ -1090,7 +1090,13 @@
         "download": "Télécharger",
         "delete": "Supprimer",
         "cancel": "Annuler",
-        "deleteConfirm": "Supprimer ce fichier ? Son lien de téléchargement cesse de fonctionner aussitôt."
+        "deleteConfirm": "Supprimer ce fichier ? Son lien de téléchargement cesse de fonctionner aussitôt.",
+        "kindTitle": "Type",
+        "kindHelp": "À quoi sert le fichier. Cela décide où il apparaît : les ressources du manifeste, les jars de mods ou l'un des outils du launcher.",
+        "kindSave": "Changer le type",
+        "kindLocked": "Quelque chose utilise ce fichier, son type est donc fixé.",
+        "kindChanged": "Type modifié",
+        "kindOnly": "Son extension n'autorise que ce type."
       },
       "errors": {
         "failed": "Une erreur s’est produite. Réessayez.",
@@ -1100,7 +1106,7 @@
         "fileBadName": "Le nom du fichier est inutilisable. Renommez-le et réessayez.",
         "fileBadType": "Ce type de fichier n’est pas accepté ici, ou ce n’est pas un jar ou une archive zip valide.",
         "fileDuplicate": "Ce fichier exact est déjà dans la bibliothèque.",
-        "fileInUse": "Quelque chose utilise encore ce fichier : il ne peut pas être supprimé.",
+        "fileInUse": "Quelque chose utilise encore ce fichier, il ne peut donc pas être supprimé ni modifié.",
         "fileUnreadable": "L’envoi a été coupé. Réessayez."
       }
     },
@@ -3653,7 +3659,8 @@
       "modpackRemove": "{name} retiré de la Modlist",
       "modpackAdopt": "Fichier plus récent adopté pour {name}",
       "modpackTool": "Nouvelle version publiée pour {name}",
-      "modpackExport": "Liste du vote exportée vers la Modlist"
+      "modpackExport": "Liste du vote exportée vers la Modlist",
+      "fileKind": "A changé le type de {name}"
     },
     "actors": {
       "console": "Console",

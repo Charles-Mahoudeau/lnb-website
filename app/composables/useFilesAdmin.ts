@@ -60,6 +60,15 @@ function upload(
 /** What admins can do to the library. Each throws a FileError when refused. */
 export const fileActions = {
   upload,
+  setKind: async (id: string, kind: FileKind) => {
+    try {
+      return await $fetch<FileView>(`/api/admin/files/${id}`, { method: 'PATCH', body: { kind } });
+    } catch (error) {
+      throw new FileError(
+        problemOf((error as { data?: { data?: { problem?: unknown } } }).data?.data?.problem),
+      );
+    }
+  },
   remove: async (id: string) => {
     try {
       await $fetch(`/api/admin/files/${id}`, { method: 'DELETE' });
