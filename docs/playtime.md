@@ -2,7 +2,7 @@
 
 A weekly limit on how long players can be on the Minecraft server during restricted hours (for example Monday to Friday, 9:00 to 17:00). The plan is `docs/plans/playtime-limits.md`, and the contract for the mod developers is `docs/plans/playtime-limits-mod.md`. This page says what is built.
 
-**Status:** the data, the counting, the player view, the Minecraft account page and the enforcement (login denial, warnings, grace, kicks) are built. The mode starts in `observe`: everything is counted and shown, and nobody is denied, kicked or warned. The mod doesn't support the events yet, so switch to `enforce` only after it does. The admin is built: the Rules, Closures and Live tabs (`/admin/warden/playtime`) and the Playtime panel of a player's Warden page. Event mode is built (slice 5). The nightly prune (slice 6) is still to do. None of the admin screens has been checked in a real browser.
+**Status:** the data, the counting, the player view, the Minecraft account page and the enforcement (login denial, warnings, grace, kicks) are built. The mode starts in `observe`: everything is counted and shown, and nobody is denied, kicked or warned. The mod doesn't support the events yet, so switch to `enforce` only after it does. The admin is built: the Rules, Closures and Live tabs (`/admin/warden/playtime`) and the Playtime panel of a player's Warden page. Event mode and the nightly prune are built, so the feature is complete apart from the real-browser checks. None of the admin screens has been checked in a real browser.
 
 ## The rules
 
@@ -79,3 +79,9 @@ An event can lift the limit for its days. The event form (Publishing section, ev
 - "Registered" is decided when the player is read (`closureAppliesTo` in `closure-scope.ts`), from `event_registration.status = 'registered'`: registering, leaving, or moving up from the waitlist takes effect on the next five-second tick, with no sync. In team events people never wait (only teams do), so every player registered to the event counts, whatever the state of their team.
 - Event closures can't be edited or deleted from the Closures tab (409), only from the event.
 - Events managers can set it although they can't create closures: it is tied to an event they run, and the event's audit row (`event.create`, `event.update`) records the `playtimeFree` value.
+
+## Retention
+
+- The nightly `playtime:prune` (03:00, flag `jobs.playtimePrune`, `server/services/playtime/prune.ts`) deletes ledger rows of weeks more than 26 weeks before the current Monday, and the warnings (`playtime_notice`) of sessions that ended more than a day ago. It reports `{ ledger, notices }`.
+- Grants and exemptions are not pruned: they are small, and they are the record of who gave time or took an account out of the limit. They go with the account, like the ledger and the warnings: deleting a user (including by `users:delete-inactive`) cascades to all of them, which `test/server/playtime-prune.test.ts` checks.
+- Players never see past weeks, and admins see eight, so 26 weeks is for support questions only.
