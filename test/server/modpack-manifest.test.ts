@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { db } from '~~/server/db';
-import { modListSettings, modpackMod, storedFile } from '~~/server/db/schema';
+import { modListSettings, modpackMod, modpackTool, storedFile } from '~~/server/db/schema';
 import { modpackManifestService } from '~~/server/services/modpack/manifest';
 
 vi.mock('~~/server/lib/site', () => ({
@@ -14,6 +14,7 @@ vi.mock('~~/server/services/modpack/loader-version', () => ({
 }));
 
 beforeEach(async () => {
+  await db.delete(modpackTool);
   await db.delete(modpackMod);
   await db.delete(storedFile);
 });
@@ -24,11 +25,10 @@ describe('manifest', () => {
       .insert(storedFile)
       .values({ sha256: 'f'.repeat(64), sha512: 'g', name: 'Own Mod.jar', kind: 'mod', size: 9 })
       .returning();
-    await db
-      .insert(storedFile)
-      .values([
-        { sha256: 'a'.repeat(64), sha512: 'b', name: 'wrapper.jar', kind: 'wrapper', size: 5 },
-      ]);
+    await db.insert(storedFile).values([
+      { sha256: 'a'.repeat(64), sha512: 'b', name: 'wrapper.jar', kind: 'wrapper', size: 5 },
+      { sha256: 'c'.repeat(64), sha512: 'd', name: 'extra.json', kind: 'asset', size: 2 },
+    ]);
     await db.insert(modpackMod).values([
       {
         source: 'modrinth',
@@ -79,9 +79,11 @@ describe('manifest', () => {
       hashes: { sha512: 'h1' },
     });
     expect(manifest.mods[1]!.hashes).not.toHaveProperty('sha256');
+    // A wrapper jar is a tool, listed once it is published, not an asset.
     expect(manifest.assets).toEqual([
-      expect.objectContaining({ name: 'wrapper.jar', kind: 'wrapper' }),
+      expect.objectContaining({ name: 'extra.json', kind: 'asset' }),
     ]);
+    expect(manifest.tools).toEqual({});
   });
 
   it('has an ETag that follows the content', async () => {
@@ -108,5 +110,40 @@ describe('manifest', () => {
       .update(modListSettings)
       .set({ loaderVersion: 'latest' })
       .where(eq(modListSettings.id, 1));
+  });
+
+  it('lists the current tools with absolute addresses', async () => {
+    const [launcher, updater] = await db
+      .insert(storedFile)
+      .values([
+        {
+          sha256: '1'.repeat(64),
+          sha512: 'l5',
+          name: 'lnb-modsync-launcher.jar',
+          kind: 'wrapper',
+          size: 7,
+        },
+        {
+          sha256: '2'.repeat(64),
+          sha512: 'u5',
+          name: 'lnb-modsync-updater.jar',
+          kind: 'updater',
+          size: 8,
+        },
+      ])
+      .returning();
+    await db.insert(modpackTool).values([
+      { tool: 'launcher', fileId: launcher!.id, version: '1.0.0' },
+      { tool: 'updater', fileId: updater!.id, version: '2.1.0' },
+    ]);
+    const { tools } = await modpackManifestService.build();
+    expect(tools.launcher).toEqual({
+      version: '1.0.0',
+      fileName: 'lnb-modsync-launcher.jar',
+      size: 7,
+      hashes: { sha256: '1'.repeat(64), sha512: 'l5' },
+      url: `https://lnb.example/api/files/${'1'.repeat(64)}/lnb-modsync-launcher.jar`,
+    });
+    expect(tools.updater?.version).toBe('2.1.0');
   });
 });

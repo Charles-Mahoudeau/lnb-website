@@ -1058,6 +1058,7 @@
         "auto": "Automatic",
         "mod": "Mod jar",
         "wrapper": "Wrapper jar",
+        "updater": "Updater jar",
         "asset": "Asset"
       },
       "queue": {
@@ -3616,6 +3617,7 @@
       "modpackPin": "Switched {name} to a library file",
       "modpackRemove": "Removed {name} from the Modlist",
       "modpackAdopt": "Adopted a newer file of {name}",
+      "modpackTool": "Published a new {name}",
       "modpackExport": "Exported the vote list to the Modlist"
     },
     "actors": {

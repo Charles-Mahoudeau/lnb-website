@@ -19,8 +19,8 @@ export const FILE_PROBLEMS = [
 ] as const;
 export type FileProblem = (typeof FILE_PROBLEMS)[number];
 
-/** What a file is for. A wrapper is the launcher's own jar, a mod a jar of the pack, an asset anything else. */
-export const FILE_KINDS = ['mod', 'wrapper', 'asset'] as const;
+/** What a file is for. A wrapper is the launcher's own jar, an updater the mod updater's jar, a mod a jar of the pack, an asset anything else. */
+export const FILE_KINDS = ['mod', 'wrapper', 'updater', 'asset'] as const;
 export const fileKind = z.enum(FILE_KINDS);
 export type FileKind = z.infer<typeof fileKind>;
 
@@ -28,6 +28,7 @@ export type FileKind = z.infer<typeof fileKind>;
 export const FILE_KIND_ICONS: Record<FileKind, string> = {
   mod: 'i-lucide-box',
   wrapper: 'i-lucide-rocket',
+  updater: 'i-lucide-refresh-cw',
   asset: 'i-lucide-file',
 };
 
@@ -37,6 +38,7 @@ export const MAX_FILE_BYTES = 100 * 1024 * 1024;
 export const FILE_EXTENSIONS: Record<FileKind, readonly string[]> = {
   mod: ['jar'],
   wrapper: ['jar'],
+  updater: ['jar'],
   asset: ['zip', 'txt', 'json', 'dat', 'toml', 'properties', 'cfg'],
 };
 
