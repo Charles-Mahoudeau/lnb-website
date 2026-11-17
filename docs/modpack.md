@@ -58,7 +58,7 @@ CurseForge needs `CURSEFORGE_API_KEY`; without it those lookups answer `sourceUn
   "updatedAt": "2026-11-16T19:53:16.729Z",
   "gameVersion": "1.21.1",
   "loader": "neoforge",
-  "loaderVersion": "21.1.172",
+  "loaderVersion": "21.1.267",
   "mods": [
     {
       "id": "…",
@@ -88,7 +88,7 @@ CurseForge needs `CURSEFORGE_API_KEY`; without it those lookups answer `sourceUn
 
 - Mods with an attention flag, or no pinned hash, are left out. Files of the library are served from this site's own `/api/files/<sha256>/<name>` (absolute address, from `BETTER_AUTH_URL`).
 - `hashes.sha512` is always there. `sha256` only when the site knows it (uploaded files and downloaded ones).
-- `assets` lists the library's wrapper and asset files. The game version, loader and loader version come from the Mods settings. While the loader version is empty, the manifest looks up the loader's newest version for the game version (NeoForge's maven, Fabric's and Quilt's meta, Forge's promotions), cached for an hour, and stays empty if the lookup fails. A version set by an admin always wins.
+- `assets` lists the library's wrapper and asset files. The game version, loader and loader version come from the Mods settings. The loader version is mandatory there: a version such as `21.1.267`, or `latest` (the default) to follow the loader's newest version for the game version (NeoForge's maven, Fabric's and Quilt's meta, Forge's promotions, cached for an hour). The settings show that newest version next to the field, and the manifest resolves `latest` to it, so the two agree. If the lookup fails, a `latest` manifest says an empty string.
 - The `ETag` is a hash of the content, so it also changes when the settings or an asset change, not only when `revision` does. A launcher sends `If-None-Match` and gets a 304. `Cache-Control` is 60 seconds.
 - `revision` goes up with every change an admin makes to the mods. A launcher can compare it to know whether its pack is current.
 - Change the format only by adding fields. A break means a new `schema` number.

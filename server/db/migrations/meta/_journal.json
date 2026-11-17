@@ -323,6 +323,13 @@
       "when": 1794920120868,
       "tag": "0045_mod_settings_loader_version",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1794920128043,
+      "tag": "0046_mod_settings_loader_version_latest",
+      "breakpoints": true
     }
   ]
 }

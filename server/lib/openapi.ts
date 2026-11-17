@@ -255,6 +255,7 @@ const responseSchemas = {
   ModSearchResults: mods.modSearchResults,
   ModCreated: mods.modCreated,
   ModSettingsView: mods.modSettingsView,
+  ModAdminSettingsView: mods.modAdminSettingsView,
   FileView: files.fileView,
   FileList: files.fileList,
   ModAdminRow: mods.modAdminRow,
@@ -1660,7 +1661,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.modsAdmin,
     summary: 'Mod list settings',
     access: 'wardenAdmin',
-    response: mods.modSettingsView,
+    response: mods.modAdminSettingsView,
   },
   {
     method: 'patch',
@@ -1670,7 +1671,7 @@ const routes: RouteDoc[] = [
     description: "Changing the version or loader doesn't re-check the mods already in the list.",
     access: 'wardenAdmin',
     body: mods.modSettingsPatchBody,
-    response: mods.modSettingsView,
+    response: mods.modAdminSettingsView,
   },
   {
     method: 'get',

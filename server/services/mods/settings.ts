@@ -13,7 +13,7 @@ const DEFAULTS: ModSettingsView = {
   maxSuggestions: 5,
   gameVersion: '1.21.1',
   loader: 'neoforge',
-  loaderVersion: '',
+  loaderVersion: 'latest',
 };
 
 /** The global settings. The migration creates their single row. */

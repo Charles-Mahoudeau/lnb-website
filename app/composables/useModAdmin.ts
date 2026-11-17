@@ -7,7 +7,7 @@ import type {
   ModRefreshCheck,
   ModRefreshField,
   ModSettingsPatchBody,
-  ModSettingsView,
+  ModAdminSettingsView,
 } from '#shared/schemas/mods';
 import type { WardenUserOption } from '#shared/schemas/warden';
 
@@ -24,12 +24,15 @@ async function call<T>(request: () => Promise<T>): Promise<T> {
 /** The mod list settings, and saving them. */
 export function useModSettings() {
   return {
-    settings: useFetch<ModSettingsView>('/api/minecraft/admin/settings', {
+    settings: useFetch<ModAdminSettingsView>('/api/minecraft/admin/settings', {
       key: 'mod-admin-settings',
     }),
     save: (patch: ModSettingsPatchBody) =>
       call(() =>
-        $fetch<ModSettingsView>('/api/minecraft/admin/settings', { method: 'PATCH', body: patch }),
+        $fetch<ModAdminSettingsView>('/api/minecraft/admin/settings', {
+          method: 'PATCH',
+          body: patch,
+        }),
       ),
   };
 }

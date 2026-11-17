@@ -906,6 +906,10 @@
         "gameVersion": "Minecraft version",
         "loader": "Loader",
         "loaderVersion": "Loader version",
+        "loaderVersionLatest": "Newest: {version}. Type “latest” to always follow it.",
+        "loaderVersionUnknown": "Couldn’t look up the newest version. Type “latest” to follow it once it can.",
+        "loaderVersionUseLatest": "Use latest",
+        "loaderVersionInvalid": "A version such as 21.1.172, or “latest”.",
         "serverHelp": "New mods must run on this version and loader. Mods already in the list aren’t checked again.",
         "save": "Save settings",
         "saved": "Settings saved"

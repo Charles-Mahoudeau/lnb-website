@@ -37,8 +37,9 @@ export const modListSettings = pgTable(
     // Mods are checked against these when they're added, not afterwards.
     gameVersion: text('game_version').default('1.21.1').notNull(),
     loader: text('loader').$type<ModLoader>().default('neoforge').notNull(),
-    // The loader's own version, such as 21.1.172 for NeoForge. Only the launcher's manifest uses it.
-    loaderVersion: text('loader_version').default('').notNull(),
+    // The loader's own version, such as 21.1.172 for NeoForge, or 'latest' to follow the newest one.
+    // Only the launcher's manifest uses it.
+    loaderVersion: text('loader_version').default('latest').notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
     updatedByUserId: text('updated_by_user_id').references(() => user.id, {
       onDelete: 'set null',

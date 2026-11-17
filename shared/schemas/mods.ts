@@ -43,9 +43,19 @@ export const modSettingsView = z.object({
   loader: modLoader,
   loaderVersion: z
     .string()
-    .describe("The loader's version, such as 21.1.172 for NeoForge. Empty when not set."),
+    .describe(
+      "The loader's version, such as 21.1.172 for NeoForge, or `latest` to follow the newest.",
+    ),
 });
 export type ModSettingsView = z.infer<typeof modSettingsView>;
+
+/** The settings as admins see them: with the newest loader version found, for `latest`. */
+export const modAdminSettingsView = modSettingsView.extend({
+  latestLoaderVersion: z
+    .string()
+    .describe("The loader's newest version for the game version. Empty when it can't be found."),
+});
+export type ModAdminSettingsView = z.infer<typeof modAdminSettingsView>;
 
 /** Whether voting and suggesting are open: the switch is on and the end, if any, hasn't passed. */
 export function modListIsOpen(
@@ -71,7 +81,10 @@ export const modSettingsPatchBody = z
     loaderVersion: z
       .string()
       .trim()
-      .regex(/^(?:[0-9][0-9A-Za-z.+_-]{0,39})?$/, 'a loader version, such as 21.1.172'),
+      .regex(
+        /^(?:latest|[0-9][0-9A-Za-z.+_-]{0,39})$/,
+        'a loader version, such as 21.1.172, or latest',
+      ),
   })
   .partial();
 export type ModSettingsPatchBody = z.infer<typeof modSettingsPatchBody>;
