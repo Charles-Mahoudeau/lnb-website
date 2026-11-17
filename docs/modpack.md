@@ -59,6 +59,10 @@ CurseForge needs `CURSEFORGE_API_KEY`; without it those lookups answer `sourceUn
   "gameVersion": "1.21.1",
   "loader": "neoforge",
   "loaderVersion": "21.1.267",
+  "tools": {
+    "launcher": { "version": "1.0.0", "…": "see The launcher's tools" },
+    "updater": { "version": "1.0.0", "…": "…" }
+  },
   "mods": [
     {
       "id": "…",
@@ -103,7 +107,7 @@ Two jars of the Files library are the launcher's own tools: `lnb-modsync-launche
 - `GET /api/minecraft/admin/modpack/tools` lists the current files. `PUT .../tools/{tool}` (`{fileId, version, notes}`) publishes one: the file must be of the tool's kind (`notToolFile`), it raises the revision and is written to `warden_audit` (`modpack.tool`, with the old and new versions). **Rolling back is publishing the previous file again**, which is why old files stay in the library. A file that is current can't be deleted (`fileInUse`).
 - No signing for now: a launcher trusts the hashes the manifest gives it, over https. Whoever can publish a tool, or reach the VPS, can run code on every client, so only full Warden admins can.
 
-In the manifest:
+In the manifest (`tools` comes before `mods` and `assets`, so a launcher reads its own update first):
 
 ```json
 "tools": {

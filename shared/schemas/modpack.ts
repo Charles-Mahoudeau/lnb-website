@@ -251,6 +251,14 @@ export const modpackManifest = z.object({
   loaderVersion: z
     .string()
     .describe("The loader's version, such as 21.1.172. Empty when an admin hasn't set it."),
+  tools: z
+    .object({
+      launcher: manifestTool.optional(),
+      updater: manifestTool.optional(),
+    })
+    .describe(
+      "The launcher's own jars, each the current one. A tool nobody has published is missing. The launcher updates the updater, and the updater updates the launcher, by comparing these hashes with its own.",
+    ),
   mods: z.array(
     z.object({
       id: z.string(),
@@ -266,14 +274,6 @@ export const modpackManifest = z.object({
       projectUrl: z.string().nullable(),
     }),
   ),
-  tools: z
-    .object({
-      launcher: manifestTool.optional(),
-      updater: manifestTool.optional(),
-    })
-    .describe(
-      "The launcher's own jars, each the current one. A tool nobody has published is missing. The launcher updates the updater, and the updater updates the launcher, by comparing these hashes with its own.",
-    ),
   assets: z.array(
     z.object({
       name: z.string(),

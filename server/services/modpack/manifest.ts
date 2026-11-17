@@ -78,8 +78,8 @@ async function build(): Promise<ModpackManifest> {
       settings.loaderVersion === 'latest'
         ? await latestLoaderVersion(settings.loader, settings.gameVersion)
         : settings.loaderVersion,
-    mods,
     tools,
+    mods,
     assets: files.map((file) => ({
       name: file.name,
       kind: 'asset',
