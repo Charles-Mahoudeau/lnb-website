@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { FILE_KIND_ICONS } from '#shared/schemas/files';
-import type { FileView } from '#shared/schemas/files';
+import { FILE_KIND_ICONS, kindsFor } from '#shared/schemas/files';
+import type { FileKind, FileView } from '#shared/schemas/files';
 
-// One file in a side drawer: its links and hashes, what uses it, and delete. Closes with
-// 'deleted' when the admin deleted it, so the library refreshes.
+// One file in a side drawer: its type, links and hashes, what uses it, and delete. Closes with
+// 'deleted' or 'changed' when the admin deleted it or changed its type, so the library refreshes.
 const props = defineProps<{ file: FileView }>();
-const emit = defineEmits<{ close: ['deleted' | null] }>();
+const emit = defineEmits<{ close: ['deleted' | 'changed' | null] }>();
 
 const { t, d, locale } = useI18n();
 const toast = useToast();
@@ -14,6 +14,11 @@ const origin = useRequestURL().origin;
 const fullUrl = computed(() => origin + props.file.url);
 const inUse = computed(() => props.file.usedBy.length > 0);
 const confirming = ref(false);
+const kind = ref<FileKind>(props.file.kind);
+const kindItems = computed(() =>
+  kindsFor(props.file.name).map((value) => ({ value, label: t(`admin.files.kinds.${value}`) })),
+);
+const kindPending = ref(false);
 const pending = ref(false);
 
 async function copy(text: string) {
@@ -26,6 +31,28 @@ async function copy(text: string) {
       color: 'error',
       icon: 'i-lucide-circle-alert',
     });
+  }
+}
+
+async function onKind() {
+  kindPending.value = true;
+  try {
+    await fileActions.setKind(props.file.id, kind.value);
+    toast.add({
+      title: t('admin.files.detail.kindChanged'),
+      color: 'success',
+      icon: 'i-lucide-circle-check',
+    });
+    emit('close', 'changed');
+  } catch (error) {
+    const problem = error instanceof FileError ? error.problem : 'failed';
+    toast.add({
+      title: t(`admin.files.errors.${problem}`),
+      color: 'error',
+      icon: 'i-lucide-circle-alert',
+    });
+  } finally {
+    kindPending.value = false;
   }
 }
 
@@ -67,6 +94,34 @@ async function onDelete() {
           />
           <span class="text-sm text-muted tabular-nums">{{ formatBytes(file.size, locale) }}</span>
         </div>
+
+        <section class="flex flex-col gap-2">
+          <h3 class="font-sans text-base font-semibold text-highlighted">
+            {{ t('admin.files.detail.kindTitle') }}
+          </h3>
+          <p class="text-sm text-muted">{{ t('admin.files.detail.kindHelp') }}</p>
+          <div class="flex flex-wrap items-center gap-2">
+            <USelect
+              v-model="kind"
+              :items="kindItems"
+              :disabled="inUse || kindItems.length < 2"
+              :aria-label="t('admin.files.detail.kindTitle')"
+              class="w-56"
+            />
+            <UButton
+              color="neutral"
+              variant="soft"
+              :label="t('admin.files.detail.kindSave')"
+              :disabled="kind === file.kind || inUse"
+              :loading="kindPending"
+              @click="onKind"
+            />
+          </div>
+          <p v-if="inUse" class="text-sm text-muted">{{ t('admin.files.detail.kindLocked') }}</p>
+          <p v-else-if="kindItems.length < 2" class="text-sm text-muted">
+            {{ t('admin.files.detail.kindOnly') }}
+          </p>
+        </section>
 
         <section class="flex flex-col gap-2">
           <h3 class="font-sans text-base font-semibold text-highlighted">

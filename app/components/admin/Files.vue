@@ -111,7 +111,7 @@ const unused = computed(
 
 async function onOpen(file: FileView) {
   const result: unknown = await detail.open({ file }).result;
-  if (result === 'deleted') await refresh();
+  if (result === 'deleted' || result === 'changed') await refresh();
 }
 
 async function copy(file: FileView) {

@@ -319,6 +319,7 @@ export const WARDEN_AUDIT_ACTIONS = [
   // The Files library (docs/files.md), run by the same staff.
   'file.upload',
   'file.delete',
+  'file.kind',
   // The Modlist (docs/modpack.md), run by the same staff.
   'modpack.add',
   'modpack.edit',

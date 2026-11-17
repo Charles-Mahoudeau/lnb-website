@@ -1992,6 +1992,23 @@ const routes: RouteDoc[] = [
     ],
   },
   {
+    method: 'patch',
+    path: '/api/admin/files/{id}',
+    tag: TAGS.filesAdmin,
+    summary: 'Change what a file is',
+    description:
+      "Changes the file's kind. The new kind must accept the file's extension (`fileBadType`), and a file that a mod or a tool uses keeps its kind (`fileInUse`). In practice only jars move, between mod jar, wrapper and updater.",
+    access: 'wardenAdmin',
+    params: files.fileIdParams,
+    body: files.fileKindBody,
+    response: files.fileView,
+    problems: [
+      { status: 400, problems: ['fileBadType'] },
+      { status: 404, problems: ['fileNotFound'] },
+      { status: 409, problems: ['fileInUse'] },
+    ],
+  },
+  {
     method: 'delete',
     path: '/api/admin/files/{id}',
     tag: TAGS.filesAdmin,

@@ -82,6 +82,7 @@ export function useWardenLabels() {
         return t(`wardenAdmin.actions.${key}`, { name: text('name') });
       }
       case 'file.upload':
+      case 'file.kind':
       case 'file.delete': {
         const key = `file${entry.action.charAt(5).toUpperCase()}${entry.action.slice(6)}`;
         return t(`wardenAdmin.actions.${key}`, { name: text('name') });

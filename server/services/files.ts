@@ -238,6 +238,35 @@ async function remove(input: { id: string; actorUserId: string }): Promise<void>
   await removeQuietly(join(filesDir(), row.sha256));
 }
 
+/**
+ * Changes what a file is for. The new kind must accept the file's extension, and a file that
+ * something points at keeps its kind, since that use depends on it. In practice only jars move,
+ * between mod, wrapper and updater, because no extension is accepted by both a jar kind and asset,
+ * so the manifest's assets never change here.
+ */
+async function setKind(input: {
+  id: string;
+  kind: FileKind;
+  actorUserId: string;
+}): Promise<FileView> {
+  const [row] = await db.select().from(storedFile).where(eq(storedFile.id, input.id));
+  if (!row) refuse(404, 'fileNotFound');
+  if (row.kind !== input.kind) {
+    const extension = row.name.slice(row.name.lastIndexOf('.') + 1).toLowerCase();
+    if (!FILE_EXTENSIONS[input.kind].includes(extension)) refuse(400, 'fileBadType');
+    if (((await usageOf([row.id])).get(row.id) ?? []).length > 0) refuse(409, 'fileInUse');
+    await db.transaction(async (tx) => {
+      await tx.update(storedFile).set({ kind: input.kind }).where(eq(storedFile.id, row.id));
+      await wardenAuditService.record(tx, {
+        action: 'file.kind',
+        actor: { source: 'web', userId: input.actorUserId },
+        data: { fileId: row.id, name: row.name, from: row.kind, to: input.kind },
+      });
+    });
+  }
+  return viewOf(row.id);
+}
+
 /** A stored file ready to be sent, or undefined. The name is the one it was uploaded with. */
 async function open(
   sha256: string,
@@ -253,4 +282,4 @@ async function open(
   return { name: row.name, size: row.size, stream: createReadStream(path) };
 }
 
-export const fileService = { list, ingest, remove, open };
+export const fileService = { list, ingest, remove, setKind, open };
