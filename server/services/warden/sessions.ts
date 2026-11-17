@@ -15,6 +15,7 @@ import {
 import type { WardenSessionEndReason } from '~~/server/db/schema';
 import { uuidMatchesUsername } from '~~/server/lib/minecraft';
 import { anticheatPlayerService } from '~~/server/services/anticheat/players';
+import { playtimeService } from '~~/server/services/playtime/service';
 
 import { wardenAuditService } from './audit';
 import { wardenModerationService } from './moderation';
@@ -94,6 +95,8 @@ async function login(body: WardenLoginBody): Promise<WardenLogin> {
       .insert(wardenSession)
       .values({ minecraftUuid: account.uuid, userId: player.userId, deviceId: ticket.deviceId })
       .returning({ id: wardenSession.id });
+    // Brings the player's other online sessions up to date, so the weekly total is current.
+    await playtimeService.advanceAtLogin(tx, player.userId);
 
     // Warnings since the account was last seen, so the server can show them once.
     const warnings = await tx
@@ -364,6 +367,7 @@ async function closeSessions(
       id: wardenSession.id,
       userId: wardenSession.userId,
       minecraftUuid: wardenSession.minecraftUuid,
+      startedAt: wardenSession.startedAt,
       endedAt: wardenSession.endedAt,
       seconds:
         sql<number>`greatest(0, extract(epoch from (${wardenSession.endedAt} - ${wardenSession.startedAt})))::bigint`.mapWith(
@@ -382,6 +386,10 @@ async function closeSessions(
       .where(eq(minecraftAccount.uuid, session.minecraftUuid));
     await anticheatPlayerService.creditPlaytime(tx, session);
   }
+  await playtimeService.settleClosed(
+    tx,
+    closed.map((session) => ({ ...session, endedAt: session.endedAt! })),
+  );
   return closed.length;
 }
 
