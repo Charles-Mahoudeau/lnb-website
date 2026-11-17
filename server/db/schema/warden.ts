@@ -5,6 +5,7 @@ import {
   boolean,
   check,
   index,
+  integer,
   jsonb,
   pgTable,
   smallint,
@@ -30,6 +31,11 @@ export const wardenPlayer = pgTable('warden_player', {
   showRealName: boolean('show_real_name').default(true).notNull(),
   // Overrides warden_settings.default_max_accounts when set.
   maxAccounts: smallint('max_accounts'),
+  // The playtime limit's overrides for this player (docs/playtime.md). Null inherits the school's,
+  // then the global value.
+  playtimeAllowanceSeconds: integer('playtime_allowance_seconds'),
+  playtimeGraceSeconds: integer('playtime_grace_seconds'),
+  playtimeWarningsMinutes: jsonb('playtime_warnings_minutes').$type<number[]>(),
   // Playtime of accounts that another player took over, so the previous owner keeps their total.
   transferredPlaytimeSeconds: bigint('transferred_playtime_seconds', { mode: 'number' })
     .default(0)
@@ -345,6 +351,13 @@ export const WARDEN_AUDIT_ACTIONS = [
   'anticheat.settings',
   'anticheat.verdict',
   'anticheat.alert',
+  // The playtime limit (docs/playtime.md), run by the same staff. The two settings actions cover
+  // the global rules and a school's, the others one closure, exemption or grant.
+  'playtime.settings',
+  'playtime.school',
+  'playtime.closure',
+  'playtime.exemption',
+  'playtime.grant',
 ] as const;
 
 export type WardenAuditAction = (typeof WARDEN_AUDIT_ACTIONS)[number];
