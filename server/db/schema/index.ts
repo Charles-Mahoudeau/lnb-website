@@ -14,6 +14,7 @@ export * from './mods';
 export * from './partner-events';
 export * from './modpack';
 export * from './partners';
+export * from './playtime';
 export * from './posters';
 export * from './push';
 export * from './quests';
