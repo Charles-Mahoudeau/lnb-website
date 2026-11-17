@@ -54,6 +54,10 @@ Notifications (waitlist places, reminders, cancellations and moves, announcement
 - The page and image URLs come from `BETTER_AUTH_URL`, which must be on `bde-teknantes.fr` for the BDE to accept them. `events.bdeSync` pauses the pushes: events wait as pending.
 - If the API stays down, the LNB office can add the event by hand in the BDE admin panel, then delete it there before the API is back (see the API doc).
 
+## Playtime limit
+
+An event can lift the Minecraft playtime limit for its days, for registered players or for everyone (see "Event mode" in `docs/playtime.md`). The form's switch is kept as a closure of the playtime limit, in step with the event.
+
 ## Environment
 
 | Variable              | Required | Use                                                                                    |

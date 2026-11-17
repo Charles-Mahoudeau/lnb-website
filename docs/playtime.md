@@ -2,7 +2,7 @@
 
 A weekly limit on how long players can be on the Minecraft server during restricted hours (for example Monday to Friday, 9:00 to 17:00). The plan is `docs/plans/playtime-limits.md`, and the contract for the mod developers is `docs/plans/playtime-limits-mod.md`. This page says what is built.
 
-**Status:** the data, the counting, the player view, the Minecraft account page and the enforcement (login denial, warnings, grace, kicks) are built. The mode starts in `observe`: everything is counted and shown, and nobody is denied, kicked or warned. The mod doesn't support the events yet, so switch to `enforce` only after it does. The admin is built: the Rules, Closures and Live tabs (`/admin/warden/playtime`) and the Playtime panel of a player's Warden page. Event mode (slice 5) and the nightly prune (slice 6) are still to do. None of the admin screens has been checked in a real browser.
+**Status:** the data, the counting, the player view, the Minecraft account page and the enforcement (login denial, warnings, grace, kicks) are built. The mode starts in `observe`: everything is counted and shown, and nobody is denied, kicked or warned. The mod doesn't support the events yet, so switch to `enforce` only after it does. The admin is built: the Rules, Closures and Live tabs (`/admin/warden/playtime`) and the Playtime panel of a player's Warden page. Event mode is built (slice 5). The nightly prune (slice 6) is still to do. None of the admin screens has been checked in a real browser.
 
 ## The rules
 
@@ -68,3 +68,14 @@ Routes, all `wardenAdmin` (see `/api/docs`, tag "Playtime: admins"): `GET`/`PATC
 `server/db/schema/playtime.ts`: `playtime_settings` (one row), `playtime_school`, `playtime_closure`, `playtime_exemption`, `playtime_grant`, `playtime_ledger` and `playtime_notice`, plus the player's overrides on `warden_player`. Every change by an admin is audited in `warden_audit` as `playtime.settings`, `playtime.school`, `playtime.closure`, `playtime.exemption` or `playtime.grant`.
 
 Deleting an account deletes its ledger, grants and exemptions with it.
+
+## Event mode
+
+An event can lift the limit for its days. The event form (Publishing section, events managers) has a "Lift the playtime limit" switch and a choice: **registered players** (people registered to the event, not on its waitlist) or **everyone**. It shows only while the `playtime` flag is on.
+
+- It is a closure with `event_id` and `event_scope` (`server/services/playtime/events.ts`), created, renamed, moved and removed by `eventAdminService` in the same transaction as the event: on create, update, duplicate (the copy keeps the setting on its new dates), cancel (removed) and delete (the foreign key cascades). There is no second copy of the setting: the form reads the closure.
+- A closure is whole Paris days, from the start day to the end day, both inclusive, for every school. An event running past midnight therefore closes the next day too, unless it ends exactly at 00:00. Nothing counts on those days and the player sees "No limit this week" like any closure.
+- It applies only while the event is published and not cancelled. A draft keeps its closure, so the setting survives, but it does nothing until the event is published.
+- "Registered" is decided when the player is read (`closureAppliesTo` in `closure-scope.ts`), from `event_registration.status = 'registered'`: registering, leaving, or moving up from the waitlist takes effect on the next five-second tick, with no sync. In team events people never wait (only teams do), so every player registered to the event counts, whatever the state of their team.
+- Event closures can't be edited or deleted from the Closures tab (409), only from the event.
+- Events managers can set it although they can't create closures: it is tied to an event they run, and the event's audit row (`event.create`, `event.update`) records the `playtimeFree` value.

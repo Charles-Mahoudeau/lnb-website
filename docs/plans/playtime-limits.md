@@ -155,7 +155,7 @@ Needs the user's go-ahead on its own: it changes who can join the server.
 
 Frontend design starts with a mock offering several propositions, so ask the user for the Rules and Closures screens first (the schedule editor is the hard part). Then build `/admin/warden/playtime` (Rules, Closures, Live), the school overrides, the Playtime panel on the Warden player page (state, overrides, exemptions, grants, 8 weeks) and the matching admin entries. The mode picker is three selectable cards like the anticheat settings.
 
-### Slice 5: event mode
+### Slice 5: event mode (built)
 
 The events admin gets the switch and its scope. The event service keeps its closure in step when the event is created, moved, cancelled or deleted. Tournament registrations decide "registered players".
 
