@@ -5,7 +5,7 @@
 ## Model
 
 - `stored_file` (`server/db/schema/files.ts`): the SHA-256 (unique) and SHA-512 of the bytes, the name, the kind, the size, who uploaded it and when. The bytes live on disk, under `.data/files/<sha256>`.
-- The kind is one of `FILE_KINDS` (`shared/schemas/files.ts`): `mod` (a mod's jar), `wrapper` (the launcher's own jar) or `asset` (anything else). It decides which extensions are accepted: `.jar` for mods and wrappers, and `.zip`, `.txt`, `.json`, `.dat`, `.toml`, `.properties` or `.cfg` for assets.
+- The kind is one of `FILE_KINDS` (`shared/schemas/files.ts`): `mod` (a mod's jar), `wrapper` (the launcher's own jar), `updater` (the updater's jar, see the tools in `docs/modpack.md`) or `asset` (anything else). It decides which extensions are accepted: `.jar` for mods, wrappers and updaters, and `.zip`, `.txt`, `.json`, `.dat`, `.toml`, `.properties` or `.cfg` for assets.
 - The same bytes are stored once: uploading a file that is already there is refused (`fileDuplicate`), whatever its name. Files are never edited, so a new version of a jar is a new file. A file can only be deleted, with its row.
 
 ## Uploading
@@ -28,7 +28,7 @@ Anyone with a link can download a file, and links can be guessed only by knowing
 
 ## Deleting
 
-A file that something points at can't be deleted (`fileInUse`): the page shows what uses it in the drawer, and the delete button is off. Nothing points at files yet, because the Modlist comes next; `usageOf` in `server/services/files.ts` is where it will say so. Deleting asks first, removes the row and the file, and the download link stops working at once.
+A file that something points at can't be deleted (`fileInUse`): the page shows what uses it in the drawer, and the delete button is off. Mods pinned to a file and the launcher's current tools point at files; `usageOfFiles` in `server/services/modpack/usage.ts` says so. Deleting asks first, removes the row and the file, and the download link stops working at once.
 
 ## Flag
 
