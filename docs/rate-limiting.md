@@ -24,7 +24,7 @@ Admins pick a mode on `/admin/rate-limit`. It is stored in `rate_limit_setting` 
 - **Event night**: the per-IP ceilings (`api`, `go`, `warden-server`, `warden-client`) are multiplied by 5 (`EVENT_IP_MULTIPLIER` in `shared/rate-limit.ts`), for a room sharing one Wi-Fi. The per-account limits and `warden-link-request` stay.
 - **Off**: the middleware applies nothing. If the database can't be read, the last known mode is kept.
 
-The mode doesn't touch Better Auth's limits, the join ticket limit or the mod search limit.
+The mode doesn't touch Better Auth's limits, the join ticket limit or the mod search limit. The one exception is Better Auth's limit on checking a link code (`GET /api/auth/device`, 5 per 10 minutes per IP): off mode lifts it, through a `customRules` entry in `server/lib/auth.ts` that reads the mode (`server/lib/rate-limit-gate.ts`), so device linking can be tested. Better Auth still applies it in production only.
 
 Join tickets have their own limit of 10 per minute per device, kept in the handler (`wardenClientService.checkTicketRate`), since a device token isn't an account. A write must pass `api` and its account rule. The mod search keeps its own 20 per minute per account (`server/services/mods/suggestions.ts`). Better Auth limits `/api/auth/*` itself (see `docs/authentication.md`).
 

@@ -12,6 +12,7 @@ import { saveProfilePhoto } from './avatars';
 import { isFlagOn } from './flag-gate';
 import { claimGhost, mayClaimGhost } from './ghosts';
 import { generateLinkCode } from './link-codes';
+import { isRateLimitOff } from './rate-limit-gate';
 import { isAllowedTenant, SCHOOL_SIGN_IN_FLAGS } from './tenants';
 import {
   ACCOUNT_CLAIM_REFUSED,
@@ -174,6 +175,14 @@ export const auth = betterAuth({
           }
         },
       },
+    },
+  },
+
+  // Better Auth's own limits stay on in every mode, except the one on checking a link code (5 tries
+  // per 10 minutes, set by the device plugin): the Off mode lifts it, for testing device linking.
+  rateLimit: {
+    customRules: {
+      '/device': async (_request, currentRule) => ((await isRateLimitOff()) ? false : currentRule),
     },
   },
 
