@@ -74,6 +74,11 @@ export function useWardenSettings() {
   });
   return {
     settings,
+    // Site admins only: wipes every ban, appeal, note and anticheat sanction.
+    resetSanctions: (confirm: string) =>
+      call(() =>
+        $fetch('/api/warden/admin/reset-sanctions', { method: 'POST', body: { confirm } }),
+      ),
     save: (patch: Partial<WardenSettingsView>) =>
       call(() =>
         $fetch<WardenSettingsView>('/api/warden/admin/settings', { method: 'PATCH', body: patch }),

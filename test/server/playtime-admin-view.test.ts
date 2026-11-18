@@ -261,10 +261,10 @@ describe('who may change what', () => {
     const found = files(join(process.cwd(), 'server/api/playtime/admin'));
     expect(found.length).toBeGreaterThan(10);
     for (const path of found) {
-      // The reset is for site admins only: the one route above the Warden admins.
+      // The resets are for site admins only: the routes above the Warden admins.
       const guard = path.includes('/grants/')
         ? 'requirePlaytimeGranter'
-        : path.endsWith('/reset.post.ts')
+        : path.endsWith('/reset.post.ts') || path.endsWith('/reset-all.post.ts')
           ? 'requireAdmin'
           : 'requireWardenAdmin';
       expect(readFileSync(path, 'utf8'), path).toMatch(

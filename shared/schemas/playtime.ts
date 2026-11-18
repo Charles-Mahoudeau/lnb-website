@@ -342,3 +342,9 @@ export const PLAYTIME_RESET_CONFIRM = 'reset the playtime';
 export const playtimeResetBody = z.object({
   confirm: z.string().describe(`Must be "${PLAYTIME_RESET_CONFIRM}".`),
 });
+
+/** What a site admin types to wipe the sessions and the total played time too. */
+export const PLAYTIME_RESET_ALL_CONFIRM = 'reset all playtime';
+export const playtimeResetAllBody = z.object({
+  confirm: z.string().describe(`Must be "${PLAYTIME_RESET_ALL_CONFIRM}".`),
+});

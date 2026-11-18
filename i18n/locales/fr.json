@@ -3828,12 +3828,19 @@
       },
       "reset": {
         "heading": "Réinitialiser les compteurs",
-        "lede": "Efface le temps compté jusqu’ici et les avertissements : tout le monde repart avec le quota entier. Les règles, écoles, fermetures, exemptions et crédits restent. À utiliser après des tests.",
+        "lede": "Efface le temps compté jusqu’ici et les avertissements : tout le monde repart avec le quota entier. Le second bouton supprime aussi les sessions et le temps de jeu total. Les règles, écoles, fermetures, exemptions et crédits restent. À utiliser après des tests.",
         "open": "Réinitialiser les compteurs",
         "title": "Réinitialiser les compteurs de temps de jeu ?",
         "warning": "Le temps compté de chaque joueur, cette semaine et avant, et tous les avertissements sont supprimés. Les joueurs connectés continuent à jouer à partir de maintenant. Impossible d’annuler.",
         "confirm": "Réinitialiser les compteurs",
-        "done": "Compteurs réinitialisés"
+        "done": "Compteurs réinitialisés",
+        "all": {
+          "open": "Réinitialiser tout le temps de jeu",
+          "title": "Réinitialiser tout le temps de jeu ?",
+          "warning": "Toutes les sessions, le temps compté et les avertissements sont supprimés, et le temps de jeu total de chaque joueur repart à zéro. Les joueurs connectés sont considérés comme partis, et le serveur Minecraft les expulse à sa prochaine vérification. Les bannissements, règles, fermetures, exemptions et crédits restent. Impossible d’annuler.",
+          "confirm": "Réinitialiser tout le temps de jeu",
+          "done": "Tout le temps de jeu a été réinitialisé"
+        }
       },
       "mode": {
         "title": "Mode",
@@ -4193,7 +4200,16 @@
       "maxAccounts": "Comptes par joueur",
       "maxAccountsHelp": "Combien de comptes Minecraft chaque joueur peut lier. La limite propre à un joueur passe avant celle-ci.",
       "save": "Enregistrer",
-      "saved": "Réglages enregistrés"
+      "saved": "Réglages enregistrés",
+      "reset": {
+        "heading": "Réinitialiser les sanctions",
+        "lede": "Supprime tous les bannissements, appels, notes et avertissements, et remet à zéro les scores, blocages, historiques, actions et alertes de l’anticheat. Le journal d’audit reste. Réservé aux admins du site.",
+        "open": "Réinitialiser toutes les sanctions",
+        "title": "Réinitialiser toutes les sanctions ?",
+        "warning": "Tous les bannissements, y compris ceux en cours, tous les appels, notes et avertissements, et les sanctions de l’anticheat sont supprimés. Les joueurs bannis pourront rejouer. Impossible d’annuler.",
+        "confirm": "Réinitialiser toutes les sanctions",
+        "done": "Toutes les sanctions ont été réinitialisées"
+      }
     },
     "player": {
       "ban": "Bannir",

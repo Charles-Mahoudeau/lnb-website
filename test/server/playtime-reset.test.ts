@@ -9,6 +9,7 @@ import {
   playtimeNotice,
   user,
   wardenAudit,
+  wardenPlayer,
   wardenSession,
 } from '~~/server/db/schema';
 import { playtimeAdminService } from '~~/server/services/playtime/admin';
@@ -84,5 +85,51 @@ describe('the playtime reset', () => {
     ).toHaveLength(1);
     const audits = await db.select().from(wardenAudit).where(eq(wardenAudit.actorUserId, ended.id));
     expect(audits.map((entry) => entry.action)).toContain('playtime.reset');
+  });
+});
+
+describe('the full playtime reset', () => {
+  it('asks for its own sentence', async () => {
+    const admin = await setup(false);
+    await expect(
+      playtimeAdminService.resetAll({ source: 'web', userId: admin.id }, 'reset the playtime'),
+    ).rejects.toMatchObject({ data: { problem: 'confirmMismatch' } });
+  });
+
+  it('deletes every session and zeroes the totals, and keeps the grants', async () => {
+    const ended = await setup(false);
+    const live = await setup(true);
+    await db
+      .update(minecraftAccount)
+      .set({ playtimeSeconds: 5000 })
+      .where(eq(minecraftAccount.userId, ended.id));
+    await db.insert(wardenPlayer).values({ userId: ended.id, transferredPlaytimeSeconds: 900 });
+    await db
+      .insert(playtimeGrant)
+      .values({ userId: ended.id, weekStart: '2031-12-01', seconds: 600, reason: 'x' });
+
+    await playtimeAdminService.resetAll(
+      { source: 'web', userId: ended.id },
+      ' Reset all playtime ',
+    );
+
+    for (const id of [ended.id, live.id]) {
+      expect(await db.select().from(wardenSession).where(eq(wardenSession.userId, id))).toEqual([]);
+      expect(await db.select().from(playtimeLedger).where(eq(playtimeLedger.userId, id))).toEqual(
+        [],
+      );
+    }
+    const [account] = await db
+      .select()
+      .from(minecraftAccount)
+      .where(eq(minecraftAccount.userId, ended.id));
+    expect(account?.playtimeSeconds).toBe(0);
+    const [player] = await db.select().from(wardenPlayer).where(eq(wardenPlayer.userId, ended.id));
+    expect(player?.transferredPlaytimeSeconds).toBe(0);
+    expect(
+      await db.select().from(playtimeGrant).where(eq(playtimeGrant.userId, ended.id)),
+    ).toHaveLength(1);
+    const audits = await db.select().from(wardenAudit).where(eq(wardenAudit.actorUserId, ended.id));
+    expect(audits.map((entry) => entry.action)).toContain('playtime.resetAll');
   });
 });
