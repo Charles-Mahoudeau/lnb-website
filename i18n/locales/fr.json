@@ -5368,12 +5368,8 @@
   },
   "download": {
     "title": "Jouer sur le serveur LNB",
-    "lede": "Trois téléchargements et un import, environ dix minutes. Fais-les dans cet ordre. Le zip de l’instance apporte la version du jeu, les mods et l’adresse du serveur : rien à régler à la main.",
+    "lede": "Deux téléchargements et un import, environ cinq minutes. Fais-les dans cet ordre. Le zip de l’instance apporte la version du jeu, les mods et l’adresse du serveur : rien à régler à la main.",
     "steps": {
-      "java": {
-        "title": "Installer Java 21",
-        "lede": "Minecraft 1.21 ne démarre pas avec un Java plus ancien. Installe celui-ci en premier."
-      },
       "launcher": {
         "title": "Installer un launcher",
         "lede": "Choisis-en un. Les deux lancent la même instance."
@@ -5399,7 +5395,22 @@
         "text": "Une version de Prism qui joue avec un compte hors ligne, pour ceux qui n’ont pas Minecraft Java Edition."
       }
     },
-    "javaName": "Temurin 21",
+    "javaName": "Temurin 21 JRE",
+    "javaHint": {
+      "title": "Pas besoin d’installer Java.",
+      "text": "Prism télécharge le bon tout seul. Si le launcher se plaint quand même de Java, vois"
+    },
+    "troubleshooting": {
+      "title": "Dépannage",
+      "lede": "Si le launcher dit que Java manque, ou que le jeu ne démarre pas",
+      "java": {
+        "title": "Le launcher dit que Java manque ou est trop ancien",
+        "text": "Prism installe Java 21 tout seul, donc c’est rare. Si ça arrive, installe Java à la main, puis relance le launcher.",
+        "jre": "Choisis le JRE (Java Runtime Environment) quand il y en a un. Il est plus léger et c’est tout ce dont le jeu a besoin.",
+        "jdk": "Prends le JDK seulement si aucun JRE n’est proposé pour ton système. Il fonctionne pareil.",
+        "version": "Il faut la version 21. Minecraft 1.21 ne démarre pas avec un Java plus ancien."
+      }
+    },
     "instanceName": "Instance LNB",
     "downloadFor": "Télécharger pour {os}",
     "downloadZip": "Télécharger le zip",
@@ -5429,6 +5440,7 @@
         "suse": "openSUSE"
       },
       "notes": {
+        "macosJdk": "Homebrew n’a que le JDK pour Temurin 21. Il fonctionne comme le JRE.",
         "debianJava": "Debian 13 ou plus récent. Sur Debian 12, utilise le téléchargement ci-dessus.",
         "nixosConfig": "Ajoute-la à configuration.nix, puis reconstruis.",
         "flatpakSetup": "Demande d’installer Flatpak une fois.",
