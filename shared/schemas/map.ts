@@ -21,6 +21,10 @@ export type MapSettingsBody = z.input<typeof mapSettingsBody>;
 export const mapPublicView = z.object({ url: z.string() });
 export type MapPublicView = z.infer<typeof mapPublicView>;
 
+/** GET /api/map/status: whether the map answered 200, and the status it gave (null: no answer). */
+export const mapStatusView = z.object({ ok: z.boolean(), status: z.number().nullable() });
+export type MapStatusView = z.infer<typeof mapStatusView>;
+
 /** GET and PATCH /api/admin/map */
 export const mapAdminView = z.object({ url: z.string().nullable(), defaultUrl: z.string() });
 export type MapAdminView = z.infer<typeof mapAdminView>;
