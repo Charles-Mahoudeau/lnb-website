@@ -11,17 +11,26 @@ const { data } = await useMap();
 const stage = useTemplateRef<HTMLElement>('stage');
 const fullscreen = ref(false);
 const canFullscreen = ref(false);
+// The server asks the map first: a browser can't read the status of a framed page, and a
+// map that answers 503 would show its error page inside the frame. Only a 200 shows the map.
+const state = ref<'checking' | 'ok' | 'down'>('checking');
 const loaded = ref(false);
 // Bumping the key reloads the frame.
 const attempt = ref(0);
-const slow = ref(false);
 let timer: ReturnType<typeof setTimeout> | undefined;
 
-function startWaiting() {
+async function check() {
+  state.value = 'checking';
   loaded.value = false;
-  slow.value = false;
   clearTimeout(timer);
-  timer = setTimeout(() => (slow.value = true), 10000);
+  try {
+    state.value = (await fetchMapStatus()).ok ? 'ok' : 'down';
+  } catch {
+    state.value = 'down';
+  }
+  // A map that says 200 but never finishes loading is down too.
+  if (state.value === 'ok')
+    timer = setTimeout(() => !loaded.value && (state.value = 'down'), 15000);
 }
 function onLoad() {
   loaded.value = true;
@@ -29,7 +38,7 @@ function onLoad() {
 }
 function retry() {
   attempt.value += 1;
-  startWaiting();
+  void check();
 }
 
 async function toggleFullscreen() {
@@ -43,7 +52,7 @@ function onFullscreenChange() {
 onMounted(() => {
   canFullscreen.value = document.fullscreenEnabled;
   document.addEventListener('fullscreenchange', onFullscreenChange);
-  startWaiting();
+  void check();
 });
 onBeforeUnmount(() => {
   document.removeEventListener('fullscreenchange', onFullscreenChange);
@@ -83,7 +92,7 @@ onBeforeUnmount(() => {
       class="relative mx-4 h-map overflow-hidden rounded-lg bg-elevated sm:mx-6 lg:mx-8"
     >
       <iframe
-        v-if="data"
+        v-if="data && state !== 'down'"
         :key="attempt"
         :src="data.url"
         :title="t('map.frameTitle')"
@@ -93,7 +102,7 @@ onBeforeUnmount(() => {
         @load="onLoad"
       />
       <div
-        v-if="!loaded && !slow"
+        v-if="state === 'checking' || (state === 'ok' && !loaded)"
         class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-elevated"
         role="status"
       >
@@ -104,7 +113,7 @@ onBeforeUnmount(() => {
         <p class="text-muted">{{ t('map.loading') }}</p>
       </div>
       <div
-        v-else-if="!loaded && slow"
+        v-else-if="state === 'down'"
         class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-elevated p-6 text-center"
       >
         <IconTile icon="i-lucide-map" />

@@ -319,6 +319,7 @@ const responseSchemas = {
   PartnerLogo: partners.partnerLogoView,
   PartnerSettings: partners.partnerSettingsView,
   MapPublic: map.mapPublicView,
+  MapStatus: map.mapStatusView,
   MapAdmin: map.mapAdminView,
   GamesplanetDeal: gamesplanet.gamesplanetDeal,
   GamesplanetPublic: gamesplanet.gamesplanetPublicView,
@@ -3394,6 +3395,16 @@ const routes: RouteDoc[] = [
       'The address of the live map the `/minecraft/map` page shows in a frame: the one an admin set, or the default.',
     access: 'public',
     response: map.mapPublicView,
+  },
+  {
+    method: 'get',
+    path: '/api/map/status',
+    tag: TAGS.map,
+    summary: 'Whether the map answers',
+    description:
+      'The server asks the map for its page and says whether it answered 200 (`ok`) and with which status (`null` when it didn’t answer within 5 seconds). The answer is kept for 10 seconds. The map page shows its error screen unless `ok` is true.',
+    access: 'public',
+    response: map.mapStatusView,
   },
   {
     method: 'get',
