@@ -85,6 +85,13 @@ Three custom palettes, wired into Nuxt UI as `neutral: 'night'`, `primary: 'crim
 - The logo is a black fox on a grey moon: `public/logo.svg`. On dark backgrounds use `public/logo-dark.svg`: the same drawing with a night-100 fox on a night-600 moon (night-700 shadow and craters) and night-950 details. When the night palette changes, update these fills too. A pure white fox on the light moon lacked contrast, and pure white glared, so keep these colors. Show them with `dark:hidden` and `hidden dark:block`, as in the header. Don't recolor the logo red. `public/favicon.ico` (16, 32 and 48 px) and the notification icons (`public/notification-icon.png`, `notification-badge.png`) are rendered from `logo.svg`: regenerate them when the logo changes.
 - Minecraft skin heads come from `/api/warden/heads/:uuid` (the server fetches and caches them, never hotlinked). Show them with the `pixelated` utility so the 8-pixel faces stay sharp, at 28, 40 or 56 px, with `rounded-sm`.
 
+## Minecraft map
+
+Original mock (not code to port): Minecraft map mocks, proposition D, "A with B's buttons". See `docs/map.md`.
+
+- The page is the map: a slim bar with the title (`text-2xl`, display font, smaller than a usual page title on purpose) and two `md` buttons on the right, "Full screen" (neutral soft) and "Open in a new tab" (outline), then the frame on a raised surface (`bg-elevated`, 12 px) filling the rest of the screen (`h-map`: the viewport minus the header and the bar, at least 30 rem). No solid red button.
+- Loading is a spinner and one line in the frame, and an unreachable map is a centered moment (an `IconTile`, a title, one line and a neutral soft "Try again"). The spinner only turns with `motion-safe`.
+
 ## Team page
 
 Original mock (not code to port): [team page mocks](https://claude.ai/artifact/PnX6ZUX1qHQimSQajeSXcb), proposal B, "Bureau first". The role under a name stays muted: the second accent isn't for text.
