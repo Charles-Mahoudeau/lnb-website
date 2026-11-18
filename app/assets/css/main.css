@@ -220,6 +220,12 @@
   min-height: calc(100svh - var(--ui-header-height));
 }
 
+/* The Minecraft map: the frame takes what the header and the title bar leave of the screen
+   (3.5rem for the bar), never less than 30rem. */
+@utility h-map {
+  height: max(30rem, calc(100svh - var(--ui-header-height) - 3.5rem));
+}
+
 /* Minecraft nametags: Monocraft (SIL OFL 1.1, public/fonts/monocraft/) in white on a translucent
    black plate, as in-game, so the same in both color modes. Only for nametag previews. */
 @font-face {

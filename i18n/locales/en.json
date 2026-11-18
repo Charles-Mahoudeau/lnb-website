@@ -28,6 +28,7 @@
     "partnersDescription": "Sponsors, game partners and prize partners",
     "bankDescription": "Your LNBits and shared accounts",
     "baltopDescription": "The richest players on the server",
+    "mapDescription": "The world of the Minecraft server, live",
     "questsDescription": "Personal tiers, server records and community goals"
   },
   "home": {
@@ -703,6 +704,7 @@
       "eventList": "All events",
       "push": "Push notifications",
       "team": "Team",
+      "map": "Map",
       "partners": "Partners",
       "partnerEvents": "Partner events",
       "shortLinks": "Short links",
@@ -939,6 +941,7 @@
         "partner_create": "{actor} added the partner {name}.",
         "partner_update": "{actor} changed the partner {name}.",
         "partner_delete": "{actor} deleted the partner {name}.",
+        "map_settings": "{actor} changed the address of the Minecraft map.",
         "partners_settings": "{actor} changed the partners page settings.",
         "gamesplanet_settings": "{actor} changed the Gamesplanet affiliate code.",
         "gamesplanet_pin": "{actor} pinned a Gamesplanet game.",
@@ -1401,6 +1404,10 @@
         "jobs_pushPrune": {
           "label": "Prune notification log",
           "description": "The nightly removal of notifications older than 90 days and of dead devices."
+        },
+        "map": {
+          "label": "Minecraft map page",
+          "description": "The public map page and its links in the menu and footer. The saved address stays."
         },
         "team": {
           "label": "Team page",
@@ -2098,6 +2105,25 @@
         "alreadyMember": "This account is already on the team.",
         "hasMembers": "Move or remove the members of this pole first.",
         "failed": "The change wasn’t saved. Check your connection and try again."
+      }
+    },
+    "map": {
+      "title": "Map",
+      "note": "The Minecraft map page shows a live map inside the site, in a frame.",
+      "flagOff": "The map page is switched off in the feature flags.",
+      "address": {
+        "title": "Map address",
+        "help": "The https address of the live map. Leave it empty to use the default one. The map's own site must allow being shown in a frame.",
+        "label": "Address",
+        "invalid": "Use an address that starts with https://, for example https://map.example.com.",
+        "default": "Default address: {url}",
+        "save": "Save address",
+        "saved": "Address saved",
+        "open": "Open the map"
+      },
+      "errors": {
+        "failed": "The change wasn’t saved. Check the address and your connection, then try again.",
+        "loadFailed": "The map settings couldn’t be loaded. Check your connection, then reload the page."
       }
     },
     "partners": {
@@ -4514,6 +4540,20 @@
       "title": "Want to help run LNB?",
       "lede": "Tell us what you would like to work on.",
       "button": "Join the team"
+    }
+  },
+  "map": {
+    "title": "Map",
+    "lede": "See the world of the LNB Minecraft server.",
+    "fullScreen": "Full screen",
+    "exitFullScreen": "Exit full screen",
+    "openNewTab": "Open in a new tab",
+    "frameTitle": "Live map of the LNB Minecraft server",
+    "loading": "Loading the map…",
+    "unavailable": {
+      "title": "The map isn’t available right now",
+      "text": "The server may be restarting. Try again in a few minutes, or open the map in its own tab.",
+      "retry": "Try again"
     }
   },
   "partners": {

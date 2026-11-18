@@ -48,6 +48,16 @@ const navItems = computed<NavigationMenuItem[]>(() => {
           },
         ]
       : []),
+    ...(isEnabled('map')
+      ? [
+          {
+            label: t('map.title'),
+            description: t('nav.mapDescription'),
+            icon: 'i-lucide-map',
+            to: '/minecraft/map',
+          },
+        ]
+      : []),
     // The bank needs a linked Minecraft account, so it follows Warden. The baltop is for anyone
     // signed in.
     ...(canUseWarden.value && isEnabled('economy')
