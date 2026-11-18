@@ -13,6 +13,10 @@ import {
   economyProfile,
   economyShop,
   economyTransaction,
+  questCommunityContribution,
+  questCompletion,
+  questDailyCompletion,
+  questFlashRun,
   user,
 } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
@@ -490,6 +494,11 @@ async function reset(actorId: string, confirm: string) {
     const accounts = await tx.select({ id: economyAccount.id }).from(economyAccount);
     // Licenses point at the transaction that paid for them and at accounts.
     await tx.delete(economyCasinoLicense);
+    // Quest payouts point at their transaction too. The quest history stays, without the link.
+    await tx.update(questCompletion).set({ transactionId: null });
+    await tx.update(questFlashRun).set({ transactionId: null });
+    await tx.update(questDailyCompletion).set({ transactionId: null });
+    await tx.update(questCommunityContribution).set({ transactionId: null });
     await tx.delete(economyEntry);
     // Reversals point at the transaction they undo, so they go first.
     await tx.delete(economyTransaction).where(sql`${economyTransaction.reversesId} is not null`);

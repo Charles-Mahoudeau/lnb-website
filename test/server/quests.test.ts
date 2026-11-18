@@ -12,12 +12,14 @@ import {
   minecraftAccount,
   quest,
   questCommunity,
+  questCompletion,
   questDailyDraw,
   questIndexDay,
   questSettingsRow,
   user,
 } from '~~/server/db/schema';
 import { offlineUuid } from '~~/server/lib/minecraft';
+import { economyAdminService } from '~~/server/services/economy/admin';
 import { economyServerService } from '~~/server/services/economy/server';
 import { questAdminService } from '~~/server/services/quests/admin';
 import { communityService } from '~~/server/services/quests/community';
@@ -216,6 +218,29 @@ describe('individual tiers', () => {
         actor: { source: 'web' },
       }),
     ).rejects.toMatchObject({ data: { problem: 'alreadyClaimed' } });
+  });
+
+  it('keeps a paid completion when the economy is reset', async () => {
+    const id = `mine_${suffix()}`;
+    await questServerService.seedCatalog({ quests: [individual(id)] });
+    const who = await player(250);
+    const done = await questServerService.complete({
+      idempotencyKey: randomUUID(),
+      player: who.uuid,
+      quest: id,
+      tier: 1,
+    });
+    await questServerService.claimFromServer(done.completionId, {
+      idempotencyKey: randomUUID(),
+      player: who.uuid,
+    });
+    await economyAdminService.reset(who.id, 'reset the economy');
+    const [row] = await db
+      .select()
+      .from(questCompletion)
+      .where(eq(questCompletion.id, done.completionId));
+    expect(row?.claimedAt).not.toBeNull();
+    expect(row?.transactionId).toBeNull();
   });
 
   it('gives the tier items through the mailbox on claim', async () => {
