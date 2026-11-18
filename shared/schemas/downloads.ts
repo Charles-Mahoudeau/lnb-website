@@ -25,9 +25,9 @@ export type DownloadProblem = (typeof DOWNLOAD_PROBLEMS)[number];
 export const VENDOR_LINKS = {
   java: {
     host: 'adoptium.net',
-    windows: 'https://adoptium.net/temurin/releases/?version=21&os=windows&arch=any',
-    macos: 'https://adoptium.net/temurin/releases/?version=21&os=mac&arch=any',
-    linux: 'https://adoptium.net/temurin/releases/?version=21&os=linux&arch=any',
+    windows: 'https://adoptium.net/temurin/releases/?version=21&os=windows&arch=any&package=jre',
+    macos: 'https://adoptium.net/temurin/releases/?version=21&os=mac&arch=any&package=jre',
+    linux: 'https://adoptium.net/temurin/releases/?version=21&os=linux&arch=any&package=jre',
   },
   prism: {
     host: 'prismlauncher.org',
@@ -50,20 +50,20 @@ export interface PackageEntry {
 }
 
 /**
- * Commands to install Java 21 and Prism with the system's package manager. Prism has no package
+ * Commands to install Java 21 (the JRE where there is one) and Prism with the system's package manager. Prism has no package
  * for Ubuntu, Debian, Fedora or openSUSE, so those use Flatpak. A command is shown as text, never
  * run by the site. `note` is a key under `download.packages.notes`.
  */
 export const PACKAGE_COMMANDS = {
   java: {
-    macos: 'brew install --cask temurin@21',
+    macos: { command: 'brew install --cask temurin@21', note: 'macosJdk' },
     linux: {
       ubuntu: { command: 'sudo apt install openjdk-21-jre' },
       debian: { command: 'sudo apt install openjdk-21-jre', note: 'debianJava' },
       fedora: { command: 'sudo dnf install java-21-openjdk' },
       arch: { command: 'sudo pacman -S jre21-openjdk' },
       nixos: {
-        command: 'programs.java = { enable = true; package = pkgs.jdk21; };',
+        command: 'programs.java = { enable = true; package = pkgs.temurin-jre-bin-21; };',
         note: 'nixosConfig',
       },
       suse: { command: 'sudo zypper install java-21-openjdk' },
@@ -83,7 +83,10 @@ export const PACKAGE_COMMANDS = {
       suse: { command: FLATPAK, note: 'flatpakSetup' },
     },
   },
-} as const satisfies Record<string, { macos: string; linux: Record<PackageDistro, PackageEntry> }>;
+} as const satisfies Record<
+  string,
+  { macos: string | PackageEntry; linux: Record<PackageDistro, PackageEntry> }
+>;
 
 /** PUT /api/admin/downloads/{slot} */
 export const downloadSlotParams = z.object({ slot: downloadSlot });

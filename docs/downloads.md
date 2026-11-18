@@ -1,15 +1,15 @@
 # Minecraft downloads
 
-`/minecraft/download` tells a new player what to install to join the Minecraft server, in four numbered steps: Java 21, a launcher, the LNB instance, then import it and play. It is public (no sign-in), like the mod list, and in the Minecraft menu and the footer. The layout is proposition A, "Steps rail", of [the downloads mocks](https://claude.ai/artifact/Gmk3d3VgxzPRE5Kd2GCp9d).
+`/minecraft/download` tells a new player what to install to join the Minecraft server, in three numbered steps: a launcher, the LNB instance, then import it and play. Java is not a step: Prism and PrismCracked install the Java they need, so it sits in a collapsed Troubleshooting section under the steps, for the rare launcher that complains. A line under the launcher step says so and opens that section. It is public (no sign-in), like the mod list, and in the Minecraft menu and the footer. The layout is proposition A, "Steps rail", of [the downloads mocks](https://claude.ai/artifact/Gmk3d3VgxzPRE5Kd2GCp9d). The Troubleshooting section is layout C ("Collapsed + hint") of [the Java mocks](https://claude.ai/artifact/6ydDJNjntDyy5hT7j9HZcw).
 
 ## Where each download comes from
 
-| Step | Download                        | Source                                                                                            |
-| ---- | ------------------------------- | ------------------------------------------------------------------------------------------------- |
-| 1    | Java 21 (Temurin)               | A link to adoptium.net for the visitor's system (`VENDOR_LINKS` in `shared/schemas/downloads.ts`) |
-| 2    | Prism Launcher                  | A link to prismlauncher.org for the visitor's system                                              |
-| 2    | PrismCracked (offline accounts) | The Files library, one file per system                                                            |
-| 3    | The LNB instance zip            | The Files library                                                                                 |
+| Step            | Download                        | Source                                                                                                 |
+| --------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 1               | Prism Launcher                  | A link to prismlauncher.org for the visitor's system (`VENDOR_LINKS` in `shared/schemas/downloads.ts`) |
+| 1               | PrismCracked (offline accounts) | The Files library, one file per system                                                                 |
+| 2               | The LNB instance zip            | The Files library                                                                                      |
+| Troubleshooting | Java 21 JRE (Temurin)           | A link to adoptium.net for the visitor's system, on the JRE package                                    |
 
 Java and Prism are links, not files, so they never go stale and nothing of theirs is hosted by us. PrismCracked and the instance zip are library files an admin picks, so the links never break and the versions are the ones tested.
 
@@ -19,7 +19,7 @@ The page picks the visitor's system from the `User-Agent` (`detectOs`, `shared/u
 
 ## Package managers
 
-On Linux and macOS, the Java and Prism steps add an "Or use your package manager" block (`DownloadPackages`): Homebrew on macOS, and on Linux one chip per distribution (Ubuntu, Debian, Fedora, Arch Linux, NixOS, openSUSE) with the command and a Copy button. The commands are in `PACKAGE_COMMANDS` (`shared/schemas/downloads.ts`). They are text only, never run by the site. Prism has no package for Ubuntu, Debian, Fedora or openSUSE, so those use Flatpak. The chosen distribution is shared by both blocks. PrismCracked is in no package manager, and says so. The commands are in the body font on purpose: `docs/design.md` allows no monospace face.
+On Linux and macOS, the launcher step and the Java troubleshooting entry add an "Or use your package manager" block (`DownloadPackages`): Homebrew on macOS, and on Linux one chip per distribution (Ubuntu, Debian, Fedora, Arch Linux, NixOS, openSUSE) with the command and a Copy button. The commands are in `PACKAGE_COMMANDS` (`shared/schemas/downloads.ts`). They are text only, never run by the site. Java commands install the JRE where the package manager has one (Homebrew only has the Temurin JDK, and says so). Prism has no package for Ubuntu, Debian, Fedora or openSUSE, so those use Flatpak. The chosen distribution is shared by both blocks. PrismCracked is in no package manager, and says so. The commands are in the body font on purpose: `docs/design.md` allows no monospace face.
 
 ## Admin
 

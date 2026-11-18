@@ -13,7 +13,9 @@ const toast = useToast();
 
 const entry = computed<PackageEntry | null>(() => {
   const commands = PACKAGE_COMMANDS[props.tool];
-  if (props.os === 'macos') return { command: commands.macos };
+  if (props.os === 'macos') {
+    return typeof commands.macos === 'string' ? { command: commands.macos } : commands.macos;
+  }
   if (props.os === 'linux') return commands.linux[distro.value];
   return null;
 });

@@ -39,7 +39,8 @@ describe('the vendor links', () => {
 describe('the package manager commands', () => {
   it('cover every distribution for Java and Prism', () => {
     for (const tool of Object.values(PACKAGE_COMMANDS)) {
-      expect(tool.macos).toMatch(/^brew install/);
+      const brew = typeof tool.macos === 'string' ? tool.macos : tool.macos.command;
+      expect(brew).toMatch(/^brew install/);
       for (const distro of PACKAGE_DISTROS) {
         expect(tool.linux[distro].command.length).toBeGreaterThan(0);
       }
