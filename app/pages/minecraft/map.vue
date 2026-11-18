@@ -61,7 +61,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <UContainer class="flex flex-col gap-4 py-8">
+  <div class="flex flex-col gap-4 p-4">
     <div class="flex flex-wrap items-center gap-3">
       <h1 class="text-2xl font-bold text-highlighted">{{ t('map.title') }}</h1>
       <span class="flex-1" />
@@ -124,5 +124,5 @@ onBeforeUnmount(() => {
         />
       </div>
     </div>
-  </UContainer>
+  </div>
 </template>

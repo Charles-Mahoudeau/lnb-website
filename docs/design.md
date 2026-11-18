@@ -89,7 +89,7 @@ Three custom palettes, wired into Nuxt UI as `neutral: 'night'`, `primary: 'crim
 
 Original mock (not code to port): Minecraft map mocks, proposition D, "A with B's buttons". See `docs/map.md`.
 
-- The page is the map: a slim bar with the title (`text-2xl`, display font, smaller than a usual page title on purpose) and two `md` buttons on the right, "Full screen" (neutral soft) and "Open in a new tab" (outline), then the frame on a raised surface (`bg-elevated`, 12 px) filling the rest of the screen (`h-map`: the viewport minus the header and the bar, at least 30 rem). No solid red button.
+- The page is the map: a slim bar with the title (`text-2xl`, display font, smaller than a usual page title on purpose) and two `md` buttons on the right, "Full screen" (neutral soft) and "Open in a new tab" (outline), then the frame, with 1 rem of space on every side (header, screen edges, footer) and between the bar and the frame, on a raised surface (`bg-elevated`, 12 px) filling the rest of the screen (`h-map`: the viewport minus the header and the bar, at least 30 rem). No solid red button.
 - Loading is a spinner and one line in the frame, and an unreachable map is a centered moment (an `IconTile`, a title, one line and a neutral soft "Try again"). The spinner only turns with `motion-safe`.
 
 ## Team page
