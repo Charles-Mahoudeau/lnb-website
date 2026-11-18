@@ -22,7 +22,13 @@ const ready = computed(
         {{ t('quests.title') }}
       </h2>
       <span class="text-sm text-muted">
-        {{ t('quests.season.current', { n: data?.season.number ?? 0 }) }}
+        {{
+          t('quests.season.current', {
+            n: data?.season.name
+              ? `${String(data.season.number)} (${data.season.name})`
+              : (data?.season.number ?? 0),
+          })
+        }}
       </span>
     </div>
 

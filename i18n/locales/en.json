@@ -980,6 +980,9 @@
         "quests_delete": "{actor} deleted the quest {name}.",
         "quests_import": "{actor} imported quests.",
         "quests_season": "{actor} started a new quest season.",
+        "quests_seasonRename": "{actor} renamed the quest season {name}.",
+        "quests_seasonReset": "{actor} reset the current quest season.",
+        "playtime_reset": "{actor} reset the playtime counters.",
         "quests_communityCreate": "{actor} planned the community quest {name}.",
         "quests_communityUpdate": "{actor} changed the community quest {name}.",
         "quests_communityCancel": "{actor} cancelled the community quest {name}.",
@@ -3402,10 +3405,21 @@
       },
       "season": {
         "title": "Seasons",
-        "body": "Season {n} is running. A new season starts every quest over: progress, tiers and ranks, and the advancements of server quests are taken back from every player. LNBits already paid stay.",
+        "body": "Season {n}{name} is running. A new season starts every quest over: progress, tiers and ranks, and the advancements of server quests are taken back from every player. LNBits already paid stay.",
+        "name": "Name (shown on the site only)",
+        "rename": "Rename",
+        "renamed": "Season renamed",
+        "newTitle": "Start a new season",
+        "newBody": "Pick its number, which must be higher than {n}. The Minecraft server tells seasons apart by number.",
+        "number": "Number",
         "confirm": "Type “new season” to confirm",
         "start": "Start a new season",
-        "started": "New season started"
+        "started": "New season started",
+        "resetTitle": "Reset the current season",
+        "resetBody": "Deletes what players did this season: tiers, ranks, progress, flash races, daily quests and community quests. The number stays, and so do past seasons, the catalogue, the settings and LNBits already paid, so players can earn them again.",
+        "resetConfirm": "Type “reset the season” to confirm",
+        "reset": "Reset this season",
+        "resetDone": "Season reset"
       },
       "index": {
         "index": "Index",

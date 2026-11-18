@@ -39,6 +39,10 @@ export const questSeason = pgTable(
   {
     id: serial('id').primaryKey(),
     number: integer('number').notNull().unique(),
+    // A label for the site only. The Minecraft server identifies a season by its number.
+    name: text('name'),
+    // Bumped when an admin resets the season without changing its number.
+    revision: integer('revision').default(0).notNull(),
     startedAt: timestamp('started_at').defaultNow().notNull(),
     endedAt: timestamp('ended_at'),
   },

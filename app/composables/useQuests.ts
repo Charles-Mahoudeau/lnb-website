@@ -161,8 +161,20 @@ export const questAdminActions = {
   contributors: (id: string) => call(() => $fetch(`/api/quests/admin/community/${id}`)),
   saveTemplate: (body: { id?: string; definition: unknown; enabled?: boolean }) =>
     call(() => $fetch('/api/quests/admin/community/templates', { method: 'POST', body })),
-  newSeason: () =>
+  newSeason: (body: { number?: number; name?: string } = {}) =>
     call(() =>
-      $fetch('/api/quests/admin/seasons', { method: 'POST', body: { confirmation: 'new season' } }),
+      $fetch('/api/quests/admin/seasons', {
+        method: 'POST',
+        body: { confirmation: 'new season', ...body },
+      }),
+    ),
+  renameSeason: (name: string) =>
+    call(() => $fetch('/api/quests/admin/seasons/current', { method: 'PATCH', body: { name } })),
+  resetSeason: () =>
+    call(() =>
+      $fetch('/api/quests/admin/seasons/reset', {
+        method: 'POST',
+        body: { confirmation: 'reset the season' },
+      }),
     ),
 };

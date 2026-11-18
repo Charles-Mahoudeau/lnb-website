@@ -73,7 +73,13 @@ async function config(): Promise<QuestConfigResult> {
     questDailyService.today(),
   ]);
   return {
-    season: { id: season.id, number: season.number, startedAt: season.startedAt.toISOString() },
+    season: {
+      id: season.id,
+      number: season.number,
+      name: season.name,
+      revision: season.revision,
+      startedAt: season.startedAt.toISOString(),
+    },
     quests,
     categories,
     daily,
