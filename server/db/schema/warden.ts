@@ -16,6 +16,7 @@ import {
 } from 'drizzle-orm/pg-core';
 
 import { deviceCode, user } from './auth';
+import type { RuleCitation } from '../../../shared/schemas/rules';
 
 // Warden: Minecraft accounts linked to LNB accounts. See docs/warden.md.
 
@@ -223,6 +224,8 @@ export const wardenBan = pgTable(
     // The account the player was on, for bans from the Minecraft server.
     minecraftUuid: uuid('minecraft_uuid'),
     reason: text('reason').notNull(),
+    // The rules the ban names, as they were that day (docs/rules.md).
+    ruleCitations: jsonb('rule_citations').$type<RuleCitation[]>().default([]).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     // Null for a permanent ban.
     expiresAt: timestamp('expires_at'),
@@ -277,6 +280,8 @@ export const wardenNote = pgTable(
       .references(() => user.id, { onDelete: 'cascade' }),
     kind: text('kind').$type<WardenNoteKind>().notNull(),
     body: text('body').notNull(),
+    // The rules a warning names, as they were that day (docs/rules.md).
+    ruleCitations: jsonb('rule_citations').$type<RuleCitation[]>().default([]).notNull(),
     source: text('source').$type<WardenSource>().notNull(),
     authorUserId: text('author_user_id').references(() => user.id, { onDelete: 'set null' }),
     authorMinecraftUuid: uuid('author_minecraft_uuid'),

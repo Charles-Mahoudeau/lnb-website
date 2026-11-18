@@ -44,6 +44,7 @@ function banTitle(item: Extract<WardenHistoryItem, { kind: 'ban' }>) {
           <span class="text-sm text-muted">{{ formatWardenDate(item.createdAt, locale) }}</span>
         </div>
         <p class="break-words">{{ item.kind === 'ban' ? item.reason : item.body }}</p>
+        <RulesCited :rules="item.rules" />
       </div>
     </li>
   </ul>

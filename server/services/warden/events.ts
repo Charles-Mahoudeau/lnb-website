@@ -73,7 +73,11 @@ async function toEvent(row: typeof wardenAudit.$inferSelect): Promise<WardenEven
           uuids: await accountsOf(row.targetUserId),
           reason: 'banned',
           ban: ban
-            ? { reason: ban.reason, expiresAt: ban.expiresAt?.toISOString() ?? null }
+            ? {
+                reason: ban.reason,
+                expiresAt: ban.expiresAt?.toISOString() ?? null,
+                rules: ban.ruleCitations,
+              }
             : undefined,
         },
       };

@@ -21,6 +21,7 @@ export * from './posters';
 export * from './push';
 export * from './quests';
 export * from './rate-limit';
+export * from './rules';
 export * from './short-links';
 export * from './team';
 export * from './warden';

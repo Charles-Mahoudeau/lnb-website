@@ -19,6 +19,7 @@ const presets = [
 type PresetKey = (typeof presets)[number]['key'];
 
 const reason = ref('');
+const ruleIds = ref<string[]>([]);
 const preset = ref<PresetKey>('week');
 const until = ref('');
 
@@ -49,7 +50,11 @@ const valid = computed(() => reason.value.trim().length > 0 && durationSeconds.v
 
 function submit() {
   if (!valid.value || durationSeconds.value === undefined) return;
-  emit('close', { reason: reason.value.trim(), durationSeconds: durationSeconds.value });
+  emit('close', {
+    reason: reason.value.trim(),
+    durationSeconds: durationSeconds.value,
+    ruleIds: ruleIds.value,
+  });
 }
 </script>
 
@@ -71,6 +76,7 @@ function submit() {
             class="w-full"
           />
         </UFormField>
+        <RulesPicker v-model="ruleIds" />
         <fieldset class="flex flex-col gap-2">
           <legend class="mb-2 text-sm font-medium">{{ t('wardenAdmin.banModal.length') }}</legend>
           <div class="flex flex-wrap gap-2">

@@ -205,6 +205,14 @@ function describe(entry: AdminAuditView): string {
     case 'map.settings':
     case 'downloads.update':
     case 'partners.settings':
+    case 'rule.create':
+    case 'rule.update':
+    case 'rule.retire':
+    case 'rule.restore':
+    case 'rule.categoryCreate':
+    case 'rule.categoryUpdate':
+    case 'rule.categoryDelete':
+    case 'rule.seed':
     case 'gamesplanet.settings':
     case 'gamesplanet.pin':
     case 'gamesplanet.unpin':

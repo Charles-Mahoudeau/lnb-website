@@ -469,6 +469,7 @@ function dateTime(iso: string) {
                     />
                   </div>
                   <p class="break-words">{{ item.ban.reason }}</p>
+                  <RulesCited :rules="item.ban.rules" />
                   <p class="text-sm text-muted">
                     {{
                       t('wardenAdmin.timeline.issued', {
@@ -536,6 +537,7 @@ function dateTime(iso: string) {
                     />
                   </div>
                   <p class="break-words whitespace-pre-line">{{ item.note.body }}</p>
+                  <RulesCited :rules="item.note.rules" />
                   <p class="text-sm text-muted">
                     {{
                       t('wardenAdmin.timeline.issued', {

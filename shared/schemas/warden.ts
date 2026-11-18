@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { ANTICHEAT_ALERT_KINDS, anticheatReportFileResult, anticheatVerdict } from './anticheat.ts';
+import { ruleCitation, ruleIdList } from './rules.ts';
 
 // Warden contracts, shared by the routes and the pages. See docs/warden.md.
 // Responses are schemas too, so the API reference (server/openapi/) is built from the same
@@ -83,7 +84,15 @@ export const WARDEN_DENY_REASONS = [
   'accountLimitReached',
 ] as const;
 
-const banSummary = z.object({ reason: z.string(), expiresAt: isoDate.nullable() });
+const citedRules = z
+  .array(ruleCitation)
+  .describe('The rules the sanction names, as they were that day. Empty when none.');
+
+const banSummary = z.object({
+  reason: z.string(),
+  expiresAt: isoDate.nullable(),
+  rules: citedRules,
+});
 
 /**
  * One Minecraft account's playtime state, as the server shows and obeys it (docs/playtime.md). The
@@ -182,6 +191,7 @@ export const noteBody = z.string().trim().min(1).max(2000);
 export const wardenServerBanBody = z.object({
   reason: banReason,
   durationSeconds: banDuration,
+  ruleIds: ruleIdList,
   issuer: wardenIssuer.optional(),
 });
 
@@ -194,12 +204,17 @@ export const wardenServerUnbanBody = z.object({
 /** Body of POST /api/warden/server/players/:uuid/warnings. */
 export const wardenServerWarningBody = z.object({
   body: noteBody,
+  ruleIds: ruleIdList,
   issuer: wardenIssuer.optional(),
 });
 
 /** Body of POST /api/warden/admin/players/:userId/bans. */
-export const wardenBanBody = z.object({ reason: banReason, durationSeconds: banDuration });
-export type WardenBanBody = z.infer<typeof wardenBanBody>;
+export const wardenBanBody = z.object({
+  reason: banReason,
+  durationSeconds: banDuration,
+  ruleIds: ruleIdList,
+});
+export type WardenBanBody = z.input<typeof wardenBanBody>;
 
 /** Body of POST /api/warden/admin/bans/:banId/revoke. */
 export const wardenRevokeBody = z.object({ reason: z.string().trim().max(500).optional() });
@@ -210,8 +225,9 @@ export const wardenNoteBody = z.object({
     .enum(['note', 'warning'])
     .describe('A note stays private. A warning is shown to the player.'),
   body: noteBody,
+  ruleIds: ruleIdList,
 });
-export type WardenNoteBody = z.infer<typeof wardenNoteBody>;
+export type WardenNoteBody = z.input<typeof wardenNoteBody>;
 
 /** Body of POST /api/warden/me/bans/:banId/appeal. */
 export const wardenAppealBody = z.object({ body: z.string().trim().min(1).max(2000) });
@@ -249,6 +265,7 @@ export type WardenActorView = z.infer<typeof wardenActorView>;
 export const wardenBanView = z.object({
   id: z.string(),
   reason: z.string(),
+  rules: citedRules,
   createdAt: isoDate,
   expiresAt: isoDate.nullable(),
   active: z.boolean(),
@@ -270,6 +287,7 @@ export const wardenNoteView = z.object({
   id: z.string(),
   kind: z.enum(['note', 'warning']),
   body: z.string(),
+  rules: citedRules,
   createdAt: isoDate,
   source: wardenSource,
   author: wardenActorView,
@@ -320,12 +338,19 @@ export const wardenHistoryItem = z.discriminatedUnion('kind', [
     kind: z.literal('ban'),
     id: z.string(),
     reason: z.string(),
+    rules: citedRules,
     createdAt: isoDate,
     expiresAt: isoDate.nullable(),
     revokedAt: isoDate.nullable(),
     active: z.boolean(),
   }),
-  z.object({ kind: z.literal('warning'), id: z.string(), body: z.string(), createdAt: isoDate }),
+  z.object({
+    kind: z.literal('warning'),
+    id: z.string(),
+    body: z.string(),
+    rules: citedRules,
+    createdAt: isoDate,
+  }),
 ]);
 export type WardenHistoryItem = z.infer<typeof wardenHistoryItem>;
 
@@ -378,6 +403,7 @@ export const wardenMe = z.object({
     .object({
       id: z.string(),
       reason: z.string(),
+      rules: citedRules,
       createdAt: isoDate,
       expiresAt: isoDate.nullable(),
       appeal: wardenAppealView.nullable(),
@@ -406,7 +432,12 @@ export const wardenServerPlayer = z.object({
   roles: z.array(z.string()),
   accounts: z.array(z.object({ uuid: z.string(), username: z.string() })),
   activeBan: z
-    .object({ id: z.string(), reason: z.string(), expiresAt: isoDate.nullable() })
+    .object({
+      id: z.string(),
+      reason: z.string(),
+      rules: citedRules,
+      expiresAt: isoDate.nullable(),
+    })
     .nullable(),
   warnings: z.number().describe('How many warnings the player has had.'),
   playtimeSeconds: z.number(),
@@ -640,6 +671,7 @@ export const WARDEN_PROBLEMS = [
   'slowDown',
   'rateLimited',
   'confirmMismatch',
+  'ruleNotFound',
 ] as const;
 export type WardenProblem = (typeof WARDEN_PROBLEMS)[number];
 

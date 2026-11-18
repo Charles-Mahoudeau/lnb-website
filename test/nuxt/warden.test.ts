@@ -83,6 +83,7 @@ describe('/minecraft/account', () => {
       activeBan: {
         id: 'b1',
         reason: 'Griefing at spawn',
+        rules: [],
         createdAt: '2026-10-15T12:00:00.000Z',
         expiresAt: null,
         appeal: null,
