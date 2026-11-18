@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, isNull } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull, notInArray, sql } from 'drizzle-orm';
 import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
@@ -8,10 +8,13 @@ import {
   playtimeClosure,
   playtimeExemption,
   playtimeGrant,
+  playtimeLedger,
+  playtimeNotice,
   playtimeSchool,
   playtimeSettings,
   user,
   wardenPlayer,
+  wardenSession,
 } from '~~/server/db/schema';
 import { flagService } from '~~/server/services/flags';
 import { wardenAuditService } from '~~/server/services/warden/audit';
@@ -29,6 +32,7 @@ import type {
   PlaytimeSettingsPatch,
   PlaytimeSettingsResponse,
 } from '#shared/schemas/playtime';
+import { PLAYTIME_RESET_CONFIRM } from '#shared/schemas/playtime';
 import { mondayOf, parisDate, addDays } from '#shared/utils/paris-time';
 import { SCHOOLS } from '#shared/utils/schools';
 
@@ -370,7 +374,40 @@ async function revokeGrant(actor: Actor, userId: string, id: number) {
   });
 }
 
+/**
+ * Wipes the time counted so far and the warnings, so every player starts the week with the whole
+ * allowance. The rules, schools, closures, exemptions and grants stay: they are what admins set up.
+ * A session still open keeps its row with the counters at zero: the row says where the counting
+ * stopped, and without it the next tick would count the whole session again. Site admins only,
+ * after typing the confirmation.
+ */
+async function reset(actor: Actor, confirm: string) {
+  if (confirm.trim().toLowerCase() !== PLAYTIME_RESET_CONFIRM) problem(400, 'confirmMismatch');
+  await db.transaction(async (tx) => {
+    const open = tx
+      .select({ id: wardenSession.id })
+      .from(wardenSession)
+      .where(isNull(wardenSession.endedAt));
+    const ledger = await tx
+      .delete(playtimeLedger)
+      .where(notInArray(playtimeLedger.sessionId, open))
+      .returning({ id: sql`1` });
+    const zeroed = await tx
+      .update(playtimeLedger)
+      .set({ countedSeconds: 0, graceSeconds: 0, overSeconds: 0, freeSeconds: 0 })
+      .where(inArray(playtimeLedger.sessionId, open))
+      .returning({ id: sql`1` });
+    const notices = await tx.delete(playtimeNotice).returning({ id: sql`1` });
+    await wardenAuditService.record(tx, {
+      action: 'playtime.reset',
+      actor,
+      data: { ledger: ledger.length + zeroed.length, notices: notices.length },
+    });
+  });
+}
+
 export const playtimeAdminService = {
+  reset,
   settings,
   closures,
   updateSettings,

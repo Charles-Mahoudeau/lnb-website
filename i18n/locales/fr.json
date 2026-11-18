@@ -728,6 +728,10 @@
       "modlist": "Modlist"
     },
     "cancel": "Annuler",
+    "typedConfirm": {
+      "type": "Tape « {sentence} » pour confirmer",
+      "failed": "Ça n’a pas marché, donc rien n’a été modifié. Réessaie."
+    },
     "roles": {
       "admin": "Admin",
       "wardenAdmin": "Admin Warden",
@@ -986,7 +990,6 @@
         "quests_season": "{actor} a lancé une nouvelle saison de quêtes.",
         "quests_seasonRename": "{actor} a renommé la saison de quêtes {name}.",
         "quests_seasonReset": "{actor} a remis à zéro la saison de quêtes en cours.",
-        "playtime_reset": "{actor} a remis à zéro les compteurs de temps de jeu.",
         "quests_communityCreate": "{actor} a programmé la quête communautaire {name}.",
         "quests_communityUpdate": "{actor} a modifié la quête communautaire {name}.",
         "quests_communityCancel": "{actor} a annulé la quête communautaire {name}.",
@@ -3785,6 +3788,15 @@
         "fri": "Ven",
         "sat": "Sam",
         "sun": "Dim"
+      },
+      "reset": {
+        "heading": "Réinitialiser les compteurs",
+        "lede": "Efface le temps compté jusqu’ici et les avertissements : tout le monde repart avec le quota entier. Les règles, écoles, fermetures, exemptions et crédits restent. À utiliser après des tests.",
+        "open": "Réinitialiser les compteurs",
+        "title": "Réinitialiser les compteurs de temps de jeu ?",
+        "warning": "Le temps compté de chaque joueur, cette semaine et avant, et tous les avertissements sont supprimés. Les joueurs connectés continuent à jouer à partir de maintenant. Impossible d’annuler.",
+        "confirm": "Réinitialiser les compteurs",
+        "done": "Compteurs réinitialisés"
       },
       "mode": {
         "title": "Mode",

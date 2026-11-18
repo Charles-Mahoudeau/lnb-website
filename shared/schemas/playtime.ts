@@ -336,3 +336,9 @@ export const playtimePlayerExemptionBody = z.object({
   until: z.iso.datetime().nullable().optional(),
 });
 export type PlaytimePlayerExemptionBody = z.infer<typeof playtimePlayerExemptionBody>;
+
+/** What a site admin types to wipe the counted time and the warnings. */
+export const PLAYTIME_RESET_CONFIRM = 'reset the playtime';
+export const playtimeResetBody = z.object({
+  confirm: z.string().describe(`Must be "${PLAYTIME_RESET_CONFIRM}".`),
+});
