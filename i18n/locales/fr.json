@@ -28,6 +28,7 @@
     "partnersDescription": "Sponsors, partenaires de jeu et partenaires de lots",
     "bankDescription": "Vos LNBits et comptes partagés",
     "baltopDescription": "Les joueurs les plus riches du serveur",
+    "mapDescription": "Le monde du serveur Minecraft, en direct",
     "questsDescription": "Paliers personnels, records du serveur et objectifs communs"
   },
   "home": {
@@ -707,6 +708,7 @@
       "eventList": "Tous les événements",
       "push": "Notifications push",
       "team": "Équipe",
+      "map": "Carte",
       "partners": "Partenaires",
       "partnerEvents": "Événements partenaires",
       "shortLinks": "Liens courts",
@@ -943,6 +945,7 @@
         "partner_create": "{actor} a ajouté le partenaire {name}.",
         "partner_update": "{actor} a modifié le partenaire {name}.",
         "partner_delete": "{actor} a supprimé le partenaire {name}.",
+        "map_settings": "{actor} a modifié l’adresse de la carte Minecraft.",
         "partners_settings": "{actor} a modifié les réglages de la page des partenaires.",
         "gamesplanet_settings": "{actor} a modifié le code d’affiliation Gamesplanet.",
         "gamesplanet_pin": "{actor} a épinglé un jeu Gamesplanet.",
@@ -1405,6 +1408,10 @@
         "jobs_pushPrune": {
           "label": "Nettoyage du journal des notifications",
           "description": "La suppression de la nuit des notifications de plus de 90 jours et des appareils morts."
+        },
+        "map": {
+          "label": "Page de la carte Minecraft",
+          "description": "La page publique de la carte et ses liens dans le menu et le pied de page. L’adresse enregistrée est conservée."
         },
         "team": {
           "label": "Page de l’équipe",
@@ -2102,6 +2109,25 @@
         "alreadyMember": "Ce compte est déjà dans l’équipe.",
         "hasMembers": "Déplacez ou retirez d’abord les membres de ce pôle.",
         "failed": "Le changement n’a pas été enregistré. Vérifiez votre connexion et réessayez."
+      }
+    },
+    "map": {
+      "title": "Carte",
+      "note": "La page de la carte Minecraft montre une carte en direct dans le site, dans un cadre.",
+      "flagOff": "La page de la carte est désactivée dans les drapeaux de fonctionnalités.",
+      "address": {
+        "title": "Adresse de la carte",
+        "help": "L’adresse https de la carte en direct. Laissez vide pour utiliser l’adresse par défaut. Le site de la carte doit autoriser son affichage dans un cadre.",
+        "label": "Adresse",
+        "invalid": "Utilisez une adresse qui commence par https://, par exemple https://carte.exemple.com.",
+        "default": "Adresse par défaut : {url}",
+        "save": "Enregistrer l’adresse",
+        "saved": "Adresse enregistrée",
+        "open": "Ouvrir la carte"
+      },
+      "errors": {
+        "failed": "La modification n’a pas été enregistrée. Vérifiez l’adresse et votre connexion, puis réessayez.",
+        "loadFailed": "Les réglages de la carte n’ont pas pu être chargés. Vérifiez votre connexion, puis rechargez la page."
       }
     },
     "partners": {
@@ -4518,6 +4544,20 @@
       "title": "Envie de participer à l’organisation de LNB ?",
       "lede": "Dites-nous sur quoi vous aimeriez travailler.",
       "button": "Rejoindre l’équipe"
+    }
+  },
+  "map": {
+    "title": "Carte",
+    "lede": "Découvrez le monde du serveur Minecraft de LNB.",
+    "fullScreen": "Plein écran",
+    "exitFullScreen": "Quitter le plein écran",
+    "openNewTab": "Ouvrir dans un nouvel onglet",
+    "frameTitle": "Carte en direct du serveur Minecraft de LNB",
+    "loading": "Chargement de la carte…",
+    "unavailable": {
+      "title": "La carte n’est pas disponible pour le moment",
+      "text": "Le serveur redémarre peut-être. Réessayez dans quelques minutes, ou ouvrez la carte dans son propre onglet.",
+      "retry": "Réessayer"
     }
   },
   "partners": {

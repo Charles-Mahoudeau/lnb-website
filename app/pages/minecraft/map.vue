@@ -1,0 +1,122 @@
+<script setup lang="ts">
+// The live map of the Minecraft server, shown in a frame so people keep the site's header
+// (docs/map.md). The address is set by admins. Public, like the mod list.
+definePageMeta({ auth: false, flag: 'map' });
+
+const { t } = useI18n();
+useSeoMeta({ title: () => t('map.title'), description: () => t('map.lede') });
+
+const { data } = await useMap();
+
+const stage = useTemplateRef<HTMLElement>('stage');
+const fullscreen = ref(false);
+const canFullscreen = ref(false);
+const loaded = ref(false);
+// Bumping the key reloads the frame.
+const attempt = ref(0);
+const slow = ref(false);
+let timer: ReturnType<typeof setTimeout> | undefined;
+
+function startWaiting() {
+  loaded.value = false;
+  slow.value = false;
+  clearTimeout(timer);
+  timer = setTimeout(() => (slow.value = true), 10000);
+}
+function onLoad() {
+  loaded.value = true;
+  clearTimeout(timer);
+}
+function retry() {
+  attempt.value += 1;
+  startWaiting();
+}
+
+async function toggleFullscreen() {
+  if (document.fullscreenElement) await document.exitFullscreen();
+  else await stage.value?.requestFullscreen();
+}
+function onFullscreenChange() {
+  fullscreen.value = !!document.fullscreenElement;
+}
+
+onMounted(() => {
+  canFullscreen.value = document.fullscreenEnabled;
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  startWaiting();
+});
+onBeforeUnmount(() => {
+  document.removeEventListener('fullscreenchange', onFullscreenChange);
+  clearTimeout(timer);
+});
+</script>
+
+<template>
+  <div class="flex flex-col">
+    <div class="flex flex-wrap items-center gap-3 px-4 pb-3 sm:px-6 lg:px-8">
+      <h1 class="text-2xl font-bold text-highlighted">{{ t('map.title') }}</h1>
+      <span class="flex-1" />
+      <UButton
+        v-if="canFullscreen"
+        color="neutral"
+        variant="soft"
+        size="md"
+        :icon="fullscreen ? 'i-lucide-minimize' : 'i-lucide-maximize'"
+        :label="fullscreen ? t('map.exitFullScreen') : t('map.fullScreen')"
+        @click="toggleFullscreen"
+      />
+      <UButton
+        v-if="data"
+        color="neutral"
+        variant="outline"
+        size="md"
+        icon="i-lucide-external-link"
+        :label="t('map.openNewTab')"
+        :to="data.url"
+        target="_blank"
+        rel="noopener"
+      />
+    </div>
+
+    <div
+      ref="stage"
+      class="relative mx-4 h-map overflow-hidden rounded-lg bg-elevated sm:mx-6 lg:mx-8"
+    >
+      <iframe
+        v-if="data"
+        :key="attempt"
+        :src="data.url"
+        :title="t('map.frameTitle')"
+        class="size-full border-0"
+        allow="fullscreen"
+        referrerpolicy="no-referrer"
+        @load="onLoad"
+      />
+      <div
+        v-if="!loaded && !slow"
+        class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-elevated"
+        role="status"
+      >
+        <UIcon
+          name="i-lucide-loader-circle"
+          class="size-7 text-secondary motion-safe:animate-spin"
+        />
+        <p class="text-muted">{{ t('map.loading') }}</p>
+      </div>
+      <div
+        v-else-if="!loaded && slow"
+        class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-elevated p-6 text-center"
+      >
+        <IconTile icon="i-lucide-map" />
+        <h2 class="text-xl font-medium text-highlighted">{{ t('map.unavailable.title') }}</h2>
+        <p class="max-w-prose text-muted">{{ t('map.unavailable.text') }}</p>
+        <UButton
+          color="neutral"
+          variant="soft"
+          :label="t('map.unavailable.retry')"
+          @click="retry"
+        />
+      </div>
+    </div>
+  </div>
+</template>

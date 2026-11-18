@@ -72,6 +72,7 @@ const items = computed<NavigationMenuItem[][]>(() => [
           },
           { label: t('admin.nav.users'), icon: 'i-lucide-users', to: '/admin/users' },
           { label: t('admin.nav.team'), icon: 'i-lucide-users-round', to: '/admin/team' },
+          { label: t('admin.nav.map'), icon: 'i-lucide-map', to: '/admin/map' },
           { label: t('admin.nav.partners'), icon: 'i-lucide-handshake', to: '/admin/partners' },
           {
             label: t('admin.nav.gamesplanet'),
