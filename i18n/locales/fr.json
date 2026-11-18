@@ -2132,6 +2132,36 @@
       "errors": {
         "failed": "La modification n’a pas été enregistrée. Vérifiez l’adresse et votre connexion, puis réessayez.",
         "loadFailed": "Les réglages de la carte n’ont pas pu être chargés. Vérifiez votre connexion, puis rechargez la page."
+      },
+      "access": {
+        "title": "Quand les joueurs voient la carte",
+        "help": "D’ici là, les joueurs voient une page qui décompte jusqu’à l’ouverture. L’adresse reste sur le serveur.",
+        "modes": {
+          "open": {
+            "title": "Toujours ouverte",
+            "text": "Tout le monde voit la carte dès maintenant."
+          },
+          "date": {
+            "title": "Ouvre à une date",
+            "text": "Cachée jusqu’à la date et l’heure choisies."
+          },
+          "closed": {
+            "title": "Fermée",
+            "text": "Cachée jusqu’à ce que vous l’ouvriez à la main."
+          }
+        },
+        "opensAt": "Ouvre le",
+        "parisTime": "Heure de Paris.",
+        "summary": {
+          "open": "Tout le monde voit la carte dès maintenant.",
+          "closed": "Les joueurs ne voient pas la carte tant que vous ne l’ouvrez pas. Ils voient une page qui dit qu’elle est fermée pour le moment.",
+          "pick": "Choisissez la date et l’heure d’ouverture de la carte.",
+          "date": "Les joueurs verront la carte le {date} (heure de Paris). D’ici là, ils voient un décompte.",
+          "past": "Ce moment est passé : les joueurs verraient la carte tout de suite."
+        },
+        "adminsSee": "Les admins voient toujours la carte.",
+        "save": "Enregistrer",
+        "saved": "Ouverture enregistrée"
       }
     },
     "partners": {
@@ -4591,6 +4621,37 @@
       "title": "La carte n’est pas disponible pour le moment",
       "text": "Le serveur redémarre peut-être. Réessayez dans quelques minutes, ou ouvrez la carte dans son propre onglet.",
       "retry": "Réessayer"
+    },
+    "locked": {
+      "inDays": "La carte ouvre dans {n} jour | La carte ouvre dans {n} jours",
+      "tomorrow": "La carte ouvre demain",
+      "inHours": "La carte ouvre dans {n} heure | La carte ouvre dans {n} heures",
+      "inMinutes": "La carte ouvre dans {n} minute | La carte ouvre dans {n} minutes",
+      "text": "Les premiers jours servent à explorer par vous-même : la carte reste fermée jusqu’à l’ouverture.",
+      "closedTitle": "La carte est fermée pour le moment",
+      "closedText": "Les premiers jours servent à explorer par vous-même. La carte ouvrira quand LNB jugera que c’est le moment.",
+      "day": "Jour {day} sur {total}",
+      "progressLabel": "Avancement de l’attente",
+      "meanwhile": "En attendant",
+      "links": {
+        "account": {
+          "title": "Votre compte Minecraft",
+          "text": "Liez votre compte et suivez votre temps de jeu."
+        },
+        "bank": {
+          "title": "Ouvrir votre banque",
+          "text": "Consultez vos LNBits et vos comptes partagés."
+        },
+        "quests": {
+          "title": "Commencer vos quêtes",
+          "text": "Les premiers paliers paient dès le premier jour."
+        }
+      }
+    },
+    "preview": {
+      "date": "Les joueurs ne voient pas la carte avant le {date}. Vous la voyez parce que vous êtes admin.",
+      "closed": "Les joueurs ne voient pas la carte pour le moment. Vous la voyez parce que vous êtes admin.",
+      "change": "Changer l’ouverture"
     }
   },
   "partners": {

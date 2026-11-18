@@ -2128,6 +2128,36 @@
       "errors": {
         "failed": "The change wasn’t saved. Check the address and your connection, then try again.",
         "loadFailed": "The map settings couldn’t be loaded. Check your connection, then reload the page."
+      },
+      "access": {
+        "title": "When players can see the map",
+        "help": "Until then, players see a page that counts down to the opening. The address stays on the server.",
+        "modes": {
+          "open": {
+            "title": "Always open",
+            "text": "Everyone can see the map now."
+          },
+          "date": {
+            "title": "Opens on a date",
+            "text": "Hidden until the date and time you pick."
+          },
+          "closed": {
+            "title": "Closed",
+            "text": "Hidden until you open it by hand."
+          }
+        },
+        "opensAt": "Opens on",
+        "parisTime": "Paris time.",
+        "summary": {
+          "open": "Everyone can see the map now.",
+          "closed": "Players can’t see the map until you open it. They see a page saying it is closed for now.",
+          "pick": "Pick the date and time the map opens.",
+          "date": "Players will see the map on {date} (Paris). Until then they see a countdown.",
+          "past": "That moment has passed, so players would see the map right away."
+        },
+        "adminsSee": "Admins always see the map.",
+        "save": "Save",
+        "saved": "Opening saved"
       }
     },
     "partners": {
@@ -4587,6 +4617,37 @@
       "title": "The map isn’t available right now",
       "text": "The server may be restarting. Try again in a few minutes, or open the map in its own tab.",
       "retry": "Try again"
+    },
+    "locked": {
+      "inDays": "The map opens in {n} day | The map opens in {n} days",
+      "tomorrow": "The map opens tomorrow",
+      "inHours": "The map opens in {n} hour | The map opens in {n} hours",
+      "inMinutes": "The map opens in {n} minute | The map opens in {n} minutes",
+      "text": "The first days are for exploring on your own, so the map stays closed until the opening.",
+      "closedTitle": "The map is closed for now",
+      "closedText": "The first days are for exploring on your own. The map opens when LNB decides it’s time.",
+      "day": "Day {day} of {total}",
+      "progressLabel": "How far along the wait is",
+      "meanwhile": "While you wait",
+      "links": {
+        "account": {
+          "title": "Your Minecraft account",
+          "text": "Link your account and see your playtime."
+        },
+        "bank": {
+          "title": "Open your bank",
+          "text": "See your LNBits and shared accounts."
+        },
+        "quests": {
+          "title": "Start your quests",
+          "text": "The first tiers pay from day one."
+        }
+      }
+    },
+    "preview": {
+      "date": "Players can’t see the map until {date}. You see it because you’re an admin.",
+      "closed": "Players can’t see the map for now. You see it because you’re an admin.",
+      "change": "Change the opening"
     }
   },
   "partners": {

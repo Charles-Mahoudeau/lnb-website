@@ -3,15 +3,43 @@ import { mapSetting } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 
 import { DEFAULT_MAP_URL } from '#shared/schemas/map';
-import type { MapAdminView, MapPublicView, MapStatusView } from '#shared/schemas/map';
+import type {
+  MapAdminView,
+  MapPublicView,
+  MapSettingsBody,
+  MapStatusView,
+} from '#shared/schemas/map';
 
-async function stored(): Promise<string | null> {
+type Row = typeof mapSetting.$inferSelect;
+
+async function row(): Promise<Row | null> {
   const [setting] = await db.select().from(mapSetting);
-  return setting?.url ?? null;
+  return setting ?? null;
 }
 
-async function getPublic(): Promise<MapPublicView> {
-  return { url: (await stored()) ?? DEFAULT_MAP_URL };
+/** Whether visitors can't see the map yet. */
+function isLocked(setting: Row | null, now = Date.now()): boolean {
+  if (!setting || setting.mode === 'open') return false;
+  if (setting.mode === 'closed') return true;
+  return !setting.opensAt || setting.opensAt.getTime() > now;
+}
+
+const iso = (date: Date | null) => date?.toISOString() ?? null;
+
+/**
+ * The map's address and whether it is closed. Visitors get no address while it is closed, and
+ * admins keep it to preview the map.
+ */
+async function getPublic(options: { admin?: boolean } = {}): Promise<MapPublicView> {
+  const setting = await row();
+  const locked = isLocked(setting);
+  const url = setting?.url ?? DEFAULT_MAP_URL;
+  return {
+    url: locked && !options.admin ? null : url,
+    locked,
+    opensAt: setting?.mode === 'date' ? iso(setting.opensAt) : null,
+    lockedAt: locked ? iso(setting?.lockedAt ?? null) : null,
+  };
 }
 
 // A browser can't read the status of a page shown in a frame, so the server asks the map. The
@@ -20,8 +48,10 @@ const STATUS_TTL_MS = 10_000;
 const STATUS_TIMEOUT_MS = 5_000;
 let cached: { url: string; at: number; value: MapStatusView } | null = null;
 
-async function getStatus(): Promise<MapStatusView> {
-  const { url } = await getPublic();
+async function getStatus(options: { admin?: boolean } = {}): Promise<MapStatusView> {
+  const { url } = await getPublic(options);
+  // Nothing to ask while the map is closed to this visitor.
+  if (!url) return { ok: false, status: null };
   if (cached && cached.url === url && Date.now() - cached.at < STATUS_TTL_MS) return cached.value;
   let value: MapStatusView;
   try {
@@ -38,26 +68,46 @@ async function getStatus(): Promise<MapStatusView> {
   return value;
 }
 
-async function getAdmin(): Promise<MapAdminView> {
-  return { url: await stored(), defaultUrl: DEFAULT_MAP_URL };
+function adminView(setting: Row | null): MapAdminView {
+  return {
+    url: setting?.url ?? null,
+    defaultUrl: DEFAULT_MAP_URL,
+    mode: setting?.mode ?? 'open',
+    opensAt: iso(setting?.opensAt ?? null),
+    lockedAt: iso(setting?.lockedAt ?? null),
+  };
 }
 
-async function setUrl(input: { actorId: string; url: string | null }): Promise<MapAdminView> {
-  const { url } = input;
+async function getAdmin(): Promise<MapAdminView> {
+  return adminView(await row());
+}
+
+async function update(input: { actorId: string; body: MapSettingsBody }): Promise<MapAdminView> {
+  const { body } = input;
   cached = null;
-  await db.transaction(async (tx) => {
-    await tx
+  return db.transaction(async (tx) => {
+    const [current] = await tx.select().from(mapSetting).for('update');
+    const mode = body.mode ?? current?.mode ?? 'open';
+    const url = body.url === undefined ? (current?.url ?? null) : body.url;
+    const opensAt =
+      mode !== 'date' ? null : body.opensAt ? new Date(body.opensAt) : (current?.opensAt ?? null);
+    // The progress counts from the moment the map was closed: keep it while it stays closed.
+    const lockedAt =
+      mode === 'open' ? null : (current?.mode !== 'open' && current?.lockedAt) || new Date();
+    const values = { id: 1, url, mode, opensAt, lockedAt };
+    const [saved] = await tx
       .insert(mapSetting)
-      .values({ id: 1, url })
-      .onConflictDoUpdate({ target: mapSetting.id, set: { url } });
+      .values(values)
+      .onConflictDoUpdate({ target: mapSetting.id, set: values })
+      .returning();
     await adminAuditService.record(tx, {
       action: 'map.settings',
       actorUserId: input.actorId,
       targetUserId: null,
-      data: { url },
+      data: { url, mode, opensAt: iso(opensAt) },
     });
+    return adminView(saved ?? null);
   });
-  return { url, defaultUrl: DEFAULT_MAP_URL };
 }
 
-export const mapService = { getPublic, getStatus, getAdmin, setUrl };
+export const mapService = { getPublic, getStatus, getAdmin, update, isLocked };

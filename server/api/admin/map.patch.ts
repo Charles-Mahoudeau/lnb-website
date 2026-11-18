@@ -6,6 +6,6 @@ import { mapSettingsBody } from '#shared/schemas/map';
 
 export default defineEventHandler(async (event) => {
   const admin = await requireAdmin(event);
-  const { url } = await parseBody(event, mapSettingsBody);
-  return mapService.setUrl({ actorId: admin.id, url });
+  const body = await parseBody(event, mapSettingsBody);
+  return mapService.update({ actorId: admin.id, body });
 });
