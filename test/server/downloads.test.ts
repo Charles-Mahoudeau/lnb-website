@@ -7,7 +7,7 @@ import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { db } from '~~/server/db';
-import { adminAudit, downloadFile, user } from '~~/server/db/schema';
+import { adminAudit, downloadFile, downloadSetting, user } from '~~/server/db/schema';
 import { downloadService } from '~~/server/services/downloads';
 import { fileService } from '~~/server/services/files';
 
@@ -54,6 +54,7 @@ beforeEach(async () => {
 });
 afterAll(async () => {
   await db.delete(downloadFile);
+  await db.delete(downloadSetting);
   await db.delete(adminAudit).where(eq(adminAudit.actorUserId, ADMIN));
   delete process.env.FILES_DIR;
   await rm(dir, { recursive: true, force: true });
@@ -64,6 +65,7 @@ describe('the download slots', () => {
     expect(await downloadService.getPublic()).toEqual({
       instance: null,
       cracked: { windows: null, macos: null, linux: null },
+      crackedReleaseUrl: null,
     });
     expect((await downloadService.getAdmin()).slots.map((slot) => slot.slot)).toEqual([
       'instance',
@@ -139,6 +141,18 @@ describe('the download slots', () => {
     await downloadService.clear({ slot: 'cracked-macos', actorId: ADMIN });
     expect((await downloadService.getPublic()).cracked.macos).toBeNull();
     await fileService.remove({ id: file.id, actorUserId: ADMIN });
+  });
+
+  it('keep a link to PrismCracked’s releases, which an empty value removes', async () => {
+    const url = 'https://github.com/Diegiwg/PrismLauncher-Cracked/releases/tag/11.1.1';
+    await downloadService.updateSettings({
+      body: { crackedReleaseUrl: ` ${url} ` },
+      actorId: ADMIN,
+    });
+    expect((await downloadService.getPublic()).crackedReleaseUrl).toBe(url);
+    expect((await downloadService.getAdmin()).crackedReleaseUrl).toBe(url);
+    await downloadService.updateSettings({ body: { crackedReleaseUrl: '' }, actorId: ADMIN });
+    expect((await downloadService.getPublic()).crackedReleaseUrl).toBeNull();
   });
 
   it('accept installers in the library only as downloads', async () => {

@@ -27,8 +27,9 @@ On Linux and macOS, the launcher step and the Java troubleshooting entry add an 
 
 - `download_file` (`server/db/schema/downloads.ts`): one row per filled slot, pointing at a `stored_file` with `on delete restrict`. `usageOfFiles` lists it as "Download page", so the library refuses to delete a file a slot uses (`fileInUse`).
 - A slot only takes a file of the new library kind `download` (`notDownloadFile` otherwise). The kind accepts `zip`, `exe`, `msi`, `dmg`, `pkg`, `appimage` and `gz`, and only a zip is checked for the zip header. It is separate from `asset` because the launcher's manifest lists every asset, and an installer must never reach a launcher. The upload's "Automatic" kind sends installers to `download`; a zip stays an asset, so pick Download for the instance zip, or change its kind in the file's drawer.
+- A separate **release link** (`download_setting`, one row) is the https page of PrismCracked's releases, such as its GitHub release. It shows as "Releases and source on GitHub" under PrismCracked's download, beside the hosted files, which stay. An empty value removes it. `PATCH /api/admin/downloads`. Since PrismCracked is GPL software, the link is where people find its source.
 - Every change is written to `admin_audit` (`downloads.update`, with the slot, the file and the version).
-- Routes: `GET /api/downloads` (public), `GET /api/admin/downloads`, `PUT` and `DELETE /api/admin/downloads/{slot}`.
+- Routes: `GET /api/downloads` (public), `GET /api/admin/downloads`, `PATCH /api/admin/downloads` (the release link), `PUT` and `DELETE /api/admin/downloads/{slot}`.
 
 The download links are `/api/files/<sha256>/<name>`, so the `files` flag must be on as well. The file size limit of the library (100 MB) applies, which is tight for a Linux AppImage.
 
