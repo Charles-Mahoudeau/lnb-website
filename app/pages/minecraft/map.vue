@@ -61,8 +61,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="flex flex-col">
-    <div class="flex flex-wrap items-center gap-3 px-4 pb-3 sm:px-6 lg:px-8">
+  <UContainer class="flex flex-col gap-4 py-8">
+    <div class="flex flex-wrap items-center gap-3">
       <h1 class="text-2xl font-bold text-highlighted">{{ t('map.title') }}</h1>
       <span class="flex-1" />
       <UButton
@@ -87,10 +87,7 @@ onBeforeUnmount(() => {
       />
     </div>
 
-    <div
-      ref="stage"
-      class="relative mx-4 h-map overflow-hidden rounded-lg bg-elevated sm:mx-6 lg:mx-8"
-    >
+    <div ref="stage" class="relative h-map overflow-hidden rounded-lg bg-elevated">
       <iframe
         v-if="data && state !== 'down'"
         :key="attempt"
@@ -127,5 +124,5 @@ onBeforeUnmount(() => {
         />
       </div>
     </div>
-  </div>
+  </UContainer>
 </template>

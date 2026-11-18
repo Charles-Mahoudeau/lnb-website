@@ -3,7 +3,7 @@ import { z } from 'zod';
 // Minecraft map page contracts, shared by the routes and the pages. See docs/map.md.
 
 /** Where the map is while an admin hasn't set another address. */
-export const DEFAULT_MAP_URL = 'https://mc.lnb.bde-teknantes.fr/';
+export const DEFAULT_MAP_URL = 'https://mc.lnb.bde-teknantes.fr/map/';
 
 /** PATCH /api/admin/map. An empty value or null goes back to the default. */
 export const mapSettingsBody = z.object({
