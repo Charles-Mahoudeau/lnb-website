@@ -203,6 +203,7 @@ function describe(entry: AdminAuditView): string {
     case 'partner.update':
     case 'partner.delete':
     case 'map.settings':
+    case 'downloads.update':
     case 'partners.settings':
     case 'gamesplanet.settings':
     case 'gamesplanet.pin':

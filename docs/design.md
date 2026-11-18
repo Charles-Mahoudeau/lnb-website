@@ -232,6 +232,15 @@ Original mocks (not code to port): [Gamesplanet placement mocks](https://claude.
 - **Footer:** one row above the link columns: an `IconTile` with a heart, one line, an outline button, then the disclosure in the legal line ("Some links on this site are affiliate links..."). The legal line states the disclosure even when the row is off.
 - **Buttons are never solid red** except "Browse all Gamesplanet deals" on the partners page, which is that page's one solid button: while the Gamesplanet band shows, the "Want to support LNB?" button at the end of the page becomes a neutral soft one. Everywhere else the button is neutral soft or outline.
 
+## Minecraft downloads
+
+Original mock (not code to port): [Minecraft downloads mocks](https://claude.ai/artifact/Gmk3d3VgxzPRE5Kd2GCp9d), proposition A, "Steps rail". See `docs/downloads.md`.
+
+- Four steps in a list. Each has its number on the left (a round `bg-accented` badge in the display font: it is a real sequence, so numbers are allowed) and a raised band (`bg-elevated`, 12 px) with an `IconTile`, the title as an `h2`, one muted line and the step's content. The last step has no download.
+- The launcher step puts Prism and PrismCracked side by side in one band, split by a divider (stacked on phones). Prism's "who it is for" badge is second-accent soft, PrismCracked's neutral soft, and files hosted by us carry a neutral outline "Hosted by LNB" badge.
+- **One solid red button on the page:** the instance zip, the file only LNB has. Every other download is neutral soft. "Other systems" is a ghost button that opens outline buttons for the other systems.
+- **Package manager block** (Linux and macOS): a semibold line, distribution chips (second accent soft when selected, neutral outline otherwise, pill-shaped), then the command in a `bg-accented` well with a neutral soft Copy button. The command is set in the body font, because no monospace face is allowed. A muted line under it holds the note.
+
 ## Motion
 
 - Motion answers user actions only: opening, expanding, confirming. Use Nuxt UI's built-in transitions.

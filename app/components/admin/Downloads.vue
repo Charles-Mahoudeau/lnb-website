@@ -1,0 +1,150 @@
+<script setup lang="ts">
+import type { DownloadSlot } from '#shared/schemas/downloads';
+
+// The files the Minecraft download page offers, picked from the Files library: the LNB instance zip
+// and PrismCracked for each system. Java 21 and Prism link to their own sites. See
+// docs/downloads.md.
+const { t, locale } = useI18n();
+const toast = useToast();
+const { isEnabled } = useFlags();
+
+const { data, error, refresh } = await useAdminDownloads();
+const { data: library } = await useAdminFiles();
+
+// The library files a slot can hold.
+const choices = computed(() =>
+  (library.value?.items ?? [])
+    .filter((file) => file.kind === 'download')
+    .map((file) => ({
+      value: file.id,
+      label: `${file.name} (${formatBytes(file.size, locale.value)})`,
+    })),
+);
+
+const picked = reactive<Record<string, string | undefined>>({});
+const versions = reactive<Record<string, string>>({});
+const busy = ref<DownloadSlot | null>(null);
+
+function syncForm() {
+  for (const row of data.value?.slots ?? []) {
+    picked[row.slot] = row.file?.id;
+    versions[row.slot] = row.file?.version ?? '';
+  }
+}
+syncForm();
+
+const slots = computed(() => data.value?.slots ?? []);
+
+function changed(slot: DownloadSlot) {
+  const current = slots.value.find((item) => item.slot === slot)?.file;
+  if (!picked[slot]) return false;
+  const savedVersion = current ? (current.version ?? '') : '';
+  return picked[slot] !== current?.id || (versions[slot] ?? '').trim() !== savedVersion;
+}
+
+async function run(slot: DownloadSlot, action: () => Promise<unknown>, done: string) {
+  busy.value = slot;
+  try {
+    await action();
+    toast.add({ title: t(done), color: 'success', icon: 'i-lucide-circle-check' });
+  } catch (failure) {
+    toast.add({
+      title: t(`admin.downloads.errors.${downloadProblem(failure)}`),
+      color: 'error',
+      icon: 'i-lucide-circle-alert',
+    });
+  }
+  await refresh();
+  syncForm();
+  busy.value = null;
+}
+
+const save = (slot: DownloadSlot) =>
+  run(
+    slot,
+    () => downloadActions.set(slot, { fileId: picked[slot]!, version: versions[slot] || null }),
+    'admin.downloads.saved',
+  );
+const empty = (slot: DownloadSlot) =>
+  run(slot, () => downloadActions.clear(slot), 'admin.downloads.emptied');
+</script>
+
+<template>
+  <UAlert
+    v-if="error || !data"
+    color="error"
+    variant="subtle"
+    icon="i-lucide-circle-alert"
+    :description="t('admin.downloads.loadFailed')"
+  />
+  <div v-else class="flex max-w-4xl flex-col gap-6">
+    <p class="text-muted">{{ t('admin.downloads.note') }}</p>
+    <UAlert
+      v-if="!isEnabled('downloads')"
+      color="warning"
+      variant="subtle"
+      icon="i-lucide-triangle-alert"
+      :description="t('admin.downloads.flagOff')"
+    />
+    <div
+      v-if="choices.length === 0"
+      class="flex flex-wrap items-center gap-3 rounded-lg bg-elevated p-5"
+    >
+      <IconTile icon="i-lucide-download" />
+      <p class="min-w-0 flex-1 text-muted">{{ t('admin.downloads.noFiles') }}</p>
+      <UButton
+        to="/admin/mods/files"
+        color="neutral"
+        variant="soft"
+        :label="t('admin.downloads.openFiles')"
+      />
+    </div>
+
+    <section class="rounded-lg bg-elevated px-5">
+      <form
+        v-for="row in slots"
+        :key="row.slot"
+        class="flex flex-col gap-3 border-t border-default py-5 first:border-t-0"
+        @submit.prevent="save(row.slot)"
+      >
+        <div class="flex flex-col gap-1">
+          <h2 class="text-base font-semibold text-highlighted">
+            {{ t(`admin.downloads.slots.${row.slot}`) }}
+          </h2>
+          <p class="text-sm text-muted">
+            {{ row.file ? row.file.name : t('admin.downloads.nothing') }}
+          </p>
+        </div>
+        <div class="flex flex-wrap items-end gap-3">
+          <UFormField :label="t('admin.downloads.file')" class="min-w-64 flex-1">
+            <USelect
+              v-model="picked[row.slot]"
+              :items="choices"
+              :placeholder="t('admin.downloads.choose')"
+              class="w-full"
+            />
+          </UFormField>
+          <UFormField :label="t('admin.downloads.version')" class="w-36">
+            <UInput v-model="versions[row.slot]" maxlength="40" class="w-full" />
+          </UFormField>
+          <UButton
+            type="submit"
+            color="neutral"
+            variant="soft"
+            :label="t('admin.downloads.save')"
+            :disabled="!changed(row.slot)"
+            :loading="busy === row.slot"
+          />
+          <UButton
+            v-if="row.file"
+            color="neutral"
+            variant="ghost"
+            :label="t('admin.downloads.empty')"
+            :disabled="busy === row.slot"
+            @click="empty(row.slot)"
+          />
+        </div>
+      </form>
+    </section>
+  </div>
+</template>

@@ -48,6 +48,16 @@ const navItems = computed<NavigationMenuItem[]>(() => {
           },
         ]
       : []),
+    ...(isEnabled('downloads')
+      ? [
+          {
+            label: t('nav.download'),
+            description: t('nav.downloadDescription'),
+            icon: 'i-lucide-download',
+            to: '/minecraft/download',
+          },
+        ]
+      : []),
     ...(isEnabled('map')
       ? [
           {

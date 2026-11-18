@@ -4,6 +4,7 @@ export * from './admin';
 export * from './anticheat';
 export * from './api-keys';
 export * from './auth';
+export * from './downloads';
 export * from './economy';
 export * from './events';
 export * from './files';

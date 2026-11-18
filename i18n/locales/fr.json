@@ -29,7 +29,9 @@
     "bankDescription": "Vos LNBits et comptes partagés",
     "baltopDescription": "Les joueurs les plus riches du serveur",
     "mapDescription": "Le monde du serveur Minecraft, en direct",
-    "questsDescription": "Paliers personnels, records du serveur et objectifs communs"
+    "questsDescription": "Paliers personnels, records du serveur et objectifs communs",
+    "download": "Télécharger",
+    "downloadDescription": "Java, un launcher et l’instance LNB"
   },
   "home": {
     "intro": {
@@ -725,7 +727,8 @@
       "anticheatSettings": "Réglages",
       "economyQuests": "Quêtes",
       "gamesplanet": "Gamesplanet",
-      "modlist": "Modlist"
+      "modlist": "Modlist",
+      "downloads": "Téléchargements"
     },
     "cancel": "Annuler",
     "typedConfirm": {
@@ -996,7 +999,8 @@
         "economy_licenseRevoke": "{actor} a repris une licence de casino à {name}.",
         "quests_categoryCreate": "{actor} a créé une catégorie de quêtes.",
         "quests_categoryUpdate": "{actor} a modifié une catégorie de quêtes.",
-        "quests_categoryDelete": "{actor} a supprimé une catégorie de quêtes."
+        "quests_categoryDelete": "{actor} a supprimé une catégorie de quêtes.",
+        "downloads_update": "{actor} a modifié la page de téléchargement Minecraft."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page.",
       "apiKeysSoon": "1 clé API expire dans moins de 30 jours | {n} clés API expirent dans moins de 30 jours",
@@ -1167,7 +1171,7 @@
       },
       "drop": {
         "title": "Déposez des fichiers ici",
-        "help": "{size} au plus chacun. Des jars, des archives zip et quelques formats texte. Un même fichier n’est stocké qu’une fois.",
+        "help": "{size} au plus chacun. Des jars, des archives zip, des installateurs et quelques formats texte. Un même fichier n’est stocké qu’une fois.",
         "choose": "Choisir des fichiers",
         "addAs": "Ajouter comme"
       },
@@ -1176,7 +1180,8 @@
         "mod": "Jar de mod",
         "wrapper": "Jar du wrapper",
         "updater": "Jar du programme de mise à jour",
-        "asset": "Ressource"
+        "asset": "Ressource",
+        "download": "Téléchargement"
       },
       "queue": {
         "title": "Envois",
@@ -1596,6 +1601,10 @@
         "jobs_playtimePrune": {
           "label": "Nettoyage du temps de jeu",
           "description": "La suppression nocturne des lignes du registre de temps de jeu de plus de 26 semaines et des avertissements des sessions terminées."
+        },
+        "downloads": {
+          "label": "Page de téléchargement",
+          "description": "La page publique de téléchargement Minecraft et ses liens du menu et du pied de page. Les réglages admin restent disponibles. Les téléchargements demandent aussi le flag Fichiers."
         }
       }
     },
@@ -4062,6 +4071,34 @@
           "revoked": "Exemption révoquée."
         }
       }
+    },
+    "downloads": {
+      "title": "Téléchargements",
+      "note": "Les fichiers que propose la page de téléchargement Minecraft. Java 21 et Prism renvoient vers leurs propres sites. Choisissez des fichiers de la bibliothèque dont le type est Téléchargement.",
+      "flagOff": "La page de téléchargement est désactivée dans les feature flags.",
+      "slots": {
+        "instance": "Zip de l’instance LNB",
+        "cracked-windows": "PrismCracked pour Windows",
+        "cracked-macos": "PrismCracked pour macOS",
+        "cracked-linux": "PrismCracked pour Linux"
+      },
+      "file": "Fichier",
+      "choose": "Choisir un fichier",
+      "version": "Numéro de version",
+      "versionHelp": "Facultatif, affiché à côté du fichier.",
+      "nothing": "Rien de proposé pour l’instant",
+      "save": "Enregistrer",
+      "empty": "Vider l’emplacement",
+      "saved": "Téléchargement enregistré",
+      "emptied": "Emplacement vidé",
+      "noFiles": "Aucun fichier de type Téléchargement dans la bibliothèque. Envoyez un installateur ou un zip dans Fichiers et mettez son type sur Téléchargement.",
+      "openFiles": "Ouvrir la bibliothèque",
+      "errors": {
+        "failed": "Le téléchargement n’a pas pu être enregistré. Vérifiez votre connexion, puis réessayez.",
+        "notDownloadFile": "Ce fichier n’est pas de type Téléchargement. Changez d’abord son type dans Fichiers.",
+        "fileNotFound": "Ce fichier n’est plus dans la bibliothèque."
+      },
+      "loadFailed": "Les téléchargements n’ont pas pu être chargés. Vérifiez votre connexion, puis rechargez la page."
     }
   },
   "wardenAdmin": {
@@ -5325,6 +5362,77 @@
       "line": "Vous achetez des jeux ? Passez par notre lien Gamesplanet et aidez à financer les événements de LNB.",
       "button": "Aller sur Gamesplanet",
       "notice": "Certains liens de ce site sont des liens d’affiliation : LNB touche une petite commission sur les achats, sans frais en plus pour vous. Les clics sur ces liens sont comptés de façon anonyme, sans rien noter sur la personne qui clique."
+    }
+  },
+  "download": {
+    "title": "Jouer sur le serveur LNB",
+    "lede": "Trois téléchargements et un import, environ dix minutes. Fais-les dans cet ordre. Le zip de l’instance apporte la version du jeu, les mods et l’adresse du serveur : rien à régler à la main.",
+    "steps": {
+      "java": {
+        "title": "Installer Java 21",
+        "lede": "Minecraft 1.21 ne démarre pas avec un Java plus ancien. Installe celui-ci en premier."
+      },
+      "launcher": {
+        "title": "Installer un launcher",
+        "lede": "Choisis-en un. Les deux lancent la même instance."
+      },
+      "instance": {
+        "title": "Récupérer l’instance LNB",
+        "lede": "L’instance toute prête : la bonne version du jeu, les mods et l’adresse du serveur. Le launcher la tient ensuite à jour."
+      },
+      "play": {
+        "title": "L’importer et jouer",
+        "lede": "Dans le launcher, choisis Ajouter une instance, puis Importer, et sélectionne le zip. Appuie sur Jouer. Le premier démarrage télécharge les mods, patiente une minute."
+      }
+    },
+    "launchers": {
+      "prism": {
+        "name": "Prism Launcher",
+        "who": "Pour les joueurs qui ont le jeu",
+        "text": "Le launcher officiel. Connecte-toi avec le compte Microsoft qui possède Minecraft Java Edition."
+      },
+      "cracked": {
+        "name": "PrismCracked",
+        "who": "Pour les joueurs sans le jeu",
+        "text": "Une version de Prism qui joue avec un compte hors ligne, pour ceux qui n’ont pas Minecraft Java Edition."
+      }
+    },
+    "javaName": "Temurin 21",
+    "instanceName": "Instance LNB",
+    "downloadFor": "Télécharger pour {os}",
+    "downloadZip": "Télécharger le zip",
+    "opens": "Ouvre {host}",
+    "hosted": "Hébergé par LNB",
+    "unavailable": "Pas encore disponible. Reviens bientôt.",
+    "otherSystems": "Autres systèmes",
+    "hideOtherSystems": "Masquer les autres systèmes",
+    "systems": {
+      "windows": "Windows",
+      "macos": "macOS",
+      "linux": "Linux"
+    },
+    "packages": {
+      "linux": "Ou utilise ton gestionnaire de paquets",
+      "macos": "Ou utilise Homebrew",
+      "distro": "Distribution",
+      "copy": "Copier",
+      "copied": "Copié",
+      "none": "PrismCracked n’est dans aucun gestionnaire de paquets. Utilise le téléchargement ci-dessus.",
+      "distros": {
+        "ubuntu": "Ubuntu",
+        "debian": "Debian",
+        "fedora": "Fedora",
+        "arch": "Arch Linux",
+        "nixos": "NixOS",
+        "suse": "openSUSE"
+      },
+      "notes": {
+        "debianJava": "Debian 13 ou plus récent. Sur Debian 12, utilise le téléchargement ci-dessus.",
+        "nixosConfig": "Ajoute-la à configuration.nix, puis reconstruis.",
+        "flatpakSetup": "Demande d’installer Flatpak une fois.",
+        "flatpakFedora": "Flatpak est fourni avec Fedora."
+      },
+      "copyFailed": "Le texte n’a pas pu être copié. Sélectionne-le et copie-le à la main."
     }
   }
 }
