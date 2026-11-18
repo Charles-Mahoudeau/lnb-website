@@ -19,8 +19,12 @@ export const FILE_PROBLEMS = [
 ] as const;
 export type FileProblem = (typeof FILE_PROBLEMS)[number];
 
-/** What a file is for. A wrapper is the launcher's own jar, an updater the mod updater's jar, a mod a jar of the pack, an asset anything else. */
-export const FILE_KINDS = ['mod', 'wrapper', 'updater', 'asset'] as const;
+/**
+ * What a file is for. A wrapper is the launcher's own jar, an updater the mod updater's jar, a mod
+ * a jar of the pack, a download a file people fetch from /minecraft/download (docs/downloads.md),
+ * an asset anything else.
+ */
+export const FILE_KINDS = ['mod', 'wrapper', 'updater', 'asset', 'download'] as const;
 export const fileKind = z.enum(FILE_KINDS);
 export type FileKind = z.infer<typeof fileKind>;
 
@@ -30,6 +34,7 @@ export const FILE_KIND_ICONS: Record<FileKind, string> = {
   wrapper: 'i-lucide-rocket',
   updater: 'i-lucide-refresh-cw',
   asset: 'i-lucide-file',
+  download: 'i-lucide-download',
 };
 
 export const MAX_FILE_BYTES = 100 * 1024 * 1024;
@@ -40,6 +45,9 @@ export const FILE_EXTENSIONS: Record<FileKind, readonly string[]> = {
   wrapper: ['jar'],
   updater: ['jar'],
   asset: ['zip', 'txt', 'json', 'dat', 'toml', 'properties', 'cfg'],
+  // Installers and archives for players. Kept apart from the assets, which the launcher's manifest
+  // lists, so none of these ever reaches a launcher.
+  download: ['zip', 'exe', 'msi', 'dmg', 'pkg', 'appimage', 'gz'],
 };
 
 /** The kinds a file can have, from its name's extension: what an admin can switch it to. */
