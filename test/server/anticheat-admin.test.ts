@@ -747,7 +747,13 @@ describe('the resets', () => {
       .where(eq(anticheatProject.id, projectId));
     expect(project).toMatchObject({ decision: null, decisionNote: null });
     expect(await db.select().from(anticheatModIdBan)).toEqual([]);
-    expect(await db.select().from(anticheatHistory)).toEqual([]);
+    // Other test files share the database, so only this test's file and project are checked.
+    expect(
+      await db.select().from(anticheatHistory).where(eq(anticheatHistory.projectId, projectId)),
+    ).toEqual([]);
+    expect(
+      await db.select().from(anticheatHistory).where(eq(anticheatHistory.sha512, hashes[0]!)),
+    ).toEqual([]);
     expect((await stored(hashes[0]!)).rescoreAt).not.toBeNull();
     await anticheatAdminService.rescoreFile(hashes[0]!);
     expect((await stored(hashes[0]!)).score).toBe(before);
@@ -779,7 +785,9 @@ describe('the resets', () => {
     expect(
       await db.select().from(anticheatPlayerEvent).where(eq(anticheatPlayerEvent.userId, userId)),
     ).toEqual([]);
-    expect(await db.select().from(anticheatAlert)).toEqual([]);
+    expect(await db.select().from(anticheatAlert).where(eq(anticheatAlert.userId, userId))).toEqual(
+      [],
+    );
   });
 });
 
