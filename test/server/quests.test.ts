@@ -15,6 +15,7 @@ import {
   questCompletion,
   questDailyDraw,
   questIndexDay,
+  questProgress,
   questSettingsRow,
   user,
 } from '~~/server/db/schema';
@@ -27,7 +28,6 @@ import { questDailyService } from '~~/server/services/quests/daily';
 import { parisDay, previousDay } from '~~/server/services/quests/formula';
 import { questPublicService } from '~~/server/services/quests/public';
 import { questServerService } from '~~/server/services/quests/server';
-import { currentSeason } from '~~/server/services/quests/shared';
 
 // Quests: the catalogue, tiers and claims, server ranks, flash races, community quests, the
 // index and the cap. See docs/quests.md.
@@ -464,19 +464,51 @@ describe('index, cap and seasons', () => {
     );
   });
 
-  it('opens a new season only with the confirmation', async () => {
+  it('resets what players did, behind the confirmation, and tells the server', async () => {
     const admin = await player();
-    const before = await currentSeason();
-    await expect(
-      questAdminService.newSeason(admin.id, { confirmation: 'nope' }),
-    ).rejects.toMatchObject({
-      data: { problem: 'confirmationMismatch' },
+    const id = `mine_${suffix()}`;
+    await questServerService.seedCatalog({ quests: [individual(id)] });
+    const who = await player(250);
+    const done = await questServerService.complete({
+      idempotencyKey: randomUUID(),
+      player: who.uuid,
+      quest: id,
+      tier: 1,
     });
-    await questAdminService.newSeason(admin.id, { confirmation: 'new season' });
-    expect((await currentSeason()).number).toBe(before.number + 1);
-    const page = await questPublicService.overview({ userId: admin.id });
-    expect(page.season.number).toBe(before.number + 1);
-    expect(page.me?.done).toBe(0);
+    await questServerService.claimFromServer(done.completionId, {
+      idempotencyKey: randomUUID(),
+      player: who.uuid,
+    });
+    await questServerService.progress({ items: [{ player: who.uuid, quest: id, value: 5 }] });
+    const balance = await balanceOf(who.id);
+    const before = (await questServerService.config()).resetAt;
+
+    await expect(questAdminService.reset(admin.id, { confirmation: 'nope' })).rejects.toMatchObject(
+      {
+        data: { problem: 'confirmationMismatch' },
+      },
+    );
+    expect((await questServerService.config()).resetAt).toBe(before);
+
+    await questAdminService.reset(admin.id, { confirmation: 'reset the quests' });
+
+    const after = (await questServerService.config()).resetAt;
+    expect(after).not.toBeNull();
+    expect(after).not.toBe(before);
+    expect(await db.select().from(questCompletion)).toEqual([]);
+    expect(await db.select().from(questProgress)).toEqual([]);
+    // LNBits already paid stay, the catalogue stays, and the tier can be done again.
+    expect(await balanceOf(who.id)).toBe(balance);
+    expect((await questPublicService.overview({ userId: who.id })).me?.done).toBe(0);
+    expect((await questServerService.config()).quests.length).toBeGreaterThan(0);
+    await expect(
+      questServerService.complete({
+        idempotencyKey: randomUUID(),
+        player: who.uuid,
+        quest: id,
+        tier: 1,
+      }),
+    ).resolves.toMatchObject({ claimable: true });
   });
 });
 
@@ -668,7 +700,7 @@ describe('daily quests', () => {
     expect(view.daily).toEqual([a]);
     const page = await questPublicService.overview({ userId: who.id });
     expect(page.me?.daily).toEqual([a]);
-    expect(page.daily?.quests.find((entry) => entry.quest === a)?.done).toBe(1);
+    expect(page.daily.quests.find((entry) => entry.quest === a)?.done).toBe(1);
     expect(page.leaderboard.some((row) => row.username === who.username)).toBe(true);
   });
 

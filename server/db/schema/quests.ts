@@ -10,7 +10,6 @@ import {
   pgTable,
   primaryKey,
   real,
-  serial,
   smallint,
   text,
   timestamp,
@@ -29,26 +28,6 @@ export type QuestFamily = 'individual' | 'server' | 'flash' | 'daily';
 export type QuestCategoryFamily = 'individual' | 'server';
 export type QuestSource = 'catalog' | 'site';
 export type QuestCommunityStatus = 'scheduled' | 'running' | 'paid' | 'cancelled';
-
-/**
- * A season. Completions, ranks, progress and community quests belong to one; a new season starts
- * every quest over. The current one is the one with no end.
- */
-export const questSeason = pgTable(
-  'quest_season',
-  {
-    id: serial('id').primaryKey(),
-    number: integer('number').notNull().unique(),
-    startedAt: timestamp('started_at').defaultNow().notNull(),
-    endedAt: timestamp('ended_at'),
-  },
-  (table) => [
-    // At most one season without an end.
-    uniqueIndex('quest_season_current_idx')
-      .on(table.endedAt)
-      .where(sql`${table.endedAt} is null`),
-  ],
-);
 
 /**
  * A quest of the catalogue. The definition (names, objective, tiers or ranks, rewards) is kept as
@@ -100,9 +79,6 @@ export const questCompletion = pgTable(
   'quest_completion',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    seasonId: integer('season_id')
-      .notNull()
-      .references(() => questSeason.id),
     questId: text('quest_id')
       .notNull()
       .references(() => quest.id),
@@ -131,24 +107,16 @@ export const questCompletion = pgTable(
     ),
   },
   (table) => [
-    uniqueIndex('quest_completion_user_idx').on(
-      table.seasonId,
-      table.questId,
-      table.tier,
-      table.userId,
-    ),
-    uniqueIndex('quest_completion_rank_idx').on(table.seasonId, table.questId, table.rank),
+    uniqueIndex('quest_completion_user_idx').on(table.questId, table.tier, table.userId),
+    uniqueIndex('quest_completion_rank_idx').on(table.questId, table.rank),
     index('quest_completion_completed_idx').on(table.completedAt),
   ],
 );
 
-/** A player's counter on an individual quest this season, as the server last sent it. */
+/** A player's counter on an individual quest, as the server last sent it. */
 export const questProgress = pgTable(
   'quest_progress',
   {
-    seasonId: integer('season_id')
-      .notNull()
-      .references(() => questSeason.id),
     questId: text('quest_id')
       .notNull()
       .references(() => quest.id, { onDelete: 'cascade' }),
@@ -158,7 +126,7 @@ export const questProgress = pgTable(
     value: bigint('value', { mode: 'number' }).notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
-  (table) => [primaryKey({ columns: [table.seasonId, table.questId, table.userId] })],
+  (table) => [primaryKey({ columns: [table.questId, table.userId] })],
 );
 
 /** One flash race, won or expired. */
@@ -166,9 +134,6 @@ export const questFlashRun = pgTable(
   'quest_flash_run',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    seasonId: integer('season_id')
-      .notNull()
-      .references(() => questSeason.id),
     questId: text('quest_id')
       .notNull()
       .references(() => quest.id),
@@ -212,9 +177,6 @@ export const questDailyCompletion = pgTable(
   'quest_daily_completion',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    seasonId: integer('season_id')
-      .notNull()
-      .references(() => questSeason.id),
     day: date('day', { mode: 'string' }).notNull(),
     questId: text('quest_id')
       .notNull()
@@ -245,9 +207,6 @@ export const questCommunity = pgTable(
   'quest_community',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    seasonId: integer('season_id')
-      .notNull()
-      .references(() => questSeason.id),
     // Title, objective, goal, tiers, threshold and bonus, checked by `questCommunityDefinition`.
     definition: jsonb('definition').notNull(),
     startsAt: timestamp('starts_at').notNull(),
@@ -327,6 +286,8 @@ export const questSettingsRow = pgTable(
   {
     id: smallint('id').primaryKey().default(1),
     values: jsonb('values').notNull(),
+    // When an admin last reset the quests: the server starts every player over when it changes.
+    resetAt: timestamp('reset_at'),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
     updatedByUserId: text('updated_by_user_id').references(() => user.id, {
       onDelete: 'set null',

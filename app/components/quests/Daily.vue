@@ -7,7 +7,7 @@ const props = defineProps<{ data: QuestOverview }>();
 const { t, locale } = useI18n();
 
 const quests = computed(() =>
-  (props.data.daily?.quests ?? []).flatMap((entry) => {
+  props.data.daily.quests.flatMap((entry) => {
     const quest = props.data.quests.find((q) => q.id === entry.quest && q.family === 'daily');
     return quest ? [{ ...entry, definition: quest }] : [];
   }),
@@ -21,9 +21,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   clearInterval(timer);
 });
-const left = computed(() =>
-  props.data.daily ? timeLeft(props.data.daily.endsAt, now.value) : null,
-);
+const left = computed(() => timeLeft(props.data.daily.endsAt, now.value));
 const kPlayer = computed(() => props.data.me?.kPlayer ?? 1);
 const done = (id: string) => props.data.me?.daily.includes(id) ?? false;
 </script>

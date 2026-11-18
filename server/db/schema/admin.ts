@@ -117,7 +117,8 @@ export type AdminAuditAction =
   | 'quests.update'
   | 'quests.delete'
   | 'quests.import'
-  | 'quests.season'
+  /** Everything players did in quests wiped. `data` counts the rows deleted per table. */
+  | 'quests.reset'
   | 'quests.communityCreate'
   | 'quests.communityUpdate'
   | 'quests.communityCancel'

@@ -6,7 +6,7 @@ Quests give players LNBits for what they do on the Minecraft server. The server 
 
 | Family       | Who wins                                                                      | When it pays                                                                    |
 | ------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `individual` | Every player, once per tier and season. Tiers add up (10,000 includes 1,000). | When the player claims, in the game or on `/minecraft/quests`.                  |
+| `individual` | Every player, once per tier. Tiers add up (10,000 includes 1,000).            | When the player claims, in the game or on `/minecraft/quests`.                  |
 | `server`     | Everyone who gets an advancement, paid by rank: 1st, 2nd, 3rd, then the rest. | At once, when the site gives the rank. Ranks count across every server.         |
 | `community`  | Every contributor above a threshold, for each tier of the goal reached.       | When the quest ends, from the `quests:community` task.                          |
 | `flash`      | The first to reach a goal drawn at random. Started by the server.             | At once, when the server reports the winner. A race without a winner just ends. |
@@ -39,9 +39,11 @@ Rewards follow the economy spec (`lnb-economy`, "Spécification Technique — É
 
 Every number above is a setting (`quest_settings`, `/admin/economy/quests`, Settings tab).
 
-## Seasons
+## Reset
 
-Everything belongs to a season (`quest_season`). An admin starts a new one by typing `new season`. The server sees the new number in `GET /config` and starts every player over: its counters, and the advancements of the catalogue's server quests, taken back from players online now and from the others at their next login. LNBits already paid stay. The quests page can show past seasons.
+There are no seasons: quests run until an admin resets them. **Reset the quests** (Settings tab, `POST /api/quests/admin/reset`, typing `reset the quests`) deletes what players did: completions and ranks, progress, flash runs, daily completions and community quests (with their contributions). The catalogue, categories, settings, daily draws, community templates and the reward index stay, and so do LNBits already paid, so players can earn them again. It is for the economy admin and site admins, and goes to the admin log as `quests.reset` with the rows deleted per table. Use it after testing in production, or to start over.
+
+The site stores the date of the last reset (`quest_settings.reset_at`) and sends it as `resetAt` in `GET /config`; the Minecraft server starts every player over when that date changes. What the mod has to do is in `docs/plans/quests-mod.md`.
 
 ## Minecraft server routes
 
@@ -49,24 +51,24 @@ Under `/api/quests/server`, with `Authorization: Bearer <WARDEN_SERVER_SECRET>`,
 
 | Route                               | What it does                                                                                                                                                                                                                                                                                                                                        |
 | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET /config`                       | The season, every enabled quest, the categories in order, today's daily draw (`daily`: `{ day, endsAt, quests: [{ quest, quantity }] }`), the flash and anti-cheat settings, the running community quest, today's index and `pollSeconds` (300). The server polls it, and again just after midnight.                                                |
+| `GET /config`                       | `resetAt` (when an admin last reset the quests, or null), every enabled quest, the categories in order, today's daily draw (`daily`: `{ day, endsAt, quests: [{ quest, quantity }] }`), the flash and anti-cheat settings, the running community quest, today's index and `pollSeconds` (300). The server polls it, and again just after midnight.  |
 | `POST /catalog`                     | `{ categories, quests }` from the server's `config/lnbquests/quests.json`, at start. Adds the categories and quest IDs the site doesn't know and never changes an existing one: edits on the site win. Answers `{ added, kept, categoriesAdded }`; a malformed quest is a 400 naming its index, a new quest in an unknown category a 400 naming it. |
-| `POST /progress`                    | `{ items: [{ player, quest, value }] }`, the absolute counters of the season, for the site's progress bars. 204. Unknown quests and players are skipped.                                                                                                                                                                                            |
+| `POST /progress`                    | `{ items: [{ player, quest, value }] }`, the absolute counters, for the site's progress bars. 204. Unknown quests and players are skipped.                                                                                                                                                                                                          |
 | `POST /completions`                 | `{ idempotencyKey, player, quest, tier }`: a tier reached. The amount is frozen and waits for a claim. 201 `{ completionId, replayed, quest, tier, amount, capped, claimable }`. Problems: `notLinked`, `unknownQuest` (404), `notEligible` (403), `tierLocked`, `alreadyCompleted` (409).                                                          |
 | `POST /completions/:id/claim`       | `{ idempotencyKey, player }`: pays a tier. `{ transactionId, replayed, amount, to, mailboxItems }`. Problems: `notFound` (404, also someone else's), `alreadyClaimed`, `frozen` (409).                                                                                                                                                              |
-| `GET /players/:uuid`                | The player's tiers this season, the podiums of server quests, their ranks, their Kplayer, their part in the running community quest and today's daily quests they finished (`daily`, with any account).                                                                                                                                             |
+| `GET /players/:uuid`                | The player's tiers, the podiums of server quests, their ranks, their Kplayer, their part in the running community quest and today's daily quests they finished (`daily`, with any account).                                                                                                                                                         |
 | `POST /advancements`                | `{ idempotencyKey, player, quest }`: a server quest's advancement was granted. The next rank, paid at once. 201 with `rank`, `amount`, `podium`. `alreadyRanked` (409) when the person already has a rank there, with any Minecraft account.                                                                                                        |
 | `POST /flash`                       | `{ idempotencyKey, quest, quantity, startedAt, endedAt, winner }`: a race ended. Stored; the winner, if any, is paid `rewardPerUnit × quantity` through the formula.                                                                                                                                                                                |
 | `POST /daily`                       | `{ idempotencyKey, player, day, quest }`: a player reached one of `day`'s daily quests. Paid at once: 201 `{ replayed, completionId, quantity, amount, capped, transactionId, to }`. `day` must be today or yesterday (`expired`, 409) and the quest drawn that day (`notDrawn`, 404); `alreadyCompleted` (409) once the person was paid for it.    |
 | `POST /community/:id/contributions` | `{ idempotencyKey, items: [{ player, amount }] }`: what players brought since the last call. `{ replayed, progress, goal }`. `communityClosed` (409) once the quest ended or was cancelled: the server drops what it held.                                                                                                                          |
 
-`GET /events` is a Server-Sent Events stream, like `GET /api/economy/server/events` (`docs/economy.md`, topic `quests`): `config` when a quest, the settings, the season or the community quest changed on the site (an admin, or the community job starting or paying one), so the mod reads `/config` again at once; `player` `{ uuids }` when players claimed a reward on the site, so their quest screen and badge follow.
+`GET /events` is a Server-Sent Events stream, like `GET /api/economy/server/events` (`docs/economy.md`, topic `quests`): `config` when a quest, the settings, the reset date or the community quest changed on the site (an admin, or the community job starting or paying one), so the mod reads `/config` again at once; `player` `{ uuids }` when players claimed a reward on the site, so their quest screen and badge follow.
 
 ## Player routes
 
 Behind `economy.quests`.
 
-- `GET /api/quests?season=<n>`, public: the catalogue with today's amounts, the categories, today's daily quests with how many finished each, podiums, the community quest and past ones, the flash history, the leaderboard and the last 30 days of the index. Signed in with a linked Minecraft account, also `me`: progress, tiers, ranks, Kplayer, community contribution and today's daily quests done.
+- `GET /api/quests`, public: the catalogue with today's amounts, the categories, today's daily quests with how many finished each, podiums, the community quest and past ones, the flash history, the leaderboard and the last 30 days of the index. Signed in with a linked Minecraft account, also `me`: progress, tiers, ranks, Kplayer, community contribution and today's daily quests done.
 - `POST /api/quests/completions/:id/claim`, signed in: claims one of the caller's tiers, like the game does.
 
 ## Admin routes
@@ -82,7 +84,7 @@ Under `/api/quests/admin`, for `admin` and `economy-admin`, never behind a flag.
 | `GET /reward-index?days=60`                                             | Index history, today's preview with the current settings, and the cap used per family.                                  |
 | `GET /community`, `POST`, `GET`/`PATCH /community/:id`, `POST …/cancel` | Community quests and their contributors.                                                                                |
 | `POST /community/templates`                                             | Adds or changes a template the weekly rotation can draw.                                                                |
-| `GET /seasons`, `POST /seasons`                                         | Seasons; `{ confirmation: "new season" }` closes the current one and opens the next.                                    |
+| `POST /reset`                                                           | `{ confirmation: "reset the quests" }` deletes what players did and changes `resetAt`. 204.                             |
 
 ## Community quests
 
@@ -90,6 +92,6 @@ One runs at a time. `quests:community` (every 5 minutes) starts a planned one on
 
 ## Pages
 
-- `/minecraft/quests` (Minecraft menu): the player's season, then pill tabs for personal tiers (by category and subcategory), today's daily quests, server podiums (by category), the community quest, flash races and the leaderboard with how rewards are computed.
+- `/minecraft/quests` (Minecraft menu): the player's summary, then pill tabs for personal tiers (by category and subcategory), today's daily quests, server podiums (by category), the community quest, flash races and the leaderboard with how rewards are computed.
 - The home page shows the running community quest as a band under the hero.
-- `/admin/economy/quests`: Catalogue (table, editor drawer, JSON import and export), Categories, Community, Settings (with a live preview and seasons) and Reward index.
+- `/admin/economy/quests`: Catalogue (table, editor drawer, JSON import and export), Categories, Community, Settings (with a live preview and the reset) and Reward index.

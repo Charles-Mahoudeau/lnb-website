@@ -2,15 +2,18 @@
 // Quest settings (docs/quests.md): the reward formula from the economy spec, who counts as
 // active, the 30-day cap and its family shares, flash races, daily quests, anti-cheat and the
 // server's polling.
-// A preview recomputes today's index with the values being edited. New seasons start here too.
+// A preview recomputes today's index with the values being edited. The reset is here too.
+import { AdminTypedConfirmModal } from '#components';
+
 import type { QuestSettings } from '#shared/schemas/quests';
+import { QUEST_RESET_CONFIRM } from '#shared/schemas/quests';
 
 const { t, locale } = useI18n();
 const toast = useToast();
+const overlay = useOverlay();
 
 const { data, refresh } = await useQuestsAdminSettings();
 const { data: index } = await useQuestsAdminIndex();
-const { data: seasons, refresh: refreshSeasons } = await useQuestsAdminSeasons();
 
 const state = ref<QuestSettings | null>(null);
 watch(
@@ -73,30 +76,21 @@ const sharesTotal = computed(() =>
   state.value ? Object.values(state.value.cap.shares).reduce((a, b) => a + b, 0) : 0,
 );
 
-const confirmation = ref('');
-const seasonPending = ref(false);
-async function newSeason() {
-  seasonPending.value = true;
-  try {
-    await questAdminActions.newSeason();
-    confirmation.value = '';
-    toast.add({
-      title: t('admin.quests.season.started'),
-      color: 'success',
-      icon: 'i-lucide-circle-check',
-    });
-    await refreshSeasons();
-  } catch {
-    toast.add({
-      title: t('admin.quests.errors.failed'),
-      color: 'error',
-      icon: 'i-lucide-circle-alert',
-    });
-  } finally {
-    seasonPending.value = false;
-  }
+async function resetQuests() {
+  const reset: unknown = await overlay.create(AdminTypedConfirmModal).open({
+    title: t('admin.quests.reset.title'),
+    description: t('admin.quests.reset.warning'),
+    sentence: QUEST_RESET_CONFIRM,
+    confirmLabel: t('admin.quests.reset.confirm'),
+    run: () => questAdminActions.reset(),
+  }).result;
+  if (reset !== true) return;
+  toast.add({
+    title: t('admin.quests.reset.done'),
+    color: 'success',
+    icon: 'i-lucide-circle-check',
+  });
 }
-const current = computed(() => seasons.value?.find((season) => !season.endedAt));
 </script>
 
 <template>
@@ -347,28 +341,15 @@ const current = computed(() => seasons.value?.find((season) => !season.endedAt))
         <USwitch v-model="state.community.rotation" :label="t('admin.quests.settings.rotation')" />
       </section>
 
-      <section class="flex flex-col gap-3 rounded-lg bg-elevated px-6 py-5">
-        <h2 class="text-lg font-medium text-highlighted">{{ t('admin.quests.season.title') }}</h2>
-        <p class="text-sm text-muted">
-          {{ t('admin.quests.season.body', { n: current?.number ?? 1 }) }}
-        </p>
-        <div class="flex flex-wrap items-end gap-3">
-          <UFormField
-            :label="t('admin.quests.season.confirm')"
-            name="seasonConfirm"
-            class="min-w-56"
-          >
-            <UInput v-model="confirmation" placeholder="new season" class="w-full" />
-          </UFormField>
-          <UButton
-            color="error"
-            variant="outline"
-            :disabled="confirmation !== 'new season'"
-            :loading="seasonPending"
-            :label="t('admin.quests.season.start')"
-            @click="newSeason"
-          />
-        </div>
+      <section class="flex flex-col items-start gap-3 rounded-lg bg-elevated px-6 py-5">
+        <h2 class="text-lg font-medium text-highlighted">{{ t('admin.quests.reset.heading') }}</h2>
+        <p class="text-sm text-muted">{{ t('admin.quests.reset.lede') }}</p>
+        <UButton
+          color="error"
+          variant="outline"
+          :label="t('admin.quests.reset.open')"
+          @click="resetQuests"
+        />
       </section>
     </div>
 

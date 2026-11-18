@@ -987,7 +987,7 @@
         "quests_update": "{actor} a modifié la quête {name}.",
         "quests_delete": "{actor} a supprimé la quête {name}.",
         "quests_import": "{actor} a importé des quêtes.",
-        "quests_season": "{actor} a lancé une nouvelle saison de quêtes.",
+        "quests_reset": "{actor} a remis les quêtes à zéro.",
         "quests_communityCreate": "{actor} a programmé la quête communautaire {name}.",
         "quests_communityUpdate": "{actor} a modifié la quête communautaire {name}.",
         "quests_communityCancel": "{actor} a annulé la quête communautaire {name}.",
@@ -3249,7 +3249,7 @@
         "family": "Famille",
         "objective": "Objectif",
         "base": "Base (LNBits)",
-        "completions": "Réussites cette saison",
+        "completions": "Réussites",
         "enabled": "Active",
         "toggle": "Activer ou désactiver {id}",
         "broken": "Cette quête ne respecte plus le format : corrige-la dans le JSON.",
@@ -3408,12 +3408,14 @@
         "dailyCount": "Quêtes quotidiennes par jour",
         "dailyCountHelp": "Tirées à minuit (Paris). 0 les désactive."
       },
-      "season": {
-        "title": "Saisons",
-        "body": "La saison {n} est en cours. Une nouvelle saison remet toutes les quêtes à zéro : progression, paliers et rangs, et les achievements des quêtes serveur sont retirés à tous les joueurs. Les LNBits déjà versés restent.",
-        "confirm": "Tape « new season » pour confirmer",
-        "start": "Lancer une nouvelle saison",
-        "started": "Nouvelle saison lancée"
+      "reset": {
+        "heading": "Réinitialiser les quêtes",
+        "lede": "Supprime ce que les joueurs ont fait : paliers, rangs, progression, courses flash, quêtes du jour et quêtes communautaires. Le catalogue, les catégories et les réglages restent, ainsi que les LNBits déjà versés, que les joueurs peuvent donc regagner. Le serveur Minecraft remet tout le monde à zéro à sa prochaine lecture de la config. À utiliser après des tests.",
+        "open": "Réinitialiser les quêtes",
+        "title": "Réinitialiser les quêtes ?",
+        "warning": "Les paliers, rangs et la progression de chaque joueur, ainsi que toutes les quêtes communautaires passées et prévues, sont supprimés. Impossible d’annuler.",
+        "confirm": "Réinitialiser les quêtes",
+        "done": "Quêtes réinitialisées"
       },
       "index": {
         "index": "Indice",
@@ -5064,13 +5066,8 @@
       "leaderboard": "Classement",
       "daily": "Quotidiennes"
     },
-    "season": {
-      "label": "Saison",
-      "current": "Saison {n}, en cours",
-      "past": "Saison {n}"
-    },
     "me": {
-      "label": "Ta saison",
+      "label": "Tes quêtes",
       "done": "Quêtes réussies",
       "earned": "LNBits gagnés",
       "bonus": "Bonus de rattrapage",
@@ -5166,7 +5163,7 @@
     "flash": {
       "how": "Une quête flash se lance au hasard quand assez de joueurs sont connectés. Le premier qui atteint l’objectif gagne, et elle expire au bout de quelques minutes sans gagnant.",
       "empty": {
-        "title": "Pas encore de quête flash cette saison",
+        "title": "Pas encore de quête flash",
         "body": "Joue sur le serveur : la prochaine peut partir à tout moment."
       },
       "goal": "{name} : {n}",
@@ -5180,7 +5177,7 @@
         "lnbits": "LNBits gagnés",
         "quests": "Quêtes réussies"
       },
-      "empty": "Personne n’a encore réussi de quête cette saison.",
+      "empty": "Personne n’a encore réussi de quête.",
       "questsCount": "1 quête | {n} quêtes"
     },
     "how": {

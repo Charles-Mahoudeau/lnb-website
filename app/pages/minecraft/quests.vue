@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// The quests page (docs/quests.md): the season, the signed-in player's summary, then pill tabs
+// The quests page (docs/quests.md): the signed-in player's summary, then pill tabs
 // for the five families and the leaderboard. Public: signed-out visitors see everything but
 // their own progress.
 definePageMeta({ auth: false, flag: 'economy.quests' });
@@ -10,10 +10,7 @@ const router = useRouter();
 
 useSeoMeta({ title: () => t('quests.title'), description: () => t('quests.lede') });
 
-const season = ref<number | undefined>(
-  typeof route.query.season === 'string' ? Number(route.query.season) || undefined : undefined,
-);
-const { data, error, refresh } = await useQuests(season);
+const { data, error, refresh } = await useQuests();
 
 const TABS = ['individual', 'daily', 'server', 'community', 'flash', 'leaderboard'] as const;
 type Tab = (typeof TABS)[number];
@@ -29,23 +26,6 @@ const tabItems = computed(() => [
   { value: 'flash', label: t('quests.tabs.flash'), icon: 'i-lucide-zap' },
   { value: 'leaderboard', label: t('quests.tabs.leaderboard'), icon: 'i-lucide-list-ordered' },
 ]);
-
-const seasonItems = computed(() =>
-  (data.value?.seasons ?? []).map((row) => ({
-    value: row.number,
-    label: row.endedAt
-      ? t('quests.season.past', { n: row.number })
-      : t('quests.season.current', { n: row.number }),
-  })),
-);
-const seasonModel = computed({
-  get: () => data.value?.season.number,
-  set: (value) => {
-    season.value =
-      value === data.value?.seasons.find((row) => !row.endedAt)?.number ? undefined : value;
-    void router.replace({ query: { ...route.query, season: season.value } });
-  },
-});
 
 const ready = computed(
   () => data.value?.me?.completions.filter((completion) => !completion.claimedAt).length ?? 0,
@@ -64,9 +44,6 @@ const bonus = computed(() =>
         <h1 class="text-4xl font-bold text-highlighted">{{ t('quests.title') }}</h1>
         <p class="max-w-2xl text-lg text-muted">{{ t('quests.lede') }}</p>
       </div>
-      <UFormField v-if="seasonItems.length > 1" :label="t('quests.season.label')" name="season">
-        <USelect v-model="seasonModel" :items="seasonItems" class="w-56" />
-      </UFormField>
     </div>
 
     <UAlert
@@ -87,9 +64,6 @@ const bonus = computed(() =>
           <WardenMinecraftHead :uuid="data.me.uuid" />
           <div class="flex flex-col">
             <span class="font-semibold text-highlighted">{{ data.me.username }}</span>
-            <span class="text-sm text-muted">{{
-              t('quests.season.current', { n: data.season.number })
-            }}</span>
           </div>
         </div>
         <dl class="flex flex-wrap gap-x-10 gap-y-3">
