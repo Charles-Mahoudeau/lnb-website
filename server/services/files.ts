@@ -53,7 +53,7 @@ function looksLikeZip(head: Buffer): boolean {
   return head.length >= 4 && head[0] === 0x50 && head[1] === 0x4b && [3, 5, 7].includes(head[2]!);
 }
 
-function downloadUrl(sha256: string, name: string): string {
+export function fileDownloadUrl(sha256: string, name: string): string {
   return `${DOWNLOAD_PREFIX}${sha256}/${encodeURIComponent(name)}`;
 }
 
@@ -72,7 +72,7 @@ function toView(row: Row, uploadedBy: string | null, usedBy: string[]): FileView
     size: row.size,
     sha256: row.sha256,
     sha512: row.sha512,
-    url: downloadUrl(row.sha256, row.name),
+    url: fileDownloadUrl(row.sha256, row.name),
     usedBy,
     uploadedAt: row.createdAt.toISOString(),
     uploadedBy,

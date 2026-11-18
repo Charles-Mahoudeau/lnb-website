@@ -5,6 +5,7 @@ import * as admin from '../../shared/schemas/admin.ts';
 import * as anticheat from '../../shared/schemas/anticheat.ts';
 import * as apiKeys from '../../shared/schemas/api-keys.ts';
 import { avatarParams } from '../../shared/schemas/avatars.ts';
+import * as downloads from '../../shared/schemas/downloads.ts';
 import * as economy from '../../shared/schemas/economy.ts';
 import * as eventTeams from '../../shared/schemas/event-teams.ts';
 import * as events from '../../shared/schemas/events.ts';
@@ -169,6 +170,7 @@ const requestSchemas = {
   PartnerMoveBody: partners.partnerMoveBody,
   PartnerSettingsBody: partners.partnerSettingsBody,
   MapSettingsBody: map.mapSettingsBody,
+  DownloadSlotBody: downloads.downloadSlotBody,
   GamesplanetSettingsBody: gamesplanet.gamesplanetSettingsBody,
   GamesplanetPinBody: gamesplanet.gamesplanetPinBody,
   GamesplanetMoveBody: gamesplanet.gamesplanetMoveBody,
@@ -321,6 +323,8 @@ const responseSchemas = {
   MapPublic: map.mapPublicView,
   MapStatus: map.mapStatusView,
   MapAdmin: map.mapAdminView,
+  DownloadsPublic: downloads.downloadsPublicView,
+  DownloadsAdmin: downloads.downloadsAdminView,
   GamesplanetDeal: gamesplanet.gamesplanetDeal,
   GamesplanetPublic: gamesplanet.gamesplanetPublicView,
   GamesplanetAdmin: gamesplanet.gamesplanetAdminView,
@@ -377,6 +381,8 @@ const TAGS = {
   teamAdmin: 'Team: admins',
   map: 'Map',
   mapAdmin: 'Map: admins',
+  downloads: 'Downloads',
+  downloadsAdmin: 'Downloads: admins',
   partners: 'Partners',
   partnerEvents: 'Partner events',
   partnersAdmin: 'Partners: admins',
@@ -3489,6 +3495,51 @@ const routes: RouteDoc[] = [
   },
   {
     method: 'get',
+    path: '/api/downloads',
+    tag: TAGS.downloads,
+    summary: 'The downloads for new players',
+    description:
+      'The files of the Files library the `/minecraft/download` page offers: the LNB instance zip and PrismCracked for each system. A place nobody has filled is null. Java 21 and Prism are links to their own sites, kept in the page, not here. The links point at `/api/files/...`, so they need the `files` flag too.',
+    access: 'public',
+    response: downloads.downloadsPublicView,
+  },
+  {
+    method: 'get',
+    path: '/api/admin/downloads',
+    tag: TAGS.downloadsAdmin,
+    summary: 'The download slots',
+    description: 'Every slot of the page, with its library file when there is one.',
+    access: 'wardenAdmin',
+    response: downloads.downloadsAdminView,
+  },
+  {
+    method: 'put',
+    path: '/api/admin/downloads/{slot}',
+    tag: TAGS.downloadsAdmin,
+    summary: 'Fill a download slot',
+    description:
+      'Puts a library file in a slot (`instance`, `cracked-windows`, `cracked-macos` or `cracked-linux`), replacing what was there. The file must be of kind `download`.',
+    access: 'wardenAdmin',
+    params: downloads.downloadSlotParams,
+    body: downloads.downloadSlotBody,
+    response: downloads.downloadsAdminView,
+    problems: [
+      { status: 400, problems: ['notDownloadFile'] },
+      { status: 404, problems: ['fileNotFound'] },
+    ],
+  },
+  {
+    method: 'delete',
+    path: '/api/admin/downloads/{slot}',
+    tag: TAGS.downloadsAdmin,
+    summary: 'Empty a download slot',
+    description: 'The file stays in the library. The page shows that nothing is offered there.',
+    access: 'wardenAdmin',
+    params: downloads.downloadSlotParams,
+    response: downloads.downloadsAdminView,
+  },
+  {
+    method: 'get',
     path: '/api/partners',
     tag: TAGS.partners,
     summary: 'The partners',
@@ -6208,6 +6259,14 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
         description: 'The Files library, `/admin/mods/files`. See `docs/files.md`.',
       },
       {
+        name: TAGS.downloads,
+        description: 'What new players download for the Minecraft server, `/minecraft/download`.',
+      },
+      {
+        name: TAGS.downloadsAdmin,
+        description: 'The Downloads section of the admin area, `/admin/mods/downloads`.',
+      },
+      {
         name: TAGS.modpackAdmin,
         description: "The Modlist, `/admin/mods`: the launcher's modpack. See `docs/modpack.md`.",
       },
@@ -6272,7 +6331,15 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       { name: 'Anticheat', tags: [TAGS.anticheatServer, TAGS.anticheatAdmin] },
       {
         name: 'Minecraft',
-        tags: [TAGS.mods, TAGS.modsAdmin, TAGS.files, TAGS.filesAdmin, TAGS.modpackAdmin],
+        tags: [
+          TAGS.mods,
+          TAGS.modsAdmin,
+          TAGS.files,
+          TAGS.filesAdmin,
+          TAGS.downloads,
+          TAGS.downloadsAdmin,
+          TAGS.modpackAdmin,
+        ],
       },
       { name: 'Economy', tags: [TAGS.economyServer, TAGS.economy, TAGS.economyAdmin] },
       { name: 'Quests', tags: [TAGS.questsServer, TAGS.quests, TAGS.questsAdmin] },

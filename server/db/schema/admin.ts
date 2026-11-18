@@ -63,6 +63,8 @@ export type AdminAuditAction =
   | 'partner.delete'
   /** The Minecraft map page's address, with `data.url` (null for the default). */
   | 'map.settings'
+  /** A file picked or cleared for the Minecraft download page, with `data.slot`, `data.name`. */
+  | 'downloads.update'
   /** The partners page settings, with `data.contactUrl`. */
   | 'partners.settings'
   /** The Gamesplanet promotion: `data.refCode`, `data.uid` for a pin, `data.feed` for a sync. */

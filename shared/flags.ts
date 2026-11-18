@@ -24,6 +24,8 @@ export const FLAG_DEFINITIONS = [
   { key: 'files' },
   // The public modpack manifest the launcher reads (docs/modpack.md).
   { key: 'modpack' },
+  // The public download page for new players (docs/downloads.md).
+  { key: 'downloads' },
   { key: 'warden' },
   { key: 'warden.linking', parent: 'warden' },
   { key: 'warden.appeals', parent: 'warden' },

@@ -29,7 +29,9 @@
     "bankDescription": "Your LNBits and shared accounts",
     "baltopDescription": "The richest players on the server",
     "mapDescription": "The world of the Minecraft server, live",
-    "questsDescription": "Personal tiers, server records and community goals"
+    "questsDescription": "Personal tiers, server records and community goals",
+    "download": "Download",
+    "downloadDescription": "Java, a launcher and the LNB instance"
   },
   "home": {
     "intro": {
@@ -721,7 +723,8 @@
       "anticheatSettings": "Settings",
       "economyQuests": "Quests",
       "gamesplanet": "Gamesplanet",
-      "modlist": "Modlist"
+      "modlist": "Modlist",
+      "downloads": "Downloads"
     },
     "cancel": "Cancel",
     "typedConfirm": {
@@ -992,7 +995,8 @@
         "economy_licenseRevoke": "{actor} took back a casino license from {name}.",
         "quests_categoryCreate": "{actor} created a quest category.",
         "quests_categoryUpdate": "{actor} changed a quest category.",
-        "quests_categoryDelete": "{actor} deleted a quest category."
+        "quests_categoryDelete": "{actor} deleted a quest category.",
+        "downloads_update": "{actor} changed the Minecraft download page."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page.",
       "apiKeysSoon": "1 API key expires within 30 days | {n} API keys expire within 30 days",
@@ -1163,7 +1167,7 @@
       },
       "drop": {
         "title": "Drop files here",
-        "help": "Up to {size} each. Jars, zip archives and a few text formats. The same file is only stored once.",
+        "help": "Up to {size} each. Jars, zip archives, installers and a few text formats. The same file is only stored once.",
         "choose": "Choose files",
         "addAs": "Add as"
       },
@@ -1172,7 +1176,8 @@
         "mod": "Mod jar",
         "wrapper": "Wrapper jar",
         "updater": "Updater jar",
-        "asset": "Asset"
+        "asset": "Asset",
+        "download": "Download"
       },
       "queue": {
         "title": "Uploads",
@@ -1592,6 +1597,10 @@
         "jobs_playtimePrune": {
           "label": "Playtime cleanup",
           "description": "The nightly removal of playtime ledger rows older than 26 weeks and the warnings of ended sessions."
+        },
+        "downloads": {
+          "label": "Download page",
+          "description": "The public Minecraft download page and its footer and menu links. Admin settings stay available. Downloads also need the Files flag."
         }
       }
     },
@@ -4058,6 +4067,34 @@
           "revoked": "Exemption revoked."
         }
       }
+    },
+    "downloads": {
+      "title": "Downloads",
+      "note": "The files the Minecraft download page offers. Java 21 and Prism link to their own sites. Pick files of the library whose kind is Download.",
+      "flagOff": "The download page is switched off in the feature flags.",
+      "slots": {
+        "instance": "LNB instance zip",
+        "cracked-windows": "PrismCracked for Windows",
+        "cracked-macos": "PrismCracked for macOS",
+        "cracked-linux": "PrismCracked for Linux"
+      },
+      "file": "File",
+      "choose": "Choose a file",
+      "version": "Version label",
+      "versionHelp": "Optional, shown beside the file.",
+      "nothing": "Nothing offered yet",
+      "save": "Save",
+      "empty": "Empty the slot",
+      "saved": "Download saved",
+      "emptied": "Slot emptied",
+      "noFiles": "No file of kind Download in the library yet. Upload an installer or a zip in Files and set its kind to Download.",
+      "openFiles": "Open the library",
+      "errors": {
+        "failed": "The download couldn’t be saved. Check your connection, then try again.",
+        "notDownloadFile": "That file isn’t of kind Download. Change its kind in Files first.",
+        "fileNotFound": "That file is no longer in the library."
+      },
+      "loadFailed": "The downloads couldn’t be loaded. Check your connection, then reload the page."
     }
   },
   "wardenAdmin": {
@@ -5321,6 +5358,77 @@
       "line": "Buying games? Use our Gamesplanet link and help fund LNB events.",
       "button": "Visit Gamesplanet",
       "notice": "Some links on this site are affiliate links: LNB earns a small commission on purchases, at no extra cost to you. Clicks on them are counted anonymously, with nothing about who clicked."
+    }
+  },
+  "download": {
+    "title": "Play on the LNB server",
+    "lede": "Three downloads and an import, about ten minutes. Do them in this order. The instance zip brings the game version, the mods and the server address, so there is nothing to set up by hand.",
+    "steps": {
+      "java": {
+        "title": "Install Java 21",
+        "lede": "Minecraft 1.21 will not start on an older Java. Install this one first."
+      },
+      "launcher": {
+        "title": "Install a launcher",
+        "lede": "Pick one. Both run the same instance."
+      },
+      "instance": {
+        "title": "Get the LNB instance",
+        "lede": "The ready-made instance: the right game version, the mods and the server address. The launcher keeps it up to date after that."
+      },
+      "play": {
+        "title": "Import it and play",
+        "lede": "In the launcher, choose Add instance, then Import, and pick the zip. Press Play. The first start downloads the mods, so give it a minute."
+      }
+    },
+    "launchers": {
+      "prism": {
+        "name": "Prism Launcher",
+        "who": "For players who own the game",
+        "text": "The official launcher. Sign in with the Microsoft account that owns Minecraft Java Edition."
+      },
+      "cracked": {
+        "name": "PrismCracked",
+        "who": "For players without the game",
+        "text": "A Prism build that plays with an offline account, for people without Minecraft Java Edition."
+      }
+    },
+    "javaName": "Temurin 21",
+    "instanceName": "LNB instance",
+    "downloadFor": "Download for {os}",
+    "downloadZip": "Download the zip",
+    "opens": "Opens {host}",
+    "hosted": "Hosted by LNB",
+    "unavailable": "Not available yet. Check back soon.",
+    "otherSystems": "Other systems",
+    "hideOtherSystems": "Hide other systems",
+    "systems": {
+      "windows": "Windows",
+      "macos": "macOS",
+      "linux": "Linux"
+    },
+    "packages": {
+      "linux": "Or use your package manager",
+      "macos": "Or use Homebrew",
+      "distro": "Distribution",
+      "copy": "Copy",
+      "copied": "Copied",
+      "none": "PrismCracked is not in any package manager. Use the download above.",
+      "distros": {
+        "ubuntu": "Ubuntu",
+        "debian": "Debian",
+        "fedora": "Fedora",
+        "arch": "Arch Linux",
+        "nixos": "NixOS",
+        "suse": "openSUSE"
+      },
+      "notes": {
+        "debianJava": "Debian 13 or later. On Debian 12, use the download above.",
+        "nixosConfig": "Add it to configuration.nix, then rebuild.",
+        "flatpakSetup": "Needs Flatpak set up once.",
+        "flatpakFedora": "Flatpak comes with Fedora."
+      },
+      "copyFailed": "The text couldn’t be copied. Select it and copy it by hand."
     }
   }
 }

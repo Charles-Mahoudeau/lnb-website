@@ -55,6 +55,7 @@ const wardenItems = computed<NavigationMenuItem[]>(() => [
           ]
         : []),
       { label: t('admin.nav.files'), to: '/admin/mods/files' },
+      { label: t('admin.nav.downloads'), to: '/admin/mods/downloads' },
       { label: t('admin.nav.settings'), to: '/admin/mods/settings' },
     ],
   },

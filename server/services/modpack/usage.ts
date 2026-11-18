@@ -1,7 +1,7 @@
 import { desc, inArray } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
-import { modpackMod, modpackTool } from '~~/server/db/schema';
+import { downloadFile, modpackMod, modpackTool } from '~~/server/db/schema';
 
 // Kept apart from the Modlist service, which reaches Modrinth and CurseForge, so the Files library
 // can ask what uses a file without loading the sources' clients.
@@ -30,6 +30,13 @@ export async function usageOfFiles(fileIds: string[]): Promise<Map<string, strin
     .where(inArray(modpackTool.fileId, fileIds));
   for (const { fileId, tool } of tools) {
     used.set(fileId, [...(used.get(fileId) ?? []), TOOL_NAMES[tool] ?? tool]);
+  }
+  const slots = await db
+    .select({ fileId: downloadFile.fileId })
+    .from(downloadFile)
+    .where(inArray(downloadFile.fileId, fileIds));
+  for (const { fileId } of slots) {
+    used.set(fileId, [...(used.get(fileId) ?? []), 'Download page']);
   }
   return used;
 }
