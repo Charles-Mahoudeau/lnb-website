@@ -3428,7 +3428,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.map,
     summary: 'The Minecraft map',
     description:
-      'The address of the live map the `/minecraft/map` page shows in a frame: the one an admin set, or the default.',
+      'The address of the live map the `/minecraft/map` page shows in a frame: the one an admin set, or the default. While the map is closed (`locked`), visitors get a null `url`, so the address never leaves the server, with `opensAt` when a date is set and `lockedAt` for the progress on the wait page. A signed-in admin still gets the address, to preview the map.',
     access: 'public',
     response: map.mapPublicView,
   },
@@ -3438,7 +3438,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.map,
     summary: 'Whether the map answers',
     description:
-      'The server asks the map for its page and says whether it answered 200 (`ok`) and with which status (`null` when it didn’t answer within 5 seconds). The answer is kept for 10 seconds. The map page shows its error screen unless `ok` is true.',
+      'The server asks the map for its page and says whether it answered 200 (`ok`) and with which status (`null` when it didn’t answer within 5 seconds). The answer is kept for 10 seconds. The map page shows its error screen unless `ok` is true. While the map is closed to the caller, nothing is asked and the answer is `ok: false`.',
     access: 'public',
     response: map.mapStatusView,
   },
@@ -3447,7 +3447,8 @@ const routes: RouteDoc[] = [
     path: '/api/admin/map',
     tag: TAGS.mapAdmin,
     summary: 'The map settings',
-    description: 'The stored address (null for the default) and the default one.',
+    description:
+      'The stored address (null for the default), the default one, who can see the map (`mode`: open, date or closed) and the opening date.',
     access: 'admin',
     response: map.mapAdminView,
   },
@@ -3455,8 +3456,9 @@ const routes: RouteDoc[] = [
     method: 'patch',
     path: '/api/admin/map',
     tag: TAGS.mapAdmin,
-    summary: 'Change the map address',
-    description: 'An https address, or null to go back to the default.',
+    summary: 'Change the map settings',
+    description:
+      'Every field is optional. `url` is an https address, or null to go back to the default. `mode` is `open`, `date` (needs `opensAt`, an instant) or `closed`. Admins always see the map.',
     access: 'admin',
     body: map.mapSettingsBody,
     response: map.mapAdminView,
