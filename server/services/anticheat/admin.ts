@@ -2,9 +2,13 @@ import { and, countDistinct, eq, inArray, sql } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import {
+  anticheatActionTaken,
+  anticheatAlert,
   anticheatFile,
   anticheatHistory,
   anticheatModIdBan,
+  anticheatPlayer,
+  anticheatPlayerEvent,
   anticheatProject,
   anticheatUsage,
 } from '~~/server/db/schema';
@@ -33,6 +37,10 @@ import type {
   AnticheatProjectCreateBody,
   AnticheatSettings,
   AnticheatSettingsPatch,
+} from '#shared/schemas/anticheat';
+import {
+  ANTICHEAT_RESET_FILES_CONFIRM,
+  ANTICHEAT_RESET_SANCTIONS_CONFIRM,
 } from '#shared/schemas/anticheat';
 
 // What an admin changes about files, projects and declared mod IDs. Each write runs in a
@@ -588,7 +596,93 @@ async function bulkPlayers(input: {
   return { applied, skipped };
 }
 
+/**
+ * Forgets what admins decided about files: approvals and bans on files and projects, the
+ * "reviewed" marks, the notes and score history, and the banned mod IDs. The files, their
+ * projects, the platform data and who used what stay, and every file is marked to be scored again
+ * from the platforms and the rules alone. Site admins only, after typing the confirmation.
+ */
+async function resetFiles(actor: AnticheatActor, confirm: string) {
+  if (confirm.trim().toLowerCase() !== ANTICHEAT_RESET_FILES_CONFIRM)
+    refuse(400, 'confirmMismatch');
+  const cleared = {
+    decision: null,
+    decidedAt: null,
+    decidedByUserId: null,
+    decisionNote: null,
+  };
+  await db.transaction(async (tx) => {
+    const projects = await tx
+      .update(anticheatProject)
+      .set(cleared)
+      .where(
+        sql`${anticheatProject.decision} is not null or ${anticheatProject.decisionNote} is not null`,
+      )
+      .returning({ id: anticheatProject.id });
+    const files = await tx
+      .update(anticheatFile)
+      .set({ ...cleared, reviewedAt: null, reviewedByUserId: null, reviewedBand: null })
+      .where(
+        sql`${anticheatFile.decision} is not null or ${anticheatFile.decisionNote} is not null or ${anticheatFile.reviewedAt} is not null`,
+      )
+      .returning({ sha512: anticheatFile.sha512 });
+    const history = await tx.delete(anticheatHistory).returning({ id: anticheatHistory.id });
+    const bans = await tx.delete(anticheatModIdBan).returning({ modId: anticheatModIdBan.modId });
+    await wardenAuditService.record(tx, {
+      action: 'anticheat.resetFiles',
+      actor,
+      data: {
+        projects: projects.length,
+        files: files.length,
+        history: history.length,
+        modIdBans: bans.length,
+      },
+    });
+  });
+  await rescoreAll();
+}
+
+/**
+ * Forgets what happened to players: every trust score back to the start (50), the manual holds,
+ * the timelines, the log of what the server did and the alerts. Files, decisions and the server's
+ * own bans (Warden's) stay. Site admins only, after typing the confirmation.
+ */
+async function resetSanctions(actor: AnticheatActor, confirm: string) {
+  if (confirm.trim().toLowerCase() !== ANTICHEAT_RESET_SANCTIONS_CONFIRM)
+    refuse(400, 'confirmMismatch');
+  await db.transaction(async (tx) => {
+    const players = await tx
+      .update(anticheatPlayer)
+      .set({
+        score: 50,
+        manualHold: false,
+        holdReason: null,
+        holdAt: null,
+        holdByUserId: null,
+        updatedAt: new Date(),
+      })
+      .returning({ userId: anticheatPlayer.userId });
+    const events = await tx.delete(anticheatPlayerEvent).returning({ id: anticheatPlayerEvent.id });
+    const actions = await tx
+      .delete(anticheatActionTaken)
+      .returning({ id: anticheatActionTaken.id });
+    const alerts = await tx.delete(anticheatAlert).returning({ id: anticheatAlert.id });
+    await wardenAuditService.record(tx, {
+      action: 'anticheat.resetSanctions',
+      actor,
+      data: {
+        players: players.length,
+        events: events.length,
+        actions: actions.length,
+        alerts: alerts.length,
+      },
+    });
+  });
+}
+
 export const anticheatAdminService = {
+  resetFiles,
+  resetSanctions,
   settings,
   updateSettings,
   bulkPlayers,

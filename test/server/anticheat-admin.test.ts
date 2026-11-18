@@ -11,6 +11,7 @@ import {
   anticheatHistory,
   anticheatModIdBan,
   anticheatPlayer,
+  anticheatPlayerEvent,
   anticheatProject,
   anticheatUsage,
   mod,
@@ -719,6 +720,69 @@ describe('alerts and the summary', () => {
   });
 });
 
+describe('the resets', () => {
+  it('forget decisions, notes and banned mod IDs on files, and score again', async () => {
+    const { projectId, hashes } = await projectWith(1);
+    const before = (await stored(hashes[0]!)).score;
+    await anticheatAdminService.decideProject({
+      actor,
+      projectId,
+      body: { decision: 'banned', note: 'cheat client' },
+    });
+    await anticheatAdminService.banModId({
+      actor,
+      modId: `reset-${hash().slice(0, 8)}`,
+      reason: 'x',
+    });
+    expect((await stored(hashes[0]!)).score).toBe(0);
+
+    await expect(anticheatAdminService.resetFiles(actor, 'nope')).rejects.toMatchObject({
+      data: { problem: 'confirmMismatch' },
+    });
+    await anticheatAdminService.resetFiles(actor, ' Reset the file scores ');
+
+    const [project] = await db
+      .select()
+      .from(anticheatProject)
+      .where(eq(anticheatProject.id, projectId));
+    expect(project).toMatchObject({ decision: null, decisionNote: null });
+    expect(await db.select().from(anticheatModIdBan)).toEqual([]);
+    expect(await db.select().from(anticheatHistory)).toEqual([]);
+    expect((await stored(hashes[0]!)).rescoreAt).not.toBeNull();
+    await anticheatAdminService.rescoreFile(hashes[0]!);
+    expect((await stored(hashes[0]!)).score).toBe(before);
+    const audits = await db
+      .select()
+      .from(wardenAudit)
+      .where(eq(wardenAudit.action, 'anticheat.resetFiles'));
+    expect(audits.length).toBeGreaterThan(0);
+  });
+
+  it('put every trust score back to 50 and clear holds, timelines and alerts', async () => {
+    const { userId } = await session();
+    await anticheatTrustService.adjust({ actor, userId, score: 5, reason: 'seen cheating' });
+    await db
+      .update(anticheatPlayer)
+      .set({ manualHold: true, holdReason: 'check', holdAt: new Date() })
+      .where(eq(anticheatPlayer.userId, userId));
+
+    await expect(anticheatAdminService.resetSanctions(actor, 'nope')).rejects.toMatchObject({
+      data: { problem: 'confirmMismatch' },
+    });
+    await anticheatAdminService.resetSanctions(actor, 'reset the sanctions');
+
+    const [player] = await db
+      .select()
+      .from(anticheatPlayer)
+      .where(eq(anticheatPlayer.userId, userId));
+    expect(player).toMatchObject({ score: 50, manualHold: false, holdReason: null, holdAt: null });
+    expect(
+      await db.select().from(anticheatPlayerEvent).where(eq(anticheatPlayerEvent.userId, userId)),
+    ).toEqual([]);
+    expect(await db.select().from(anticheatAlert)).toEqual([]);
+  });
+});
+
 describe('the routes', () => {
   it('check for a Warden admin before anything else', () => {
     const root = join(process.cwd(), 'server/api/anticheat/admin');
@@ -730,7 +794,10 @@ describe('the routes', () => {
     expect(found.length).toBeGreaterThan(0);
     for (const path of found) {
       expect(readFileSync(path, 'utf8'), path).toMatch(
-        /defineEventHandler\(async \(event\) => \{\n\s+(const admin = )?await requireWardenAdmin\(event\);/,
+        // The two resets are for site admins only.
+        path.includes('/reset-')
+          ? /defineEventHandler\(async \(event\) => \{\n\s+const admin = await requireAdmin\(event\);/
+          : /defineEventHandler\(async \(event\) => \{\n\s+(const admin = )?await requireWardenAdmin\(event\);/,
       );
     }
   });

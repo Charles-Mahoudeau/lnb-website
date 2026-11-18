@@ -108,6 +108,13 @@ Events reported by the server change it: `challengeWrong` -25, `challengeMissed`
 
 Only the manual "hold the next join" is stored on the player. Holds from low scores are worked out from the scores on each report.
 
+## Resets
+
+Two buttons at the bottom of `/admin/anticheat/settings`, for site admins only (not `warden-admin`). Each needs a typed sentence and is written to `warden_audit` with the rows it touched. Neither touches Warden bans: a ban stays until someone lifts it in Warden. The current mode is shown in the confirmation: in `enforce`, players are judged again at once.
+
+- **Reset the file scores** (`reset the file scores`, `anticheat.resetFiles`): clears the approvals and bans on files and projects, the "reviewed" marks, the notes, the score history (`anticheat_history`) and the banned mod IDs, then marks every file stale so the re-score task scores them again from the platforms and the rules alone. Files, projects, platform data, project links and who used what stay.
+- **Reset the sanctions** (`reset the sanctions`, `anticheat.resetSanctions`): puts every trust score back to 50, clears the manual holds, deletes the timelines (`anticheat_player_event`), the log of what the server did (`anticheat_action`) and the alerts. Files and their decisions stay.
+
 ## Lookups
 
 A new hash starts `pending` and a lookup runs in the site's process right after the report. State lives in the database, and a task each minute (`anticheat:lookups`) retries and expires. There is no queue and no Redis.
@@ -252,22 +259,23 @@ Access is for site admins and `warden-admin`, like Warden. Every admin action go
 
 Routes, all under `/api/anticheat/admin` (see `/api/docs` for the bodies):
 
-| Route                                                         | What it does                                                             |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `GET /files`, `GET /files/:sha512`                            | The registry (filters, cursor) and one file.                             |
-| `GET /files/:sha512/players`                                  | The players who used a file, or its project.                             |
-| `POST /files/:sha512/decision`                                | Approve or ban a file, or clear the decision.                            |
-| `POST /files/:sha512/reviewed`, `/notes`, `/rescore`          | Mark reviewed at the current band, add a note, score again.              |
-| `POST /files/:sha512/players/bulk`                            | Ban, hold or penalize several players of a file (up to 200).             |
-| `GET /projects/search`, `POST /projects`, `GET /projects/:id` | Search the platforms, decide on a project nobody reported, and read one. |
-| `POST /projects/:id/decision`, `/link`, `/unlink`             | Approve or ban a project, merge two, split a platform off.               |
-| `GET/POST /mod-id-bans`, `DELETE /mod-id-bans/:id`            | The banned declared mod IDs.                                             |
-| `GET /players`, `GET /players/:userId`                        | Players with a score, and one player's panel.                            |
-| `GET /players/:userId/events`                                 | More of the timeline.                                                    |
-| `POST /players/:userId/score`, `/hold`                        | Set a score, hold or release a player. Applies in every mode.            |
-| `GET/PATCH /settings`, `POST /rescore`                        | The mode and rules, and marking every file stale.                        |
-| `GET /alerts`, `POST /alerts/:id/dismiss`                     | Alerts, and dismissing one.                                              |
-| `GET /summary`                                                | Counts for the nav badge.                                                |
+| Route                                                         | What it does                                                                      |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `GET /files`, `GET /files/:sha512`                            | The registry (filters, cursor) and one file.                                      |
+| `GET /files/:sha512/players`                                  | The players who used a file, or its project.                                      |
+| `POST /files/:sha512/decision`                                | Approve or ban a file, or clear the decision.                                     |
+| `POST /files/:sha512/reviewed`, `/notes`, `/rescore`          | Mark reviewed at the current band, add a note, score again.                       |
+| `POST /files/:sha512/players/bulk`                            | Ban, hold or penalize several players of a file (up to 200).                      |
+| `GET /projects/search`, `POST /projects`, `GET /projects/:id` | Search the platforms, decide on a project nobody reported, and read one.          |
+| `POST /projects/:id/decision`, `/link`, `/unlink`             | Approve or ban a project, merge two, split a platform off.                        |
+| `GET/POST /mod-id-bans`, `DELETE /mod-id-bans/:id`            | The banned declared mod IDs.                                                      |
+| `GET /players`, `GET /players/:userId`                        | Players with a score, and one player's panel.                                     |
+| `GET /players/:userId/events`                                 | More of the timeline.                                                             |
+| `POST /players/:userId/score`, `/hold`                        | Set a score, hold or release a player. Applies in every mode.                     |
+| `GET/PATCH /settings`, `POST /rescore`                        | The mode and rules, and marking every file stale.                                 |
+| `POST /reset-files`, `POST /reset-sanctions`                  | Site admins only: the two resets below. `{ confirm }` is the exact sentence. 204. |
+| `GET /alerts`, `POST /alerts/:id/dismiss`                     | Alerts, and dismissing one.                                                       |
+| `GET /summary`                                                | Counts for the nav badge.                                                         |
 
 ## Data
 
