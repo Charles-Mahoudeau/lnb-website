@@ -74,34 +74,17 @@ const sharesTotal = computed(() =>
 );
 
 const confirmation = ref('');
-const resetConfirmation = ref('');
 const seasonPending = ref(false);
-const current = computed(() => seasons.value?.find((season) => !season.endedAt));
-const lastNumber = computed(() => Math.max(0, ...(seasons.value ?? []).map((row) => row.number)));
-const nextNumber = ref<number | undefined>();
-const nextName = ref('');
-const currentName = ref('');
-watch(
-  seasons,
-  () => {
-    nextNumber.value = lastNumber.value + 1;
-    currentName.value = current.value?.name ?? '';
-  },
-  { immediate: true },
-);
-const numberTaken = computed(
-  () => nextNumber.value === undefined || nextNumber.value <= lastNumber.value,
-);
-
-// One call at a time; the list reloads and the form goes back to its defaults.
-async function seasonCall(action: () => Promise<unknown>, done: string) {
+async function newSeason() {
   seasonPending.value = true;
   try {
-    await action();
+    await questAdminActions.newSeason();
     confirmation.value = '';
-    resetConfirmation.value = '';
-    nextName.value = '';
-    toast.add({ title: t(done), color: 'success', icon: 'i-lucide-circle-check' });
+    toast.add({
+      title: t('admin.quests.season.started'),
+      color: 'success',
+      icon: 'i-lucide-circle-check',
+    });
     await refreshSeasons();
   } catch {
     toast.add({
@@ -113,22 +96,7 @@ async function seasonCall(action: () => Promise<unknown>, done: string) {
     seasonPending.value = false;
   }
 }
-const newSeason = () =>
-  seasonCall(
-    () =>
-      questAdminActions.newSeason({
-        number: nextNumber.value,
-        ...(nextName.value.trim() ? { name: nextName.value } : {}),
-      }),
-    'admin.quests.season.started',
-  );
-const renameSeason = () =>
-  seasonCall(
-    () => questAdminActions.renameSeason(currentName.value),
-    'admin.quests.season.renamed',
-  );
-const resetSeason = () =>
-  seasonCall(() => questAdminActions.resetSeason(), 'admin.quests.season.resetDone');
+const current = computed(() => seasons.value?.find((season) => !season.endedAt));
 </script>
 
 <template>
@@ -379,85 +347,27 @@ const resetSeason = () =>
         <USwitch v-model="state.community.rotation" :label="t('admin.quests.settings.rotation')" />
       </section>
 
-      <section class="flex flex-col gap-4 rounded-lg bg-elevated px-6 py-5">
+      <section class="flex flex-col gap-3 rounded-lg bg-elevated px-6 py-5">
         <h2 class="text-lg font-medium text-highlighted">{{ t('admin.quests.season.title') }}</h2>
         <p class="text-sm text-muted">
-          {{
-            t('admin.quests.season.body', {
-              n: current?.number ?? 1,
-              name: current?.name ? ` (${current.name})` : '',
-            })
-          }}
+          {{ t('admin.quests.season.body', { n: current?.number ?? 1 }) }}
         </p>
-
         <div class="flex flex-wrap items-end gap-3">
-          <UFormField :label="t('admin.quests.season.name')" name="seasonName" class="min-w-56">
-            <UInput v-model="currentName" maxlength="60" class="w-full" />
+          <UFormField
+            :label="t('admin.quests.season.confirm')"
+            name="seasonConfirm"
+            class="min-w-56"
+          >
+            <UInput v-model="confirmation" placeholder="new season" class="w-full" />
           </UFormField>
           <UButton
+            color="error"
             variant="outline"
+            :disabled="confirmation !== 'new season'"
             :loading="seasonPending"
-            :label="t('admin.quests.season.rename')"
-            @click="renameSeason"
+            :label="t('admin.quests.season.start')"
+            @click="newSeason"
           />
-        </div>
-
-        <div class="flex flex-col gap-3 border-t border-default pt-4">
-          <h3 class="font-medium text-highlighted">{{ t('admin.quests.season.newTitle') }}</h3>
-          <p class="text-sm text-muted">
-            {{ t('admin.quests.season.newBody', { n: lastNumber }) }}
-          </p>
-          <div class="flex flex-wrap items-end gap-3">
-            <UFormField :label="t('admin.quests.season.number')" name="seasonNumber">
-              <UInputNumber v-model="nextNumber" :min="lastNumber + 1" />
-            </UFormField>
-            <UFormField
-              :label="t('admin.quests.season.name')"
-              name="seasonNewName"
-              class="min-w-56"
-            >
-              <UInput v-model="nextName" maxlength="60" class="w-full" />
-            </UFormField>
-          </div>
-          <div class="flex flex-wrap items-end gap-3">
-            <UFormField
-              :label="t('admin.quests.season.confirm')"
-              name="seasonConfirm"
-              class="min-w-56"
-            >
-              <UInput v-model="confirmation" placeholder="new season" class="w-full" />
-            </UFormField>
-            <UButton
-              color="error"
-              variant="outline"
-              :disabled="confirmation !== 'new season' || numberTaken"
-              :loading="seasonPending"
-              :label="t('admin.quests.season.start')"
-              @click="newSeason"
-            />
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-3 border-t border-default pt-4">
-          <h3 class="font-medium text-highlighted">{{ t('admin.quests.season.resetTitle') }}</h3>
-          <p class="text-sm text-muted">{{ t('admin.quests.season.resetBody') }}</p>
-          <div class="flex flex-wrap items-end gap-3">
-            <UFormField
-              :label="t('admin.quests.season.resetConfirm')"
-              name="seasonResetConfirm"
-              class="min-w-56"
-            >
-              <UInput v-model="resetConfirmation" placeholder="reset the season" class="w-full" />
-            </UFormField>
-            <UButton
-              color="error"
-              variant="outline"
-              :disabled="resetConfirmation !== 'reset the season'"
-              :loading="seasonPending"
-              :label="t('admin.quests.season.reset')"
-              @click="resetSeason"
-            />
-          </div>
         </div>
       </section>
     </div>

@@ -28,7 +28,6 @@ export const QUEST_PROBLEMS = [
   'categoryInUse',
   'notDrawn',
   'expired',
-  'seasonNumberTooLow',
 ] as const;
 export type QuestProblem = (typeof QUEST_PROBLEMS)[number];
 
@@ -469,14 +468,7 @@ export const questCommunityView = z.object({
 export type QuestCommunityView = z.infer<typeof questCommunityView>;
 
 export const questConfigResult = z.object({
-  season: z.object({
-    id: z.int(),
-    number: z.int(),
-    name: z.string().nullable(),
-    // Goes up when an admin resets the season without changing its number.
-    revision: z.int(),
-    startedAt: isoDate,
-  }),
+  season: z.object({ id: z.int(), number: z.int(), startedAt: isoDate }),
   quests: z
     .array(z.unknown())
     .describe('Every enabled quest of the catalogue, as `questDefinition`.'),
@@ -532,19 +524,7 @@ export const questCategoryParams = z.object({
   family: z.enum(QUEST_CATEGORY_FAMILIES),
   id: questCategoryId,
 });
-const questSeasonName = z
-  .string()
-  .trim()
-  .max(60)
-  .transform((value) => value || null);
-export const questSeasonBody = z.object({
-  confirmation: z.literal('new season'),
-  // Higher than every season so far. The next number when left out.
-  number: z.int().min(1).max(100000).optional(),
-  name: questSeasonName.optional(),
-});
-export const questSeasonRenameBody = z.object({ name: questSeasonName });
-export const questSeasonResetBody = z.object({ confirmation: z.literal('reset the season') });
+export const questSeasonBody = z.object({ confirmation: z.literal('new season') });
 export const questAdminPatchBody = z.object({
   definition: z.unknown().optional(),
   enabled: z.boolean().optional(),

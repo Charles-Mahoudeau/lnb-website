@@ -41,13 +41,7 @@ Every number above is a setting (`quest_settings`, `/admin/economy/quests`, Sett
 
 ## Seasons
 
-Everything belongs to a season (`quest_season`). A season has a number, which is how the server tells seasons apart, an optional name shown on the site only, and a `revision`.
-
-- **New season** (`POST /seasons`, typing `new season`): closes the current season and opens the next, with the number the admin chooses (higher than every season so far, the next one by default) and an optional name. The server sees the new number in `GET /config` and starts every player over: its counters, and the advancements of the catalogue's server quests, taken back from players online now and from the others at their next login. LNBits already paid stay. The quests page can show past seasons.
-- **Rename** (`PATCH /seasons/current`): changes the current season's name. The number can't change, because the server would take it for a new season.
-- **Reset** (`POST /seasons/reset`, typing `reset the season`): deletes what players did in the current season (completions and ranks, progress, flash runs, daily completions, community quests) and keeps its number, so use it after a mistake or a test. Past seasons, the catalogue, the categories, the settings, the daily draws and the index stay, and so do LNBits already paid, so players can earn them again. The season's `revision` goes up and shows in `GET /config` (`season.revision`); the server doesn't read it yet, so it doesn't start players over by itself.
-
-All three need the `economy-admin` role or a site admin and are written to the admin log (`quests.season`, `quests.seasonRename`, `quests.seasonReset`).
+Everything belongs to a season (`quest_season`). An admin starts a new one by typing `new season`. The server sees the new number in `GET /config` and starts every player over: its counters, and the advancements of the catalogue's server quests, taken back from players online now and from the others at their next login. LNBits already paid stay. The quests page can show past seasons.
 
 ## Minecraft server routes
 
@@ -88,8 +82,7 @@ Under `/api/quests/admin`, for `admin` and `economy-admin`, never behind a flag.
 | `GET /reward-index?days=60`                                             | Index history, today's preview with the current settings, and the cap used per family.                                  |
 | `GET /community`, `POST`, `GET`/`PATCH /community/:id`, `POST …/cancel` | Community quests and their contributors.                                                                                |
 | `POST /community/templates`                                             | Adds or changes a template the weekly rotation can draw.                                                                |
-| `GET /seasons`, `POST /seasons`                                         | Seasons; `{ confirmation: "new season", number?, name? }` closes the current one and opens the next.                    |
-| `PATCH /seasons/current`, `POST /seasons/reset`                         | Rename the current season; `{ confirmation: "reset the season" }` wipes what players did in it.                         |
+| `GET /seasons`, `POST /seasons`                                         | Seasons; `{ confirmation: "new season" }` closes the current one and opens the next.                                    |
 
 ## Community quests
 

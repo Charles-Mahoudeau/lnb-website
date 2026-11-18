@@ -6,13 +6,11 @@ import {
   economyAccount,
   minecraftAccount,
   quest,
-  questCommunity,
   questCompletion,
   questDailyCompletion,
   questDailyDraw,
   questFlashRun,
   questIndexDay,
-  questProgress,
   questSeason,
   questSettingsRow,
   user,
@@ -41,8 +39,6 @@ import {
   questDefinition,
   questImportBody,
   questSeasonBody,
-  questSeasonRenameBody,
-  questSeasonResetBody,
   questSettings,
   questSettingsPatch,
 } from '#shared/schemas/quests';
@@ -343,95 +339,24 @@ async function seasons() {
   return rows.map((row) => ({
     id: row.id,
     number: row.number,
-    name: row.name,
-    revision: row.revision,
     startedAt: row.startedAt.toISOString(),
     endedAt: row.endedAt?.toISOString() ?? null,
   }));
 }
 
-/**
- * Closes the current season and opens the next, numbered as the admin chose: higher than every
- * season so far, the next one by default. The server starts every player over.
- */
+/** Closes the current season and opens the next. The server starts every player over. */
 async function newSeason(actorId: string, input: unknown) {
   const parsed = questSeasonBody.safeParse(input);
   if (!parsed.success) refuse(400, 'confirmationMismatch');
-  const { number, name } = parsed.data;
   await db.transaction(async (tx) => {
     const current = await currentSeason(tx);
-    const [last] = await tx
-      .select({ number: sql<number>`max(${questSeason.number})` })
-      .from(questSeason);
-    const next = number ?? (last?.number ?? current.number) + 1;
-    if (next <= (last?.number ?? current.number)) refuse(400, 'seasonNumberTooLow');
     await tx.update(questSeason).set({ endedAt: new Date() }).where(eq(questSeason.id, current.id));
-    await tx.insert(questSeason).values({ number: next, name: name ?? null });
+    await tx.insert(questSeason).values({ number: current.number + 1 });
     await adminAuditService.record(tx, {
       action: 'quests.season',
       actorUserId: actorId,
       targetUserId: null,
-      data: { closed: current.number, opened: next, name: name ?? null },
-    });
-  });
-  return seasons();
-}
-
-/** Changes the current season's name. Its number stays: the server would take it for a new season. */
-async function renameSeason(actorId: string, input: unknown) {
-  const { name } = questSeasonRenameBody.parse(input);
-  await db.transaction(async (tx) => {
-    const current = await currentSeason(tx);
-    await tx.update(questSeason).set({ name }).where(eq(questSeason.id, current.id));
-    await adminAuditService.record(tx, {
-      action: 'quests.seasonRename',
-      actorUserId: actorId,
-      targetUserId: null,
-      data: { number: current.number, name: name ?? '' },
-    });
-  });
-  return seasons();
-}
-
-/**
- * Wipes what players did in the current season: tiers and ranks, progress, flash runs, daily
- * completions and community quests. The catalogue, categories, settings, the index and the daily
- * draws stay, and so do past seasons. LNBits already paid stay too. The number stays, so the season's
- * `revision` goes up for whoever needs to notice.
- */
-async function resetSeason(actorId: string, input: unknown) {
-  if (!questSeasonResetBody.safeParse(input).success) refuse(400, 'confirmationMismatch');
-  await db.transaction(async (tx) => {
-    const current = await currentSeason(tx);
-    const deleted = {
-      completions: (
-        await tx.delete(questCompletion).where(eq(questCompletion.seasonId, current.id)).returning()
-      ).length,
-      progress: (
-        await tx.delete(questProgress).where(eq(questProgress.seasonId, current.id)).returning()
-      ).length,
-      flashRuns: (
-        await tx.delete(questFlashRun).where(eq(questFlashRun.seasonId, current.id)).returning()
-      ).length,
-      dailyCompletions: (
-        await tx
-          .delete(questDailyCompletion)
-          .where(eq(questDailyCompletion.seasonId, current.id))
-          .returning()
-      ).length,
-      community: (
-        await tx.delete(questCommunity).where(eq(questCommunity.seasonId, current.id)).returning()
-      ).length,
-    };
-    await tx
-      .update(questSeason)
-      .set({ revision: sql`${questSeason.revision} + 1` })
-      .where(eq(questSeason.id, current.id));
-    await adminAuditService.record(tx, {
-      action: 'quests.seasonReset',
-      actorUserId: actorId,
-      targetUserId: null,
-      data: { number: current.number, ...deleted },
+      data: { closed: current.number, opened: current.number + 1 },
     });
   });
   return seasons();
@@ -463,6 +388,4 @@ export const questAdminService = {
   importCatalog: tellingServer(importCatalog),
   seasons,
   newSeason: tellingServer(newSeason),
-  renameSeason: tellingServer(renameSeason),
-  resetSeason: tellingServer(resetSeason),
 };

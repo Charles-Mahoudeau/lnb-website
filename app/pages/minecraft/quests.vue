@@ -30,16 +30,12 @@ const tabItems = computed(() => [
   { value: 'leaderboard', label: t('quests.tabs.leaderboard'), icon: 'i-lucide-list-ordered' },
 ]);
 
-// The number, with the name an admin gave it.
-const seasonLabel = (row: { number: number; name: string | null }) =>
-  row.name ? `${String(row.number)} (${row.name})` : String(row.number);
-
 const seasonItems = computed(() =>
   (data.value?.seasons ?? []).map((row) => ({
     value: row.number,
     label: row.endedAt
-      ? t('quests.season.past', { n: seasonLabel(row) })
-      : t('quests.season.current', { n: seasonLabel(row) }),
+      ? t('quests.season.past', { n: row.number })
+      : t('quests.season.current', { n: row.number }),
   })),
 );
 const seasonModel = computed({
@@ -92,7 +88,7 @@ const bonus = computed(() =>
           <div class="flex flex-col">
             <span class="font-semibold text-highlighted">{{ data.me.username }}</span>
             <span class="text-sm text-muted">{{
-              t('quests.season.current', { n: seasonLabel(data.season) })
+              t('quests.season.current', { n: data.season.number })
             }}</span>
           </div>
         </div>
