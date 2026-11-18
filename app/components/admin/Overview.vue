@@ -241,6 +241,9 @@ function describe(entry: AdminAuditView): string {
     case 'quests.delete':
     case 'quests.import':
     case 'quests.season':
+    case 'quests.seasonRename':
+    case 'quests.seasonReset':
+    case 'playtime.reset':
     case 'quests.communityCreate':
     case 'quests.communityUpdate':
     case 'quests.communityCancel':

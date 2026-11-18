@@ -5683,9 +5683,29 @@ const routes: RouteDoc[] = [
     tag: TAGS.questsAdmin,
     summary: 'Start a new season',
     description:
-      'Closes the current season and opens the next, after typing `new season`. The server starts every player over.',
+      'Closes the current season and opens the next, after typing `new season`. The number is the one given, higher than every season so far, or the next one; the name is optional and shown on the site only. The server starts every player over.',
     access: 'economyAdmin',
     body: quests.questSeasonBody,
+    problems: [{ status: 400, problems: ['confirmationMismatch', 'seasonNumberTooLow'] }],
+  },
+  {
+    method: 'patch',
+    path: '/api/quests/admin/seasons/current',
+    tag: TAGS.questsAdmin,
+    summary: 'Rename the current season',
+    description: "Changes the current season's name. Its number can't change.",
+    access: 'economyAdmin',
+    body: quests.questSeasonRenameBody,
+  },
+  {
+    method: 'post',
+    path: '/api/quests/admin/seasons/reset',
+    tag: TAGS.questsAdmin,
+    summary: 'Reset the current season',
+    description:
+      "Deletes what players did in the current season (tiers, ranks, progress, flash runs, daily completions and community quests), after typing `reset the season`. The number stays and the season's `revision` goes up. Past seasons, the catalogue, the settings and LNBits already paid stay.",
+    access: 'economyAdmin',
+    body: quests.questSeasonResetBody,
     problems: [{ status: 400, problems: ['confirmationMismatch'] }],
   },
   {
