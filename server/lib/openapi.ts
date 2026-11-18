@@ -1008,6 +1008,30 @@ const routes: RouteDoc[] = [
   },
   {
     method: 'post',
+    path: '/api/anticheat/admin/reset-files',
+    tag: TAGS.anticheatAdmin,
+    summary: 'Reset the file scores',
+    description:
+      'Clears the approvals and bans on files and projects, the reviews, notes and score history, and the banned mod IDs, then marks every file to be scored again. The files, projects and usage stay. `confirm` must be the exact sentence. Site admins only. Audited.',
+    access: 'admin',
+    body: anticheat.anticheatResetBody,
+    noContent: true,
+    problems: [{ status: 400, problems: ['confirmMismatch'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/anticheat/admin/reset-sanctions',
+    tag: TAGS.anticheatAdmin,
+    summary: 'Reset the sanctions',
+    description:
+      "Puts every trust score back to 50 and clears the manual holds, the players' timelines, the log of what the server did and the alerts. Files, decisions and Warden bans stay. `confirm` must be the exact sentence. Site admins only. Audited.",
+    access: 'admin',
+    body: anticheat.anticheatResetBody,
+    noContent: true,
+    problems: [{ status: 400, problems: ['confirmMismatch'] }],
+  },
+  {
+    method: 'post',
     path: '/api/anticheat/admin/rescore',
     tag: TAGS.anticheatAdmin,
     summary: 'Mark every file stale',

@@ -3077,6 +3077,24 @@
           "clearDone": "Retenue levée"
         }
       },
+      "reset": {
+        "heading": "Réinitialisation",
+        "lede": "Les deux réinitialisations sont réservées aux admins du site et sont journalisées. Elles ne touchent jamais aux bans de Warden.",
+        "files": {
+          "open": "Réinitialiser les notes des fichiers",
+          "title": "Réinitialiser les notes des fichiers ?",
+          "warning": "Toutes les approbations et tous les bans de fichiers et de projets, toutes les revues, notes et tous les historiques de note, ainsi que tous les ID de mod bannis, sont supprimés, et tous les fichiers sont notés de nouveau d’après les plateformes et les règles seules. Les scores des joueurs restent. Le mode est {mode}. Impossible d’annuler.",
+          "confirm": "Réinitialiser les notes",
+          "done": "Notes des fichiers réinitialisées : les fichiers vont être notés de nouveau"
+        },
+        "sanctions": {
+          "open": "Réinitialiser les sanctions",
+          "title": "Réinitialiser les sanctions ?",
+          "warning": "Tous les scores de confiance reviennent à 50, et chaque blocage manuel, historique, action journalisée et alerte est supprimé. Les fichiers et leurs décisions restent. Le mode est {mode} : en enforce, les joueurs sont jugés de nouveau depuis un score vierge. Impossible d’annuler.",
+          "confirm": "Réinitialiser les sanctions",
+          "done": "Sanctions réinitialisées"
+        }
+      },
       "settings": {
         "title": "Réglages",
         "loadFailed": "Impossible de charger les réglages.",

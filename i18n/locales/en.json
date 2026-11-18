@@ -3073,6 +3073,24 @@
           "clearDone": "Hold cleared"
         }
       },
+      "reset": {
+        "heading": "Reset",
+        "lede": "Both resets are for site admins and are logged. They never touch Warden bans.",
+        "files": {
+          "open": "Reset the file scores",
+          "title": "Reset the file scores?",
+          "warning": "Every approval and ban on files and projects, every review, note and score history, and every banned mod ID is deleted, and all files are scored again from the platforms and the rules alone. Players’ scores stay. The mode is {mode}. This cannot be undone.",
+          "confirm": "Reset the file scores",
+          "done": "File scores reset: files will be scored again"
+        },
+        "sanctions": {
+          "open": "Reset the sanctions",
+          "title": "Reset the sanctions?",
+          "warning": "Every trust score goes back to 50, and every manual hold, timeline, logged action and alert is deleted. Files and decisions stay. The mode is {mode}: in enforce, players are judged again from a clean score. This cannot be undone.",
+          "confirm": "Reset the sanctions",
+          "done": "Sanctions reset"
+        }
+      },
       "settings": {
         "title": "Settings",
         "loadFailed": "We couldn’t load the settings.",

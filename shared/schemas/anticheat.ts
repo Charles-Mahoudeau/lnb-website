@@ -118,6 +118,7 @@ export const ANTICHEAT_PROBLEMS = [
   'sameProject',
   'notScored',
   'rateLimited',
+  'confirmMismatch',
 ] as const;
 export type AnticheatProblem = (typeof ANTICHEAT_PROBLEMS)[number];
 
@@ -784,3 +785,10 @@ export const anticheatSummary = z.object({
   mode: anticheatMode,
 });
 export type AnticheatSummary = z.infer<typeof anticheatSummary>;
+
+/** What a site admin types to wipe the decisions on files, or the players' scores and sanctions. */
+export const ANTICHEAT_RESET_FILES_CONFIRM = 'reset the file scores';
+export const ANTICHEAT_RESET_SANCTIONS_CONFIRM = 'reset the sanctions';
+export const anticheatResetBody = z.object({
+  confirm: z.string().describe('The exact sentence of the reset.'),
+});

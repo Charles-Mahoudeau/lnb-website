@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { WardenConfirmModal } from '#components';
+import { AdminTypedConfirmModal, WardenConfirmModal } from '#components';
 
 import type {
   AnticheatAction,
@@ -9,6 +9,8 @@ import type {
 } from '#shared/schemas/anticheat';
 import {
   ANTICHEAT_ACTIONS,
+  ANTICHEAT_RESET_FILES_CONFIRM,
+  ANTICHEAT_RESET_SANCTIONS_CONFIRM,
   ANTICHEAT_FILE_BANDS,
   ANTICHEAT_MODES,
   ANTICHEAT_PROJECT_KINDS,
@@ -20,6 +22,7 @@ import {
 const { t, d } = useI18n();
 const toast = useToast();
 const overlay = useOverlay();
+const { user } = useAuth();
 
 const { data, error, refresh } = await useAnticheatSettings();
 const { data: bans, refresh: refreshBans } = await useAnticheatModIdBans();
@@ -153,6 +156,34 @@ async function save() {
     saving.value = false;
   }
 }
+
+// The two resets, for site admins: what admins decided about files, and what happened to players.
+async function resetWith(
+  key: 'files' | 'sanctions',
+  sentence: string,
+  run: (confirm: string) => Promise<unknown>,
+) {
+  const reset: unknown = await overlay.create(AdminTypedConfirmModal).open({
+    title: t(`admin.anticheat.reset.${key}.title`),
+    description: t(`admin.anticheat.reset.${key}.warning`, {
+      mode: t(`admin.anticheat.settings.modes.${data.value?.mode ?? 'observe'}.label`),
+    }),
+    sentence,
+    confirmLabel: t(`admin.anticheat.reset.${key}.confirm`),
+    run: () => run(sentence),
+  }).result;
+  if (reset !== true) return;
+  toast.add({
+    title: t(`admin.anticheat.reset.${key}.done`),
+    color: 'success',
+    icon: 'i-lucide-circle-check',
+  });
+  await refresh();
+}
+const resetFiles = () =>
+  resetWith('files', ANTICHEAT_RESET_FILES_CONFIRM, anticheatActions.resetFiles);
+const resetSanctions = () =>
+  resetWith('sanctions', ANTICHEAT_RESET_SANCTIONS_CONFIRM, anticheatActions.resetSanctions);
 
 const rescoring = ref(false);
 async function rescore() {
@@ -418,6 +449,28 @@ const when = (iso: string) => d(iso, { dateStyle: 'medium', timeZone: 'Europe/Pa
           />
         </li>
       </ul>
+    </section>
+
+    <section
+      v-if="isAdmin(user?.role)"
+      class="flex flex-col items-start gap-3 rounded-lg bg-elevated p-6"
+    >
+      <h2 class="text-lg font-medium text-highlighted">{{ t('admin.anticheat.reset.heading') }}</h2>
+      <p class="text-muted">{{ t('admin.anticheat.reset.lede') }}</p>
+      <div class="flex flex-wrap gap-3">
+        <UButton
+          color="error"
+          variant="outline"
+          :label="t('admin.anticheat.reset.files.open')"
+          @click="resetFiles"
+        />
+        <UButton
+          color="error"
+          variant="outline"
+          :label="t('admin.anticheat.reset.sanctions.open')"
+          @click="resetSanctions"
+        />
+      </div>
     </section>
   </div>
 </template>

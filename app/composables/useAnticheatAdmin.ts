@@ -179,6 +179,10 @@ export const anticheatActions = {
     ),
   saveSettings: (body: AnticheatSettingsPatch) =>
     call(() => $fetch<AnticheatSettings>(`${base}/settings`, { method: 'PATCH', body })),
+  resetFiles: (confirm: string) =>
+    call(() => $fetch(`${base}/reset-files`, { method: 'POST', body: { confirm } })),
+  resetSanctions: (confirm: string) =>
+    call(() => $fetch(`${base}/reset-sanctions`, { method: 'POST', body: { confirm } })),
   rescoreAll: () => call(() => $fetch<{ files: number }>(`${base}/rescore`, { method: 'POST' })),
   banModId: (body: { modId: string; reason: string }) =>
     call(() => $fetch<AnticheatModIdBanRow[]>(`${base}/mod-id-bans`, { method: 'POST', body })),
