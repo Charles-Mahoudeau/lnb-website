@@ -1285,13 +1285,13 @@
           "label": "Suggestions",
           "description": "Suggérer un mod et modifier une suggestion."
         },
-        "modList_search": {
+        "modSearch": {
           "label": "Recherche de mods",
-          "description": "La recherche Modrinth et CurseForge pour suggérer un mod."
+          "description": "La recherche Modrinth et CurseForge, pour proposer un mod ou en ajouter au modpack."
         },
-        "modList_icons": {
-          "label": "Icônes des mods",
-          "description": "Les icônes des mods et celles des résultats de recherche."
+        "modIcons": {
+          "label": "Icônes de mods",
+          "description": "Les icônes des mods et des résultats de recherche."
         },
         "files": {
           "label": "Fichiers",

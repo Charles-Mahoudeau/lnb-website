@@ -26,7 +26,7 @@ The mod list at `/minecraft/mod-list` lets members vote on the mods of the LNB M
 
 ## Sources
 
-Search goes through the site (`GET /api/minecraft/mods/search`), so visitors never contact Modrinth or CurseForge, and the CurseForge key never leaves the server.
+Search goes through the site (`GET /api/minecraft/mods/search`), so visitors never contact Modrinth or CurseForge, and the CurseForge key never leaves the server. It has its own flag, `modSearch` (and icons `modIcons`), separate from `modList`, so the Modlist can use it while the vote is off.
 
 - **Modrinth** comes first. Compatibility comes from each search hit's game versions and categories, which include the loaders.
 - **CurseForge** fills in mods that aren't on Modrinth, matched by name or slug. Its search is filtered to the server's version and loader. It's only used when `CURSEFORGE_API_KEY` is set (from [console.curseforge.com](https://console.curseforge.com)). Without it, search is Modrinth only.
