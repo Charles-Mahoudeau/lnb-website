@@ -253,7 +253,7 @@ describe('who may change what', () => {
     expect(isWardenAdmin(null) || isEventsManager('economy-admin')).toBe(false);
   });
 
-  it('guards every admin route with the Warden admin check, grants with the granter check', () => {
+  it('guards every admin route with the Warden admin check, grants with the granter check, the reset with the admin check', () => {
     const files = (dir: string): string[] =>
       readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
         entry.isDirectory() ? files(join(dir, entry.name)) : [join(dir, entry.name)],
@@ -261,7 +261,12 @@ describe('who may change what', () => {
     const found = files(join(process.cwd(), 'server/api/playtime/admin'));
     expect(found.length).toBeGreaterThan(10);
     for (const path of found) {
-      const guard = path.includes('/grants/') ? 'requirePlaytimeGranter' : 'requireWardenAdmin';
+      // The reset is for site admins only: the one route above the Warden admins.
+      const guard = path.includes('/grants/')
+        ? 'requirePlaytimeGranter'
+        : path.endsWith('/reset.post.ts')
+          ? 'requireAdmin'
+          : 'requireWardenAdmin';
       expect(readFileSync(path, 'utf8'), path).toMatch(
         new RegExp(
           `defineEventHandler\\(async \\(event\\) => \\{\\n\\s+(const \\w+ = )?await ${guard}\\(event\\);`,
