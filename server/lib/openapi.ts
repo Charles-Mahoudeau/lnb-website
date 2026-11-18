@@ -1374,6 +1374,18 @@ const routes: RouteDoc[] = [
     ],
   },
   {
+    method: 'post',
+    path: '/api/playtime/admin/reset',
+    tag: TAGS.playtimeAdmin,
+    summary: 'Reset the playtime counters',
+    description:
+      'Wipes the time counted so far and the warnings, so everyone starts the week with the whole allowance. The rules, schools, closures, exemptions and grants stay. `confirm` must be the exact sentence. Site admins only. Audited.',
+    access: 'admin',
+    body: playtime.playtimeResetBody,
+    noContent: true,
+    problems: [{ status: 400, problems: ['confirmMismatch'] }],
+  },
+  {
     method: 'get',
     path: '/api/playtime/admin/live',
     tag: TAGS.playtimeAdmin,

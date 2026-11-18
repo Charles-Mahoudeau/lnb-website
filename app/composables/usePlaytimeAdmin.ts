@@ -75,6 +75,8 @@ export function playtimePlayerActions(userId: string) {
 }
 
 export const playtimeAdminActions = {
+  reset: (confirm: string) =>
+    call(() => $fetch(`${base}/reset`, { method: 'POST', body: { confirm } })),
   saveSettings: (body: PlaytimeSettingsPatch) =>
     call(() => $fetch<PlaytimeSettingsResponse>(`${base}/settings`, { method: 'PATCH', body })),
   saveSchool: (tenantId: string, body: PlaytimeSchoolBody) =>

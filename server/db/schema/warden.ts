@@ -351,6 +351,9 @@ export const WARDEN_AUDIT_ACTIONS = [
   'anticheat.settings',
   'anticheat.verdict',
   'anticheat.alert',
+  // The two resets, by a site admin: the decisions on files, or the players' scores and sanctions.
+  'anticheat.resetFiles',
+  'anticheat.resetSanctions',
   // The playtime limit (docs/playtime.md), run by the same staff. The two settings actions cover
   // the global rules and a school's, the others one closure, exemption or grant.
   'playtime.settings',
@@ -358,6 +361,8 @@ export const WARDEN_AUDIT_ACTIONS = [
   'playtime.closure',
   'playtime.exemption',
   'playtime.grant',
+  // Everything counted and every warning wiped, by a site admin.
+  'playtime.reset',
   // Written by the site's playtime timer to feed the event stream, one per event.
   'playtime.warning',
   'playtime.grace',

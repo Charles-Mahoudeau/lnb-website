@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AdminPlaytimeSchoolModal, WardenConfirmModal } from '#components';
+import { AdminPlaytimeSchoolModal, AdminTypedConfirmModal, WardenConfirmModal } from '#components';
 
 import type {
   PlaytimeMode,
@@ -7,13 +7,14 @@ import type {
   PlaytimeSchoolBody,
   PlaytimeSettingsResponse,
 } from '#shared/schemas/playtime';
-import { PLAYTIME_MODES } from '#shared/schemas/playtime';
+import { PLAYTIME_MODES, PLAYTIME_RESET_CONFIRM } from '#shared/schemas/playtime';
 
 // The Rules tab: the mode, the defaults for everyone, the restricted hours and the schools. A mode
 // card saves at once (and asks before `enforce`). The defaults and the schedule save on their own.
 const { t, n: num } = useI18n();
 const toast = useToast();
 const overlay = useOverlay();
+const { user } = useAuth();
 
 const { data, error, refresh } = await usePlaytimeSettings();
 
@@ -67,6 +68,18 @@ function fail() {
     color: 'error',
     icon: 'i-lucide-circle-alert',
   });
+}
+
+// Site admins only: the counted time and the warnings, wiped for everyone.
+async function resetCounters() {
+  const reset: unknown = await overlay.create(AdminTypedConfirmModal).open({
+    title: t('admin.playtime.reset.title'),
+    description: t('admin.playtime.reset.warning'),
+    sentence: PLAYTIME_RESET_CONFIRM,
+    confirmLabel: t('admin.playtime.reset.confirm'),
+    run: () => playtimeAdminActions.reset(PLAYTIME_RESET_CONFIRM),
+  }).result;
+  if (reset === true) done(t('admin.playtime.reset.done'));
 }
 
 const pendingMode = ref<PlaytimeMode | null>(null);
@@ -363,6 +376,20 @@ function summarize(schedule: PlaytimeSchedule): string {
           </tbody>
         </table>
       </div>
+    </section>
+
+    <section
+      v-if="isAdmin(user?.role)"
+      class="flex flex-col items-start gap-3 rounded-lg bg-elevated p-6"
+    >
+      <h2 class="text-lg font-medium text-highlighted">{{ t('admin.playtime.reset.heading') }}</h2>
+      <p class="text-muted">{{ t('admin.playtime.reset.lede') }}</p>
+      <UButton
+        color="error"
+        variant="outline"
+        :label="t('admin.playtime.reset.open')"
+        @click="resetCounters"
+      />
     </section>
   </div>
 </template>

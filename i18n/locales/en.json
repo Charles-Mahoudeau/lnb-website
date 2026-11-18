@@ -724,6 +724,10 @@
       "modlist": "Modlist"
     },
     "cancel": "Cancel",
+    "typedConfirm": {
+      "type": "Type “{sentence}” to confirm",
+      "failed": "It didn't work, so nothing was changed. Try again."
+    },
     "roles": {
       "admin": "Admin",
       "wardenAdmin": "Warden admin",
@@ -982,7 +986,6 @@
         "quests_season": "{actor} started a new quest season.",
         "quests_seasonRename": "{actor} renamed the quest season {name}.",
         "quests_seasonReset": "{actor} reset the current quest season.",
-        "playtime_reset": "{actor} reset the playtime counters.",
         "quests_communityCreate": "{actor} planned the community quest {name}.",
         "quests_communityUpdate": "{actor} changed the community quest {name}.",
         "quests_communityCancel": "{actor} cancelled the community quest {name}.",
@@ -3781,6 +3784,15 @@
         "fri": "Fri",
         "sat": "Sat",
         "sun": "Sun"
+      },
+      "reset": {
+        "heading": "Reset the counters",
+        "lede": "Wipes the time counted so far and the warnings, so everyone starts the week with the whole allowance again. The rules, schools, closures, exemptions and grants stay. Use it after testing.",
+        "open": "Reset the counters",
+        "title": "Reset the playtime counters?",
+        "warning": "Every player’s counted time, this week and before, and every warning are deleted. Players online keep playing from now on. This cannot be undone.",
+        "confirm": "Reset the counters",
+        "done": "Counters reset"
       },
       "mode": {
         "title": "Mode",
