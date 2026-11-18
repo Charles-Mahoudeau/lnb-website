@@ -639,6 +639,7 @@ export const WARDEN_PROBLEMS = [
   'invalidCursor',
   'slowDown',
   'rateLimited',
+  'confirmMismatch',
 ] as const;
 export type WardenProblem = (typeof WARDEN_PROBLEMS)[number];
 
@@ -687,3 +688,9 @@ export type WardenJoinTicket = z.infer<typeof wardenJoinTicket>;
 
 /** Body of PUT /api/warden/client/presence. */
 export const wardenPresenceBody = z.object({ state: z.literal('menu') });
+
+/** What a site admin types to wipe every ban, appeal, note and anticheat sanction. */
+export const WARDEN_RESET_SANCTIONS_CONFIRM = 'reset all sanctions';
+export const wardenResetSanctionsBody = z.object({
+  confirm: z.string().describe(`Must be "${WARDEN_RESET_SANCTIONS_CONFIRM}".`),
+});

@@ -1410,6 +1410,18 @@ const routes: RouteDoc[] = [
     problems: [{ status: 400, problems: ['confirmMismatch'] }],
   },
   {
+    method: 'post',
+    path: '/api/playtime/admin/reset-all',
+    tag: TAGS.playtimeAdmin,
+    summary: 'Reset all the playtime',
+    description:
+      "Deletes every session (open ones too), with the time counted and the warnings, and sets every Minecraft account's total and the totals kept from taken-over accounts back to zero. The rules, schools, closures, exemptions, grants and bans stay. Players online are treated as ended by their next heartbeat. `confirm` must be the exact sentence. Site admins only. Audited.",
+    access: 'admin',
+    body: playtime.playtimeResetAllBody,
+    noContent: true,
+    problems: [{ status: 400, problems: ['confirmMismatch'] }],
+  },
+  {
     method: 'get',
     path: '/api/playtime/admin/live',
     tag: TAGS.playtimeAdmin,
@@ -1783,6 +1795,18 @@ const routes: RouteDoc[] = [
     access: 'wardenAdmin',
     body: warden.wardenSettingsPatchBody,
     response: warden.wardenSettingsView,
+  },
+  {
+    method: 'post',
+    path: '/api/warden/admin/reset-sanctions',
+    tag: TAGS.wardenAdmin,
+    summary: 'Reset all sanctions',
+    description:
+      "Deletes every ban (the ones in force too), appeal, note and warning, and resets the anticheat's scores, holds, timelines, actions and alerts. The audit log stays. `confirm` must be the exact sentence. Site admins only. Audited.",
+    access: 'admin',
+    body: warden.wardenResetSanctionsBody,
+    noContent: true,
+    problems: [{ status: 400, problems: ['confirmMismatch'] }],
   },
   // Mod list
   {

@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNull, notInArray, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull, ne, notInArray, sql } from 'drizzle-orm';
 import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
@@ -32,7 +32,7 @@ import type {
   PlaytimeSettingsPatch,
   PlaytimeSettingsResponse,
 } from '#shared/schemas/playtime';
-import { PLAYTIME_RESET_CONFIRM } from '#shared/schemas/playtime';
+import { PLAYTIME_RESET_ALL_CONFIRM, PLAYTIME_RESET_CONFIRM } from '#shared/schemas/playtime';
 import { mondayOf, parisDate, addDays } from '#shared/utils/paris-time';
 import { SCHOOLS } from '#shared/utils/schools';
 
@@ -406,8 +406,39 @@ async function reset(actor: Actor, confirm: string) {
   });
 }
 
+/**
+ * The full reset: every session (open ones too) with its counted time and warnings, the total of
+ * every Minecraft account and the total kept from taken-over accounts. Rules, schools, closures,
+ * exemptions and grants stay, and so do bans. Players online are told by their next heartbeat that
+ * the site doesn't know their session, so the server treats it as ended. Site admins only, after
+ * typing the confirmation.
+ */
+async function resetAll(actor: Actor, confirm: string) {
+  if (confirm.trim().toLowerCase() !== PLAYTIME_RESET_ALL_CONFIRM) problem(400, 'confirmMismatch');
+  await db.transaction(async (tx) => {
+    // The ledger and the notices go with their session (on delete cascade).
+    const sessions = await tx.delete(wardenSession).returning({ id: wardenSession.id });
+    const accounts = await tx
+      .update(minecraftAccount)
+      .set({ playtimeSeconds: 0 })
+      .where(ne(minecraftAccount.playtimeSeconds, 0))
+      .returning({ uuid: minecraftAccount.uuid });
+    const players = await tx
+      .update(wardenPlayer)
+      .set({ transferredPlaytimeSeconds: 0 })
+      .where(ne(wardenPlayer.transferredPlaytimeSeconds, 0))
+      .returning({ userId: wardenPlayer.userId });
+    await wardenAuditService.record(tx, {
+      action: 'playtime.resetAll',
+      actor,
+      data: { sessions: sessions.length, accounts: accounts.length, players: players.length },
+    });
+  });
+}
+
 export const playtimeAdminService = {
   reset,
+  resetAll,
   settings,
   closures,
   updateSettings,

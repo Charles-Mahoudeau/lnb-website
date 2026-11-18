@@ -642,6 +642,30 @@ async function resetFiles(actor: AnticheatActor, confirm: string) {
   await rescoreAll();
 }
 
+/** Puts every trust score back to 50 and deletes the timelines, actions and alerts. */
+async function wipeSanctions(tx: Tx) {
+  const players = await tx
+    .update(anticheatPlayer)
+    .set({
+      score: 50,
+      manualHold: false,
+      holdReason: null,
+      holdAt: null,
+      holdByUserId: null,
+      updatedAt: new Date(),
+    })
+    .returning({ userId: anticheatPlayer.userId });
+  const events = await tx.delete(anticheatPlayerEvent).returning({ id: anticheatPlayerEvent.id });
+  const actions = await tx.delete(anticheatActionTaken).returning({ id: anticheatActionTaken.id });
+  const alerts = await tx.delete(anticheatAlert).returning({ id: anticheatAlert.id });
+  return {
+    players: players.length,
+    events: events.length,
+    actions: actions.length,
+    alerts: alerts.length,
+  };
+}
+
 /**
  * Forgets what happened to players: every trust score back to the start (50), the manual holds,
  * the timelines, the log of what the server did and the alerts. Files, decisions and the server's
@@ -651,36 +675,13 @@ async function resetSanctions(actor: AnticheatActor, confirm: string) {
   if (confirm.trim().toLowerCase() !== ANTICHEAT_RESET_SANCTIONS_CONFIRM)
     refuse(400, 'confirmMismatch');
   await db.transaction(async (tx) => {
-    const players = await tx
-      .update(anticheatPlayer)
-      .set({
-        score: 50,
-        manualHold: false,
-        holdReason: null,
-        holdAt: null,
-        holdByUserId: null,
-        updatedAt: new Date(),
-      })
-      .returning({ userId: anticheatPlayer.userId });
-    const events = await tx.delete(anticheatPlayerEvent).returning({ id: anticheatPlayerEvent.id });
-    const actions = await tx
-      .delete(anticheatActionTaken)
-      .returning({ id: anticheatActionTaken.id });
-    const alerts = await tx.delete(anticheatAlert).returning({ id: anticheatAlert.id });
-    await wardenAuditService.record(tx, {
-      action: 'anticheat.resetSanctions',
-      actor,
-      data: {
-        players: players.length,
-        events: events.length,
-        actions: actions.length,
-        alerts: alerts.length,
-      },
-    });
+    const data = await wipeSanctions(tx);
+    await wardenAuditService.record(tx, { action: 'anticheat.resetSanctions', actor, data });
   });
 }
 
 export const anticheatAdminService = {
+  wipeSanctions,
   resetFiles,
   resetSanctions,
   settings,

@@ -363,6 +363,10 @@ export const WARDEN_AUDIT_ACTIONS = [
   'playtime.grant',
   // Everything counted and every warning wiped, by a site admin.
   'playtime.reset',
+  // Everything wiped, the sessions and the totals too, by a site admin.
+  'playtime.resetAll',
+  // Every ban, appeal and note wiped, with the anticheat's sanctions, by a site admin.
+  'warden.resetSanctions',
   // Written by the site's playtime timer to feed the event stream, one per event.
   'playtime.warning',
   'playtime.grace',

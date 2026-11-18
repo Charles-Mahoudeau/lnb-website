@@ -254,3 +254,7 @@ A link by the same player is not a takeover.
 - `WARDEN_SERVER_SECRET`: the Minecraft server's API key, at least 32 characters (`openssl rand -base64 32`).
 
 Skin heads are cached in Nitro storage under `.data/warden-heads`. On Coolify, keep `.data` on a persistent volume, or the cache starts empty after each deploy.
+
+## Reset all sanctions
+
+The Danger zone of Warden's Settings tab (site admins only). Typing `reset all sanctions` deletes every ban (the ones in force too, so banned players can play again), every appeal (they go with their ban), every note and warning, and resets the anticheat's trust scores, manual holds, timelines, actions and alerts, all in one transaction (`POST /api/warden/admin/reset-sanctions`, `server/services/warden/reset.ts`). The audit log, files and their decisions stay. It is audited as `warden.resetSanctions` with the row counts. The anticheat's own "Reset the sanctions" button still resets only its part.

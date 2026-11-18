@@ -3824,12 +3824,19 @@
       },
       "reset": {
         "heading": "Reset the counters",
-        "lede": "Wipes the time counted so far and the warnings, so everyone starts the week with the whole allowance again. The rules, schools, closures, exemptions and grants stay. Use it after testing.",
+        "lede": "Wipes the time counted so far and the warnings, so everyone starts the week with the whole allowance again. The second button also deletes the sessions and the total played time. The rules, schools, closures, exemptions and grants stay. Use it after testing.",
         "open": "Reset the counters",
         "title": "Reset the playtime counters?",
         "warning": "Every player’s counted time, this week and before, and every warning are deleted. Players online keep playing from now on. This cannot be undone.",
         "confirm": "Reset the counters",
-        "done": "Counters reset"
+        "done": "Counters reset",
+        "all": {
+          "open": "Reset all the playtime",
+          "title": "Reset all the playtime?",
+          "warning": "Every session, the time counted and the warnings are deleted, and every player’s total played time goes back to zero. Players online are treated as having left, and the Minecraft server kicks them at its next check. Bans, rules, closures, exemptions and grants stay. This cannot be undone.",
+          "confirm": "Reset all the playtime",
+          "done": "All the playtime was reset"
+        }
       },
       "mode": {
         "title": "Mode",
@@ -4189,7 +4196,16 @@
       "maxAccounts": "Accounts per player",
       "maxAccountsHelp": "How many Minecraft accounts each player can link. A player’s own limit wins over this one.",
       "save": "Save settings",
-      "saved": "Settings saved"
+      "saved": "Settings saved",
+      "reset": {
+        "heading": "Reset the sanctions",
+        "lede": "Deletes every ban, appeal, note and warning, and resets the anticheat’s scores, holds, timelines, actions and alerts. The audit log stays. Site admins only.",
+        "open": "Reset all sanctions",
+        "title": "Reset all sanctions?",
+        "warning": "Every ban, including the ones in force, every appeal, note and warning, and the anticheat’s sanctions are deleted. Banned players can play again. This cannot be undone.",
+        "confirm": "Reset all sanctions",
+        "done": "All sanctions were reset"
+      }
     },
     "player": {
       "ban": "Ban",

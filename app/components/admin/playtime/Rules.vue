@@ -7,7 +7,11 @@ import type {
   PlaytimeSchoolBody,
   PlaytimeSettingsResponse,
 } from '#shared/schemas/playtime';
-import { PLAYTIME_MODES, PLAYTIME_RESET_CONFIRM } from '#shared/schemas/playtime';
+import {
+  PLAYTIME_MODES,
+  PLAYTIME_RESET_ALL_CONFIRM,
+  PLAYTIME_RESET_CONFIRM,
+} from '#shared/schemas/playtime';
 
 // The Rules tab: the mode, the defaults for everyone, the restricted hours and the schools. A mode
 // card saves at once (and asks before `enforce`). The defaults and the schedule save on their own.
@@ -80,6 +84,18 @@ async function resetCounters() {
     run: () => playtimeAdminActions.reset(PLAYTIME_RESET_CONFIRM),
   }).result;
   if (reset === true) done(t('admin.playtime.reset.done'));
+}
+
+// Site admins only: also the sessions and the total played time, wiped for everyone.
+async function resetAll() {
+  const reset: unknown = await overlay.create(AdminTypedConfirmModal).open({
+    title: t('admin.playtime.reset.all.title'),
+    description: t('admin.playtime.reset.all.warning'),
+    sentence: PLAYTIME_RESET_ALL_CONFIRM,
+    confirmLabel: t('admin.playtime.reset.all.confirm'),
+    run: () => playtimeAdminActions.resetAll(PLAYTIME_RESET_ALL_CONFIRM),
+  }).result;
+  if (reset === true) done(t('admin.playtime.reset.all.done'));
 }
 
 const pendingMode = ref<PlaytimeMode | null>(null);
@@ -384,12 +400,20 @@ function summarize(schedule: PlaytimeSchedule): string {
     >
       <h2 class="text-lg font-medium text-highlighted">{{ t('admin.playtime.reset.heading') }}</h2>
       <p class="text-muted">{{ t('admin.playtime.reset.lede') }}</p>
-      <UButton
-        color="error"
-        variant="outline"
-        :label="t('admin.playtime.reset.open')"
-        @click="resetCounters"
-      />
+      <div class="flex flex-wrap gap-3">
+        <UButton
+          color="error"
+          variant="outline"
+          :label="t('admin.playtime.reset.open')"
+          @click="resetCounters"
+        />
+        <UButton
+          color="error"
+          variant="outline"
+          :label="t('admin.playtime.reset.all.open')"
+          @click="resetAll"
+        />
+      </div>
     </section>
   </div>
 </template>
