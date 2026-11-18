@@ -48,6 +48,16 @@ const navItems = computed<NavigationMenuItem[]>(() => {
           },
         ]
       : []),
+    ...(isEnabled('rules')
+      ? [
+          {
+            label: t('nav.rules'),
+            description: t('nav.rulesDescription'),
+            icon: 'i-lucide-scroll-text',
+            to: '/minecraft/rules',
+          },
+        ]
+      : []),
     ...(isEnabled('downloads')
       ? [
           {

@@ -2,6 +2,7 @@ import { and, desc, eq, gt, isNull, or } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import { minecraftAccount, user, wardenAppeal, wardenBan, wardenNote } from '~~/server/db/schema';
+import { ruleService } from '~~/server/services/rules';
 
 import { wardenAuditService } from './audit';
 import { refuse } from './shared';
@@ -118,6 +119,7 @@ async function ban(input: {
 }): Promise<WardenBanView> {
   return db.transaction(async (tx) => {
     await userExists(tx, input.userId);
+    const ruleCitations = await ruleService.citationsFor(tx, input.body.ruleIds ?? []);
     const current = await activeBan(input.userId, tx);
     if (current) await revoke(tx, current, input.actor, 'superseded');
 
@@ -129,6 +131,7 @@ async function ban(input: {
         userId: input.userId,
         minecraftUuid: input.minecraftUuid ?? null,
         reason: input.body.reason,
+        ruleCitations,
         expiresAt: durationSeconds === null ? null : new Date(Date.now() + durationSeconds * 1000),
         source: input.actor.source,
         issuedByUserId: by.userId,
@@ -144,6 +147,7 @@ async function ban(input: {
       data: {
         banId: created!.id,
         reason: created!.reason,
+        rules: ruleCitations.map((cited) => cited.number),
         expiresAt: created!.expiresAt?.toISOString() ?? null,
       },
     });
@@ -190,6 +194,7 @@ async function addNote(input: {
 }): Promise<WardenNoteView> {
   return db.transaction(async (tx) => {
     await userExists(tx, input.userId);
+    const ruleCitations = await ruleService.citationsFor(tx, input.body.ruleIds ?? []);
     const by = actorColumns(input.actor);
     const [note] = await tx
       .insert(wardenNote)
@@ -197,6 +202,7 @@ async function addNote(input: {
         userId: input.userId,
         kind: input.body.kind,
         body: input.body.body,
+        ruleCitations,
         source: input.actor.source,
         authorUserId: by.userId,
         authorMinecraftUuid: by.minecraftUuid,
@@ -207,7 +213,7 @@ async function addNote(input: {
       action: input.body.kind === 'warning' ? 'warning.create' : 'note.create',
       actor: input.actor,
       targetUserId: input.userId,
-      data: { noteId: note!.id },
+      data: { noteId: note!.id, rules: ruleCitations.map((cited) => cited.number) },
     });
     return noteView(note!, await namesOf(tx, [by.userId]));
   });

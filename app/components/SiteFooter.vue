@@ -40,6 +40,7 @@ const columns = computed(() => {
   ];
   const minecraft: FooterLink[] = [
     ...(isEnabled('modList') ? [{ label: t('nav.mods'), to: '/minecraft/mod-list' }] : []),
+    ...(isEnabled('rules') ? [{ label: t('nav.rules'), to: '/minecraft/rules' }] : []),
     ...(isEnabled('downloads') ? [{ label: t('nav.download'), to: '/minecraft/download' }] : []),
     ...(isEnabled('map') ? [{ label: t('map.title'), to: '/minecraft/map' }] : []),
     ...(canUseWarden.value

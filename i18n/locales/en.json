@@ -31,7 +31,9 @@
     "mapDescription": "The world of the Minecraft server, live",
     "questsDescription": "Personal tiers, server records and community goals",
     "download": "Download",
-    "downloadDescription": "Java, a launcher and the LNB instance"
+    "downloadDescription": "Java, a launcher and the LNB instance",
+    "rules": "Rules",
+    "rulesDescription": "What is and isn’t allowed on the server"
   },
   "home": {
     "intro": {
@@ -724,7 +726,8 @@
       "economyQuests": "Quests",
       "gamesplanet": "Gamesplanet",
       "modlist": "Modlist",
-      "downloads": "Downloads"
+      "downloads": "Downloads",
+      "rules": "Rules"
     },
     "cancel": "Cancel",
     "typedConfirm": {
@@ -996,7 +999,15 @@
         "quests_categoryCreate": "{actor} created a quest category.",
         "quests_categoryUpdate": "{actor} changed a quest category.",
         "quests_categoryDelete": "{actor} deleted a quest category.",
-        "downloads_update": "{actor} changed the Minecraft download page."
+        "downloads_update": "{actor} changed the Minecraft download page.",
+        "rule_create": "{actor} added the rule {name}.",
+        "rule_update": "{actor} edited the rule {name}.",
+        "rule_retire": "{actor} retired the rule {name}.",
+        "rule_restore": "{actor} restored the rule {name}.",
+        "rule_categoryCreate": "{actor} added the rules category {name}.",
+        "rule_categoryUpdate": "{actor} edited the rules category {name}.",
+        "rule_categoryDelete": "{actor} deleted the rules category {name}.",
+        "rule_seed": "{actor} loaded the draft rules."
       },
       "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page.",
       "apiKeysSoon": "1 API key expires within 30 days | {n} API keys expire within 30 days",
@@ -1601,6 +1612,10 @@
         "downloads": {
           "label": "Download page",
           "description": "The public Minecraft download page and its footer and menu links. Admin settings stay available. Downloads also need the Files flag."
+        },
+        "rules": {
+          "label": "Server rules page",
+          "description": "The public rules page (/minecraft/rules) and its menu and footer links. Off, the page says the rules are being rewritten. Admins can still edit the rules, and the Minecraft server still gets them."
         }
       }
     },
@@ -4096,7 +4111,92 @@
         "notDownloadFile": "That file isn’t of kind Download. Change its kind in Files first.",
         "fileNotFound": "That file is no longer in the library."
       },
-      "loadFailed": "The downloads couldn’t be loaded. Check your connection, then reload the page."
+      "loadFailed": "The downloads couldn’t be loaded. Check your connection, then reload the page.",
+      "release": {
+        "title": "Release page",
+        "help": "Optional. The https page of PrismCracked’s releases, such as its GitHub release. It shows as a link beside the files we host, which stay.",
+        "label": "Release link",
+        "invalid": "Use an address that starts with https://, for example https://github.com/Diegiwg/PrismLauncher-Cracked/releases/tag/11.1.1."
+      }
+    },
+    "rules": {
+      "note": "The rules of the Minecraft server, shown on the public rules page and to the Minecraft server. Warnings and bans can name the rules they apply. A rule is never deleted: retiring it takes it off the page, and the sanctions that name it keep its number and title.",
+      "flagOff": "The rules page is off (the “Server rules page” flag), so visitors see that the rules are being rewritten. You can edit them freely meanwhile.",
+      "noFrench": "No French name",
+      "addCategory": "Add category",
+      "addRule": "Add rule",
+      "edit": "Edit",
+      "delete": "Delete",
+      "noneInCategory": "No rule in this category yet.",
+      "draft": {
+        "title": "No rules yet",
+        "body": "Start from a draft of 14 rules in 5 categories, in English and French, and edit it. Nothing shows to visitors until the page is on and you have checked them.",
+        "button": "Load the draft rules",
+        "loaded": "Draft rules loaded"
+      },
+      "badges": {
+        "retired": "Retired",
+        "noFrench": "No French"
+      },
+      "category": {
+        "addTitle": "Add a category",
+        "editTitle": "Edit the category",
+        "nameEn": "Name in English",
+        "nameFr": "Name in French",
+        "nameHelp": "Optional. Visitors in French see the English name when this is empty.",
+        "icon": "Icon",
+        "add": "Add category",
+        "save": "Save",
+        "added": "Category added",
+        "saved": "Category saved",
+        "deleted": "Category deleted",
+        "deleteTitle": "Delete {name}?",
+        "deleteLede": "The category is removed. Only an empty category can be deleted.",
+        "deleteBlocked": "It still has rules, retired ones included.",
+        "moveUp": "Move the category up",
+        "moveDown": "Move the category down"
+      },
+      "rule": {
+        "addTitle": "Add a rule",
+        "editTitle": "Edit the rule",
+        "number": "Rule {number}",
+        "category": "Category",
+        "title": "Title",
+        "text": "Text",
+        "textHelpEn": "One or two sentences. Required.",
+        "textHelpFr": "Optional. Visitors in French see the English text when this is empty.",
+        "anchor": "Its link ends with #{anchor}, which stays the same when the rule moves.",
+        "citations": "No warning or ban names it. | {count} warning or ban names it. | {count} warnings and bans name it.",
+        "retire": "Retire rule",
+        "restore": "Restore rule",
+        "save": "Save",
+        "add": "Add rule",
+        "added": "Rule added",
+        "saved": "Rule saved",
+        "retired": "Rule retired",
+        "restored": "Rule restored",
+        "moveUp": "Move the rule up",
+        "moveDown": "Move the rule down"
+      },
+      "icons": {
+        "heart-handshake": "Heart and hands",
+        "shield-check": "Shield",
+        "box": "Block",
+        "user-round": "Person",
+        "calendar": "Calendar",
+        "message-circle": "Speech bubble",
+        "swords": "Swords",
+        "gavel": "Gavel",
+        "users": "People",
+        "leaf": "Leaf"
+      },
+      "errors": {
+        "categoryNotFound": "This category no longer exists. Reload the page.",
+        "ruleNotFound": "This rule no longer exists. Reload the page.",
+        "categoryNotEmpty": "This category still has rules, retired ones included.",
+        "alreadyLoaded": "There are already rules, so the draft can’t be loaded.",
+        "failed": "The change wasn’t saved. Check your connection and try again."
+      }
     }
   },
   "wardenAdmin": {
@@ -5443,6 +5543,28 @@
         "flatpakFedora": "Flatpak comes with Fedora."
       },
       "copyFailed": "The text couldn’t be copied. Select it and copy it by hand."
+    },
+    "releases": "Releases and source on GitHub",
+    "rulesLink": "Read the server rules before you join"
+  },
+  "rules": {
+    "title": "Server rules",
+    "lede": "These rules apply on the LNB Minecraft server. Moderators decide case by case, and the same rules apply to everyone.",
+    "updated": "Last updated {date}",
+    "count": "{count} rule | {count} rules",
+    "expandAll": "Open all",
+    "collapseAll": "Close all",
+    "copyLink": "Copy the link to rule {number}",
+    "copied": "Link copied",
+    "copyFailed": "The link couldn’t be copied.",
+    "empty": "The rules will show up here soon.",
+    "rewriting": {
+      "title": "The rules are being rewritten",
+      "body": "We are updating the server rules and will publish them here soon. Until then, ask a moderator if you are unsure about something."
+    },
+    "picker": {
+      "label": "Rules broken",
+      "optional": "Optional, up to {max}. The player sees them."
     }
   }
 }

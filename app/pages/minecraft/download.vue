@@ -8,6 +8,7 @@ import type { DownloadFileView, DownloadOs, PackageDistro } from '#shared/schema
 definePageMeta({ auth: false, flag: 'downloads' });
 
 const { t, locale } = useI18n();
+const { isEnabled } = useFlags();
 useSeoMeta({ title: () => t('download.title'), description: () => t('download.lede') });
 
 const { data } = await useDownloads();
@@ -47,6 +48,9 @@ const size = (file: DownloadFileView) => formatBytes(file.size, locale.value);
     <header class="mb-8 flex max-w-prose flex-col gap-3">
       <h1>{{ t('download.title') }}</h1>
       <p class="text-muted">{{ t('download.lede') }}</p>
+      <ULink v-if="isEnabled('rules')" to="/minecraft/rules" class="text-sm text-primary underline">
+        {{ t('download.rulesLink') }}
+      </ULink>
     </header>
 
     <ol class="flex flex-col gap-4">
@@ -109,6 +113,16 @@ const size = (file: DownloadFileView) => formatBytes(file.size, locale.value);
               <DownloadOtherSystems :current="os" :links="crackedLinks" />
             </template>
             <p v-else class="text-sm text-muted">{{ t('download.unavailable') }}</p>
+            <ULink
+              v-if="data?.crackedReleaseUrl"
+              :href="data.crackedReleaseUrl"
+              target="_blank"
+              external
+              class="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+            >
+              {{ t('download.releases') }}
+              <UIcon name="i-lucide-external-link" class="size-4" />
+            </ULink>
             <p v-if="os !== 'windows'" class="text-sm text-muted">
               {{ t('download.packages.none') }}
             </p>

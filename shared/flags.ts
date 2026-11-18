@@ -26,6 +26,8 @@ export const FLAG_DEFINITIONS = [
   { key: 'modpack' },
   // The public download page for new players (docs/downloads.md).
   { key: 'downloads' },
+  // The public server rules page (docs/rules.md). Off, the page shows a notice that they are being rewritten.
+  { key: 'rules' },
   { key: 'warden' },
   { key: 'warden.linking', parent: 'warden' },
   { key: 'warden.appeals', parent: 'warden' },

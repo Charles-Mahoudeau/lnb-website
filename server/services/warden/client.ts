@@ -44,7 +44,13 @@ async function me(client: WardenClient): Promise<WardenClientMe> {
       playtimeSeconds,
     })),
     limit: await wardenPlayerService.limit(db, user.id),
-    activeBan: ban ? { reason: ban.reason, expiresAt: ban.expiresAt?.toISOString() ?? null } : null,
+    activeBan: ban
+      ? {
+          reason: ban.reason,
+          expiresAt: ban.expiresAt?.toISOString() ?? null,
+          rules: ban.ruleCitations,
+        }
+      : null,
     device: { id: device.id, name: device.name, expiresAt: device.expiresAt.toISOString() },
   };
 }

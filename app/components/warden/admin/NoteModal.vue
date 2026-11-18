@@ -7,6 +7,17 @@ const emit = defineEmits<{ close: [note: WardenNoteBody | null] }>();
 const { t } = useI18n();
 const kind = ref<WardenNoteBody['kind']>('note');
 const body = ref('');
+const ruleIds = ref<string[]>([]);
+
+// Only a warning can name rules: a private note is just for admins.
+function submit() {
+  if (!body.value.trim()) return;
+  emit('close', {
+    kind: kind.value,
+    body: body.value.trim(),
+    ruleIds: kind.value === 'warning' ? ruleIds.value : [],
+  });
+}
 
 const kinds = computed(() => [
   { label: t('wardenAdmin.noteModal.note'), value: 'note' },
@@ -17,15 +28,12 @@ const kinds = computed(() => [
 <template>
   <UModal :title="t('wardenAdmin.noteModal.title')" :close="false">
     <template #body>
-      <form
-        id="warden-note"
-        class="flex flex-col gap-5"
-        @submit.prevent="body.trim() && emit('close', { kind, body: body.trim() })"
-      >
+      <form id="warden-note" class="flex flex-col gap-5" @submit.prevent="submit">
         <URadioGroup v-model="kind" :items="kinds" />
         <UFormField :label="t('wardenAdmin.noteModal.body')" required>
           <UTextarea v-model="body" :rows="3" :maxlength="2000" autoresize class="w-full" />
         </UFormField>
+        <RulesPicker v-if="kind === 'warning'" v-model="ruleIds" />
       </form>
     </template>
     <template #footer>

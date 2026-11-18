@@ -131,6 +131,7 @@ async function history(dbx: Db, userId: string): Promise<WardenHistoryItem[]> {
       kind: 'ban' as const,
       id: ban.id,
       reason: ban.reason,
+      rules: ban.ruleCitations,
       createdAt: ban.createdAt.toISOString(),
       expiresAt: ban.expiresAt?.toISOString() ?? null,
       revokedAt: ban.revokedAt?.toISOString() ?? null,
@@ -140,6 +141,7 @@ async function history(dbx: Db, userId: string): Promise<WardenHistoryItem[]> {
       kind: 'warning' as const,
       id: note.id,
       body: note.body,
+      rules: note.ruleCitations,
       createdAt: note.createdAt.toISOString(),
     })),
   ];
@@ -180,6 +182,7 @@ async function me(actor: { id: string; name: string; tenantId: string }): Promis
         ? {
             id: ban.id,
             reason: ban.reason,
+            rules: ban.ruleCitations,
             createdAt: ban.createdAt.toISOString(),
             expiresAt: ban.expiresAt?.toISOString() ?? null,
             appeal: appeal ? appealView(appeal, new Map()) : null,
@@ -310,7 +313,12 @@ async function lookup(uuid: string): Promise<WardenServerPlayer> {
     roles: isWardenAdmin(owner.role) ? [WARDEN_ADMIN_ROLE] : [],
     accounts: list.map(({ uuid, username }) => ({ uuid, username })),
     activeBan: ban
-      ? { id: ban.id, reason: ban.reason, expiresAt: ban.expiresAt?.toISOString() ?? null }
+      ? {
+          id: ban.id,
+          reason: ban.reason,
+          rules: ban.ruleCitations,
+          expiresAt: ban.expiresAt?.toISOString() ?? null,
+        }
       : null,
     warnings: warnings?.count ?? 0,
     playtimeSeconds: await totalPlaytime(db, owner.userId),

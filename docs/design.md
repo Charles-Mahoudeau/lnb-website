@@ -269,3 +269,7 @@ These are the usual tells of generated design. Don't use them unless this docume
 - Neon, glitch or "gamer RGB" effects, and angled or cut corners.
 - Everything centered. Content is left-aligned. Center only short, standalone moments such as an empty state, or a page with a single short task such as entering a code on `/link`.
 - The same rounded card with the same shadow repeated for every block.
+
+## Server rules
+
+The public rules page (`/minecraft/rules`) is an accordion by category (mock A): one raised `bg-elevated` section per category with an `IconTile`, number and name, opening on click. Rules inside are rows with a muted number, a bold title, the text, and a copy-link button. A targeted rule is tinted `bg-secondary/15`. The admin editor uses raised sections, arrows for order and a side drawer (`USlideover`) for a rule. No sanction or severity is shown on rules. See `docs/rules.md`.

@@ -31,7 +31,9 @@
     "mapDescription": "Le monde du serveur Minecraft, en direct",
     "questsDescription": "Paliers personnels, records du serveur et objectifs communs",
     "download": "Télécharger",
-    "downloadDescription": "Java, un launcher et l’instance LNB"
+    "downloadDescription": "Java, un launcher et l’instance LNB",
+    "rules": "Règlement",
+    "rulesDescription": "Ce qui est autorisé ou non sur le serveur"
   },
   "home": {
     "intro": {
@@ -728,7 +730,8 @@
       "economyQuests": "Quêtes",
       "gamesplanet": "Gamesplanet",
       "modlist": "Modlist",
-      "downloads": "Téléchargements"
+      "downloads": "Téléchargements",
+      "rules": "Règlement"
     },
     "cancel": "Annuler",
     "typedConfirm": {
@@ -1000,7 +1003,15 @@
         "quests_categoryCreate": "{actor} a créé une catégorie de quêtes.",
         "quests_categoryUpdate": "{actor} a modifié une catégorie de quêtes.",
         "quests_categoryDelete": "{actor} a supprimé une catégorie de quêtes.",
-        "downloads_update": "{actor} a modifié la page de téléchargement Minecraft."
+        "downloads_update": "{actor} a modifié la page de téléchargement Minecraft.",
+        "rule_create": "{actor} a ajouté la règle {name}.",
+        "rule_update": "{actor} a modifié la règle {name}.",
+        "rule_retire": "{actor} a retiré la règle {name}.",
+        "rule_restore": "{actor} a rétabli la règle {name}.",
+        "rule_categoryCreate": "{actor} a ajouté la catégorie de règles {name}.",
+        "rule_categoryUpdate": "{actor} a modifié la catégorie de règles {name}.",
+        "rule_categoryDelete": "{actor} a supprimé la catégorie de règles {name}.",
+        "rule_seed": "{actor} a chargé le brouillon du règlement."
       },
       "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page.",
       "apiKeysSoon": "1 clé API expire dans moins de 30 jours | {n} clés API expirent dans moins de 30 jours",
@@ -1605,6 +1616,10 @@
         "downloads": {
           "label": "Page de téléchargement",
           "description": "La page publique de téléchargement Minecraft et ses liens du menu et du pied de page. Les réglages admin restent disponibles. Les téléchargements demandent aussi le flag Fichiers."
+        },
+        "rules": {
+          "label": "Page du règlement",
+          "description": "La page publique du règlement (/minecraft/rules) et ses liens dans le menu et le pied de page. Désactivée, la page dit que le règlement est en cours de réécriture. Les admins peuvent toujours le modifier, et le serveur Minecraft le reçoit toujours."
         }
       }
     },
@@ -4100,7 +4115,92 @@
         "notDownloadFile": "Ce fichier n’est pas de type Téléchargement. Changez d’abord son type dans Fichiers.",
         "fileNotFound": "Ce fichier n’est plus dans la bibliothèque."
       },
-      "loadFailed": "Les téléchargements n’ont pas pu être chargés. Vérifiez votre connexion, puis rechargez la page."
+      "loadFailed": "Les téléchargements n’ont pas pu être chargés. Vérifiez votre connexion, puis rechargez la page.",
+      "release": {
+        "title": "Page de la version",
+        "help": "Facultatif. La page https des versions de PrismCracked, par exemple sa version sur GitHub. Elle s’affiche en lien à côté des fichiers que nous hébergeons, qui restent.",
+        "label": "Lien de la version",
+        "invalid": "Utilisez une adresse qui commence par https://, par exemple https://github.com/Diegiwg/PrismLauncher-Cracked/releases/tag/11.1.1."
+      }
+    },
+    "rules": {
+      "note": "Le règlement du serveur Minecraft, affiché sur la page publique et envoyé au serveur Minecraft. Les avertissements et les bannissements peuvent citer les règles qu’ils appliquent. Une règle n’est jamais supprimée : la retirer l’enlève de la page, et les sanctions qui la citent gardent son numéro et son titre.",
+      "flagOff": "La page du règlement est désactivée (le drapeau « Page du règlement »), donc les visiteurs voient que le règlement est en cours de réécriture. Vous pouvez le modifier librement en attendant.",
+      "noFrench": "Pas de nom en français",
+      "addCategory": "Ajouter une catégorie",
+      "addRule": "Ajouter une règle",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "noneInCategory": "Aucune règle dans cette catégorie pour l’instant.",
+      "draft": {
+        "title": "Aucune règle pour l’instant",
+        "body": "Partez d’un brouillon de 14 règles en 5 catégories, en anglais et en français, et modifiez-le. Rien n’est visible des visiteurs tant que la page n’est pas activée et que vous ne les avez pas relues.",
+        "button": "Charger le brouillon",
+        "loaded": "Brouillon chargé"
+      },
+      "badges": {
+        "retired": "Retirée",
+        "noFrench": "Pas de français"
+      },
+      "category": {
+        "addTitle": "Ajouter une catégorie",
+        "editTitle": "Modifier la catégorie",
+        "nameEn": "Nom en anglais",
+        "nameFr": "Nom en français",
+        "nameHelp": "Facultatif. Les visiteurs en français voient le nom anglais quand il est vide.",
+        "icon": "Icône",
+        "add": "Ajouter la catégorie",
+        "save": "Enregistrer",
+        "added": "Catégorie ajoutée",
+        "saved": "Catégorie enregistrée",
+        "deleted": "Catégorie supprimée",
+        "deleteTitle": "Supprimer {name} ?",
+        "deleteLede": "La catégorie est supprimée. Seule une catégorie vide peut l’être.",
+        "deleteBlocked": "Elle contient encore des règles, même retirées.",
+        "moveUp": "Monter la catégorie",
+        "moveDown": "Descendre la catégorie"
+      },
+      "rule": {
+        "addTitle": "Ajouter une règle",
+        "editTitle": "Modifier la règle",
+        "number": "Règle {number}",
+        "category": "Catégorie",
+        "title": "Titre",
+        "text": "Texte",
+        "textHelpEn": "Une ou deux phrases. Obligatoire.",
+        "textHelpFr": "Facultatif. Les visiteurs en français voient le texte anglais quand il est vide.",
+        "anchor": "Son lien se termine par #{anchor}, qui ne change pas quand la règle est déplacée.",
+        "citations": "Aucun avertissement ni bannissement ne la cite. | {count} avertissement ou bannissement la cite. | {count} avertissements et bannissements la citent.",
+        "retire": "Retirer la règle",
+        "restore": "Rétablir la règle",
+        "save": "Enregistrer",
+        "add": "Ajouter la règle",
+        "added": "Règle ajoutée",
+        "saved": "Règle enregistrée",
+        "retired": "Règle retirée",
+        "restored": "Règle rétablie",
+        "moveUp": "Monter la règle",
+        "moveDown": "Descendre la règle"
+      },
+      "icons": {
+        "heart-handshake": "Cœur et mains",
+        "shield-check": "Bouclier",
+        "box": "Bloc",
+        "user-round": "Personne",
+        "calendar": "Calendrier",
+        "message-circle": "Bulle de discussion",
+        "swords": "Épées",
+        "gavel": "Marteau",
+        "users": "Personnes",
+        "leaf": "Feuille"
+      },
+      "errors": {
+        "categoryNotFound": "Cette catégorie n’existe plus. Rechargez la page.",
+        "ruleNotFound": "Cette règle n’existe plus. Rechargez la page.",
+        "categoryNotEmpty": "Cette catégorie contient encore des règles, même retirées.",
+        "alreadyLoaded": "Il y a déjà des règles, le brouillon ne peut donc pas être chargé.",
+        "failed": "Le changement n’a pas été enregistré. Vérifiez votre connexion et réessayez."
+      }
     }
   },
   "wardenAdmin": {
@@ -5447,6 +5547,28 @@
         "flatpakFedora": "Flatpak est fourni avec Fedora."
       },
       "copyFailed": "Le texte n’a pas pu être copié. Sélectionne-le et copie-le à la main."
+    },
+    "releases": "Versions et code source sur GitHub",
+    "rulesLink": "Lisez le règlement du serveur avant de rejoindre"
+  },
+  "rules": {
+    "title": "Règlement du serveur",
+    "lede": "Ces règles s’appliquent sur le serveur Minecraft de LNB. Les modérateurs décident au cas par cas, et les mêmes règles valent pour tout le monde.",
+    "updated": "Mis à jour le {date}",
+    "count": "{count} règle | {count} règles",
+    "expandAll": "Tout ouvrir",
+    "collapseAll": "Tout fermer",
+    "copyLink": "Copier le lien de la règle {number}",
+    "copied": "Lien copié",
+    "copyFailed": "Impossible de copier le lien.",
+    "empty": "Le règlement apparaîtra ici bientôt.",
+    "rewriting": {
+      "title": "Le règlement est en cours de réécriture",
+      "body": "Nous mettons à jour le règlement du serveur et le publierons ici bientôt. D’ici là, demandez à un modérateur en cas de doute."
+    },
+    "picker": {
+      "label": "Règles enfreintes",
+      "optional": "Facultatif, jusqu’à {max}. Le joueur les voit."
     }
   }
 }

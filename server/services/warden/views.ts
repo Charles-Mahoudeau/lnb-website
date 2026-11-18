@@ -56,6 +56,7 @@ export function banView(ban: BanRow, names: Names, now = new Date()): WardenBanV
   return {
     id: ban.id,
     reason: ban.reason,
+    rules: ban.ruleCitations,
     createdAt: ban.createdAt.toISOString(),
     expiresAt: ban.expiresAt?.toISOString() ?? null,
     active: isBanActive(ban, now),
@@ -90,6 +91,7 @@ export function noteView(note: NoteRow, names: Names): WardenNoteView {
     id: note.id,
     kind: note.kind,
     body: note.body,
+    rules: note.ruleCitations,
     createdAt: note.createdAt.toISOString(),
     source: note.source,
     author: actorView(names, note.source, note.authorUserId, {

@@ -74,6 +74,7 @@ async function onDecide(id: string, accept: boolean) {
         </span>
       </div>
       <p class="text-sm text-muted">{{ item.ban.reason }}</p>
+      <RulesCited :rules="item.ban.rules" />
       <p class="border-l-2 border-default pl-3 whitespace-pre-line text-highlighted">
         {{ item.appeal.body }}
       </p>

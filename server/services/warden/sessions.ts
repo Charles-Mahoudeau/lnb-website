@@ -24,6 +24,7 @@ import { hashSecret, SESSION_TIMEOUT_MS, shortName } from './rules';
 import { refuse } from './shared';
 import type { Tx } from './shared';
 
+import type { RuleCitation } from '#shared/schemas/rules';
 import type {
   WardenHeartbeat,
   WardenLogin,
@@ -299,7 +300,7 @@ async function linkAccount(
 function denied(
   reason: Exclude<WardenLogin, { result: 'allowed' }>['reason'],
   extra: {
-    ban?: { reason: string; expiresAt: Date | null };
+    ban?: { reason: string; expiresAt: Date | null; ruleCitations: RuleCitation[] };
     limit?: { used: number; max: number };
     playtime?: WardenPlaytimeBlock;
   } = {},
@@ -308,7 +309,13 @@ function denied(
   return {
     result: 'denied',
     reason,
-    ...(ban && { ban: { reason: ban.reason, expiresAt: ban.expiresAt?.toISOString() ?? null } }),
+    ...(ban && {
+      ban: {
+        reason: ban.reason,
+        expiresAt: ban.expiresAt?.toISOString() ?? null,
+        rules: ban.ruleCitations,
+      },
+    }),
     ...(limit && { limit }),
     ...(playtime && { playtime }),
   };

@@ -65,6 +65,16 @@ export type AdminAuditAction =
   | 'map.settings'
   /** A file picked or cleared for the Minecraft download page, with `data.slot`, `data.name`. */
   | 'downloads.update'
+  /** The server rules: `data.name` is the rule or category title, `data.id` its ID. */
+  | 'rule.create'
+  | 'rule.update'
+  | 'rule.retire'
+  | 'rule.restore'
+  | 'rule.categoryCreate'
+  | 'rule.categoryUpdate'
+  | 'rule.categoryDelete'
+  /** The draft rules loaded into an empty list, with `data.rules` the number of rules. */
+  | 'rule.seed'
   /** The partners page settings, with `data.contactUrl`. */
   | 'partners.settings'
   /** The Gamesplanet promotion: `data.refCode`, `data.uid` for a pin, `data.feed` for a sync. */

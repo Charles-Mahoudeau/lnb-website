@@ -17,6 +17,7 @@ const { t, locale } = useI18n();
         <UBadge color="error" variant="subtle" :label="t('warden.ban.badge')" />
       </div>
       <p class="border-l-2 border-default pl-3 text-highlighted">{{ ban.reason }}</p>
+      <RulesCited :rules="ban.rules" />
       <p class="text-sm text-muted">
         {{ t('warden.ban.since', { date: formatWardenDateTime(ban.createdAt, locale) }) }}
         {{
