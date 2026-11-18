@@ -8,9 +8,18 @@ export const FILE_ACCEPT = [...new Set(Object.values(FILE_EXTENSIONS).flat())]
   .map((extension) => `.${extension}`)
   .join(',');
 
-/** A jar is a mod unless the admin says otherwise, and anything else is an asset. */
+/** Installers and archives for the download page, which no other kind accepts. */
+const INSTALLER_EXTENSIONS = ['exe', 'msi', 'dmg', 'pkg', 'appimage', 'gz'];
+
+/**
+ * A jar is a mod unless the admin says otherwise, an installer is a download, and anything else
+ * is an asset (a zip is an asset too: the admin picks Download for the page's zips).
+ */
 export function defaultFileKind(name: string): FileKind {
-  return name.toLowerCase().endsWith('.jar') ? 'mod' : 'asset';
+  const lower = name.toLowerCase();
+  if (lower.endsWith('.jar')) return 'mod';
+  const extension = lower.slice(lower.lastIndexOf('.') + 1);
+  return INSTALLER_EXTENSIONS.includes(extension) ? 'download' : 'asset';
 }
 
 /** "7.9 MB" in English, "7,9 Mo" in French. */

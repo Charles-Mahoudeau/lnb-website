@@ -5,7 +5,7 @@
 ## Model
 
 - `stored_file` (`server/db/schema/files.ts`): the SHA-256 (unique) and SHA-512 of the bytes, the name, the kind, the size, who uploaded it and when. The bytes live on disk, under `.data/files/<sha256>`.
-- The kind is one of `FILE_KINDS` (`shared/schemas/files.ts`): `mod` (a mod's jar), `wrapper` (the launcher's own jar), `updater` (the updater's jar, see the tools in `docs/modpack.md`) or `asset` (anything else). It decides which extensions are accepted: `.jar` for mods, wrappers and updaters, and `.zip`, `.txt`, `.json`, `.dat`, `.toml`, `.properties` or `.cfg` for assets.
+- The kind is one of `FILE_KINDS` (`shared/schemas/files.ts`): `mod` (a mod's jar), `wrapper` (the launcher's own jar), `updater` (the updater's jar, see the tools in `docs/modpack.md`), `download` (a file for the Minecraft download page, see `docs/downloads.md`) or `asset` (anything else). It decides which extensions are accepted: `.jar` for mods, wrappers and updaters, `.zip`, `.txt`, `.json`, `.dat`, `.toml`, `.properties` or `.cfg` for assets, and `.zip`, `.exe`, `.msi`, `.dmg`, `.pkg`, `.appimage` or `.gz` for downloads. A download never reaches the launcher's manifest, which lists only assets.
 - The same bytes are stored once: uploading a file that is already there is refused (`fileDuplicate`), whatever its name. Files are never edited, so a new version of a jar is a new file. A file can only be deleted, with its row.
 
 ## Uploading
@@ -22,7 +22,7 @@ If the reverse proxy limits request bodies (Traefik in Coolify doesn't by defaul
 
 ## Changing the type
 
-`PATCH /api/admin/files/<id>` with `{kind}`, from a "Type" selector in the file's drawer. The new kind has to accept the file's extension (`fileBadType`), and a file that a mod or a tool uses keeps its kind (`fileInUse`), since that use depends on it. So in practice only jars move, between mod jar, wrapper and updater: no extension is accepted by both a jar kind and asset. It is written to `warden_audit` (`file.kind`). Use it when a jar was uploaded as the wrong kind, instead of deleting and uploading it again.
+`PATCH /api/admin/files/<id>` with `{kind}`, from a "Type" selector in the file's drawer. The new kind has to accept the file's extension (`fileBadType`), and a file that a mod or a tool uses keeps its kind (`fileInUse`), since that use depends on it. So in practice only jars move, between mod jar, wrapper and updater, and a zip moves between asset and download. No extension is accepted by both a jar kind and another kind. It is written to `warden_audit` (`file.kind`). Use it when a jar was uploaded as the wrong kind, instead of deleting and uploading it again.
 
 ## Downloading
 
