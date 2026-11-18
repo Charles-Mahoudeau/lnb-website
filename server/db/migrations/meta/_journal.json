@@ -351,6 +351,13 @@
       "when": 1794955524841,
       "tag": "0049_playtime_limits",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1794959885746,
+      "tag": "0050_map_setting",
+      "breakpoints": true
     }
   ]
 }

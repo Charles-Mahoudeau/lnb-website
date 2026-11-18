@@ -242,6 +242,7 @@ export const adminAuditView = z.object({
     'partner.create',
     'partner.update',
     'partner.delete',
+    'map.settings',
     'partners.settings',
     'gamesplanet.settings',
     'gamesplanet.pin',
