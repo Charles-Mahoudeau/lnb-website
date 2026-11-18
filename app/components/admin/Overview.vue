@@ -202,6 +202,7 @@ function describe(entry: AdminAuditView): string {
     case 'partner.create':
     case 'partner.update':
     case 'partner.delete':
+    case 'map.settings':
     case 'partners.settings':
     case 'gamesplanet.settings':
     case 'gamesplanet.pin':

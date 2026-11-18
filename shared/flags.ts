@@ -39,6 +39,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'events.teams', parent: 'events' },
   { key: 'events.imageSearch', parent: 'events' },
   { key: 'events.bdeSync', parent: 'events' },
+  { key: 'map' },
   { key: 'team' },
   { key: 'team.join', parent: 'team' },
   { key: 'partners' },

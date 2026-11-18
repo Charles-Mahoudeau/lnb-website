@@ -12,6 +12,7 @@ import * as files from '../../shared/schemas/files.ts';
 import * as flags from '../../shared/schemas/flags.ts';
 import * as gamesplanet from '../../shared/schemas/gamesplanet.ts';
 import { linkApproveBody, linkApproveResult, linkDenyBody } from '../../shared/schemas/link.ts';
+import * as map from '../../shared/schemas/map.ts';
 import * as modpack from '../../shared/schemas/modpack.ts';
 import * as mods from '../../shared/schemas/mods.ts';
 import * as partnerEvents from '../../shared/schemas/partner-events.ts';
@@ -167,6 +168,7 @@ const requestSchemas = {
   PartnerPatchBody: partners.partnerPatchBody,
   PartnerMoveBody: partners.partnerMoveBody,
   PartnerSettingsBody: partners.partnerSettingsBody,
+  MapSettingsBody: map.mapSettingsBody,
   GamesplanetSettingsBody: gamesplanet.gamesplanetSettingsBody,
   GamesplanetPinBody: gamesplanet.gamesplanetPinBody,
   GamesplanetMoveBody: gamesplanet.gamesplanetMoveBody,
@@ -316,6 +318,8 @@ const responseSchemas = {
   PartnersAdmin: partners.partnerAdminView,
   PartnerLogo: partners.partnerLogoView,
   PartnerSettings: partners.partnerSettingsView,
+  MapPublic: map.mapPublicView,
+  MapAdmin: map.mapAdminView,
   GamesplanetDeal: gamesplanet.gamesplanetDeal,
   GamesplanetPublic: gamesplanet.gamesplanetPublicView,
   GamesplanetAdmin: gamesplanet.gamesplanetAdminView,
@@ -370,6 +374,8 @@ const TAGS = {
   pushAdmin: 'Push: admins',
   team: 'Team',
   teamAdmin: 'Team: admins',
+  map: 'Map',
+  mapAdmin: 'Map: admins',
   partners: 'Partners',
   partnerEvents: 'Partner events',
   partnersAdmin: 'Partners: admins',
@@ -3381,6 +3387,35 @@ const routes: RouteDoc[] = [
   },
   {
     method: 'get',
+    path: '/api/map',
+    tag: TAGS.map,
+    summary: 'The Minecraft map',
+    description:
+      'The address of the live map the `/minecraft/map` page shows in a frame: the one an admin set, or the default.',
+    access: 'public',
+    response: map.mapPublicView,
+  },
+  {
+    method: 'get',
+    path: '/api/admin/map',
+    tag: TAGS.mapAdmin,
+    summary: 'The map settings',
+    description: 'The stored address (null for the default) and the default one.',
+    access: 'admin',
+    response: map.mapAdminView,
+  },
+  {
+    method: 'patch',
+    path: '/api/admin/map',
+    tag: TAGS.mapAdmin,
+    summary: 'Change the map address',
+    description: 'An https address, or null to go back to the default.',
+    access: 'admin',
+    body: map.mapSettingsBody,
+    response: map.mapAdminView,
+  },
+  {
+    method: 'get',
     path: '/api/partners',
     tag: TAGS.partners,
     summary: 'The partners',
@@ -6130,7 +6165,16 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
     'x-tagGroups': [
       {
         name: 'Site',
-        tags: [TAGS.health, TAGS.link, TAGS.users, TAGS.flags, TAGS.admin, TAGS.reference],
+        tags: [
+          TAGS.health,
+          TAGS.link,
+          TAGS.users,
+          TAGS.flags,
+          TAGS.admin,
+          TAGS.reference,
+          TAGS.map,
+          TAGS.mapAdmin,
+        ],
       },
       { name: 'Events', tags: [TAGS.events, TAGS.eventsAdmin, TAGS.postersAdmin] },
       {
