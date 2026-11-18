@@ -7,7 +7,6 @@ import { player } from '~~/server/services/economy/server';
 
 import { drawDaily, endOfParisDay, parisDay, previousDay } from './formula';
 import {
-  currentSeason,
   getSettings,
   hashRequest,
   loadCatalog,
@@ -155,7 +154,6 @@ async function complete(input: QuestDailyBody): Promise<QuestDailyResult> {
           ),
         );
       if (done) refuse(409, 'alreadyCompleted');
-      const season = await currentSeason(tx);
       const settings = await getSettings(tx);
       const price = await priceReward(tx, {
         base: definition.rewardPerUnit * entry.quantity,
@@ -175,7 +173,6 @@ async function complete(input: QuestDailyBody): Promise<QuestDailyResult> {
       const [row] = await tx
         .insert(questDailyCompletion)
         .values({
-          seasonId: season.id,
           day: body.day,
           questId: body.quest,
           userId: who.userId,

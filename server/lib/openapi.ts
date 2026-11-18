@@ -5347,7 +5347,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.questsServer,
     summary: 'Live changes',
     description: [
-      'Keep it open: `config` when a quest, the settings, the season or the community quest changed on the site, `player` when players claimed a reward there.',
+      'Keep it open: `config` when a quest, the settings, the reset date or the community quest changed on the site, `player` when players claimed a reward there.',
       '',
       "Server-Sent Events, as `/api/warden/server/events`: each event's `id` is its number, its `event` the type and its `data` the JSON below. Send `Last-Event-ID` when reconnecting to get the events missed (kept a day); without it, the stream starts from now. The site checks for new events every second and sends a `ping` event after 25 quiet seconds. Behind `economy.serverApi` and `economy.quests`.",
     ].join('\n'),
@@ -5365,7 +5365,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.questsServer,
     summary: 'Quest config for the server',
     description:
-      "The season, every enabled quest of the catalogue, the flash and anti-cheat settings, the running community quest and today's index. The server polls it every `pollSeconds`.",
+      "The reset date, every enabled quest of the catalogue, the flash and anti-cheat settings, the running community quest and today's index. The server polls it every `pollSeconds`.",
     access: 'wardenServer',
     response: quests.questConfigResult,
     problems: [{ status: 503, problems: ['disabled'] }],
@@ -5388,7 +5388,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.questsServer,
     summary: "Players' counters",
     description:
-      'The absolute counters of the season for individual quests, for the progress bars on the site. Unknown quests and unlinked players are skipped.',
+      'The absolute counters for individual quests, for the progress bars on the site. Unknown quests and unlinked players are skipped.',
     access: 'wardenServer',
     body: quests.questProgressBody,
     noContent: true,
@@ -5435,7 +5435,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.questsServer,
     summary: "A player's quests",
     description:
-      "The player's completions this season, the server quest podiums and their ranks, their catch-up bonus and their part in the running community quest.",
+      "The player's completions, the server quest podiums and their ranks, their catch-up bonus and their part in the running community quest.",
     access: 'wardenServer',
     params: quests.questPlayerParams,
     response: quests.questServerPlayerResult,
@@ -5450,7 +5450,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.questsServer,
     summary: 'Rank a server quest',
     description:
-      "A server quest's advancement was granted: the player gets the next rank of the season, network wide, and is paid at once.",
+      "A server quest's advancement was granted: the player gets the next rank, network wide, and is paid at once.",
     access: 'wardenServer',
     body: quests.questAdvancementBody,
     response: quests.questAdvancementResult,
@@ -5520,7 +5520,6 @@ const routes: RouteDoc[] = [
     description:
       "The catalogue with today's amounts, podiums, the community quest, the flash history, the leaderboard and the index. Signed in with a linked Minecraft account, also the caller's progress.",
     access: 'public',
-    query: quests.questOverviewQuery,
     problems: [{ status: 503, problems: ['disabled'] }],
   },
   {
@@ -5544,7 +5543,7 @@ const routes: RouteDoc[] = [
     path: '/api/quests/admin/quests',
     tag: TAGS.questsAdmin,
     summary: 'The catalogue',
-    description: 'Every quest, with its completions this season.',
+    description: 'Every quest, with its completions.',
     access: 'economyAdmin',
   },
   {
@@ -5682,22 +5681,15 @@ const routes: RouteDoc[] = [
     query: quests.questIndexQuery,
   },
   {
-    method: 'get',
-    path: '/api/quests/admin/seasons',
-    tag: TAGS.questsAdmin,
-    summary: 'Seasons',
-    description: 'Every season, newest first.',
-    access: 'economyAdmin',
-  },
-  {
     method: 'post',
-    path: '/api/quests/admin/seasons',
+    path: '/api/quests/admin/reset',
     tag: TAGS.questsAdmin,
-    summary: 'Start a new season',
+    summary: 'Reset the quests',
     description:
-      'Closes the current season and opens the next, after typing `new season`. The server starts every player over.',
+      'Deletes what players did: tiers and ranks, progress, flash runs, daily completions and community quests, after typing `reset the quests`. The catalogue, categories, settings and LNBits already paid stay. `resetAt` in `GET /api/quests/server/config` changes, so the server starts every player over.',
     access: 'economyAdmin',
-    body: quests.questSeasonBody,
+    body: quests.questResetBody,
+    noContent: true,
     problems: [{ status: 400, problems: ['confirmationMismatch'] }],
   },
   {

@@ -19,7 +19,7 @@ import { communityService } from './community';
 import { questDailyService } from './daily';
 import { kPlayer } from './formula';
 import {
-  currentSeason,
+  questResetAt,
   getSettings,
   hashRequest,
   loadCatalog,
@@ -64,8 +64,8 @@ import {
 /** Everything the server needs to run quests, polled every `pollSeconds`. */
 async function config(): Promise<QuestConfigResult> {
   const settings = await getSettings();
-  const [season, quests, index, community, categories, daily] = await Promise.all([
-    currentSeason(),
+  const [resetAt, quests, index, community, categories, daily] = await Promise.all([
+    questResetAt(),
     loadCatalog(db, true),
     todayIndex(db, settings),
     communityService.running(),
@@ -73,7 +73,7 @@ async function config(): Promise<QuestConfigResult> {
     questDailyService.today(),
   ]);
   return {
-    season: { id: season.id, number: season.number, startedAt: season.startedAt.toISOString() },
+    resetAt: resetAt?.toISOString() ?? null,
     quests,
     categories,
     daily,
@@ -152,10 +152,9 @@ function createBadQuest(index: number, message: string): never {
   throw createError({ status: 400, statusText: `Quest ${String(index)}: ${message}` });
 }
 
-/** The absolute counters of the season, for the progress bars on the site. */
+/** The absolute counters, for the progress bars on the site. */
 async function progress(input: unknown) {
   const body = validate(questProgressBody, input);
-  const season = await currentSeason();
   const uuids = [...new Set(body.items.map((item) => item.player))];
   const owners = await db
     .select({ uuid: minecraftAccount.uuid, userId: minecraftAccount.userId })
@@ -183,9 +182,9 @@ async function progress(input: unknown) {
   if (!rows.size) return;
   await db
     .insert(questProgress)
-    .values([...rows.values()].map((row) => ({ ...row, seasonId: season.id })))
+    .values([...rows.values()])
     .onConflictDoUpdate({
-      target: [questProgress.seasonId, questProgress.questId, questProgress.userId],
+      target: [questProgress.questId, questProgress.userId],
       set: { value: sql`greatest(${questProgress.value}, excluded.value)`, updatedAt: new Date() },
     });
 }
@@ -231,17 +230,12 @@ async function complete(input: QuestCompletionBody): Promise<QuestCompletionResu
   try {
     return await db.transaction(async (tx) => {
       const who = await player(tx, body.player);
-      const season = await currentSeason(tx);
-      await lockKey(tx, `quest:${String(season.id)}:${body.quest}:${who.userId}`);
+      await lockKey(tx, `quest:${body.quest}:${who.userId}`);
       const done = await tx
         .select({ tier: questCompletion.tier })
         .from(questCompletion)
         .where(
-          and(
-            eq(questCompletion.seasonId, season.id),
-            eq(questCompletion.questId, body.quest),
-            eq(questCompletion.userId, who.userId),
-          ),
+          and(eq(questCompletion.questId, body.quest), eq(questCompletion.userId, who.userId)),
         );
       const tiers = new Set(done.map((row) => row.tier));
       if (tiers.has(body.tier)) refuse(409, 'alreadyCompleted');
@@ -257,7 +251,6 @@ async function complete(input: QuestCompletionBody): Promise<QuestCompletionResu
       const [row] = await tx
         .insert(questCompletion)
         .values({
-          seasonId: season.id,
           questId: body.quest,
           family: 'individual',
           tier: body.tier,
@@ -361,16 +354,15 @@ async function claimFromServer(completionId: string, input: unknown) {
   });
 }
 
-/** What the in-game screen shows for a player this season. */
+/** What the in-game screen shows for a player. */
 async function playerView(uuid: string): Promise<QuestServerPlayerResult> {
   const userId = await ownerOf(db, uuid);
-  const season = await currentSeason();
   const settings = await getSettings();
   const [completions, today, personal] = await Promise.all([
     db
       .select()
       .from(questCompletion)
-      .where(and(eq(questCompletion.seasonId, season.id), eq(questCompletion.userId, userId)))
+      .where(eq(questCompletion.userId, userId))
       .orderBy(asc(questCompletion.completedAt)),
     todayIndex(db, settings),
     db.transaction((tx) => player(tx, uuid)).catch(() => null),
@@ -386,7 +378,6 @@ async function playerView(uuid: string): Promise<QuestServerPlayerResult> {
     .from(questCompletion)
     .where(
       and(
-        eq(questCompletion.seasonId, season.id),
         eq(questCompletion.family, 'server'),
         isNotNull(questCompletion.rank),
         sql`${questCompletion.rank} <= 3`,
@@ -427,7 +418,7 @@ async function playerView(uuid: string): Promise<QuestServerPlayerResult> {
   };
 }
 
-async function podiumOf(dbx: Db, seasonId: number, questId: string) {
+async function podiumOf(dbx: Db, questId: string) {
   const rows = await dbx
     .select({
       rank: questCompletion.rank,
@@ -435,18 +426,12 @@ async function podiumOf(dbx: Db, seasonId: number, questId: string) {
       amount: questCompletion.amount,
     })
     .from(questCompletion)
-    .where(
-      and(
-        eq(questCompletion.seasonId, seasonId),
-        eq(questCompletion.questId, questId),
-        sql`${questCompletion.rank} <= 3`,
-      ),
-    )
+    .where(and(eq(questCompletion.questId, questId), sql`${questCompletion.rank} <= 3`))
     .orderBy(asc(questCompletion.rank));
   return rows.map((row) => ({ rank: row.rank!, username: row.username, amount: row.amount }));
 }
 
-/** A server quest's advancement granted: the next rank of the season, paid at once. */
+/** A server quest's advancement granted: the next rank, paid at once. */
 async function advancement(input: QuestAdvancementBody): Promise<QuestAdvancementResult> {
   const body = validate(questAdvancementBody, input);
   const print = hashRequest({ kind: 'advancement', player: body.player, quest: body.quest });
@@ -462,7 +447,7 @@ async function advancement(input: QuestAdvancementBody): Promise<QuestAdvancemen
     transactionId: row.transactionId,
     to: paid?.to ?? null,
     mailboxItems: paid?.mailboxItems ?? 0,
-    podium: await podiumOf(db, row.seasonId, row.questId),
+    podium: await podiumOf(db, row.questId),
   });
   const previous = await previousCompletion(db, body.idempotencyKey, print);
   if (previous) return answer(previous, true);
@@ -474,14 +459,11 @@ async function advancement(input: QuestAdvancementBody): Promise<QuestAdvancemen
   try {
     const { row, paid } = await db.transaction(async (tx) => {
       const who = await player(tx, body.player);
-      const season = await currentSeason(tx);
-      await lockKey(tx, `quest:${String(season.id)}:${body.quest}`);
+      await lockKey(tx, `quest:${body.quest}`);
       const ranked = await tx
         .select({ userId: questCompletion.userId })
         .from(questCompletion)
-        .where(
-          and(eq(questCompletion.seasonId, season.id), eq(questCompletion.questId, body.quest)),
-        );
+        .where(eq(questCompletion.questId, body.quest));
       if (ranked.some((entry) => entry.userId === who.userId)) refuse(409, 'alreadyRanked');
       const rank = ranked.length + 1;
       const share = definition.ranks[rank - 1] ?? definition.restShare;
@@ -507,7 +489,6 @@ async function advancement(input: QuestAdvancementBody): Promise<QuestAdvancemen
       const [row] = await tx
         .insert(questCompletion)
         .values({
-          seasonId: season.id,
           questId: body.quest,
           family: 'server',
           tier: 1,
@@ -567,9 +548,7 @@ async function flash(input: QuestFlashBody): Promise<QuestFlashResult> {
 
   const definition = await loadQuest(db, body.quest);
   if (!definition || definition.family !== 'flash') refuse(404, 'unknownQuest');
-  const season = await currentSeason();
   const base = {
-    seasonId: season.id,
     questId: body.quest,
     quantity: body.quantity,
     startedAt: new Date(body.startedAt),

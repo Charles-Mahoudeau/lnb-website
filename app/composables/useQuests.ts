@@ -1,5 +1,5 @@
 import type { QuestClaimResult, QuestProblem } from '#shared/schemas/quests';
-import { QUEST_PROBLEMS } from '#shared/schemas/quests';
+import { QUEST_PROBLEMS, QUEST_RESET_CONFIRM } from '#shared/schemas/quests';
 
 // The quests page (/minecraft/quests) and the Quests admin (/admin/economy/quests). Writes throw
 // a QuestError with the API's problem. See docs/quests.md.
@@ -27,12 +27,9 @@ async function call<T>(request: () => Promise<T>): Promise<T> {
   }
 }
 
-/** The public page, for one season (the current one without it). */
-export function useQuests(season: Ref<number | undefined>) {
-  return useFetch('/api/quests', {
-    key: computed(() => `quests-${String(season.value ?? 'current')}`),
-    query: computed(() => (season.value ? { season: season.value } : {})),
-  });
+/** The public page. */
+export function useQuests() {
+  return useFetch('/api/quests', { key: 'quests' });
 }
 
 export type QuestOverview = NonNullable<Awaited<ReturnType<typeof useQuests>>['data']['value']>;
@@ -125,9 +122,6 @@ export function useQuestsAdminCommunity() {
 export function useQuestsAdminCategories() {
   return useFetch('/api/quests/admin/categories', { key: 'quests-admin-categories' });
 }
-export function useQuestsAdminSeasons() {
-  return useFetch('/api/quests/admin/seasons', { key: 'quests-admin-seasons' });
-}
 
 export const questAdminActions = {
   create: (definition: unknown) =>
@@ -161,8 +155,11 @@ export const questAdminActions = {
   contributors: (id: string) => call(() => $fetch(`/api/quests/admin/community/${id}`)),
   saveTemplate: (body: { id?: string; definition: unknown; enabled?: boolean }) =>
     call(() => $fetch('/api/quests/admin/community/templates', { method: 'POST', body })),
-  newSeason: () =>
+  reset: () =>
     call(() =>
-      $fetch('/api/quests/admin/seasons', { method: 'POST', body: { confirmation: 'new season' } }),
+      $fetch('/api/quests/admin/reset', {
+        method: 'POST',
+        body: { confirmation: QUEST_RESET_CONFIRM },
+      }),
     ),
 };

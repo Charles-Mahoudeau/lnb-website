@@ -10,34 +10,29 @@ import {
   questFlashRun,
   questIndexDay,
   questProgress,
-  questSeason,
 } from '~~/server/db/schema';
 
 import { questCategoryService } from './categories';
 import { communityService } from './community';
 import { questDailyService } from './daily';
 import { kPlayer, reward } from './formula';
-import { currentSeason, getSettings, loadCatalog, todayIndex } from './shared';
+import { getSettings, loadCatalog, todayIndex } from './shared';
 
 import type { QuestDefinition, QuestItemReward } from '#shared/schemas/quests';
 
 // The public quests page: the catalogue with today's amounts, podiums, the community quest, the
 // flash history and the leaderboard, plus the signed-in player's own progress. See docs/quests.md.
 
-async function overview(input: { seasonNumber?: number; userId?: string }) {
+async function overview(input: { userId?: string }) {
   const settings = await getSettings();
-  const current = await currentSeason();
-  const seasons = await db.select().from(questSeason).orderBy(desc(questSeason.number));
-  const season = seasons.find((row) => row.number === input.seasonNumber) ?? current;
-  const isCurrent = season.id === current.id;
   const [catalog, today, indexDays, categories] = await Promise.all([
     loadCatalog(db, true),
     todayIndex(db, settings),
     db.select().from(questIndexDay).orderBy(desc(questIndexDay.day)).limit(30),
     questCategoryService.list(),
   ]);
-  const daily = isCurrent ? await questDailyService.today() : null;
-  const dailyCounts = daily ? await questDailyService.countsFor(daily.day) : {};
+  const daily = await questDailyService.today();
+  const dailyCounts = await questDailyService.countsFor(daily.day);
 
   const completions = await db
     .select({
@@ -54,7 +49,6 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
       id: questCompletion.id,
     })
     .from(questCompletion)
-    .where(eq(questCompletion.seasonId, season.id))
     .orderBy(asc(questCompletion.rank), asc(questCompletion.completedAt));
 
   const podiums: Record<
@@ -77,7 +71,6 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
   const flash = await db
     .select()
     .from(questFlashRun)
-    .where(eq(questFlashRun.seasonId, season.id))
     .orderBy(desc(questFlashRun.endedAt))
     .limit(50);
 
@@ -90,32 +83,27 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
   }>(sql`
     with earned as (
       select user_id, minecraft_uuid as uuid, username, amount from quest_completion
-        where season_id = ${season.id} and user_id is not null
+        where user_id is not null
       union all
       select winner_user_id, winner_minecraft_uuid, winner_username, amount from quest_flash_run
-        where season_id = ${season.id} and winner_user_id is not null
+        where winner_user_id is not null
       union all
       select user_id, minecraft_uuid, username, amount from quest_daily_completion
-        where season_id = ${season.id} and user_id is not null
+        where user_id is not null
       union all
       select c.user_id, null, c.username, coalesce(c.payout, 0) from quest_community_contribution c
         join quest_community q on q.id = c.community_id
-        where q.season_id = ${season.id} and c.payout > 0
+        where c.payout > 0
     )
     select max(username) as username, max(uuid::text) as uuid, count(*)::int as quests, sum(amount)::bigint as lnbits
       from earned group by user_id order by lnbits desc limit 50
   `);
 
-  const community = isCurrent ? await communityService.running() : null;
+  const community = await communityService.running();
   const pastCommunity = await db
     .select({ id: questCommunity.id })
     .from(questCommunity)
-    .where(
-      and(
-        eq(questCommunity.seasonId, season.id),
-        sql`${questCommunity.status} in ('paid', 'cancelled')`,
-      ),
-    )
+    .where(sql`${questCommunity.status} in ('paid', 'cancelled')`)
     .limit(1);
 
   let me = null;
@@ -134,7 +122,7 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
       const progress = await db
         .select({ questId: questProgress.questId, value: questProgress.value })
         .from(questProgress)
-        .where(and(eq(questProgress.seasonId, season.id), eq(questProgress.userId, userId)));
+        .where(eq(questProgress.userId, userId));
       const mine = completions.filter((row) => row.userId === userId);
       const [dailyEarned] = await db
         .select({
@@ -142,12 +130,7 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
           total: sql<string>`coalesce(sum(${questDailyCompletion.amount}), 0)::bigint`,
         })
         .from(questDailyCompletion)
-        .where(
-          and(
-            eq(questDailyCompletion.seasonId, season.id),
-            eq(questDailyCompletion.userId, userId),
-          ),
-        );
+        .where(eq(questDailyCompletion.userId, userId));
       me = {
         username: linked.username,
         uuid: linked.uuid,
@@ -166,8 +149,8 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
         ranks: Object.fromEntries(
           mine.filter((row) => row.rank !== null).map((row) => [row.questId, row.rank]),
         ),
-        community: isCurrent ? await communityService.contributionOf(userId) : null,
-        daily: daily ? await questDailyService.doneBy(userId, daily.day) : [],
+        community: await communityService.contributionOf(userId),
+        daily: await questDailyService.doneBy(userId, daily.day),
         earned:
           mine.reduce((total, row) => total + row.amount, 0) + Number(dailyEarned?.total ?? 0),
         done: mine.length + (dailyEarned?.n ?? 0),
@@ -176,24 +159,12 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
   }
 
   return {
-    season: {
-      number: season.number,
-      current: isCurrent,
-      startedAt: season.startedAt.toISOString(),
-    },
-    seasons: seasons.map((row) => ({
-      number: row.number,
-      startedAt: row.startedAt.toISOString(),
-      endedAt: row.endedAt?.toISOString() ?? null,
-    })),
     index: { ...today, baseline: settings.formula.baselineIndex },
     categories,
-    daily: daily
-      ? {
-          ...daily,
-          quests: daily.quests.map((entry) => ({ ...entry, done: dailyCounts[entry.quest] ?? 0 })),
-        }
-      : null,
+    daily: {
+      ...daily,
+      quests: daily.quests.map((entry) => ({ ...entry, done: dailyCounts[entry.quest] ?? 0 })),
+    },
     indexDays: indexDays
       .reverse()
       .map((row) => ({ day: row.day, index: row.index, kGlobal: row.kGlobal })),
@@ -210,7 +181,7 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
               ? [
                   reward(
                     quest.rewardPerUnit *
-                      (daily?.quests.find((entry) => entry.quest === quest.id)?.quantity ?? 1),
+                      (daily.quests.find((entry) => entry.quest === quest.id)?.quantity ?? 1),
                     today.kGlobal,
                     1,
                   ),

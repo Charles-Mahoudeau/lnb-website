@@ -983,7 +983,7 @@
         "quests_update": "{actor} changed the quest {name}.",
         "quests_delete": "{actor} deleted the quest {name}.",
         "quests_import": "{actor} imported quests.",
-        "quests_season": "{actor} started a new quest season.",
+        "quests_reset": "{actor} reset the quests.",
         "quests_communityCreate": "{actor} planned the community quest {name}.",
         "quests_communityUpdate": "{actor} changed the community quest {name}.",
         "quests_communityCancel": "{actor} cancelled the community quest {name}.",
@@ -3245,7 +3245,7 @@
         "family": "Family",
         "objective": "Objective",
         "base": "Base (LNBits)",
-        "completions": "Done this season",
+        "completions": "Done",
         "enabled": "On",
         "toggle": "Turn {id} on or off",
         "broken": "This quest no longer matches the format: fix it in the JSON.",
@@ -3404,12 +3404,14 @@
         "dailyCount": "Daily quests per day",
         "dailyCountHelp": "Drawn at midnight (Paris). 0 turns them off."
       },
-      "season": {
-        "title": "Seasons",
-        "body": "Season {n} is running. A new season starts every quest over: progress, tiers and ranks, and the advancements of server quests are taken back from every player. LNBits already paid stay.",
-        "confirm": "Type “new season” to confirm",
-        "start": "Start a new season",
-        "started": "New season started"
+      "reset": {
+        "heading": "Reset the quests",
+        "lede": "Deletes what players did: tiers, ranks, progress, flash races, daily quests and community quests. The catalogue, categories and settings stay, and so do the LNBits already paid, so players can earn them again. The Minecraft server starts everyone over when it next reads the config. Use it after testing.",
+        "open": "Reset the quests",
+        "title": "Reset the quests?",
+        "warning": "Every player’s tiers, ranks and progress, and every past and planned community quest, are deleted. This cannot be undone.",
+        "confirm": "Reset the quests",
+        "done": "Quests reset"
       },
       "index": {
         "index": "Index",
@@ -5060,13 +5062,8 @@
       "leaderboard": "Leaderboard",
       "daily": "Daily"
     },
-    "season": {
-      "label": "Season",
-      "current": "Season {n}, in progress",
-      "past": "Season {n}"
-    },
     "me": {
-      "label": "Your season",
+      "label": "Your quests",
       "done": "Quests done",
       "earned": "LNBits earned",
       "bonus": "Catch-up bonus",
@@ -5162,7 +5159,7 @@
     "flash": {
       "how": "A flash quest starts at random when enough players are online. The first to reach the goal wins, and it ends after a few minutes without a winner.",
       "empty": {
-        "title": "No flash quest yet this season",
+        "title": "No flash quest yet",
         "body": "Play on the server: the next one could start any moment."
       },
       "goal": "{name}: {n}",
@@ -5176,7 +5173,7 @@
         "lnbits": "LNBits earned",
         "quests": "Quests done"
       },
-      "empty": "Nobody finished a quest yet this season.",
+      "empty": "Nobody finished a quest yet.",
       "questsCount": "1 quest | {n} quests"
     },
     "how": {

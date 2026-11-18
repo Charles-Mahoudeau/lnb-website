@@ -17,7 +17,6 @@ import {
   questDailyCompletion,
   questFlashRun,
   questIndexDay,
-  questSeason,
   questSettingsRow,
 } from '~~/server/db/schema';
 import { economyLedger } from '~~/server/services/economy/ledger';
@@ -43,17 +42,16 @@ export function hashRequest(canonical: unknown): string {
   return createHash('sha256').update(JSON.stringify(canonical)).digest('hex');
 }
 
-/** The current season, opened if there is none (the migration opens season 1). */
-export async function currentSeason(dbx: Db = db): Promise<typeof questSeason.$inferSelect> {
-  const [season] = await dbx.select().from(questSeason).where(isNull(questSeason.endedAt));
-  if (season) return season;
-  const [last] = await dbx.select().from(questSeason).orderBy(desc(questSeason.number)).limit(1);
-  const [opened] = await dbx
-    .insert(questSeason)
-    .values({ number: (last?.number ?? 0) + 1 })
-    .onConflictDoNothing()
-    .returning();
-  return opened ?? currentSeason(dbx);
+/**
+ * When an admin last reset the quests, or null. The Minecraft server keeps the last one it handled:
+ * a different value means it starts every player over (docs/plans/quests-mod.md).
+ */
+export async function questResetAt(dbx: Db = db): Promise<Date | null> {
+  const [row] = await dbx
+    .select({ resetAt: questSettingsRow.resetAt })
+    .from(questSettingsRow)
+    .where(eq(questSettingsRow.id, 1));
+  return row?.resetAt ?? null;
 }
 
 /** The settings, with their defaults filled in. */

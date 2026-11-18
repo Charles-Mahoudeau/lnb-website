@@ -14,7 +14,6 @@ import { minecraftEventService } from '~~/server/services/minecraft-events';
 import { applyCap, familyBudget, kPlayer, reward } from './formula';
 import {
   circulation,
-  currentSeason,
   getSettings,
   lockKey,
   payReward,
@@ -249,9 +248,7 @@ async function tick(now = new Date()) {
   const { goal, days, ...rest } = parsed.data;
   const step = goal.max > goal.min ? Math.round(Math.random() * (goal.max - goal.min)) : 0;
   const startsAt = nextMonday(now);
-  const season = await currentSeason();
   await db.insert(questCommunity).values({
-    seasonId: season.id,
     definition: { ...rest, goal: goal.min + step },
     startsAt,
     endsAt: new Date(startsAt.getTime() + days * 24 * 3600 * 1000 - 60_000),
@@ -286,12 +283,10 @@ async function topContributors(id: string) {
 async function create(actorId: string, input: unknown) {
   const body = validate(questCommunityCreateBody, input);
   if (new Date(body.endsAt) <= new Date(body.startsAt)) refuse(400, 'notFound');
-  const season = await currentSeason();
   const [row] = await db.transaction(async (tx) => {
     const inserted = await tx
       .insert(questCommunity)
       .values({
-        seasonId: season.id,
         definition: body.definition,
         startsAt: new Date(body.startsAt),
         endsAt: new Date(body.endsAt),

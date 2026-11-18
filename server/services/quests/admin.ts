@@ -11,7 +11,8 @@ import {
   questDailyDraw,
   questFlashRun,
   questIndexDay,
-  questSeason,
+  questProgress,
+  questCommunity,
   questSettingsRow,
   user,
 } from '~~/server/db/schema';
@@ -22,7 +23,6 @@ import { questCategoryService } from './categories';
 import { computeIndex, familyBudget, parisDay } from './formula';
 import {
   circulation,
-  currentSeason,
   getSettings,
   loadCatalog,
   parseQuest,
@@ -38,13 +38,13 @@ import {
   questAdminPatchBody,
   questDefinition,
   questImportBody,
-  questSeasonBody,
+  questResetBody,
   questSettings,
   questSettingsPatch,
 } from '#shared/schemas/quests';
 import { hasRole } from '#shared/utils/roles';
 
-// The quests admin: the catalogue, settings, the daily index and seasons. See docs/quests.md.
+// The quests admin: the catalogue, settings, the daily index and the reset. See docs/quests.md.
 
 export { parisDay };
 
@@ -147,19 +147,16 @@ async function updateSettings(actorId: string, input: unknown) {
   return settingsView();
 }
 
-/** The catalogue with every quest's completions this season, for the admin table. */
+/** The catalogue with every quest's completions, for the admin table. */
 async function catalog() {
-  const season = await currentSeason();
   const rows = await db.select().from(quest).orderBy(quest.sortOrder, quest.id);
   const counts = await db
     .select({ questId: questCompletion.questId, n: sql<number>`count(*)::int` })
     .from(questCompletion)
-    .where(eq(questCompletion.seasonId, season.id))
     .groupBy(questCompletion.questId);
   const daily = await db
     .select({ questId: questDailyCompletion.questId, n: sql<number>`count(*)::int` })
     .from(questDailyCompletion)
-    .where(eq(questDailyCompletion.seasonId, season.id))
     .groupBy(questDailyCompletion.questId);
   const countOf = new Map([...counts, ...daily].map((row) => [row.questId, row.n]));
   return rows.map((row) => ({
@@ -334,32 +331,36 @@ async function importCatalog(actorId: string, input: unknown) {
   };
 }
 
-async function seasons() {
-  const rows = await db.select().from(questSeason).orderBy(desc(questSeason.number));
-  return rows.map((row) => ({
-    id: row.id,
-    number: row.number,
-    startedAt: row.startedAt.toISOString(),
-    endedAt: row.endedAt?.toISOString() ?? null,
-  }));
-}
-
-/** Closes the current season and opens the next. The server starts every player over. */
-async function newSeason(actorId: string, input: unknown) {
-  const parsed = questSeasonBody.safeParse(input);
-  if (!parsed.success) refuse(400, 'confirmationMismatch');
+/**
+ * Wipes what players did: tiers and ranks, progress, flash runs, daily completions and community
+ * quests. The catalogue, categories, settings, daily draws, community templates and the index
+ * stay, and so do LNBits already paid. The reset date goes up, and the server starts every player
+ * over when it sees it change in `GET /config`. Site admins and the economy admin, after typing
+ * the confirmation.
+ */
+async function reset(actorId: string, input: unknown) {
+  if (!questResetBody.safeParse(input).success) refuse(400, 'confirmationMismatch');
   await db.transaction(async (tx) => {
-    const current = await currentSeason(tx);
-    await tx.update(questSeason).set({ endedAt: new Date() }).where(eq(questSeason.id, current.id));
-    await tx.insert(questSeason).values({ number: current.number + 1 });
+    // Payouts point at transactions, not the other way round: nothing else needs clearing first.
+    const deleted = {
+      completions: (await tx.delete(questCompletion).returning({ id: sql`1` })).length,
+      progress: (await tx.delete(questProgress).returning({ id: sql`1` })).length,
+      flashRuns: (await tx.delete(questFlashRun).returning({ id: sql`1` })).length,
+      dailyCompletions: (await tx.delete(questDailyCompletion).returning({ id: sql`1` })).length,
+      communityQuests: (await tx.delete(questCommunity).returning({ id: sql`1` })).length,
+    };
+    const resetAt = new Date();
+    await tx
+      .insert(questSettingsRow)
+      .values({ id: 1, values: {}, resetAt })
+      .onConflictDoUpdate({ target: questSettingsRow.id, set: { resetAt } });
     await adminAuditService.record(tx, {
-      action: 'quests.season',
+      action: 'quests.reset',
       actorUserId: actorId,
       targetUserId: null,
-      data: { closed: current.number, opened: current.number + 1 },
+      data: deleted,
     });
   });
-  return seasons();
 }
 
 // Every change to what the game shows reaches lnb-quests at once: it reads its config again.
@@ -386,6 +387,5 @@ export const questAdminService = {
   deleteQuest: tellingServer(deleteQuest),
   exportCatalog,
   importCatalog: tellingServer(importCatalog),
-  seasons,
-  newSeason: tellingServer(newSeason),
+  reset: tellingServer(reset),
 };

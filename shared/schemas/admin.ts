@@ -281,7 +281,7 @@ export const adminAuditView = z.object({
     'quests.update',
     'quests.delete',
     'quests.import',
-    'quests.season',
+    'quests.reset',
     'quests.communityCreate',
     'quests.communityUpdate',
     'quests.communityCancel',

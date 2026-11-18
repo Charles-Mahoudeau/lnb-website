@@ -468,7 +468,11 @@ export const questCommunityView = z.object({
 export type QuestCommunityView = z.infer<typeof questCommunityView>;
 
 export const questConfigResult = z.object({
-  season: z.object({ id: z.int(), number: z.int(), startedAt: isoDate }),
+  resetAt: isoDate
+    .nullable()
+    .describe(
+      'When an admin last reset the quests, or null. A value the server has not handled yet means: start every player over.',
+    ),
   quests: z
     .array(z.unknown())
     .describe('Every enabled quest of the catalogue, as `questDefinition`.'),
@@ -524,7 +528,9 @@ export const questCategoryParams = z.object({
   family: z.enum(QUEST_CATEGORY_FAMILIES),
   id: questCategoryId,
 });
-export const questSeasonBody = z.object({ confirmation: z.literal('new season') });
+/** What an admin types to wipe what players did. */
+export const QUEST_RESET_CONFIRM = 'reset the quests';
+export const questResetBody = z.object({ confirmation: z.literal(QUEST_RESET_CONFIRM) });
 export const questAdminPatchBody = z.object({
   definition: z.unknown().optional(),
   enabled: z.boolean().optional(),
@@ -536,7 +542,6 @@ export const questAdminPatchBody = z.object({
 export const questIdParams = z.object({ id: questId });
 export const questUuidParams = z.object({ id: z.uuid() });
 export const questPlayerParams = z.object({ uuid: minecraftUuid });
-export const questOverviewQuery = z.object({ season: z.coerce.number().int().min(1).optional() });
 export const questIndexQuery = z.object({
   days: z.coerce.number().int().min(1).max(365).default(60),
 });
@@ -553,7 +558,7 @@ export const questServerEvent = z.discriminatedUnion('type', [
     data: z
       .object({})
       .describe(
-        'A quest, the settings, the season or the community quest changed: read the config.',
+        'A quest, the settings, the reset date or the community quest changed: read the config.',
       ),
   }),
   z.object({

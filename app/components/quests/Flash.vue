@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// The Flash tab (docs/quests.md): the history of the season's races, won or expired.
+// The Flash tab (docs/quests.md): the history of the races, won or expired.
 import type { QuestOverview } from '~/composables/useQuests';
 
 const props = defineProps<{ data: QuestOverview }>();
