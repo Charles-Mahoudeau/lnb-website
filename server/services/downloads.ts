@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
-import { downloadFile, storedFile } from '~~/server/db/schema';
+import { downloadFile, downloadSetting, storedFile } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 import { fileDownloadUrl } from '~~/server/services/files';
 
@@ -11,6 +11,7 @@ import type {
   DownloadFileView,
   DownloadProblem,
   DownloadSlot,
+  DownloadSettingsBody,
   DownloadSlotBody,
   DownloadsAdminView,
   DownloadsPublicView,
@@ -55,9 +56,15 @@ function view(row: Joined | undefined): DownloadFileView | null {
   };
 }
 
+async function releaseUrl(): Promise<string | null> {
+  const [setting] = await db.select().from(downloadSetting);
+  return setting?.crackedReleaseUrl ?? null;
+}
+
 async function getPublic(): Promise<DownloadsPublicView> {
   const found = await rows();
   return {
+    crackedReleaseUrl: await releaseUrl(),
     instance: view(found.get('instance')),
     cracked: {
       windows: view(found.get('cracked-windows')),
@@ -70,6 +77,7 @@ async function getPublic(): Promise<DownloadsPublicView> {
 async function getAdmin(): Promise<DownloadsAdminView> {
   const found = await rows();
   return {
+    crackedReleaseUrl: await releaseUrl(),
     slots: DOWNLOAD_SLOTS.map((slot) => {
       const row = found.get(slot);
       const base = view(row);
@@ -131,4 +139,26 @@ async function clear(input: { slot: DownloadSlot; actorId: string }): Promise<Do
   return getAdmin();
 }
 
-export const downloadService = { getPublic, getAdmin, set, clear };
+/** Saves the settings of the page: the link to PrismCracked's releases. */
+async function updateSettings(input: {
+  body: DownloadSettingsBody;
+  actorId: string;
+}): Promise<DownloadsAdminView> {
+  const url = input.body.crackedReleaseUrl?.trim() || null;
+  await db.transaction(async (tx) => {
+    const values = { id: 1, crackedReleaseUrl: url };
+    await tx
+      .insert(downloadSetting)
+      .values(values)
+      .onConflictDoUpdate({ target: downloadSetting.id, set: values });
+    await adminAuditService.record(tx, {
+      action: 'downloads.update',
+      actorUserId: input.actorId,
+      targetUserId: null,
+      data: { setting: 'crackedReleaseUrl', url },
+    });
+  });
+  return getAdmin();
+}
+
+export const downloadService = { getPublic, getAdmin, set, clear, updateSettings };

@@ -85,6 +85,18 @@ export const PACKAGE_COMMANDS = {
   },
 } as const satisfies Record<string, { macos: string; linux: Record<PackageDistro, PackageEntry> }>;
 
+/** PATCH /api/admin/downloads. An empty value or null removes the link. */
+export const downloadSettingsBody = z.object({
+  crackedReleaseUrl: z
+    .string()
+    .trim()
+    .max(500)
+    .refine((value) => value === '' || /^https:\/\/[^\s/]+\.[^\s/]+\S*$/.test(value))
+    .nullable()
+    .transform((value) => value || null),
+});
+export type DownloadSettingsBody = z.input<typeof downloadSettingsBody>;
+
 /** PUT /api/admin/downloads/{slot} */
 export const downloadSlotParams = z.object({ slot: downloadSlot });
 export const downloadSlotBody = z.object({
@@ -118,11 +130,13 @@ export const downloadsPublicView = z.object({
     macos: downloadFileView.nullable(),
     linux: downloadFileView.nullable(),
   }),
+  crackedReleaseUrl: z.string().nullable().describe('The releases page shown beside PrismCracked.'),
 });
 export type DownloadsPublicView = z.infer<typeof downloadsPublicView>;
 
 /** GET /api/admin/downloads: every slot, with its file when there is one. */
 export const downloadsAdminView = z.object({
+  crackedReleaseUrl: z.string().nullable(),
   slots: z.array(
     z.object({
       slot: downloadSlot,

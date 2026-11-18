@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { downloadSettingsBody } from '#shared/schemas/downloads';
 import type { DownloadSlot } from '#shared/schemas/downloads';
 
 // The files the Minecraft download page offers, picked from the Files library: the LNB instance zip
@@ -32,6 +33,37 @@ function syncForm() {
   }
 }
 syncForm();
+
+// The link to PrismCracked's releases, saved apart from the files.
+const releaseUrl = ref(data.value?.crackedReleaseUrl ?? '');
+const releaseValid = computed(
+  () => downloadSettingsBody.safeParse({ crackedReleaseUrl: releaseUrl.value }).success,
+);
+const releaseUnchanged = computed(
+  () => releaseUrl.value.trim() === (data.value?.crackedReleaseUrl ?? ''),
+);
+const savingRelease = ref(false);
+
+async function saveRelease() {
+  savingRelease.value = true;
+  try {
+    await downloadActions.setSettings({ crackedReleaseUrl: releaseUrl.value });
+    toast.add({
+      title: t('admin.downloads.saved'),
+      color: 'success',
+      icon: 'i-lucide-circle-check',
+    });
+  } catch (failure) {
+    toast.add({
+      title: t(`admin.downloads.errors.${downloadProblem(failure)}`),
+      color: 'error',
+      icon: 'i-lucide-circle-alert',
+    });
+  }
+  await refresh();
+  releaseUrl.value = data.value?.crackedReleaseUrl ?? '';
+  savingRelease.value = false;
+}
 
 const slots = computed(() => data.value?.slots ?? []);
 
@@ -144,6 +176,32 @@ const empty = (slot: DownloadSlot) =>
             @click="empty(row.slot)"
           />
         </div>
+      </form>
+    </section>
+
+    <section class="flex flex-col gap-3 rounded-lg bg-elevated p-5">
+      <h2 class="text-base font-semibold text-highlighted">
+        {{ t('admin.downloads.release.title') }}
+      </h2>
+      <p class="text-sm text-muted">{{ t('admin.downloads.release.help') }}</p>
+      <form class="flex flex-wrap items-start gap-3" @submit.prevent="saveRelease">
+        <UFormField
+          :label="t('admin.downloads.release.label')"
+          name="crackedReleaseUrl"
+          class="min-w-64 flex-1"
+          :error="releaseValid ? undefined : t('admin.downloads.release.invalid')"
+        >
+          <UInput v-model="releaseUrl" type="url" class="w-full" />
+        </UFormField>
+        <UButton
+          type="submit"
+          color="neutral"
+          variant="soft"
+          class="mt-6"
+          :label="t('admin.downloads.save')"
+          :disabled="releaseUnchanged || !releaseValid"
+          :loading="savingRelease"
+        />
       </form>
     </section>
   </div>

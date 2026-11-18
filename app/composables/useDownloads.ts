@@ -1,6 +1,7 @@
 import { DOWNLOAD_PROBLEMS } from '#shared/schemas/downloads';
 import type {
   DownloadProblem,
+  DownloadSettingsBody,
   DownloadSlot,
   DownloadSlotBody,
   DownloadsAdminView,
@@ -28,6 +29,8 @@ export function downloadProblem(error: unknown): DownloadProblem | 'failed' {
 }
 
 export const downloadActions = {
+  setSettings: (body: DownloadSettingsBody) =>
+    $fetch<DownloadsAdminView>('/api/admin/downloads', { method: 'PATCH', body }),
   set: (slot: DownloadSlot, body: DownloadSlotBody) =>
     $fetch<DownloadsAdminView>(`/api/admin/downloads/${slot}`, { method: 'PUT', body }),
   clear: (slot: DownloadSlot) =>

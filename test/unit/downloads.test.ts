@@ -5,6 +5,7 @@ import {
   PACKAGE_COMMANDS,
   PACKAGE_DISTROS,
   VENDOR_LINKS,
+  downloadSettingsBody,
   downloadSlotBody,
 } from '../../shared/schemas/downloads.ts';
 import { detectOs } from '../../shared/utils/os.ts';
@@ -58,5 +59,28 @@ describe('a download slot body', () => {
 
   it('needs a file id', () => {
     expect(downloadSlotBody.safeParse({ fileId: 'nope' }).success).toBe(false);
+  });
+});
+
+describe('the download settings body', () => {
+  it('trims an https address and turns an empty value into null', () => {
+    expect(downloadSettingsBody.parse({ crackedReleaseUrl: ' https://github.com/a/b ' })).toEqual({
+      crackedReleaseUrl: 'https://github.com/a/b',
+    });
+    expect(downloadSettingsBody.parse({ crackedReleaseUrl: '' }).crackedReleaseUrl).toBeNull();
+    expect(downloadSettingsBody.parse({ crackedReleaseUrl: null }).crackedReleaseUrl).toBeNull();
+  });
+
+  it('refuses anything that is not an https address', () => {
+    for (const value of [
+      'http://github.com/a',
+      'javascript:alert(1)',
+      'github.com/a',
+      'https://',
+    ]) {
+      expect(downloadSettingsBody.safeParse({ crackedReleaseUrl: value }).success, value).toBe(
+        false,
+      );
+    }
   });
 });

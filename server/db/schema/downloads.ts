@@ -1,4 +1,5 @@
-import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import { check, pgTable, smallint, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 import { user } from './auth';
 import { storedFile } from './files';
@@ -20,3 +21,14 @@ export const downloadFile = pgTable('download_file', {
   updatedByUserId: text('updated_by_user_id').references(() => user.id, { onDelete: 'set null' }),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+/** Settings of the download page, in a single row (id 1). No row means no release link. */
+export const downloadSetting = pgTable(
+  'download_setting',
+  {
+    id: smallint('id').primaryKey().default(1),
+    // The https page of PrismCracked's releases, shown beside its downloads. Null: no link.
+    crackedReleaseUrl: text('cracked_release_url'),
+  },
+  (table) => [check('download_setting_single_row', sql`${table.id} = 1`)],
+);
