@@ -178,13 +178,11 @@ async function overview(input: { seasonNumber?: number; userId?: string }) {
   return {
     season: {
       number: season.number,
-      name: season.name,
       current: isCurrent,
       startedAt: season.startedAt.toISOString(),
     },
     seasons: seasons.map((row) => ({
       number: row.number,
-      name: row.name,
       startedAt: row.startedAt.toISOString(),
       endedAt: row.endedAt?.toISOString() ?? null,
     })),

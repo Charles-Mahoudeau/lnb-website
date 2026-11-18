@@ -988,8 +988,6 @@
         "quests_delete": "{actor} a supprimé la quête {name}.",
         "quests_import": "{actor} a importé des quêtes.",
         "quests_season": "{actor} a lancé une nouvelle saison de quêtes.",
-        "quests_seasonRename": "{actor} a renommé la saison de quêtes {name}.",
-        "quests_seasonReset": "{actor} a remis à zéro la saison de quêtes en cours.",
         "quests_communityCreate": "{actor} a programmé la quête communautaire {name}.",
         "quests_communityUpdate": "{actor} a modifié la quête communautaire {name}.",
         "quests_communityCancel": "{actor} a annulé la quête communautaire {name}.",
@@ -3412,21 +3410,10 @@
       },
       "season": {
         "title": "Saisons",
-        "body": "La saison {n}{name} est en cours. Une nouvelle saison remet toutes les quêtes à zéro : progression, paliers et rangs, et les achievements des quêtes serveur sont retirés à tous les joueurs. Les LNBits déjà versés restent.",
-        "name": "Nom (affiché sur le site uniquement)",
-        "rename": "Renommer",
-        "renamed": "Saison renommée",
-        "newTitle": "Lancer une nouvelle saison",
-        "newBody": "Choisissez son numéro, supérieur à {n}. Le serveur Minecraft distingue les saisons par leur numéro.",
-        "number": "Numéro",
+        "body": "La saison {n} est en cours. Une nouvelle saison remet toutes les quêtes à zéro : progression, paliers et rangs, et les achievements des quêtes serveur sont retirés à tous les joueurs. Les LNBits déjà versés restent.",
         "confirm": "Tape « new season » pour confirmer",
         "start": "Lancer une nouvelle saison",
-        "started": "Nouvelle saison lancée",
-        "resetTitle": "Réinitialiser la saison en cours",
-        "resetBody": "Supprime ce que les joueurs ont fait cette saison : paliers, rangs, progression, courses flash, quêtes du jour et quêtes communautaires. Le numéro reste, ainsi que les saisons passées, le catalogue, les réglages et les LNBits déjà versés, que les joueurs peuvent donc regagner.",
-        "resetConfirm": "Tape « reset the season » pour confirmer",
-        "reset": "Réinitialiser cette saison",
-        "resetDone": "Saison réinitialisée"
+        "started": "Nouvelle saison lancée"
       },
       "index": {
         "index": "Indice",

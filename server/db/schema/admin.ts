@@ -118,10 +118,6 @@ export type AdminAuditAction =
   | 'quests.delete'
   | 'quests.import'
   | 'quests.season'
-  /** `data.number`, `data.name`. */
-  | 'quests.seasonRename'
-  /** The current season's data wiped. `data.number` and the rows deleted per table. */
-  | 'quests.seasonReset'
   | 'quests.communityCreate'
   | 'quests.communityUpdate'
   | 'quests.communityCancel'

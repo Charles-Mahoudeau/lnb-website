@@ -478,69 +478,6 @@ describe('index, cap and seasons', () => {
     expect(page.season.number).toBe(before.number + 1);
     expect(page.me?.done).toBe(0);
   });
-
-  it('lets the admin choose the number and the name, only going forward', async () => {
-    const admin = await player();
-    const before = await currentSeason();
-    await expect(
-      questAdminService.newSeason(admin.id, { confirmation: 'new season', number: before.number }),
-    ).rejects.toMatchObject({ data: { problem: 'seasonNumberTooLow' } });
-    const number = before.number + 10;
-    await questAdminService.newSeason(admin.id, {
-      confirmation: 'new season',
-      number,
-      name: ' Summer 2027 ',
-    });
-    expect(await currentSeason()).toMatchObject({ number, name: 'Summer 2027' });
-    await expect(
-      questAdminService.newSeason(admin.id, { confirmation: 'new season', number: number - 1 }),
-    ).rejects.toMatchObject({ data: { problem: 'seasonNumberTooLow' } });
-    expect((await questServerService.config()).season).toMatchObject({
-      number,
-      name: 'Summer 2027',
-    });
-
-    await questAdminService.renameSeason(admin.id, { name: 'Summer' });
-    expect(await currentSeason()).toMatchObject({ number, name: 'Summer' });
-    await questAdminService.renameSeason(admin.id, { name: '  ' });
-    expect((await currentSeason()).name).toBeNull();
-  });
-
-  it('resets the current season without changing its number', async () => {
-    const admin = await player();
-    const id = `mine_${suffix()}`;
-    await questServerService.seedCatalog({ quests: [individual(id)] });
-    const who = await player(250);
-    await questServerService.complete({
-      idempotencyKey: randomUUID(),
-      player: who.uuid,
-      quest: id,
-      tier: 1,
-    });
-    const before = await currentSeason();
-    await expect(
-      questAdminService.resetSeason(admin.id, { confirmation: 'nope' }),
-    ).rejects.toMatchObject({ data: { problem: 'confirmationMismatch' } });
-
-    await questAdminService.resetSeason(admin.id, { confirmation: 'reset the season' });
-
-    const after = await currentSeason();
-    expect(after).toMatchObject({ id: before.id, number: before.number });
-    expect(after.revision).toBe(before.revision + 1);
-    expect(
-      await db.select().from(questCompletion).where(eq(questCompletion.seasonId, before.id)),
-    ).toEqual([]);
-    // The catalogue stays, and the player can do the tier again.
-    expect((await questPublicService.overview({ userId: who.id })).me?.done).toBe(0);
-    await expect(
-      questServerService.complete({
-        idempotencyKey: randomUUID(),
-        player: who.uuid,
-        quest: id,
-        tier: 1,
-      }),
-    ).resolves.toMatchObject({ claimable: true });
-  });
 });
 
 function dailyQuest(id: string, quantity: number) {
