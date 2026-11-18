@@ -17,8 +17,9 @@ export const FLAG_DEFINITIONS = [
   { key: 'modList' },
   { key: 'modList.voting', parent: 'modList' },
   { key: 'modList.suggestions', parent: 'modList' },
-  { key: 'modList.search', parent: 'modList' },
-  { key: 'modList.icons', parent: 'modList' },
+  // The Modrinth and CurseForge search, and mod icons: used by the vote and the Modlist, so not tied to the vote's flag.
+  { key: 'modSearch' },
+  { key: 'modIcons' },
   // The Files library's public downloads (docs/files.md). Uploading is admin-only, so never gated.
   { key: 'files' },
   // The public modpack manifest the launcher reads (docs/modpack.md).

@@ -1281,11 +1281,11 @@
           "label": "Suggestions",
           "description": "Suggesting a mod and editing a suggestion."
         },
-        "modList_search": {
+        "modSearch": {
           "label": "Mod search",
-          "description": "The Modrinth and CurseForge search used to suggest a mod."
+          "description": "The Modrinth and CurseForge search, used to suggest a mod and to add one to the Modlist."
         },
-        "modList_icons": {
+        "modIcons": {
           "label": "Mod icons",
           "description": "Mod icons, and the icons of search results."
         },
