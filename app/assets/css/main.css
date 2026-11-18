@@ -221,9 +221,9 @@
 }
 
 /* The Minecraft map: the frame takes what the header and the title bar leave of the screen
-   (3.5rem for the bar), never less than 30rem. */
+   (7rem for the bar and the room around the page), never less than 30rem. */
 @utility h-map {
-  height: max(30rem, calc(100svh - var(--ui-header-height) - 3.5rem));
+  height: max(30rem, calc(100svh - var(--ui-header-height) - 7rem));
 }
 
 /* Minecraft nametags: Monocraft (SIL OFL 1.1, public/fonts/monocraft/) in white on a translucent
