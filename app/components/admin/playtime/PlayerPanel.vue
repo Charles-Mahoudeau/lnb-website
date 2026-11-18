@@ -155,6 +155,7 @@ async function revokeGrant(id: number) {
 const exemptScope = ref('user');
 const exemptReason = ref('');
 const exemptUntil = ref('');
+const exemptNever = ref(true);
 const scopeItems = computed(() => [
   { label: t('admin.playtime.player.exemptions.wholeAccount'), value: 'user' },
   ...(data.value?.accounts ?? []).map((account) => ({
@@ -165,7 +166,10 @@ const scopeItems = computed(() => [
 async function addExemption() {
   const reason = exemptReason.value.trim();
   if (!reason) return;
-  const until = exemptUntil.value ? new Date(`${exemptUntil.value}T23:59:59`).toISOString() : null;
+  const until =
+    !exemptNever.value && exemptUntil.value
+      ? new Date(`${exemptUntil.value}T23:59:59`).toISOString()
+      : null;
   if (
     await run(
       () =>
@@ -179,6 +183,7 @@ async function addExemption() {
   ) {
     exemptReason.value = '';
     exemptUntil.value = '';
+    exemptNever.value = true;
   }
 }
 async function revokeExemption(id: number) {
@@ -432,11 +437,17 @@ async function revokeExemption(id: number) {
             maxlength="300"
             class="w-full"
           />
+          <USwitch
+            v-model="exemptNever"
+            :label="t('admin.playtime.player.exemptions.never')"
+            class="self-center"
+          />
           <UInput
+            v-if="!exemptNever"
             v-model="exemptUntil"
             type="date"
             :aria-label="t('admin.playtime.player.exemptions.until')"
-            class="w-full"
+            class="w-full sm:col-start-3"
           />
         </div>
         <div>
@@ -444,7 +455,7 @@ async function revokeExemption(id: number) {
             color="neutral"
             variant="soft"
             :label="t('admin.playtime.player.exemptions.add')"
-            :disabled="!exemptReason.trim()"
+            :disabled="!exemptReason.trim() || (!exemptNever && !exemptUntil)"
             @click="addExemption"
           />
         </div>
@@ -473,7 +484,7 @@ async function revokeExemption(id: number) {
                       ? t('admin.playtime.player.exemptions.endsOn', {
                           date: dateTime(exemption.until),
                         })
-                      : null,
+                      : t('admin.playtime.player.exemptions.noEnd'),
                   ]
                     .filter(Boolean)
                     .join(', ')
