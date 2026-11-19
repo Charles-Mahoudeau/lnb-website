@@ -17,6 +17,7 @@ import {
 import { offlineUuid } from '~~/server/lib/minecraft';
 import { economyAccountService } from '~~/server/services/economy/accounts';
 import { economyAdminService } from '~~/server/services/economy/admin';
+import { economyBaltopService } from '~~/server/services/economy/baltop';
 import { economyServerService } from '~~/server/services/economy/server';
 import { economyStatsService } from '~~/server/services/economy/stats';
 import { usersService } from '~~/server/services/users';
@@ -200,6 +201,20 @@ describe('shared accounts', () => {
     }
     return { owner, dealer, watcher, account, handle };
   }
+
+  it('lets an owner hide the account from the baltop, and nobody else', async () => {
+    const { owner, dealer, account, handle } = await casino();
+    const listed = async () =>
+      (await economyBaltopService.list(owner.id)).shared.some((row) => row.handle === handle);
+    expect(await listed()).toBe(true);
+    await expect(
+      economyAccountService.update(dealer.id, account.id, { hideFromBaltop: true }),
+    ).rejects.toMatchObject({ statusCode: 403 });
+    await economyAccountService.update(owner.id, account.id, { hideFromBaltop: true });
+    expect(await listed()).toBe(false);
+    await economyAccountService.update(owner.id, account.id, { hideFromBaltop: false });
+    expect(await listed()).toBe(true);
+  });
 
   it('finds players to invite by name, email or Minecraft username', async () => {
     const owner = await player('Search Owner');

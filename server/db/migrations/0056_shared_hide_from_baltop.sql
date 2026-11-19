@@ -1,0 +1,1 @@
+ALTER TABLE "economy_account" ADD COLUMN "hide_from_baltop" boolean DEFAULT false NOT NULL;

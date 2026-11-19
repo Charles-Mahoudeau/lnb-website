@@ -88,7 +88,15 @@ export async function memberCounts(dbx: Db, accountIds: readonly string[]) {
 
 type AccountRow = Pick<
   typeof economyAccount.$inferSelect,
-  'id' | 'kind' | 'type' | 'handle' | 'name' | 'balance' | 'ownerUserId' | 'frozenAt'
+  | 'id'
+  | 'kind'
+  | 'type'
+  | 'handle'
+  | 'name'
+  | 'balance'
+  | 'ownerUserId'
+  | 'frozenAt'
+  | 'hideFromBaltop'
 >;
 
 /** Accounts as their members see them, with the viewer's role in each. */
@@ -114,6 +122,7 @@ export async function accountViews(
     role: row.role,
     frozen: Boolean(row.frozenAt) || (row.ownerUserId !== null && banned.has(row.ownerUserId)),
     memberCount: row.kind === 'shared' ? (counts.get(row.id) ?? 0) : 1,
+    hideFromBaltop: row.kind === 'shared' && row.hideFromBaltop,
   }));
 }
 

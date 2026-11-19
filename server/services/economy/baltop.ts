@@ -8,7 +8,7 @@ import { memberCounts, playerNames } from './views';
 import type { EconomyBaltop } from '#shared/schemas/economy';
 
 // The richest players and shared accounts. Players can leave the ranking (hideFromBaltop);
-// shared accounts can't, since a casino is public by nature. See docs/economy.md.
+// shared accounts can be hidden by an owner. See docs/economy.md.
 
 const PLAYERS = 50;
 const SHARED = 20;
@@ -66,7 +66,13 @@ async function list(userId: string | null): Promise<EconomyBaltop> {
         balance: economyAccount.balance,
       })
       .from(economyAccount)
-      .where(and(eq(economyAccount.kind, 'shared'), isNull(economyAccount.closedAt)))
+      .where(
+        and(
+          eq(economyAccount.kind, 'shared'),
+          isNull(economyAccount.closedAt),
+          eq(economyAccount.hideFromBaltop, false),
+        ),
+      )
       .orderBy(desc(economyAccount.balance), economyAccount.createdAt)
       .limit(SHARED),
   ]);

@@ -62,6 +62,8 @@ export const economyAccount = pgTable(
     handle: text('handle'),
     name: text('name'),
     balance: bigint('balance', { mode: 'number' }).default(0).notNull(),
+    // Shared accounts only: the owner can keep the account off the baltop.
+    hideFromBaltop: boolean('hide_from_baltop').default(false).notNull(),
     frozenAt: timestamp('frozen_at'),
     frozenReason: text('frozen_reason'),
     frozenByUserId: text('frozen_by_user_id').references(() => user.id, { onDelete: 'set null' }),
