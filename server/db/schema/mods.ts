@@ -15,7 +15,7 @@ import {
 
 import { user } from './auth';
 
-// The Minecraft mod list at /minecraft/mod-list. See docs/mods.md.
+// The Minecraft mod list at /minecraft/mod-vote. See docs/mods.md.
 
 export type ModList = 'official' | 'suggestion';
 export type ModStatus = 'visible' | 'removed';

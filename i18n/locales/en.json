@@ -17,7 +17,9 @@
     "home": "Home",
     "minecraft": "Minecraft",
     "mods": "Mods",
-    "modsDescription": "Votes and suggestions for the server’s mods",
+    "modsDescription": "What the LNB launcher installs, and where each mod runs",
+    "modVote": "Mod vote",
+    "modVoteDescription": "Votes and suggestions for the server’s mods",
     "account": "Account",
     "wardenDescription": "Your time, accounts, bank and devices",
     "events": "Events",
@@ -1284,6 +1286,10 @@
         "signIn_iseg": {
           "label": "ISEG",
           "description": "Refuses new sign-ins from ISEG accounts. Admins can still sign in."
+        },
+        "modsPage": {
+          "label": "Mods page",
+          "description": "The public Mods page, which lists the mods the launcher installs."
         },
         "modList": {
           "label": "Mod vote",
@@ -4479,7 +4485,7 @@
     }
   },
   "mods": {
-    "title": "Mod list",
+    "title": "Mod vote",
     "lede": "Vote on the mods for the LNB Minecraft server, and suggest the ones you want to see. The Minecraft team picks the official list.",
     "officialLede": "These mods are on the server. Your votes tell the Minecraft team what to keep.",
     "loadFailed": "The mod list couldn’t be loaded. Check your connection, then reload the page.",
@@ -5565,6 +5571,39 @@
     "picker": {
       "label": "Rules broken",
       "optional": "Optional, up to {max}. The player sees them."
+    }
+  },
+  "modsPage": {
+    "title": "Mods",
+    "lede": "What the LNB launcher installs, and where each mod runs. The list is the one the launcher reads, so it is always current.",
+    "loading": "Loading the list…",
+    "summary": "{count} mods, {size} to download, for Minecraft {version} on {loader}. Revision {revision}, updated {date}.",
+    "downloadLink": "Get the launcher →",
+    "search": "Search {count} mods",
+    "searchLabel": "Search mods",
+    "optionalOnly": "Optional",
+    "optional": "Optional",
+    "hosted": "Hosted by LNB",
+    "empty": "No mod matches. Clear the search or the filter.",
+    "count": "no mods | 1 mod | {count} mods",
+    "groups": {
+      "both": {
+        "title": "Everyone",
+        "text": "Installed on your computer and on the server."
+      },
+      "client": {
+        "title": "Your computer only",
+        "text": "Visuals and quality of life. The server doesn’t need them."
+      },
+      "server": {
+        "title": "The server only",
+        "text": "You don’t install these. They are listed so you know what runs."
+      }
+    },
+    "error": {
+      "title": "The list can’t be reached",
+      "text": "The mod list didn’t load. Check your connection, then try again.",
+      "retry": "Try again"
     }
   }
 }

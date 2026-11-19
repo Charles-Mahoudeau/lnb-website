@@ -39,7 +39,8 @@ const columns = computed(() => {
     ...(isEnabled('partners') ? [{ label: t('nav.partners'), to: '/partners' }] : []),
   ];
   const minecraft: FooterLink[] = [
-    ...(isEnabled('modList') ? [{ label: t('nav.mods'), to: '/minecraft/mod-list' }] : []),
+    ...(isEnabled('modsPage') ? [{ label: t('nav.mods'), to: '/minecraft/mods' }] : []),
+    ...(isEnabled('modList') ? [{ label: t('nav.modVote'), to: '/minecraft/mod-vote' }] : []),
     ...(isEnabled('rules') ? [{ label: t('nav.rules'), to: '/minecraft/rules' }] : []),
     ...(isEnabled('downloads') ? [{ label: t('nav.download'), to: '/minecraft/download' }] : []),
     ...(isEnabled('map') ? [{ label: t('map.title'), to: '/minecraft/map' }] : []),

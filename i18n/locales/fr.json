@@ -17,7 +17,9 @@
     "home": "Accueil",
     "minecraft": "Minecraft",
     "mods": "Mods",
-    "modsDescription": "Votes et propositions pour les mods du serveur",
+    "modsDescription": "Ce que le launcher LNB installe, et où chaque mod tourne",
+    "modVote": "Vote des mods",
+    "modVoteDescription": "Votes et propositions pour les mods du serveur",
     "account": "Compte",
     "wardenDescription": "Ton temps, tes comptes, ta banque et tes appareils",
     "events": "Événements",
@@ -1288,6 +1290,10 @@
         "signIn_iseg": {
           "label": "ISEG",
           "description": "Refuse les nouvelles connexions des comptes ISEG. Les admins peuvent toujours se connecter."
+        },
+        "modsPage": {
+          "label": "Page Mods",
+          "description": "La page publique Mods, qui liste les mods installés par le launcher."
         },
         "modList": {
           "label": "Vote des mods",
@@ -4483,7 +4489,7 @@
     }
   },
   "mods": {
-    "title": "Liste de mods",
+    "title": "Vote des mods",
     "lede": "Votez pour les mods du serveur Minecraft de LNB, et proposez ceux que vous aimeriez voir. L’équipe Minecraft choisit la liste officielle.",
     "officialLede": "Ces mods sont sur le serveur. Vos votes disent à l’équipe Minecraft lesquels garder.",
     "loadFailed": "La liste de mods n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page.",
@@ -5569,6 +5575,39 @@
     "picker": {
       "label": "Règles enfreintes",
       "optional": "Facultatif, jusqu’à {max}. Le joueur les voit."
+    }
+  },
+  "modsPage": {
+    "title": "Mods",
+    "lede": "Ce que le launcher LNB installe, et où chaque mod tourne. La liste est celle que lit le launcher : elle est toujours à jour.",
+    "loading": "Chargement de la liste…",
+    "summary": "{count} mods, {size} à télécharger, pour Minecraft {version} sur {loader}. Révision {revision}, mise à jour le {date}.",
+    "downloadLink": "Obtenir le launcher →",
+    "search": "Rechercher parmi {count} mods",
+    "searchLabel": "Rechercher un mod",
+    "optionalOnly": "Optionnels",
+    "optional": "Optionnel",
+    "hosted": "Hébergé par LNB",
+    "empty": "Aucun mod ne correspond. Effacez la recherche ou le filtre.",
+    "count": "aucun mod | 1 mod | {count} mods",
+    "groups": {
+      "both": {
+        "title": "Tout le monde",
+        "text": "Installés sur votre ordinateur et sur le serveur."
+      },
+      "client": {
+        "title": "Votre ordinateur seulement",
+        "text": "Visuels et confort de jeu. Le serveur n’en a pas besoin."
+      },
+      "server": {
+        "title": "Le serveur seulement",
+        "text": "Vous ne les installez pas. Ils sont listés pour savoir ce qui tourne."
+      }
+    },
+    "error": {
+      "title": "La liste est injoignable",
+      "text": "La liste des mods n’a pas chargé. Vérifiez votre connexion, puis réessayez.",
+      "retry": "Réessayer"
     }
   }
 }

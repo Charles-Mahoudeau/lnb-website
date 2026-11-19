@@ -14,6 +14,8 @@ export const FLAG_DEFINITIONS = [
   { key: 'signIn.epitech', parent: 'signIn' },
   { key: 'signIn.eartsup', parent: 'signIn' },
   { key: 'signIn.iseg', parent: 'signIn' },
+  // The public Mods page, which shows the launcher's list (docs/mods-page.md).
+  { key: 'modsPage' },
   { key: 'modList' },
   { key: 'modList.voting', parent: 'modList' },
   { key: 'modList.suggestions', parent: 'modList' },
