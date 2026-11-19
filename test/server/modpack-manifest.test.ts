@@ -40,6 +40,7 @@ describe('manifest', () => {
         pinnedSha512: 'h1',
         pinnedSize: 3,
         side: 'client',
+        iconKey: 'k1',
       },
       {
         source: 'upload',
@@ -79,6 +80,11 @@ describe('manifest', () => {
       hashes: { sha512: 'h1' },
     });
     expect(manifest.mods[1]!.hashes).not.toHaveProperty('sha256');
+    // The logo is an absolute address on this site, null without one.
+    expect(manifest.mods[1]!.icon).toBe(
+      `https://lnb.example/api/minecraft/modpack/mods/${manifest.mods[1]!.id}/icon?v=k1`,
+    );
+    expect(manifest.mods[0]!.icon).toBeNull();
     // A wrapper jar is a tool, listed once it is published, not an asset.
     expect(manifest.assets).toEqual([
       expect.objectContaining({ name: 'extra.json', kind: 'asset' }),

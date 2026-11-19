@@ -3,6 +3,8 @@ import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
 import { modpackMod } from '~~/server/db/schema';
+import { modCatalog } from '~~/server/services/mods/catalog';
+import { modIconService } from '~~/server/services/mods/icons';
 import { modSettingsService } from '~~/server/services/mods/settings';
 import { wardenAuditService } from '~~/server/services/warden/audit';
 import type { WardenActor } from '~~/server/services/warden/shared';
@@ -93,6 +95,19 @@ async function lookup(
   return undefined;
 }
 
+/** Stores the logo of a source mod that has none yet. A source that can't answer is retried next time. */
+async function fillIcon(row: Row, target: Awaited<ReturnType<typeof modSettingsService.get>>) {
+  if (row.iconKey || !row.sourceId) return;
+  if (row.source !== 'modrinth' && row.source !== 'curseforge') return;
+  try {
+    const project = await modCatalog.project(row.source, row.sourceId, target);
+    const iconKey = project?.iconUrl ? await modIconService.save(project.iconUrl) : null;
+    if (iconKey) await db.update(modpackMod).set({ iconKey }).where(eq(modpackMod.id, row.id));
+  } catch {
+    // The icon is decoration: a failed lookup never fails the check.
+  }
+}
+
 /** Looks for newer files for the mods that come from a source or a link. */
 async function check(input: { ids?: string[] } = {}): Promise<ModpackCheckResult> {
   const target = await modSettingsService.get();
@@ -103,6 +118,7 @@ async function check(input: { ids?: string[] } = {}): Promise<ModpackCheckResult
   for (const row of rows) {
     if (row.source === 'upload') continue;
     result.checked++;
+    await fillIcon(row, target);
     const found = await lookup(row, target);
     if (!found) {
       result.failed++;
