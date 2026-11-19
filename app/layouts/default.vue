@@ -38,13 +38,23 @@ const navItems = computed<NavigationMenuItem[]>(() => {
           },
         ]
       : []),
-    ...(isEnabled('modList')
+    ...(isEnabled('modsPage')
       ? [
           {
             label: t('nav.mods'),
             description: t('nav.modsDescription'),
             icon: 'i-lucide-puzzle',
-            to: '/minecraft/mod-list',
+            to: '/minecraft/mods',
+          },
+        ]
+      : []),
+    ...(isEnabled('modList')
+      ? [
+          {
+            label: t('nav.modVote'),
+            description: t('nav.modVoteDescription'),
+            icon: 'i-lucide-vote',
+            to: '/minecraft/mod-vote',
           },
         ]
       : []),

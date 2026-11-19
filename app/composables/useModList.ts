@@ -37,7 +37,7 @@ export function searchMods(q: string) {
   );
 }
 
-/** The mod list page (/minecraft/mod-list): both tabs, and what the viewer can do. */
+/** The mod list page (/minecraft/mod-vote): both tabs, and what the viewer can do. */
 export function useModList() {
   const page = useFetch<ModListPage>('/api/minecraft/mods', { key: 'mod-list' });
 

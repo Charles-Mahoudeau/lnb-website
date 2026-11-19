@@ -51,8 +51,9 @@ const showGamesplanet = computed(
     isEnabled('gamesplanet') && isEnabled('gamesplanet.home') && !!gamesplanet.value?.deals.length,
 );
 const showModList = computed(() => isEnabled('modList'));
-// The card is empty without either link, so it goes too.
-const showMinecraft = computed(() => showModList.value || canUseWarden.value);
+const showModsPage = computed(() => isEnabled('modsPage'));
+// The card is empty without any link, so it goes too.
+const showMinecraft = computed(() => showModList.value || showModsPage.value || canUseWarden.value);
 </script>
 
 <template>
@@ -146,8 +147,8 @@ const showMinecraft = computed(() => showModList.value || canUseWarden.value);
             <h2 class="text-xl font-bold text-highlighted">{{ t('home.minecraft.title') }}</h2>
             <p class="text-muted">{{ t('home.minecraft.lede') }}</p>
             <NuxtLink
-              v-if="showModList"
-              to="/minecraft/mod-list"
+              v-if="showModsPage"
+              to="/minecraft/mods"
               class="group flex items-center gap-3"
             >
               <IconTile icon="i-lucide-puzzle" />
@@ -156,6 +157,19 @@ const showMinecraft = computed(() => showModList.value || canUseWarden.value);
                   {{ t('nav.mods') }}
                 </span>
                 <span class="text-sm text-muted">{{ t('nav.modsDescription') }}</span>
+              </span>
+            </NuxtLink>
+            <NuxtLink
+              v-if="showModList"
+              to="/minecraft/mod-vote"
+              class="group flex items-center gap-3"
+            >
+              <IconTile icon="i-lucide-vote" />
+              <span class="flex flex-col">
+                <span class="font-semibold text-highlighted group-hover:underline">
+                  {{ t('nav.modVote') }}
+                </span>
+                <span class="text-sm text-muted">{{ t('nav.modVoteDescription') }}</span>
               </span>
             </NuxtLink>
             <NuxtLink
