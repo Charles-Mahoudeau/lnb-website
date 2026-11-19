@@ -272,6 +272,10 @@ export const modpackManifest = z.object({
       downloads: z.array(z.url()).describe('Absolute https addresses, tried in order.'),
       source: modpackSource,
       projectUrl: z.string().nullable(),
+      icon: z
+        .url()
+        .nullable()
+        .describe("The mod's logo, an absolute address on this site. Null when none is stored."),
     }),
   ),
   assets: z.array(

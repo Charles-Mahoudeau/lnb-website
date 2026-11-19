@@ -2356,6 +2356,21 @@ const routes: RouteDoc[] = [
     response: modpack.modpackManifest,
     problems: [{ status: 503, problems: ['disabled'] }],
   },
+  {
+    method: 'get',
+    path: '/api/minecraft/modpack/mods/{id}/icon',
+    tag: TAGS.files,
+    summary: "A Modlist mod's logo",
+    description:
+      "The logo the manifest's `icon` address points at, downloaded by the site from Modrinth or CurseForge when the mod was added or at the next check. Public, cached for a year (the address carries a version).",
+    access: 'public',
+    params: modpack.modpackIdParams,
+    response: {
+      description: 'The icon: PNG, JPEG, WebP or GIF.',
+      content: { 'image/*': { schema: { type: 'string', format: 'binary' } } },
+    },
+    problems: [{ status: 404, problems: [] }],
+  },
   // Events
   {
     method: 'get',
@@ -6418,7 +6433,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
         name: TAGS.wardenAdmin,
         description: 'The Warden section of the admin area, `/admin/warden`.',
       },
-      { name: TAGS.mods, description: 'The `/minecraft/mod-list` page. See `docs/mods.md`.' },
+      { name: TAGS.mods, description: 'The `/minecraft/mod-vote` page. See `docs/mods.md`.' },
       {
         name: TAGS.modsAdmin,
         description: 'The Mods section of the admin area, `/admin/mods`.',

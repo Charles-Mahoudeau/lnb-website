@@ -5,6 +5,7 @@ import { db } from '~~/server/db';
 import { isUniqueViolation } from '~~/server/db/errors';
 import { modpackMod, modpackState, storedFile } from '~~/server/db/schema';
 import { modCatalog, CatalogUnavailableError } from '~~/server/services/mods/catalog';
+import { modIconService } from '~~/server/services/mods/icons';
 import { modSettingsService } from '~~/server/services/mods/settings';
 import { wardenAuditService } from '~~/server/services/warden/audit';
 import type { WardenActor } from '~~/server/services/warden/shared';
@@ -197,6 +198,7 @@ export async function valuesFor(body: ModpackAddBody): Promise<typeof modpackMod
     name: project.name,
     summary: project.summary,
     pageUrl: project.pageUrl,
+    iconKey: project.iconUrl ? await modIconService.save(project.iconUrl) : null,
   } satisfies Partial<typeof modpackMod.$inferInsert>;
   if (resolution.kind === 'file') {
     const { file } = resolution;
@@ -294,7 +296,7 @@ async function pinFile(input: { id: string; body: ModpackPinBody; actor: WebActo
 }
 
 async function remove(input: { id: string; actor: WebActor }) {
-  await db.transaction(async (tx) => {
+  const removed = await db.transaction(async (tx) => {
     const [row] = await tx.delete(modpackMod).where(eq(modpackMod.id, input.id)).returning();
     if (!row) refuse(404, 'notFound');
     await bump(tx);
@@ -303,7 +305,9 @@ async function remove(input: { id: string; actor: WebActor }) {
       actor: input.actor,
       data: { modId: row.id, name: row.name },
     });
+    return row;
   });
+  await modIconService.remove(removed.iconKey);
 }
 
 export const modpackService = { list, viewOf, add, edit, pinFile, remove };

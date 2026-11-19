@@ -64,6 +64,9 @@ async function build(): Promise<ModpackManifest> {
       downloads: [url],
       source: row.source as ModpackSource,
       projectUrl: row.pageUrl,
+      icon: row.iconKey
+        ? siteUrl(`/api/minecraft/modpack/mods/${row.id}/icon?v=${encodeURIComponent(row.iconKey)}`)
+        : null,
     });
   }
 
