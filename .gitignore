@@ -23,3 +23,6 @@ logs
 .env.*
 !.env.example
 .mcp.json
+
+# graphify output (see scripts/graphify-reapply.py)
+graphify-out/
