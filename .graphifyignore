@@ -1,0 +1,7 @@
+# Third-party agent skills, local worktrees and generated output are not project code.
+.claude/
+graphify-out/
+node_modules/
+.nuxt/
+.output/
+.data/
