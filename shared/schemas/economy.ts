@@ -166,6 +166,9 @@ export const economyAccountView = z.object({
     .boolean()
     .describe('Frozen by an admin, or the owner is banned: no money goes in or out.'),
   memberCount: z.number(),
+  hideFromBaltop: z
+    .boolean()
+    .describe('Shared accounts only: kept off the baltop by an owner. Always false otherwise.'),
 });
 export type EconomyAccountView = z.infer<typeof economyAccountView>;
 
@@ -276,11 +279,16 @@ export const economyAccountPatchBody = z
     type: economyAccountType.describe(
       "`casino` uses one of the caller's free casino licenses, and never changes again.",
     ),
+    hideFromBaltop: z.boolean(),
   })
   .partial()
-  .refine((body) => body.name !== undefined || body.type !== undefined, {
-    message: 'name or type',
-  });
+  .refine(
+    (body) =>
+      body.name !== undefined || body.type !== undefined || body.hideFromBaltop !== undefined,
+    {
+      message: 'name, type or hideFromBaltop',
+    },
+  );
 export type EconomyAccountPatchBody = z.infer<typeof economyAccountPatchBody>;
 
 /** PATCH /api/economy/me */

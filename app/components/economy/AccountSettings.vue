@@ -38,6 +38,17 @@ async function onBaltop(hidden: boolean) {
   if (done) emit('changed');
 }
 
+const hidden = ref(props.account.hideFromBaltop);
+async function onSharedBaltop(value: boolean) {
+  hidden.value = value;
+  const done = await run(
+    () => economyActions.update(props.account.id, { hideFromBaltop: value }),
+    value ? t('economy.settings.sharedBaltopHidden') : t('economy.settings.sharedBaltopShown'),
+  );
+  if (done) emit('changed');
+  else hidden.value = props.account.hideFromBaltop;
+}
+
 const name = ref(props.account.name ?? '');
 const type = ref<EconomyAccountType>(props.account.type ?? 'team');
 const typeLocked = computed(() => props.account.type === 'casino');
@@ -164,6 +175,16 @@ async function onLeave() {
           :label="t('economy.settings.rename')"
         />
       </form>
+
+      <section v-if="account.role === 'owner'" class="rounded-lg bg-elevated p-6">
+        <USwitch
+          :model-value="hidden"
+          :disabled="!isEnabled('economy.baltop')"
+          :label="t('economy.settings.hideSharedFromBaltop')"
+          :description="t('economy.settings.hideSharedFromBaltopHint')"
+          @update:model-value="onSharedBaltop"
+        />
+      </section>
 
       <section class="flex flex-col items-start gap-3 rounded-lg bg-elevated p-6">
         <template v-if="account.role === 'owner'">

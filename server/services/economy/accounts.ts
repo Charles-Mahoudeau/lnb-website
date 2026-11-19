@@ -352,6 +352,7 @@ async function update(userId: string, accountId: string, body: EconomyAccountPat
     const values = {
       ...(body.name !== undefined && { name: body.name.trim() }),
       ...(type && { type }),
+      ...(body.hideFromBaltop !== undefined && { hideFromBaltop: body.hideFromBaltop }),
     };
     if (!Object.keys(values).length) return;
     await tx.update(economyAccount).set(values).where(eq(economyAccount.id, accountId));
