@@ -108,7 +108,7 @@ Every refusal has an HTTP status and a `data.problem` code. The JSON body is the
 }
 ```
 
-Read `data.problem`. Some refusals have no `data.problem`: a 400 `Bad Request` (a malformed body, or a quantity above `maxOrderItems`), a 401, a 429 and a bare 5xx. Section 5 says what to do for each.
+Read `data.problem`. Some refusals have no `data.problem`: a 400 `Bad Request` (a malformed body), a 401, a 429 and a bare 5xx. Section 5 says what to do for each.
 
 ### 3.3 On start and on every reconnection
 
@@ -258,22 +258,22 @@ Answer (`marketQuote`), for a player whose tier-1 window is 4,000 LNBits:
 - `total`: cents. A sale is floored, a purchase rounded up, a capped sale is cut to the budget left.
 - `brackets` (sales only): what each rate paid. The item at a boundary is split, so `quantity` can be fractional. The totals add up to the uncapped sale total; when `capped` is true, `total` is what is paid and the brackets still show the uncapped sale.
 - `price`: the reference price after the order, LNBits per item. `stock`: the stock after.
-- Errors: 404 `notLinked`, `notFound` (unknown item); 403 `notEligible`; 409 `itemDisabled`, `notSellable`, `notBuyable`; 400 (quantity above `maxOrderItems`); 503 `disabled` (the Market or that direction is off).
+- Errors: 404 `notLinked`, `notFound` (unknown item); 403 `notEligible`; 409 `itemDisabled`, `notSellable`, `notBuyable`; 400 `tooManyItems` (quantity above `maxOrderItems`); 503 `disabled` (the Market or that direction is off).
 - A quote does not check funds, frozen accounts or `zeroPayout`.
 
 ### 4.4 `POST /orders`
 
 Request (`marketOrderBody`):
 
-| Field            | Type            | Notes                                                                                                         |
-| ---------------- | --------------- | ------------------------------------------------------------------------------------------------------------- |
-| `idempotencyKey` | UUID            | A fresh `UUID.randomUUID()` per order, kept until the order is settled.                                       |
-| `player`         | Minecraft UUID  | The acting player.                                                                                            |
-| `item`           | registry ID     | `minecraft:cobblestone`, lower case.                                                                          |
-| `direction`      | `sell` or `buy` |                                                                                                               |
-| `quantity`       | integer         | 1 to `settings.maxOrderItems` (2,304 by default). Above it is a 400 with no `data.problem`. Hard limit 32767. |
-| `expectedTotal`  | integer cents   | What the player saw, 0 to 10^14.                                                                              |
-| `account`        | string          | A purchase only: the ID or `#handle` of the paying account. Without it, the player's default account.         |
+| Field            | Type            | Notes                                                                                                 |
+| ---------------- | --------------- | ----------------------------------------------------------------------------------------------------- |
+| `idempotencyKey` | UUID            | A fresh `UUID.randomUUID()` per order, kept until the order is settled.                               |
+| `player`         | Minecraft UUID  | The acting player.                                                                                    |
+| `item`           | registry ID     | `minecraft:cobblestone`, lower case.                                                                  |
+| `direction`      | `sell` or `buy` |                                                                                                       |
+| `quantity`       | integer         | 1 to `settings.maxOrderItems` (2,304 by default). Above it is a 400 `tooManyItems`. Hard limit 32767. |
+| `expectedTotal`  | integer cents   | What the player saw, 0 to 10^14.                                                                      |
+| `account`        | string          | A purchase only: the ID or `#handle` of the paying account. Without it, the player's default account. |
 
 **A sale** (10,000 cobblestone, a window of 0 in tier 1):
 
@@ -354,7 +354,7 @@ A purchase has no `brackets`, `capped` is always `false`, and the money was burn
 
 1. The flags: 503 `disabled` if `economy.market` or the direction's flag is off.
 2. The key: an order already made with this key gives its first answer with `replayed: true`. The same key with another request (player, account, item, direction, quantity or `expectedTotal` differ) is 409 `idempotencyMismatch`. A key used by any other ledger transaction is also `idempotencyMismatch`.
-3. The item: 404 `notFound`, 409 `itemDisabled`, `notSellable` or `notBuyable`, 400 for a quantity above `maxOrderItems`.
+3. The item: 404 `notFound`, 409 `itemDisabled`, `notSellable` or `notBuyable`, 400 `tooManyItems` for a quantity above `maxOrderItems`.
 4. The player: 404 `notLinked`, 403 `notEligible`, 409 `frozen` (a site or Warden ban in force, or a frozen account).
 5. A purchase's account: 403 `notAllowed` (the player can't spend from it), 404 `notFound`.
 6. The price: a sale cut to 0 cents is 409 `zeroPayout`. A total worse than the tolerance is 409 `priceChanged` with the quote.
@@ -448,7 +448,8 @@ The refusals named `noRecipes` and `loop` are the **admin's**, not the mod's: wh
 | Status | `data.problem`                       | Meaning                                                   | Definitive         | What the mod does                                                                                  |
 | ------ | ------------------------------------ | --------------------------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------- |
 | 200    | none                                 | Done, or `replayed: true`                                 | success            | Settle the order (sale: drop the escrow; purchase: claim the mailbox item).                        |
-| 400    | none (`Bad Request`)                 | Malformed body, quantity above `maxOrderItems`            | yes                | A bug or a stale `/state`: return the items, log it, read `/state` again.                          |
+| 400    | none (`Bad Request`)                 | Malformed body                                            | yes                | A bug: return the items, log it.                                                                   |
+| 400    | `tooManyItems`                       | Quantity above `maxOrderItems`                            | yes                | A stale `/state`: return the items, read `/state` again.                                           |
 | 401    | none                                 | Wrong server secret                                       | no                 | Configuration error. Keep the escrow, log loudly, retry later.                                     |
 | 403    | `notEligible`                        | The player can't use the economy (not eligible)           | yes                | Return the items, "your account can't trade".                                                      |
 | 403    | `notAllowed`                         | The player can't spend from the chosen account            | yes                | Nothing moved: "you can't spend from this account".                                                |
@@ -731,13 +732,13 @@ A player with a site or Warden ban in force, or whose account is frozen, can't t
 - **The player drops an item between the preview and the click.** Check the inventory again at step 2 of a sale, and abort without calling the site.
 - **Items the site doesn't know.** An item that isn't in `/state` isn't traded: show nothing and don't call the site (`POST /quote` answers 404 `notFound` if you want to ask).
 - **Reload and reconnection.** After the event stream reconnects, read `/state` again; don't trust a copy older than the last `revision` you saw.
-- **2,304 items per order.** `settings.maxOrderItems` (36 stacks, a full inventory) can be changed by an admin (1 to 32767); always read it from `/state`. Larger requests are a 400 with no `data.problem`.
+- **2,304 items per order.** `settings.maxOrderItems` (36 stacks, a full inventory) can be changed by an admin (1 to 32767); always read it from `/state`. Larger requests are a 400 `tooManyItems`.
 - **An account that can't spend.** A purchase from a shared account the player is only a viewer of is 403 `notAllowed`.
 - **Mint budget spent.** Sales are refused `zeroPayout`; `me.capped` is true. The budget refills as old sales leave the 30-day span.
 
 ## 12. What players see
 
-- **`/market`** opens a screen with category tabs (the three tiers, or item groups), for each item: its icon and name, the price to sell and to buy for 1 and for 64 items, a percentage badge against the base price `p0` (`(pRef - p0) / p0`; pick one colour convention and keep it), and the player's own **efficiency** per tier (section 4.2: the current rate, 100 %, 50 % or 10 %, and how much is left before it drops). The website shows a sparkline from `GET /api/market`; the mod has no history route and doesn't need one.
+- **`/market`** opens a screen with category tabs (the three tiers, or item groups), for each item: its icon and name, the price to sell and to buy for 1 and for 64 items, a percentage badge against the base price `p0` (`(pRef - p0) / p0`; pick one colour convention and keep it), and the player's own **efficiency** per tier (section 4.2: the current rate, 100 %, 50 % or 10 %, and how much is left before it drops). Each item also shows its price history (24 h, 7 days, 30 days, 1 year) from the public `GET /api/market/items/:id/history`, and the website's sparkline comes from `GET /api/market`.
 - **Hover**: the exact payout (or cost) of selling (or buying) the stack under the cursor, computed locally (section 7), with the average price per item and the rate that applies.
 - An item that isn't `sellable` shows no sell price. An item that isn't `buyable` shows no buy price. An item absent from `/state` isn't shown at all.
 - Selling: click an item, then a quantity (1, 16, 64, a full inventory, or a number, up to `maxOrderItems`). Only matching plain items in the player's inventory count. Buying: the same, with the account that pays (the player's default one unless they pick another).
@@ -816,9 +817,9 @@ On a real server against a site with the flags on, with two test players (one li
 For the site owner to decide. The mod does not wait for them unless said so.
 
 1. **Retries while the Market is off.** A retry of an unknown-outcome order gets 503 `disabled` (the flag check runs before the key check), so a sale in escrow can't be settled until the flag is back on (5.3). Options: accept it and tell admins to switch off outside peak hours, or make the site answer a stored order whatever the flags. Not decided; the mod follows 5.3 for now.
-2. **Quantity above `maxOrderItems`** is a bare 400 with no `data.problem`. The mod avoids it by reading the limit from `/state`; whether the site should name it (for example `tooMany`) is not decided.
+2. **Quantity above `maxOrderItems`** (decided): a 400 with `data.problem` `tooManyItems`. The mod still reads the limit from `/state` and avoids it.
 3. **Colour convention** of the price badge (green below `p0` for buyers or the reverse) is left to the mod's UI.
 4. **Numeric tuning** is not final: the starting catalog, the tiers' thresholds (`q1`, `q2`, rates), the spread, the mint budget percentage and the items per order are drafts to simulate before launch (`docs/market.md`). The mod reads them from `/state`, so they don't change the mod.
-5. **Mod history.** The mod has no route for price history; the sparkline is the website's only. Whether the in-game screen needs one is not decided.
-6. **Notifications.** Whether a player should be told in the game that their meter reset (the 24-hour window recovered) is not decided.
+5. **Price history in the game** (decided: yes). The in-game screen shows price history. Use the public `GET /api/market/items/:id/history?period=24h|7d|30d|1y` (no auth, answers 503 when the Market is off); the server routes have no history of their own.
+6. **Notifications** (decided: no). The mod does not tell a player that their 24-hour window recovered.
 7. **The Prism wrapper** and the other launcher files are outside this document (`docs/modpack.md`).
