@@ -21,6 +21,7 @@ export const ADMIN_PROBLEMS = [
   'emailTaken',
   'notGhost',
   'isGhost',
+  'notAllowed',
 ] as const;
 export type AdminProblem = (typeof ADMIN_PROBLEMS)[number];
 
@@ -33,31 +34,74 @@ function page<T extends z.ZodType>(item: T) {
 
 export const adminUserParams = z.object({ userId: z.string().min(1).max(64) });
 
-/** GET /api/admin/users query. */
-export const adminUsersQuery = z.object({
-  q: z.string().trim().max(100).optional().describe('Name or email.'),
+export const ADMIN_PEOPLE_FILTERS = [
+  'banned',
+  'flagged',
+  'overLimit',
+  'ghost',
+  'hasRole',
+  'inactive',
+] as const;
+export type AdminPeopleFilter = (typeof ADMIN_PEOPLE_FILTERS)[number];
+const adminPeopleFilter = z.enum(ADMIN_PEOPLE_FILTERS);
+
+const adminPeopleCommon = {
+  q: z
+    .string()
+    .trim()
+    .max(100)
+    .optional()
+    .describe(
+      "A name, an email, a Minecraft name or a Minecraft UUID, as far as the caller's role may search by it. Events managers search names and emails, economy admins names and Minecraft names.",
+    ),
   tenantId: z
     .string()
     .refine((tid) => tid in SCHOOLS)
     .optional()
     .describe("The school's Microsoft tenant ID."),
-  role: z.enum(['any', 'admin', 'warden-admin', 'events-manager', 'economy-admin']).default('any'),
-  status: z
-    .enum(['all', 'banned', 'inactive', 'ghost'])
-    .default('all')
+  role: z
+    .enum(['any', 'admin', 'warden-admin', 'events-manager', 'economy-admin'])
+    .default('any')
+    .describe('Site admins only.'),
+};
+
+/** The filters of the People list, without its cursor. Bulk actions take them as a selection. */
+export const adminPeopleFilters = z.object({
+  ...adminPeopleCommon,
+  filters: z
+    .array(adminPeopleFilter)
+    .max(ADMIN_PEOPLE_FILTERS.length)
+    .default([])
     .describe(
-      '`inactive`: no sign-in for 24 months, so due for deletion. `ghost`: made by an admin for someone who has not signed in yet.',
+      '`banned`: a site or Warden ban in force (Warden admins: Warden bans). `flagged`: the anticheat holds the player, or they use a file to review, refused or banned. `overLimit`: played past the playtime allowance this week. `ghost`: made by an admin for someone who has not signed in yet. `hasRole`: has any admin role. `inactive`: no sign-in for 24 months, so due for deletion (site admins).',
+    ),
+});
+export type AdminPeopleFilters = z.input<typeof adminPeopleFilters>;
+
+/** GET /api/admin/people query. `filters` is a comma-separated list. */
+export const adminPeopleQuery = z.object({
+  ...adminPeopleCommon,
+  filters: z
+    .string()
+    .max(100)
+    .default('')
+    .transform((value) => value.split(',').filter(Boolean))
+    .pipe(z.array(adminPeopleFilter))
+    .describe(
+      `Comma-separated quick filters, all of which must match: ${ADMIN_PEOPLE_FILTERS.join(', ')}.`,
     ),
   cursor: z.string().max(400).optional(),
 });
-export type AdminUsersQuery = z.input<typeof adminUsersQuery>;
+export type AdminPeopleQuery = {
+  q?: string;
+  tenantId?: string;
+  role?: 'any' | 'admin' | 'warden-admin' | 'events-manager' | 'economy-admin';
+  /** Comma-separated. */
+  filters?: string;
+  cursor?: string;
+};
 
-export const adminUserRow = z.object({
-  userId: z.string(),
-  name: z.string(),
-  email: z.string(),
-  image: z.string().nullable(),
-  school: z.string().nullable(),
+const adminRoleFlags = z.object({
   admin: z.boolean(),
   wardenAdmin: z
     .boolean()
@@ -68,23 +112,170 @@ export const adminUserRow = z.object({
   economyAdmin: z
     .boolean()
     .describe('Has the economy-admin role itself. Site admins have its rights anyway.'),
+});
+export type AdminRoleFlags = z.infer<typeof adminRoleFlags>;
+
+const adminPersonAccount = z.object({
+  uuid: z.string(),
+  username: z.string(),
+  online: z.boolean(),
+});
+
+const adminPersonBan = z.object({
+  reason: z.string().nullable(),
+  expiresAt: isoDate.nullable().describe('Null: permanent.'),
+});
+
+const adminAnticheatBrief = z.object({
+  score: z.number(),
+  band: z.enum(['trusted', 'normal', 'held', 'zero']),
+  manualHold: z.boolean(),
+  flagged: z.boolean().describe('Held by the anticheat, or using a file that needs a look.'),
+});
+
+/**
+ * One row of the People list. Which fields come back depends on the caller's role: `email`,
+ * `roles` and `minecraft` for Warden admins, the site account fields for site admins, `balance`
+ * for economy admins and `registrations` for events managers. Site admins get everything.
+ */
+export const adminPersonRow = z.object({
+  userId: z.string(),
+  name: z.string(),
+  image: z.string().nullable(),
+  school: z.string().nullable(),
   ghost: z
     .boolean()
     .describe('Made by an admin for someone who has not signed in yet. It has no sign-in.'),
-  createdAt: isoDate,
-  lastSignInAt: isoDate.nullable(),
-  inactive: z.boolean().describe('No sign-in for 24 months.'),
-  ban: z
-    .object({ reason: z.string().nullable(), expiresAt: isoDate.nullable() })
+  email: z.string().optional().describe('Site admins and Warden admins.'),
+  roles: adminRoleFlags.optional().describe('Site admins and Warden admins.'),
+  lastSignInAt: isoDate.nullable().optional().describe('Site admins.'),
+  inactive: z.boolean().optional().describe('No sign-in for 24 months. Site admins.'),
+  siteBan: adminPersonBan.nullable().optional().describe('The site ban in force. Site admins.'),
+  ban: adminPersonBan
+    .extend({ id: z.string() })
     .nullable()
-    .describe('The site ban in force, if any. Null `expiresAt`: permanent.'),
+    .optional()
+    .describe('The Warden ban in force. Warden admins.'),
+  minecraft: z
+    .object({
+      accounts: z.array(adminPersonAccount),
+      lastSeenAt: isoDate.nullable(),
+      playtimeSeconds: z.number(),
+      transferWarning: z.enum(['in', 'out', 'both']).nullable(),
+    })
+    .optional()
+    .describe('Warden admins.'),
+  anticheat: adminAnticheatBrief
+    .nullable()
+    .optional()
+    .describe('Null when the anticheat has not seen the player. Warden admins.'),
+  overLimit: z
+    .boolean()
+    .optional()
+    .describe('Played past the playtime allowance this week. Warden admins.'),
+  balance: z
+    .number()
+    .nullable()
+    .optional()
+    .describe('LNBits on the personal account, null with no account. Economy admins.'),
+  registrations: z
+    .object({ upcoming: z.number(), total: z.number() })
+    .optional()
+    .describe('Event registrations. Events managers.'),
 });
-export type AdminUserRow = z.infer<typeof adminUserRow>;
+export type AdminPersonRow = z.infer<typeof adminPersonRow>;
 
-export const adminUserPage = page(adminUserRow).extend({
-  total: z.number().describe('Every account matching the filters, across pages.'),
+export const adminPeoplePage = page(adminPersonRow).extend({
+  total: z.number().describe('Everyone matching the filters, across pages.'),
+  match: z
+    .object({ userId: z.string() })
+    .nullable()
+    .describe(
+      'The account owning the Minecraft name or UUID typed exactly in `q`, for Warden admins and economy admins. Null otherwise.',
+    ),
 });
-export type AdminUserPage = z.infer<typeof adminUserPage>;
+export type AdminPeoplePage = z.infer<typeof adminPeoplePage>;
+
+export const adminPersonSummary = z.object({
+  userId: z.string(),
+  name: z.string(),
+  image: z.string().nullable(),
+  school: z.string().nullable(),
+  ghost: z.boolean(),
+  createdAt: isoDate,
+  email: z.string().optional().describe('Site admins and Warden admins.'),
+  roles: adminRoleFlags.optional().describe('Site admins and Warden admins.'),
+  lastSignInAt: isoDate.nullable().optional().describe('Site admins.'),
+  siteBan: adminPersonBan.nullable().optional().describe('The site ban in force. Site admins.'),
+  minecraft: z
+    .object({
+      accounts: z.array(adminPersonAccount.extend({ lastSeenAt: isoDate.nullable() })),
+      limit: z.object({ used: z.number(), max: z.number() }),
+      playtimeSeconds: z.number(),
+      devices: z.number(),
+      pendingTransfers: z.number().describe('Account takeovers nobody has dismissed yet.'),
+    })
+    .optional()
+    .describe('Warden admins. Left out for ghost accounts.'),
+  moderation: z
+    .object({
+      activeBan: adminPersonBan
+        .extend({ id: z.string(), createdAt: isoDate })
+        .nullable()
+        .describe('The Warden ban in force.'),
+      appeal: z
+        .object({ id: z.string(), status: z.enum(['pending', 'accepted', 'rejected']) })
+        .nullable()
+        .describe('The appeal of the ban in force.'),
+      bans: z.number(),
+      notes: z.number(),
+      warnings: z.number(),
+    })
+    .optional()
+    .describe('Warden admins. Left out for ghost accounts.'),
+  playtime: z
+    .object({ overSeconds: z.number().describe('Played past the allowance this week.') })
+    .optional()
+    .describe('Warden admins. Left out for ghost accounts.'),
+  anticheat: adminAnticheatBrief
+    .extend({
+      flaggedFiles: z.number(),
+      flaggedFile: z
+        .object({
+          sha512: z.string(),
+          filename: z.string(),
+          status: z.enum(['review', 'refused', 'banned']),
+        })
+        .nullable()
+        .describe('The one to look at first: banned, then refused, then to review.'),
+    })
+    .nullable()
+    .optional()
+    .describe('Null when the anticheat has not seen the player. Warden admins.'),
+  economy: z
+    .object({ accountId: z.string(), balance: z.number(), frozen: z.boolean() })
+    .nullable()
+    .optional()
+    .describe('The personal account, null with none. Site admins and economy admins.'),
+  events: z
+    .object({
+      registrations: z.array(
+        z.object({
+          eventId: z.string(),
+          name: z.string(),
+          startsAt: isoDate,
+          endsAt: isoDate,
+          status: z.enum(['registered', 'waitlist']),
+          team: z.string().nullable(),
+        }),
+      ),
+    })
+    .optional()
+    .describe(
+      'Their registrations, newest event first (up to 100). Site admins and events managers.',
+    ),
+});
+export type AdminPersonSummary = z.infer<typeof adminPersonSummary>;
 
 /** PUT /api/admin/users/:userId/roles */
 export const adminRolesBody = z.object({
@@ -145,10 +336,6 @@ export type AdminBanBody = z.infer<typeof adminBanBody>;
 export const ADMIN_BULK_MAX = 2000;
 const ADMIN_BULK_IDS_MAX = 500;
 
-/** The filters of the Users list, without its cursor. */
-export const adminUsersFilters = adminUsersQuery.omit({ cursor: true });
-export type AdminUsersFilters = z.input<typeof adminUsersFilters>;
-
 /** POST /api/admin/users/bulk */
 export const adminBulkBody = z
   .object({
@@ -158,7 +345,7 @@ export const adminBulkBody = z
         z.object({
           userIds: z.array(z.string().min(1).max(64)).min(1).max(ADMIN_BULK_IDS_MAX),
         }),
-        z.object({ filters: adminUsersFilters }),
+        z.object({ filters: adminPeopleFilters }),
       ])
       .describe(
         `Either accounts picked by ID (up to ${String(ADMIN_BULK_IDS_MAX)}), or every account matching the filters (up to ${String(ADMIN_BULK_MAX)}).`,

@@ -2,9 +2,7 @@ import {
   and,
   asc,
   eq,
-  count,
   gt,
-  ilike,
   inArray,
   isNotNull,
   isNull,
@@ -22,6 +20,12 @@ import { session, user, wardenBan } from '~~/server/db/schema';
 import { adminAuditService } from '~~/server/services/admin-audit';
 import { economyAccountService } from '~~/server/services/economy/accounts';
 import { eventRegistrationService } from '~~/server/services/events/registrations';
+import {
+  inactiveBefore,
+  lastActive,
+  peopleAccess,
+  peopleWhere,
+} from '~~/server/services/people/access';
 
 import { ADMIN_BULK_MAX } from '#shared/schemas/admin';
 import type {
@@ -30,9 +34,6 @@ import type {
   AdminBulkResult,
   AdminProblem,
   AdminRolesBody,
-  AdminUserPage,
-  AdminUserRow,
-  AdminUsersFilters,
 } from '#shared/schemas/admin';
 import { bulkProblem } from '#shared/utils/bulk-users';
 import type { BulkTarget } from '#shared/utils/bulk-users';
@@ -45,133 +46,16 @@ import {
   WARDEN_ADMIN_ROLE,
   withRole,
 } from '#shared/utils/roles';
-import { schoolForTenant } from '#shared/utils/schools';
 
 // Accounts, for site admins: roles, site bans, sessions and deletion. Every change is written to
 // admin_audit. Site bans use Better Auth's admin plugin columns, so Better Auth refuses the
 // sign-in itself, and lifts a ban that has expired. Warden bans are separate (services/warden/).
 
-const PAGE_SIZE = 50;
-/** Accounts with no sign-in for this long are deleted (see the plan). */
-const INACTIVE_MONTHS = 24;
-
 function refuse(status: number, problem: AdminProblem): never {
   throw createError({ status, statusText: problem, data: { problem } });
 }
 
-/** The time before which an account counts as inactive. */
-export function inactiveBefore(now = new Date()): Date {
-  const date = new Date(now);
-  date.setMonth(date.getMonth() - INACTIVE_MONTHS);
-  return date;
-}
-
-// Accounts that never signed in since last_sign_in_at was added count from their creation.
-const lastActive = sql`coalesce(${user.lastSignInAt}, ${user.createdAt})`;
-
-function banActiveWhere(now: Date) {
-  return and(eq(user.banned, true), or(isNull(user.banExpires), gt(user.banExpires, now)));
-}
-
-// Roles are a comma-separated list, so match a whole name.
-const roleMatch = (name: string) =>
-  sql`${name} = any(string_to_array(replace(coalesce(${user.role}, ''), ' ', ''), ','))`;
-
-function filterWhere(query: AdminUsersFilters, now: Date) {
-  const search = query.q ? `%${query.q.replace(/[\\%_]/g, '\\$&')}%` : undefined;
-  return and(
-    search ? or(ilike(user.name, search), ilike(user.email, search)) : undefined,
-    query.tenantId ? eq(user.tenantId, query.tenantId) : undefined,
-    !query.role || query.role === 'any' ? undefined : roleMatch(query.role),
-    query.status === 'banned' ? banActiveWhere(now) : undefined,
-    query.status === 'inactive' ? lt(lastActive, inactiveBefore(now)) : undefined,
-    query.status === 'ghost' ? eq(user.ghost, true) : undefined,
-  );
-}
-
-/** Accounts, by name, 50 per page. */
-async function list(query: {
-  q?: string;
-  tenantId?: string;
-  role: 'any' | 'admin' | 'warden-admin' | 'events-manager' | 'economy-admin';
-  status: 'all' | 'banned' | 'inactive' | 'ghost';
-  cursor?: string;
-}): Promise<AdminUserPage> {
-  const now = new Date();
-  const after = query.cursor ? decodeCursor(query.cursor) : undefined;
-  const where = filterWhere(query, now);
-
-  const [rows, [matching]] = await Promise.all([
-    db
-      .select({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        image: user.image,
-        tenantId: user.tenantId,
-        role: user.role,
-        createdAt: user.createdAt,
-        lastSignInAt: user.lastSignInAt,
-        ghost: user.ghost,
-        banned: user.banned,
-        banReason: user.banReason,
-        banExpires: user.banExpires,
-      })
-      .from(user)
-      .where(
-        and(
-          where,
-          after ? sql`(${user.name}, ${user.id}) > (${after.name}, ${after.id})` : undefined,
-        ),
-      )
-      .orderBy(asc(user.name), asc(user.id))
-      .limit(PAGE_SIZE + 1),
-    db.select({ total: count() }).from(user).where(where),
-  ]);
-
-  const cutoff = inactiveBefore(now);
-  const items = rows.slice(0, PAGE_SIZE).map((row): AdminUserRow => ({
-    userId: row.id,
-    name: row.name,
-    email: row.email,
-    image: row.image,
-    school: schoolForTenant(row.tenantId) ?? null,
-    admin: isAdmin(row.role),
-    wardenAdmin: hasRole(row.role, WARDEN_ADMIN_ROLE),
-    eventsManager: hasRole(row.role, EVENTS_MANAGER_ROLE),
-    economyAdmin: hasRole(row.role, ECONOMY_ADMIN_ROLE),
-    ghost: row.ghost,
-    createdAt: row.createdAt.toISOString(),
-    lastSignInAt: row.lastSignInAt?.toISOString() ?? null,
-    inactive: (row.lastSignInAt ?? row.createdAt) < cutoff,
-    ban:
-      row.banned && (!row.banExpires || row.banExpires > now)
-        ? { reason: row.banReason, expiresAt: row.banExpires?.toISOString() ?? null }
-        : null,
-  }));
-  const last = items.at(-1);
-  return {
-    items,
-    nextCursor: rows.length > PAGE_SIZE && last ? encodeCursor(last.name, last.userId) : null,
-    total: matching?.total ?? 0,
-  };
-}
-
-function encodeCursor(name: string, id: string): string {
-  return Buffer.from(JSON.stringify([name, id])).toString('base64url');
-}
-
-function decodeCursor(cursor: string): { name: string; id: string } {
-  try {
-    const value: unknown = JSON.parse(Buffer.from(cursor, 'base64url').toString());
-    if (Array.isArray(value) && typeof value[0] === 'string' && typeof value[1] === 'string') {
-      return { name: value[0], id: value[1] };
-    }
-  } catch {
-    // Falls through to the refusal.
-  }
-  refuse(400, 'invalidCursor');
-}
+export { inactiveBefore };
 
 async function requireTarget(dbx: Db, userId: string) {
   const [row] = await dbx
@@ -340,7 +224,7 @@ async function bulk(input: { actorId: string; body: AdminBulkBody }): Promise<Ad
     targets = await db
       .select(columns)
       .from(user)
-      .where(filterWhere(body.selection.filters, now))
+      .where(await peopleWhere(peopleAccess('admin'), body.selection.filters, now))
       .orderBy(asc(user.name), asc(user.id))
       .limit(ADMIN_BULK_MAX + 1);
     if (targets.length > ADMIN_BULK_MAX) refuse(400, 'tooMany');
@@ -449,7 +333,6 @@ async function deleteInactive(now = new Date()): Promise<number> {
 }
 
 export const usersService = {
-  list,
   setRoles,
   ban,
   unban,

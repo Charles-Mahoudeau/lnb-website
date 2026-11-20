@@ -42,6 +42,7 @@ type Access =
   | 'wardenAdmin'
   | 'eventsManager'
   | 'playtimeGranter'
+  | 'peopleAdmin'
   | 'economyAdmin'
   | 'admin'
   | 'wardenServer'
@@ -212,9 +213,10 @@ const responseSchemas = {
   EconomyExport: economy.economyExport,
   AdminOverview: admin.adminOverview,
   AdminAuditView: admin.adminAuditView,
-  AdminUserRow: admin.adminUserRow,
+  AdminPersonRow: admin.adminPersonRow,
   AdminGhost: admin.adminGhost,
-  AdminUserPage: admin.adminUserPage,
+  AdminPeoplePage: admin.adminPeoplePage,
+  AdminPersonSummary: admin.adminPersonSummary,
   AdminBulkResult: admin.adminBulkResult,
   FlagStates: flags.flagStates,
   AdminFlagList: flags.adminFlagList,
@@ -255,7 +257,6 @@ const responseSchemas = {
   AnticheatRescoreResult: anticheat.anticheatRescoreResult,
   AnticheatModIdBanList: anticheat.anticheatModIdBanList,
   AnticheatBulkResult: anticheat.anticheatBulkResult,
-  AnticheatPlayerRowPage: anticheat.anticheatPlayerRowPage,
   AnticheatPlayerDetail: anticheat.anticheatPlayerDetail,
   AnticheatTimelinePage: anticheat.anticheatTimelinePage,
   AnticheatSettings: anticheat.anticheatSettingsResponse,
@@ -558,15 +559,30 @@ const routes: RouteDoc[] = [
   },
   {
     method: 'get',
-    path: '/api/admin/users',
+    path: '/api/admin/people',
     tag: TAGS.admin,
-    summary: 'Accounts',
+    summary: 'People',
     description:
-      'Every account, by name, with its school, roles, last sign-in and site ban. Search by name or email.',
-    access: 'admin',
-    query: admin.adminUsersQuery,
-    response: admin.adminUserPage,
-    problems: [{ status: 400, problems: ['invalidCursor'] }],
+      "Everyone, by name, 50 per page, filtered on the server. The columns follow the caller's role: Warden admins get emails, roles, Minecraft accounts, bans, the anticheat and the playtime limit; site admins also get the site account (last sign-in, site ban); economy admins get the LNBits balance; events managers get the event registrations and never an email. Search by name, email, Minecraft name or UUID (events managers: name and email; economy admins: name and Minecraft name). A quick filter the role can't see is a 403 `notAllowed`.",
+    access: 'peopleAdmin',
+    query: admin.adminPeopleQuery,
+    response: admin.adminPeoplePage,
+    problems: [
+      { status: 400, problems: ['invalidCursor'] },
+      { status: 403, problems: ['notAllowed'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/admin/people/{userId}/summary',
+    tag: TAGS.admin,
+    summary: 'A person at a glance',
+    description:
+      'The account facts and the "At a glance" figures of the Person page, cut to the caller\'s role: the account and its roles for Warden admins, moderation, Minecraft, playtime and anticheat figures for Warden admins, the site ban for site admins, the personal account for economy admins, and registrations for events managers. A ghost account has no Minecraft figures.',
+    access: 'peopleAdmin',
+    params: admin.adminUserParams,
+    response: admin.adminPersonSummary,
+    problems: [{ status: 404, problems: ['notFound'] }],
   },
   {
     method: 'post',
@@ -1190,17 +1206,6 @@ const routes: RouteDoc[] = [
     body: anticheat.anticheatBulkBody,
     response: anticheat.anticheatBulkResult,
     problems: [{ status: 404, problems: ['notFound'] }],
-  },
-  {
-    method: 'get',
-    path: '/api/anticheat/admin/players',
-    tag: TAGS.anticheatAdmin,
-    summary: 'List players',
-    description: 'Players with a trust score, the lowest first.',
-    access: 'wardenAdmin',
-    query: anticheat.anticheatPlayersQuery,
-    response: anticheat.anticheatPlayerRowPage,
-    problems: [{ status: 400, problems: ['invalidCursor'] }],
   },
   {
     method: 'get',
@@ -6090,6 +6095,14 @@ const ACCESS: Record<Access, { security?: OpenApiObject[]; note?: string; errors
   playtimeGranter: {
     security: [{ session: [] }],
     note: 'Warden admins, events managers and site admins only.',
+    errors: [
+      { status: 401, problems: [] },
+      { status: 403, problems: [] },
+    ],
+  },
+  peopleAdmin: {
+    security: [{ session: [] }],
+    note: 'Warden admins, events managers, economy admins and site admins. What comes back depends on the role.',
     errors: [
       { status: 401, problems: [] },
       { status: 403, problems: [] },

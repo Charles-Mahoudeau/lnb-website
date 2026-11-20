@@ -4,7 +4,13 @@ import type { RequestEvent } from 'nuxt/server';
 import { auth } from '~~/server/lib/auth';
 import type { AuthSession } from '~~/server/lib/auth';
 
-import { isAdmin, isEconomyAdmin, isEventsManager, isWardenAdmin } from '#shared/utils/roles';
+import {
+  canOpenAdmin,
+  isAdmin,
+  isEconomyAdmin,
+  isEventsManager,
+  isWardenAdmin,
+} from '#shared/utils/roles';
 
 /** The signed-in user's session, or null. */
 export function getAuthSession(event: RequestEvent): Promise<AuthSession | null> {
@@ -64,6 +70,19 @@ export async function requireEconomyAdmin(event: RequestEvent): Promise<AuthSess
 export async function requirePlaytimeGranter(event: RequestEvent): Promise<AuthSession['user']> {
   const user = await requireUser(event);
   if (!isWardenAdmin(user.role) && !isEventsManager(user.role)) {
+    throw createError({ status: 403, statusText: 'Forbidden' });
+  }
+  return user;
+}
+
+/**
+ * The signed-in person who may open People: a Warden admin, an events manager or an economy
+ * admin (site admins are all three). Throws a 401 when signed out, else a 403. What they see
+ * is cut to their role by `peopleAccess`.
+ */
+export async function requirePeople(event: RequestEvent): Promise<AuthSession['user']> {
+  const user = await requireUser(event);
+  if (!canOpenAdmin(user.role)) {
     throw createError({ status: 403, statusText: 'Forbidden' });
   }
   return user;
