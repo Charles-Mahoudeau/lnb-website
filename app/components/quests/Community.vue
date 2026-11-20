@@ -51,9 +51,9 @@ const dateFormat = computed(
         <p class="text-muted">
           {{
             t('quests.community.threshold', {
-              n: formatLnbits(threshold, locale),
+              n: formatCount(threshold, locale),
               percent: data.community.thresholdPercent,
-              mine: formatLnbits(data.me.community.contribution, locale),
+              mine: formatCount(data.me.community.contribution, locale),
               bonus: data.community.topBonusPercent,
             })
           }}

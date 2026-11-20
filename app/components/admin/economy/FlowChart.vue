@@ -26,10 +26,7 @@ const bars = computed(() =>
     burned: scale(day.burned),
   })),
 );
-const compact = (value: number) =>
-  new Intl.NumberFormat(locale.value, { notation: 'compact', maximumFractionDigits: 1 }).format(
-    value,
-  );
+const compact = (value: number) => formatCompactLnbits(value, locale.value);
 const labels = computed(() => {
   const last = props.days.length - 1;
   return [...new Set([0, Math.round(last / 2), last])].map((i) => ({

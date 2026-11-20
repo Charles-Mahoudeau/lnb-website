@@ -64,7 +64,7 @@ const kChart = computed(() => chart(days.value.map((day) => day.kGlobal)));
       <div class="flex flex-col gap-1 rounded-lg bg-elevated px-6 py-5">
         <span class="text-sm font-semibold text-muted">{{ t('admin.quests.index.index') }}</span>
         <span class="font-display text-3xl font-bold text-highlighted tabular-nums">{{
-          formatLnbits(latest?.index ?? data.preview.index, locale)
+          formatWholeLnbits(latest?.index ?? data.preview.index, locale)
         }}</span>
         <span v-if="latest && weekAgo" class="text-sm text-muted tabular-nums">
           {{
@@ -135,7 +135,7 @@ const kChart = computed(() => chart(days.value.map((day) => day.kGlobal)));
               text-anchor="end"
               class="fill-current text-xs text-muted"
             >
-              {{ key === 'k' ? decimal(tick.v, 2) : formatLnbits(tick.v, locale) }}
+              {{ key === 'k' ? decimal(tick.v, 2) : formatWholeLnbits(tick.v, locale) }}
             </text>
           </g>
           <polyline
@@ -188,14 +188,16 @@ const kChart = computed(() => chart(days.value.map((day) => day.kGlobal)));
               <td class="py-2 pr-3">{{ day.day }}</td>
               <td class="py-2 pr-3 text-right tabular-nums">{{ day.activePlayers }}</td>
               <td class="py-2 pr-3 text-right tabular-nums">
-                {{ formatLnbits(day.median, locale) }}
-              </td>
-              <td class="py-2 pr-3 text-right tabular-nums">{{ formatLnbits(day.q3, locale) }}</td>
-              <td class="py-2 pr-3 text-right tabular-nums">
-                {{ formatLnbits(day.mean, locale) }}
+                {{ formatWholeLnbits(day.median, locale) }}
               </td>
               <td class="py-2 pr-3 text-right tabular-nums">
-                {{ formatLnbits(day.index, locale) }}
+                {{ formatWholeLnbits(day.q3, locale) }}
+              </td>
+              <td class="py-2 pr-3 text-right tabular-nums">
+                {{ formatWholeLnbits(day.mean, locale) }}
+              </td>
+              <td class="py-2 pr-3 text-right tabular-nums">
+                {{ formatWholeLnbits(day.index, locale) }}
               </td>
               <td class="py-2 text-right tabular-nums">{{ decimal(day.kGlobal) }}</td>
             </tr>

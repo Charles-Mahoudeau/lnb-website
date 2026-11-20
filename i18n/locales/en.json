@@ -5420,6 +5420,13 @@
       "legendVolume": "In and out per day",
       "chartLabel": "The balance went from {from} to {to} LNBits over the period.",
       "dayLabel": "{day}: {balance} LNBits, {in} in, {out} out"
+    },
+    "amountInput": {
+      "format": "Type an amount like 12 or 12.50.",
+      "decimals": "An amount has at most 2 decimals (a cent is 0.01).",
+      "min": "The amount must be above 0.",
+      "max": "That amount is too large.",
+      "placeholder": "0.00"
     }
   },
   "partnerEvents": {

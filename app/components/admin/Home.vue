@@ -115,7 +115,9 @@ const canSeeActivity = computed(() =>
       </div>
       <div v-for="stat in week.stats" :key="stat.id" class="flex min-w-32 flex-col">
         <dt class="text-sm text-muted">{{ t(`admin.home.week.${stat.id}`) }}</dt>
-        <dd class="font-semibold text-highlighted tabular-nums">{{ number(stat.value) }}</dd>
+        <dd class="font-semibold text-highlighted tabular-nums">
+          {{ stat.id === 'circulation' ? formatLnbits(stat.value, locale) : number(stat.value) }}
+        </dd>
       </div>
     </dl>
 

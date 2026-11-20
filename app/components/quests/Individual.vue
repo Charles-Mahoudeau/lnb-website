@@ -169,7 +169,7 @@ async function claim(id: string) {
               </template>
               <template v-else>
                 <span class="font-semibold text-highlighted tabular-nums">{{
-                  formatLnbits(tier.amount, locale)
+                  formatCount(tier.amount, locale)
                 }}</span>
                 <template v-if="state(quest.id, index + 1) === 'progress' && data.me">
                   <UProgress
@@ -179,8 +179,8 @@ async function claim(id: string) {
                     :max="tier.amount"
                   />
                   <span class="text-xs text-muted tabular-nums">
-                    {{ formatLnbits(data.me.progress[quest.id] ?? 0, locale) }} /
-                    {{ formatLnbits(tier.amount, locale) }}
+                    {{ formatCount(data.me.progress[quest.id] ?? 0, locale) }} /
+                    {{ formatCount(tier.amount, locale) }}
                   </span>
                 </template>
                 <UButton
@@ -197,7 +197,10 @@ async function claim(id: string) {
                       {{ formatLnbits(completion(quest.id, index + 1)!.amount, locale) }}
                     </template>
                     <template v-else
-                      >≈ {{ formatLnbits(quest.today[index]! * kPlayer, locale) }}</template
+                      >≈
+                      {{
+                        formatLnbits(Math.round(quest.today[index]! * kPlayer), locale)
+                      }}</template
                     >
                   </span>
                   <span class="text-sm text-muted"> LNBits</span>
