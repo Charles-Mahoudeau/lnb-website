@@ -1,5 +1,6 @@
 import { defineTask } from 'nitropack/runtime';
 
+import { auditService } from '~~/server/services/audit';
 import { flagService } from '~~/server/services/flags';
 import { minecraftEventService } from '~~/server/services/minecraft-events';
 
@@ -12,6 +13,8 @@ export default defineTask({
   async run() {
     if (!(await flagService.isEnabled('jobs.pruneServerEvents')))
       return { result: { deleted: 0, skipped: true } };
-    return { result: { deleted: await minecraftEventService.prune(), skipped: false } };
+    const deleted = await minecraftEventService.prune();
+    await auditService.recordJob('minecraft.events.prune', { deleted });
+    return { result: { deleted, skipped: false } };
   },
 });

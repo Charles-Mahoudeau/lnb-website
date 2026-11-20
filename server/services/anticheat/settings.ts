@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import { anticheatRulesVersion, anticheatSettings } from '~~/server/db/schema';
-import { wardenAuditService } from '~~/server/services/warden/audit';
+import { auditService } from '~~/server/services/audit';
 
 import type { AnticheatMode, AnticheatRules } from '#shared/schemas/anticheat';
 
@@ -96,8 +96,8 @@ async function update(input: {
         updatedByUserId: input.actorId,
       })
       .where(eq(anticheatSettings.id, 1));
-    await wardenAuditService.record(tx, {
-      action: 'anticheat.settings',
+    await auditService.record(tx, {
+      action: 'minecraft.anticheat.settings',
       actor: { source: 'web', userId: input.actorId },
       data: {
         ...(modeChanged ? { mode: { from: current.mode, to: input.mode } } : {}),

@@ -1,5 +1,6 @@
 import { defineTask } from 'nitropack/runtime';
 
+import { auditService } from '~~/server/services/audit';
 import { flagService } from '~~/server/services/flags';
 import { gamesplanetService } from '~~/server/services/gamesplanet';
 
@@ -16,6 +17,8 @@ export default defineTask({
       !(await flagService.isEnabled('jobs.gamesplanetCatalog'))
     )
       return { result: { skipped: true } };
-    return { result: { skipped: false, ...(await gamesplanetService.syncCatalog()) } };
+    const synced = await gamesplanetService.syncCatalog();
+    await auditService.recordJob('site.gamesplanet.sync', { feed: 'catalog', ...synced });
+    return { result: { skipped: false, ...synced } };
   },
 });

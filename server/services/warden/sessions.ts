@@ -15,9 +15,9 @@ import {
 import type { WardenSessionEndReason } from '~~/server/db/schema';
 import { uuidMatchesUsername } from '~~/server/lib/minecraft';
 import { anticheatPlayerService } from '~~/server/services/anticheat/players';
+import { auditService } from '~~/server/services/audit';
 import { playtimeService } from '~~/server/services/playtime/service';
 
-import { wardenAuditService } from './audit';
 import { wardenModerationService } from './moderation';
 import { wardenPlayerService } from './players';
 import { hashSecret, SESSION_TIMEOUT_MS, shortName } from './rules';
@@ -236,8 +236,8 @@ async function linkAccount(
       .where(eq(minecraftAccount.uuid, existing.uuid))
       .returning();
     if (sameOwner) {
-      await wardenAuditService.record(tx, {
-        action: 'link',
+      await auditService.record(tx, {
+        action: 'minecraft.link',
         actor,
         targetUserId: input.userId,
         targetMinecraftUuid: existing.uuid,
@@ -261,8 +261,8 @@ async function linkAccount(
         toUserId: input.userId,
       })
       .returning({ id: wardenAccountTransfer.id });
-    await wardenAuditService.record(tx, {
-      action: 'link.transfer',
+    await auditService.record(tx, {
+      action: 'minecraft.link.transfer',
       actor,
       targetUserId: input.userId,
       targetMinecraftUuid: existing.uuid,
@@ -287,8 +287,8 @@ async function linkAccount(
   await tx
     .insert(minecraftUsername)
     .values({ minecraftUuid: account.uuid, username: input.body.username });
-  await wardenAuditService.record(tx, {
-    action: 'link',
+  await auditService.record(tx, {
+    action: 'minecraft.link',
     actor: { ...actor, minecraft: { uuid: account.uuid, username: account.username } },
     targetUserId: input.userId,
     targetMinecraftUuid: account.uuid,

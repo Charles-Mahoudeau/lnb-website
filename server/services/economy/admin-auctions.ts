@@ -8,7 +8,7 @@ import {
   minecraftAccount,
   user,
 } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 
 import { escapeLike } from './admin';
 import { economyAuctionService } from './auctions';
@@ -128,9 +128,9 @@ async function remove(
       .select({ username: minecraftAccount.username })
       .from(minecraftAccount)
       .where(eq(minecraftAccount.uuid, listing.sellerMinecraftUuid));
-    await adminAuditService.record(tx, {
+    await auditService.record(tx, {
       action: 'economy.listingRemove',
-      actorUserId: actorId,
+      actor: { source: 'web', userId: actorId },
       targetUserId: listing.sellerUserId,
       data: {
         name: `${String(listing.count)} × ${listing.itemName}, ${seller?.username ?? ''}`,

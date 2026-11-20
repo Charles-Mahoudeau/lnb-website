@@ -1,5 +1,6 @@
 import { defineTask } from 'nitropack/runtime';
 
+import { auditService } from '~~/server/services/audit';
 import { flagService } from '~~/server/services/flags';
 import { pushStatsService } from '~~/server/services/push/stats';
 
@@ -12,6 +13,8 @@ export default defineTask({
   async run() {
     if (!(await flagService.isEnabled('jobs.pushPrune')))
       return { result: { removed: 0, skipped: true } };
-    return { result: { removed: await pushStatsService.prune(), skipped: false } };
+    const removed = await pushStatsService.prune();
+    await auditService.recordJob('events.push.prune', { removed });
+    return { result: { removed, skipped: false } };
   },
 });

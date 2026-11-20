@@ -6,7 +6,7 @@ import { createError } from 'nuxt/server';
 import { db } from '~~/server/db';
 import type { Db } from '~~/server/db';
 import { user } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 
 import type {
   AdminGhost,
@@ -71,9 +71,9 @@ async function create(input: { actorId: string; body: AdminGhostBody }): Promise
         })
         .returning({ id: user.id, name: user.name, email: user.email, tenantId: user.tenantId });
       if (!row) throw new Error('The ghost was not inserted.');
-      await adminAuditService.record(tx, {
-        action: 'user.ghostCreate',
-        actorUserId: input.actorId,
+      await auditService.record(tx, {
+        action: 'people.ghost.create',
+        actor: { source: 'web', userId: input.actorId },
         targetUserId: row.id,
         data: { email, tenantId },
       });
@@ -110,9 +110,9 @@ async function update(input: {
         .where(and(eq(user.id, input.userId), eq(user.ghost, true)))
         .returning({ id: user.id, name: user.name, email: user.email, tenantId: user.tenantId });
       if (!row) refuse(409, 'notGhost');
-      await adminAuditService.record(tx, {
-        action: 'user.ghostUpdate',
-        actorUserId: input.actorId,
+      await auditService.record(tx, {
+        action: 'people.ghost.update',
+        actor: { source: 'web', userId: input.actorId },
         targetUserId: input.userId,
         data: { fields: Object.keys(input.body) },
       });

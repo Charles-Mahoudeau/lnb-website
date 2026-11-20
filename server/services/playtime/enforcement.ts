@@ -1,7 +1,7 @@
 import { and, eq, gt, isNull } from 'drizzle-orm';
 
 import { playtimeNotice, wardenSession } from '~~/server/db/schema';
-import { wardenAuditService } from '~~/server/services/warden/audit';
+import { auditService } from '~~/server/services/audit';
 
 import { playtimeContextService } from './context';
 import { dueNotices, weekStart } from './rules';
@@ -77,11 +77,15 @@ async function enforceUser(
   );
   const week = weekStart(now);
   const record = (
-    action: 'playtime.warning' | 'playtime.grace' | 'playtime.update' | 'playtime.kick',
+    action:
+      | 'minecraft.playtime.warning'
+      | 'minecraft.playtime.grace'
+      | 'minecraft.playtime.update'
+      | 'minecraft.playtime.kick',
     uuid: string,
     data: Record<string, unknown>,
   ) =>
-    wardenAuditService.record(tx, {
+    auditService.record(tx, {
       action,
       actor: { source: 'system' },
       targetUserId: userId,
@@ -99,7 +103,7 @@ async function enforceUser(
 
     if (due.kick) {
       if (await claim(tx, session.id, [`${week}:kick`])) {
-        await record('playtime.kick', session.uuid, {
+        await record('minecraft.playtime.kick', session.uuid, {
           reason: 'playtimeLimit',
           playtime: toBlock(state.evaluation),
         });
@@ -108,7 +112,9 @@ async function enforceUser(
     }
     if (due.grace) {
       if (await claim(tx, session.id, [`${week}:grace`])) {
-        await record('playtime.grace', session.uuid, { graceEndsAt: state.playtime.graceEndsAt });
+        await record('minecraft.playtime.grace', session.uuid, {
+          graceEndsAt: state.playtime.graceEndsAt,
+        });
         continue;
       }
     }
@@ -120,13 +126,13 @@ async function enforceUser(
         due.warning.notices.map((n) => `${week}:${n}`),
       ))
     ) {
-      await record('playtime.warning', session.uuid, {
+      await record('minecraft.playtime.warning', session.uuid, {
         remainingSeconds: due.warning.remainingSeconds,
         kind: due.warning.kind,
       });
     }
     if (before !== undefined && before !== current) {
-      await record('playtime.update', session.uuid, { playtime: state.playtime });
+      await record('minecraft.playtime.update', session.uuid, { playtime: state.playtime });
     }
   }
   return sessions.map((session) => session.id);

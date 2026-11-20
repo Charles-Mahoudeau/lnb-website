@@ -3,7 +3,7 @@ import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
 import { downloadFile, downloadSetting, storedFile } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 import { fileDownloadUrl } from '~~/server/services/files';
 
 import { DOWNLOAD_SLOTS } from '#shared/schemas/downloads';
@@ -111,9 +111,9 @@ async function set(input: {
         target: downloadFile.slot,
         set: { ...values, updatedAt: new Date() },
       });
-    await adminAuditService.record(tx, {
-      action: 'downloads.update',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'minecraft.downloads.update',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { slot: input.slot, fileId: file.id, name: file.name, version },
     });
@@ -129,9 +129,9 @@ async function clear(input: { slot: DownloadSlot; actorId: string }): Promise<Do
       .where(eq(downloadFile.slot, input.slot))
       .returning({ fileId: downloadFile.fileId });
     if (removed.length === 0) return;
-    await adminAuditService.record(tx, {
-      action: 'downloads.update',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'minecraft.downloads.update',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { slot: input.slot, fileId: null, name: null, version: null },
     });
@@ -151,9 +151,9 @@ async function updateSettings(input: {
       .insert(downloadSetting)
       .values(values)
       .onConflictDoUpdate({ target: downloadSetting.id, set: values });
-    await adminAuditService.record(tx, {
-      action: 'downloads.update',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'minecraft.downloads.update',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { setting: 'crackedReleaseUrl', url },
     });

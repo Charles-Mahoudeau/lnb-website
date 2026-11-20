@@ -6,9 +6,9 @@ import { eventIdParams } from '#shared/schemas/events';
 
 // Pushes the event to the BDE website again now, such as after the BDE refused it.
 export default defineEventHandler(async (event) => {
-  await requireEventsManager(event);
+  const manager = await requireEventsManager(event);
   const { id } = parseParams(event, eventIdParams);
-  await bdeSyncService.retry(id);
+  await bdeSyncService.retry(id, manager.id);
   setResponseStatus(event, 204);
   return null;
 });

@@ -15,7 +15,7 @@ import {
 
 import { db } from '~~/server/db';
 import { economyAccount, economyShop, economyShopOrder, user } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 
 import { auditName, escapeLike } from './admin';
 import { PAGE_SIZE, refuse } from './shared';
@@ -159,9 +159,9 @@ async function patch(
       .select()
       .from(economyAccount)
       .where(eq(economyAccount.id, shop.accountId));
-    await adminAuditService.record(tx, {
+    await auditService.record(tx, {
       action: body.disabled ? 'economy.shopDisable' : 'economy.shopEnable',
-      actorUserId: actorId,
+      actor: { source: 'web', userId: actorId },
       targetUserId: account?.ownerUserId ?? null,
       data: {
         name: `${shop.itemName}, ${account ? await auditName(tx, account) : ''}`,

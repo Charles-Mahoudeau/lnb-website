@@ -2,7 +2,7 @@ import { and, eq } from 'drizzle-orm';
 
 import { db } from '../db';
 import { isFlagOn } from './flag-gate';
-import { adminAudit, user } from '../db/schema';
+import { audit, user } from '../db/schema';
 
 // Ghost accounts: rows an admin made for people who haven't signed in yet (docs/ghost-accounts.md).
 // No Nuxt imports here: server/lib/auth.ts loads this file, and the Better Auth CLI loads that.
@@ -34,9 +34,10 @@ export async function claimGhost(userId: string): Promise<void> {
       .where(and(eq(user.id, userId), eq(user.ghost, true)))
       .returning({ email: user.email });
     if (!claimed) return;
-    await tx.insert(adminAudit).values({
-      action: 'user.ghostClaim',
-      actorUserId: null,
+    // Not through auditService: this file is loaded without the `~~` alias (see above).
+    await tx.insert(audit).values({
+      action: 'people.ghost.claim',
+      source: 'system',
       targetUserId: userId,
       data: { email: claimed.email },
     });

@@ -5,6 +5,7 @@ import type { Tx } from '~~/server/db';
 import { event, eventRoom } from '~~/server/db/schema';
 import { bdeEnv } from '~~/server/lib/bde-env';
 import { siteUrl } from '~~/server/lib/site';
+import { auditService } from '~~/server/services/audit';
 import { flagService } from '~~/server/services/flags';
 
 import { descriptionText } from './markdown';
@@ -194,10 +195,20 @@ async function processDue(now = new Date()): Promise<number> {
 }
 
 /** Tries again by hand, such as after fixing what the BDE refused. */
-async function retry(eventId: string): Promise<void> {
-  const [row] = await db.select({ id: event.id }).from(event).where(eq(event.id, eventId));
+async function retry(eventId: string, actorId: string): Promise<void> {
+  const [row] = await db
+    .select({ id: event.id, name: event.name })
+    .from(event)
+    .where(eq(event.id, eventId));
   if (!row) refuse(404, 'notFound');
-  await db.transaction((tx) => markPending(tx, eventId));
+  await db.transaction(async (tx) => {
+    await markPending(tx, eventId);
+    await auditService.record(tx, {
+      action: 'events.event.bdeRetry',
+      actor: { source: 'web', userId: actorId },
+      data: { eventId, name: row.name },
+    });
+  });
   await sync(eventId);
 }
 

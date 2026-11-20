@@ -12,8 +12,8 @@ import { createError } from 'nuxt/server';
 import { db } from '~~/server/db';
 import { isUniqueViolation } from '~~/server/db/errors';
 import { storedFile, user } from '~~/server/db/schema';
+import { auditService } from '~~/server/services/audit';
 import { usageOfFiles } from '~~/server/services/modpack/usage';
-import { wardenAuditService } from '~~/server/services/warden/audit';
 
 import { FILE_EXTENSIONS, MAX_FILE_BYTES, ZIP_EXTENSIONS } from '#shared/schemas/files';
 import type { FileKind, FileList, FileProblem, FileView } from '#shared/schemas/files';
@@ -205,8 +205,8 @@ async function ingest(input: {
           uploadedByUserId: input.actorUserId,
         })
         .returning({ id: storedFile.id });
-      await wardenAuditService.record(tx, {
-        action: 'file.upload',
+      await auditService.record(tx, {
+        action: 'minecraft.file.upload',
         actor: { source: 'web', userId: input.actorUserId },
         data: { fileId: row!.id, name, kind: input.kind, size: bytes },
       });
@@ -229,8 +229,8 @@ async function remove(input: { id: string; actorUserId: string }): Promise<void>
   if (usedBy.length > 0) refuse(409, 'fileInUse');
   await db.transaction(async (tx) => {
     await tx.delete(storedFile).where(eq(storedFile.id, row.id));
-    await wardenAuditService.record(tx, {
-      action: 'file.delete',
+    await auditService.record(tx, {
+      action: 'minecraft.file.delete',
       actor: { source: 'web', userId: input.actorUserId },
       data: { fileId: row.id, name: row.name, kind: row.kind },
     });
@@ -257,8 +257,8 @@ async function setKind(input: {
     if (((await usageOf([row.id])).get(row.id) ?? []).length > 0) refuse(409, 'fileInUse');
     await db.transaction(async (tx) => {
       await tx.update(storedFile).set({ kind: input.kind }).where(eq(storedFile.id, row.id));
-      await wardenAuditService.record(tx, {
-        action: 'file.kind',
+      await auditService.record(tx, {
+        action: 'minecraft.file.kind',
         actor: { source: 'web', userId: input.actorUserId },
         data: { fileId: row.id, name: row.name, from: row.kind, to: input.kind },
       });

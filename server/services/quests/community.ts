@@ -7,7 +7,7 @@ import {
   questCommunityContribution,
   questCommunityTemplate,
 } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 import { player } from '~~/server/services/economy/server';
 import { minecraftEventService } from '~~/server/services/minecraft-events';
 
@@ -292,9 +292,9 @@ async function create(actorId: string, input: unknown) {
         endsAt: new Date(body.endsAt),
       })
       .returning();
-    await adminAuditService.record(tx, {
-      action: 'quests.communityCreate',
-      actorUserId: actorId,
+    await auditService.record(tx, {
+      action: 'economy.quests.communityCreate',
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { id: inserted[0]!.id, name: body.definition.title.fr },
     });
@@ -322,9 +322,9 @@ async function update(actorId: string, id: string, input: unknown) {
         ...(body.endsAt ? { endsAt: new Date(body.endsAt) } : {}),
       })
       .where(eq(questCommunity.id, id));
-    await adminAuditService.record(tx, {
-      action: 'quests.communityUpdate',
-      actorUserId: actorId,
+    await auditService.record(tx, {
+      action: 'economy.quests.communityUpdate',
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { id, name: definitionOf(row).title.fr },
     });
@@ -343,9 +343,9 @@ async function cancel(actorId: string, id: string) {
     if (!row) refuse(404, 'notFound');
     if (row.status === 'paid' || row.status === 'cancelled') refuse(409, 'communityClosed');
     await tx.update(questCommunity).set({ status: 'cancelled' }).where(eq(questCommunity.id, id));
-    await adminAuditService.record(tx, {
-      action: 'quests.communityCancel',
-      actorUserId: actorId,
+    await auditService.record(tx, {
+      action: 'economy.quests.communityCancel',
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { id, name: definitionOf(row).title.fr },
     });
@@ -373,9 +373,9 @@ async function saveTemplate(
           .values({ definition, enabled: input.enabled ?? true })
           .returning();
     if (!row) refuse(404, 'notFound');
-    await adminAuditService.record(tx, {
-      action: 'quests.communityTemplate',
-      actorUserId: actorId,
+    await auditService.record(tx, {
+      action: 'economy.quests.communityTemplate',
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { id: row.id },
     });

@@ -11,7 +11,7 @@ import {
   partnerEventTeamMember,
   user,
 } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 import { eventImageService } from '~~/server/services/events/images';
 import { buildPartnerMessage } from '~~/server/services/push/messages';
 import { pushQueueService } from '~~/server/services/push/queue';
@@ -184,9 +184,9 @@ async function updateSettings(input: {
     if (Object.keys(input.body).length > 0) {
       await tx.update(partnerEvent).set(input.body).where(eq(partnerEvent.id, row.id));
     }
-    await adminAuditService.record(tx, {
-      action: 'partnerEvent.update',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.partnerEvent.update',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { slug: row.slug, fields: Object.keys(input.body) },
     });
@@ -230,9 +230,9 @@ async function updateGame(input: {
     if (Object.keys(next).length > 0) {
       await tx.update(partnerEventGame).set(next).where(eq(partnerEventGame.id, game.id));
     }
-    await adminAuditService.record(tx, {
-      action: 'partnerEvent.update',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.partnerEvent.update',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { slug: row.slug, game: input.game, fields: Object.keys(next) },
     });
@@ -264,9 +264,9 @@ async function setTeamReferent(input: {
       .where(and(eq(partnerEventTeam.id, input.teamId), inArray(partnerEventTeam.gameId, games)))
       .returning({ id: partnerEventTeam.id });
     if (updated.length === 0) refuse(404, 'teamNotFound');
-    await adminAuditService.record(tx, {
-      action: 'partnerEvent.update',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.partnerEvent.update',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { slug: row.slug, team: input.teamId, referent: r !== null },
     });
@@ -290,9 +290,9 @@ async function disbandTeam(input: {
       .where(and(eq(partnerEventTeam.id, input.teamId), inArray(partnerEventTeam.gameId, games)))
       .returning({ id: partnerEventTeam.id });
     if (removed.length === 0) refuse(404, 'teamNotFound');
-    await adminAuditService.record(tx, {
-      action: 'partnerEvent.update',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.partnerEvent.update',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { slug: row.slug, disbanded: input.teamId },
     });
@@ -305,9 +305,9 @@ async function close(input: { actorId: string; slug: string }): Promise<void> {
     const row = await findEvent(tx, input.slug);
     if (row.closedAt) return;
     await tx.update(partnerEvent).set({ closedAt: new Date() }).where(eq(partnerEvent.id, row.id));
-    await adminAuditService.record(tx, {
-      action: 'partnerEvent.close',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.partnerEvent.close',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { slug: row.slug },
     });
@@ -320,9 +320,9 @@ async function reopen(input: { actorId: string; slug: string }): Promise<void> {
     const row = await findEvent(tx, input.slug);
     if (!row.closedAt) return;
     await tx.update(partnerEvent).set({ closedAt: null }).where(eq(partnerEvent.id, row.id));
-    await adminAuditService.record(tx, {
-      action: 'partnerEvent.reopen',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.partnerEvent.reopen',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { slug: row.slug },
     });
@@ -383,9 +383,9 @@ async function announce(input: {
       userIds: await announcementAudience(tx),
       dedupe: (userId) => `partnerEvent:${row.id}:${userId}`,
     });
-    await adminAuditService.record(tx, {
-      action: 'partnerEvent.announce',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.partnerEvent.announce',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { slug: row.slug, recipients },
     });
@@ -458,9 +458,9 @@ async function exportSheet(input: { actorId: string; slug: string }): Promise<Bu
   }));
 
   await db.transaction((tx) =>
-    adminAuditService.record(tx, {
-      action: 'partnerEvent.export',
-      actorUserId: input.actorId,
+    auditService.record(tx, {
+      action: 'events.partnerEvent.export',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { slug: input.slug, teams: teams.length },
     }),
@@ -495,9 +495,9 @@ async function purgeClosed(now = new Date()): Promise<number> {
     await db.transaction(async (tx) => {
       await tx.delete(partnerEventTeam).where(inArray(partnerEventTeam.gameId, ids));
       await tx.delete(partnerEventInterest).where(inArray(partnerEventInterest.gameId, ids));
-      await adminAuditService.record(tx, {
-        action: 'partnerEvent.purge',
-        actorUserId: null,
+      await auditService.record(tx, {
+        action: 'events.partnerEvent.purge',
+        actor: { source: 'system' },
         targetUserId: null,
         data: { slug: row.slug, interest: n },
       });

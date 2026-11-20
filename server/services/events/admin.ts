@@ -9,7 +9,7 @@ import {
   eventType,
   gamesplanetGame,
 } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 import { gamesplanetDealsService } from '~~/server/services/gamesplanet-deals';
 import { playtimeEventService } from '~~/server/services/playtime/events';
 import { posterService } from '~~/server/services/posters';
@@ -35,7 +35,7 @@ import type {
 import { DEFAULT_REMINDER_OFFSETS } from '#shared/schemas/push';
 
 // Events, for events managers: the admin list, and creating, editing, cancelling, deleting and
-// duplicating events. Every change is written to admin_audit. See docs/events.md.
+// duplicating events. Every change is written to audit. See docs/events.md.
 
 type EventRow = typeof event.$inferSelect;
 
@@ -217,9 +217,9 @@ async function create(input: { actorId: string; body: EventBody }): Promise<{ id
         endsAt: event.endsAt,
       });
     await playtimeEventService.sync(tx, row!, input.body.playtimeFree ?? null);
-    await adminAuditService.record(tx, {
-      action: 'event.create',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.event.create',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { eventId: row!.id, name: row!.name, playtimeFree: input.body.playtimeFree ?? null },
     });
@@ -276,9 +276,9 @@ async function update(input: {
       { id: input.id, name: cols.name, startsAt: cols.startsAt, endsAt: cols.endsAt },
       input.body.playtimeFree ?? null,
     );
-    await adminAuditService.record(tx, {
-      action: 'event.update',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.event.update',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: {
         eventId: input.id,
@@ -304,9 +304,9 @@ async function cancel(input: { actorId: string; id: string }): Promise<void> {
       await lockEvent(tx, input.id);
       refuse(409, 'cancelled');
     }
-    await adminAuditService.record(tx, {
-      action: 'event.cancel',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.event.cancel',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { eventId: row.id, name: row.name },
     });
@@ -334,9 +334,9 @@ async function remove(input: { actorId: string; id: string }): Promise<void> {
     await bdeSyncService.removeBeforeDelete(current);
     await posterService.freezeForEvent(tx, input.id);
     await tx.delete(event).where(eq(event.id, input.id));
-    await adminAuditService.record(tx, {
-      action: 'event.delete',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.event.delete',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { eventId: input.id, name: current.name },
     });
@@ -392,9 +392,9 @@ async function duplicate(input: {
       { id: row!.id, name: source.name, startsAt, endsAt: new Date(input.body.endsAt) },
       await playtimeEventService.scopeOf(tx, source.id),
     );
-    await adminAuditService.record(tx, {
-      action: 'event.create',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.event.create',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { eventId: row!.id, name: source.name, duplicateOf: source.id },
     });

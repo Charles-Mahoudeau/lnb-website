@@ -17,7 +17,7 @@ import { createError } from 'nuxt/server';
 import { db } from '~~/server/db';
 import type { Db } from '~~/server/db';
 import { session, user, wardenBan } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 import { economyAccountService } from '~~/server/services/economy/accounts';
 import { eventRegistrationService } from '~~/server/services/events/registrations';
 import {
@@ -48,7 +48,7 @@ import {
 } from '#shared/utils/roles';
 
 // Accounts, for site admins: roles, site bans, sessions and deletion. Every change is written to
-// admin_audit. Site bans use Better Auth's admin plugin columns, so Better Auth refuses the
+// audit. Site bans use Better Auth's admin plugin columns, so Better Auth refuses the
 // sign-in itself, and lifts a ban that has expired. Warden bans are separate (services/warden/).
 
 function refuse(status: number, problem: AdminProblem): never {
@@ -101,9 +101,9 @@ async function setRoles(input: { actorId: string; userId: string; roles: AdminRo
     role = withRole(role, EVENTS_MANAGER_ROLE, input.roles.eventsManager);
     role = withRole(role, ECONOMY_ADMIN_ROLE, input.roles.economyAdmin);
     await tx.update(user).set({ role }).where(eq(user.id, input.userId));
-    await adminAuditService.record(tx, {
-      action: 'user.roles',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'people.roles',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: input.userId,
       data: { before, after: input.roles },
     });
@@ -125,9 +125,9 @@ async function ban(input: { actorId: string; userId: string; ban: AdminBanBody }
       .set({ banned: true, banReason: input.ban.reason, banExpires: expires })
       .where(eq(user.id, input.userId));
     await tx.delete(session).where(eq(session.userId, input.userId));
-    await adminAuditService.record(tx, {
-      action: 'user.ban',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'people.ban',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: input.userId,
       data: { reason: input.ban.reason, expiresAt: expires?.toISOString() ?? null },
     });
@@ -144,9 +144,9 @@ async function unban(input: { actorId: string; userId: string }) {
       .update(user)
       .set({ banned: false, banReason: null, banExpires: null })
       .where(eq(user.id, input.userId));
-    await adminAuditService.record(tx, {
-      action: 'user.unban',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'people.unban',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: input.userId,
     });
   });
@@ -157,9 +157,9 @@ async function signOut(input: { actorId: string; userId: string }) {
   await db.transaction(async (tx) => {
     await requireTarget(tx, input.userId);
     await tx.delete(session).where(eq(session.userId, input.userId));
-    await adminAuditService.record(tx, {
-      action: 'user.signOut',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'people.signOut',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: input.userId,
     });
   });
@@ -174,11 +174,12 @@ async function remove(input: { actorId: string; userId: string }) {
   await db.transaction(async (tx) => {
     const target = await requireTarget(tx, input.userId);
     if (isAdmin(target.role)) refuse(409, 'targetIsAdmin');
-    await adminAuditService.record(tx, {
-      action: 'user.delete',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'people.delete',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: input.userId,
     });
+    await auditService.forgetPeople(tx, [input.userId]);
     await tx.delete(user).where(eq(user.id, input.userId));
     // Their registrations went with the account: the waitlists move up.
     await eventRegistrationService.promoteAll(tx);
@@ -291,8 +292,9 @@ async function applyBulk(actorId: string, body: AdminBulkBody, target: BulkTarge
  */
 async function deleteInactive(now = new Date()): Promise<number> {
   return db.transaction(async (tx) => {
-    const deleted = await tx
-      .delete(user)
+    const inactive = await tx
+      .select({ id: user.id })
+      .from(user)
       .where(
         and(
           lt(lastActive, inactiveBefore(now)),
@@ -316,14 +318,18 @@ async function deleteInactive(now = new Date()): Promise<number> {
               ),
           ),
         ),
-      )
-      .returning({ id: user.id });
+      );
+    const ids = inactive.map((row) => row.id);
+    await auditService.forgetPeople(tx, ids);
+    const deleted = ids.length
+      ? await tx.delete(user).where(inArray(user.id, ids)).returning({ id: user.id })
+      : [];
     if (deleted.length) {
       await eventRegistrationService.promoteAll(tx);
       await economyAccountService.sweepOrphans(tx);
-      await adminAuditService.record(tx, {
-        action: 'users.deleteInactive',
-        actorUserId: null,
+      await auditService.record(tx, {
+        action: 'people.deleteInactive',
+        actor: { source: 'system' },
         targetUserId: null,
         data: { count: deleted.length },
       });

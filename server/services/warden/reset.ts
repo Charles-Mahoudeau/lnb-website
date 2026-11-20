@@ -1,8 +1,8 @@
 import { db } from '~~/server/db';
 import { wardenBan, wardenNote } from '~~/server/db/schema';
 import { anticheatAdminService } from '~~/server/services/anticheat/admin';
+import { auditService } from '~~/server/services/audit';
 
-import { wardenAuditService } from './audit';
 import { refuse } from './shared';
 import type { WardenActor } from './shared';
 
@@ -23,8 +23,8 @@ async function resetSanctions(actor: WardenActor, confirm: string) {
     const bans = await tx.delete(wardenBan).returning({ id: wardenBan.id });
     const notes = await tx.delete(wardenNote).returning({ id: wardenNote.id });
     const anticheat = await anticheatAdminService.wipeSanctions(tx);
-    await wardenAuditService.record(tx, {
-      action: 'warden.resetSanctions',
+    await auditService.record(tx, {
+      action: 'minecraft.resetSanctions',
       actor,
       data: { bans: bans.length, notes: notes.length, anticheat },
     });

@@ -2,7 +2,7 @@ import { and, asc, desc, eq, isNull, sql } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import { anticheatAlert, anticheatFile, user } from '~~/server/db/schema';
-import { wardenAuditService } from '~~/server/services/warden/audit';
+import { auditService } from '~~/server/services/audit';
 
 import { latestUsername } from './roster';
 import { anticheatSettingsService } from './settings';
@@ -44,8 +44,8 @@ async function raise(
     .returning({ id: anticheatAlert.id });
   if (created.length === 0) return false;
   // The audit row is the event on the Warden stream.
-  await wardenAuditService.record(tx, {
-    action: 'anticheat.alert',
+  await auditService.record(tx, {
+    action: 'minecraft.anticheat.alert',
     actor: { source: 'system' },
     targetUserId: alert.userId ?? null,
     targetMinecraftUuid: alert.minecraftUuid ?? null,
@@ -114,10 +114,19 @@ async function dismiss(id: number, actorId: string): Promise<void> {
     .from(anticheatAlert)
     .where(eq(anticheatAlert.id, id));
   if (!alert) refuse(404, 'notFound');
-  await db
-    .update(anticheatAlert)
-    .set({ dismissedAt: new Date(), dismissedByUserId: actorId })
-    .where(and(eq(anticheatAlert.id, id), isNull(anticheatAlert.dismissedAt)));
+  await db.transaction(async (tx) => {
+    const dismissed = await tx
+      .update(anticheatAlert)
+      .set({ dismissedAt: new Date(), dismissedByUserId: actorId })
+      .where(and(eq(anticheatAlert.id, id), isNull(anticheatAlert.dismissedAt)))
+      .returning({ id: anticheatAlert.id });
+    if (!dismissed.length) return;
+    await auditService.record(tx, {
+      action: 'minecraft.anticheat.alertDismiss',
+      actor: { source: 'web', userId: actorId },
+      data: { alertId: id },
+    });
+  });
 }
 
 /**

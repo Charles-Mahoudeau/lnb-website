@@ -8,7 +8,7 @@ import sharp from 'sharp';
 import { db } from '~~/server/db';
 import type { Tx } from '~~/server/db';
 import { partner, partnerSetting } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 import { flagService } from '~~/server/services/flags';
 
 import { PARTNER_KINDS } from '#shared/schemas/partners';
@@ -195,9 +195,9 @@ async function create(input: { actorId: string; body: PartnerBody }): Promise<{ 
         position: await nextPosition(tx, body.kind),
       })
       .returning();
-    await adminAuditService.record(tx, {
-      action: 'partner.create',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'site.partner.create',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: row!.id, name: row!.name },
     });
@@ -236,9 +236,9 @@ async function update(input: {
       })
       .where(eq(partner.id, input.id))
       .returning();
-    await adminAuditService.record(tx, {
-      action: 'partner.update',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'site.partner.update',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: input.id, name: row!.name, patch },
     });
@@ -249,9 +249,9 @@ async function remove(input: { actorId: string; id: string }): Promise<void> {
   await db.transaction(async (tx) => {
     const [row] = await tx.delete(partner).where(eq(partner.id, input.id)).returning();
     if (!row) refuse(404, 'partnerNotFound');
-    await adminAuditService.record(tx, {
-      action: 'partner.delete',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'site.partner.delete',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: row.id, name: row.name },
     });
@@ -259,7 +259,12 @@ async function remove(input: { actorId: string; id: string }): Promise<void> {
 }
 
 /** Swaps a partner with its neighbour of the same kind. At the end, nothing happens. */
-async function move(id: string, direction: 'up' | 'down'): Promise<void> {
+async function move(input: {
+  actorId: string;
+  id: string;
+  direction: 'up' | 'down';
+}): Promise<void> {
+  const { id, direction } = input;
   await db.transaction(async (tx) => {
     const [current] = await tx
       .select({ kind: partner.kind })
@@ -279,6 +284,11 @@ async function move(id: string, direction: 'up' | 'down'): Promise<void> {
     for (const [position, row] of rows.entries()) {
       await tx.update(partner).set({ position }).where(eq(partner.id, row.id));
     }
+    await auditService.record(tx, {
+      action: 'site.partner.move',
+      actor: { source: 'web', userId: input.actorId },
+      data: { id, direction },
+    });
   });
 }
 
@@ -292,9 +302,9 @@ async function setSettings(input: {
       .insert(partnerSetting)
       .values({ id: 1, contactUrl })
       .onConflictDoUpdate({ target: partnerSetting.id, set: { contactUrl } });
-    await adminAuditService.record(tx, {
-      action: 'partners.settings',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'site.partners.settings',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { contactUrl },
     });

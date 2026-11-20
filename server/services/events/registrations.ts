@@ -5,7 +5,7 @@ import { db } from '~~/server/db';
 import type { Tx } from '~~/server/db';
 import { event, eventRegistration, eventTeam, eventTeamMember, user } from '~~/server/db/schema';
 import type { EventRegistrationStatus } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 import { pushQueueService } from '~~/server/services/push/queue';
 
 import { placesToPromote, registrationState } from './rules';
@@ -204,9 +204,9 @@ async function add(input: {
       eventId: row.id,
       userIds: [input.userId],
     });
-    await adminAuditService.record(tx, {
-      action: 'event.registrationAdd',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.event.registrationAdd',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: input.userId,
       data: { eventId: row.id, name: row.name, force: full, ...input.actorData },
     });
@@ -230,9 +230,9 @@ async function remove(input: {
     if (!deleted) refuse(404, 'notRegistered');
     if (deleted.status === 'registered') await promote(tx, row);
     await eventTeamService.settle(tx, row);
-    await adminAuditService.record(tx, {
-      action: 'event.registrationRemove',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.event.registrationRemove',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: input.userId,
       data: { eventId: row.id, name: row.name, ...input.actorData },
     });

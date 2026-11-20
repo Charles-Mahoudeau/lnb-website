@@ -9,7 +9,7 @@ import {
   gamesplanetPin,
   gamesplanetSetting,
 } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 import { gamesplanetService } from '~~/server/services/gamesplanet';
 
 import {
@@ -263,9 +263,9 @@ async function setRefCode(input: { actorId: string; refCode: string }): Promise<
       .update(gamesplanetSetting)
       .set({ refCode: input.refCode })
       .where(eq(gamesplanetSetting.id, 1));
-    await adminAuditService.record(tx, {
-      action: 'gamesplanet.settings',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'site.gamesplanet.settings',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { refCode: input.refCode },
     });
@@ -336,9 +336,9 @@ async function pin(input: { actorId: string; uid: string }): Promise<void> {
     await tx
       .insert(gamesplanetPin)
       .values({ uid: input.uid, position: (pins[0]?.position ?? 0) + 1 });
-    await adminAuditService.record(tx, {
-      action: 'gamesplanet.pin',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'site.gamesplanet.pin',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { uid: input.uid },
     });
@@ -352,9 +352,9 @@ async function unpin(input: { actorId: string; uid: string }): Promise<void> {
       .where(eq(gamesplanetPin.uid, input.uid))
       .returning({ uid: gamesplanetPin.uid });
     if (!removed.length) refuse(404, 'pinNotFound');
-    await adminAuditService.record(tx, {
-      action: 'gamesplanet.unpin',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'site.gamesplanet.unpin',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { uid: input.uid },
     });
@@ -362,7 +362,11 @@ async function unpin(input: { actorId: string; uid: string }): Promise<void> {
 }
 
 /** Swaps a pin with its neighbour. Moving the first up or the last down does nothing. */
-async function movePin(input: { uid: string; direction: 'up' | 'down' }): Promise<void> {
+async function movePin(input: {
+  actorId: string;
+  uid: string;
+  direction: 'up' | 'down';
+}): Promise<void> {
   await db.transaction(async (tx) => {
     await tx.execute(sql`select pg_advisory_xact_lock(hashtext('gamesplanet_pin'))`);
     const pins = await tx.select().from(gamesplanetPin).orderBy(asc(gamesplanetPin.position));
@@ -379,6 +383,11 @@ async function movePin(input: { uid: string; direction: 'up' | 'down' }): Promis
       .update(gamesplanetPin)
       .set({ position: mine.position })
       .where(eq(gamesplanetPin.uid, other.uid));
+    await auditService.record(tx, {
+      action: 'site.gamesplanet.pinMove',
+      actor: { source: 'web', userId: input.actorId },
+      data: { uid: input.uid, direction: input.direction },
+    });
   });
 }
 
@@ -405,9 +414,9 @@ async function syncNow(input: {
     return refuse(502, 'syncFailed');
   }
   await db.transaction(async (tx) => {
-    await adminAuditService.record(tx, {
-      action: 'gamesplanet.sync',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'site.gamesplanet.sync',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { feed: input.feed },
     });

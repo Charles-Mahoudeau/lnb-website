@@ -11,10 +11,10 @@ import {
   wardenPlayer,
   wardenSession,
 } from '~~/server/db/schema';
+import { auditService } from '~~/server/services/audit';
 import { playtimeSettingsService } from '~~/server/services/playtime/settings';
 import { fallbackPlaytime, playtimeStateService } from '~~/server/services/playtime/state';
 
-import { wardenAuditService } from './audit';
 import { wardenModerationService } from './moderation';
 import { isBanActive, isOnline, resolveMaxAccounts, shortName } from './rules';
 import { wardenSettingsService } from './settings';
@@ -200,8 +200,8 @@ async function setShowRealName(actor: { id: string; tenantId: string }, showReal
   await db.transaction(async (tx) => {
     await ensure(tx, actor.id);
     await tx.update(wardenPlayer).set({ showRealName }).where(eq(wardenPlayer.userId, actor.id));
-    await wardenAuditService.record(tx, {
-      action: 'identity.update',
+    await auditService.record(tx, {
+      action: 'minecraft.identity.update',
       actor: { source: 'web', userId: actor.id },
       targetUserId: actor.id,
       data: { showRealName },
@@ -227,8 +227,8 @@ async function unlink(input: { userId: string; uuid: string; actor: WardenActor 
       )
       .returning({ username: minecraftAccount.username });
     if (!removed) refuse(404, 'notLinked');
-    const auditId = await wardenAuditService.record(tx, {
-      action: 'unlink',
+    const auditId = await auditService.record(tx, {
+      action: 'minecraft.unlink',
       actor: input.actor,
       targetUserId: input.userId,
       targetMinecraftUuid: input.uuid,

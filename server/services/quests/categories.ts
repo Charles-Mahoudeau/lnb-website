@@ -4,7 +4,7 @@ import { createError } from 'nuxt/server';
 import { db } from '~~/server/db';
 import { quest, questCategory } from '~~/server/db/schema';
 import type { QuestSource } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 
 import { parseQuest, refuse, validate } from './shared';
 import type { Db, Tx } from './shared';
@@ -182,9 +182,9 @@ async function create(actorId: string, input: unknown) {
   await db.transaction(async (tx) => {
     const { added } = await upsert(tx, [category], { overwrite: false, source: 'site' });
     if (!added.length) refuse(409, 'idTaken');
-    await adminAuditService.record(tx, {
-      action: 'quests.categoryCreate',
-      actorUserId: actorId,
+    await auditService.record(tx, {
+      action: 'economy.quests.categoryCreate',
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { id: key(category.family, category.id) },
     });
@@ -197,9 +197,9 @@ async function update(actorId: string, family: QuestCategoryFamily, id: string, 
   await db.transaction(async (tx) => {
     const { replaced } = await upsert(tx, [category], { overwrite: true, source: 'site' });
     if (!replaced.length) refuse(404, 'notFound');
-    await adminAuditService.record(tx, {
-      action: 'quests.categoryUpdate',
-      actorUserId: actorId,
+    await auditService.record(tx, {
+      action: 'economy.quests.categoryUpdate',
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { id: key(family, id) },
     });
@@ -216,9 +216,9 @@ async function remove(actorId: string, family: QuestCategoryFamily, id: string) 
       .where(and(eq(questCategory.family, family), eq(questCategory.id, id)))
       .returning({ id: questCategory.id });
     if (!deleted.length) refuse(404, 'notFound');
-    await adminAuditService.record(tx, {
-      action: 'quests.categoryDelete',
-      actorUserId: actorId,
+    await auditService.record(tx, {
+      action: 'economy.quests.categoryDelete',
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { id: key(family, id) },
     });

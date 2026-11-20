@@ -7,8 +7,8 @@ import { mod, modListSettings, modVote, user } from '~~/server/db/schema';
 import { anticheatReportService } from '~~/server/services/anticheat/reports';
 import { anticheatScoringService } from '~~/server/services/anticheat/scoring';
 import type { ModpackEntry } from '~~/server/services/anticheat/scoring';
+import { auditService } from '~~/server/services/audit';
 import { latestLoaderVersion } from '~~/server/services/modpack/loader-version';
-import { wardenAuditService } from '~~/server/services/warden/audit';
 import type { WardenActor } from '~~/server/services/warden/shared';
 
 import { modIconService } from './icons';
@@ -27,7 +27,7 @@ import type {
   ModSettingsPatchBody,
 } from '#shared/schemas/mods';
 
-// The Mods section of the admin area. Every change is written to warden_audit, since the
+// The Mods section of the admin area. Every change is written to audit, since the
 // Minecraft staff runs it. See docs/mods.md.
 
 type WebActor = WardenActor & { source: 'web' };
@@ -123,8 +123,8 @@ async function addOfficial(input: { body: ModAddBody; actor: WebActor }): Promis
   try {
     const { id, changed } = await db.transaction(async (tx) => {
       const [row] = await tx.insert(mod).values(values).returning({ id: mod.id });
-      await wardenAuditService.record(tx, {
-        action: 'mod.add',
+      await auditService.record(tx, {
+        action: 'minecraft.mod.add',
         actor: input.actor,
         data: { modId: row!.id, name: values.name, source: values.source },
       });
@@ -186,8 +186,8 @@ async function edit(input: { modId: number; patch: ModAdminPatchBody; actor: Web
         .delete(modVote)
         .where(and(eq(modVote.modId, input.modId), eq(modVote.userId, patch.proposerUserId)));
     }
-    await wardenAuditService.record(tx, {
-      action: 'mod.edit',
+    await auditService.record(tx, {
+      action: 'minecraft.mod.edit',
       actor: input.actor,
       targetUserId: patch.proposerUserId ?? before.proposerUserId,
       data: {
@@ -266,8 +266,8 @@ async function convert(input: { modId: number; body: ModConvertBody; actor: WebA
         .where(eq(mod.id, input.modId))
         .returning({ proposerUserId: mod.proposerUserId });
       if (!row) refuse(404, 'notFound');
-      await wardenAuditService.record(tx, {
-        action: 'mod.convert',
+      await auditService.record(tx, {
+        action: 'minecraft.mod.convert',
         actor: input.actor,
         targetUserId: row.proposerUserId,
         data: {
@@ -307,8 +307,8 @@ async function promote(input: { modId: number; actor: WebActor }) {
         proposerUserId: mod.proposerUserId,
       });
     if (!row) refuse(404, 'notSuggestion');
-    await wardenAuditService.record(tx, {
-      action: 'mod.promote',
+    await auditService.record(tx, {
+      action: 'minecraft.mod.promote',
       actor: input.actor,
       targetUserId: row.proposerUserId,
       data: { modId: input.modId, name: row.name },
@@ -336,8 +336,8 @@ async function remove(input: { modId: number; reason: string; actor: WebActor })
       .where(and(eq(mod.id, input.modId), eq(mod.list, 'suggestion'), eq(mod.status, 'visible')))
       .returning({ name: mod.name, proposerUserId: mod.proposerUserId });
     if (!row) refuse(404, 'notSuggestion');
-    await wardenAuditService.record(tx, {
-      action: 'mod.remove',
+    await auditService.record(tx, {
+      action: 'minecraft.mod.remove',
       actor: input.actor,
       targetUserId: row.proposerUserId,
       data: { modId: input.modId, name: row.name, reason: input.reason },
@@ -360,8 +360,8 @@ async function restore(input: { modId: number; actor: WebActor }) {
       .where(and(eq(mod.id, input.modId), eq(mod.status, 'removed')))
       .returning({ name: mod.name, proposerUserId: mod.proposerUserId });
     if (!row) refuse(404, 'notFound');
-    await wardenAuditService.record(tx, {
-      action: 'mod.restore',
+    await auditService.record(tx, {
+      action: 'minecraft.mod.restore',
       actor: input.actor,
       targetUserId: row.proposerUserId,
       data: { modId: input.modId, name: row.name },
@@ -384,8 +384,8 @@ async function deleteOfficial(input: { modId: number; actor: WebActor }) {
         proposerUserId: mod.proposerUserId,
       });
     if (!row) refuse(404, 'notOfficial');
-    await wardenAuditService.record(tx, {
-      action: 'mod.delete',
+    await auditService.record(tx, {
+      action: 'minecraft.mod.delete',
       actor: input.actor,
       targetUserId: row.proposerUserId,
       data: { modId: input.modId, name: row.name },
@@ -425,8 +425,8 @@ async function updateSettings(input: {
         updatedByUserId: input.actor.userId,
       })
       .where(eq(modListSettings.id, 1));
-    await wardenAuditService.record(tx, {
-      action: 'modSettings.update',
+    await auditService.record(tx, {
+      action: 'minecraft.modSettings.update',
       actor: input.actor,
       data: { changed: input.patch },
     });

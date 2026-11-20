@@ -2,9 +2,9 @@ import { and, desc, eq, gt, isNull, or } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import { minecraftAccount, user, wardenAppeal, wardenBan, wardenNote } from '~~/server/db/schema';
+import { auditService } from '~~/server/services/audit';
 import { ruleService } from '~~/server/services/rules';
 
-import { wardenAuditService } from './audit';
 import { refuse } from './shared';
 import type { Db, Tx, WardenActor } from './shared';
 import { appealView, banNameIds, banView, namesOf, noteView } from './views';
@@ -94,8 +94,8 @@ async function revoke(
     })
     .where(eq(wardenBan.id, ban.id))
     .returning();
-  await wardenAuditService.record(tx, {
-    action: 'unban',
+  await auditService.record(tx, {
+    action: 'minecraft.unban',
     actor,
     targetUserId: ban.userId,
     data: { banId: ban.id, reason },
@@ -139,8 +139,8 @@ async function ban(input: {
         issuedByMinecraftName: by.minecraftName,
       })
       .returning();
-    await wardenAuditService.record(tx, {
-      action: 'ban',
+    await auditService.record(tx, {
+      action: 'minecraft.ban',
       actor: input.actor,
       targetUserId: input.userId,
       targetMinecraftUuid: input.minecraftUuid ?? null,
@@ -211,8 +211,8 @@ async function updateBan(input: {
       .set({ expiresAt })
       .where(eq(wardenBan.id, row.id))
       .returning();
-    await wardenAuditService.record(tx, {
-      action: 'ban.update',
+    await auditService.record(tx, {
+      action: 'minecraft.ban.update',
       actor: input.actor,
       targetUserId: row.userId,
       data: {
@@ -248,8 +248,8 @@ async function addNote(input: {
         authorMinecraftName: by.minecraftName,
       })
       .returning();
-    await wardenAuditService.record(tx, {
-      action: input.body.kind === 'warning' ? 'warning.create' : 'note.create',
+    await auditService.record(tx, {
+      action: input.body.kind === 'warning' ? 'minecraft.warning.create' : 'minecraft.note.create',
       actor: input.actor,
       targetUserId: input.userId,
       data: { noteId: note!.id, rules: ruleCitations.map((cited) => cited.number) },
@@ -273,8 +273,8 @@ async function appeal(input: {
       .onConflictDoNothing()
       .returning();
     if (!created) refuse(409, 'appealExists');
-    await wardenAuditService.record(tx, {
-      action: 'appeal.create',
+    await auditService.record(tx, {
+      action: 'minecraft.appeal.create',
       actor: { source: 'web', userId: input.actorId },
       targetUserId: input.actorId,
       data: { appealId: created.id, banId: input.banId },
@@ -311,8 +311,8 @@ async function decideAppeal(input: {
       })
       .where(eq(wardenAppeal.id, input.appealId))
       .returning();
-    await wardenAuditService.record(tx, {
-      action: 'appeal.decide',
+    await auditService.record(tx, {
+      action: 'minecraft.appeal.decide',
       actor,
       targetUserId: row.ban.userId,
       data: { appealId: input.appealId, banId: row.ban.id, accepted: input.accept },

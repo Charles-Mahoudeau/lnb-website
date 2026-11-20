@@ -3,7 +3,7 @@ import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
 import { modpackTool, storedFile, user } from '~~/server/db/schema';
-import { wardenAuditService } from '~~/server/services/warden/audit';
+import { auditService } from '~~/server/services/audit';
 import type { WardenActor } from '~~/server/services/warden/shared';
 
 import { bump } from './revision';
@@ -95,8 +95,8 @@ async function publish(input: { tool: ModpackTool; body: ModpackToolBody; actor:
       .values({ tool: input.tool, ...values })
       .onConflictDoUpdate({ target: modpackTool.tool, set: values });
     await bump(tx);
-    await wardenAuditService.record(tx, {
-      action: 'modpack.tool',
+    await auditService.record(tx, {
+      action: 'minecraft.modpack.tool',
       actor: input.actor,
       data: {
         tool: input.tool,

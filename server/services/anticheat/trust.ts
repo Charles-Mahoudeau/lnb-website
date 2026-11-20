@@ -8,7 +8,7 @@ import {
   user,
   wardenSession,
 } from '~~/server/db/schema';
-import { wardenAuditService } from '~~/server/services/warden/audit';
+import { auditService } from '~~/server/services/audit';
 
 import { anticheatPlayerService } from './players';
 import { anticheatReportService } from './reports';
@@ -91,8 +91,8 @@ async function adjust(input: {
       data: { reason: input.reason, from: player.score, to: input.score },
       actorUserId: input.actor.source === 'system' ? null : input.actor.userId,
     });
-    await wardenAuditService.record(tx, {
-      action: 'anticheat.playerAdjust',
+    await auditService.record(tx, {
+      action: 'minecraft.anticheat.playerAdjust',
       actor: input.actor,
       targetUserId: input.userId,
       data: { reason: input.reason, from: player.score, to: input.score },
@@ -140,8 +140,8 @@ async function setHold(input: {
       data: { reason: input.reason },
       actorUserId,
     });
-    await wardenAuditService.record(tx, {
-      action: input.hold ? 'anticheat.hold' : 'anticheat.holdClear',
+    await auditService.record(tx, {
+      action: input.hold ? 'minecraft.anticheat.hold' : 'minecraft.anticheat.holdClear',
       actor: input.actor,
       targetUserId: input.userId,
       data: { reason: input.reason },

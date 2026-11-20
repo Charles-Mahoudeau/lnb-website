@@ -1,6 +1,7 @@
 import { and, countDistinct, eq, inArray, sql } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
+import type { Db } from '~~/server/db';
 import {
   anticheatActionTaken,
   anticheatAlert,
@@ -12,8 +13,8 @@ import {
   anticheatProject,
   anticheatUsage,
 } from '~~/server/db/schema';
-import type { AnticheatHistoryKind, WardenAuditAction } from '~~/server/db/schema';
-import { wardenAuditService } from '~~/server/services/warden/audit';
+import type { AnticheatHistoryKind, AuditAction } from '~~/server/db/schema';
+import { auditService } from '~~/server/services/audit';
 import { wardenModerationService } from '~~/server/services/warden/moderation';
 
 import { anticheatAlertService } from './alerts';
@@ -53,10 +54,10 @@ const DECISION_KIND: Record<'approved' | 'banned' | 'none', AnticheatHistoryKind
   banned: 'ban',
   none: 'clear',
 };
-const DECISION_AUDIT: Record<'approved' | 'banned' | 'none', WardenAuditAction> = {
-  approved: 'anticheat.approve',
-  banned: 'anticheat.ban',
-  none: 'anticheat.clear',
+const DECISION_AUDIT: Record<'approved' | 'banned' | 'none', AuditAction> = {
+  approved: 'minecraft.anticheat.approve',
+  banned: 'minecraft.anticheat.ban',
+  none: 'minecraft.anticheat.clear',
 };
 
 /** Works the verdicts out again. A failure is logged: the change itself is already stored. */
@@ -103,12 +104,17 @@ async function decideFile(input: {
       actorUserId: actorUserId(actor),
       data: { from: file.decision, note: body.note ?? null },
     });
-    await wardenAuditService.record(tx, {
+    await auditService.record(tx, {
       action: DECISION_AUDIT[key],
       actor,
       data: { sha512, filename: file.filename, from: file.decision, note: body.note ?? null },
     });
     const results = await anticheatScoringService.scoreFiles(tx, [sha512]);
+    await auditService.record(tx, {
+      action: 'minecraft.anticheat.rescore',
+      actor: input.actor,
+      data: { sha512 },
+    });
     return results.filter((result) => result.changed).map((result) => result.sha512);
   });
   await notify(changed);
@@ -142,7 +148,7 @@ async function decideProject(input: {
       actorUserId: actorUserId(actor),
       data: { from: project.decision, note: body.note ?? null },
     });
-    await wardenAuditService.record(tx, {
+    await auditService.record(tx, {
       action: DECISION_AUDIT[key],
       actor,
       data: { projectId, name: project.name, from: project.decision, note: body.note ?? null },
@@ -218,7 +224,7 @@ async function createProject(input: {
       actorUserId: actorUserId(actor),
       data: { created: true, source: body.source, sourceId: found.id },
     });
-    await wardenAuditService.record(tx, {
+    await auditService.record(tx, {
       action: DECISION_AUDIT[body.decision],
       actor,
       data: { projectId: created.id, name: found.name, source: body.source, created: true },
@@ -252,8 +258,8 @@ async function markReviewed(input: { actor: AnticheatActor; sha512: string }): P
       actorUserId: actorUserId(actor),
       data: { band: file.band },
     });
-    await wardenAuditService.record(tx, {
-      action: 'anticheat.reviewed',
+    await auditService.record(tx, {
+      action: 'minecraft.anticheat.reviewed',
       actor,
       data: { sha512, band: file.band },
     });
@@ -271,16 +277,24 @@ async function addNote(input: {
     .from(anticheatFile)
     .where(eq(anticheatFile.sha512, input.sha512));
   if (!file) refuse(404, 'notFound');
-  await db.insert(anticheatHistory).values({
-    sha512: input.sha512,
-    kind: 'note',
-    actorUserId: actorUserId(input.actor),
-    data: { body: input.body },
+  await db.transaction(async (tx) => {
+    await tx.insert(anticheatHistory).values({
+      sha512: input.sha512,
+      kind: 'note',
+      actorUserId: actorUserId(input.actor),
+      data: { body: input.body },
+    });
+    await auditService.record(tx, {
+      action: 'minecraft.anticheat.note',
+      actor: input.actor,
+      data: { sha512: input.sha512 },
+    });
   });
 }
 
 /** Scores one file again now. */
-async function rescoreFile(sha512: string): Promise<void> {
+async function rescoreFile(input: { actor: AnticheatActor; sha512: string }): Promise<void> {
+  const { sha512 } = input;
   const changed = await db.transaction(async (tx) => {
     const [file] = await tx
       .select({ sha512: anticheatFile.sha512 })
@@ -295,8 +309,21 @@ async function rescoreFile(sha512: string): Promise<void> {
 }
 
 /** Marks every scored file stale. The re-score task works through them. Returns how many. */
-async function rescoreAll(): Promise<number> {
-  const rows = await db
+async function rescoreAll(actor: AnticheatActor): Promise<number> {
+  return db.transaction(async (tx) => {
+    const files = await markStale(tx);
+    await auditService.record(tx, {
+      action: 'minecraft.anticheat.rescore',
+      actor,
+      data: { files },
+    });
+    return files;
+  });
+}
+
+/** Marks every scored file stale, for the actions that already record their own entry. */
+async function markStale(dbx: Db): Promise<number> {
+  const rows = await dbx
     .update(anticheatFile)
     .set({ rescoreAt: new Date() })
     .where(sql`${anticheatFile.kind} <> 'client'`)
@@ -333,8 +360,8 @@ async function link(input: {
     const other = rows.find((row) => row.id === otherProjectId);
     if (!keep || !other) refuse(404, 'notFound');
     await anticheatLookupService.merge(tx, keep, other, actorUserId(actor));
-    await wardenAuditService.record(tx, {
-      action: 'anticheat.link',
+    await auditService.record(tx, {
+      action: 'minecraft.anticheat.link',
       actor,
       data: { projectId, merged: otherProjectId, name: keep.name, mergedName: other.name },
     });
@@ -406,7 +433,7 @@ async function unlink(input: {
         data,
       });
     }
-    await wardenAuditService.record(tx, { action: 'anticheat.unlink', actor, data });
+    await auditService.record(tx, { action: 'minecraft.anticheat.unlink', actor, data });
     return { created: split!.id, changed: await scoreProjects(tx, [projectId, split!.id]) };
   });
   await notify(changed);
@@ -455,8 +482,8 @@ async function banModId(input: {
       .onConflictDoNothing()
       .returning({ modId: anticheatModIdBan.modId });
     if (!created) refuse(409, 'exists');
-    await wardenAuditService.record(tx, {
-      action: 'anticheat.modIdBan',
+    await auditService.record(tx, {
+      action: 'minecraft.anticheat.modIdBan',
       actor,
       data: { modId, reason },
     });
@@ -473,7 +500,11 @@ async function unbanModId(input: { actor: AnticheatActor; modId: string }): Prom
       .where(eq(anticheatModIdBan.modId, modId))
       .returning({ modId: anticheatModIdBan.modId });
     if (removed.length === 0) refuse(404, 'notFound');
-    await wardenAuditService.record(tx, { action: 'anticheat.modIdUnban', actor, data: { modId } });
+    await auditService.record(tx, {
+      action: 'minecraft.anticheat.modIdUnban',
+      actor,
+      data: { modId },
+    });
     return scoreModId(tx, modId);
   });
   await notify(changed);
@@ -510,7 +541,7 @@ async function updateSettings(input: {
     mode: input.patch.mode,
     rules: input.patch.rules,
   });
-  if (after.rulesVersion !== before.rulesVersion) await rescoreAll();
+  if (after.rulesVersion !== before.rulesVersion) await markStale(db);
   // The mode decides what a verdict does, so players already online need a new one pushed.
   if (after.mode !== before.mode) await anticheatReportService.reevaluateOpen();
   return settingsView(after);
@@ -580,8 +611,8 @@ async function bulkPlayers(input: {
     }
   }
   await db.transaction((tx) =>
-    wardenAuditService.record(tx, {
-      action: 'anticheat.bulk',
+    auditService.record(tx, {
+      action: 'minecraft.anticheat.bulk',
       actor,
       data: {
         sha512,
@@ -628,8 +659,8 @@ async function resetFiles(actor: AnticheatActor, confirm: string) {
       .returning({ sha512: anticheatFile.sha512 });
     const history = await tx.delete(anticheatHistory).returning({ id: anticheatHistory.id });
     const bans = await tx.delete(anticheatModIdBan).returning({ modId: anticheatModIdBan.modId });
-    await wardenAuditService.record(tx, {
-      action: 'anticheat.resetFiles',
+    await auditService.record(tx, {
+      action: 'minecraft.anticheat.resetFiles',
       actor,
       data: {
         projects: projects.length,
@@ -639,7 +670,7 @@ async function resetFiles(actor: AnticheatActor, confirm: string) {
       },
     });
   });
-  await rescoreAll();
+  await markStale(db);
 }
 
 /** Puts every trust score back to 50 and deletes the timelines, actions and alerts. */
@@ -676,7 +707,7 @@ async function resetSanctions(actor: AnticheatActor, confirm: string) {
     refuse(400, 'confirmMismatch');
   await db.transaction(async (tx) => {
     const data = await wipeSanctions(tx);
-    await wardenAuditService.record(tx, { action: 'anticheat.resetSanctions', actor, data });
+    await auditService.record(tx, { action: 'minecraft.anticheat.resetSanctions', actor, data });
   });
 }
 

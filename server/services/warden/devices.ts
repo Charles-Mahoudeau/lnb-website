@@ -2,8 +2,8 @@ import { and, desc, eq, gt, isNull } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import { user, wardenDevice, wardenSession } from '~~/server/db/schema';
+import { auditService } from '~~/server/services/audit';
 
-import { wardenAuditService } from './audit';
 import { DEVICE_LIFETIME_MS, generateDeviceToken, hashSecret, shouldTouchDevice } from './rules';
 import { refuse } from './shared';
 import type { Db, Tx, WardenActor } from './shared';
@@ -94,8 +94,8 @@ async function revoke(
     .select({ minecraftUuid: wardenSession.minecraftUuid })
     .from(wardenSession)
     .where(and(eq(wardenSession.deviceId, device.id), isNull(wardenSession.endedAt)));
-  await wardenAuditService.record(tx, {
-    action: 'device.revoke',
+  await auditService.record(tx, {
+    action: 'minecraft.device.revoke',
     actor: input.actor,
     targetUserId: input.userId,
     data: {
