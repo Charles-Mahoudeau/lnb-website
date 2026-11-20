@@ -47,7 +47,7 @@ async function player(balance = 1000) {
   await db.insert(minecraftAccount).values({ uuid, userId: id, username });
   await db
     .update(economySettings)
-    .set({ startingBalance: balance })
+    .set({ startingBalance: balance * 100 })
     .where(eq(economySettings.id, 1));
   await economyServerService.lookup(uuid);
   return { id, uuid, username };
@@ -58,7 +58,8 @@ async function balanceOf(userId: string) {
     .select({ balance: economyAccount.balance })
     .from(economyAccount)
     .where(eq(economyAccount.ownerUserId, userId));
-  return row?.balance ?? 0;
+  // The ledger counts cents; the tests think in LNBits.
+  return (row?.balance ?? 0) / 100;
 }
 
 const suffix = () => `${String(++counter)}_${String(Date.now() % 1_000_000)}`;
@@ -173,7 +174,7 @@ describe('individual tiers', () => {
       tier: 1,
     });
     // 50 × Kglobal 1 × Kplayer (1 + 0.5 × (1 − 250 / 1000)) = 50 × 1.375 = 68.75
-    expect(done.amount).toBe(69);
+    expect(done.amount).toBe(6900);
     expect(done.claimable).toBe(true);
     const replay = await questServerService.complete({
       idempotencyKey: key,
@@ -196,7 +197,7 @@ describe('individual tiers', () => {
       idempotencyKey: claimKey,
       player: who.uuid,
     });
-    expect(paid.amount).toBe(69);
+    expect(paid.amount).toBe(6900);
     expect(paid.transactionId).not.toBeNull();
     expect(await balanceOf(who.id)).toBe(250 + 69);
     const [tx] = await db
@@ -259,7 +260,7 @@ describe('individual tiers', () => {
       quest: id,
       tier: 2,
     });
-    expect(second.amount).toBe(1000);
+    expect(second.amount).toBe(100_000);
     const paid = await questServerService.claim(second.completionId, {
       idempotencyKey: randomUUID(),
       userId: who.id,
@@ -313,10 +314,10 @@ describe('server quests', () => {
       amounts.push([result.rank, result.amount]);
     }
     expect(amounts).toEqual([
-      [1, 1000],
-      [2, 600],
-      [3, 200],
-      [4, 20],
+      [1, 100_000],
+      [2, 60_000],
+      [3, 20_000],
+      [4, 2000],
     ]);
     await expect(
       questServerService.advancement({
@@ -345,7 +346,7 @@ describe('flash races', () => {
       endedAt: now.toISOString(),
       winner: who.uuid,
     });
-    expect(won.amount).toBe(32);
+    expect(won.amount).toBe(3200);
     expect(await balanceOf(who.id)).toBe(5032);
     const expired = await questServerService.flash({
       idempotencyKey: randomUUID(),
@@ -441,7 +442,7 @@ describe('index, cap and seasons', () => {
       winner: who.uuid,
     });
     expect(result.capped).toBe(true);
-    expect(result.amount).toBeLessThan(400);
+    expect(result.amount).toBeLessThan(40_000);
   });
 
   it('keeps a secret quest as "???" until someone takes first place', async () => {
@@ -677,7 +678,7 @@ describe('daily quests', () => {
       day: parisDay(),
       quest: a,
     });
-    expect(paid).toMatchObject({ replayed: false, quantity: 4, amount: 20, capped: false });
+    expect(paid).toMatchObject({ replayed: false, quantity: 4, amount: 2000, capped: false });
     expect(await balanceOf(who.id)).toBe(5020);
     const again = await questDailyService.complete({
       idempotencyKey: key,
@@ -685,7 +686,7 @@ describe('daily quests', () => {
       day: parisDay(),
       quest: a,
     });
-    expect(again).toMatchObject({ replayed: true, amount: 20 });
+    expect(again).toMatchObject({ replayed: true, amount: 2000 });
     await expect(
       questDailyService.complete({
         idempotencyKey: randomUUID(),
