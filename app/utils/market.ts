@@ -24,6 +24,7 @@ export function formatMarketDelta(percent: number, locale: string): string {
   const text = new Intl.NumberFormat(locale, {
     maximumFractionDigits: Math.abs(percent) < 10 ? 1 : 0,
   }).format(Math.abs(rounded));
+  if (rounded === 0) return `${text}%`;
   return `${rounded < 0 ? '−' : '+'}${text}%`;
 }
 

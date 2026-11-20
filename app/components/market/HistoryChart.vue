@@ -11,7 +11,7 @@ const { t, locale } = useI18n();
 
 const W = 460;
 const H = 190;
-const LEFT = 46;
+const LEFT = 60;
 const RIGHT = 12;
 const TOP = 12;
 const BOTTOM = 26;

@@ -1172,6 +1172,50 @@ const sampleGamesplanet = {
     </section>
 
     <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Market</h2>
+      <div class="flex flex-wrap items-center gap-6">
+        <MarketDelta :percent="42" />
+        <MarketDelta :percent="-8.3" />
+        <MarketTile name="Oak Log" />
+        <div class="w-40"><MarketSpark :values="[0.05, 0.06, 0.055, 0.07, 0.065]" /></div>
+      </div>
+      <div class="grid max-w-3xl gap-3 sm:grid-cols-2">
+        <MarketTierMeter
+          :window="{
+            tier: 1,
+            nominal: 2000,
+            rate: 1,
+            toNextBracket: 3000,
+            q1: 5000,
+            q2: 15000,
+            nextRate: 0.5,
+          }"
+        />
+        <MarketTierMeter
+          :window="{
+            tier: 3,
+            nominal: 18000,
+            rate: 0.1,
+            toNextBracket: null,
+            q1: 5000,
+            q2: 15000,
+            nextRate: null,
+          }"
+        />
+      </div>
+      <div class="max-w-xl rounded-lg bg-elevated p-4">
+        <MarketHistoryChart
+          :points="
+            [0.05, 0.056, 0.052, 0.061, 0.058, 0.066].map((price, i) => ({ at: String(i), price }))
+          "
+          :p0="0.055"
+          name="Oak Log"
+          period="7d"
+        />
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
       <h2 class="text-2xl font-bold">Table</h2>
       <UTable :data="registrations" :columns="columns" class="tabular-nums">
         <template #status-cell="{ row }">
