@@ -73,6 +73,7 @@ async function state(): Promise<MarketState> {
       maxOrderItems: config.maxOrderItems,
       sell,
       buy,
+      saleAccount: true,
     },
     tiers: config.tiers,
     mintRemaining: budget.remaining,

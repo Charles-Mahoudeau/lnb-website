@@ -21,6 +21,7 @@ import {
   wardenBan,
 } from '~~/server/db/schema';
 import { offlineUuid } from '~~/server/lib/minecraft';
+import { economyAccountService } from '~~/server/services/economy/accounts';
 import { economyServerService } from '~~/server/services/economy/server';
 import { flagService } from '~~/server/services/flags';
 import { marketAdminService } from '~~/server/services/market/admin';
@@ -148,6 +149,37 @@ describe('the Market', () => {
     const sales = await db.select().from(marketSale).where(eq(marketSale.userId, who.id));
     expect(sales).toHaveLength(1);
     expect(sales[0]!.nominal).toBeGreaterThan(0);
+  });
+
+  it('pays a sale into a named account, and refuses one the player cannot spend from', async () => {
+    const who = await player();
+    const other = await player();
+    const handle = `mkt${String(Date.now() % 1_000_000)}${String(counter)}`;
+    const shared = await economyAccountService.create(who.id, { name: 'Guild', handle });
+    const before = await balanceOf(shared.id);
+    const result = await marketOrderService.order({
+      player: who.uuid,
+      account: `#${handle}`,
+      item: COBBLE,
+      direction: 'sell',
+      quantity: 200,
+      idempotencyKey: randomUUID(),
+      expectedTotal: 0,
+    });
+    expect(result.account.accountId).toBe(shared.id);
+    expect(await balanceOf(shared.id)).toBe(before + result.total);
+    expect(await balanceOf(who.account)).toBe(100_000);
+    await expect(
+      marketOrderService.order({
+        player: other.uuid,
+        account: `#${handle}`,
+        item: COBBLE,
+        direction: 'sell',
+        quantity: 200,
+        idempotencyKey: randomUUID(),
+        expectedTotal: 0,
+      }),
+    ).rejects.toMatchObject({ statusCode: 403, data: { problem: 'notAllowed' } });
   });
 
   it('replays the same key, and refuses it for another request', async () => {

@@ -195,8 +195,8 @@ async function previousOrder(
   return undefined;
 }
 
-/** The account a purchase is paid from: the one named, or the player's default. */
-async function payingAccount(
+/** The account an order pays from (purchase) or into (sale): the one named, or the personal one. */
+async function orderAccount(
   tx: Tx,
   body: { account?: string },
   customer: Awaited<ReturnType<typeof player>>,
@@ -245,7 +245,9 @@ async function order(input: MarketOrderBody): Promise<MarketOrderResult> {
       const customer = await player(tx, body.player);
       if ((await bannedUsers(tx, [customer.userId])).size) refuse(409, 'frozen');
       const sell = body.direction === 'sell';
-      const account = sell ? customer.personal : await payingAccount(tx, body, customer);
+      // A sale pays the personal account unless one is named; the player must be able to spend from it.
+      const account =
+        sell && !body.account ? customer.personal : await orderAccount(tx, body, customer);
 
       const now = new Date();
       let window = 0;

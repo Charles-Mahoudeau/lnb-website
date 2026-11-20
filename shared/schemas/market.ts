@@ -162,7 +162,9 @@ export const marketOrderBody = marketQuoteBody.extend({
   idempotencyKey: z.uuid(),
   account: economyAccountRef
     .optional()
-    .describe("A purchase only: the account that pays. The player's default one without it."),
+    .describe(
+      'The account that pays a purchase, or receives a sale. Without it: the default account for a purchase, the personal one for a sale.',
+    ),
   expectedTotal: z
     .int()
     .min(0)
@@ -255,6 +257,7 @@ export const marketState = z.object({
     maxOrderItems: z.number(),
     sell: z.boolean(),
     buy: z.boolean(),
+    saleAccount: z.literal(true).describe('A sale accepts `account`.'),
   }),
   tiers: z.array(
     z.object({
