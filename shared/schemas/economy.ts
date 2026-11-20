@@ -46,6 +46,14 @@ export const ECONOMY_PROBLEMS = [
   'tooManyListings',
   'listingGone',
   'alreadyClaimed',
+  'invalidCount',
+  'itemDisabled',
+  'notSellable',
+  'notBuyable',
+  'zeroPayout',
+  'noRecipes',
+  'loop',
+  'itemExists',
 ] as const;
 export type EconomyProblem = (typeof ECONOMY_PROBLEMS)[number];
 
@@ -99,6 +107,7 @@ export const ECONOMY_TRANSACTION_KINDS = [
   'shop',
   'trade',
   'auction',
+  'market',
   'mint',
   'burn',
   'reversal',
@@ -116,6 +125,8 @@ export const economyReason = z.enum([
   'casinoLicense',
   'mobDrop',
   'questReward',
+  'marketSale',
+  'marketPurchase',
 ]);
 export type EconomyReason = z.infer<typeof economyReason>;
 
@@ -878,6 +889,17 @@ export const economyListingActionBody = z.object({
   player: minecraftUuid,
 });
 
+/** Claiming a mailbox item: `count` takes part of a Market purchase and leaves the rest waiting. */
+export const economyMailboxClaimBody = economyListingActionBody.extend({
+  count: z
+    .int()
+    .positive()
+    .max(32767)
+    .optional()
+    .describe('Market items only: how many to take. The rest stays in the mailbox.'),
+});
+export type EconomyMailboxClaimBody = z.input<typeof economyMailboxClaimBody>;
+
 export const economyListingBuyBody = economyListingActionBody.extend({
   account: economyAccountRef
     .optional()
@@ -891,6 +913,7 @@ export const economyMailboxReason = z.enum([
   'expired',
   'removed',
   'questReward',
+  'market',
 ]);
 
 export const economyMailboxView = z.object({

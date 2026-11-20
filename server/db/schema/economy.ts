@@ -30,7 +30,7 @@ export type EconomyAccountType = 'team' | 'shop' | 'casino';
 export type EconomyMemberRole = 'owner' | 'member' | 'viewer';
 /** What a transaction was. `mint` and `burn` create and destroy money; nothing else does. */
 export type EconomyTransactionKind =
-  'payment' | 'casino' | 'shop' | 'trade' | 'auction' | 'mint' | 'burn' | 'reversal';
+  'payment' | 'casino' | 'shop' | 'trade' | 'auction' | 'market' | 'mint' | 'burn' | 'reversal';
 /** Why money was created or destroyed. Null for the other kinds. */
 export type EconomyReason =
   | 'startingBalance'
@@ -39,7 +39,9 @@ export type EconomyReason =
   | 'auctionTax'
   | 'casinoLicense'
   | 'mobDrop'
-  | 'questReward';
+  | 'questReward'
+  | 'marketSale'
+  | 'marketPurchase';
 /** Where a transaction came from: the Minecraft server, the site, or the site on its own. */
 export type EconomySource = 'minecraft' | 'web' | 'system';
 
@@ -344,8 +346,12 @@ export const economyListing = pgTable(
   ],
 );
 
-/** Why an item waits in a mailbox. `questReward` is an item given by a quest (docs/quests.md). */
-export type EconomyMailboxReason = 'bought' | 'cancelled' | 'expired' | 'removed' | 'questReward';
+/**
+ * Why an item waits in a mailbox. `questReward` is an item given by a quest (docs/quests.md),
+ * `market` one bought at the Market (docs/market.md), claimed whole or in part.
+ */
+export type EconomyMailboxReason =
+  'bought' | 'cancelled' | 'expired' | 'removed' | 'questReward' | 'market';
 
 /**
  * An item waiting for its player at the auction house: one they bought, or one of theirs that

@@ -1431,6 +1431,18 @@
           "label": "Quêtes",
           "description": "Les quêtes en jeu et sur le site : paliers, records, objectifs communs et quêtes flash. Désactivé, le serveur ne compte plus rien et rien n’est versé."
         },
+        "economy_market": {
+          "label": "Market",
+          "description": "Le Market : la page publique des prix et les ordres du serveur. Désactivé par défaut. Désactivé, personne ne peut lui vendre ni lui acheter."
+        },
+        "economy_market_sell": {
+          "label": "Ventes au Market",
+          "description": "Vendre des objets au Market, qui crée des LNBits. Désactivé par défaut : à ouvrir avec des plafonds serrés."
+        },
+        "economy_market_buy": {
+          "label": "Achats au Market",
+          "description": "Acheter des objets au Market, qui détruit des LNBits et envoie les objets dans la boîte aux lettres. Désactivé par défaut."
+        },
         "jobs_economySnapshot": {
           "label": "Stats de l’économie",
           "description": "L’enregistrement nocturne des graphiques de l’économie, et la fermeture des comptes bancaires des joueurs supprimés."
@@ -1458,6 +1470,14 @@
         "jobs_anticheatPrune": {
           "label": "Nettoyage de l’anticheat",
           "description": "La suppression nocturne des anciens rapports, liens d’usage, alertes et fichiers inutilisés."
+        },
+        "jobs_marketSnapshot": {
+          "label": "Relevés du Market",
+          "description": "L’enregistrement horaire du prix et du stock de chaque objet, pour les graphiques du Market."
+        },
+        "jobs_marketPrune": {
+          "label": "Nettoyage du Market",
+          "description": "La suppression nocturne des anciens relevés et des ventes de plus de deux jours du Market."
         },
         "jobs_questsIndex": {
           "label": "Indice des quêtes",
@@ -2506,7 +2526,9 @@
           "auctionTax": "Créé : taxe de l’hôtel des ventes",
           "casinoLicense": "Créé : licences de casino",
           "mobDrop": "Créé : butin des monstres",
-          "questReward": "Créé : récompenses de quêtes"
+          "questReward": "Créé : récompenses de quêtes",
+          "marketSale": "Créé : ventes du Market",
+          "marketPurchase": "Créé : achats du Market"
         },
         "burn": {
           "startingBalance": "Détruit : capitaux de départ",
@@ -2515,7 +2537,9 @@
           "auctionTax": "Détruit : taxe de l’hôtel des ventes",
           "casinoLicense": "Détruit : licences de casino",
           "mobDrop": "Détruit : butin des monstres",
-          "questReward": "Détruit : récompenses de quêtes"
+          "questReward": "Détruit : récompenses de quêtes",
+          "marketSale": "Détruit : ventes du Market",
+          "marketPurchase": "Détruit : achats du Market"
         }
       },
       "volume": {
@@ -5249,6 +5273,7 @@
       "shop": "Shop",
       "trade": "Échange",
       "auction": "Hôtel des ventes",
+      "market": "Market",
       "mint": "Création",
       "burn": "Destruction",
       "reversal": "Annulation"
@@ -5291,6 +5316,8 @@
       "adjustment": "Ajustement par LNB",
       "mobDrop": "Butin des monstres",
       "questReward": "Récompense de quête",
+      "marketSale": "Vendu au Market",
+      "marketPurchase": "Acheté au Market",
       "casinoLicense": "Licence de casino",
       "reversal": "Annulé par LNB",
       "reversed": "Annulée",

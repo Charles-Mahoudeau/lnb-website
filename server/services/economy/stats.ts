@@ -182,7 +182,7 @@ async function stats(period: EconomyPeriod, now = new Date()): Promise<EconomySt
       .where(
         and(
           isNull(economyEntry.accountId),
-          inArray(economyTransaction.kind, ['mint', 'burn', 'auction']),
+          inArray(economyTransaction.kind, ['mint', 'burn', 'auction', 'market']),
           start ? gte(economyTransaction.at, start) : undefined,
         ),
       )
@@ -253,7 +253,10 @@ async function stats(period: EconomyPeriod, now = new Date()): Promise<EconomySt
       row.reason
         ? [
             {
-              direction: row.kind === 'mint' ? ('mint' as const) : ('burn' as const),
+              direction:
+                row.kind === 'mint' || row.reason === 'marketSale'
+                  ? ('mint' as const)
+                  : ('burn' as const),
               reason: row.reason,
               amount: Number(row.amount),
             },

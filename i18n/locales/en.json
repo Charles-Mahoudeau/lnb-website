@@ -1427,6 +1427,18 @@
           "label": "Quests",
           "description": "Quests in the game and on the site: tiers, records, community goals and flash races. With it off, the server stops counting and nothing is paid."
         },
+        "economy_market": {
+          "label": "Market",
+          "description": "The Market: the public prices page and the server's orders. Off by default. With it off, nobody can sell to it or buy from it."
+        },
+        "economy_market_sell": {
+          "label": "Market sales",
+          "description": "Selling items to the Market, which mints LNBits. Off by default: open it with tight caps."
+        },
+        "economy_market_buy": {
+          "label": "Market purchases",
+          "description": "Buying items from the Market, which burns LNBits and sends the items to the mailbox. Off by default."
+        },
         "jobs_economySnapshot": {
           "label": "Economy stats",
           "description": "The nightly save of the economy charts, and closing the bank accounts of deleted players."
@@ -1454,6 +1466,14 @@
         "jobs_anticheatPrune": {
           "label": "Anticheat cleanup",
           "description": "The nightly removal of old reports, usage links, alerts and unused files."
+        },
+        "jobs_marketSnapshot": {
+          "label": "Market snapshots",
+          "description": "The hourly save of every item's price and stock, for the Market charts."
+        },
+        "jobs_marketPrune": {
+          "label": "Market cleanup",
+          "description": "The nightly deletion of old Market snapshots and sale events."
         },
         "jobs_questsIndex": {
           "label": "Quest index",
@@ -2502,7 +2522,9 @@
           "auctionTax": "Minted: auction tax",
           "casinoLicense": "Minted: casino licenses",
           "mobDrop": "Minted: mob drops",
-          "questReward": "Minted: quest rewards"
+          "questReward": "Minted: quest rewards",
+          "marketSale": "Minted: Market sales",
+          "marketPurchase": "Minted: Market purchases"
         },
         "burn": {
           "startingBalance": "Burned: starting balances",
@@ -2511,7 +2533,9 @@
           "auctionTax": "Burned: auction house tax",
           "casinoLicense": "Burned: casino licenses",
           "mobDrop": "Burned: mob drops",
-          "questReward": "Burned: quest rewards"
+          "questReward": "Burned: quest rewards",
+          "marketSale": "Burned: Market sales",
+          "marketPurchase": "Burned: Market purchases"
         }
       },
       "volume": {
@@ -5245,6 +5269,7 @@
       "shop": "Shop",
       "trade": "Trade",
       "auction": "Auction house",
+      "market": "Market",
       "mint": "Mint",
       "burn": "Burn",
       "reversal": "Reversal"
@@ -5287,6 +5312,8 @@
       "adjustment": "Adjustment from LNB",
       "mobDrop": "Dropped by mobs",
       "questReward": "Quest reward",
+      "marketSale": "Sold on the Market",
+      "marketPurchase": "Bought on the Market",
       "casinoLicense": "Casino license",
       "reversal": "Reversed by LNB",
       "reversed": "Reversed",
