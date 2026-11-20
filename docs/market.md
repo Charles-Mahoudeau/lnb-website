@@ -4,7 +4,7 @@ The Market is the server's own shop: a commodity exchange where players sell raw
 
 This page is the contract between the site and the economy mod (`lnb-economy`, see `docs/market-mod.md` for what the mod must do), and the rules behind the pages. It extends `docs/economy.md`: accounts, the ledger, idempotency keys and flags work as described there.
 
-> Status: slices 1 to 4 are built: cents in the ledger, then the engine, the ledger kind, the server, admin and public routes, the jobs and the tests, then the admin pages and the public page. Still to do: the mod. The Market ships **off** (`economy.market`, `economy.market.sell` and `economy.market.buy` are seeded disabled by the migration). The design came out of the economy update document and a grilling session on 2026-11-20. The starting catalog below is a draft to simulate before launch.
+> Status: slices 1 to 4 are built: cents in the ledger, then the engine, the ledger kind, the server, admin and public routes, the jobs and the tests, then the admin pages and the public page. The mod document (`docs/market-mod.md`) is final. Still to do: the mod itself (outside this repository) and the tuning of the numbers (catalog, thresholds, spread, mint budget). The Market ships **off** (`economy.market`, `economy.market.sell` and `economy.market.buy` are seeded disabled by the migration). The design came out of the economy update document and a grilling session on 2026-11-20. The starting catalog below is a draft to simulate before launch.
 
 See "What was built differently" at the end for where the code departs from this page.
 
@@ -170,7 +170,7 @@ Under `/api/economy/server/market`, behind the `economy.serverApi` and `economy.
 | Route                | What it does                                                                                                                                                 |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `GET /state`         | Everything the mod needs to compute prices: settings, tiers, `mintRemaining`, `revision` and every enabled item with its parameters and stock. See below.    |
-| `GET /players/:uuid` | The player's window per tier: `{ tier, nominal, rate, toNextBracket }`, and `capped`.                                                                        |
+| `GET /players/:uuid` | The player's window per tier: `{ tier, nominal, rate, toNextBracket, q1, q2, nextRate }` (LNBits and fractions, not cents), and `capped`.                    |
 | `POST /quote`        | `{ player, item, direction, quantity }`: the site's own quote, with brackets and the total, changing nothing. For checks and for items the mod doesn't know. |
 | `POST /orders`       | Sells or buys. See below.                                                                                                                                    |
 | `PUT /recipes`       | `{ recipes: [{ type, output: { id, count }, inputs: [{ id, count }] }] }`: replaces the recipe graph, then runs the validator and answers its problems.      |
@@ -234,10 +234,10 @@ Under `/api/economy/server/market`, behind the `economy.serverApi` and `economy.
 
 On the `economy` topic of `GET /api/economy/server/events`:
 
-| Event           | Data                                       | Sent when                                                                                                        |
-| --------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| `market`        | `{ revision, items: [{ id, stock, at }] }` | An order changed stocks. At most one a second, the latest stock of each item touched since the last one.         |
-| `market-config` | `{ revision }`                             | An admin changed an item, a tier or a setting, a flag changed, or the recipes did: the mod reads `/state` again. |
+| Event           | Data                                       | Sent when                                                                                                                  |
+| --------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `market`        | `{ revision, items: [{ id, stock, at }] }` | An order changed stocks. At most one a second, the latest stock of each item touched since the last one.                   |
+| `market-config` | `{ revision }`                             | An admin changed an item, a tier or a setting, or the recipes did: the mod reads `/state` again. A flag change sends none. |
 
 ## Player routes
 
