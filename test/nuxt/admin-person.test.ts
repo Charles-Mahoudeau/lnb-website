@@ -53,7 +53,7 @@ const summaries: Record<string, AdminPersonSummary> = {
     playtime: { overSeconds: 0 },
     anticheat: null,
   },
-  bank: { ...base, userId: 'bank', economy: { accountId: 'acc', balance: 420, frozen: false } },
+  bank: { ...base, userId: 'bank', economy: { accountId: 'acc', balance: 42_000, frozen: false } },
   organizer: {
     ...base,
     userId: 'organizer',
