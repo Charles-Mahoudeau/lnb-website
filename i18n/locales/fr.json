@@ -1483,6 +1483,14 @@
           "label": "Nettoyage du temps de jeu",
           "description": "La suppression nocturne des lignes du registre de temps de jeu de plus de 26 semaines et des avertissements des sessions terminées."
         },
+        "changelog": {
+          "label": "Changelog Minecraft",
+          "description": "Les pages publiques du changelog, le flux et l’API."
+        },
+        "jobs_changelogPublish": {
+          "label": "Billets du changelog programmés",
+          "description": "La tâche qui publie les billets du changelog quand leur date arrive."
+        },
         "jobs_pruneAudit": {
           "label": "Nettoyage du journal d’activité",
           "description": "La suppression nocturne des entrées du journal d’activité de plus de 24 mois. Les bannissements, notes et avertissements n’en font pas partie."
@@ -4463,6 +4471,11 @@
         "minecraftPlaytimePrune": "{actor} a nettoyé d’anciennes données de temps de jeu",
         "minecraftDownloadsUpdate": "{actor} a modifié un téléchargement",
         "minecraftEventsPrune": "{actor} a nettoyé d’anciens évènements Minecraft",
+        "minecraftChangelogCreate": "{actor} a créé le billet du changelog {name}",
+        "minecraftChangelogUpdate": "{actor} a modifié le billet du changelog {name}",
+        "minecraftChangelogTranslate": "{actor} a traduit le billet du changelog {name}",
+        "minecraftChangelogPublish": "{actor} a publié le billet du changelog {name}",
+        "minecraftChangelogUnpublish": "{actor} a dépublié le billet du changelog {name}",
         "minecraftRuleCreate": "{actor} a ajouté une règle du serveur",
         "minecraftRuleUpdate": "{actor} a modifié une règle du serveur",
         "minecraftRuleRetire": "{actor} a retiré une règle du serveur",

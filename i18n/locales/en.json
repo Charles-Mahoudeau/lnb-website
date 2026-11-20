@@ -1479,6 +1479,14 @@
           "label": "Playtime cleanup",
           "description": "The nightly removal of playtime ledger rows older than 26 weeks and the warnings of ended sessions."
         },
+        "changelog": {
+          "label": "Minecraft changelog",
+          "description": "The public changelog pages, the feed and the API."
+        },
+        "jobs_changelogPublish": {
+          "label": "Scheduled changelog posts",
+          "description": "The job that publishes changelog posts when their date comes."
+        },
         "jobs_pruneAudit": {
           "label": "Activity log cleanup",
           "description": "The nightly removal of activity log entries older than 24 months. Bans, notes and warnings are not part of it."
@@ -4459,6 +4467,11 @@
         "minecraftPlaytimePrune": "{actor} cleaned old playtime data",
         "minecraftDownloadsUpdate": "{actor} changed a download",
         "minecraftEventsPrune": "{actor} cleaned old Minecraft events",
+        "minecraftChangelogCreate": "{actor} created the changelog post {name}",
+        "minecraftChangelogUpdate": "{actor} edited the changelog post {name}",
+        "minecraftChangelogTranslate": "{actor} translated the changelog post {name}",
+        "minecraftChangelogPublish": "{actor} published the changelog post {name}",
+        "minecraftChangelogUnpublish": "{actor} unpublished the changelog post {name}",
         "minecraftRuleCreate": "{actor} added a server rule",
         "minecraftRuleUpdate": "{actor} edited a server rule",
         "minecraftRuleRetire": "{actor} retired a server rule",
