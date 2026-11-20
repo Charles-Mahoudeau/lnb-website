@@ -631,23 +631,6 @@ export const anticheatModIdBanList = z.array(anticheatModIdBanRow);
 
 export const anticheatPlayerParams = z.object({ userId: z.string().min(1) });
 
-export const anticheatPlayersQuery = z.object({
-  q: z.string().trim().min(1).max(100).optional().describe('A name, an email or a username.'),
-  band: anticheatPlayerBand.optional(),
-  cursor,
-});
-export type AnticheatPlayersQuery = z.infer<typeof anticheatPlayersQuery>;
-
-export const anticheatPlayerRow = z.object({
-  player: anticheatPlayerRef,
-  score: z.int(),
-  band: anticheatPlayerBand,
-  manualHold: z.boolean(),
-  lastSeenAt: isoDate.nullable(),
-});
-export type AnticheatPlayerRow = z.infer<typeof anticheatPlayerRow>;
-export const anticheatPlayerRowPage = anticheatPage(anticheatPlayerRow);
-
 export const anticheatEventsQuery = z.object({ cursor });
 
 export const anticheatTimelineEvent = z.object({

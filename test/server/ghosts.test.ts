@@ -5,6 +5,7 @@ import { db } from '~~/server/db';
 import { adminAudit, user } from '~~/server/db/schema';
 import { eventRegistrationService } from '~~/server/services/events/registrations';
 import { ghostService } from '~~/server/services/ghosts';
+import { peopleService } from '~~/server/services/people';
 import { teamService } from '~~/server/services/team';
 import { usersService } from '~~/server/services/users';
 
@@ -138,12 +139,12 @@ describe('ghosts among accounts', () => {
   it('lists ghosts, and filters them', async () => {
     const actorId = await actor();
     const ghost = await ghostService.create({ actorId, body: body({ name: 'Zzz Ghost List' }) });
-    const all = await usersService.list({ role: 'any', status: 'all', q: 'Zzz Ghost List' });
+    const all = await peopleService.list('admin', { q: 'Zzz Ghost List' });
     expect(all.items).toMatchObject([{ userId: ghost.userId, ghost: true, lastSignInAt: null }]);
-    const onlyGhosts = await usersService.list({ role: 'any', status: 'ghost' });
+    const onlyGhosts = await peopleService.list('admin', { filters: ['ghost'] });
     expect(onlyGhosts.items.every((item) => item.ghost)).toBe(true);
     expect(onlyGhosts.items.map((i) => i.userId)).toContain(ghost.userId);
-    const none = await usersService.list({ role: 'any', status: 'banned', q: 'Zzz Ghost List' });
+    const none = await peopleService.list('admin', { filters: ['banned'], q: 'Zzz Ghost List' });
     expect(none.items).toHaveLength(0);
   });
 

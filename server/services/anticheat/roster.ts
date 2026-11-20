@@ -1,5 +1,4 @@
-import { and, asc, desc, eq, ilike, lt, ne, or, sql } from 'drizzle-orm';
-import type { SQL } from 'drizzle-orm';
+import { and, asc, desc, eq, lt, ne, sql } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import {
@@ -16,15 +15,10 @@ import {
 
 import { playerBandOf } from './rules';
 import { anticheatSettingsService } from './settings';
-import { decodeOffset, encodeOffset, likeEscape, PAGE_SIZE, refuse } from './shared';
+import { refuse } from './shared';
 import type { Db } from './shared';
 
-import type {
-  AnticheatPlayerDetail,
-  AnticheatPlayerRow,
-  AnticheatPlayersQuery,
-  AnticheatTimelineEvent,
-} from '#shared/schemas/anticheat';
+import type { AnticheatPlayerDetail, AnticheatTimelineEvent } from '#shared/schemas/anticheat';
 import { fileStatus } from '#shared/utils/anticheat';
 
 // What the admin reads about players: the list, one player, and the timeline of the trust score.
@@ -44,61 +38,6 @@ export const latestUsername = sql<string | null>`(
   where ${minecraftAccount.userId} = ${user.id}
   order by ${minecraftAccount.lastSeenAt} desc nulls last, ${minecraftAccount.linkedAt} desc
   limit 1)`;
-
-const lastSeen = sql<Date | null>`(
-  select max(${minecraftAccount.lastSeenAt}) from ${minecraftAccount}
-  where ${minecraftAccount.userId} = ${user.id})`.mapWith((value: unknown) =>
-  value === null ? null : new Date(value as string),
-);
-
-/** Players with a trust score, the lowest first. */
-async function players(query: AnticheatPlayersQuery): Promise<Page<AnticheatPlayerRow>> {
-  const { rules } = await anticheatSettingsService.get();
-  const offset = decodeOffset(query.cursor);
-  const search = query.q ? `%${likeEscape(query.q)}%` : undefined;
-  const bands: Record<NonNullable<AnticheatPlayersQuery['band']>, SQL> = {
-    zero: sql`${anticheatPlayer.score} <= 0`,
-    held: sql`${anticheatPlayer.score} > 0 and ${anticheatPlayer.score} < ${rules.player.held}`,
-    normal: sql`${anticheatPlayer.score} >= ${rules.player.held} and ${anticheatPlayer.score} < ${rules.player.trusted}`,
-    trusted: sql`${anticheatPlayer.score} >= ${rules.player.trusted}`,
-  };
-  const rows = await db
-    .select({
-      userId: user.id,
-      name: user.name,
-      username: latestUsername,
-      score: anticheatPlayer.score,
-      manualHold: anticheatPlayer.manualHold,
-      lastSeenAt: lastSeen,
-    })
-    .from(anticheatPlayer)
-    .innerJoin(user, eq(user.id, anticheatPlayer.userId))
-    .where(
-      and(
-        query.band ? bands[query.band] : undefined,
-        search
-          ? or(
-              ilike(user.name, search),
-              ilike(user.email, search),
-              sql`exists (select 1 from ${minecraftAccount} where ${minecraftAccount.userId} = ${user.id} and ${minecraftAccount.username} ilike ${search})`,
-            )
-          : undefined,
-      ),
-    )
-    .orderBy(asc(anticheatPlayer.score), asc(user.name), asc(user.id))
-    .limit(PAGE_SIZE + 1)
-    .offset(offset);
-  return {
-    items: rows.slice(0, PAGE_SIZE).map((row) => ({
-      player: { userId: row.userId, name: row.name, username: row.username },
-      score: row.score,
-      band: playerBandOf(row.score, rules),
-      manualHold: row.manualHold,
-      lastSeenAt: row.lastSeenAt?.toISOString() ?? null,
-    })),
-    nextCursor: rows.length > PAGE_SIZE ? encodeOffset(offset + PAGE_SIZE) : null,
-  };
-}
 
 /** The timeline of a player's score, newest first. `cursor` is the last ID of the previous page. */
 async function events(
@@ -238,4 +177,4 @@ async function player(userId: string): Promise<AnticheatPlayerDetail> {
   };
 }
 
-export const anticheatRosterService = { players, player, events };
+export const anticheatRosterService = { player, events };
