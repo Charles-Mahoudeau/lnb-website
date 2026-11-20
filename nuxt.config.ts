@@ -4,7 +4,35 @@ import { ADMIN_REDIRECTS } from './shared/admin-redirects.ts';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ['@nuxt/eslint', '@nuxt/ui', '@nuxtjs/i18n', '@nuxt/test-utils/module'],
+  modules: [
+    '@nuxt/eslint',
+    '@nuxt/ui',
+    '@nuxtjs/i18n',
+    '@nuxtjs/robots',
+    '@nuxtjs/sitemap',
+    '@nuxt/test-utils/module',
+  ],
+
+  site: { url: process.env.BETTER_AUTH_URL },
+
+  // An allowlist: only the public pages below and the database routes in
+  // server/routes/__sitemap__/urls.get.ts, so a new private page never leaks into the sitemap.
+  sitemap: {
+    excludeAppSources: true,
+    sources: ['/__sitemap__/urls'],
+    urls: [
+      '/',
+      '/events',
+      '/team',
+      '/partners',
+      '/minecraft/mods',
+      '/minecraft/download',
+      '/minecraft/rules',
+      '/minecraft/map',
+    ],
+  },
+
+  robots: { disallow: ['/admin', '/api', '/go/'] },
 
   devtools: {
     enabled: true,
