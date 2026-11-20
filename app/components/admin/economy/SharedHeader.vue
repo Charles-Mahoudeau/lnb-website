@@ -128,8 +128,8 @@ const menu = computed<DropdownMenuItem[]>(() =>
 
 <template>
   <div class="flex flex-col gap-3">
-    <div class="flex flex-wrap items-start justify-between gap-5">
-      <div class="flex min-w-0 flex-col gap-1.5">
+    <div class="flex items-start justify-between gap-5">
+      <div class="flex min-w-0 flex-1 flex-col gap-1.5">
         <div class="flex flex-wrap items-center gap-3">
           <h2 class="text-3xl font-bold break-words text-highlighted">{{ title }}</h2>
           <UBadge
@@ -164,7 +164,7 @@ const menu = computed<DropdownMenuItem[]>(() =>
           {{ formatLnbits(account.balance, locale) }}
         </span>
       </div>
-      <div v-if="actions.length" class="flex flex-wrap items-center gap-3">
+      <div v-if="actions.length" class="flex shrink-0 flex-wrap items-center gap-3">
         <div class="hidden flex-wrap gap-3 sm:flex">
           <UButton
             v-for="action in actions"

@@ -16,11 +16,20 @@ const { t, locale } = useI18n();
         :to="`/admin/people/${encodeURIComponent(member.userId)}/summary`"
         class="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3 hover:bg-accented/40"
       >
-        <span class="flex min-w-48 flex-1 flex-col">
+        <span class="flex min-w-0 flex-1 flex-col">
           <span class="font-semibold text-highlighted">{{
             member.name ?? member.username ?? member.userId
           }}</span>
-          <span v-if="member.username" class="text-sm text-muted">{{ member.username }}</span>
+          <span class="text-sm text-muted">{{
+            [
+              member.username,
+              t('admin.economy.account.joined', {
+                date: formatWardenDate(member.joinedAt, locale),
+              }),
+            ]
+              .filter(Boolean)
+              .join(' · ')
+          }}</span>
         </span>
         <UBadge
           color="neutral"
@@ -28,9 +37,6 @@ const { t, locale } = useI18n();
           size="sm"
           :label="t(`economy.roles.${member.role}`)"
         />
-        <span class="w-40 text-right text-sm text-muted">{{
-          t('admin.economy.account.joined', { date: formatWardenDate(member.joinedAt, locale) })
-        }}</span>
       </NuxtLink>
     </li>
   </ul>
