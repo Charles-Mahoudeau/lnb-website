@@ -4074,6 +4074,21 @@
       "emptyTitle": "Rien en attente",
       "emptyLede": "Aucune contestation, aucun changement de compte ni aucune file ne vous attend. Vous pouvez chercher quelqu’un dans Personnes.",
       "emptyAction": "Ouvrir Personnes",
+      "recent": "Activité récente",
+      "noActivity": "Il ne s’est rien passé récemment.",
+      "actions": "Actions rapides",
+      "searchHint": "Ou appuyez sur Ctrl K pour chercher des personnes, des pages et des réglages.",
+      "week": {
+        "title": "Cette semaine",
+        "signups": "Nouvelles inscriptions",
+        "eventsUpcoming": "Événements à venir",
+        "bans": "Bannissements",
+        "appealsAnswered": "Contestations traitées",
+        "registrations": "Inscriptions aux événements",
+        "circulation": "LNBits en circulation",
+        "questsCompleted": "Quêtes terminées",
+        "rewardIndex": "Indice de récompense"
+      },
       "activity": "Voir toute l’activité",
       "items": {
         "appeals": {

@@ -430,6 +430,35 @@ export const adminInbox = z.object({
 });
 export type AdminInbox = z.infer<typeof adminInbox>;
 
+export const ADMIN_WEEK_IDS = [
+  'signups',
+  'eventsUpcoming',
+  'bans',
+  'appealsAnswered',
+  'registrations',
+  'circulation',
+  'questsCompleted',
+  'rewardIndex',
+] as const;
+export type AdminWeekId = (typeof ADMIN_WEEK_IDS)[number];
+
+/** GET /api/admin/week: a few plain figures for the Home strip, cut to the caller's roles. */
+export const adminWeek = z.object({
+  stats: z
+    .array(
+      z.object({
+        id: z.enum(ADMIN_WEEK_IDS),
+        value: z
+          .number()
+          .describe(
+            'A count over the last 7 days, or for `eventsUpcoming` now, for `circulation` the LNBits in open accounts and for `rewardIndex` the latest index.',
+          ),
+      }),
+    )
+    .describe('In display order. Each role gets its own figures.'),
+});
+export type AdminWeek = z.infer<typeof adminWeek>;
+
 const activityList = <T extends z.ZodType>(item: T) =>
   z.preprocess((value) => (typeof value === 'string' ? value.split(',') : value), z.array(item));
 

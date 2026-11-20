@@ -171,6 +171,7 @@ Built, with these choices the plan left open:
 - Sidebar badges count work, not notices: Moderation (appeals), People (takeovers), Anticheat (files to review and alerts), Events (events with a waitlist) and Modpack (suggestions and newer files). Settings, inactive accounts and bans have none. The inbox loads on the client and refreshes on each navigation, no polling (the old anticheat badge didn't poll either). The anticheat's "waiting" files are no longer counted (only files to review and alerts, as the Overview did).
 - Ctrl K: the pages of a role come from the same data as the sidebar and tab rows (`adminSearchPages`), the quick actions are `ADMIN_ACTIONS` in `app/utils/admin-nav.ts`. "Ban a player" opens People, and "New short link" opens the short links page with its create drawer (`?new`). People wait for two characters and a 250 ms pause.
 - "See all activity" at the bottom of Home goes to Settings › Activity, for the roles that can open it.
+- Home grew after the first build (2026-11-20, variant 1 + 2 + 3 of the Home mock): a "This week" strip at the top (`GET /api/admin/week`, a few counts per role from rows the site already keeps: new sign-ups, upcoming events, bans, appeals answered, event registrations, LNBits in circulation, quests completed, the reward index; site admins get the first four and others their own), the last six activity entries under the inbox, and the Ctrl K quick actions in a column beside it. "Players online now" was left out: it needs a presence count the admin doesn't read yet.
 
 ## Slice 4: one activity log
 

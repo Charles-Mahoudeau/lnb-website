@@ -212,6 +212,7 @@ const responseSchemas = {
   EconomySettingsView: economy.economySettingsView,
   EconomyExport: economy.economyExport,
   AdminInbox: admin.adminInbox,
+  AdminWeek: admin.adminWeek,
   AdminPersonRow: admin.adminPersonRow,
   AdminGhost: admin.adminGhost,
   AdminPeoplePage: admin.adminPeoplePage,
@@ -506,6 +507,16 @@ const routes: RouteDoc[] = [
       "What is waiting for the caller's roles, most important first, with the page that opens each queue, and the counts for the sidebar. Warden admins: ban appeals, account takeovers, anticheat files to review and alerts, mod suggestions (while the vote is on) and newer Modlist files. Events managers: upcoming events with a waitlist. Site admins: API keys about to expire, rate limiting when it isn't normal, accounts inactive for 24 months and site bans in force. Queues at zero are left out.",
     access: 'peopleAdmin',
     response: admin.adminInbox,
+  },
+  {
+    method: 'get',
+    path: '/api/admin/week',
+    tag: TAGS.admin,
+    summary: 'Admin week',
+    description:
+      "A few plain figures for the admin Home, cut to the caller's roles: new sign-ups, upcoming events, bans, appeals answered, event registrations (the last 7 days), LNBits in circulation, quests completed and the latest reward index. No usage tracking: they count rows the site already keeps.",
+    access: 'peopleAdmin',
+    response: admin.adminWeek,
   },
   {
     method: 'get',

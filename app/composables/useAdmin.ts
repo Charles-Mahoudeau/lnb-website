@@ -1,5 +1,6 @@
 import { ADMIN_PROBLEMS } from '#shared/schemas/admin';
 import type {
+  AdminActivityPage,
   AdminBanBody,
   AdminGhost,
   AdminGhostBody,
@@ -12,6 +13,7 @@ import type {
   AdminPeoplePage,
   AdminPeopleQuery,
   AdminPersonSummary,
+  AdminWeek,
 } from '#shared/schemas/admin';
 
 // The admin area's data and actions (/api/admin). Writes throw an AdminError with the API's
@@ -87,4 +89,22 @@ export function useAdminUserActions() {
     bulk: (body: AdminBulkBody) =>
       call(() => $fetch<AdminBulkResult>('/api/admin/users/bulk', { method: 'POST', body })),
   };
+}
+
+/** The strip of figures on Home, cut to the caller's roles. Loaded on the client like the inbox. */
+export function useAdminWeek() {
+  return useFetch<AdminWeek>('/api/admin/week', {
+    key: 'admin-week',
+    lazy: true,
+    server: false,
+  });
+}
+
+/** The latest entries of the activity log, for Home. Each role reads its own areas. */
+export function useAdminRecentActivity() {
+  return useFetch<AdminActivityPage>('/api/admin/activity', {
+    key: 'admin-recent-activity',
+    lazy: true,
+    server: false,
+  });
 }

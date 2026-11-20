@@ -4070,6 +4070,21 @@
       "emptyTitle": "Nothing waiting",
       "emptyLede": "No appeal, takeover or queue needs you right now. You can look someone up in People.",
       "emptyAction": "Open People",
+      "recent": "Recent activity",
+      "noActivity": "Nothing has happened lately.",
+      "actions": "Quick actions",
+      "searchHint": "Or press Ctrl K to search people, pages and settings.",
+      "week": {
+        "title": "This week",
+        "signups": "New sign-ups",
+        "eventsUpcoming": "Events coming up",
+        "bans": "Bans",
+        "appealsAnswered": "Appeals answered",
+        "registrations": "Event registrations",
+        "circulation": "LNBits in circulation",
+        "questsCompleted": "Quests completed",
+        "rewardIndex": "Reward index"
+      },
       "activity": "See all activity",
       "items": {
         "appeals": {
