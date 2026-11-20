@@ -5,6 +5,6 @@ definePageMeta({ economyAdmins: true });
 
 <template>
   <AdminTabPage entry="quests" tab="rewardIndex">
-    <AdminQuestsIndex />
+    <AdminQuestsRewardIndex />
   </AdminTabPage>
 </template>
