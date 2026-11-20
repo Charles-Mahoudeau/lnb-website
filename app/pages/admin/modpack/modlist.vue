@@ -7,7 +7,7 @@ const modlist = useTemplateRef('modlist');
 </script>
 
 <template>
-  <AdminPage :title="t('admin.nav.modlist')" :parents="[{ label: t('admin.nav.mods') }]">
+  <AdminTabPage entry="modpack" tab="modlist">
     <template #actions>
       <UButton
         color="neutral"
@@ -32,5 +32,5 @@ const modlist = useTemplateRef('modlist');
       />
     </template>
     <AdminModlist ref="modlist" />
-  </AdminPage>
+  </AdminTabPage>
 </template>
