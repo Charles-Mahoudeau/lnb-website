@@ -138,9 +138,9 @@ No body. Answer (`marketState`):
     "buy": true
   },
   "tiers": [
-    { "tier": 1, "q1": 500000, "q2": 1500000, "midPercent": 50, "tailPercent": 10 },
-    { "tier": 2, "q1": 500000, "q2": 1500000, "midPercent": 50, "tailPercent": 10 },
-    { "tier": 3, "q1": 500000, "q2": 1500000, "midPercent": 50, "tailPercent": 10 }
+    { "tier": 1, "q1": 3500, "q2": 9300, "midPercent": 40, "tailPercent": 5 },
+    { "tier": 2, "q1": 2900, "q2": 7000, "midPercent": 40, "tailPercent": 5 },
+    { "tier": 3, "q1": 3500, "q2": 9300, "midPercent": 40, "tailPercent": 5 }
   ],
   "mintRemaining": 83000000,
   "items": [
@@ -783,7 +783,7 @@ On a real server against a site with the flags on, with two test players (one li
 - [ ] Turn `economy.market` on: the screen opens with prices; sell and buy are refused for the direction flags still off.
 - [ ] Turn `economy.market.sell` on: sell 1 item, 64 items, a full inventory (2,304). The payout matches the preview within a cent, the balance changes by `account.balance`, the stock on the screen moves, and the site's `/minecraft/market` shows the new price.
 - [ ] A sale crossing `q1` (set a low `q1` in Settings): the average price shows the split and the player's meter moves to 50 %.
-- [ ] A sale in the tail bracket pays at 10 %.
+- [ ] A sale in the tail bracket pays at the tail rate (5 % by default).
 - [ ] A sale with a damaged tool, a renamed item, an enchanted book and an item inside a shulker box is refused by the mod without calling the site.
 - [ ] `priceChanged`: change the stock from the admin between preview and click (reset stock). The new total is shown and the player can confirm again; the items were returned in between.
 - [ ] `zeroPayout`: sell one item whose payout rounds to 0 cents; the items come back.
@@ -819,7 +819,7 @@ For the site owner to decide. The mod does not wait for them unless said so.
 1. **Retries while the Market is off** (decided): the site answers a stored order with the same key whatever the flags (5.3). The mod keeps retrying the same key and gets the first answer; admins need no precaution.
 2. **Quantity above `maxOrderItems`** (decided): a 400 with `data.problem` `tooManyItems`. The mod still reads the limit from `/state` and avoids it.
 3. **Colour convention** of the price badge (decided): green when the price is above `p0`, red when below, neutral near 0, with the arrow and sign kept. The website does this; the mod follows.
-4. **Numeric tuning** is not final: the starting catalog, the tiers' thresholds (`q1`, `q2`, rates), the spread, the mint budget percentage and the items per order are drafts to simulate before launch (`docs/market.md`). The mod reads them from `/state`, so they don't change the mod.
+4. **Numeric tuning** was simulated for about 9 active players and 105,000 LNBits in circulation (`docs/market.md`, "Tuning"), and must be revisited as the economy grows: the starting catalog, the tiers' thresholds (`q1`, `q2`, rates), the spread, the mint budget percentage and the items per order. The mod reads them from `/state`, so they don't change the mod.
 5. **Price history in the game** (decided: yes). The in-game screen shows price history. Use the public `GET /api/market/items/:id/history?period=24h|7d|30d|1y` (no auth, answers 503 when the Market is off); the server routes have no history of their own.
 6. **Notifications** (decided: no). The mod does not tell a player that their 24-hour window recovered.
 7. **The Prism wrapper** and the other launcher files are outside this document (`docs/modpack.md`).
