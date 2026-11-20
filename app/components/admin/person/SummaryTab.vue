@@ -44,11 +44,11 @@ const rows = computed<Row[]>(() => {
   }
   if (s.moderation) {
     const m = s.moderation;
-    const counts = t('admin.person.summary.counts', {
-      bans: m.bans,
-      warnings: m.warnings,
-      notes: m.notes,
-    });
+    const counts = [
+      t('admin.person.summary.bans', m.bans),
+      t('admin.person.summary.warnings', m.warnings),
+      t('admin.person.summary.notes', m.notes),
+    ].join(', ');
     const head = m.activeBan
       ? m.activeBan.expiresAt
         ? t('admin.users.bannedUntil', {

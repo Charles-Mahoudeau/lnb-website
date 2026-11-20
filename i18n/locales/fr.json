@@ -4375,7 +4375,9 @@
         "registrations": "Inscrit à aucun événement. | Inscrit à 1 événement. | Inscrit à {n} événements.",
         "glance": "En un coup d’œil",
         "accountsUsed": "{used} comptes sur {max}",
-        "counts": "{bans} bannissements, {warnings} avertissements, {notes} notes",
+        "bans": "aucun bannissement | 1 bannissement | {n} bannissements",
+        "warnings": "aucun avertissement | 1 avertissement | {n} avertissements",
+        "notes": "aucune note | 1 note | {n} notes",
         "openTab": "Ouvrir {tab}"
       }
     }

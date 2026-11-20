@@ -188,7 +188,7 @@ describe('the Person page tabs', () => {
   it('shows the Summary cards the role may read', async () => {
     const warden = await open('warden-admin', 'banned');
     expect(warden.text()).toContain('AlexCraft');
-    expect(warden.text()).toContain('1 bans, 2 warnings, 0 notes');
+    expect(warden.text()).toContain('1 ban, 2 warnings, no notes');
     expect(warden.find('[aria-label="Open Moderation"]').exists()).toBe(true);
     expect(warden.text()).toContain('1 file to look at.');
     const bank = await open('economy-admin', 'bank');

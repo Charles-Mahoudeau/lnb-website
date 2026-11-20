@@ -4371,7 +4371,9 @@
         "registrations": "Not registered to any event. | Registered to 1 event. | Registered to {n} events.",
         "glance": "At a glance",
         "accountsUsed": "{used} of {max} accounts",
-        "counts": "{bans} bans, {warnings} warnings, {notes} notes",
+        "bans": "no bans | 1 ban | {n} bans",
+        "warnings": "no warnings | 1 warning | {n} warnings",
+        "notes": "no notes | 1 note | {n} notes",
         "openTab": "Open {tab}"
       }
     }
