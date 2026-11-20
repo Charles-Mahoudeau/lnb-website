@@ -1,6 +1,6 @@
 # Changelog
 
-Posts about what changed on the Minecraft server, written by admins in one language and shown on the site and, later, in game. Status: slices 1 to 3 built (tables, service, Markdown rendering, `changelog` flag, publish job, audit actions; the admin with DeepL translation; the public pages, the feed and the site's API); the mod's API and seen state are not. The in-game display is left to a discussion with the mod developer; the API below is what the site commits to.
+Posts about what changed on the Minecraft server, written by admins in one language and shown on the site and, later, in game. Status: all four slices built (tables, service, Markdown rendering, `changelog` flag, publish job, audit actions; the admin with DeepL translation; the public pages, the feed and the site's API; the mod's API and seen state). The in-game display is left to a discussion with the mod developer; the API below is what the site commits to.
 
 Original mock (not code to port): [changelog mocks](https://claude.ai/artifact/Q7FywHY51Wi9TPX5aGbHQv), list B (no image, with an optional cover), post page B with navigation, admin editor B (publishing band on top, Write and On the site modes).
 
@@ -36,14 +36,65 @@ Two sets of routes, so the mod's can be added beside the site's.
 - `GET /api/changelog/posts?lang=fr|en&limit=10&before=<cursor>`: published posts, newest first, without their body: `slug`, `title`, `summary`, `versionTag`, `publishedAt`, `lang` (the language actually returned), `languages` (what the post has), `coverUrl`, and `next` (the cursor of the following page, or null). `lang` defaults to French, then the source language.
 - `GET /api/changelog/posts/:slug?lang=`: the same for one post, with `html` (from `renderChangelog`) and `older` and `newer` (`{ slug, title }` or null). 404 for an unknown or unpublished post.
 
-**For the mod** (slice 4, not built): `Authorization: Bearer <WARDEN_SERVER_SECRET>`, as for Warden and the economy, under `/api/changelog/server/`. All routes need an `openapi.ts` entry.
+**For the mod** (built, `/api/changelog/server/*`): `Authorization: Bearer <WARDEN_SERVER_SECRET>`, as for Warden and the economy. A wrong or missing secret is a 401; while the `changelog` flag is off, a 503 `disabled`; a bad UUID or query a 400 `invalid`; an unknown or unpublished post a 404 `notFound`. `lang` is `fr` or `en`, French by default, the source language when the post has no text in it; the answer's `lang` is the language actually returned. All have `openapi.ts` entries.
 
-- `GET /api/changelog/server/posts?lang=fr|en&limit=10&before=<cursor>`: published posts, newest first, with `id`, `slug`, `title`, `summary`, `versionTag`, `publishedAt`, `lang` and `url`.
-- `GET /api/changelog/server/posts/:id?lang=`: the same, with `body` (Markdown). A pre-rendered block list for the game is a decision for the mod developer's discussion; it would be added here as `blocks`.
-- `GET /api/changelog/server/unseen?player=<uuid>&lang=`: the latest published post under 14 days old that the player has not seen, or `null`.
-- `POST /api/changelog/server/posts/:id/seen` with `{ "player": "<uuid>" }`: idempotent.
+Seen state is one row per Minecraft UUID and post, for any UUID, whether or not a site account has linked it, so an unlinked player isn't offered the same post at every join. It is data about a player, so it follows the account rules: deleted when the site account that linked the UUID is deleted (by hand or by `users:delete-inactive`, through `changelogService.forgetUsers`), never shown to other people. Unlinking an account keeps it, like playtime.
 
-Seen state is one row per Minecraft UUID and post. It is data about a player, so it follows the account rules: deleted with a deleted account, never shown to other people.
+### `GET /api/changelog/server/posts?lang=fr&limit=10&before=<cursor>`
+
+Published posts, newest first, without their body. `limit` is 1 to 50 (10 by default). `next` is the cursor to pass as `before` for the following page, or null.
+
+```json
+{
+  "posts": [
+    {
+      "id": "0b1f6a52-8a8f-4a1e-9d52-0c3a7f4d9e11",
+      "slug": "saison-4-2",
+      "title": "Saison 4.2",
+      "summary": "Nouveaux quartiers et une économie rééquilibrée.",
+      "versionTag": "Saison 4.2",
+      "publishedAt": "2027-01-12T18:00:00.000Z",
+      "lang": "fr",
+      "url": "https://lnb.bde-teknantes.fr/minecraft/changelog/saison-4-2"
+    }
+  ],
+  "next": null
+}
+```
+
+### `GET /api/changelog/server/posts/:id?lang=en`
+
+The same fields plus `body`, the Markdown source in the language returned. No pre-rendered block list.
+
+```json
+{
+  "id": "0b1f6a52-8a8f-4a1e-9d52-0c3a7f4d9e11",
+  "slug": "saison-4-2",
+  "title": "Season 4.2",
+  "summary": "New districts and a rebalanced economy.",
+  "versionTag": "Season 4.2",
+  "publishedAt": "2027-01-12T18:00:00.000Z",
+  "lang": "en",
+  "url": "https://lnb.bde-teknantes.fr/minecraft/changelog/saison-4-2",
+  "body": "## New districts\n\n- The market moved to the spawn.\n"
+}
+```
+
+### `GET /api/changelog/server/unseen?player=<uuid>&lang=fr`
+
+The latest published post under 14 days old that the player has not seen, in the shape above with `body`, or `null`.
+
+```json
+{ "post": null }
+```
+
+### `POST /api/changelog/server/posts/:id/seen`
+
+```json
+{ "player": "5c2a7a3e-0000-4000-8000-00000000c10a" }
+```
+
+Answers 204 with no body, again and again for the same player and post.
 
 ## Open for the mod discussion
 
@@ -53,7 +104,7 @@ Seen state is one row per Minecraft UUID and post. It is data about a player, so
 
 ## Slices
 
-1. Data and service (built; `server/services/changelog.ts`, `server/db/schema/changelog.ts`, `renderChangelog` in `server/services/events/markdown.ts`, task `changelog:publish-scheduled` behind `jobs.changelogPublish`; the cover is a key in the `event-images` storage; seen rows reference `minecraft_account`, and `markSeen` ignores a UUID no account has linked): schema, Markdown rendering with tables, publish job, flag, audit events, tests.
+1. Data and service (built; `server/services/changelog.ts`, `server/db/schema/changelog.ts`, `renderChangelog` in `server/services/events/markdown.ts`, task `changelog:publish-scheduled` behind `jobs.changelogPublish`; the cover is a key in the `event-images` storage): schema, Markdown rendering with tables, publish job, flag, audit events, tests.
 2. Admin (built): list and editor, DeepL translation. Routes under `server/api/admin/changelog/` for Warden admins and admins, Markdown preview from the public renderer (`POST /api/admin/changelog/preview`), pages `/admin/minecraft/changelog`, `/new` and `/:id`, Ctrl K entries. Scheduling is audited as `minecraft.changelog.schedule`. The admin routes don't check the `changelog` flag (it hides the public side only, like other admin sections). **The cover picker is not built**: the event image picker is behind the events-manager role, so Warden admins can't use it; the service takes a `coverKey` but no UI or schema sets it yet. The Translate button needs `DEEPL_API_KEY` (a free key ends in `:fx` and uses `api-free.deepl.com`, others `api.deepl.com`); without it the button is disabled with a note. DeepL isn't checked against the real API yet: code, links and URLs are swapped for `<x id="n"/>` tags and sent with `tag_handling: xml` and `ignore_tags: x`.
 3. Public pages, feed, sitemap, i18n strings, `docs/design.md` section, `/styleguide` entries (built). With the flag off the pages, the feed and the routes answer 503 like other flagged features, and the sitemap leaves the posts out. The feed is `/minecraft/changelog.atom` (`?lang=`, French by default, the source language when a post has no French); the list page links it in its head. Browser checked in dark mode only.
-4. The mod's API (`/api/changelog/server/*`) and seen state, OpenAPI entries, tests.
+4. The mod's API (`/api/changelog/server/*`) and seen state (built): the routes, OpenAPI entries, tests. Seen rows have no foreign key (migration `changelog-seen-uuid`) and are deleted with the account.
