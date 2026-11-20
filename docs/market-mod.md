@@ -738,7 +738,7 @@ A player with a site or Warden ban in force, or whose account is frozen, can't t
 
 ## 12. What players see
 
-- **`/market`** opens a screen with category tabs (the three tiers, or item groups), for each item: its icon and name, the price to sell and to buy for 1 and for 64 items, a percentage badge against the base price `p0` (`(pRef - p0) / p0`; pick one colour convention and keep it), and the player's own **efficiency** per tier (section 4.2: the current rate, 100 %, 50 % or 10 %, and how much is left before it drops). Each item also shows its price history (24 h, 7 days, 30 days, 1 year) from the public `GET /api/market/items/:id/history`, and the website's sparkline comes from `GET /api/market`.
+- **`/market`** opens a screen with category tabs (the three tiers, or item groups), for each item: its icon and name, the price to sell and to buy for 1 and for 64 items, a percentage badge against the base price `p0` (`(pRef - p0) / p0`; green above, red below, section 16 point 3), and the player's own **efficiency** per tier (section 4.2: the current rate, 100 %, 50 % or 10 %, and how much is left before it drops). Each item also shows its price history (24 h, 7 days, 30 days, 1 year) from the public `GET /api/market/items/:id/history`, and the website's sparkline comes from `GET /api/market`.
 - **Hover**: the exact payout (or cost) of selling (or buying) the stack under the cursor, computed locally (section 7), with the average price per item and the rate that applies.
 - An item that isn't `sellable` shows no sell price. An item that isn't `buyable` shows no buy price. An item absent from `/state` isn't shown at all.
 - Selling: click an item, then a quantity (1, 16, 64, a full inventory, or a number, up to `maxOrderItems`). Only matching plain items in the player's inventory count. Buying: the same, with the account that pays (the player's default one unless they pick another).
@@ -816,9 +816,9 @@ On a real server against a site with the flags on, with two test players (one li
 
 For the site owner to decide. The mod does not wait for them unless said so.
 
-1. **Retries while the Market is off.** A retry of an unknown-outcome order gets 503 `disabled` (the flag check runs before the key check), so a sale in escrow can't be settled until the flag is back on (5.3). Options: accept it and tell admins to switch off outside peak hours, or make the site answer a stored order whatever the flags. Not decided; the mod follows 5.3 for now.
+1. **Retries while the Market is off** (decided): the site answers a stored order with the same key whatever the flags (5.3). The mod keeps retrying the same key and gets the first answer; admins need no precaution.
 2. **Quantity above `maxOrderItems`** (decided): a 400 with `data.problem` `tooManyItems`. The mod still reads the limit from `/state` and avoids it.
-3. **Colour convention** of the price badge (green below `p0` for buyers or the reverse) is left to the mod's UI.
+3. **Colour convention** of the price badge (decided): green when the price is above `p0`, red when below, neutral near 0, with the arrow and sign kept. The website does this; the mod follows.
 4. **Numeric tuning** is not final: the starting catalog, the tiers' thresholds (`q1`, `q2`, rates), the spread, the mint budget percentage and the items per order are drafts to simulate before launch (`docs/market.md`). The mod reads them from `/state`, so they don't change the mod.
 5. **Price history in the game** (decided: yes). The in-game screen shows price history. Use the public `GET /api/market/items/:id/history?period=24h|7d|30d|1y` (no auth, answers 503 when the Market is off); the server routes have no history of their own.
 6. **Notifications** (decided: no). The mod does not tell a player that their 24-hour window recovered.
