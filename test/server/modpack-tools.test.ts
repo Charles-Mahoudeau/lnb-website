@@ -7,7 +7,7 @@ import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { db } from '~~/server/db';
-import { modpackState, user, wardenAudit } from '~~/server/db/schema';
+import { modpackState, user, audit as auditLog } from '~~/server/db/schema';
 import { fileService } from '~~/server/services/files';
 import { modpackToolService } from '~~/server/services/modpack/tools';
 
@@ -82,7 +82,10 @@ describe('modpackToolService', () => {
       publishedBy: 'Ada',
     });
     expect(await revision()).toBe(before + 1);
-    const audit = await db.select().from(wardenAudit).where(eq(wardenAudit.action, 'modpack.tool'));
+    const audit = await db
+      .select()
+      .from(auditLog)
+      .where(eq(auditLog.action, 'minecraft.modpack.tool'));
     expect(audit.length).toBeGreaterThan(0);
   });
 

@@ -8,7 +8,7 @@ import {
   playtimeLedger,
   playtimeNotice,
   user,
-  wardenAudit,
+  audit as auditLog,
   wardenPlayer,
   wardenSession,
 } from '~~/server/db/schema';
@@ -83,8 +83,8 @@ describe('the playtime reset', () => {
     expect(
       await db.select().from(playtimeGrant).where(eq(playtimeGrant.userId, ended.id)),
     ).toHaveLength(1);
-    const audits = await db.select().from(wardenAudit).where(eq(wardenAudit.actorUserId, ended.id));
-    expect(audits.map((entry) => entry.action)).toContain('playtime.reset');
+    const audits = await db.select().from(auditLog).where(eq(auditLog.actorUserId, ended.id));
+    expect(audits.map((entry) => entry.action)).toContain('minecraft.playtime.reset');
   });
 });
 
@@ -129,7 +129,7 @@ describe('the full playtime reset', () => {
     expect(
       await db.select().from(playtimeGrant).where(eq(playtimeGrant.userId, ended.id)),
     ).toHaveLength(1);
-    const audits = await db.select().from(wardenAudit).where(eq(wardenAudit.actorUserId, ended.id));
-    expect(audits.map((entry) => entry.action)).toContain('playtime.resetAll');
+    const audits = await db.select().from(auditLog).where(eq(auditLog.actorUserId, ended.id));
+    expect(audits.map((entry) => entry.action)).toContain('minecraft.playtime.resetAll');
   });
 });

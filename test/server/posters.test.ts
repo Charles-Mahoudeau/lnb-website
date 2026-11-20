@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 import { db } from '~~/server/db';
 import {
-  adminAudit,
+  audit as auditLog,
   event,
   eventRoom,
   eventType,
@@ -194,7 +194,10 @@ describe('posters', () => {
       data: { problem: 'posterNotFound' },
     });
     expect(await linkOf(copy.id)).toBeDefined();
-    const audit = await db.select().from(adminAudit).where(eq(adminAudit.action, 'poster.delete'));
+    const audit = await db
+      .select()
+      .from(auditLog)
+      .where(eq(auditLog.action, 'events.poster.delete'));
     expect(audit.some((a) => (a.data as { id?: string }).id === id)).toBe(true);
   });
 

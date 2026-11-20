@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { db } from '~~/server/db';
 import {
-  adminAudit,
+  audit as auditLog,
   economyAccount,
   economyCasinoLicense,
   economySettings,
@@ -162,7 +162,7 @@ describe('account types', () => {
     });
     const detail = await economyAdminService.setType(admin.id, account.id, 'casino');
     expect(detail.type).toBe('casino');
-    const [entry] = await db.select().from(adminAudit).where(eq(adminAudit.actorUserId, admin.id));
+    const [entry] = await db.select().from(auditLog).where(eq(auditLog.actorUserId, admin.id));
     expect(entry).toMatchObject({
       action: 'economy.accountType',
       data: { accountId: account.id, from: 'team', type: 'casino' },
@@ -493,7 +493,7 @@ describe('licenses given by an admin', () => {
     expect(given.licenses).toEqual({ total: 1, free: 1 });
     // No money moved: the balance is untouched.
     expect(given.balance).toBe(1000);
-    const [entry] = await db.select().from(adminAudit).where(eq(adminAudit.actorUserId, admin.id));
+    const [entry] = await db.select().from(auditLog).where(eq(auditLog.actorUserId, admin.id));
     expect(entry).toMatchObject({
       action: 'economy.licenseGrant',
       targetUserId: owner.id,

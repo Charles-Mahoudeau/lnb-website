@@ -7,7 +7,7 @@ import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { db } from '~~/server/db';
-import { modpackMod, modpackState, user, wardenAudit } from '~~/server/db/schema';
+import { modpackMod, modpackState, user, audit as auditLog } from '~~/server/db/schema';
 import { fileService } from '~~/server/services/files';
 import { modpackService, statusOf } from '~~/server/services/modpack';
 
@@ -88,8 +88,10 @@ describe('modpackService', () => {
     });
     expect(view.pinned?.url).toBe(file.url);
     expect(await revision()).toBe(before + 1);
-    const audit = await db.select().from(wardenAudit);
-    expect(audit.some((row) => row.action === 'modpack.add' && row.data.modId === id)).toBe(true);
+    const audit = await db.select().from(auditLog);
+    expect(
+      audit.some((row) => row.action === 'minecraft.modpack.add' && row.data.modId === id),
+    ).toBe(true);
   });
 
   it('refuses a file that is not a mod jar', async () => {

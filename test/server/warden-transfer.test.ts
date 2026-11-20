@@ -6,7 +6,7 @@ import {
   minecraftAccount,
   user,
   wardenAccountTransfer,
-  wardenAudit,
+  audit as auditLog,
   wardenSession,
 } from '~~/server/db/schema';
 import { offlineUuid } from '~~/server/lib/minecraft';
@@ -184,8 +184,10 @@ describe('taking over an unlinked account', () => {
     });
     const [entry] = await db
       .select()
-      .from(wardenAudit)
-      .where(and(eq(wardenAudit.action, 'link.transfer'), eq(wardenAudit.targetUserId, taker.id)));
+      .from(auditLog)
+      .where(
+        and(eq(auditLog.action, 'minecraft.link.transfer'), eq(auditLog.targetUserId, taker.id)),
+      );
     expect(entry?.data).toMatchObject({ fromUserId: owner.id, transferId: transfer!.id });
   });
 
@@ -274,9 +276,9 @@ describe('the warning for admins', () => {
     expect(rows.items.find((r) => r.userId === owner.id)?.transferWarning).toBeNull();
     const [entry] = await db
       .select()
-      .from(wardenAudit)
+      .from(auditLog)
       .where(
-        and(eq(wardenAudit.action, 'transfer.dismiss'), eq(wardenAudit.targetUserId, taker.id)),
+        and(eq(auditLog.action, 'minecraft.transfer.dismiss'), eq(auditLog.targetUserId, taker.id)),
       );
     expect(entry?.data).toMatchObject({ transferId: transfer.id, fromUserId: owner.id });
   });

@@ -5,7 +5,7 @@ import { db } from '~~/server/db';
 import {
   minecraftAccount,
   user,
-  wardenAudit,
+  audit as auditLog,
   wardenBan,
   wardenDevice,
   wardenJoinTicket,
@@ -273,14 +273,14 @@ describe('login: allowed', () => {
     expect(session).toMatchObject({ userId: id, deviceId: client.device.id, endedAt: null });
     const [audit] = await db
       .select()
-      .from(wardenAudit)
+      .from(auditLog)
       .where(
         and(
-          eq(wardenAudit.action, 'link'),
-          eq(wardenAudit.targetMinecraftUuid, offlineUuid(username)),
+          eq(auditLog.action, 'minecraft.link'),
+          eq(auditLog.targetMinecraftUuid, offlineUuid(username)),
         ),
       );
-    expect(audit).toMatchObject({ source: 'minecraft', targetUserId: id });
+    expect(audit).toMatchObject({ source: 'server', targetUserId: id });
   });
 
   it('does not link twice: a linked account logs in with linked:false', async () => {

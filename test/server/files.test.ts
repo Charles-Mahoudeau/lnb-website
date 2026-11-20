@@ -8,7 +8,7 @@ import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { db } from '~~/server/db';
-import { modpackTool, storedFile, user, wardenAudit } from '~~/server/db/schema';
+import { modpackTool, storedFile, user, audit as auditLog } from '~~/server/db/schema';
 import { cleanFileName, fileService } from '~~/server/services/files';
 
 import { MAX_FILE_BYTES } from '#shared/schemas/files';
@@ -95,10 +95,10 @@ describe('uploading', () => {
 
   it('writes an audit row', async () => {
     const view = await upload(jar(unique()), 'audited.jar');
-    const rows = await db.select().from(wardenAudit);
-    expect(rows.some((row) => row.action === 'file.upload' && row.data.fileId === view.id)).toBe(
-      true,
-    );
+    const rows = await db.select().from(auditLog);
+    expect(
+      rows.some((row) => row.action === 'minecraft.file.upload' && row.data.fileId === view.id),
+    ).toBe(true);
   });
 
   it('refuses the same bytes twice, even under another name', async () => {
@@ -195,10 +195,10 @@ describe('the library', () => {
         .then((rows) => rows.some((r) => r.id === view.id)),
     ).toBe(false);
     await expect(stat(join(dir, view.sha256))).rejects.toThrow();
-    const rows = await db.select().from(wardenAudit);
-    expect(rows.some((row) => row.action === 'file.delete' && row.data.fileId === view.id)).toBe(
-      true,
-    );
+    const rows = await db.select().from(auditLog);
+    expect(
+      rows.some((row) => row.action === 'minecraft.file.delete' && row.data.fileId === view.id),
+    ).toBe(true);
   });
 
   it('refuses to delete a file that does not exist', async () => {
@@ -219,7 +219,10 @@ describe('the library', () => {
     expect(
       (await fileService.setKind({ id: view.id, kind: 'wrapper', actorUserId: ADMIN })).kind,
     ).toBe('wrapper');
-    const audit = await db.select().from(wardenAudit).where(eq(wardenAudit.action, 'file.kind'));
+    const audit = await db
+      .select()
+      .from(auditLog)
+      .where(eq(auditLog.action, 'minecraft.file.kind'));
     expect(audit.length).toBeGreaterThan(0);
 
     const text = await upload(Buffer.from(unique()), 'notes.txt', 'asset');

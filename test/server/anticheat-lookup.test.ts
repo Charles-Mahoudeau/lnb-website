@@ -6,13 +6,13 @@ import {
   anticheatFile,
   anticheatHistory,
   anticheatProject,
-  wardenAudit,
+  audit as auditLog,
 } from '~~/server/db/schema';
+import { activityService } from '~~/server/services/activity';
 import { anticheatLookupService } from '~~/server/services/anticheat/lookup';
 import { CatalogUnavailableError } from '~~/server/services/anticheat/platforms';
 import type { PlatformClient } from '~~/server/services/anticheat/platforms';
 import { anticheatReportService } from '~~/server/services/anticheat/reports';
-import { wardenAdminService } from '~~/server/services/warden/admin';
 import { wardenEventService } from '~~/server/services/warden/events';
 
 import { file, hash, session, setMode } from './anticheat-helpers';
@@ -290,9 +290,12 @@ describe('anticheat lookups', () => {
     const verdicts = () =>
       db
         .select()
-        .from(wardenAudit)
+        .from(auditLog)
         .where(
-          and(eq(wardenAudit.action, 'anticheat.verdict'), eq(wardenAudit.targetUserId, userId)),
+          and(
+            eq(auditLog.action, 'minecraft.anticheat.verdict'),
+            eq(auditLog.targetUserId, userId),
+          ),
         );
     expect(await verdicts()).toHaveLength(0);
 
@@ -307,12 +310,9 @@ describe('anticheat lookups', () => {
     const events = await wardenEventService.since(rows[0]!.id - 1);
     expect(events.at(0)?.event.type).toBe('anticheatVerdict');
 
-    // The activity log leaves the stream events out unless they are asked for.
-    const log = await wardenAdminService.audit({ userId });
-    expect(log.items.map((item) => item.action)).not.toContain('anticheat.verdict');
-    expect(
-      (await wardenAdminService.audit({ userId, action: 'anticheat.verdict' })).items,
-    ).toHaveLength(1);
+    // The activity log leaves the events that only feed the stream out.
+    const log = await activityService.page('admin', { user: userId });
+    expect(log.items.map((item) => item.action)).not.toContain('minecraft.anticheat.verdict');
 
     // Nothing changed, so nothing is sent.
     expect(await anticheatReportService.reevaluateFor([sha512])).toBe(0);

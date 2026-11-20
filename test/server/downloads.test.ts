@@ -7,7 +7,7 @@ import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { db } from '~~/server/db';
-import { adminAudit, downloadFile, downloadSetting, user } from '~~/server/db/schema';
+import { audit as auditLog, downloadFile, downloadSetting, user } from '~~/server/db/schema';
 import { downloadService } from '~~/server/services/downloads';
 import { fileService } from '~~/server/services/files';
 
@@ -55,7 +55,7 @@ beforeEach(async () => {
 afterAll(async () => {
   await db.delete(downloadFile);
   await db.delete(downloadSetting);
-  await db.delete(adminAudit).where(eq(adminAudit.actorUserId, ADMIN));
+  await db.delete(auditLog).where(eq(auditLog.actorUserId, ADMIN));
   delete process.env.FILES_DIR;
   await rm(dir, { recursive: true, force: true });
 });
@@ -109,8 +109,8 @@ describe('the download slots', () => {
     expect((await downloadService.getPublic()).cracked.windows?.name).toBe('prism-2.exe');
     const audit = await db
       .select()
-      .from(adminAudit)
-      .where(eq(adminAudit.action, 'downloads.update'));
+      .from(auditLog)
+      .where(eq(auditLog.action, 'minecraft.downloads.update'));
     expect(audit.filter((row) => row.actorUserId === ADMIN).length).toBeGreaterThanOrEqual(2);
   });
 

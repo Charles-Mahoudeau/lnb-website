@@ -7,7 +7,7 @@ import {
   playtimeClosure,
   playtimeSettings,
   user,
-  wardenAudit,
+  audit as auditLog,
 } from '~~/server/db/schema';
 import { playtimeAdminService } from '~~/server/services/playtime/admin';
 import { playtimeContextService } from '~~/server/services/playtime/context';
@@ -28,17 +28,17 @@ async function account(tenantId = EPITECH) {
 
 async function audits(
   action:
-    | 'playtime.settings'
-    | 'playtime.school'
-    | 'playtime.closure'
-    | 'playtime.exemption'
-    | 'playtime.grant',
+    | 'minecraft.playtime.settings'
+    | 'minecraft.playtime.school'
+    | 'minecraft.playtime.closure'
+    | 'minecraft.playtime.exemption'
+    | 'minecraft.playtime.grant',
   userId: string,
 ) {
   return db
     .select()
-    .from(wardenAudit)
-    .where(eq(wardenAudit.actorUserId, userId))
+    .from(auditLog)
+    .where(eq(auditLog.actorUserId, userId))
     .then((rows) => rows.filter((row) => row.action === action));
 }
 
@@ -71,7 +71,7 @@ describe('the rules', () => {
     const settings = await playtimeSettingsService.get();
     expect(settings.mode).toBe('enforce');
     expect(settings.config.allowanceSeconds).toBe(7200);
-    const [audit] = await audits('playtime.settings', id);
+    const [audit] = await audits('minecraft.playtime.settings', id);
     expect(audit?.data).toMatchObject({
       scope: 'global',
       before: { allowanceSeconds: 36_000, mode: 'observe' },
@@ -111,7 +111,7 @@ describe('the rules', () => {
     await playtimeAdminService.clearSchool(actor, EARTSUP);
     const back = await playtimeContextService.load(db, id, NOW);
     expect(back!.config.allowanceSeconds).toBe(36_000);
-    expect((await audits('playtime.school', id)).length).toBe(2);
+    expect((await audits('minecraft.playtime.school', id)).length).toBe(2);
   });
 });
 
@@ -141,7 +141,9 @@ describe('closures', () => {
       await db.select().from(playtimeClosure).where(eq(playtimeClosure.id, closure.id)),
     ).toHaveLength(0);
     expect(
-      (await audits('playtime.closure', id)).map((row) => (row.data as { change: string }).change),
+      (await audits('minecraft.playtime.closure', id)).map(
+        (row) => (row.data as { change: string }).change,
+      ),
     ).toEqual(['create', 'update', 'delete']);
   });
 
@@ -192,7 +194,7 @@ describe('exemptions and grants', () => {
     await expect(playtimeAdminService.revokeExemption(actor, byUser.id)).rejects.toMatchObject({
       statusCode: 404,
     });
-    const [added] = await audits('playtime.exemption', id);
+    const [added] = await audits('minecraft.playtime.exemption', id);
     expect(added?.targetMinecraftUuid).toBe(uuid);
   });
 

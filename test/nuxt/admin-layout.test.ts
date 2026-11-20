@@ -120,8 +120,13 @@ describe('admin settings', () => {
   }
 
   it('lists the sections a role may open, grouped by area', async () => {
-    expect(await sections('events-manager')).toEqual(['Rooms', 'Event types', 'Notifications']);
-    expect(await sections('economy-admin')).toEqual(['Economy', 'Quests']);
+    expect(await sections('events-manager')).toEqual([
+      'Activity',
+      'Rooms',
+      'Event types',
+      'Notifications',
+    ]);
+    expect(await sections('economy-admin')).toEqual(['Activity', 'Economy', 'Quests']);
     expect(await sections('warden-admin')).toEqual([
       'Activity',
       'Warden',

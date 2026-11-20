@@ -151,16 +151,22 @@ describe('admin Settings sections', () => {
     ]);
   });
 
-  it('shows an events manager Rooms, Types and Notifications', () => {
-    expect(ids(settingsSections('events-manager'))).toEqual(['rooms', 'types', 'notifications']);
+  it('shows an events manager Activity, Rooms, Types and Notifications', () => {
+    expect(ids(settingsSections('events-manager'))).toEqual([
+      'activity',
+      'rooms',
+      'types',
+      'notifications',
+    ]);
   });
 
-  it('shows an economy admin Economy and Quests', () => {
-    expect(ids(settingsSections('economy-admin'))).toEqual(['economy', 'quests']);
+  it('shows an economy admin Activity, Economy and Quests', () => {
+    expect(ids(settingsSections('economy-admin'))).toEqual(['activity', 'economy', 'quests']);
   });
 
   it('gives a person with several roles the union', () => {
     expect(ids(settingsSections('events-manager,economy-admin'))).toEqual([
+      'activity',
       'rooms',
       'types',
       'notifications',

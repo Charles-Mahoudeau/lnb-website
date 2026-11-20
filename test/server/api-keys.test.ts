@@ -3,7 +3,7 @@ import type { RequestEvent } from 'nuxt/server';
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { db } from '~~/server/db';
-import { adminAudit, apiKey, apiKeyUsage, featureFlag, user } from '~~/server/db/schema';
+import { audit as auditLog, apiKey, apiKeyUsage, featureFlag, user } from '~~/server/db/schema';
 import { apiKeyService } from '~~/server/services/api-keys';
 import { flagService } from '~~/server/services/flags';
 import { requireAccess } from '~~/server/utils/api-key';
@@ -56,7 +56,10 @@ describe('api key service', () => {
     expect(row!.keyHash).not.toContain(secret);
     expect(JSON.stringify(row)).not.toContain(secret);
     expect(row!.prefix).toBe(secret.slice(0, 8));
-    const audit = await db.select().from(adminAudit).where(eq(adminAudit.action, 'apiKey.create'));
+    const audit = await db
+      .select()
+      .from(auditLog)
+      .where(eq(auditLog.action, 'settings.apiKey.create'));
     expect(audit.at(-1)?.data).toMatchObject({ id: key.id, name: 'BDE website' });
     expect(JSON.stringify(audit.at(-1))).not.toContain(secret);
   });
@@ -89,7 +92,10 @@ describe('api key service', () => {
     expect((await apiKeyService.detail(key.id)).status).toBe('revoked');
     // Revoking again changes nothing.
     await apiKeyService.revoke({ actorId: ADMIN, id: key.id });
-    const audit = await db.select().from(adminAudit).where(eq(adminAudit.action, 'apiKey.revoke'));
+    const audit = await db
+      .select()
+      .from(auditLog)
+      .where(eq(auditLog.action, 'settings.apiKey.revoke'));
     expect(audit.filter((entry) => entry.data.id === key.id)).toHaveLength(1);
   });
 

@@ -108,11 +108,11 @@ describe('Home', () => {
     );
   });
 
-  it('keeps the activity link from roles that cannot open the log', async () => {
+  it('links the activity log for every role', async () => {
     const home = await mountHome('events-manager', { items: [], badges: {} });
     await vi.waitFor(() => {
       expect(home.text()).toContain('Nothing waiting');
     });
-    expect(home.text()).not.toContain('See all activity');
+    expect(home.text()).toContain('See all activity');
   });
 });

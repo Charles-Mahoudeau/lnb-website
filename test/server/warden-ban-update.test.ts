@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { db } from '~~/server/db';
-import { minecraftAccount, user, wardenAudit, wardenBan } from '~~/server/db/schema';
+import { minecraftAccount, user, audit as auditLog, wardenBan } from '~~/server/db/schema';
 import { wardenEventService } from '~~/server/services/warden/events';
 import { wardenModerationService } from '~~/server/services/warden/moderation';
 
@@ -46,8 +46,8 @@ describe('changing the end of a ban', () => {
     const [row] = await db.select().from(wardenBan).where(eq(wardenBan.id, ban.id));
     expect(row?.expiresAt?.toISOString()).toBe(end);
 
-    const audits = await db.select().from(wardenAudit).where(eq(wardenAudit.targetUserId, TARGET));
-    const entry = audits.find((audit) => audit.action === 'ban.update');
+    const audits = await db.select().from(auditLog).where(eq(auditLog.targetUserId, TARGET));
+    const entry = audits.find((audit) => audit.action === 'minecraft.ban.update');
     expect(entry).toMatchObject({
       actorUserId: ADMIN,
       data: { banId: ban.id, expiresAt: end, before: ban.expiresAt?.toISOString() },

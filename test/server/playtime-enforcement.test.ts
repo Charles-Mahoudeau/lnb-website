@@ -7,7 +7,7 @@ import {
   playtimeLedger,
   playtimeSettings,
   user,
-  wardenAudit,
+  audit as auditLog,
   wardenPlayer,
   wardenSession,
 } from '~~/server/db/schema';
@@ -77,9 +77,9 @@ async function tickAt(sessionId: string, now: number) {
 }
 
 async function sent(userId: string) {
-  const rows = await db.select().from(wardenAudit).where(eq(wardenAudit.targetUserId, userId));
+  const rows = await db.select().from(auditLog).where(eq(auditLog.targetUserId, userId));
   return rows
-    .filter((row) => row.action.startsWith('playtime.') && row.actorUserId === null)
+    .filter((row) => row.action.startsWith('minecraft.playtime.') && row.actorUserId === null)
     .map((row) => ({ action: row.action, data: row.data }));
 }
 
@@ -95,11 +95,11 @@ describe('the tick in enforce', () => {
     await tickAt(p.sessionId, at(MON, '10:31')); // 9 minutes left.
     expect(await sent(p.id)).toEqual([
       {
-        action: 'playtime.warning',
+        action: 'minecraft.playtime.warning',
         data: { uuids: [p.uuid], remainingSeconds: 29 * 60, kind: 'allowance' },
       },
       {
-        action: 'playtime.warning',
+        action: 'minecraft.playtime.warning',
         data: { uuids: [p.uuid], remainingSeconds: 9 * 60, kind: 'allowance' },
       },
     ]);
@@ -110,10 +110,10 @@ describe('the tick in enforce', () => {
     await tickAt(p.sessionId, at(MON, '10:29'));
     await tickAt(p.sessionId, at(MON, '10:31'));
     await tickAt(p.sessionId, at(MON, '10:31') + 5000);
-    const kicks = (await sent(p.id)).filter((row) => row.action === 'playtime.kick');
+    const kicks = (await sent(p.id)).filter((row) => row.action === 'minecraft.playtime.kick');
     expect(kicks).toEqual([
       {
-        action: 'playtime.kick',
+        action: 'minecraft.playtime.kick',
         data: {
           uuids: [p.uuid],
           reason: 'playtimeLimit',
@@ -131,8 +131,8 @@ describe('the tick in enforce', () => {
     await tickAt(p.sessionId, at(MON, '16:10'));
     await tickAt(p.sessionId, at(MON, '16:10') + 5000);
     const actions = (await sent(p.id)).map((row) => row.action);
-    expect(actions.filter((a) => a === 'playtime.kick')).toEqual([]);
-    expect(actions.filter((a) => a === 'playtime.grace')).toHaveLength(1);
+    expect(actions.filter((a) => a === 'minecraft.playtime.kick')).toEqual([]);
+    expect(actions.filter((a) => a === 'minecraft.playtime.grace')).toHaveLength(1);
   });
 
   it('sends an update when the state changes, but not for a first look', async () => {
@@ -142,7 +142,7 @@ describe('the tick in enforce', () => {
     await tickAt(p.sessionId, at(MON, '17:05')); // The window ended.
     const [update] = await sent(p.id);
     expect(update).toMatchObject({
-      action: 'playtime.update',
+      action: 'minecraft.playtime.update',
       data: { uuids: [p.uuid], playtime: { enforced: true, limited: true, counting: false } },
     });
   });
@@ -174,9 +174,9 @@ describe('the tick in enforce', () => {
     await tickAt(p.sessionId, at(TUE, '09:00') + 3000);
     expect((await sent(p.id)).map((row) => [row.action, row.data.kind ?? row.data.reason])).toEqual(
       [
-        ['playtime.warning', 'windowStart'],
-        ['playtime.warning', 'windowStart'],
-        ['playtime.kick', 'playtimeLimit'],
+        ['minecraft.playtime.warning', 'windowStart'],
+        ['minecraft.playtime.warning', 'windowStart'],
+        ['minecraft.playtime.kick', 'playtimeLimit'],
       ],
     );
   });

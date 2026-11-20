@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { db } from '~~/server/db';
-import { deviceCode, user, wardenAudit, wardenDevice } from '~~/server/db/schema';
+import { deviceCode, user, audit as auditLog, wardenDevice } from '~~/server/db/schema';
 import { wardenDeviceLinkService } from '~~/server/services/warden/device-links';
 
 const OWNER = 'link-owner';
@@ -91,7 +91,10 @@ describe('device link requests', () => {
     expect(await wardenDeviceLinkService.poll(created.requestId, created.pollSecret)).toEqual({
       status: 'expired',
     });
-    const audit = await db.select().from(wardenAudit).where(eq(wardenAudit.action, 'device.link'));
+    const audit = await db
+      .select()
+      .from(auditLog)
+      .where(eq(auditLog.action, 'minecraft.device.link'));
     expect(
       audit.some((a) => (a.data as { requestId?: string }).requestId === created.requestId),
     ).toBe(true);
@@ -120,7 +123,10 @@ describe('device link requests', () => {
     expect(await wardenDeviceLinkService.poll(created.requestId, created.pollSecret)).toEqual({
       status: 'denied',
     });
-    const audit = await db.select().from(wardenAudit).where(eq(wardenAudit.action, 'device.deny'));
+    const audit = await db
+      .select()
+      .from(auditLog)
+      .where(eq(auditLog.action, 'minecraft.device.deny'));
     expect(
       audit.some((a) => (a.data as { requestId?: string }).requestId === created.requestId),
     ).toBe(true);
