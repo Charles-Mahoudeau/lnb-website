@@ -3,7 +3,7 @@ import { AdminTypedConfirmModal } from '#components';
 
 import { WARDEN_RESET_SANCTIONS_CONFIRM } from '#shared/schemas/warden';
 
-// The settings tab: the default account limit, and the sanctions reset for site admins.
+// Settings, Warden: the default account limit, and the sanctions reset (Danger zone) for site admins.
 const { t } = useI18n();
 const toast = useToast();
 const overlay = useOverlay();
@@ -85,9 +85,10 @@ async function resetSanctions() {
       v-if="isAdmin(user?.role)"
       class="flex flex-col items-start gap-3 rounded-lg bg-elevated p-5"
     >
-      <h2 class="text-lg font-medium text-highlighted">
+      <h2 class="text-xl text-highlighted">{{ t('admin.settings.dangerZone') }}</h2>
+      <h3 class="text-lg font-medium text-highlighted">
         {{ t('wardenAdmin.settings.reset.heading') }}
-      </h2>
+      </h3>
       <p class="text-muted">{{ t('wardenAdmin.settings.reset.lede') }}</p>
       <UButton
         color="error"

@@ -2,6 +2,7 @@ import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent } from 'vue';
 
+import AdminPushSettings from '~/components/admin/push/Settings.vue';
 import AdminPush from '~/components/admin/Push.vue';
 import PushPrePrompt from '~/components/push/PrePrompt.vue';
 import PushSettings from '~/components/push/Settings.vue';
@@ -147,8 +148,17 @@ describe('admin push', () => {
     expect(text).toContain('2 people received more than 3 notifications this week.');
     expect(text).toContain('Nothing is blocked.');
     expect(text).toContain('Camille Martin');
-    expect(text).toContain('Weekly limit before a warning');
-    expect(text).toContain('Hold announcements at night');
+  });
+
+  it('keeps the settings in Settings, Notifications, for site admins', async () => {
+    signIn('admin');
+    const settings = await mountSuspended(AdminPushSettings);
+    expect(settings.text()).toContain('Weekly limit before a warning');
+    expect(settings.text()).toContain('Hold announcements at night');
+    signIn('events-manager');
+    const managers = await mountSuspended(AdminPushSettings);
+    expect(managers.text()).toContain('Only site admins can change the notification settings.');
+    expect(managers.text()).not.toContain('Weekly limit before a warning');
   });
 
   it('gives events managers the counts only', async () => {
