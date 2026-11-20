@@ -44,7 +44,7 @@ The Teams tab of `/admin/events/<id>/teams` (shown in team mode): tiles by state
 - Create a team around a registered player (captain or not), rename, delete, validate by hand, change the captain, add and remove players.
 - A manager can bypass the window, the start, the school, the maximum and the minimum, and put a player in two teams (the dialog warns and asks for a tick: `force`). A player still needs an account and a registration.
 - Players are not notified of these changes, except by the usual places notifications when a team becomes valid.
-- Each change is in `admin_audit` (`eventTeam.*`) and is in the admin log. `registrations.csv` has a Team column (two teams are separated by a semicolon).
+- Each change is in `audit` (`events.team.*`) and is in the admin log. `registrations.csv` has a Team column (two teams are separated by a semicolon).
 
 ## API
 

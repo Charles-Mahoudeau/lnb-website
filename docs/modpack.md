@@ -24,7 +24,7 @@ CurseForge needs `CURSEFORGE_API_KEY`; without it those lookups answer `sourceUn
 
 ## Editing
 
-`PATCH .../mods/{id}` changes the name, side (`both`, `client`, `server`) and optional flag, and the version label of custom and uploaded mods (the others come from their source). `PUT .../mods/{id}/file` points a mod at a library jar, with its version, and clears its flag. `DELETE .../mods/{id}` removes the mod from the pack; a library file it used stays in the library. Every change is written to `warden_audit` (`modpack.add`, `.edit`, `.pin`, `.remove`) and the routes are in the `write-heavy` rate limit, since an add can download a file.
+`PATCH .../mods/{id}` changes the name, side (`both`, `client`, `server`) and optional flag, and the version label of custom and uploaded mods (the others come from their source). `PUT .../mods/{id}/file` points a mod at a library jar, with its version, and clears its flag. `DELETE .../mods/{id}` removes the mod from the pack; a library file it used stays in the library. Every change is written to `audit` (`minecraft.modpack.add`, `.edit`, `.pin`, `.remove`) and the routes are in the `write-heavy` rate limit, since an add can download a file.
 
 ## Checking for newer files, and Adopt
 
@@ -35,7 +35,7 @@ CurseForge needs `CURSEFORGE_API_KEY`; without it those lookups answer `sourceUn
 - Custom links: the file is downloaded again and its SHA-512 compared with the pinned one. If it differs, the mod is flagged `urlChanged` and **leaves the manifest** (launchers could not verify it), which raises the revision; the new file is kept as the latest. If it matches again later, the flag clears by itself.
 - Uploaded files are the team's own, and aren't checked.
 
-**Adopt** (`POST .../mods/{id}/adopt`, from the drawer) pins the latest file and raises the revision. For a changed link it accepts the new file and puts the mod back. **Adopt all** (`POST .../mods/adopt-all`, shown on the Updates filter) adopts every update in one change with one revision bump, and leaves the mods needing attention alone. Both are written to `warden_audit` (`modpack.adopt`, with the old and new versions).
+**Adopt** (`POST .../mods/{id}/adopt`, from the drawer) pins the latest file and raises the revision. For a changed link it accepts the new file and puts the mod back. **Adopt all** (`POST .../mods/adopt-all`, shown on the Updates filter) adopts every update in one change with one revision bump, and leaves the mods needing attention alone. Both are written to `audit` (`minecraft.modpack.adopt`, with the old and new versions).
 
 ## Exporting from the vote
 
@@ -45,7 +45,7 @@ CurseForge needs `CURSEFORGE_API_KEY`; without it those lookups answer `sourceUn
 - **Sync removals**: also removes Modrinth and CurseForge mods that left the vote list, and copies the optional flag.
 - **Replace**: the Modlist becomes the vote list. Links and uploaded entries are dropped too, but unticked by default.
 
-`GET .../export?mode=` returns the diff and writes nothing. `POST .../export` takes `{mode, keys}` and recomputes the diff, so only ticked changes of a real diff apply. Added mods get the newest compatible file pinned (or are flagged and left out of the manifest) and are linked to their vote mod. A mod whose source can't be reached is counted as failed and not added. The whole export raises the revision once and is audited as `modpack.export`. Official mods added by hand have no source and are listed as skipped.
+`GET .../export?mode=` returns the diff and writes nothing. `POST .../export` takes `{mode, keys}` and recomputes the diff, so only ticked changes of a real diff apply. Added mods get the newest compatible file pinned (or are flagged and left out of the manifest) and are linked to their vote mod. A mod whose source can't be reached is counted as failed and not added. The whole export raises the revision once and is audited as `minecraft.modpack.export`. Official mods added by hand have no source and are listed as skipped.
 
 ## The public manifest
 
@@ -104,7 +104,7 @@ The Modlist page shows the address with Copy and Open buttons.
 Two jars of the Files library are the launcher's own tools: `lnb-modsync-launcher` (file kind `wrapper`) and `lnb-modsync-updater` (kind `updater`). The launcher is what the Prism instance and the Pelican server start. It updates the updater, which updates the mods, the loader and the launcher when needed. A tool is not a mod: it isn't in `mods`, and the manifest lists it in `tools`, not `assets`.
 
 - `modpack_tool` (`server/db/schema/modpack.ts`): one row per tool (`launcher`, `updater`), pointing at the **current** file, with a version label, release notes, and who published it and when. Only one version is current, and there is no channel.
-- `GET /api/minecraft/admin/modpack/tools` lists the current files. `PUT .../tools/{tool}` (`{fileId, version, notes}`) publishes one: the file must be of the tool's kind (`notToolFile`), it raises the revision and is written to `warden_audit` (`modpack.tool`, with the old and new versions). **Rolling back is publishing the previous file again**, which is why old files stay in the library. A file that is current can't be deleted (`fileInUse`).
+- `GET /api/minecraft/admin/modpack/tools` lists the current files. `PUT .../tools/{tool}` (`{fileId, version, notes}`) publishes one: the file must be of the tool's kind (`notToolFile`), it raises the revision and is written to `audit` (`minecraft.modpack.tool`, with the old and new versions). **Rolling back is publishing the previous file again**, which is why old files stay in the library. A file that is current can't be deleted (`fileInUse`).
 - **The page**: two cards between the four numbers and the manifest address, one per tool (proposition A of [the Tools mocks](https://claude.ai/artifact/E3PL3roBewr5ovcbBzQh43)): version, file, short SHA-256, who published it and when, and the notes. "Publish a new version" opens a modal (`AdminModlistToolPublish`) with the library's jars of the tool's kind, a typed version and notes. A rollback is the same modal with an older jar. There is no release history on the page, only the library.
 - No signing for now: a launcher trusts the hashes the manifest gives it, over https. Whoever can publish a tool, or reach the VPS, can run code on every client, so only full Warden admins can.
 

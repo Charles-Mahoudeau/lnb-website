@@ -12,7 +12,7 @@ Warden links Minecraft accounts to LNB accounts and tells the LNB Minecraft serv
 - The LNB Warden mod proves who the player is. It holds a device token, created when the player approves the device on `/link`, and asks the site for a single-use join ticket before each join. The player can revoke a device at any time from `/minecraft/account`, which signs out its online sessions.
 - Bans and warnings can name the server rules they apply (`ruleIds`, kept as a snapshot in `rule_citations`, returned as `rules`), and the server reads the rules at `GET /api/warden/server/rules`. See `docs/rules.md`.
 - Bans apply to the LNB account, so they cover all of its Minecraft accounts. There is at most one active ban per player. A new ban replaces the active one. Warden bans are separate from site bans.
-- Every change (link, unlink, account takeover, device link, denial and revocation, ban, unban, appeal, note, warning, limit, role, settings) is written to the audit log with who did it, when, and from where (the site, the Minecraft server, or the system).
+- Every change (link, unlink, account takeover, device link, denial and revocation, ban, unban, appeal, note, warning, limit, role, settings) is written to the one audit log (`audit`, see `docs/activity-log.md`) with who did it, when, and from where (the site, the Minecraft server, or the system). Warden admins read their part of it in Settings › Activity.
 - No IP addresses are stored. Session history is kept with the account and deleted with it, also after an unlink. Players' first name and initial show in-game under their username by default. They can hide it from `/minecraft/account`.
 
 ## Flows
@@ -191,7 +191,7 @@ Returns the warning. The player sees it on `/minecraft/account` and in the next 
 
 ### `GET /api/warden/server/events`
 
-Server-Sent Events. Each event's `id` is its audit log ID. Send `Last-Event-ID` when reconnecting to receive the events you missed. Without it, the stream starts from now. The site checks for new events every second, and sends a `ping` event after 25 quiet seconds so proxies keep the connection open.
+Server-Sent Events. Each event's `id` is its audit log ID. Send `Last-Event-ID` when reconnecting to receive the events you missed. Without it, or with one above the newest ID, the stream starts from now. The site checks for new events every second, and sends a `ping` event after 25 quiet seconds so proxies keep the connection open.
 
 | Event              | Data                                                                                                                                                         |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -223,7 +223,7 @@ Server-Sent Events. Each event's `id` is its audit log ID. Send `Last-Event-ID` 
 | Route                                                        | What it does                                                                                                                                                                                                                           |
 | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `GET /api/warden/admin/players?q=&status=`                   | Players, searched by name, email or Minecraft username. `status`: `all`, `banned`, `online`. The admin's own list is `GET /api/admin/people` (`docs/people.md`).                                                                       |
-| `GET /api/warden/admin/players/:userId`                      | One player: accounts, username history, bans, notes, sessions and audit trail.                                                                                                                                                         |
+| `GET /api/warden/admin/players/:userId`                      | One player: accounts, username history, bans, notes, sessions (the audit trail is in Settings › Activity).                                                                                                                             |
 | `PATCH /api/warden/admin/players/:userId`                    | `{ "maxAccounts": 3 }`, or `null` to use the global limit.                                                                                                                                                                             |
 | `PUT /api/warden/admin/players/:userId/role`                 | `{ "wardenAdmin": true }`. Site admins only.                                                                                                                                                                                           |
 | `DELETE /api/warden/admin/players/:userId/devices/:deviceId` | Revokes one of the player's devices.                                                                                                                                                                                                   |
@@ -237,7 +237,6 @@ Server-Sent Events. Each event's `id` is its audit log ID. Send `Last-Event-ID` 
 | `GET /api/warden/admin/appeals?status=`                      | Appeals, with their ban.                                                                                                                                                                                                               |
 | `GET /api/warden/admin/users?q=`                             | Players of Warden's schools, by name or email, for pickers such as the mod editor's.                                                                                                                                                   |
 | `POST /api/warden/admin/appeals/:id/decision`                | `{ "accept": true, "response": "..." }`. Accepting lifts the ban.                                                                                                                                                                      |
-| `GET /api/warden/admin/audit?userId=&action=&source=`        | The audit log.                                                                                                                                                                                                                         |
 | `GET` and `PATCH /api/warden/admin/settings`                 | `{ "defaultMaxAccounts": 1 }`                                                                                                                                                                                                          |
 
 ## Account takeovers
@@ -246,7 +245,7 @@ The server is in offline mode, so a username proves nothing: an unlinked account
 
 - The account moves to the new player and starts again at no playtime, with the new player's username and link date.
 - The sessions stay with the previous owner (`warden_session.user_id`). The account's playtime is added to `warden_player.transferred_playtime_seconds`, so the previous owner's total stays the same.
-- The takeover is recorded in `warden_account_transfer` and in the audit log (`link.transfer`, on the new player, with the previous one's ID). It counts against the new player's limit like any link.
+- The takeover is recorded in `warden_account_transfer` and in the audit log (`minecraft.link.transfer`, on the new player, with the previous one's ID). It counts against the new player's limit like any link.
 - Admins see a warning pill in the People list on both players ("Took over an account", "Account taken over", or "Account takeovers" when both), and the takeovers on each player's page. Any Warden admin can dismiss a takeover, for both players (`transfer.dismiss`). The pill goes away when none is left to review, and the takeover stays on the page.
 - Players never see any of this, in the site, the mod or the API. Their unlink dialog only says the playtime is kept if they link the account again.
 

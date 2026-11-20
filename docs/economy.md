@@ -216,7 +216,7 @@ Under `/api/economy`, for signed-in players, behind the `economy` flag; creating
 
 ## Admin routes
 
-Under `/api/economy/admin`, for economy admins and site admins. Never behind a flag. Every change is written to `admin_audit` (`economy.*`) and shows on the Overview.
+Under `/api/economy/admin`, for economy admins and site admins. Never behind a flag. Every change is written to `audit` (`economy.*`) and shows on the Overview.
 
 | Route                                                 | What it does                                                                                                                                                                                                                                                                                                                               |
 | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

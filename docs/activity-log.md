@@ -1,6 +1,6 @@
 # Activity log
 
-Status: planned, built in slice 4 of `docs/plans/admin-redesign.md`. Until then, `warden_audit` and `admin_audit` are the two logs.
+Status: built (slice 4 of `docs/plans/admin-redesign.md`). Migration `0057_activity_log` copied `warden_audit` and `admin_audit` into `audit`, by date and with fresh IDs, and dropped them.
 
 One table, `audit`, records every change made from the admin, by the Minecraft server, by players on things admins watch (linking an account, appealing a ban), and by nightly jobs that change data. Admins read it in Settings › Activity.
 
@@ -24,10 +24,10 @@ When an account is deleted, its rows stay and the user IDs and Minecraft UUID po
 
 ## Rules
 
-- Every admin route that writes data records one action, in the same transaction as the change. A test lists the admin routes with a write method and fails when one records nothing.
+- Every admin route that writes data records one action, in the same transaction as the change. `test/unit/audit-coverage.test.ts` lists the admin write routes (`server/api/admin/**` and `server/api/*/admin/**`, with a post, put, patch or delete method) against a map of the actions each one records, and fails on a route missing from the map, an action that is not in the code the route reaches, an action nobody writes, and a scheduled task missing from its own map. A route that records nothing on purpose says why in the map (the impact counts, the partner logo pre-upload).
 - Every nightly job that changes data records one action with `source: 'system'` and no actor, with counts in `data`.
 - Reads record nothing.
-- Every action has one sentence in English and French, `admin.activity.actions.<action>` in `i18n/locales/`. A test fails when one is missing. There is no generic fallback.
+- Every action has one sentence in English and French, `admin.activity.actions.<action>` in `i18n/locales/`. The key is the action in camelCase (`minecraft.ban.update` is `minecraftBanUpdate`), which keeps vue-i18n from reading a sentence as a group. `test/unit/activity-i18n.test.ts` fails when one is missing or left over, or when the two languages use different slots. There is no generic fallback.
 - A new action is added to `AuditAction` in `server/db/schema/audit.ts`, to this page and to both locales.
 
 ## Areas and who sees them
@@ -81,3 +81,27 @@ New: `minecraft.ban.update` (a ban's end changed).
 | `quests.<what>`                                                       | `economy.quests.<what>`                                                         |
 
 The Minecraft server never sees action names: `server/services/warden/events.ts` turns rows into its own event types, and only its `EVENT_ACTIONS` list changes with the rename.
+
+## What was added
+
+Actions the migration did not have, because the routes recorded nothing before: `people.pruneAvatars`, `events.event.bdeRetry`, `events.image.add`, `events.pruneImages`, `events.push.prune`, `site.teamPole.move`, `site.teamMember.move`, `site.partner.move`, `site.prunePartnerLogos`, `site.gamesplanet.pinMove`, `site.gamesplanet.prune`, `minecraft.rule.move`, `minecraft.rule.categoryMove`, `minecraft.anticheat.alertDismiss`, `minecraft.anticheat.note`, `minecraft.anticheat.rescore`, `minecraft.anticheat.prune`, `minecraft.modpack.check`, `minecraft.events.prune`, `minecraft.playtime.prune`, `settings.apiKey.prune`, `settings.activityPrune`, `economy.sweep` and `economy.quests.index`.
+
+Some old actions are no longer written but stay in `AuditAction` for the old rows and have a sentence: `minecraft.link.request`, `minecraft.link.cancel`, `minecraft.token.rotate`, `minecraft.ban.expire` and `minecraft.uuid.collision`.
+
+`minecraft.anticheat.resetFiles` had no sentence before. It has one now.
+
+## Jobs
+
+`auditService.recordJob(action, data)` records one `system` action from a nightly task, and only when a count in `data` is above zero, so a quiet night leaves nothing. The jobs that run often (`events:bde-sync`, `push:deliver`, `warden:close-stale-sessions`, `anticheat:lookups`, `gamesplanet:sync-deals`, `quests:community`) record nothing: they would bury the log. `audit:prune` runs at 03:00 with the other prunes, behind the `jobs.pruneAudit` flag, and records `settings.activityPrune` with the number removed.
+
+## Writing
+
+`auditService.record(tx, { action, actor, targetUserId?, targetMinecraftUuid?, data? })` runs in the caller's transaction and returns the ID. The actor is `{ source: 'web', userId }` (a site admin or events manager; `userId` is null for an API key, which puts the key in `data.apiKey`), `{ source: 'minecraft', userId, minecraft }` or `{ source: 'system' }`. The old Warden sources map `web` to `site`, `minecraft` to `server`. `server/lib/ghosts.ts` is loaded by the Better Auth CLI without the `~~` alias, so it inserts its `people.ghost.claim` row directly.
+
+## Reading it
+
+`GET /api/admin/activity` (the four admin roles; `/api/admin/activity.csv` for site admins, at most 50,000 rows, with cells that start like a formula made into text). Filters: `q` (the actor's or target's name, or the in-game name), `areas` (comma-separated, cut to the areas the role can read), `from` and `to` (30 days back by default), `user` (about them or by them) and `cursor`, 50 at a time, newest first. A role only gets its own areas: site admins all, Warden admins `minecraft.*`, events managers `events.*`, `links.*` and `people.ghost.*`, economy admins `economy.*`, and a person with several roles the union. Entries that only feed the Minecraft server's stream (`minecraft.anticheat.verdict`, `minecraft.anticheat.alert`, `minecraft.playtime.warning`, `.grace`, `.update` and `.kick`) are left out of the log, as the old Warden log did.
+
+The page, Settings › Activity, follows `docs/design.md`: rows with the sentence, names in semibold linking to `/admin/people/:id/summary`, the time muted on the right, the area as a pill, search, area chips, a date range and "Load more". The Person page's "See this person's activity" opens it with `?user=<id>`, where the range starts at the beginning, with a "Show everyone" banner. Home's "See all activity" link shows for every role.
+
+The Minecraft server's event stream (`GET /api/warden/server/events`) numbers its events by `audit.id`. A `Last-Event-ID` above the newest ID (from before the IDs restarted in this migration) starts from the newest, so no old event is replayed.

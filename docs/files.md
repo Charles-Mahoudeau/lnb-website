@@ -16,13 +16,13 @@
 - The browser's content type is ignored. A `.jar` or `.zip` must start like a zip archive (`PK`), so a renamed text file is refused (`fileBadType`).
 - The size is counted while it streams, so a request without a `Content-Length`, or with a false one, is cut off at 100 MB (`fileTooLarge`, 413). An empty body is refused (`fileEmpty`).
 - The page uploads one file at a time, picked or dropped, with a progress bar, and the kind can be left on "Automatic" (a jar is a mod jar, anything else an asset) or set for the batch.
-- Uploads are in the `write-heavy` rate limit (20 a minute per account). Every upload and delete is written to `warden_audit` (`file.upload`, `file.delete`), and shows in Warden's activity log.
+- Uploads are in the `write-heavy` rate limit (20 a minute per account). Every upload and delete is written to `audit` (`minecraft.file.upload`, `minecraft.file.delete`), and shows in Settings › Activity.
 
 If the reverse proxy limits request bodies (Traefik in Coolify doesn't by default), it has to allow 100 MB on this route.
 
 ## Changing the type
 
-`PATCH /api/admin/files/<id>` with `{kind}`, from a "Type" selector in the file's drawer. The new kind has to accept the file's extension (`fileBadType`), and a file that a mod or a tool uses keeps its kind (`fileInUse`), since that use depends on it. So in practice only jars move, between mod jar, wrapper and updater, and a zip moves between asset and download. No extension is accepted by both a jar kind and another kind. It is written to `warden_audit` (`file.kind`). Use it when a jar was uploaded as the wrong kind, instead of deleting and uploading it again.
+`PATCH /api/admin/files/<id>` with `{kind}`, from a "Type" selector in the file's drawer. The new kind has to accept the file's extension (`fileBadType`), and a file that a mod or a tool uses keeps its kind (`fileInUse`), since that use depends on it. So in practice only jars move, between mod jar, wrapper and updater, and a zip moves between asset and download. No extension is accepted by both a jar kind and another kind. It is written to `audit` (`minecraft.file.kind`). Use it when a jar was uploaded as the wrong kind, instead of deleting and uploading it again.
 
 ## Downloading
 

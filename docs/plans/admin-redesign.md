@@ -114,7 +114,7 @@ Links the site sends out (push notifications, Minecraft server messages, emails)
 - The new `app/layouts/admin.vue`: the sidebar above, groups that fold and remember it, the footer with Settings. Badges come in slice 3.
 - Every page moves to its new URL, with its tabs and segmented switches, and the old pages go. The content of each page stays as it is, except where a tab row replaces sidebar entries.
 - The Settings area: a section list on the left (a select at phone width), the section on the right, "Find a setting" filtering section names and field labels. Every settings form moves unchanged, including each feature's own settings card (Notifications, Team, Partners, Gamesplanet, Playtime mode, Quests). Warden's "Reset all sanctions" goes to Settings › Warden, still for site admins only.
-- Settings › Activity shows today's Warden activity view until slice 4 replaces it.
+- Settings › Activity showed the Warden activity view until slice 4 (built) replaced it with the one activity log.
 - Every redirect in the table, each tested.
 - Tests: which sidebar entries and Settings sections each role sees (Nuxt), the redirects.
 
@@ -174,6 +174,7 @@ Built, with these choices the plan left open:
 
 ## Slice 4: one activity log
 
+See `docs/activity-log.md` for the table, every action and who sees what. Built.
 See `docs/activity-log.md` for the table, every action and who sees what.
 
 - One migration: a new `audit` table, the rows of `warden_audit` and `admin_audit` copied in by date with fresh IDs and renamed actions, then both old tables dropped. IDs restart; nothing outside the site keeps an audit ID except the Minecraft server's last-seen event ID.
