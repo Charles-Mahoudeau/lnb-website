@@ -17,6 +17,13 @@ const ROUTES: Record<string, string[] | string> = {
   'admin/api-keys/[id]/revoke.post': ['settings.apiKey.revoke'],
   'admin/api-keys/[id]/rotate.post': ['settings.apiKey.rotate'],
   'admin/api-keys/index.post': ['settings.apiKey.create'],
+  'admin/changelog/[id].patch': ['minecraft.changelog.update'],
+  'admin/changelog/[id]/publish.post': ['minecraft.changelog.publish'],
+  'admin/changelog/[id]/schedule.post': ['minecraft.changelog.schedule'],
+  'admin/changelog/[id]/translate.post': ['minecraft.changelog.translate'],
+  'admin/changelog/[id]/unpublish.post': ['minecraft.changelog.unpublish'],
+  'admin/changelog/index.post': ['minecraft.changelog.create'],
+  'admin/changelog/preview.post': 'Read-only: renders Markdown for the editor.',
   'admin/downloads/[slot].delete': ['minecraft.downloads.update'],
   'admin/downloads/[slot].put': ['minecraft.downloads.update'],
   'admin/downloads/index.patch': ['minecraft.downloads.update'],
@@ -219,10 +226,6 @@ const ROUTES: Record<string, string[] | string> = {
 
 /** Actions no admin route writes, with where they come from. */
 const OTHER_ORIGINS: Record<string, string> = {
-  'minecraft.changelog.create': 'the changelog service (admin routes come with the admin slice)',
-  'minecraft.changelog.update': 'the changelog service (admin routes come with the admin slice)',
-  'minecraft.changelog.translate': 'the changelog service (admin routes come with the admin slice)',
-  'minecraft.changelog.unpublish': 'the changelog service (admin routes come with the admin slice)',
   'minecraft.link': 'the Minecraft account link, by the player',
   'minecraft.link.request': 'legacy: manual link codes, no longer written',
   'minecraft.link.cancel': 'legacy: manual link codes, no longer written',

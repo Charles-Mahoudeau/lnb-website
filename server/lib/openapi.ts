@@ -5,6 +5,7 @@ import * as admin from '../../shared/schemas/admin.ts';
 import * as anticheat from '../../shared/schemas/anticheat.ts';
 import * as apiKeys from '../../shared/schemas/api-keys.ts';
 import { avatarParams } from '../../shared/schemas/avatars.ts';
+import * as changelog from '../../shared/schemas/changelog.ts';
 import * as downloads from '../../shared/schemas/downloads.ts';
 import * as economy from '../../shared/schemas/economy.ts';
 import * as eventTeams from '../../shared/schemas/event-teams.ts';
@@ -166,6 +167,10 @@ const requestSchemas = {
   PushPreferencesPatch: push.pushPreferencesPatch,
   PushSettings: push.pushSettings,
   PushImpactBody: push.pushImpactBody,
+  ChangelogCreateBody: changelog.changelogCreateBody,
+  ChangelogPatchBody: changelog.changelogPatchBody,
+  ChangelogScheduleBody: changelog.changelogScheduleBody,
+  ChangelogPreviewBody: changelog.changelogPreviewBody,
   RuleBody: rules.ruleBody,
   RulePatchBody: rules.rulePatchBody,
   RuleMoveBody: rules.ruleMoveBody,
@@ -327,6 +332,10 @@ const responseSchemas = {
   PushAnnounced: push.pushAnnounced,
   PartnerEvent: partnerEvents.partnerEventView,
   RulesPublic: rules.rulePublicView,
+  ChangelogList: changelog.changelogList,
+  ChangelogDetail: changelog.changelogDetail,
+  ChangelogPreview: changelog.changelogPreviewView,
+  ChangelogTranslation: changelog.changelogTranslationStatus,
   RulesAdmin: rules.ruleAdminView,
   RulesServer: rules.ruleServerView,
   PartnersPublic: partners.partnerPublicView,
@@ -398,6 +407,7 @@ const TAGS = {
   downloadsAdmin: 'Downloads: admins',
   rules: 'Rules',
   rulesAdmin: 'Rules: Warden admins',
+  changelogAdmin: 'Changelog: Warden admins',
   partners: 'Partners',
   partnerEvents: 'Partner events',
   partnersAdmin: 'Partners: admins',
@@ -3667,6 +3677,130 @@ const routes: RouteDoc[] = [
   },
   {
     method: 'get',
+    path: '/api/admin/changelog',
+    tag: TAGS.changelogAdmin,
+    summary: 'Every changelog post',
+    description:
+      'Drafts, scheduled and published posts, newest first, with the language state of each.',
+    access: 'wardenAdmin',
+    response: changelog.changelogList,
+  },
+  {
+    method: 'post',
+    path: '/api/admin/changelog',
+    tag: TAGS.changelogAdmin,
+    summary: 'Create a changelog post',
+    description: 'A draft in its source language. The slug comes from the title and never changes.',
+    access: 'wardenAdmin',
+    body: changelog.changelogCreateBody,
+    response: changelog.changelogDetail,
+    created: true,
+  },
+  {
+    method: 'get',
+    path: '/api/admin/changelog/{id}',
+    tag: TAGS.changelogAdmin,
+    summary: 'A changelog post',
+    description: 'Both languages, as stored.',
+    access: 'wardenAdmin',
+    params: changelog.changelogIdParams,
+    response: changelog.changelogDetail,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'patch',
+    path: '/api/admin/changelog/{id}',
+    tag: TAGS.changelogAdmin,
+    summary: 'Edit a changelog post',
+    description:
+      '`source` changes the source text, `translation` replaces the other language (saving it marks it reviewed). Editing a published post notifies nobody. Audited.',
+    access: 'wardenAdmin',
+    params: changelog.changelogIdParams,
+    body: changelog.changelogPatchBody,
+    response: changelog.changelogDetail,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 400, problems: ['invalid'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/changelog/{id}/translate',
+    tag: TAGS.changelogAdmin,
+    summary: 'Translate a changelog post',
+    description:
+      'Sends the stored source title, summary and body to DeepL and keeps the result as an unreviewed translation, replacing any existing one. Code and URLs are not translated. 503 `translationUnavailable` without `DEEPL_API_KEY`, 429 `translationQuota` over quota, 502 `translationFailed` otherwise. Audited.',
+    access: 'wardenAdmin',
+    params: changelog.changelogIdParams,
+    response: changelog.changelogDetail,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 429, problems: ['translationQuota'] },
+      { status: 502, problems: ['translationFailed'] },
+      { status: 503, problems: ['translationUnavailable'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/changelog/{id}/publish',
+    tag: TAGS.changelogAdmin,
+    summary: 'Publish a changelog post',
+    description:
+      'Publishes a draft or scheduled post now. A published post is left as it is. Audited.',
+    access: 'wardenAdmin',
+    params: changelog.changelogIdParams,
+    response: changelog.changelogDetail,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/changelog/{id}/schedule',
+    tag: TAGS.changelogAdmin,
+    summary: 'Schedule a changelog post',
+    description:
+      'The post goes out at that date, within a minute. A date in the past is refused: publish instead. Audited.',
+    access: 'wardenAdmin',
+    params: changelog.changelogIdParams,
+    body: changelog.changelogScheduleBody,
+    response: changelog.changelogDetail,
+    problems: [
+      { status: 400, problems: ['invalid'] },
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['alreadyPublished'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/changelog/{id}/unpublish',
+    tag: TAGS.changelogAdmin,
+    summary: 'Unpublish a changelog post',
+    description: 'Back to draft: it leaves the site and the API. Audited.',
+    access: 'wardenAdmin',
+    params: changelog.changelogIdParams,
+    response: changelog.changelogDetail,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/admin/changelog/preview',
+    tag: TAGS.changelogAdmin,
+    summary: 'Render changelog Markdown',
+    description: 'The HTML the public page would show for this Markdown, from the same renderer.',
+    access: 'wardenAdmin',
+    body: changelog.changelogPreviewBody,
+    response: changelog.changelogPreviewView,
+  },
+  {
+    method: 'get',
+    path: '/api/admin/changelog/translation',
+    tag: TAGS.changelogAdmin,
+    summary: 'Whether translation is available',
+    description: '`available` is false when `DEEPL_API_KEY` is not set.',
+    access: 'wardenAdmin',
+    response: changelog.changelogTranslationStatus,
+  },
+  {
+    method: 'get',
     path: '/api/admin/rules',
     tag: TAGS.rulesAdmin,
     summary: 'Every rule',
@@ -6530,6 +6664,11 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
         description: 'The Rules section of the admin area, `/admin/moderation/rules`.',
       },
       {
+        name: TAGS.changelogAdmin,
+        description:
+          'The Changelog section of the admin area, `/admin/minecraft/changelog`. See `docs/changelog.md`.',
+      },
+      {
         name: TAGS.modpackAdmin,
         description:
           "The Modlist, `/admin/modpack/modlist`: the launcher's modpack. See `docs/modpack.md`.",
@@ -6606,6 +6745,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
           TAGS.modpackAdmin,
           TAGS.rules,
           TAGS.rulesAdmin,
+          TAGS.changelogAdmin,
         ],
       },
       { name: 'Economy', tags: [TAGS.economyServer, TAGS.economy, TAGS.economyAdmin] },

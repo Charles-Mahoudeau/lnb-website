@@ -255,6 +255,7 @@ async function schedule(id: string, at: Date, actorId: string, now = new Date())
       .set({ status: 'scheduled', publishedAt: at, updatedAt: now })
       .where(eq(changelogPost.id, id))
       .returning();
+    await audited(tx, 'minecraft.changelog.schedule', webActor(actorId), updated!);
     return updated!;
   });
 }

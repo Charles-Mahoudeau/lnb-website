@@ -80,6 +80,7 @@ export const AUDIT_ACTIONS = [
   'minecraft.changelog.create',
   'minecraft.changelog.update',
   'minecraft.changelog.translate',
+  'minecraft.changelog.schedule',
   'minecraft.changelog.publish',
   'minecraft.changelog.unpublish',
   'minecraft.rule.create',

@@ -4470,6 +4470,7 @@
         "minecraftChangelogCreate": "{actor} created the changelog post {name}",
         "minecraftChangelogUpdate": "{actor} edited the changelog post {name}",
         "minecraftChangelogTranslate": "{actor} translated the changelog post {name}",
+        "minecraftChangelogSchedule": "{actor} scheduled the changelog post {name}",
         "minecraftChangelogPublish": "{actor} published the changelog post {name}",
         "minecraftChangelogUnpublish": "{actor} unpublished the changelog post {name}",
         "minecraftRuleCreate": "{actor} added a server rule",

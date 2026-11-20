@@ -84,7 +84,7 @@ The Minecraft server never sees action names: `server/services/warden/events.ts`
 
 ## What was added
 
-Changelog actions (`docs/changelog.md`), in `minecraft`, so Warden admins read them: `minecraft.changelog.create`, `.update`, `.translate`, `.publish` and `.unpublish`. A scheduled post published by the job is a `.publish` by `system`.
+Changelog actions (`docs/changelog.md`), in `minecraft`, so Warden admins read them: `minecraft.changelog.create`, `.update`, `.translate`, `.schedule`, `.publish` and `.unpublish`. A scheduled post published by the job is a `.publish` by `system`.
 
 Actions the migration did not have, because the routes recorded nothing before: `people.pruneAvatars`, `events.event.bdeRetry`, `events.image.add`, `events.pruneImages`, `events.push.prune`, `site.teamPole.move`, `site.teamMember.move`, `site.partner.move`, `site.prunePartnerLogos`, `site.gamesplanet.pinMove`, `site.gamesplanet.prune`, `minecraft.rule.move`, `minecraft.rule.categoryMove`, `minecraft.anticheat.alertDismiss`, `minecraft.anticheat.note`, `minecraft.anticheat.rescore`, `minecraft.anticheat.prune`, `minecraft.modpack.check`, `minecraft.events.prune`, `minecraft.playtime.prune`, `settings.apiKey.prune`, `settings.activityPrune`, `economy.sweep` and `economy.quests.index`.
 

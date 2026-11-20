@@ -4474,6 +4474,7 @@
         "minecraftChangelogCreate": "{actor} a créé le billet du changelog {name}",
         "minecraftChangelogUpdate": "{actor} a modifié le billet du changelog {name}",
         "minecraftChangelogTranslate": "{actor} a traduit le billet du changelog {name}",
+        "minecraftChangelogSchedule": "{actor} a programmé le billet du changelog {name}",
         "minecraftChangelogPublish": "{actor} a publié le billet du changelog {name}",
         "minecraftChangelogUnpublish": "{actor} a dépublié le billet du changelog {name}",
         "minecraftRuleCreate": "{actor} a ajouté une règle du serveur",
