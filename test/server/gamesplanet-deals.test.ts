@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { db } from '~~/server/db';
 import {
-  adminAudit,
+  audit as auditLog,
   gamesplanetClick,
   gamesplanetGame,
   gamesplanetPin,
@@ -40,7 +40,7 @@ async function problemOf(run: Promise<unknown>): Promise<string | undefined> {
 }
 
 beforeEach(async () => {
-  await db.delete(adminAudit);
+  await db.delete(auditLog);
   await db.delete(gamesplanetClick);
   await db.delete(gamesplanetPin);
   await db.delete(gamesplanetGame);
@@ -136,11 +136,11 @@ describe('pins', () => {
       await game(uid);
       await gamesplanetDealsService.pin({ actorId: ACTOR, uid });
     }
-    await gamesplanetDealsService.movePin({ uid: '3-1', direction: 'up' });
-    await gamesplanetDealsService.movePin({ uid: '1-1', direction: 'up' });
+    await gamesplanetDealsService.movePin({ actorId: ACTOR, uid: '3-1', direction: 'up' });
+    await gamesplanetDealsService.movePin({ actorId: ACTOR, uid: '1-1', direction: 'up' });
     let view = await gamesplanetDealsService.listAdmin();
     expect(view.pins.map((pin) => pin.uid)).toEqual(['1-1', '3-1', '2-1']);
-    await gamesplanetDealsService.movePin({ uid: '2-1', direction: 'down' });
+    await gamesplanetDealsService.movePin({ actorId: ACTOR, uid: '2-1', direction: 'down' });
     await gamesplanetDealsService.unpin({ actorId: ACTOR, uid: '1-1' });
     view = await gamesplanetDealsService.listAdmin();
     expect(view.pins.map((pin) => pin.uid)).toEqual(['3-1', '2-1']);
@@ -154,8 +154,8 @@ describe('pins', () => {
     await gamesplanetDealsService.pin({ actorId: ACTOR, uid: '1-1' });
     await db.delete(gamesplanetGame).where(eq(gamesplanetGame.uid, '1-1'));
     expect(await db.select().from(gamesplanetPin)).toHaveLength(0);
-    const log = await db.select().from(adminAudit);
-    expect(log.map((entry) => entry.action)).toEqual(['gamesplanet.pin']);
+    const log = await db.select().from(auditLog);
+    expect(log.map((entry) => entry.action)).toEqual(['site.gamesplanet.pin']);
   });
 });
 

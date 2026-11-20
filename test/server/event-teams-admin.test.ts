@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { db } from '~~/server/db';
 import {
-  adminAudit,
+  audit as auditLog,
   event,
   eventRegistration,
   eventRoom,
@@ -184,18 +184,18 @@ describe('managing teams', () => {
     expect(await teamOf(id)).toBeUndefined();
     const view = await admin.view(e.id);
     expect(view.counts.without).toBe(2);
-    const log = await db.select().from(adminAudit).where(eq(adminAudit.actorUserId, MANAGER));
+    const log = await db.select().from(auditLog).where(eq(auditLog.actorUserId, MANAGER));
     const actions = log
       .filter((l) => (l.data as { eventId?: string }).eventId === e.id)
       .map((l) => l.action);
     expect(actions).toEqual(
       expect.arrayContaining([
-        'eventTeam.create',
-        'eventTeam.memberAdd',
-        'eventTeam.rename',
-        'eventTeam.captain',
-        'eventTeam.memberRemove',
-        'eventTeam.delete',
+        'events.team.create',
+        'events.team.memberAdd',
+        'events.team.rename',
+        'events.team.captain',
+        'events.team.memberRemove',
+        'events.team.delete',
       ]),
     );
   });

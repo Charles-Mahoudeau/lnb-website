@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { describe, expect, it, vi } from 'vitest';
 
 import { db } from '~~/server/db';
-import { adminAudit, user } from '~~/server/db/schema';
+import { audit as auditLog, user } from '~~/server/db/schema';
 import { eventRegistrationService } from '~~/server/services/events/registrations';
 import { ghostService } from '~~/server/services/ghosts';
 import { peopleService } from '~~/server/services/people';
@@ -57,9 +57,9 @@ describe('ghostService.create', () => {
       role: null,
       lastSignInAt: null,
     });
-    const audit = await db.select().from(adminAudit).where(eq(adminAudit.targetUserId, row!.id));
+    const audit = await db.select().from(auditLog).where(eq(auditLog.targetUserId, row!.id));
     expect(audit).toMatchObject([
-      { action: 'user.ghostCreate', actorUserId: actorId, data: { email: input.email } },
+      { action: 'people.ghost.create', actorUserId: actorId, data: { email: input.email } },
     ]);
   });
 
@@ -106,12 +106,12 @@ describe('ghostService.update', () => {
       body: { name: 'Camille Durand', email, tenantId: ISEG },
     });
     expect(updated).toMatchObject({ name: 'Camille Durand', email, school: 'ISEG' });
-    const audit = await db
-      .select()
-      .from(adminAudit)
-      .where(eq(adminAudit.targetUserId, ghost.userId));
-    expect(audit.map((a) => a.action).sort()).toEqual(['user.ghostCreate', 'user.ghostUpdate']);
-    expect(audit.find((a) => a.action === 'user.ghostUpdate')?.data).toEqual({
+    const audit = await db.select().from(auditLog).where(eq(auditLog.targetUserId, ghost.userId));
+    expect(audit.map((a) => a.action).sort()).toEqual([
+      'people.ghost.create',
+      'people.ghost.update',
+    ]);
+    expect(audit.find((a) => a.action === 'people.ghost.update')?.data).toEqual({
       fields: ['name', 'email', 'tenantId'],
     });
   });

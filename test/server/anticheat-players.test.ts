@@ -11,7 +11,7 @@ import {
   anticheatPlayerEvent,
   anticheatReport,
   mod,
-  wardenAudit,
+  audit as auditLog,
   wardenSession,
 } from '~~/server/db/schema';
 import { anticheatPlayerService } from '~~/server/services/anticheat/players';
@@ -177,10 +177,10 @@ describe('player events', () => {
     await anticheatReportService.submit({ sessionId, files: [file()] });
     await send(sessionId, 'challengeWrong');
     const rows = await db
-      .select({ id: wardenAudit.id })
-      .from(wardenAudit)
+      .select({ id: auditLog.id })
+      .from(auditLog)
       .where(
-        and(eq(wardenAudit.action, 'anticheat.verdict'), eq(wardenAudit.targetUserId, userId)),
+        and(eq(auditLog.action, 'minecraft.anticheat.verdict'), eq(auditLog.targetUserId, userId)),
       );
     expect(rows).toHaveLength(1);
   });

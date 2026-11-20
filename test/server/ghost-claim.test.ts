@@ -6,7 +6,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { db } from '~~/server/db';
 import {
   account,
-  adminAudit,
+  audit as auditLog,
   pushPreference,
   teamMember,
   teamPole,
@@ -133,16 +133,16 @@ describe('taking over a ghost account', () => {
   it('writes an audit row, and the next sign-in is a plain sign-in', async () => {
     const g = await ghost();
     await signIn({ email: g.email, oid: `oid-${g.id}` });
-    const audit = await db.select().from(adminAudit).where(eq(adminAudit.targetUserId, g.id));
-    expect(audit).toMatchObject([{ action: 'user.ghostClaim', actorUserId: null }]);
+    const audit = await db.select().from(auditLog).where(eq(auditLog.targetUserId, g.id));
+    expect(audit).toMatchObject([{ action: 'people.ghost.claim', actorUserId: null }]);
 
     const again = await signIn({ email: g.email, oid: `oid-${g.id}` });
     expect(again.error).toBeNull();
     expect(
       await db
         .select()
-        .from(adminAudit)
-        .where(and(eq(adminAudit.targetUserId, g.id), eq(adminAudit.action, 'user.ghostClaim'))),
+        .from(auditLog)
+        .where(and(eq(auditLog.targetUserId, g.id), eq(auditLog.action, 'people.ghost.claim'))),
     ).toHaveLength(1);
   });
 

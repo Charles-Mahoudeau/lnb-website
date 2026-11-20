@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { describe, expect, it, vi } from 'vitest';
 
 import { db } from '~~/server/db';
-import { user, wardenAppeal, wardenAudit, wardenBan, wardenNote } from '~~/server/db/schema';
+import { user, wardenAppeal, audit as auditLog, wardenBan, wardenNote } from '~~/server/db/schema';
 import { wardenResetService } from '~~/server/services/warden/reset';
 
 // The anticheat reaches the mod catalog, which caches through Nitro.
@@ -41,7 +41,7 @@ describe('the sanctions reset', () => {
     expect(await db.select().from(wardenBan).where(eq(wardenBan.userId, id))).toEqual([]);
     expect(await db.select().from(wardenNote).where(eq(wardenNote.userId, id))).toEqual([]);
     expect(await db.select().from(wardenAppeal)).toEqual([]);
-    const audits = await db.select().from(wardenAudit).where(eq(wardenAudit.actorUserId, id));
-    expect(audits.map((entry) => entry.action)).toContain('warden.resetSanctions');
+    const audits = await db.select().from(auditLog).where(eq(auditLog.actorUserId, id));
+    expect(audits.map((entry) => entry.action)).toContain('minecraft.resetSanctions');
   });
 });

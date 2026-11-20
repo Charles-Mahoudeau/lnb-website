@@ -5,7 +5,7 @@ import { db } from '~~/server/db';
 import {
   minecraftAccount,
   user,
-  wardenAudit,
+  audit as auditLog,
   wardenDevice,
   wardenSession,
 } from '~~/server/db/schema';
@@ -88,8 +88,8 @@ describe('device tokens', () => {
     expect(listed.map((d) => d.id)).not.toContain(device.id);
     const audit = await db
       .select()
-      .from(wardenAudit)
-      .where(eq(wardenAudit.action, 'device.revoke'));
+      .from(auditLog)
+      .where(eq(auditLog.action, 'minecraft.device.revoke'));
     const mine = audit.find((a) => (a.data as { deviceId?: string }).deviceId === device.id);
     expect(mine?.targetUserId).toBe(OWNER);
   });
@@ -111,7 +111,10 @@ describe('device tokens', () => {
         actor: { source: 'web', userId: OWNER },
       }),
     );
-    const rows = await db.select().from(wardenAudit).where(eq(wardenAudit.action, 'device.revoke'));
+    const rows = await db
+      .select()
+      .from(auditLog)
+      .where(eq(auditLog.action, 'minecraft.device.revoke'));
     const mine = rows.find((r) => (r.data as { deviceId?: string }).deviceId === device.id);
     expect((mine!.data as { uuids: string[] }).uuids).toEqual([uuid]);
   });

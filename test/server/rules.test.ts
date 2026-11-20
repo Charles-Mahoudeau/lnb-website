@@ -3,12 +3,11 @@ import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { db } from '~~/server/db';
 import {
-  adminAudit,
+  audit as auditLog,
   featureFlag,
   rule,
   ruleCategory,
   user,
-  wardenAudit,
   wardenBan,
   wardenNote,
 } from '~~/server/db/schema';
@@ -79,8 +78,8 @@ function beforeEachSetup() {
   });
   afterAll(async () => {
     await wipe();
-    await db.delete(wardenAudit).where(eq(wardenAudit.targetUserId, PLAYER));
-    await db.delete(adminAudit).where(eq(adminAudit.actorUserId, ADMIN));
+    await db.delete(auditLog).where(eq(auditLog.targetUserId, PLAYER));
+    await db.delete(auditLog).where(eq(auditLog.actorUserId, ADMIN));
   });
 }
 
@@ -127,10 +126,10 @@ describe('the rules page data', () => {
 describe('moving and retiring', () => {
   it('moves a rule inside its category, and ignores the ends', async () => {
     const { a, b } = await twoCategories();
-    await ruleService.moveRule(b.id, 'up');
+    await ruleService.moveRule({ actorId: ADMIN, id: b.id, direction: 'up' });
     let first = (await ruleService.listPublic()).categories[0]!;
     expect(first.rules.map((r) => r.id)).toEqual([b.id, a.id]);
-    await ruleService.moveRule(b.id, 'up');
+    await ruleService.moveRule({ actorId: ADMIN, id: b.id, direction: 'up' });
     first = (await ruleService.listPublic()).categories[0]!;
     expect(first.rules.map((r) => r.id)).toEqual([b.id, a.id]);
   });
@@ -149,14 +148,14 @@ describe('moving and retiring', () => {
     const b = await make('B');
     const c = await make('C');
     await ruleService.setRetired({ actorId: ADMIN, id: b.id, retired: true });
-    await ruleService.moveRule(c.id, 'up');
+    await ruleService.moveRule({ actorId: ADMIN, id: c.id, direction: 'up' });
     const shown = (await ruleService.listPublic()).categories[0]!.rules.map((r) => r.id);
     expect(shown).toEqual([c.id, a.id]);
   });
 
   it('moves a category, and numbers follow', async () => {
     const { first, second } = await twoCategories();
-    await ruleService.moveCategory(second.id, 'up');
+    await ruleService.moveCategory({ actorId: ADMIN, id: second.id, direction: 'up' });
     const view = await ruleService.listPublic();
     expect(view.categories.map((c) => c.id)).toEqual([second.id, first.id]);
     expect(view.categories[0]!.rules[0]!.number).toBe('1.1');

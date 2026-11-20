@@ -15,7 +15,7 @@ import {
   anticheatProject,
   anticheatUsage,
   mod,
-  wardenAudit,
+  audit as auditLog,
 } from '~~/server/db/schema';
 import { anticheatAdminService } from '~~/server/services/anticheat/admin';
 import { anticheatAlertService } from '~~/server/services/anticheat/alerts';
@@ -89,8 +89,9 @@ async function projectWith(files = 1) {
       },
     });
   }
-  await anticheatAdminService.rescoreAll();
-  for (const sha512 of hashes) await anticheatAdminService.rescoreFile(sha512);
+  await anticheatAdminService.rescoreAll({ source: 'system' });
+  for (const sha512 of hashes)
+    await anticheatAdminService.rescoreFile({ actor: { source: 'system' }, sha512: sha512 });
   return { projectId: project!.id, hashes };
 }
 
@@ -103,7 +104,7 @@ async function stored(sha512: string) {
 async function unknownFile(filename = `unknown-${hash().slice(0, 8)}.jar`) {
   const sha512 = hash();
   await db.insert(anticheatFile).values({ sha512, kind: 'mod', filename, lookupState: 'notFound' });
-  await anticheatAdminService.rescoreFile(sha512);
+  await anticheatAdminService.rescoreFile({ actor: { source: 'system' }, sha512: sha512 });
   return sha512;
 }
 
@@ -175,8 +176,8 @@ describe('decisions', () => {
     expect(history.map((h) => h.kind)).toContain('ban');
     const audit = await db
       .select()
-      .from(wardenAudit)
-      .where(eq(wardenAudit.action, 'anticheat.ban'));
+      .from(auditLog)
+      .where(eq(auditLog.action, 'minecraft.anticheat.ban'));
     expect(audit.some((a) => a.data.sha512 === sha512 && a.actorUserId === admin)).toBe(true);
   });
 
@@ -433,7 +434,7 @@ describe('re-scoring', () => {
       .update(anticheatFile)
       .set({ rescoreAt: new Date(Date.now() + 86_400_000) })
       .where(eq(anticheatFile.sha512, sha512));
-    expect(await anticheatAdminService.rescoreAll()).toBeGreaterThan(0);
+    expect(await anticheatAdminService.rescoreAll({ source: 'system' })).toBeGreaterThan(0);
     expect((await stored(sha512)).rescoreAt!.getTime()).toBeLessThanOrEqual(Date.now());
   });
 });
@@ -484,8 +485,8 @@ describe('bulk actions on the players of a file', () => {
     expect(await wardenModerationService.activeBan(a!)).toMatchObject({ reason: 'cheat client' });
     const audit = await db
       .select()
-      .from(wardenAudit)
-      .where(eq(wardenAudit.action, 'anticheat.bulk'));
+      .from(auditLog)
+      .where(eq(auditLog.action, 'minecraft.anticheat.bulk'));
     expect(audit.some((row) => row.data.sha512 === sha512 && row.data.applied === 1)).toBe(true);
   });
 
@@ -629,10 +630,13 @@ describe('settings', () => {
     expect(answer.verdict.action).toBe('allow');
     const verdictRows = () =>
       db
-        .select({ id: wardenAudit.id })
-        .from(wardenAudit)
+        .select({ id: auditLog.id })
+        .from(auditLog)
         .where(
-          and(eq(wardenAudit.action, 'anticheat.verdict'), eq(wardenAudit.targetUserId, userId)),
+          and(
+            eq(auditLog.action, 'minecraft.anticheat.verdict'),
+            eq(auditLog.targetUserId, userId),
+          ),
         );
     expect(await verdictRows()).toHaveLength(0);
 
@@ -729,12 +733,12 @@ describe('the resets', () => {
       await db.select().from(anticheatHistory).where(eq(anticheatHistory.sha512, hashes[0]!)),
     ).toEqual([]);
     expect((await stored(hashes[0]!)).rescoreAt).not.toBeNull();
-    await anticheatAdminService.rescoreFile(hashes[0]!);
+    await anticheatAdminService.rescoreFile({ actor: { source: 'system' }, sha512: hashes[0]! });
     expect((await stored(hashes[0]!)).score).toBe(before);
     const audits = await db
       .select()
-      .from(wardenAudit)
-      .where(eq(wardenAudit.action, 'anticheat.resetFiles'));
+      .from(auditLog)
+      .where(eq(auditLog.action, 'minecraft.anticheat.resetFiles'));
     expect(audits.length).toBeGreaterThan(0);
   });
 
