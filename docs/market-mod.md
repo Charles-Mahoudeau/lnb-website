@@ -135,7 +135,8 @@ No body. Answer (`marketState`):
     "tolerancePercent": 1,
     "maxOrderItems": 2304,
     "sell": true,
-    "buy": true
+    "buy": true,
+    "saleAccount": true
   },
   "tiers": [
     { "tier": 1, "q1": 3500, "q2": 9300, "midPercent": 40, "tailPercent": 5 },
@@ -166,7 +167,7 @@ No body. Answer (`marketState`):
 
 - `items` holds **only enabled items**. An item that disappears from a later `/state` was turned off: remove it. `enabled` is not a field of the state.
 - `stock` is already drifted to `asOf`, and `stockAt` equals `asOf`. From there the mod drifts it itself (7.2).
-- `settings.sell` and `settings.buy` tell which direction is open (flags `economy.market.sell`, `economy.market.buy`).
+- `settings.sell` and `settings.buy` tell which direction is open (flags `economy.market.sell`, `economy.market.buy`). `settings.saleAccount` is `true` when a sale accepts `account` (a "Pay to" choice); the mod hides it when the field is missing, as on an older site.
 - `tiers[].q1`, `q2` are **cents**; `midPercent` and `tailPercent` are percents (section 2.2).
 - `revision` grows with every committed change of an item, a setting, a tier or the recipes.
 
@@ -265,15 +266,15 @@ Answer (`marketQuote`), for a player whose tier-1 window is 4,000 LNBits:
 
 Request (`marketOrderBody`):
 
-| Field            | Type            | Notes                                                                                                 |
-| ---------------- | --------------- | ----------------------------------------------------------------------------------------------------- |
-| `idempotencyKey` | UUID            | A fresh `UUID.randomUUID()` per order, kept until the order is settled.                               |
-| `player`         | Minecraft UUID  | The acting player.                                                                                    |
-| `item`           | registry ID     | `minecraft:cobblestone`, lower case.                                                                  |
-| `direction`      | `sell` or `buy` |                                                                                                       |
-| `quantity`       | integer         | 1 to `settings.maxOrderItems` (2,304 by default). Above it is a 400 `tooManyItems`. Hard limit 32767. |
-| `expectedTotal`  | integer cents   | What the player saw, 0 to 10^14.                                                                      |
-| `account`        | string          | A purchase only: the ID or `#handle` of the paying account. Without it, the player's default account. |
+| Field            | Type            | Notes                                                                                                                                                |
+| ---------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `idempotencyKey` | UUID            | A fresh `UUID.randomUUID()` per order, kept until the order is settled.                                                                              |
+| `player`         | Minecraft UUID  | The acting player.                                                                                                                                   |
+| `item`           | registry ID     | `minecraft:cobblestone`, lower case.                                                                                                                 |
+| `direction`      | `sell` or `buy` |                                                                                                                                                      |
+| `quantity`       | integer         | 1 to `settings.maxOrderItems` (2,304 by default). Above it is a 400 `tooManyItems`. Hard limit 32767.                                                |
+| `expectedTotal`  | integer cents   | What the player saw, 0 to 10^14.                                                                                                                     |
+| `account`        | string          | The ID or `#handle` of the account that pays a purchase or receives a sale. Without it: the default account (purchase), the personal account (sale). |
 
 **A sale** (10,000 cobblestone, a window of 0 in tier 1):
 
@@ -310,7 +311,7 @@ Answer (`marketOrderResult`):
 }
 ```
 
-`account` is the **personal** account that was credited (`handle` is `null` for a personal account); `balance` is its new balance in cents. Use it to refresh the player's balance. The money was minted: nothing else to do.
+`account` is the account that was credited: the personal one (`handle` is `null`) unless the order named another; `balance` is its new balance in cents. Use it to refresh the player's balance. The money was minted: nothing else to do.
 
 **A purchase** (64 cobblestone):
 
@@ -356,7 +357,7 @@ A purchase has no `brackets`, `capped` is always `false`, and the money was burn
 2. The flags, for a new order only: 503 `disabled` if `economy.market` or the direction's flag is off.
 3. The item: 404 `notFound`, 409 `itemDisabled`, `notSellable` or `notBuyable`, 400 `tooManyItems` for a quantity above `maxOrderItems`.
 4. The player: 404 `notLinked`, 403 `notEligible`, 409 `frozen` (a site or Warden ban in force, or a frozen account).
-5. A purchase's account: 403 `notAllowed` (the player can't spend from it), 404 `notFound`.
+5. The account, if named: 403 `notAllowed` (the player can't spend from it), 404 `notFound`.
 6. The price: a sale cut to 0 cents is 409 `zeroPayout`. A total worse than the tolerance is 409 `priceChanged` with the quote.
 7. The ledger: a purchase the account can't afford is 409 `insufficientFunds`.
 
