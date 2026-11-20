@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type { WardenNoteBody } from '#shared/schemas/warden';
 
-// A private note, or a warning the player sees. Closes with the note to send, or null.
+// A private note, or a warning the player sees. Closes with the note to send, or null. `kind` is
+// the one picked at first: the header has both an "Add a note" and a "Warn" button.
+const props = withDefaults(defineProps<{ kind?: WardenNoteBody['kind'] }>(), { kind: 'note' });
 const emit = defineEmits<{ close: [note: WardenNoteBody | null] }>();
 
 const { t } = useI18n();
-const kind = ref<WardenNoteBody['kind']>('note');
+const kind = ref<WardenNoteBody['kind']>(props.kind);
 const body = ref('');
 const ruleIds = ref<string[]>([]);
 

@@ -12,7 +12,7 @@ export const ADMIN_REDIRECTS: Record<string, string> = {
   '/admin/warden/rules': '/admin/moderation/rules',
   '/admin/warden/settings': '/admin/settings/warden',
   '/admin/anticheat': '/admin/anticheat/files',
-  '/admin/anticheat/players': '/admin/people',
+  '/admin/anticheat/players': '/admin/people?filters=flagged',
   '/admin/anticheat/settings': '/admin/settings/anticheat',
   '/admin/mods': '/admin/modpack/modlist',
   '/admin/mods/vote': '/admin/modpack/vote',

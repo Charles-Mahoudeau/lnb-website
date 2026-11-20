@@ -7,8 +7,8 @@ import type {
   WardenNoteView,
   WardenPage,
   WardenPlayerDetail,
-  WardenPlayerRow,
-  WardenPlayersQuery,
+  WardenFeed,
+  WardenFeedQuery,
   WardenSettingsView,
 } from '#shared/schemas/warden';
 
@@ -22,11 +22,11 @@ async function call<T>(request: () => Promise<T>): Promise<T> {
   }
 }
 
-/** Players for the list, refetched when the query changes. */
-export function useWardenAdminPlayers(query: Ref<WardenPlayersQuery>) {
-  return useFetch<WardenPage<WardenPlayerRow>>('/api/warden/admin/players', {
-    key: 'warden-admin-players',
-    query,
+/** Bans in force and recent notes, for Moderation > Bans. */
+export function useWardenFeed(kind: Ref<WardenFeedQuery['kind']>) {
+  return useFetch<WardenFeed>('/api/warden/admin/feed', {
+    key: 'warden-admin-feed',
+    query: computed(() => ({ kind: kind.value })),
   });
 }
 
@@ -90,10 +90,23 @@ export function useWardenSettings() {
 export function useWardenAdminPlayer(userId: string) {
   const base = `/api/warden/admin/players/${userId}`;
   const player = useFetch<WardenPlayerDetail>(base, { key: `warden-admin-player-${userId}` });
+  return { player, ...useWardenPlayerActions(userId) };
+}
+
+/** Every action on a player, without loading their page. */
+export function useWardenPlayerActions(userId: string) {
+  const base = `/api/warden/admin/players/${userId}`;
   return {
-    player,
     ban: (body: WardenBanBody) =>
       call(() => $fetch<WardenBanView>(`${base}/bans`, { method: 'POST', body })),
+    /** Moves the end of a ban in force. `null` makes it permanent. */
+    updateBan: (banId: string, expiresAt: string | null) =>
+      call(() =>
+        $fetch<WardenBanView>(`/api/warden/admin/bans/${banId}`, {
+          method: 'PATCH',
+          body: { expiresAt },
+        }),
+      ),
     revoke: (banId: string, reason?: string) =>
       call(() =>
         $fetch<WardenBanView>(`/api/warden/admin/bans/${banId}/revoke`, {

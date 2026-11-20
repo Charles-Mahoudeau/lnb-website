@@ -730,7 +730,8 @@
       "catalog": "Catalogue",
       "community": "Communauté",
       "categories": "Catégories",
-      "rewardIndex": "Indice des récompenses"
+      "rewardIndex": "Indice des récompenses",
+      "bans": "Bannissements"
     },
     "cancel": "Annuler",
     "typedConfirm": {
@@ -4252,6 +4253,128 @@
           "title": "Quêtes"
         }
       }
+    },
+    "people": {
+      "filters": {
+        "banned": "Banni",
+        "flagged": "Signalé par l’anticheat",
+        "overLimit": "Au-delà de la limite de temps de jeu",
+        "ghost": "Pas encore connecté",
+        "hasRole": "A un rôle",
+        "inactive": "Inactif depuis 24 mois"
+      },
+      "quickFilters": "Filtres rapides",
+      "searchWarden": "Chercher par nom, email, pseudo Minecraft ou UUID",
+      "searchEconomy": "Chercher par nom ou pseudo Minecraft",
+      "searchEvents": "Chercher par nom ou email",
+      "matchTitle": "Ce compte Minecraft appartient à {name}.",
+      "matchOpen": "Ouvrir la page",
+      "loadFailed": "Les personnes n’ont pas pu être chargées. Vérifie ta connexion, puis recharge la page.",
+      "empty": "Personne ne correspond. Essaie un autre nom, ou retire les filtres.",
+      "minecraft": "Minecraft",
+      "balance": "LNBits",
+      "registrations": "Événements",
+      "moreAccounts": "et {n} autre(s)",
+      "online": "En ligne",
+      "noMinecraft": "Aucun compte",
+      "lnbits": "{n} LNBits",
+      "noAccount": "Pas de compte bancaire",
+      "registered": "{upcoming} à venir, {total} au total",
+      "noRegistration": "Aucun",
+      "flagged": "Signalé",
+      "overLimit": "Au-delà de la limite",
+      "total": "{total} personne | {total} personnes"
+    },
+    "person": {
+      "tabs": {
+        "summary": "Résumé",
+        "minecraft": "Minecraft",
+        "moderation": "Modération",
+        "playtime": "Temps de jeu",
+        "anticheat": "Anticheat",
+        "lnbits": "LNBits",
+        "events": "Événements",
+        "account": "Compte du site"
+      },
+      "loadFailed": "Cette personne n’a pas pu être chargée. Elle a peut-être été supprimée. Retourne à Personnes, ou recharge la page.",
+      "more": "Plus d’actions",
+      "copyId": "Copier l’identifiant",
+      "idCopied": "Identifiant copié",
+      "idCopyFailed": "L’identifiant n’a pas pu être copié. Sélectionne-le dans la barre d’adresse.",
+      "activity": "Voir l’activité de cette personne",
+      "actions": {
+        "note": "Ajouter une note",
+        "warn": "Avertir",
+        "banEnd": "Changer la fin",
+        "unban": "Lever le bannissement",
+        "ban": "Bannir",
+        "ghostEdit": "Modifier les infos",
+        "register": "Inscrire à un événement",
+        "ghostDelete": "Supprimer le fantôme",
+        "adjust": "Ajuster le solde"
+      },
+      "callouts": {
+        "appeal": "Cette personne a fait appel de son bannissement, et personne n’a encore répondu.",
+        "appealAction": "Répondre à l’appel",
+        "file": "Cette personne utilise {file}, qui demande un coup d’œil.",
+        "fileAction": "Examiner le fichier",
+        "limit": "Cette personne a joué {time} au-delà de la limite de temps de jeu cette semaine.",
+        "limitAction": "Voir le temps de jeu"
+      },
+      "register": {
+        "title": "Inscrire {name} à un événement",
+        "lede": "L’inscrit à la main, quels que soient son école ou le délai d’inscription.",
+        "empty": "Aucun événement à venir où l’inscrire.",
+        "event": "Événement",
+        "placeholder": "Choisir un événement"
+      },
+      "ghostEdit": {
+        "title": "Modifier le compte fantôme",
+        "submit": "Enregistrer",
+        "done": "Compte fantôme enregistré"
+      },
+      "ghostDelete": {
+        "title": "Supprimer le compte fantôme de {name} ?",
+        "body": "Le compte et ses inscriptions sont supprimés. Impossible de revenir en arrière."
+      },
+      "lnbits": {
+        "none": "Pas encore de compte bancaire. Il s’ouvre à la première utilisation de la banque ou à la première connexion au serveur Minecraft."
+      },
+      "events": {
+        "empty": "Inscrit à aucun événement.",
+        "team": "Équipe {team}",
+        "registered": "Inscrit",
+        "waitlist": "Sur liste d’attente"
+      },
+      "account": {
+        "ghostNoRoles": "Aucun, jusqu’à sa connexion",
+        "created": "Compte créé",
+        "siteBan": "Bannissement du site",
+        "noBan": "Non banni"
+      },
+      "summary": {
+        "account": "Compte",
+        "noAccounts": "Aucun compte Minecraft lié.",
+        "transfers": "1 reprise de compte à vérifier | {n} reprises de compte à vérifier",
+        "open": "Ouvrir l’onglet",
+        "notBanned": "Non banni.",
+        "bans": "Bannissements",
+        "warnings": "Avertissements",
+        "notes": "Notes",
+        "overLimit": "{time} au-delà de la limite cette semaine.",
+        "underLimit": "Dans la limite cette semaine.",
+        "score": "Score de confiance {score}",
+        "band": {
+          "trusted": "de confiance",
+          "normal": "normal",
+          "held": "retenu",
+          "zero": "à zéro"
+        },
+        "hold": "Retenu par un admin.",
+        "flaggedFiles": "Aucun fichier à examiner. | 1 fichier à examiner. | {n} fichiers à examiner.",
+        "unseen": "L’anticheat n’a pas encore vu ce joueur.",
+        "registrations": "Inscrit à aucun événement. | Inscrit à 1 événement. | Inscrit à {n} événements."
+      }
     }
   },
   "wardenAdmin": {
@@ -4304,7 +4427,7 @@
       "from": "Depuis",
       "more": "Afficher plus",
       "empty": "Rien pour l’instant. Les changements apparaissent ici au fur et à mesure.",
-      "everyone": "Tout le monde",
+      "everyone": "Voir tout le monde",
       "filters": {
         "ban": "Bannissements",
         "unban": "Débannissements",
@@ -4326,7 +4449,8 @@
         "linkTransfer": "Reprises de compte",
         "transferDismiss": "Reprises ignorées",
         "banUpdate": "Changements de fin de bannissement"
-      }
+      },
+      "onePerson": "Activité d’une seule personne."
     },
     "sources": {
       "web": "Site",
@@ -4535,6 +4659,31 @@
       "notLinked": "Ce compte n’est plus lié. Recharge la page.",
       "alreadyDismissed": "Un autre admin l’a déjà ignoré. Recharge la page.",
       "invalidEnd": "La nouvelle fin doit être dans le futur. Pour terminer le bannissement maintenant, lève-le."
+    },
+    "banEndModal": {
+      "title": "Changer la fin du bannissement de {name}",
+      "current": "Le bannissement se termine le {date}.",
+      "currentPermanent": "Le bannissement est définitif.",
+      "permanent": "Bannissement définitif",
+      "until": "Nouvelle fin",
+      "help": "Choisis une date dans le futur. Pour terminer le bannissement maintenant, lève-le plutôt.",
+      "cancel": "Annuler",
+      "submit": "Enregistrer la nouvelle fin",
+      "done": "Fin du bannissement changée"
+    },
+    "bans": {
+      "kinds": {
+        "all": "Tout",
+        "ban": "Bannissements en cours",
+        "warning": "Avertissements",
+        "note": "Notes"
+      },
+      "person": "Personne",
+      "kind": "Type",
+      "text": "Motif",
+      "at": "Date",
+      "loadFailed": "La liste n’a pas pu être chargée. Vérifie ta connexion, puis recharge la page.",
+      "empty": "Rien pour l’instant."
     }
   },
   "mods": {

@@ -7,6 +7,7 @@ import {
   adminEntries,
   adminTabs,
   ADMIN_ENTRIES,
+  personTabs,
   SETTINGS_SECTIONS,
   settingsSections,
 } from '../../app/utils/admin-nav.ts';
@@ -33,6 +34,7 @@ describe('admin sidebar entries', () => {
   it('shows an events manager the Events group and Short links', () => {
     expect(ids(adminEntries('events-manager'))).toEqual([
       'home',
+      'people',
       'shortLinks',
       'events',
       'posters',
@@ -42,12 +44,13 @@ describe('admin sidebar entries', () => {
   });
 
   it('shows an economy admin Economy and Quests', () => {
-    expect(ids(adminEntries('economy-admin'))).toEqual(['home', 'economy', 'quests']);
+    expect(ids(adminEntries('economy-admin'))).toEqual(['home', 'people', 'economy', 'quests']);
   });
 
   it('gives a person with several roles the union, in sidebar order', () => {
     expect(ids(adminEntries('economy-admin,events-manager'))).toEqual([
       'home',
+      'people',
       'shortLinks',
       'events',
       'posters',
@@ -85,6 +88,49 @@ describe('admin sidebar entries', () => {
   it('hides the vote tab of Modpack when the modList flag is off', () => {
     expect(ids(adminTabs('modpack', () => true))).toContain('vote');
     expect(ids(adminTabs('modpack', () => false))).toEqual(['modlist', 'files', 'downloads']);
+  });
+});
+
+describe('Moderation tabs', () => {
+  it('has Appeals, Bans and Rules', () => {
+    expect(ids(adminTabs('moderation', () => true))).toEqual(['appeals', 'bans', 'rules']);
+  });
+});
+
+describe('Person tabs', () => {
+  it('gives site admins every tab', () => {
+    expect(ids(personTabs('admin', false))).toEqual([
+      'summary',
+      'minecraft',
+      'moderation',
+      'playtime',
+      'anticheat',
+      'lnbits',
+      'events',
+      'account',
+    ]);
+  });
+
+  it('gives each role its own tabs', () => {
+    expect(ids(personTabs('warden-admin', false))).toEqual([
+      'summary',
+      'minecraft',
+      'moderation',
+      'playtime',
+      'anticheat',
+    ]);
+    expect(ids(personTabs('events-manager', false))).toEqual(['summary', 'events']);
+    expect(ids(personTabs('economy-admin', false))).toEqual(['summary', 'lnbits']);
+    expect(ids(personTabs('economy-admin,events-manager', false))).toEqual([
+      'summary',
+      'lnbits',
+      'events',
+    ]);
+  });
+
+  it('gives a ghost only Summary, Events and Site account', () => {
+    expect(ids(personTabs('admin', true))).toEqual(['summary', 'events', 'account']);
+    expect(ids(personTabs('warden-admin', true))).toEqual(['summary']);
   });
 });
 
@@ -127,7 +173,7 @@ describe('admin redirects', () => {
 
   /** Whether a page file serves the path, with `[param]` files matching any segment. */
   function hasPage(path: string): boolean {
-    const parts = path.split('/').filter(Boolean);
+    const parts = (path.split('?')[0] ?? '').split('/').filter(Boolean);
     const walk = (dir: string, rest: string[]): boolean => {
       if (!rest.length) return existsSync(`${dir}.vue`) || existsSync(`${dir}/index.vue`);
       const [head, ...tail] = rest;

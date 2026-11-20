@@ -208,6 +208,7 @@ async function summary(role: string | null, userId: string): Promise<AdminPerson
     person.roles = rolesOf(row.role);
   }
   if (access.admin) {
+    person.tenantId = row.tenantId;
     person.lastSignInAt = row.lastSignInAt?.toISOString() ?? null;
     person.siteBan =
       row.banned && (!row.banExpires || row.banExpires > now)

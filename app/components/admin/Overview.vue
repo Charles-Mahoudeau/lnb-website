@@ -60,7 +60,7 @@ const attention = computed<Attention[]>(() => {
       tone: 'neutral',
       title: t('admin.overview.inactive', overview.inactiveAccounts),
       detail: t('admin.overview.inactiveDetail'),
-      to: '/admin/people?status=inactive',
+      to: '/admin/people?filters=inactive',
       action: t('admin.overview.seeAccounts'),
     });
   }
@@ -71,7 +71,7 @@ const attention = computed<Attention[]>(() => {
       tone: 'neutral',
       title: t('admin.overview.bans', overview.siteBans),
       detail: t('admin.overview.bansDetail'),
-      to: '/admin/people?status=banned',
+      to: '/admin/people?filters=banned',
       action: t('admin.overview.seeAccounts'),
     });
   }

@@ -6,7 +6,9 @@ import { ECONOMY_ACCOUNT_TYPES, economyAdjustBody } from '#shared/schemas/econom
 
 // One bank account for economy admins: its numbers, its type, mint and burn, freezing, and its
 // history with a reversal on each line.
-const props = defineProps<{ id: string }>();
+// `embedded` is the LNBits tab of the Person page: the page's header already names the person and
+// adjusts the balance, so the title and the mint and burn buttons are left out.
+const props = defineProps<{ id: string; embedded?: boolean }>();
 const { t, locale } = useI18n();
 const toast = useToast();
 const overlay = useOverlay();
@@ -164,7 +166,7 @@ function counterparty(item: EconomyTransactionView): string {
   <div v-else-if="data" class="flex flex-col gap-6">
     <div class="flex flex-wrap items-end gap-4">
       <div class="flex min-w-64 flex-1 flex-col gap-1.5">
-        <h1 class="text-3xl font-bold text-highlighted">{{ title }}</h1>
+        <h1 v-if="!embedded" class="text-3xl font-bold text-highlighted">{{ title }}</h1>
         <div class="flex flex-wrap items-center gap-2 text-muted">
           <span>
             {{
@@ -224,6 +226,7 @@ function counterparty(item: EconomyTransactionView): string {
           @update:model-value="onType"
         />
         <UButton
+          v-if="!embedded"
           color="neutral"
           variant="soft"
           icon="i-lucide-sparkles"
@@ -231,6 +234,7 @@ function counterparty(item: EconomyTransactionView): string {
           @click="onAdjust('mint')"
         />
         <UButton
+          v-if="!embedded"
           color="neutral"
           variant="soft"
           icon="i-lucide-flame"

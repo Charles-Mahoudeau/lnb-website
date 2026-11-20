@@ -10,8 +10,6 @@ import type {
   AnticheatFilesQuery,
   AnticheatModIdBanRow,
   AnticheatPlayerDetail,
-  AnticheatPlayerRow,
-  AnticheatPlayersQuery,
   AnticheatProblem,
   AnticheatProjectCreateBody,
   AnticheatProjectDetail,
@@ -79,14 +77,6 @@ export function useAnticheatProject(id: string) {
 }
 
 type Page<T> = { items: T[]; nextCursor: string | null };
-
-/** One page of players. More pages come by cursor. */
-export function useAnticheatPlayers(query: Ref<Omit<AnticheatPlayersQuery, 'cursor'>>) {
-  return useFetch<Page<AnticheatPlayerRow>>(`${base}/players`, {
-    key: 'anticheat-players',
-    query,
-  });
-}
 
 /** One player's anticheat panel. Loaded on the client, so the Warden page keeps one request. */
 export function useAnticheatPlayer(userId: string) {
@@ -158,10 +148,6 @@ export const anticheatActions = {
         method: 'POST',
         body,
       }),
-    ),
-  morePlayerRows: (query: Omit<AnticheatPlayersQuery, 'cursor'>, cursor: string) =>
-    call(() =>
-      $fetch<Page<AnticheatPlayerRow>>(`${base}/players`, { query: { ...query, cursor } }),
     ),
   moreEvents: (userId: string, cursor: string) =>
     call(() =>
