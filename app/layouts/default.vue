@@ -110,6 +110,16 @@ const navItems = computed<NavigationMenuItem[]>(() => {
           },
         ]
       : []),
+    ...(isEnabled('economy.market')
+      ? [
+          {
+            label: t('market.title'),
+            description: t('nav.marketDescription'),
+            icon: 'i-lucide-store',
+            to: '/minecraft/market',
+          },
+        ]
+      : []),
     ...(user.value && isEnabled('economy.baltop')
       ? [
           {

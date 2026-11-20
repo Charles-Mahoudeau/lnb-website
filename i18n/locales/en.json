@@ -35,7 +35,8 @@
     "download": "Download",
     "downloadDescription": "Java, a launcher and the LNB instance",
     "rules": "Rules",
-    "rulesDescription": "What is and isn’t allowed on the server"
+    "rulesDescription": "What is and isn’t allowed on the server",
+    "marketDescription": "Prices of what the server buys and sells"
   },
   "home": {
     "intro": {
@@ -6156,6 +6157,98 @@
       "title": "The list can’t be reached",
       "text": "The mod list didn’t load. Check your connection, then try again.",
       "retry": "Try again"
+    }
+  },
+  "market": {
+    "title": "Market",
+    "tier": "Tier {tier}",
+    "all": "All tiers",
+    "lede": "Sell what you farm and buy what you need, at prices that follow supply. Prices update by the hour. Trading happens in the game with /market.",
+    "loadFailed": "The Market didn’t load. Check your connection, then reload the page.",
+    "off": {
+      "sell": "Selling is off",
+      "buy": "Buying is off",
+      "both": "Selling and buying are off"
+    },
+    "empty": {
+      "title": "Nothing is for sale yet",
+      "body": "The Market has no items. Check back soon."
+    },
+    "me": {
+      "title": "Your day at the Market",
+      "hint": "Over the last 24 hours. The tick marks the end of the full-rate part.",
+      "rate": "{rate} rate",
+      "full": "{left} LNBits more at the full rate, then {next}.",
+      "reduced": "{left} LNBits more at this rate, then {next}.",
+      "last": "You are at the last bracket, {rate}. It recovers as the day goes by.",
+      "capped": "The Market has paid out all it may mint for now, so sales pay reduced until its budget recovers.",
+      "signInPrompt": "Sign in with your school account to see how much of each tier you can still sell at the full rate today.",
+      "linkPrompt": "Link your Minecraft account to see how much of each tier you can still sell at the full rate today.",
+      "signIn": "Sign in",
+      "link": "Link my account"
+    },
+    "movers": {
+      "paying": {
+        "title": "Paying the most",
+        "hint": "Highest above the base price"
+      },
+      "cheapest": {
+        "title": "Cheapest to buy",
+        "hint": "Lowest under the base price"
+      },
+      "sellsFor": "Tier {tier} · sells for {amount}",
+      "buysFor": "Tier {tier} · buys for {amount}"
+    },
+    "board": "Prices",
+    "search": "Search items",
+    "tiers": "Tiers",
+    "noMatch": "No item matches.",
+    "each": "{price} each",
+    "for64": "{amount} for 64",
+    "notBought": "Not bought",
+    "notSold": "Not sold",
+    "blurb": {
+      "1": "Farms and generators. Prices drop fast when you flood them.",
+      "2": "Smelted and crafted goods.",
+      "3": "Mined and dropped by hand. Holds its price."
+    },
+    "cols": {
+      "item": "Item",
+      "price": "Price",
+      "vsBase": "Vs base",
+      "sell": "You sell for",
+      "buy": "You buy for",
+      "last24": "Last 24 hours"
+    },
+    "footnote": "Prices are LNBits per item, and the reference price sits between what you sell for and what you buy for. Bigger orders move the price, and selling a lot in one day pays less. These amounts are indicative: the exact total is set when you trade in the game.",
+    "drawer": {
+      "missing": "Item not found",
+      "missingBody": "This item is not on the Market anymore.",
+      "each": "LNBits each, reference",
+      "period": "Period",
+      "periods": {
+        "24h": "24 h",
+        "7d": "7 days",
+        "30d": "30 days",
+        "1y": "1 year"
+      },
+      "ago": {
+        "24h": "24 h ago",
+        "7d": "7 days ago",
+        "30d": "30 days ago",
+        "1y": "1 year ago"
+      },
+      "now": "now",
+      "chart": "Price of {name} over {period}",
+      "chartFailed": "The history didn’t load. Try another period.",
+      "noHistory": "Not enough history yet.",
+      "sell1": "You sell 1 for",
+      "sell64": "You sell 64 for",
+      "buy1": "You buy 1 for",
+      "buy64": "You buy 64 for",
+      "plentiful": "There is plenty of this item, so it pays well under its base price.",
+      "scarce": "This item is scarce, so it pays well above its base price.",
+      "base": "Base price {price}."
     }
   }
 }
