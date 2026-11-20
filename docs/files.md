@@ -1,6 +1,6 @@
 # Files library
 
-`/admin/mods/files` is where Warden admins upload the jars and assets the Minecraft launcher downloads: custom mod jars, mods mirrored from CurseForge (whose projects often forbid third-party downloads), the Prism wrapper jar and a few launcher files. It's the first half of the modpack work: the Modlist and the manifest, which point at these files, come next. The page layout is "Drop first": the design mock is [the Files mocks](https://claude.ai/artifact/CsGMnjAhpLs9uRk4aeEpsp), proposition C.
+`/admin/modpack/files` is where Warden admins upload the jars and assets the Minecraft launcher downloads: custom mod jars, mods mirrored from CurseForge (whose projects often forbid third-party downloads), the Prism wrapper jar and a few launcher files. It's the first half of the modpack work: the Modlist and the manifest, which point at these files, come next. The page layout is "Drop first": the design mock is [the Files mocks](https://claude.ai/artifact/CsGMnjAhpLs9uRk4aeEpsp), proposition C.
 
 ## Model
 

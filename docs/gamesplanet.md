@@ -60,7 +60,7 @@ The covers of the games the site shows are downloaded by the server (`gamesplane
 
 - `GET /api/gamesplanet` (flag `gamesplanet`) returns up to three deals: pinned games first, then the best sellers France can buy, with the ref on every link. The price is shown with a discount only when it is below the regular one, and the end date only for a flash price still running. `GET /api/gamesplanet/covers/:key` serves our copies, cached for a year.
 - The partners page (`/partners`) shows the band (`PartnersGamesplanet`) above the kinds while the flag is on and deals exist. Its badge (`GamesplanetBadge`) opens the disclosure bubble.
-- `/admin/gamesplanet` (full admins) sets the ref, pins and orders games (found by name in the catalog), previews the best sellers and reads a feed now. Changes are in the audit log.
+- `/admin/site/gamesplanet` (full admins) pins and orders games (found by name in the catalog), previews the best sellers and reads a feed now. The ref is in Settings › Gamesplanet (`/admin/settings/gamesplanet`). Changes are in the audit log.
 
 ## Home card and events
 

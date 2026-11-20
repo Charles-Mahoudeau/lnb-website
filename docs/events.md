@@ -6,7 +6,7 @@ Notifications (waitlist places, reminders, cancellations and moves, announcement
 
 ## Roles
 
-- `events-manager` opens the Events section of the admin area and nothing else. Site admins have it implicitly. It's set from the Roles modal on `/admin/users`.
+- `events-manager` opens the Events section of the admin area and nothing else. Site admins have it implicitly. It's set from the Roles modal on `/admin/people`.
 - Routes check it with `requireEventsManager`. Admin pages that managers can open set `definePageMeta({ eventsManagers: true })`.
 
 ## Rules
@@ -36,7 +36,7 @@ Notifications (waitlist places, reminders, cancellations and moves, announcement
 ## Admin pages
 
 - `/admin/events`: upcoming, drafts and past events, with registrations and the waitlist at a glance.
-- `/admin/events/new` and `/admin/events/<id>`: the form (one page of sections beside a preview of the site page, the agenda row and a Discord embed), a Registrations tab, and a Teams tab for tournaments (`docs/tournaments.md`). New events start as drafts. The menu views the page, duplicates, cancels or deletes. Times are typed in Paris time (`shared/utils/paris-time.ts`).
+- `/admin/events/new` and `/admin/events/<id>/details`: the form (one page of sections beside a preview of the site page, the agenda row and a Discord embed), a Registrations tab, and a Teams tab for tournaments (`docs/tournaments.md`). New events start as drafts. The menu views the page, duplicates, cancels or deletes. Times are typed in Paris time (`shared/utils/paris-time.ts`).
 
 ## Images
 

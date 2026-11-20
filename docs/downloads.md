@@ -23,7 +23,7 @@ On Linux and macOS, the launcher step and the Java troubleshooting entry add an 
 
 ## Admin
 
-`/admin/mods/downloads` (Warden admins, in the Mods group) has one row per slot: `instance`, `cracked-windows`, `cracked-macos`, `cracked-linux`. A row picks a file of the library and an optional version label, saves, or empties the slot (the file stays in the library). A slot nobody filled shows "Not available yet" on the page.
+`/admin/modpack/downloads` (Warden admins, in the Mods group) has one row per slot: `instance`, `cracked-windows`, `cracked-macos`, `cracked-linux`. A row picks a file of the library and an optional version label, saves, or empties the slot (the file stays in the library). A slot nobody filled shows "Not available yet" on the page.
 
 - `download_file` (`server/db/schema/downloads.ts`): one row per filled slot, pointing at a `stored_file` with `on delete restrict`. `usageOfFiles` lists it as "Download page", so the library refuses to delete a file a slot uses (`fileInUse`).
 - A slot only takes a file of the new library kind `download` (`notDownloadFile` otherwise). The kind accepts `zip`, `exe`, `msi`, `dmg`, `pkg`, `appimage` and `gz`, and only a zip is checked for the zip header. It is separate from `asset` because the launcher's manifest lists every asset, and an installer must never reach a launcher. The upload's "Automatic" kind sends installers to `download`; a zip stays an asset, so pick Download for the instance zip, or change its kind in the file's drawer.

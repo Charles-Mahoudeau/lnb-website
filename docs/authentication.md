@@ -47,9 +47,9 @@ Roles come from Better Auth's admin plugin. Promote the first admin by hand, aft
 UPDATE "user" SET role = 'admin' WHERE email = 'name@epitech.eu';
 ```
 
-A user's `role` is a comma-separated list. Besides `admin`, there is `warden-admin`, for Minecraft staff: it opens the Warden section of the admin area (`/admin/warden`) and in-game moderation, and gives no other admin rights. Site admins are Warden admins too, and give or remove the role from a player's page there. `economy-admin` opens the Economy section (`/admin/economy`, see `docs/economy.md`) and nothing else. The helpers are in `shared/utils/roles.ts`, and routes check them with `requireAdmin`, `requireWardenAdmin` and `requireEconomyAdmin`.
+A user's `role` is a comma-separated list. Besides `admin`, there is `warden-admin`, for Minecraft staff: it opens the Warden section of the admin area (`/admin/moderation`) and in-game moderation, and gives no other admin rights. Site admins are Warden admins too, and give or remove the role from a player's page there. `economy-admin` opens the Economy section (`/admin/economy`, see `docs/economy.md`) and nothing else. The helpers are in `shared/utils/roles.ts`, and routes check them with `requireAdmin`, `requireWardenAdmin` and `requireEconomyAdmin`.
 
-After that, site admins manage accounts on `/admin/users`, through `/api/admin/users` (`server/services/users.ts`): roles (both at once), site bans, signing out everywhere, and deletion. The rules:
+After that, site admins manage accounts on `/admin/people`, through `/api/admin/users` (`server/services/users.ts`): roles (both at once), site bans, signing out everywhere, and deletion. The rules:
 
 - Admins can't remove their own admin role, ban themselves or delete themselves. Another admin must lose the admin role before a ban or a deletion.
 - A site ban uses the admin plugin's `banned`, `ban_reason` and `ban_expires` columns, so Better Auth refuses the sign-in itself and lifts a ban once it has expired. Banning also deletes every session. It's separate from Warden bans, which only block the Minecraft server.

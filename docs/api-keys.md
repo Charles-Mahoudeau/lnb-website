@@ -1,6 +1,6 @@
 # API keys
 
-Admins make API keys at `/admin/api-keys` for integrations they vouch for: the BDE website, bots, the Minecraft server, scripts. There is no public developer program and no self-service key. Only full admins manage keys.
+Admins make API keys at `/admin/settings/api-keys` for integrations they vouch for: the BDE website, bots, the Minecraft server, scripts. There is no public developer program and no self-service key. Only full admins manage keys.
 
 ## What a key is
 

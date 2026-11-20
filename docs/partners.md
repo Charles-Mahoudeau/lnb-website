@@ -1,6 +1,6 @@
 # Partners page
 
-`/partners` shows the companies and studios that help LNB: sponsors, game partners and prize partners. It's public. Admins manage it from `/admin/partners`. The design is in `docs/design.md` (Partners page).
+`/partners` shows the companies and studios that help LNB: sponsors, game partners and prize partners. It's public. Admins manage it from `/admin/site/partners`. The design is in `docs/design.md` (Partners page).
 
 ## Model
 
@@ -24,7 +24,7 @@ Admins upload one logo per partner (`POST /api/admin/partners/logo`, multipart w
 
 ## Admin
 
-`/admin/partners` is for site admins, with no separate role. The contact link, then one section per kind: each partner with its logo, name, description, a switch, the arrows (which reorder inside the kind), edit and delete. Delete asks first. Every change is logged in `admin_audit` (`partner.*`, `partners.settings`).
+`/admin/site/partners` is for site admins, with no separate role. One section per kind (the contact link is in Settings › Partners, `/admin/settings/partners`): each partner with its logo, name, description, a switch, the arrows (which reorder inside the kind), edit and delete. Delete asks first. Every change is logged in `admin_audit` (`partner.*`, `partners.settings`).
 
 ## Flags
 

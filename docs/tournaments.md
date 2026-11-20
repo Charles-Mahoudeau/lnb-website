@@ -39,7 +39,7 @@ Push kind `team`, switched by the waitlist-places preference and the `push.spots
 
 ## Managers
 
-The Teams tab of `/admin/events/<id>` (shown in team mode): tiles by state, every team with players, schools and emails, and the registered players without a team beside it.
+The Teams tab of `/admin/events/<id>/teams` (shown in team mode): tiles by state, every team with players, schools and emails, and the registered players without a team beside it.
 
 - Create a team around a registered player (captain or not), rename, delete, validate by hand, change the captain, add and remove players.
 - A manager can bypass the window, the start, the school, the maximum and the minimum, and put a player in two teams (the dialog warns and asks for a tick: `force`). A player still needs an account and a registration.

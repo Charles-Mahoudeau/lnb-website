@@ -18,7 +18,7 @@ One middleware, `server/middleware/rate-limit.ts`, limits `/api/**` and `/go/**`
 
 ## Modes
 
-Admins pick a mode on `/admin/rate-limit`. It is stored in `rate_limit_setting` (one row, `default`; no row means normal), read through a 10 second in-memory cache like the feature flags, and each change is logged in `admin_audit` (`rateLimit.mode`).
+Admins pick a mode on `/admin/settings/rate-limit`. It is stored in `rate_limit_setting` (one row, `default`; no row means normal), read through a 10 second in-memory cache like the feature flags, and each change is logged in `admin_audit` (`rateLimit.mode`).
 
 - **Normal**: the table above.
 - **Event night**: the per-IP ceilings (`api`, `go`, `warden-server`, `warden-client`) are multiplied by 5 (`EVENT_IP_MULTIPLIER` in `shared/rate-limit.ts`), for a room sharing one Wi-Fi. The per-account limits and `warden-link-request` stay.

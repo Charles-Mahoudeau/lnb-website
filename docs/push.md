@@ -24,12 +24,12 @@ Removing someone by hand sends nothing. "Save without notifying" on a published 
 
 ## The weekly limit warns, it never blocks
 
-The limit (3 by default, an admin setting) is not enforced. `/admin/push` shows the notifications sent in the last 7 days, the most one person received, and a warning when someone is over. Before any manager action that sends notifications, a dialog says how many people it would notify and how many already received the limit or more (`POST /api/admin/events/:id/push-impact`, the same code that picks the real recipients). People see only how many they received in the last 7 days.
+The limit (3 by default, an admin setting) is not enforced. `/admin/notifications` shows the notifications sent in the last 7 days, the most one person received, and a warning when someone is over. Before any manager action that sends notifications, a dialog says how many people it would notify and how many already received the limit or more (`POST /api/admin/events/:id/push-impact`, the same code that picks the real recipients). People see only how many they received in the last 7 days.
 
 ## Timing
 
 - Reminders, waitlist spots, cancellations and moves go out at once, at their real time.
-- New-event announcements wait during the quiet hours, and go out when they end. The default is 22:00 to 08:00 in Paris time. Admins change the two hours, or switch the quiet hours off, in `/admin/push`; with them off, announcements go out at once at any hour. The confirmation and the toast after announcing say when it will go out.
+- New-event announcements wait during the quiet hours, and go out when they end. The default is 22:00 to 08:00 in Paris time. Admins change the two hours, or switch the quiet hours off, in Settings › Notifications (`/admin/settings/notifications`); with them off, announcements go out at once at any hour. The confirmation and the toast after announcing say when it will go out.
 - A moved or cancelled event drops its pending reminders. A reminder is dropped too if the person left the event before it went out, or the event has started.
 
 ## How it works
@@ -48,7 +48,7 @@ Never cold. The sheet appears right after a registration, including for someone 
 
 ## Admin
 
-`/admin/push`: counts for admins and events managers. Admins also see who turned notifications on (name, school, switches, devices, date, received in the last 7 days) and set the limit, the silence, and the quiet hours. Turning notifications on is visible to admins, and the settings card says so. Changes to the settings are written to `admin_audit` (`push.settings`), announcements as `event.announce`.
+`/admin/notifications`: counts for admins and events managers. Admins also see who turned notifications on (name, school, switches, devices, date, received in the last 7 days) and, in Settings › Notifications, set the limit, the silence, and the quiet hours. Turning notifications on is visible to admins, and the settings card says so. Changes to the settings are written to `admin_audit` (`push.settings`), announcements as `event.announce`.
 
 ## Flags
 
