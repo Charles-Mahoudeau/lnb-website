@@ -241,6 +241,7 @@ const OTHER_ORIGINS: Record<string, string> = {
   'minecraft.playtime.grace': 'the playtime enforcement',
   'minecraft.playtime.update': 'the playtime enforcement',
   'minecraft.playtime.kick': 'the playtime enforcement',
+  'economy.market.recipes': 'the Minecraft server, sending its recipes',
   'people.ghost.claim': 'the first sign-in of a person with a ghost account',
   'events.partnerEvent.export': 'a GET route, which downloads personal data',
   'links.export': 'a GET route, which downloads personal data',
