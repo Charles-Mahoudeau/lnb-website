@@ -4320,7 +4320,8 @@
         "deviceDeny": "Device denials",
         "deviceRevoke": "Device revocations",
         "linkTransfer": "Takeovers",
-        "transferDismiss": "Dismissed takeovers"
+        "transferDismiss": "Dismissed takeovers",
+        "banUpdate": "Ban end changes"
       }
     },
     "sources": {
@@ -4375,7 +4376,9 @@
       "modpackAdopt": "Adopted a newer file of {name}",
       "modpackTool": "Published a new {name}",
       "modpackExport": "Exported the vote list to the Modlist",
-      "fileKind": "Changed the type of {name}"
+      "fileKind": "Changed the type of {name}",
+      "banUpdate": "Ban end changed to {date}",
+      "banUpdatePermanent": "Ban made permanent"
     },
     "actors": {
       "console": "Console",
@@ -4526,7 +4529,8 @@
       "notBanned": "This player isn’t banned anymore. Reload the page.",
       "appealClosed": "Another admin already answered this appeal. Reload the page.",
       "notLinked": "This account isn’t linked anymore. Reload the page.",
-      "alreadyDismissed": "Another admin already dismissed this. Reload the page."
+      "alreadyDismissed": "Another admin already dismissed this. Reload the page.",
+      "invalidEnd": "The new end must be in the future. To end the ban now, lift it."
     }
   },
   "mods": {

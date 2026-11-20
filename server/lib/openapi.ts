@@ -1761,6 +1761,23 @@ const routes: RouteDoc[] = [
     ],
   },
   {
+    method: 'patch',
+    path: '/api/warden/admin/bans/{banId}',
+    tag: TAGS.wardenAdmin,
+    summary: 'Change the end of a ban in force',
+    description:
+      'Sets a new end date, or none for a permanent ban. The new end must be in the future: to end a ban now, revoke it. The Minecraft server receives the ban again (a `kick` event with the reason `banned` and the new end).',
+    access: 'wardenAdmin',
+    params: warden.wardenBanParams,
+    body: warden.wardenBanUpdateBody,
+    response: warden.wardenBanView,
+    problems: [
+      { status: 400, problems: ['invalidEnd'] },
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['notBanned'] },
+    ],
+  },
+  {
     method: 'get',
     path: '/api/warden/admin/appeals',
     tag: TAGS.wardenAdmin,

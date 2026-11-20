@@ -18,6 +18,7 @@ type PlaytimeEvent<T extends WardenEvent['type']> = Extract<WardenEvent, { type:
 
 const EVENT_ACTIONS = [
   'ban',
+  'ban.update',
   'unban',
   'unlink',
   'device.revoke',
@@ -64,7 +65,9 @@ async function accountsOf(userId: string | null): Promise<string[]> {
 async function toEvent(row: typeof wardenAudit.$inferSelect): Promise<WardenEvent | undefined> {
   const data = row.data;
   switch (row.action) {
-    case 'ban': {
+    // A new end is sent as the ban again: the server has no event of its own for it.
+    case 'ban':
+    case 'ban.update': {
       const banId = typeof data.banId === 'string' ? data.banId : undefined;
       const [ban] = banId ? await db.select().from(wardenBan).where(eq(wardenBan.id, banId)) : [];
       return {

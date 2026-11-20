@@ -307,6 +307,8 @@ export const WARDEN_AUDIT_ACTIONS = [
   'ban',
   'unban',
   'ban.expire',
+  // An admin changed the end of a ban in force.
+  'ban.update',
   'appeal.create',
   'appeal.decide',
   'note.create',

@@ -41,6 +41,7 @@ async function onMore() {
 const ACTIONS = {
   ban: 'ban',
   unban: 'unban',
+  'ban.update': 'banUpdate',
   link: 'link',
   'link.request': 'linkRequest',
   'link.cancel': 'linkCancel',

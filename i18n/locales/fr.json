@@ -4324,7 +4324,8 @@
         "deviceDeny": "Appareils refusés",
         "deviceRevoke": "Appareils révoqués",
         "linkTransfer": "Reprises de compte",
-        "transferDismiss": "Reprises ignorées"
+        "transferDismiss": "Reprises ignorées",
+        "banUpdate": "Changements de fin de bannissement"
       }
     },
     "sources": {
@@ -4379,7 +4380,9 @@
       "modpackAdopt": "Fichier plus récent adopté pour {name}",
       "modpackTool": "Nouvelle version publiée pour {name}",
       "modpackExport": "Liste du vote exportée vers la Modlist",
-      "fileKind": "A changé le type de {name}"
+      "fileKind": "A changé le type de {name}",
+      "banUpdate": "Fin du bannissement changée au {date}",
+      "banUpdatePermanent": "Bannissement rendu permanent"
     },
     "actors": {
       "console": "Console",
@@ -4530,7 +4533,8 @@
       "notBanned": "Ce joueur n’est plus banni. Recharge la page.",
       "appealClosed": "Un autre admin a déjà répondu à cette contestation. Recharge la page.",
       "notLinked": "Ce compte n’est plus lié. Recharge la page.",
-      "alreadyDismissed": "Un autre admin l’a déjà ignoré. Recharge la page."
+      "alreadyDismissed": "Un autre admin l’a déjà ignoré. Recharge la page.",
+      "invalidEnd": "La nouvelle fin doit être dans le futur. Pour terminer le bannissement maintenant, lève-le."
     }
   },
   "mods": {
