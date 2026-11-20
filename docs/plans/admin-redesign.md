@@ -195,6 +195,8 @@ See `docs/activity-log.md` for the table, every action and who sees what.
 - The last commit of the branch rewrites the admin paragraph of `CLAUDE.md`.
 - Tests: the accounts list filter, a shared account's members.
 
+Built, with these choices the plan left open: the header holds Mint, Burn and Freeze; "edit" is the type, set in the Licenses tab; giving or taking back a license stays on the owner's LNBits tab (licenses belong to a person), which the shared account's Licenses tab links to. A personal account's old page URL goes to its owner's LNBits tab. See `docs/economy.md`.
+
 ## Not in this redesign
 
 - Kicking a player by hand (needs the mod).
