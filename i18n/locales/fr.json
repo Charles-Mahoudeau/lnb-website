@@ -5424,6 +5424,13 @@
       "legendVolume": "Entrées et sorties par jour",
       "chartLabel": "Le solde est passé de {from} à {to} LNBits sur la période.",
       "dayLabel": "{day} : {balance} LNBits, {in} entrés, {out} sortis"
+    },
+    "amountInput": {
+      "format": "Saisissez un montant comme 12 ou 12,50.",
+      "decimals": "Un montant a au plus 2 décimales (un centime vaut 0,01).",
+      "min": "Le montant doit être supérieur à 0.",
+      "max": "Ce montant est trop élevé.",
+      "placeholder": "0,00"
     }
   },
   "partnerEvents": {

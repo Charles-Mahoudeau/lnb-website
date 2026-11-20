@@ -57,8 +57,8 @@ const percent = computed(() =>
         <p class="text-on-banner-muted">
           {{
             t('quests.community.lede', {
-              goal: formatLnbits(community.goal, locale),
-              threshold: formatLnbits(threshold, locale),
+              goal: formatCount(community.goal, locale),
+              threshold: formatCount(threshold, locale),
             })
           }}
         </p>
@@ -80,7 +80,7 @@ const percent = computed(() =>
             }}
             <template v-if="contribution">
               {{
-                t('quests.community.yours', { n: formatLnbits(contribution.contribution, locale) })
+                t('quests.community.yours', { n: formatCount(contribution.contribution, locale) })
               }}
             </template>
           </span>
@@ -90,7 +90,7 @@ const percent = computed(() =>
       <div class="flex flex-col gap-2 lg:col-span-3">
         <div class="flex flex-wrap items-baseline justify-between gap-2">
           <span class="font-display text-3xl font-bold tabular-nums">
-            {{ formatLnbits(community.progress, locale) }}
+            {{ formatCount(community.progress, locale) }}
           </span>
           <span class="text-on-banner-muted tabular-nums">
             {{ t('quests.community.ofGoal', { percent }) }}
@@ -135,7 +135,7 @@ const percent = computed(() =>
           <template v-if="next">
             {{
               t('quests.community.missing', {
-                n: formatLnbits(
+                n: formatCount(
                   Math.ceil((community.goal * next.at) / 100 - community.progress),
                   locale,
                 ),
