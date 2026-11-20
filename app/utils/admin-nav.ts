@@ -46,6 +46,8 @@ export interface AdminEntry {
   areas: AdminArea[];
   group?: 'events' | 'minecraft';
   tabs?: AdminTab[];
+  /** A path under `base` that belongs to another entry (Market lives under /admin/economy). */
+  except?: string;
 }
 
 const ALL: AdminArea[] = ['admin', 'warden', 'events', 'economy'];
@@ -191,10 +193,31 @@ export const ADMIN_ENTRIES: AdminEntry[] = [
     base: '/admin/economy',
     areas: ['economy'],
     group: 'minecraft',
+    except: '/admin/economy/market',
     tabs: [
       { id: 'overview', labelKey: 'admin.nav.overview', to: '/admin/economy', exact: true },
       { id: 'accounts', labelKey: 'admin.nav.accounts', to: '/admin/economy/accounts' },
       { id: 'ledger', labelKey: 'admin.nav.ledger', to: '/admin/economy/ledger' },
+    ],
+  },
+  {
+    id: 'market',
+    labelKey: 'admin.nav.market',
+    icon: 'i-lucide-store',
+    to: '/admin/economy/market',
+    base: '/admin/economy/market',
+    areas: ['economy'],
+    group: 'minecraft',
+    tabs: [
+      {
+        id: 'overview',
+        labelKey: 'admin.nav.overview',
+        to: '/admin/economy/market',
+        exact: true,
+      },
+      { id: 'catalog', labelKey: 'admin.nav.catalog', to: '/admin/economy/market/catalog' },
+      { id: 'orders', labelKey: 'admin.nav.orders', to: '/admin/economy/market/orders' },
+      { id: 'settings', labelKey: 'admin.nav.settings', to: '/admin/economy/market/settings' },
     ],
   },
   {
@@ -232,6 +255,7 @@ export function adminTabs(id: string, isEnabled: (flag: 'modList') => boolean): 
 
 /** Whether an entry is the current one for a path. */
 export function entryIsActive(entry: AdminEntry, path: string): boolean {
+  if (entry.except && (path === entry.except || path.startsWith(`${entry.except}/`))) return false;
   if (entry.exact) return path === entry.base;
   return path === entry.base || path.startsWith(`${entry.base}/`);
 }
@@ -372,6 +396,13 @@ export const ADMIN_ACTIONS: AdminAction[] = [
     labelKey: 'admin.search.actions.adjustBalance',
     icon: 'i-lucide-landmark',
     to: '/admin/economy/accounts',
+    areas: ['economy'],
+  },
+  {
+    id: 'marketCatalog',
+    labelKey: 'admin.search.actions.marketCatalog',
+    icon: 'i-lucide-store',
+    to: '/admin/economy/market/catalog',
     areas: ['economy'],
   },
   {

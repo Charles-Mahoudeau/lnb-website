@@ -93,3 +93,13 @@ export function simulateOrder(input: {
     brackets: sale.brackets,
   };
 }
+
+/** A price per item in LNBits, which can be below a cent: three significant digits ("0.0025", "1.23"). */
+export function formatItemPrice(price: number, locale: string): string {
+  return new Intl.NumberFormat(locale, { maximumSignificantDigits: 3 }).format(price);
+}
+
+/** "+12%" or "−8%", with a real minus sign. */
+export function formatPercentVsBase(percent: number): string {
+  return `${percent < 0 ? '−' : '+'}${String(Math.abs(percent))}%`;
+}
