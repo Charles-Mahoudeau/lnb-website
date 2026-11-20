@@ -32,7 +32,7 @@ server/               Nitro server, picked up by Nuxt automatically
   services/           business rules, one file per domain: links (app link codes), warden/
                       (Minecraft link, see docs/warden.md), mods/ (the mod list, see
                       docs/mods.md), users (accounts, for admins), ghosts (ghost accounts, see docs/ghost-accounts.md), avatars (profile photos),
-                      admin-audit and admin-overview (the admin log and Overview), events/
+                      admin-audit (the admin log) and admin-inbox (the admin Home), events/
                       (see docs/events.md: admin, public, registrations, rooms, types, images,
                       bde, push, markdown, and rules.ts for the pure rules), push/ (see docs/push.md:
                       queue, deliver, reminders, subscriptions, settings, stats), team (the team page, see docs/team.md), partners (the partners page and its logos, see docs/partners.md), short-links (the /go/ links and their clicks, see docs/short-links.md), api-keys (integration keys, see docs/api-keys.md; routes accept one through `requireAccess` in `server/utils/api-key.ts`), posters (see docs/posters.md), rules (the server rules, see docs/rules.md), economy/ (the Minecraft bank, see docs/economy.md: accounts, ledger, server, server-accounts, licenses, baltop, admin, stats, and rules.ts for the pure rules), anticheat/ (file scoring and the player trust score, see docs/anticheat.md: reports, scoring, rules, lookup, platforms, players, trust, modpack, registry, admin, alerts, maintenance), event teams (tournaments, see docs/tournaments.md: teams, team-invites, admin-teams, team-rules), files

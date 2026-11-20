@@ -13,6 +13,7 @@ import {
   minecraftAccount,
   playtimeLedger,
   user,
+  wardenAccountTransfer,
   wardenBan,
   wardenSession,
 } from '~~/server/db/schema';
@@ -90,6 +91,18 @@ beforeAll(async () => {
     .insert(wardenBan)
     .values({ userId: ids.alice, reason: 'Griefing', source: 'web', expiresAt: null });
   await db.insert(anticheatPlayer).values({ userId: ids.alice, score: 10 });
+  // A takeover nobody dismissed (Dave to Bob, so Alice's own figures stay as they are), and a
+  // dismissed one that must not count (Dave to Carol).
+  await db.insert(wardenAccountTransfer).values([
+    { minecraftUuid: crypto.randomUUID(), username: 'T1', fromUserId: ids.dave, toUserId: ids.bob },
+    {
+      minecraftUuid: crypto.randomUUID(),
+      username: 'T2',
+      fromUserId: ids.dave,
+      toUserId: ids.carol,
+      dismissedAt: new Date(),
+    },
+  ]);
   const [session] = await db
     .insert(wardenSession)
     .values({ minecraftUuid: ALICE_UUID, userId: ids.alice })
@@ -269,6 +282,9 @@ describe('searching and filtering', () => {
     // A Warden admin's `banned` doesn't count site bans.
     const warden = await peopleService.list(ROLES.warden, { q: tag, filters: ['banned'] });
     expect(warden.items.map((row) => row.userId)).toEqual([ids.alice]);
+    // `transfer`: either side of a takeover nobody dismissed.
+    const transfer = await peopleService.list(ROLES.warden, { q: tag, filters: ['transfer'] });
+    expect(transfer.items.map((row) => row.userId)).toEqual([ids.bob, ids.dave]);
   });
 
   it('refuses filters a role may not see', async () => {
@@ -277,6 +293,9 @@ describe('searching and filtering', () => {
       refused,
     );
     await expect(peopleService.list(ROLES.economy, { filters: ['flagged'] })).rejects.toMatchObject(
+      refused,
+    );
+    await expect(peopleService.list(ROLES.events, { filters: ['transfer'] })).rejects.toMatchObject(
       refused,
     );
     await expect(peopleService.list(ROLES.warden, { filters: ['inactive'] })).rejects.toMatchObject(
