@@ -170,10 +170,17 @@ async function detail(accountId: string): Promise<EconomyAdminAccountDetail> {
       ? await licenseCount(db, account.ownerUserId)
       : null;
   if (!row) refuse(404, 'notFound');
-  const names = await playerNames(
-    db,
-    members.map((member) => member.userId),
-  );
+  const [bound] =
+    account.kind === 'shared'
+      ? await db
+          .select({ userId: economyCasinoLicense.userId, boundAt: economyCasinoLicense.boundAt })
+          .from(economyCasinoLicense)
+          .where(eq(economyCasinoLicense.accountId, accountId))
+      : [];
+  const names = await playerNames(db, [
+    ...members.map((member) => member.userId),
+    ...(bound ? [bound.userId] : []),
+  ]);
   return {
     ...row,
     frozenAt: account.frozenAt?.toISOString() ?? null,
@@ -190,6 +197,13 @@ async function detail(accountId: string): Promise<EconomyAdminAccountDetail> {
     in30: Number(flows[0]?.in ?? 0),
     out30: Number(flows[0]?.out ?? 0),
     licenses,
+    casinoLicense: bound
+      ? {
+          userId: bound.userId,
+          name: names.get(bound.userId)?.fullName ?? null,
+          boundAt: bound.boundAt?.toISOString() ?? null,
+        }
+      : null,
   };
 }
 

@@ -2562,7 +2562,21 @@
         "grantLicense": "Donner une licence",
         "revokeLicense": "En reprendre une",
         "licenseGranted": "Licence donnée à {name}",
-        "licenseRevoked": "Licence reprise"
+        "licenseRevoked": "Licence reprise",
+        "tabs": {
+          "overview": "Vue d’ensemble",
+          "members": "Membres",
+          "transactions": "Transactions",
+          "licenses": "Licences"
+        },
+        "recent": "Dernières transactions",
+        "allTransactions": "Toutes les transactions",
+        "noMembers": "Aucun membre.",
+        "joined": "Membre depuis le {date}",
+        "typeHint": "N’importe quel type, sans licence.",
+        "licenseBound": "Licence de casino de {name}, utilisée le {date}.",
+        "noLicense": "Aucune licence de casino n’est liée à ce compte.",
+        "licenseOwner": "Ouvrir l’onglet LNBits du propriétaire"
       },
       "adjust": {
         "title": "Ajuster {name}",
