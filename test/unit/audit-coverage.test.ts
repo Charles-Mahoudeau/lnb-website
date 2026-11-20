@@ -219,6 +219,10 @@ const ROUTES: Record<string, string[] | string> = {
 
 /** Actions no admin route writes, with where they come from. */
 const OTHER_ORIGINS: Record<string, string> = {
+  'minecraft.changelog.create': 'the changelog service (admin routes come with the admin slice)',
+  'minecraft.changelog.update': 'the changelog service (admin routes come with the admin slice)',
+  'minecraft.changelog.translate': 'the changelog service (admin routes come with the admin slice)',
+  'minecraft.changelog.unpublish': 'the changelog service (admin routes come with the admin slice)',
   'minecraft.link': 'the Minecraft account link, by the player',
   'minecraft.link.request': 'legacy: manual link codes, no longer written',
   'minecraft.link.cancel': 'legacy: manual link codes, no longer written',
@@ -249,6 +253,7 @@ const TASKS: Record<string, string> = {
   'api-keys/prune': 'settings.apiKey.prune',
   'audit/prune': 'settings.activityPrune',
   'economy/snapshot': 'economy.sweep',
+  'changelog/publish-scheduled': 'minecraft.changelog.publish',
   'events/bde-sync': 'Frequent: syncs with the BDE website.',
   'events/prune-images': 'events.pruneImages',
   'gamesplanet/prune-covers': 'site.gamesplanet.prune',

@@ -108,7 +108,12 @@ export default defineNuxtConfig({
       },
     },
     scheduledTasks: {
-      '* * * * *': ['events:bde-sync', 'push:deliver', 'anticheat:lookups'],
+      '* * * * *': [
+        'events:bde-sync',
+        'push:deliver',
+        'anticheat:lookups',
+        'changelog:publish-scheduled',
+      ],
       '*/5 * * * *': ['warden:close-stale-sessions', 'quests:community'],
       // The best sellers and flash sales, every 6 hours.
       '0 */6 * * *': ['gamesplanet:sync-deals'],

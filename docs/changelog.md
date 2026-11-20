@@ -1,6 +1,6 @@
 # Changelog
 
-Posts about what changed on the Minecraft server, written by admins in one language and shown on the site and, later, in game. Status: specified, not built. The in-game display is left to a discussion with the mod developer; the API below is what the site commits to.
+Posts about what changed on the Minecraft server, written by admins in one language and shown on the site and, later, in game. Status: slice 1 built (tables, service, Markdown rendering, `changelog` flag, publish job, audit actions); the admin, the public pages and the API are not. The in-game display is left to a discussion with the mod developer; the API below is what the site commits to.
 
 Original mock (not code to port): [changelog mocks](https://claude.ai/artifact/Q7FywHY51Wi9TPX5aGbHQv), list B (no image, with an optional cover), post page B with navigation, admin editor B (publishing band on top, Write and On the site modes).
 
@@ -46,7 +46,7 @@ Seen state is one row per Minecraft UUID and post. It is data about a player, so
 
 ## Slices
 
-1. Data and service: schema, Markdown rendering with tables, publish job, flag, audit events, tests.
+1. Data and service (built; `server/services/changelog.ts`, `server/db/schema/changelog.ts`, `renderChangelog` in `server/services/events/markdown.ts`, task `changelog:publish-scheduled` behind `jobs.changelogPublish`; the cover is a key in the `event-images` storage; seen rows reference `minecraft_account`, and `markSeen` ignores a UUID no account has linked): schema, Markdown rendering with tables, publish job, flag, audit events, tests.
 2. Admin: list and editor, DeepL translation, cover picker.
 3. Public pages, feed, sitemap, i18n strings, `docs/design.md` section, `/styleguide` entries.
 4. API and seen state, OpenAPI entries, tests.
