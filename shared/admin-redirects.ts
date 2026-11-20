@@ -1,0 +1,36 @@
+// Where the old admin URLs go (docs/plans/admin-redesign.md, Redirects). nuxt.config.ts turns each
+// into a permanent routeRule, and a test checks that every target is a real page. Two redirects
+// carry an ID, which routeRules can't, so pages do them instead: `/admin/events/:id` and
+// `/admin/warden/players/:userId`.
+export const ADMIN_REDIRECTS: Record<string, string> = {
+  '/admin/users': '/admin/people',
+  '/admin/warden': '/admin/people',
+  '/admin/warden/players': '/admin/people',
+  '/admin/warden/appeals': '/admin/moderation/appeals',
+  '/admin/warden/activity': '/admin/settings/activity',
+  '/admin/warden/playtime': '/admin/playtime/live',
+  '/admin/warden/rules': '/admin/moderation/rules',
+  '/admin/warden/settings': '/admin/settings/warden',
+  '/admin/anticheat': '/admin/anticheat/files',
+  '/admin/anticheat/players': '/admin/people',
+  '/admin/anticheat/settings': '/admin/settings/anticheat',
+  '/admin/mods': '/admin/modpack/modlist',
+  '/admin/mods/vote': '/admin/modpack/vote',
+  '/admin/mods/suggestions': '/admin/modpack/vote/suggestions',
+  '/admin/mods/vote/suggestions': '/admin/modpack/vote/suggestions',
+  '/admin/mods/files': '/admin/modpack/files',
+  '/admin/mods/downloads': '/admin/modpack/downloads',
+  '/admin/mods/settings': '/admin/settings/modpack',
+  '/admin/events/rooms': '/admin/settings/rooms',
+  '/admin/events/types': '/admin/settings/types',
+  '/admin/push': '/admin/notifications',
+  '/admin/team': '/admin/site/team',
+  '/admin/partners': '/admin/site/partners',
+  '/admin/gamesplanet': '/admin/site/gamesplanet',
+  '/admin/map': '/admin/settings/map',
+  '/admin/flags': '/admin/settings/flags',
+  '/admin/rate-limit': '/admin/settings/rate-limit',
+  '/admin/api-keys': '/admin/settings/api-keys',
+  '/admin/economy/quests': '/admin/quests/catalog',
+  '/admin/economy/settings': '/admin/settings/economy',
+};

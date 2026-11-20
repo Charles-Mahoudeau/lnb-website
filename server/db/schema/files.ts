@@ -2,7 +2,7 @@ import { bigint, index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-co
 
 import { user } from './auth';
 
-// The Files library at /admin/mods/files. See docs/files.md.
+// The Files library at /admin/modpack/files. See docs/files.md.
 
 /**
  * A file uploaded by an admin, kept on the VPS's disk under its SHA-256 (`.data/files/<sha256>`).

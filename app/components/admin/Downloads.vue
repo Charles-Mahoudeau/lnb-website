@@ -125,7 +125,7 @@ const empty = (slot: DownloadSlot) =>
       <IconTile icon="i-lucide-download" />
       <p class="min-w-0 flex-1 text-muted">{{ t('admin.downloads.noFiles') }}</p>
       <UButton
-        to="/admin/mods/files"
+        to="/admin/modpack/files"
         color="neutral"
         variant="soft"
         :label="t('admin.downloads.openFiles')"

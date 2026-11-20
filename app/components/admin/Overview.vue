@@ -37,7 +37,7 @@ const attention = computed<Attention[]>(() => {
             date: formatWardenDate(overview.appeals.oldestAt, locale.value),
           })
         : '',
-      to: '/admin/warden/appeals',
+      to: '/admin/moderation/appeals',
       action: t('admin.overview.reviewAppeals'),
     });
   }
@@ -49,7 +49,7 @@ const attention = computed<Attention[]>(() => {
       tone: off ? 'warning' : 'success',
       title: t(`admin.overview.rateLimit.${overview.rateLimitMode}`),
       detail: t(`admin.overview.rateLimit.${overview.rateLimitMode}Detail`),
-      to: '/admin/rate-limit',
+      to: '/admin/settings/rate-limit',
       action: t('admin.overview.rateLimit.change'),
     });
   }
@@ -60,7 +60,7 @@ const attention = computed<Attention[]>(() => {
       tone: 'neutral',
       title: t('admin.overview.inactive', overview.inactiveAccounts),
       detail: t('admin.overview.inactiveDetail'),
-      to: '/admin/users?status=inactive',
+      to: '/admin/people?status=inactive',
       action: t('admin.overview.seeAccounts'),
     });
   }
@@ -71,7 +71,7 @@ const attention = computed<Attention[]>(() => {
       tone: 'neutral',
       title: t('admin.overview.bans', overview.siteBans),
       detail: t('admin.overview.bansDetail'),
-      to: '/admin/users?status=banned',
+      to: '/admin/people?status=banned',
       action: t('admin.overview.seeAccounts'),
     });
   }
@@ -82,7 +82,7 @@ const attention = computed<Attention[]>(() => {
       tone: 'warning',
       title: t('admin.overview.apiKeysSoon', overview.apiKeysSoon),
       detail: t('admin.overview.apiKeysSoonDetail'),
-      to: '/admin/api-keys',
+      to: '/admin/settings/api-keys',
       action: t('admin.overview.seeApiKeys'),
     });
   }

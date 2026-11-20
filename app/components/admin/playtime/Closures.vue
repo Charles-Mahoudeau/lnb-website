@@ -246,7 +246,7 @@ const picked = (iso: string) => !!from.value && !!to.value && iso >= from.value 
               size="md"
               color="neutral"
               variant="ghost"
-              :to="`/admin/events/${c.event.id}`"
+              :to="`/admin/events/${c.event.id}/details`"
               :label="t('admin.playtime.closures.openEvent')"
             />
             <UButton

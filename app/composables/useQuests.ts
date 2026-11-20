@@ -1,7 +1,7 @@
 import type { QuestClaimResult, QuestProblem } from '#shared/schemas/quests';
 import { QUEST_PROBLEMS, QUEST_RESET_CONFIRM } from '#shared/schemas/quests';
 
-// The quests page (/minecraft/quests) and the Quests admin (/admin/economy/quests). Writes throw
+// The quests page (/minecraft/quests) and the Quests admin (/admin/quests/catalog). Writes throw
 // a QuestError with the API's problem. See docs/quests.md.
 
 export class QuestError extends Error {

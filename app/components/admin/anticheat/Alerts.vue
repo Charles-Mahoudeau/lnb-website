@@ -85,7 +85,7 @@ function sentence(alert: AnticheatAlertRow) {
         <span class="flex min-w-0 flex-1 flex-col">
           <NuxtLink
             v-if="alert.player"
-            :to="`/admin/warden/players/${alert.player.userId}#anticheat`"
+            :to="`/admin/people/${alert.player.userId}/anticheat#anticheat`"
             class="text-highlighted hover:underline"
             >{{ sentence(alert) }}</NuxtLink
           >

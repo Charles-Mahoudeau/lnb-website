@@ -65,7 +65,7 @@ function when(iso: string) {
             <UIcon :name="row.original.type.icon" class="size-5 shrink-0 text-muted" />
             <div class="flex min-w-0 flex-col items-start gap-1">
               <NuxtLink
-                :to="`/admin/events/${row.original.id}`"
+                :to="`/admin/events/${row.original.id}/details`"
                 class="font-semibold text-highlighted hover:underline"
               >
                 {{ row.original.name }}
@@ -97,7 +97,7 @@ function when(iso: string) {
         </template>
         <template #actions-cell="{ row }">
           <UButton
-            :to="`/admin/events/${row.original.id}`"
+            :to="`/admin/events/${row.original.id}/details`"
             size="md"
             color="neutral"
             variant="ghost"

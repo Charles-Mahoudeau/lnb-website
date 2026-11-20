@@ -122,7 +122,7 @@ const clock = (iso: string) => formatPlaytimeClock(iso, locale.value);
             <tr v-for="row in shown" :key="row.uuid">
               <td class="px-5 py-3">
                 <NuxtLink
-                  :to="`/admin/warden/players/${row.userId}`"
+                  :to="`/admin/people/${row.userId}/minecraft`"
                   class="flex flex-col hover:underline"
                 >
                   <span class="font-semibold text-highlighted">{{ row.name }}</span>

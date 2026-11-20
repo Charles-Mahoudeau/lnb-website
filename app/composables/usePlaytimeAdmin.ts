@@ -11,7 +11,7 @@ import type {
   PlaytimeSettingsResponse,
 } from '#shared/schemas/playtime';
 
-// The playtime section of the admin area (/admin/warden/playtime). Reads use useFetch with
+// The playtime section of the admin area (/admin/playtime/live). Reads use useFetch with
 // explicit keys, writes throw a PlaytimeAdminError with the API's problem. Every write answers
 // with the data the screen shows, so callers can put it straight into their ref.
 

@@ -1,5 +1,7 @@
 import { cpSync } from 'node:fs';
 
+import { ADMIN_REDIRECTS } from './shared/admin-redirects.ts';
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: ['@nuxt/eslint', '@nuxt/ui', '@nuxtjs/i18n', '@nuxt/test-utils/module'],
@@ -55,6 +57,14 @@ export default defineNuxtConfig({
     // still imports its helpers from `nuxt/server`. Drop this once i18n or Nuxt fixes it.
     nitroAutoImports: true,
   },
+
+  // The old admin URLs, permanently (see shared/admin-redirects.ts).
+  routeRules: Object.fromEntries(
+    Object.entries(ADMIN_REDIRECTS).map(([from, to]) => [
+      from,
+      { redirect: { to, statusCode: 301 } },
+    ]),
+  ),
 
   nitro: {
     // Scheduled jobs in server/tasks/.

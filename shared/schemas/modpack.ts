@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { modCatalogSource } from './mods.ts';
 
-// The Modlist (/admin/mods): the mods of the launcher's modpack, each pinned to one file. Contracts
+// The Modlist (/admin/modpack/modlist): the mods of the launcher's modpack, each pinned to one file. Contracts
 // shared by the routes and the pages. See docs/modpack.md. Responses are schemas too, so the API
 // reference is built from the same definitions as the types.
 

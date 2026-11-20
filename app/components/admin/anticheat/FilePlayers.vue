@@ -163,7 +163,7 @@ const day = (iso: string) => d(iso, { dateStyle: 'medium', timeZone: 'Europe/Par
         <UserAvatar :user-id="row.player.userId" :name="row.player.name" size="sm" />
         <div class="min-w-0 grow">
           <NuxtLink
-            :to="`/admin/warden/players/${row.player.userId}`"
+            :to="`/admin/people/${row.player.userId}/minecraft`"
             class="block truncate font-semibold text-highlighted hover:underline"
           >
             {{ row.player.name }}
