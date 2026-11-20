@@ -380,5 +380,13 @@ describe('the Market admin', () => {
     expect(stats.recipes.updatedAt).toEqual(expect.any(String));
     expect(stats.today.orders).toBeGreaterThanOrEqual(1);
     expect(stats.today.capped).toBeGreaterThanOrEqual(0);
+    const sales = await marketAdminService.orders({ direction: 'sell' });
+    expect(sales.items.length).toBeGreaterThan(0);
+    expect(sales.items.every((order) => order.rate !== null && order.rate <= 1)).toBe(true);
+    const capped = await marketAdminService.orders({ capped: 'true' });
+    expect(capped.items.length).toBeGreaterThanOrEqual(1);
+    expect(capped.items.every((order) => order.capped)).toBe(true);
+    const bought = await marketAdminService.orders({ direction: 'buy' });
+    expect(bought.items.every((order) => order.rate === null)).toBe(true);
   });
 });

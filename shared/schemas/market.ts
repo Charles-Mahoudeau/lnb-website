@@ -176,6 +176,7 @@ export const marketOrdersQuery = z.object({
   item: z.string().trim().max(100).optional(),
   direction: marketDirection.optional(),
   q: z.string().trim().max(100).optional().describe("The player's name, email or username."),
+  capped: z.literal('true').optional().describe('Only the sales the mint budget cut.'),
 });
 export type MarketOrdersQuery = z.input<typeof marketOrdersQuery>;
 
@@ -403,6 +404,10 @@ export const marketAdminOrder = z.object({
   quantity: z.number(),
   total: z.number(),
   capped: z.boolean(),
+  rate: z
+    .number()
+    .nullable()
+    .describe('A sale: the lowest rate it was paid at, as a fraction. A purchase: null.'),
   transactionId: z.number(),
   stockBefore: z.number(),
   stockAfter: z.number(),
@@ -416,3 +421,8 @@ export const marketAdminOverview = z.object({
   settings: marketAdminSettings,
   items: z.array(marketAdminItem),
 });
+
+export type MarketAdminStats = z.infer<typeof marketAdminStats>;
+export type MarketAdminOrder = z.infer<typeof marketAdminOrder>;
+export type MarketAdminRecipes = z.infer<typeof marketAdminRecipes>;
+export type MarketAdminOverview = z.infer<typeof marketAdminOverview>;

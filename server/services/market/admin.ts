@@ -240,6 +240,13 @@ function validate(body: MarketValidateBody) {
   return validateCatalog(db, body.items, body.sigmaPercent);
 }
 
+/** The lowest rate a sale was paid at, from the answer the order stored. */
+function lowestRate(result: Record<string, unknown>): number | null {
+  const brackets = result.brackets;
+  if (!Array.isArray(brackets) || !brackets.length) return null;
+  return Math.min(...brackets.map((part: { rate: number }) => part.rate));
+}
+
 async function orders(query: MarketOrdersQuery) {
   const rows = await db
     .select({ order: marketOrder, name: user.name })
@@ -250,6 +257,7 @@ async function orders(query: MarketOrdersQuery) {
         query.cursor ? lt(marketOrder.id, Number(query.cursor)) : undefined,
         query.item ? eq(marketOrder.itemId, query.item) : undefined,
         query.direction ? eq(marketOrder.direction, query.direction) : undefined,
+        query.capped ? eq(marketOrder.capped, true) : undefined,
         query.q ? ilike(user.name, `%${query.q.replace(/[%_\\]/g, '\\$&')}%`) : undefined,
       ),
     )
@@ -267,6 +275,7 @@ async function orders(query: MarketOrdersQuery) {
       quantity: order.quantity,
       total: order.total,
       capped: order.capped,
+      rate: lowestRate(order.result),
       transactionId: order.transactionId,
       stockBefore: order.stockBefore,
       stockAfter: order.stockAfter,
