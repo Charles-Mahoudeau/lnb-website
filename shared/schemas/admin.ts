@@ -179,7 +179,7 @@ export const adminPersonRow = z.object({
     .number()
     .nullable()
     .optional()
-    .describe('LNBits on the personal account, null with no account. Economy admins.'),
+    .describe('Cents of LNBit on the personal account, null with no account. Economy admins.'),
   registrations: z
     .object({ upcoming: z.number(), total: z.number() })
     .optional()
@@ -451,7 +451,7 @@ export const adminWeek = z.object({
         value: z
           .number()
           .describe(
-            'A count over the last 7 days, or for `eventsUpcoming` now, for `circulation` the LNBits in open accounts and for `rewardIndex` the latest index.',
+            'A count over the last 7 days, or for `eventsUpcoming` now, for `circulation` the cents of LNBit in open accounts and for `rewardIndex` the latest index.',
           ),
       }),
     )
