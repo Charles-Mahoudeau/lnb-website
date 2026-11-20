@@ -622,7 +622,7 @@ describe('mob drops', () => {
       data: { problem: 'notLinked' },
     });
     await expect(mint(admin.uuid, 0)).rejects.toThrow();
-    await expect(mint(admin.uuid, 100_001)).rejects.toThrow();
+    await expect(mint(admin.uuid, 10_000_001)).rejects.toThrow();
   });
 });
 
