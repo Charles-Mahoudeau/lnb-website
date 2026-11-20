@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Every order the Minecraft server sent, newest first, 50 at a time. Filters run on the server.
 import type { MarketAdminOrder } from '#shared/schemas/market';
+import { marketItemName } from '#shared/utils/market';
 
 const { t, locale, n } = useI18n();
 

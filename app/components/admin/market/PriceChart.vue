@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { marketPRef } from '#shared/utils/market';
 import type { MarketCurve } from '#shared/utils/market';
 
 // An item's price against its stock, drawn with the pricing the server uses: the reference price,

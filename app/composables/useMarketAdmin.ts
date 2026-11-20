@@ -9,6 +9,7 @@ import type {
   MarketSettingsPatch,
   MarketValidationView,
 } from '#shared/schemas/market';
+import { marketItemName } from '#shared/utils/market';
 
 // The Market section of the admin (docs/market.md). Writes throw a MarketError with the problem
 // the API gave and, for a loop, the loops it found.

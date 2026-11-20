@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { marketItemName } from '#shared/utils/market';
 // The Market at a glance (docs/market.md): the figures, what needs a look, where every item's
 // stock sits against its target, then money minted and burned. An item opens its drawer
 // (`?item=`). Amounts are cents, shown through the LNBits helpers.
