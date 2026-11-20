@@ -736,3 +736,27 @@ export const WARDEN_RESET_SANCTIONS_CONFIRM = 'reset all sanctions';
 export const wardenResetSanctionsBody = z.object({
   confirm: z.string().describe(`Must be "${WARDEN_RESET_SANCTIONS_CONFIRM}".`),
 });
+
+// The moderation feed: bans in force and recent notes and warnings, for Moderation > Bans.
+
+export const WARDEN_FEED_KINDS = ['all', 'ban', 'warning', 'note'] as const;
+export const wardenFeedQuery = z.object({
+  kind: z
+    .enum(WARDEN_FEED_KINDS)
+    .default('all')
+    .describe('`ban`: bans in force. `warning` and `note`: the recent ones.'),
+});
+export type WardenFeedQuery = z.input<typeof wardenFeedQuery>;
+
+export const wardenFeedRow = z.object({
+  kind: z.enum(['ban', 'warning', 'note']),
+  id: z.string(),
+  user: z.object({ userId: z.string(), name: z.string() }),
+  text: z.string().describe('The reason of a ban, or the body of a note or warning.'),
+  at: isoDate,
+  expiresAt: isoDate.nullable().describe('Bans only. Null: permanent.'),
+  by: z.string().nullable().describe('Who issued it, when known.'),
+});
+export type WardenFeedRow = z.infer<typeof wardenFeedRow>;
+export const wardenFeed = z.object({ items: z.array(wardenFeedRow) });
+export type WardenFeed = z.infer<typeof wardenFeed>;

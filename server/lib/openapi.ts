@@ -233,6 +233,7 @@ const responseSchemas = {
   WardenHeartbeat: warden.wardenHeartbeat,
   WardenActorView: warden.wardenActorView,
   WardenBanView: warden.wardenBanView,
+  WardenFeed: warden.wardenFeed,
   WardenNoteView: warden.wardenNoteView,
   WardenAppealView: warden.wardenAppealView,
   WardenAppealListItem: warden.wardenAppealListItem,
@@ -1781,6 +1782,17 @@ const routes: RouteDoc[] = [
       { status: 404, problems: ['notFound'] },
       { status: 409, problems: ['notBanned'] },
     ],
+  },
+  {
+    method: 'get',
+    path: '/api/warden/admin/feed',
+    tag: TAGS.wardenAdmin,
+    summary: 'Bans in force and recent notes',
+    description:
+      'Every ban in force, plus the latest 50 notes and warnings, newest first. Behind Moderation > Bans.',
+    access: 'wardenAdmin',
+    query: warden.wardenFeedQuery,
+    response: warden.wardenFeed,
   },
   {
     method: 'get',
