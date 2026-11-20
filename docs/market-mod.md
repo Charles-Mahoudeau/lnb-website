@@ -352,8 +352,8 @@ A purchase has no `brackets`, `capped` is always `false`, and the money was burn
 
 **What the site checks, in this order** (useful to know which refusals prove that nothing moved):
 
-1. The flags: 503 `disabled` if `economy.market` or the direction's flag is off.
-2. The key: an order already made with this key gives its first answer with `replayed: true`. The same key with another request (player, account, item, direction, quantity or `expectedTotal` differ) is 409 `idempotencyMismatch`. A key used by any other ledger transaction is also `idempotencyMismatch`.
+1. The key: an order already made with this key gives its first answer with `replayed: true`, **even when the Market or the direction is off**. The same key with another request (player, account, item, direction, quantity or `expectedTotal` differ) is 409 `idempotencyMismatch`. A key used by any other ledger transaction is also `idempotencyMismatch`.
+2. The flags, for a new order only: 503 `disabled` if `economy.market` or the direction's flag is off.
 3. The item: 404 `notFound`, 409 `itemDisabled`, `notSellable` or `notBuyable`, 400 `tooManyItems` for a quantity above `maxOrderItems`.
 4. The player: 404 `notLinked`, 403 `notEligible`, 409 `frozen` (a site or Warden ban in force, or a frozen account).
 5. A purchase's account: 403 `notAllowed` (the player can't spend from it), 404 `notFound`.
@@ -394,7 +394,7 @@ Nothing moved. Show the new `quote.total` and let the player confirm again with 
 - Generate the key when the player confirms, store it with the order (on disk for a sale), and reuse it for every retry of that same order. A new order, or a `priceChanged` confirmation, gets a new key.
 - A retry with the same key and the same request returns the **first answer** with `replayed: true`, even long after (the answer is stored). Treat `replayed: true` as a success.
 - A retry whose request differs in any of the fields above is 409 `idempotencyMismatch`. This means a bug in the mod (a key reused) or a key collision: never change an order under a key. For a sale in escrow the 409 `idempotencyMismatch` proves that a transaction exists under this key: keep the escrow, log it loudly, and ask an admin (it should never happen).
-- The check runs before the item, player and price checks: once an order exists, a retry gets its answer whatever changed since, with one exception: **a retry while the Market (or the direction) is off gets 503 `disabled`** and not the stored answer (see 5.3).
+- The check runs before the item, player and price checks: once an order exists, a retry gets its answer whatever changed since, flags included (see 5.3).
 
 ### 4.5 `PUT /recipes`
 
@@ -479,8 +479,8 @@ A timeout, a connection error, a 5xx, a 429 or a 401 tells nothing about whether
 
 ### 5.3 503 `disabled`
 
-- On a **first** attempt, it is definitive: the flag check is the first thing the site does, so nothing moved. Return the items and say the market is closed.
-- On a **retry** after an unknown outcome, it is **not** definitive: the first attempt may have been committed and the site no longer looks at the key while the flag is off. Keep the escrow, keep retrying every minute, and log it. The order is settled when the flag comes back on (the retry then gets the stored answer or a real refusal). This is one of the open points (section 16): admins should not switch the Market off while sales are in escrow.
+- It is definitive: the site looks at the key first, so a stored order is always answered (`replayed: true`) even while the Market is off. A 503 `disabled` therefore proves that no order exists under that key and nothing moved. Return the items and say the market is closed.
+- Retrying an unknown outcome with the same key while the Market is off settles it: the answer is the first one, or a definitive refusal.
 
 ## 6. Live changes (SSE)
 
