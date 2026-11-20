@@ -1,6 +1,11 @@
 import type { changelogPost } from '~~/server/db/schema';
+import type { ChangelogView } from '~~/server/services/changelog';
 
-import type { ChangelogDetail, ChangelogList } from '#shared/schemas/changelog';
+import type {
+  ChangelogDetail,
+  ChangelogList,
+  ChangelogPublicPost,
+} from '#shared/schemas/changelog';
 
 // The admin's views of a changelog post (docs/changelog.md).
 
@@ -38,5 +43,21 @@ export function detail(post: Post): ChangelogDetail {
       fr: { title: post.titleFr ?? '', summary: post.summaryFr ?? '', body: post.bodyFr ?? '' },
     },
     updatedAt: post.updatedAt.toISOString(),
+  };
+}
+
+/** A published post as the public site and API show it. */
+export function publicPost(view: ChangelogView): ChangelogPublicPost {
+  return {
+    slug: view.slug,
+    title: view.title,
+    summary: view.summary,
+    versionTag: view.versionTag,
+    publishedAt: view.publishedAt!.toISOString(),
+    lang: view.lang,
+    languages: view.hasTranslation
+      ? [view.sourceLang, view.sourceLang === 'en' ? 'fr' : 'en']
+      : [view.sourceLang],
+    coverUrl: view.coverKey ? `/api/media/${view.coverKey}` : null,
   };
 }

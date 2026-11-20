@@ -335,6 +335,8 @@ const responseSchemas = {
   ChangelogList: changelog.changelogList,
   ChangelogDetail: changelog.changelogDetail,
   ChangelogPreview: changelog.changelogPreviewView,
+  ChangelogPublicList: changelog.changelogPublicList,
+  ChangelogPublicDetail: changelog.changelogPublicDetail,
   ChangelogTranslation: changelog.changelogTranslationStatus,
   RulesAdmin: rules.ruleAdminView,
   RulesServer: rules.ruleServerView,
@@ -407,6 +409,7 @@ const TAGS = {
   downloadsAdmin: 'Downloads: admins',
   rules: 'Rules',
   rulesAdmin: 'Rules: Warden admins',
+  changelog: 'Changelog',
   changelogAdmin: 'Changelog: Warden admins',
   partners: 'Partners',
   partnerEvents: 'Partner events',
@@ -4537,6 +4540,37 @@ const routes: RouteDoc[] = [
   },
   {
     method: 'get',
+    path: '/api/changelog/posts',
+    tag: TAGS.changelog,
+    summary: 'The published changelog posts',
+    description:
+      'Published posts, newest first, without their body, in `lang` (French by default, the source language when a post has no text in it). Pass `next` as `before` for the following page. 503 `disabled` while the `changelog` flag is off.',
+    access: 'public',
+    query: changelog.changelogPublicListQuery,
+    response: changelog.changelogPublicList,
+    problems: [
+      { status: 400, problems: ['invalid'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/changelog/posts/{slug}',
+    tag: TAGS.changelog,
+    summary: 'A published changelog post',
+    description:
+      'One published post in `lang`, its body as safe HTML, and the published posts just older and newer. 404 for an unknown or unpublished post.',
+    access: 'public',
+    params: changelog.changelogSlugParams,
+    query: changelog.changelogPublicPostQuery,
+    response: changelog.changelogPublicDetail,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'get',
     path: '/api/team',
     tag: TAGS.team,
     summary: 'The team',
@@ -6664,6 +6698,11 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
         description: 'The Rules section of the admin area, `/admin/moderation/rules`.',
       },
       {
+        name: TAGS.changelog,
+        description:
+          'The public Minecraft changelog, `/minecraft/changelog`. See `docs/changelog.md`.',
+      },
+      {
         name: TAGS.changelogAdmin,
         description:
           'The Changelog section of the admin area, `/admin/minecraft/changelog`. See `docs/changelog.md`.',
@@ -6745,6 +6784,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
           TAGS.modpackAdmin,
           TAGS.rules,
           TAGS.rulesAdmin,
+          TAGS.changelog,
           TAGS.changelogAdmin,
         ],
       },

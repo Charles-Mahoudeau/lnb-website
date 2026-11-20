@@ -11,6 +11,7 @@ import {
   user,
 } from '~~/server/db/schema';
 import { changelogService } from '~~/server/services/changelog';
+import { publicPost } from '~~/server/services/changelog-views';
 
 const EPITECH = '901cb4ca-b862-4029-9306-e5cd0f6d9f86';
 const ADMIN = 'changelog-test-admin';
@@ -156,6 +157,26 @@ describe('changelog service', () => {
     expect(second.posts.map((p) => p.title)).toEqual(['Post 0']);
     expect(second.next).toBeNull();
     expect(await changelogService.listAdmin()).toHaveLength(4);
+  });
+
+  it('finds the published posts just older and newer, and shows the public fields', async () => {
+    const base = new Date('2026-11-01T10:00:00Z');
+    const ids: string[] = [];
+    for (const n of [0, 1, 2]) {
+      const created = await post(`Post ${String(n)}`, n === 1 ? 'fr' : 'en');
+      ids.push(created.id);
+      await changelogService.publish(created.id, system, new Date(base.getTime() + n * DAY));
+    }
+    const draft = await post('Draft');
+    const middle = (await changelogService.get({ slug: 'post-1' }, { publishedOnly: true }))!;
+    const around = await changelogService.neighbours(middle, 'en');
+    expect([around.older?.title, around.newer?.title]).toEqual(['Post 0', 'Post 2']);
+    const newest = (await changelogService.get({ slug: 'post-2' }, { publishedOnly: true }))!;
+    expect((await changelogService.neighbours(newest, 'en')).newer).toBeNull();
+    // A draft is not published, so it has no public page.
+    expect(await changelogService.get({ slug: draft.slug }, { publishedOnly: true })).toBeNull();
+    // A French-only post asked in English comes back in French, with one language.
+    expect(publicPost(middle)).toMatchObject({ lang: 'fr', languages: ['fr'], coverUrl: null });
   });
 
   it('offers the latest unseen post under 14 days old, and marks seen idempotently', async () => {

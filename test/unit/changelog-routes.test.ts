@@ -27,6 +27,18 @@ describe('changelog admin routes', () => {
   });
 });
 
+describe('changelog public routes', () => {
+  it('check the flag before anything else', () => {
+    const found = files(join(import.meta.dirname, '../../server/api/changelog'));
+    expect(found).toHaveLength(2);
+    for (const path of found) {
+      expect(readFileSync(path, 'utf8'), path).toMatch(
+        /defineEventHandler\(async \(event\) => \{\n\s+await requireFlag\(event, 'changelog'\);/,
+      );
+    }
+  });
+});
+
 describe('changelog schemas', () => {
   it('needs a title and a body to create', () => {
     const ok = { sourceLang: 'en', source: { title: 'T', body: 'B' } };

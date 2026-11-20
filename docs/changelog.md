@@ -29,12 +29,19 @@ Original mock (not code to port): [changelog mocks](https://claude.ai/artifact/Q
 
 ## API
 
-The mod reads with `Authorization: Bearer <WARDEN_SERVER_SECRET>`, as for Warden and the economy. All routes need an `openapi.ts` entry.
+Two sets of routes, so the mod's can be added beside the site's.
 
-- `GET /api/changelog?lang=fr|en&limit=10&before=<cursor>`: published posts, newest first, with `id`, `slug`, `title`, `summary`, `versionTag`, `publishedAt`, `lang` (the language actually returned) and `url`.
-- `GET /api/changelog/:id?lang=`: the same, with `body` (Markdown). A pre-rendered block list for the game is a decision for the mod developer's discussion; it would be added here as `blocks`.
-- `GET /api/changelog/unseen?player=<uuid>&lang=`: the latest published post under 14 days old that the player has not seen, or `null`.
-- `POST /api/changelog/:id/seen` with `{ "player": "<uuid>" }`: idempotent.
+**For the site** (built, `/api/changelog/posts*`): public, no sign-in, off with a 503 `disabled` while the `changelog` flag is off. They fall under the general `api` rate limit.
+
+- `GET /api/changelog/posts?lang=fr|en&limit=10&before=<cursor>`: published posts, newest first, without their body: `slug`, `title`, `summary`, `versionTag`, `publishedAt`, `lang` (the language actually returned), `languages` (what the post has), `coverUrl`, and `next` (the cursor of the following page, or null). `lang` defaults to French, then the source language.
+- `GET /api/changelog/posts/:slug?lang=`: the same for one post, with `html` (from `renderChangelog`) and `older` and `newer` (`{ slug, title }` or null). 404 for an unknown or unpublished post.
+
+**For the mod** (slice 4, not built): `Authorization: Bearer <WARDEN_SERVER_SECRET>`, as for Warden and the economy, under `/api/changelog/server/`. All routes need an `openapi.ts` entry.
+
+- `GET /api/changelog/server/posts?lang=fr|en&limit=10&before=<cursor>`: published posts, newest first, with `id`, `slug`, `title`, `summary`, `versionTag`, `publishedAt`, `lang` and `url`.
+- `GET /api/changelog/server/posts/:id?lang=`: the same, with `body` (Markdown). A pre-rendered block list for the game is a decision for the mod developer's discussion; it would be added here as `blocks`.
+- `GET /api/changelog/server/unseen?player=<uuid>&lang=`: the latest published post under 14 days old that the player has not seen, or `null`.
+- `POST /api/changelog/server/posts/:id/seen` with `{ "player": "<uuid>" }`: idempotent.
 
 Seen state is one row per Minecraft UUID and post. It is data about a player, so it follows the account rules: deleted with a deleted account, never shown to other people.
 

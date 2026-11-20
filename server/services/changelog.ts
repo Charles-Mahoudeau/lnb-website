@@ -1,4 +1,4 @@
-import { and, desc, eq, lt, lte, notExists, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, lt, lte, notExists, or, sql } from 'drizzle-orm';
 import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
@@ -333,6 +333,47 @@ async function listPublished(input: {
   };
 }
 
+/** The published posts just older and just newer than a post, in `lang` (their source if missing). */
+async function neighbours(
+  post: { publishedAt: Date | null; id: string },
+  lang: ChangelogLang,
+): Promise<{ older: ChangelogView | null; newer: ChangelogView | null }> {
+  if (!post.publishedAt) return { older: null, newer: null };
+  const at = post.publishedAt;
+  const published = eq(changelogPost.status, 'published');
+  const [[older], [newer]] = await Promise.all([
+    db
+      .select()
+      .from(changelogPost)
+      .where(
+        and(
+          published,
+          or(
+            lt(changelogPost.publishedAt, at),
+            and(eq(changelogPost.publishedAt, at), lt(changelogPost.id, post.id)),
+          ),
+        ),
+      )
+      .orderBy(desc(changelogPost.publishedAt), desc(changelogPost.id))
+      .limit(1),
+    db
+      .select()
+      .from(changelogPost)
+      .where(
+        and(
+          published,
+          or(
+            gt(changelogPost.publishedAt, at),
+            and(eq(changelogPost.publishedAt, at), gt(changelogPost.id, post.id)),
+          ),
+        ),
+      )
+      .orderBy(asc(changelogPost.publishedAt), asc(changelogPost.id))
+      .limit(1),
+  ]);
+  return { older: older ? view(older, lang) : null, newer: newer ? view(newer, lang) : null };
+}
+
 /** One post by ID or slug. The public callers pass `publishedOnly`. */
 async function get(
   key: { id: string } | { slug: string },
@@ -414,6 +455,7 @@ export const changelogService = {
   publishDue,
   listAdmin,
   listPublished,
+  neighbours,
   get,
   getRow,
   unseenFor,
