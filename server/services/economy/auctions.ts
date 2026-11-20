@@ -36,6 +36,7 @@ import {
   ECONOMY_LISTINGS_PAGE,
   ECONOMY_SALES_PAGE,
   economyListingActionBody,
+  economyMailboxClaimBody,
   economyListingBody,
   economyListingBuyBody,
   economyListingsQuery,
@@ -433,7 +434,7 @@ async function mailbox(uuid: string): Promise<{ items: EconomyMailboxView[] }> {
  * again (a retry after a timeout); another key finds it already claimed.
  */
 async function claim(itemId: string, input: unknown): Promise<EconomyMailboxClaimResult> {
-  const body = economyListingActionBody.parse(input);
+  const body = economyMailboxClaimBody.parse(input);
   return db.transaction(async (tx) => {
     const userId = await ownerOf(tx, body.player);
     const [item] = await tx
@@ -446,15 +447,34 @@ async function claim(itemId: string, input: unknown): Promise<EconomyMailboxClai
       if (item.claimKey !== body.idempotencyKey) refuse(409, 'alreadyClaimed');
       return { ...mailboxView(item), replayed: true };
     }
-    await tx
+    // Only Market purchases are claimed in part: the claimed row keeps its ID and the key, and
+    // what is left waits in a new row, so a retry with the same key finds the same part.
+    const count = body.count ?? item.count;
+    if (count > item.count || (count < item.count && item.reason !== 'market')) {
+      refuse(400, 'invalidCount');
+    }
+    const [claimed] = await tx
       .update(economyMailboxItem)
       .set({
+        count,
         claimedAt: new Date(),
         claimKey: body.idempotencyKey,
         claimedByMinecraftUuid: body.player,
       })
-      .where(eq(economyMailboxItem.id, itemId));
-    return { ...mailboxView(item), replayed: false };
+      .where(eq(economyMailboxItem.id, itemId))
+      .returning();
+    if (count < item.count) {
+      await tx.insert(economyMailboxItem).values({
+        userId: item.userId,
+        reason: item.reason,
+        itemId: item.itemId,
+        itemSnbt: item.itemSnbt,
+        itemName: item.itemName,
+        count: item.count - count,
+        createdAt: item.createdAt,
+      });
+    }
+    return { ...mailboxView(claimed ?? item), replayed: false };
   });
 }
 

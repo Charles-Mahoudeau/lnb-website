@@ -72,6 +72,10 @@ function title(item: EconomyTransactionView): string {
       return item.amount > 0
         ? t('economy.history.received', { who: who(item) })
         : t('economy.history.paid', { who: who(item) });
+    case 'market':
+      return item.amount > 0
+        ? t('economy.history.marketSale')
+        : t('economy.history.marketPurchase');
     case 'mint':
       if (item.reason === 'startingBalance') return t('economy.history.startingBalance');
       if (item.reason === 'mobDrop') return t('economy.history.mobDrop');
