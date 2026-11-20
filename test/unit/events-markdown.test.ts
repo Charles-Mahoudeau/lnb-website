@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   descriptionSummary,
   descriptionText,
+  renderChangelog,
   renderDescription,
 } from '../../server/services/events/markdown.ts';
 
@@ -41,5 +42,33 @@ describe('event descriptions', () => {
     const summary = descriptionSummary('word '.repeat(100), 50);
     expect(summary.length).toBeLessThanOrEqual(50);
     expect(summary.endsWith('word…')).toBe(true);
+  });
+});
+
+describe('changelog posts', () => {
+  it('renders tables, code, quotes, headings and links', () => {
+    const html = renderChangelog(
+      '## Fixes\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n```\ncode\n```\n\n> quote\n\n[x](https://lnb.example)',
+    );
+    expect(html).toContain('<table>');
+    expect(html).toContain('<h2>Fixes</h2>');
+    expect(html).toContain('<pre><code>');
+    expect(html).toContain('<blockquote>');
+    expect(html).toContain('target="_blank"');
+  });
+
+  it('escapes raw HTML and unsafe links', () => {
+    const html = renderChangelog('<script>alert(1)</script> [x](javascript:alert(1))');
+    expect(html).not.toContain('<script');
+    expect(html).not.toContain('href="javascript');
+  });
+
+  it('keeps images from the media library only', () => {
+    expect(renderChangelog('![map](/api/media/abc123.webp)')).toContain(
+      '<img src="/api/media/abc123.webp" alt="map"',
+    );
+    const other = renderChangelog('![map](https://evil.example/a.png)');
+    expect(other).not.toContain('<img');
+    expect(other).toContain('map');
   });
 });
