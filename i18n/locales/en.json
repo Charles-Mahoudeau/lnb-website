@@ -703,6 +703,7 @@
       "playtime": "Playtime",
       "anticheat": "Anticheat",
       "modpack": "Modpack",
+      "changelog": "Changelog",
       "economy": "Economy",
       "quests": "Quests",
       "settings": "Settings",
@@ -2332,6 +2333,83 @@
         "shortLinkNotFound": "This link no longer exists. Reload the page.",
         "shortIdTaken": "This short link is already used. Pick another one.",
         "failed": "The change wasn’t saved. Check your connection and try again."
+      }
+    },
+    "changelog": {
+      "note": "Posts about what changed on the Minecraft server. Write one in English or French, translate it with DeepL if you want, then publish it or schedule it.",
+      "add": "New post",
+      "untitled": "Untitled post",
+      "empty": {
+        "title": "No post yet",
+        "body": "Write the first one: what changed on the server, in your own words."
+      },
+      "goesOut": "Goes out",
+      "languages": {
+        "en": "English",
+        "fr": "French"
+      },
+      "source": "Source",
+      "notReviewed": "Not reviewed",
+      "translated": "Translated",
+      "notTranslated": "Not translated",
+      "status": {
+        "draft": "Draft",
+        "scheduled": "Scheduled",
+        "published": "Published"
+      },
+      "statusLabel": "Status",
+      "publishOn": "Publish on",
+      "publishOnHelp": "Paris time. Pick a date, then Schedule. Leave it empty to publish now.",
+      "versionTag": "Version tag",
+      "summary": "Summary",
+      "summaryHelp": "The card on the site, and later the notice in game. This language only.",
+      "writtenIn": "Written in",
+      "mode": "Mode",
+      "modes": {
+        "write": {
+          "label": "Write",
+          "description": "Markdown, as you type it"
+        },
+        "site": {
+          "label": "On the site",
+          "description": "How the page will look"
+        }
+      },
+      "titleField": "Title",
+      "body": "Body",
+      "bodyHelp": "Markdown: headings, lists, tables, code, quotes and links. No HTML.",
+      "save": "Save",
+      "schedule": "Schedule",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "unschedule": "Back to draft",
+      "translateTo": "Translate to {language}",
+      "translate": "Translate",
+      "translationUnavailable": "Translation isn’t set up on this site (no DeepL key). You can still write both languages by hand.",
+      "translateReplaceTitle": "Replace the {language} text?",
+      "translateReplaceLede": "The {language} text already there, including your edits, will be replaced by a new machine translation.",
+      "unreviewedTitle": "Machine translation, not read yet",
+      "unreviewedLede": "DeepL wrote this. Read it, fix what needs fixing, then save to mark it as reviewed.",
+      "markReviewed": "Mark as reviewed",
+      "notTranslatedLede": "There is no text in this language yet. Everyone sees the {language} text, with a “Not translated” note, until you translate or write it.",
+      "unpublishTitle": "Unpublish this post?",
+      "unpublishLede": "It leaves the site and the API and goes back to draft. You can publish it again later.",
+      "unscheduleTitle": "Cancel the schedule?",
+      "unscheduleLede": "The post goes back to draft and will not go out on its date.",
+      "saved": "Post saved",
+      "reviewed": "Translation marked as reviewed",
+      "published": "Post published",
+      "scheduled": "Post scheduled",
+      "unpublished": "Post back to draft",
+      "translationDone": "Translation saved as a draft",
+      "errors": {
+        "failed": "Something went wrong. Try again.",
+        "notFound": "This post doesn’t exist.",
+        "invalid": "The post needs a title and a body, and a schedule date in the future.",
+        "alreadyPublished": "This post is already published.",
+        "translationUnavailable": "Translation isn’t set up on this site.",
+        "translationQuota": "The DeepL quota is used up for this month. Write the translation by hand, or try again later.",
+        "translationFailed": "DeepL didn’t answer. Try again in a moment."
       }
     },
     "apiKeys": {
@@ -4356,7 +4434,8 @@
         "banPlayer": "Ban a player",
         "newEvent": "New event",
         "adjustBalance": "Adjust a balance",
-        "newShortLink": "New short link"
+        "newShortLink": "New short link",
+        "newChangelog": "New changelog post"
       }
     },
     "activity": {

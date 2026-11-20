@@ -992,6 +992,38 @@ const sampleGamesplanet = {
     </section>
 
     <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Changelog text</h2>
+      <p class="max-w-2xl text-muted">
+        <code>changelog-prose</code>: a post rendered from Markdown on the server, at reading width.
+        Headings in the display font, tables that scroll sideways, code on the raised surface.
+      </p>
+      <div class="changelog-prose max-w-prose">
+        <h2>News</h2>
+        <ul>
+          <li>A <strong>new dimension</strong> from the spawn.</li>
+          <li>Shared accounts show 90 days of history.</li>
+        </ul>
+        <h3>Fixes</h3>
+        <p>The command <code>/home</code> no longer sends you under the bedrock.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Reward</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Iron</td>
+              <td>100</td>
+            </tr>
+          </tbody>
+        </table>
+        <blockquote>Quotes stay muted.</blockquote>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
       <h2 class="text-2xl font-bold">Icons and avatars</h2>
       <p class="max-w-2xl text-muted">
         Icons that introduce an item sit on a tile tinted with the second accent
