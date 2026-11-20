@@ -167,6 +167,35 @@ describe('the Market', () => {
     });
   });
 
+  it('replays a stored order with the Market off, and still refuses a new one', async () => {
+    const who = await player();
+    const soldKey = randomUUID();
+    const sold = await sell(who, 200, 0, soldKey);
+    const boughtKey = randomUUID();
+    const bought = await buy(who, 5, 1_000_000, boughtKey);
+    await setFlags(false);
+    try {
+      expect(await sell(who, 200, 0, soldKey)).toMatchObject({
+        replayed: true,
+        transactionId: sold.transactionId,
+      });
+      expect(await buy(who, 5, 1_000_000, boughtKey)).toMatchObject({
+        replayed: true,
+        transactionId: bought.transactionId,
+      });
+      await expect(sell(who, 201, 0, soldKey)).rejects.toMatchObject({
+        statusCode: 409,
+        data: { problem: 'idempotencyMismatch' },
+      });
+      await expect(sell(who, 200)).rejects.toMatchObject({
+        statusCode: 503,
+        data: { problem: 'disabled' },
+      });
+    } finally {
+      await setFlags(true);
+    }
+  });
+
   it('buys: burns, hands the items over through the mailbox, lowers the stock', async () => {
     const who = await player();
     await db.update(marketItem).set({ buyable: true }).where(eq(marketItem.id, COBBLE));
