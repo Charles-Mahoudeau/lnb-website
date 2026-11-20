@@ -1,6 +1,6 @@
 # Team page
 
-`/team` shows the people who run LNB: the featured pole (the bureau) as a band, the other poles as columns, and a "Join the team" button. It's public. Admins manage it from `/admin/team`. The design is in `docs/design.md` (Team page).
+`/team` shows the people who run LNB: the featured pole (the bureau) as a band, the other poles as columns, and a "Join the team" button. It's public. Admins manage it from `/admin/site/team`. The design is in `docs/design.md` (Team page).
 
 ## Model
 
@@ -23,7 +23,7 @@ Profile photos are 96 px JPEGs behind `/api/avatars/:key`, which needs a sign-in
 
 ## Admin
 
-`/admin/team` is for site admins. The join link, then each pole with its members: arrows reorder, a switch hides a member, and the modals add and edit. Accounts are found by name or email, and one that is already on the team doesn't come up. Every change is logged in `admin_audit` (`teamPole.*`, `teamMember.*`, `team.settings`).
+`/admin/site/team` is for site admins. Each pole with its members (the join link is in Settings › Team, `/admin/settings/team`): arrows reorder, a switch hides a member, and the modals add and edit. Accounts are found by name or email, and one that is already on the team doesn't come up. Every change is logged in `admin_audit` (`teamPole.*`, `teamMember.*`, `team.settings`).
 
 ## Flags
 

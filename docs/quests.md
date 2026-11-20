@@ -37,11 +37,11 @@ Rewards follow the economy spec (`lnb-economy`, "Spécification Technique — É
 - **Cap.** Over 30 rolling days, quests pay at most 5 % of the money in circulation, split between families (individual 40, server 30, community 20, flash 10, daily 10; shares are relative, so these add up to 110). A reward past its family's budget is cut to what's left, possibly 0, and the answer says `capped`. Unclaimed tiers count from when they were reached.
 - Money is created with one `mint` per reward, reason `questReward`, on the player's personal account, with the quest's French name as the memo. Items go to the economy mailbox (reason `questReward`) and are collected in the game.
 
-Every number above is a setting (`quest_settings`, `/admin/economy/quests`, Settings tab).
+Every number above is a setting (`quest_settings`, Settings › Quests, `/admin/settings/quests`).
 
 ## Reset
 
-There are no seasons: quests run until an admin resets them. **Reset the quests** (Settings tab, `POST /api/quests/admin/reset`, typing `reset the quests`) deletes what players did: completions and ranks, progress, flash runs, daily completions and community quests (with their contributions). The catalogue, categories, settings, daily draws, community templates and the reward index stay, and so do LNBits already paid, so players can earn them again. It is for the economy admin and site admins, and goes to the admin log as `quests.reset` with the rows deleted per table. Use it after testing in production, or to start over.
+There are no seasons: quests run until an admin resets them. **Reset the quests** (Settings › Quests, `POST /api/quests/admin/reset`, typing `reset the quests`) deletes what players did: completions and ranks, progress, flash runs, daily completions and community quests (with their contributions). The catalogue, categories, settings, daily draws, community templates and the reward index stay, and so do LNBits already paid, so players can earn them again. It is for the economy admin and site admins, and goes to the admin log as `quests.reset` with the rows deleted per table. Use it after testing in production, or to start over.
 
 The site stores the date of the last reset (`quest_settings.reset_at`) and sends it as `resetAt` in `GET /config`; the Minecraft server starts every player over when that date changes.
 
@@ -94,4 +94,4 @@ One runs at a time. `quests:community` (every 5 minutes) starts a planned one on
 
 - `/minecraft/quests` (Minecraft menu): the player's summary, then pill tabs for personal tiers (by category and subcategory), today's daily quests, server podiums (by category), the community quest, flash races and the leaderboard with how rewards are computed.
 - The home page shows the running community quest as a band under the hero.
-- `/admin/economy/quests`: Catalogue (table, editor drawer, JSON import and export), Categories, Community, Settings (with a live preview and the reset) and Reward index.
+- `/admin/quests/catalog`, `/admin/quests/community`, `/admin/quests/categories` and `/admin/quests/reward-index`: Catalogue (table, editor drawer, JSON import and export), Community, Categories and Reward index. Settings (with a live preview and the reset) are in Settings › Quests (`/admin/settings/quests`).

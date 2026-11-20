@@ -9,13 +9,13 @@ Folders marked _(planned)_ don't exist yet. Create them as the work reaches them
 ```
 app/                  Nuxt app (client and SSR)
   app.vue             root: UApp, head tags, then the page's layout
-  layouts/            default.vue (the site: header, main, footer), admin.vue (/admin: sidebar)
+  layouts/            default.vue (the site: header, main, footer), admin.vue (/admin: sidebar; its entries, tabs and Settings sections are data in utils/admin-nav.ts)
   assets/css/main.css Tailwind and Nuxt UI entry point
   pages/              thin: one composable call, then components
   pages/admin/        the admin area. pages/admin.vue sets the admin layout and middleware on
                       every page under it: site admins only, unless a page sets `wardenAdmins: true`
-                      or `eventsManagers: true`
-  components/         by domain: admin/ (AdminPage, the frame of an admin page), warden/, rules/ (the public rules page and the rule picker, admin/rules/ for the editor), mods/,
+                      or `eventsManagers: true` (or `economyAdmins: true`). The old admin addresses redirect through routeRules from shared/admin-redirects.ts
+  components/         by domain: admin/ (AdminPage, the frame of an admin page, AdminTabPage with its AdminTabs row), warden/, rules/ (the public rules page and the rule picker, admin/rules/ for the editor), mods/,
                       events/ (events/admin/ for managers), team/ (the public team page), admin/team/, partners/ (the public partners page), admin/partners/, admin/short-links/ (and AdminShortLinks), admin/api-keys/ (and AdminApiKeys), posters/ (posters and their editor, templates/ for one component per template), later event teams/ account/. Primitives come
                       from Nuxt UI; don't rebuild them.
   composables/        one per resource: useAuth, useLinkCode, useModList, useAnticheatAdmin, useEvents (useEventList,

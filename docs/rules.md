@@ -1,6 +1,6 @@
 # Server rules
 
-The rules of the Minecraft server: a public page at `/minecraft/rules`, an editor in the admin (`/admin/warden/rules`), a read-only route for the Minecraft server, and a way for warnings and bans to name the rules they apply.
+The rules of the Minecraft server: a public page at `/minecraft/rules`, an editor in the admin (`/admin/moderation/rules`), a read-only route for the Minecraft server, and a way for warnings and bans to name the rules they apply.
 
 ## Rules
 
@@ -43,7 +43,7 @@ Where the citations show:
 
 ## Admin
 
-`/admin/warden/rules` (Warden admins and site admins): one raised section per category with its rules as rows (number, title, text cut to one line, a "Retired" badge, a "No French" warning badge, arrows and Edit). A rule opens in a side drawer with English and French tabs, its category, its anchor, how many sanctions name it, and "Retire rule" (outline destructive) or "Restore rule". "Add rule" and "Add category" are neutral soft: there is no solid red button.
+`/admin/moderation/rules` (Warden admins and site admins): one raised section per category with its rules as rows (number, title, text cut to one line, a "Retired" badge, a "No French" warning badge, arrows and Edit). A rule opens in a side drawer with English and French tabs, its category, its anchor, how many sanctions name it, and "Retire rule" (outline destructive) or "Restore rule". "Add rule" and "Add category" are neutral soft: there is no solid red button.
 
 With no rule yet, the page offers **"Load the draft rules"**: 14 rules in 5 categories in both languages (`server/lib/rules-draft.ts`) to edit. It only loads into an empty list, and nothing shows to visitors until the page is on.
 
