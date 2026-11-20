@@ -66,8 +66,8 @@ export const ADMIN_ENTRIES: AdminEntry[] = [
     icon: 'i-lucide-users',
     to: '/admin/people',
     base: '/admin/people',
-    // Events managers and economy admins join when the People list is rebuilt for them.
-    areas: ['warden'],
+    // Everyone who can open the admin: what the list and the Person page show follows the role.
+    areas: ['admin', 'warden', 'events', 'economy'],
   },
   {
     id: 'shortLinks',
@@ -134,9 +134,9 @@ export const ADMIN_ENTRIES: AdminEntry[] = [
     base: '/admin/moderation',
     areas: ['warden'],
     group: 'minecraft',
-    // Bans join when the bans list is built.
     tabs: [
       { id: 'appeals', labelKey: 'admin.nav.appeals', to: '/admin/moderation/appeals' },
+      { id: 'bans', labelKey: 'admin.nav.bans', to: '/admin/moderation/bans' },
       { id: 'rules', labelKey: 'admin.nav.rules', to: '/admin/moderation/rules' },
     ],
   },
@@ -234,6 +234,31 @@ export function adminTabs(id: string, isEnabled: (flag: 'modList') => boolean): 
 export function entryIsActive(entry: AdminEntry, path: string): boolean {
   if (entry.exact) return path === entry.base;
   return path === entry.base || path.startsWith(`${entry.base}/`);
+}
+
+export interface PersonTab {
+  id: string;
+  labelKey: string;
+  areas: AdminArea[];
+  /** Ghost accounts have no Minecraft side: they only get the tabs marked here. */
+  ghost: boolean;
+}
+
+/** The tabs of the Person page, in order (docs/plans/admin-redesign.md). Site admins pass every check. */
+export const PERSON_TABS: PersonTab[] = [
+  { id: 'summary', labelKey: 'admin.person.tabs.summary', areas: ALL, ghost: true },
+  { id: 'minecraft', labelKey: 'admin.person.tabs.minecraft', areas: ['warden'], ghost: false },
+  { id: 'moderation', labelKey: 'admin.person.tabs.moderation', areas: ['warden'], ghost: false },
+  { id: 'playtime', labelKey: 'admin.person.tabs.playtime', areas: ['warden'], ghost: false },
+  { id: 'anticheat', labelKey: 'admin.person.tabs.anticheat', areas: ['warden'], ghost: false },
+  { id: 'lnbits', labelKey: 'admin.person.tabs.lnbits', areas: ['economy'], ghost: false },
+  { id: 'events', labelKey: 'admin.person.tabs.events', areas: ['events'], ghost: true },
+  { id: 'account', labelKey: 'admin.person.tabs.account', areas: ['admin'], ghost: true },
+];
+
+/** The Person tabs a role sees for an account, in order. */
+export function personTabs(role: string | null | undefined, ghost: boolean): PersonTab[] {
+  return PERSON_TABS.filter((tab) => hasAdminArea(role, tab.areas) && (!ghost || tab.ghost));
 }
 
 export type SettingsArea = 'general' | 'site' | 'events' | 'minecraft';

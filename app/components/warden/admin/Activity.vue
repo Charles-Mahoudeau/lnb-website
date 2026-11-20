@@ -4,9 +4,19 @@ import type { WardenAuditView } from '#shared/schemas/warden';
 // The activity tab: the whole audit log, filtered by action and source.
 const { t } = useI18n();
 
+const route = useRoute();
+const router = useRouter();
+
 const action = ref('all');
 const source = ref('all');
+// The Person page's "See this person's activity" opens it filtered to them, with ?user=<id>.
+const userId = computed(() => (route.query.user ? String(route.query.user) : undefined));
+function showEveryone() {
+  const { user: _user, ...rest } = route.query;
+  void router.replace({ query: rest });
+}
 const filters = computed(() => ({
+  userId: userId.value,
   action: action.value === 'all' ? undefined : action.value,
   source: source.value === 'all' ? undefined : source.value,
 }));
@@ -77,6 +87,21 @@ const sourceItems = computed(() => [
 
 <template>
   <div class="flex flex-col gap-4">
+    <UAlert
+      v-if="userId"
+      color="secondary"
+      variant="subtle"
+      icon="i-lucide-user"
+      :title="t('wardenAdmin.activity.onePerson')"
+      :actions="[
+        {
+          label: t('wardenAdmin.activity.everyone'),
+          color: 'neutral',
+          variant: 'outline',
+          onClick: showEveryone,
+        },
+      ]"
+    />
     <div class="flex flex-wrap gap-3">
       <USelect
         v-model="action"

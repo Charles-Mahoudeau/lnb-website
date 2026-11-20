@@ -16,6 +16,7 @@ import {
   wardenBan,
   wardenSession,
 } from '~~/server/db/schema';
+import { economyLedger } from '~~/server/services/economy/ledger';
 import { peopleService } from '~~/server/services/people';
 import { weekStart } from '~~/server/services/playtime/rules';
 import { usersService } from '~~/server/services/users';
@@ -101,9 +102,19 @@ beforeAll(async () => {
     overSeconds: 600,
     countedUntil: new Date(),
   });
-  await db
+  // The balance comes through the ledger, so the books stay consistent for the other tests.
+  const [account] = await db
     .insert(economyAccount)
-    .values({ kind: 'personal', ownerUserId: ids.carol, balance: 420 });
+    .values({ kind: 'personal', ownerUserId: ids.carol })
+    .returning();
+  await db.transaction((tx) =>
+    economyLedger.mint(tx, {
+      accountId: account!.id,
+      amount: 420,
+      reason: 'startingBalance',
+      actor: { source: 'system' },
+    }),
+  );
   const [room] = await db
     .insert(eventRoom)
     .values({ name: `${tag} room` })
@@ -396,6 +407,7 @@ describe('the summary', () => {
   it('gives site admins the site account, and leaves Minecraft out for a ghost', async () => {
     expect(await peopleService.summary(ROLES.admin, ids.dave)).toMatchObject({
       siteBan: { reason: 'spam' },
+      tenantId: EPITECH,
       roles: { admin: false },
     });
     const ghost = await peopleService.summary(ROLES.admin, ids.bob);

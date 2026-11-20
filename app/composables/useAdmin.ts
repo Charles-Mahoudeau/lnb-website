@@ -3,13 +3,15 @@ import type {
   AdminBanBody,
   AdminGhost,
   AdminGhostBody,
+  AdminGhostUpdateBody,
   AdminBulkBody,
   AdminBulkResult,
   AdminOverview,
   AdminProblem,
   AdminRolesBody,
-  AdminUserPage,
-  AdminUsersQuery,
+  AdminPeoplePage,
+  AdminPeopleQuery,
+  AdminPersonSummary,
 } from '#shared/schemas/admin';
 
 // The admin area's data and actions (/api/admin). Writes throw an AdminError with the API's
@@ -37,9 +39,16 @@ export function useAdminOverview() {
   return useFetch<AdminOverview>('/api/admin/overview', { key: 'admin-overview' });
 }
 
-/** Accounts for the list, refetched when the query changes. */
-export function useAdminUsers(query: Ref<AdminUsersQuery>) {
-  return useFetch<AdminUserPage>('/api/admin/users', { key: 'admin-users', query });
+/** One page of People, refetched when the query changes. */
+export function useAdminPeople(query: Ref<AdminPeopleQuery>) {
+  return useFetch<AdminPeoplePage>('/api/admin/people', { key: 'admin-people', query });
+}
+
+/** The Summary tab of the Person page, cut to the caller's role. */
+export function useAdminPersonSummary(userId: string) {
+  return useFetch<AdminPersonSummary>(`/api/admin/people/${encodeURIComponent(userId)}/summary`, {
+    key: `admin-person-${userId}`,
+  });
 }
 
 /**
@@ -61,6 +70,9 @@ export function useAdminUserActions() {
     unban: (userId: string) => call(() => $fetch(`${base(userId)}/unban`, { method: 'POST' })),
     signOut: (userId: string) => call(() => $fetch(`${base(userId)}/sign-out`, { method: 'POST' })),
     remove: (userId: string) => call(() => $fetch(base(userId), { method: 'DELETE' })),
+    /** Changes a ghost's name, email or school. */
+    updateGhost: (userId: string, body: AdminGhostUpdateBody) =>
+      call(() => $fetch<AdminGhost>(`${base(userId)}/ghost`, { method: 'PATCH', body })),
     /** An account for someone who has not signed in yet. */
     createGhost: (body: AdminGhostBody) =>
       call(() => $fetch<AdminGhost>('/api/admin/users/ghost', { method: 'POST', body })),

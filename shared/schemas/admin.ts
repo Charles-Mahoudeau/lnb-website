@@ -205,6 +205,7 @@ export const adminPersonSummary = z.object({
   createdAt: isoDate,
   email: z.string().optional().describe('Site admins and Warden admins.'),
   roles: adminRoleFlags.optional().describe('Site admins and Warden admins.'),
+  tenantId: z.string().optional().describe("The school's Microsoft tenant ID. Site admins."),
   lastSignInAt: isoDate.nullable().optional().describe('Site admins.'),
   siteBan: adminPersonBan.nullable().optional().describe('The site ban in force. Site admins.'),
   minecraft: z

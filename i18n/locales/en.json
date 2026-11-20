@@ -726,7 +726,8 @@
       "catalog": "Catalog",
       "community": "Community",
       "categories": "Categories",
-      "rewardIndex": "Reward index"
+      "rewardIndex": "Reward index",
+      "bans": "Bans"
     },
     "cancel": "Cancel",
     "typedConfirm": {
@@ -4248,6 +4249,128 @@
           "title": "Quests"
         }
       }
+    },
+    "people": {
+      "filters": {
+        "banned": "Banned",
+        "flagged": "Flagged by the anticheat",
+        "overLimit": "Over the playtime limit",
+        "ghost": "Not signed in yet",
+        "hasRole": "Has a role",
+        "inactive": "Inactive for 24 months"
+      },
+      "quickFilters": "Quick filters",
+      "searchWarden": "Search by name, email, Minecraft name or UUID",
+      "searchEconomy": "Search by name or Minecraft name",
+      "searchEvents": "Search by name or email",
+      "matchTitle": "This Minecraft account belongs to {name}.",
+      "matchOpen": "Open the page",
+      "loadFailed": "People couldn’t be loaded. Check your connection, then reload the page.",
+      "empty": "Nobody matches. Try another name, or clear the filters.",
+      "minecraft": "Minecraft",
+      "balance": "LNBits",
+      "registrations": "Events",
+      "moreAccounts": "and {n} more",
+      "online": "Online now",
+      "noMinecraft": "No account",
+      "lnbits": "{n} LNBits",
+      "noAccount": "No bank account",
+      "registered": "{upcoming} upcoming, {total} in all",
+      "noRegistration": "None",
+      "flagged": "Flagged",
+      "overLimit": "Over the limit",
+      "total": "{total} person | {total} people"
+    },
+    "person": {
+      "tabs": {
+        "summary": "Summary",
+        "minecraft": "Minecraft",
+        "moderation": "Moderation",
+        "playtime": "Playtime",
+        "anticheat": "Anticheat",
+        "lnbits": "LNBits",
+        "events": "Events",
+        "account": "Site account"
+      },
+      "loadFailed": "This person couldn’t be loaded. They may have been deleted. Go back to People, or reload the page.",
+      "more": "More actions",
+      "copyId": "Copy the ID",
+      "idCopied": "ID copied",
+      "idCopyFailed": "The ID couldn’t be copied. Select it from the address bar instead.",
+      "activity": "See this person’s activity",
+      "actions": {
+        "note": "Add a note",
+        "warn": "Warn",
+        "banEnd": "Change the end",
+        "unban": "Lift the ban",
+        "ban": "Ban",
+        "ghostEdit": "Edit details",
+        "register": "Register to an event",
+        "ghostDelete": "Delete the ghost",
+        "adjust": "Adjust balance"
+      },
+      "callouts": {
+        "appeal": "This person appealed their ban, and nobody has answered yet.",
+        "appealAction": "Answer the appeal",
+        "file": "They use {file}, which needs a look.",
+        "fileAction": "Review the file",
+        "limit": "They played {time} past the playtime limit this week.",
+        "limitAction": "See the playtime"
+      },
+      "register": {
+        "title": "Register {name} to an event",
+        "lede": "Registers them by hand, whatever their school or the registration window.",
+        "empty": "No upcoming event to register to.",
+        "event": "Event",
+        "placeholder": "Pick an event"
+      },
+      "ghostEdit": {
+        "title": "Edit the ghost account",
+        "submit": "Save",
+        "done": "Ghost account saved"
+      },
+      "ghostDelete": {
+        "title": "Delete the ghost account of {name}?",
+        "body": "The account and its registrations are deleted. This can’t be undone."
+      },
+      "lnbits": {
+        "none": "No bank account yet. It opens when they first use the bank or join the Minecraft server."
+      },
+      "events": {
+        "empty": "Not registered to any event.",
+        "team": "Team {team}",
+        "registered": "Registered",
+        "waitlist": "On the waitlist"
+      },
+      "account": {
+        "ghostNoRoles": "None, until they sign in",
+        "created": "Account created",
+        "siteBan": "Site ban",
+        "noBan": "Not banned"
+      },
+      "summary": {
+        "account": "Account",
+        "noAccounts": "No Minecraft account linked.",
+        "transfers": "1 account takeover to check | {n} account takeovers to check",
+        "open": "Open the tab",
+        "notBanned": "Not banned.",
+        "bans": "Bans",
+        "warnings": "Warnings",
+        "notes": "Notes",
+        "overLimit": "{time} past the limit this week.",
+        "underLimit": "Within the limit this week.",
+        "score": "Trust score {score}",
+        "band": {
+          "trusted": "trusted",
+          "normal": "normal",
+          "held": "held",
+          "zero": "at zero"
+        },
+        "hold": "Held by an admin.",
+        "flaggedFiles": "No file to look at. | 1 file to look at. | {n} files to look at.",
+        "unseen": "The anticheat hasn’t seen this player yet.",
+        "registrations": "Not registered to any event. | Registered to 1 event. | Registered to {n} events."
+      }
     }
   },
   "wardenAdmin": {
@@ -4300,7 +4423,7 @@
       "from": "From",
       "more": "Show more",
       "empty": "Nothing yet. Changes show up here as they happen.",
-      "everyone": "Everyone",
+      "everyone": "Show everyone",
       "filters": {
         "ban": "Bans",
         "unban": "Unbans",
@@ -4322,7 +4445,8 @@
         "linkTransfer": "Takeovers",
         "transferDismiss": "Dismissed takeovers",
         "banUpdate": "Ban end changes"
-      }
+      },
+      "onePerson": "Showing the activity of one person."
     },
     "sources": {
       "web": "Site",
@@ -4531,6 +4655,31 @@
       "notLinked": "This account isn’t linked anymore. Reload the page.",
       "alreadyDismissed": "Another admin already dismissed this. Reload the page.",
       "invalidEnd": "The new end must be in the future. To end the ban now, lift it."
+    },
+    "banEndModal": {
+      "title": "Change the end of {name}’s ban",
+      "current": "The ban ends on {date}.",
+      "currentPermanent": "The ban is permanent.",
+      "permanent": "Permanent ban",
+      "until": "New end",
+      "help": "Pick a date in the future. To end the ban now, lift it instead.",
+      "cancel": "Cancel",
+      "submit": "Save the new end",
+      "done": "Ban end changed"
+    },
+    "bans": {
+      "kinds": {
+        "all": "All",
+        "ban": "Bans in force",
+        "warning": "Warnings",
+        "note": "Notes"
+      },
+      "person": "Person",
+      "kind": "Kind",
+      "text": "Reason",
+      "at": "Date",
+      "loadFailed": "The list couldn’t be loaded. Check your connection, then reload the page.",
+      "empty": "Nothing here yet."
     }
   },
   "mods": {
