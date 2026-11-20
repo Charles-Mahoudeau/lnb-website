@@ -3,12 +3,11 @@ import { AdminTeamMemberModal, AdminTeamPoleModal } from '#components';
 
 import type { TeamAdminMember, TeamAdminPole } from '#shared/schemas/team';
 
-// The team: the join link, then each pole with its members. Order is set with the arrows, and a
+// The team: each pole with its members (the join link is in Settings, Team). Order is set with the arrows, and a
 // switch hides a member without removing them.
 const { t } = useI18n();
 const toast = useToast();
 const overlay = useOverlay();
-const { isEnabled } = useFlags();
 
 const { data, error, refresh } = await useAdminTeam();
 
@@ -35,18 +34,6 @@ async function run(change: () => Promise<unknown>, done?: string) {
     fail(caught);
   }
   await refresh();
-}
-
-const joinUrl = ref(data.value?.joinUrl ?? '');
-const savingJoin = ref(false);
-const joinValid = computed(
-  () => !joinUrl.value.trim() || /^https:\/\/\S+\.\S+/.test(joinUrl.value.trim()),
-);
-async function saveJoin() {
-  savingJoin.value = true;
-  await run(() => teamActions.setSettings({ joinUrl: joinUrl.value }), 'admin.team.join.saved');
-  joinUrl.value = data.value?.joinUrl ?? '';
-  savingJoin.value = false;
 }
 
 async function onEditPole(pole: TeamAdminPole) {
@@ -86,44 +73,6 @@ function flags(member: TeamAdminMember): { key: string; label: string }[] {
   />
   <div v-else class="flex max-w-4xl flex-col gap-8">
     <p class="text-muted">{{ t('admin.team.note') }}</p>
-
-    <section class="flex flex-col gap-3 rounded-lg bg-elevated p-5">
-      <h2 class="text-xl font-bold text-highlighted">{{ t('admin.team.join.title') }}</h2>
-      <p class="text-sm text-muted">{{ t('admin.team.join.help') }}</p>
-      <UAlert
-        v-if="!isEnabled('team.join')"
-        color="warning"
-        variant="subtle"
-        icon="i-lucide-triangle-alert"
-        :description="t('admin.team.join.flagOff')"
-      />
-      <form class="flex flex-wrap items-start gap-3" @submit.prevent="saveJoin">
-        <UFormField
-          :label="t('admin.team.join.label')"
-          name="joinUrl"
-          class="min-w-64 flex-1"
-          :error="joinValid ? undefined : 'https://…'"
-        >
-          <UInput
-            v-model="joinUrl"
-            type="url"
-            inputmode="url"
-            placeholder="https://"
-            :maxlength="500"
-            class="w-full"
-          />
-        </UFormField>
-        <UButton
-          type="submit"
-          color="neutral"
-          variant="soft"
-          class="mt-6"
-          :disabled="!joinValid"
-          :loading="savingJoin"
-          :label="t('admin.team.join.save')"
-        />
-      </form>
-    </section>
 
     <p v-if="!poles.length" class="rounded-lg bg-elevated p-6 text-muted">
       {{ t('admin.team.empty') }}

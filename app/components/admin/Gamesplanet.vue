@@ -2,7 +2,7 @@
 import { GAMESPLANET_MAX_PINS } from '#shared/schemas/gamesplanet';
 import type { GamesplanetAdminGame } from '#shared/schemas/gamesplanet';
 
-// The Gamesplanet promotion: the affiliate ref, the games admins pinned, the best sellers the
+// The Gamesplanet promotion: the games admins pinned, the best sellers the
 // public band picks from, and a button to read the feeds now. Full admins only.
 const { t, locale } = useI18n();
 const toast = useToast();
@@ -28,19 +28,6 @@ async function run(change: () => Promise<unknown>, done?: string) {
     fail(caught);
   }
   await refresh();
-}
-
-const refCode = ref(data.value?.refCode ?? '');
-const refValid = computed(() => /^[A-Za-z0-9_-]{2,40}$/.test(refCode.value.trim()));
-const savingRef = ref(false);
-async function saveRef() {
-  savingRef.value = true;
-  await run(
-    () => gamesplanetActions.setSettings({ refCode: refCode.value.trim() }),
-    'admin.gamesplanet.ref.saved',
-  );
-  refCode.value = data.value?.refCode ?? '';
-  savingRef.value = false;
 }
 
 const syncing = ref<'deals' | 'catalog' | null>(null);
@@ -94,30 +81,6 @@ function when(iso: string | null): string {
       icon="i-lucide-triangle-alert"
       :description="t('admin.gamesplanet.flagOff')"
     />
-
-    <section class="flex flex-col gap-3 rounded-lg bg-elevated p-5">
-      <h2 class="text-xl font-bold text-highlighted">{{ t('admin.gamesplanet.ref.title') }}</h2>
-      <p class="text-sm text-muted">{{ t('admin.gamesplanet.ref.help') }}</p>
-      <form class="flex flex-wrap items-start gap-3" @submit.prevent="saveRef">
-        <UFormField
-          :label="t('admin.gamesplanet.ref.label')"
-          name="refCode"
-          class="min-w-64 flex-1"
-          :error="refValid ? undefined : t('admin.gamesplanet.ref.invalid')"
-        >
-          <UInput v-model="refCode" :maxlength="40" class="w-full" />
-        </UFormField>
-        <UButton
-          type="submit"
-          color="neutral"
-          variant="soft"
-          class="mt-6"
-          :disabled="!refValid || refCode.trim() === data.refCode"
-          :loading="savingRef"
-          :label="t('admin.gamesplanet.ref.save')"
-        />
-      </form>
-    </section>
 
     <section class="flex flex-col gap-3 rounded-lg bg-elevated p-5">
       <h2 class="text-xl font-bold text-highlighted">{{ t('admin.gamesplanet.pins.title') }}</h2>

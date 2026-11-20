@@ -4,12 +4,11 @@ import { AdminPartnersModal, WardenConfirmModal } from '#components';
 import { PARTNER_KINDS, PARTNER_KIND_ICONS } from '#shared/schemas/partners';
 import type { PartnerAdminItem } from '#shared/schemas/partners';
 
-// The partners: the contact link, then one section per kind. Order is set with the arrows, and a
+// The partners: one section per kind (the contact link is in Settings, Partners). Order is set with the arrows, and a
 // switch hides a partner without deleting it.
 const { t } = useI18n();
 const toast = useToast();
 const overlay = useOverlay();
-const { isEnabled } = useFlags();
 
 const { data, error, refresh } = await useAdminPartners();
 
@@ -44,24 +43,6 @@ async function run(change: () => Promise<unknown>, done?: string) {
   await refresh();
 }
 
-const contactUrl = ref(data.value?.contactUrl ?? '');
-const savingContact = ref(false);
-const contactValid = computed(() => {
-  const value = contactUrl.value.trim();
-  return (
-    !value || /^https:\/\/\S+\.\S+/.test(value) || /^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-  );
-});
-async function saveContact() {
-  savingContact.value = true;
-  await run(
-    () => partnerActions.setSettings({ contactUrl: contactUrl.value }),
-    'admin.partners.contact.saved',
-  );
-  contactUrl.value = data.value?.contactUrl ?? '';
-  savingContact.value = false;
-}
-
 async function onEdit(partner: PartnerAdminItem) {
   if (await modal.open({ partner }).result) await refresh();
 }
@@ -89,43 +70,6 @@ async function onDelete(partner: PartnerAdminItem) {
   />
   <div v-else class="flex max-w-4xl flex-col gap-8">
     <p class="text-muted">{{ t('admin.partners.note') }}</p>
-
-    <section class="flex flex-col gap-3 rounded-lg bg-elevated p-5">
-      <h2 class="text-xl font-bold text-highlighted">{{ t('admin.partners.contact.title') }}</h2>
-      <p class="text-sm text-muted">{{ t('admin.partners.contact.help') }}</p>
-      <UAlert
-        v-if="!isEnabled('partners.contact')"
-        color="warning"
-        variant="subtle"
-        icon="i-lucide-triangle-alert"
-        :description="t('admin.partners.contact.flagOff')"
-      />
-      <form class="flex flex-wrap items-start gap-3" @submit.prevent="saveContact">
-        <UFormField
-          :label="t('admin.partners.contact.label')"
-          name="contactUrl"
-          class="min-w-64 flex-1"
-          :error="contactValid ? undefined : 'https://… / mailto:…'"
-        >
-          <UInput
-            v-model="contactUrl"
-            inputmode="url"
-            placeholder="https://"
-            :maxlength="500"
-            class="w-full"
-          />
-        </UFormField>
-        <UButton
-          type="submit"
-          color="neutral"
-          variant="soft"
-          class="mt-6"
-          :disabled="!contactValid"
-          :loading="savingContact"
-          :label="t('admin.partners.contact.save')"
-        />
-      </form>
-    </section>
 
     <p v-if="!partners.length" class="rounded-lg bg-elevated p-6 text-muted">
       {{ t('admin.partners.empty') }}
