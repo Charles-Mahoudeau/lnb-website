@@ -23,7 +23,7 @@ Status: the `ghost` column, the takeover, the service, the routes, the flag and 
 | `POST /api/admin/events/users/ghost`   | events managers | The same, for the event and team screens.                       |
 | `PATCH /api/admin/users/:userId/ghost` | site admins     | Changes its name, email or school (`notGhost` once taken over). |
 
-A ghost has no roles: `setRoles` refuses it (`isGhost`, 409), and so does the bulk role action. It can be banned, deleted (with everything attached to it) and filtered in the Users list (`status=ghost`, and `ghost` on each row).
+A ghost has no roles: `setRoles` refuses it (`isGhost`, 409), and so does the bulk role action. It can be banned, deleted (with everything attached to it) and filtered in the People list (the "Not signed in yet" quick filter, `filters=ghost`, and `ghost` on each row). A ghost's Person page (`/admin/people/:userId`) has three tabs, Summary, Events and Site account. Site admins get "Edit details" and "Delete the ghost" in its header, and events managers and site admins get "Register to an event".
 
 The `ghostAccounts` flag switches both making ghosts (503 `disabled`) and taking them over off. With it off, a person signing in with a ghost's email sees `account_claim_refused` until it is switched back on. Existing ghosts stay.
 
