@@ -289,9 +289,7 @@ function section(
 
 /** In list order. Sections whose form doesn't exist yet are left out, not shown empty. */
 export const SETTINGS_SECTIONS: SettingsSection[] = [
-  // Today's Activity is the Warden audit, which only Warden admins can read. Events managers and
-  // economy admins get it when the one activity log replaces it.
-  section('activity', 'i-lucide-history', 'general', ['warden']),
+  section('activity', 'i-lucide-history', 'general', ['admin', 'warden', 'events', 'economy']),
   section('flags', 'i-lucide-toggle-right', 'general', ['admin']),
   section('rate-limit', 'i-lucide-gauge', 'general', ['admin']),
   section('api-keys', 'i-lucide-key-round', 'general', ['admin']),

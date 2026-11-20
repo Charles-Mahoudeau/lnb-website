@@ -1,11 +1,9 @@
 import type {
   WardenAppealListItem,
-  WardenAuditView,
   WardenBanBody,
   WardenBanView,
   WardenNoteBody,
   WardenNoteView,
-  WardenPage,
   WardenPlayerDetail,
   WardenFeed,
   WardenFeedQuery,
@@ -43,25 +41,6 @@ export function useWardenAppeals() {
         $fetch(`/api/warden/admin/appeals/${id}/decision`, {
           method: 'POST',
           body: { accept, response },
-        }),
-      ),
-  };
-}
-
-/** The audit log, filtered, with older entries on demand. */
-export function useWardenAudit(
-  filters: Ref<{ userId?: string; action?: string; source?: string }>,
-) {
-  const audit = useFetch<WardenPage<WardenAuditView>>('/api/warden/admin/audit', {
-    key: 'warden-admin-audit',
-    query: filters,
-  });
-  return {
-    audit,
-    more: (cursor: string) =>
-      call(() =>
-        $fetch<WardenPage<WardenAuditView>>('/api/warden/admin/audit', {
-          query: { ...filters.value, cursor },
         }),
       ),
   };
