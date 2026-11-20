@@ -12,6 +12,7 @@ const state = reactive<{ direction: 'mint' | 'burn'; amount?: number; reason: st
   amount: undefined,
   reason: '',
 });
+const amountInvalid = ref(false);
 const after = computed(() => {
   const amount = state.amount ?? 0;
   return state.direction === 'mint' ? props.balance + amount : props.balance - amount;
@@ -57,7 +58,7 @@ function onSubmit() {
           />
         </div>
         <UFormField name="amount" :label="t('admin.economy.adjust.amount')">
-          <UInputNumber v-model="state.amount" :min="1" :step="1" class="w-full" />
+          <EconomyAmountInput v-model="state.amount" v-model:invalid="amountInvalid" />
         </UFormField>
         <UFormField
           name="reason"
@@ -89,7 +90,7 @@ function onSubmit() {
         <UButton
           type="submit"
           form="economy-adjust"
-          :disabled="!state.amount || after < 0"
+          :disabled="!state.amount || amountInvalid || after < 0"
           :label="
             t(`admin.economy.adjust.submit.${state.direction}`, {
               amount: formatLnbits(state.amount ?? 0, locale),

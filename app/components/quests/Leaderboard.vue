@@ -32,7 +32,7 @@ const chart = computed(() => {
     width,
     height,
     points: values.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' '),
-    ticks: ticks.map((v) => ({ y: y(v), label: formatLnbits(v, locale.value) })),
+    ticks: ticks.map((v) => ({ y: y(v), label: formatWholeLnbits(v, locale.value) })),
     left,
     last: { x: x(values.length - 1), y: y(values[values.length - 1]!) },
     bottom: height - bottom,
@@ -113,7 +113,7 @@ const chart = computed(() => {
           <div>
             <dt class="text-sm text-muted">{{ t('quests.how.index') }}</dt>
             <dd class="font-display text-xl font-bold text-highlighted tabular-nums">
-              {{ formatLnbits(data.index.index, locale) }}
+              {{ formatWholeLnbits(data.index.index, locale) }}
             </dd>
           </div>
           <div>

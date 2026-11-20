@@ -21,7 +21,7 @@ import {
 } from '~~/server/db/schema';
 import { economyLedger } from '~~/server/services/economy/ledger';
 
-import { applyCap, familyBudget, kPlayer, reward } from './formula';
+import { applyCap, centsToLnbits, familyBudget, kPlayer, rewardCents } from './formula';
 
 import type {
   QuestDefinition,
@@ -96,7 +96,7 @@ export async function todayIndex(dbx: Db = db, settings?: QuestSettings) {
   return { index: values.formula.baselineIndex, kGlobal: 1 };
 }
 
-/** LNBits in every open account. */
+/** Cents of LNBit in every open account. */
 export async function circulation(dbx: Db): Promise<number> {
   const [row] = await dbx
     .select({ total: sum(economyAccount.balance) })
@@ -139,15 +139,23 @@ export async function spentLast30Days(dbx: Db, family: QuestShareFamily): Promis
 
 /**
  * A reward through the whole formula: Rbase × Kglobal × Kplayer, then the family's cap. The
- * player's balance is their personal balance now.
+ * player's balance is their personal balance now. The amount is in cents.
  */
 export async function priceReward(
   dbx: Db,
-  input: { base: number; family: QuestShareFamily; balance: number; settings: QuestSettings },
+  input: {
+    /** Rbase, in whole LNBits. */
+    base: number;
+    family: QuestShareFamily;
+    /** The player's personal balance, in cents. */
+    balance: number;
+    settings: QuestSettings;
+  },
 ) {
   const today = await todayIndex(dbx, input.settings);
-  const player = kPlayer(input.balance, today.index, input.settings.formula);
-  const raw = reward(input.base, today.kGlobal, player);
+  const player = kPlayer(centsToLnbits(input.balance), today.index, input.settings.formula);
+  // Rounded to whole LNBits by the formula, then in cents.
+  const raw = rewardCents(input.base, today.kGlobal, player);
   const budget = familyBudget(input.family, await circulation(dbx), input.settings.cap);
   const spent = budget === null ? 0 : await spentLast30Days(dbx, input.family);
   const capped = applyCap(raw, budget, spent);

@@ -1,8 +1,12 @@
 import { z } from 'zod';
 
 import { minecraftUsername, minecraftUuid } from './warden.ts';
+import { CENTS_PER_LNBIT, MAX_LNBITS } from '../utils/lnbits.ts';
 
 // Economy contracts, shared by the routes and the pages. See docs/economy.md.
+// Every amount in these schemas is an integer number of cents of LNBit (1 LNBit = 100 cents),
+// except on the Minecraft server routes in legacy mode (docs/economy.md, Units), which
+// server/utils/economy-units.ts converts before and after.
 // Responses are schemas too, so the API reference is built from the same definitions as the types.
 
 /** A date in responses: an ISO 8601 string in UTC. */
@@ -42,17 +46,26 @@ export const ECONOMY_PROBLEMS = [
   'tooManyListings',
   'listingGone',
   'alreadyClaimed',
+  'invalidCount',
+  'itemDisabled',
+  'notSellable',
+  'notBuyable',
+  'tooManyItems',
+  'zeroPayout',
+  'noRecipes',
+  'loop',
+  'itemExists',
 ] as const;
 export type EconomyProblem = (typeof ECONOMY_PROBLEMS)[number];
 
-/** The largest amount one transaction moves: far above any real need, far below 2^53. */
-export const ECONOMY_MAX_AMOUNT = 1_000_000_000_000;
+/** The largest amount one transaction moves, in cents: 10^12 LNBits, far below 2^53. */
+export const ECONOMY_MAX_AMOUNT = MAX_LNBITS * CENTS_PER_LNBIT;
 
 export const economyAmount = z
   .int()
   .positive()
   .max(ECONOMY_MAX_AMOUNT)
-  .describe('Whole LNBits. There are no decimals.');
+  .describe('Integer cents of LNBit (100 cents = 1 LNBit).');
 
 /** Handles nobody can take, so no player account can pass for the staff or the site. */
 export const RESERVED_HANDLES = ['server', 'lnb', 'admin', 'staff', 'bank', 'system'] as const;
@@ -95,6 +108,7 @@ export const ECONOMY_TRANSACTION_KINDS = [
   'shop',
   'trade',
   'auction',
+  'market',
   'mint',
   'burn',
   'reversal',
@@ -112,6 +126,8 @@ export const economyReason = z.enum([
   'casinoLicense',
   'mobDrop',
   'questReward',
+  'marketSale',
+  'marketPurchase',
 ]);
 export type EconomyReason = z.infer<typeof economyReason>;
 
@@ -382,7 +398,7 @@ export const economyServerPlayer = z.object({
   defaultAccountId: z.uuid().describe('The account that pays when none is named.'),
   accounts: z.array(economyAccountView).describe('The personal account first.'),
   casinoLicenses: economyLicenseCount,
-  casinoLicensePrice: z.number().describe('What a casino license costs now.'),
+  casinoLicensePrice: z.number().describe('What a casino license costs now, in cents.'),
 });
 export type EconomyServerPlayer = z.infer<typeof economyServerPlayer>;
 
@@ -591,13 +607,13 @@ export const economyLicenseResult = z.object({
 export type EconomyLicenseResult = z.infer<typeof economyLicenseResult>;
 
 /** The most one call mints: the server batches drops, so this is many mobs. */
-export const ECONOMY_MINT_MAX = 100_000;
+export const ECONOMY_MINT_MAX = 100_000 * CENTS_PER_LNBIT;
 
 /** POST /api/economy/server/mints */
 export const economyMintBody = z.object({
   idempotencyKey: z.uuid(),
   player: minecraftUuid.describe('The player whose personal account is credited.'),
-  amount: z.int().min(1).max(ECONOMY_MINT_MAX),
+  amount: z.int().min(1).max(ECONOMY_MINT_MAX).describe('Integer cents of LNBit.'),
   reason: z.enum(['mobDrop']),
 });
 export type EconomyMintBody = z.input<typeof economyMintBody>;
@@ -808,7 +824,7 @@ export type EconomyFreezeBody = z.infer<typeof economyFreezeBody>;
 // mailbox for items waiting for their player.
 
 /** The most a listing can ask: far below any balance limit, so price × tax never overflows. */
-export const ECONOMY_LISTING_MAX_PRICE = 1_000_000_000;
+export const ECONOMY_LISTING_MAX_PRICE = 1_000_000_000 * CENTS_PER_LNBIT;
 export const ECONOMY_LISTINGS_PAGE = 45;
 
 export const economyListingParams = z.object({ listingId: z.uuid() });
@@ -830,7 +846,11 @@ export const economyListingBody = z.object({
     ),
   item: shopItem,
   count: z.int().min(1).max(99).describe('How many items: one stack, sold whole.'),
-  price: z.int().min(1).max(ECONOMY_LISTING_MAX_PRICE).describe('The price of the whole stack.'),
+  price: z
+    .int()
+    .min(1)
+    .max(ECONOMY_LISTING_MAX_PRICE)
+    .describe('The price of the whole stack, in integer cents of LNBit (at least 1).'),
 });
 export type EconomyListingBody = z.input<typeof economyListingBody>;
 
@@ -870,6 +890,17 @@ export const economyListingActionBody = z.object({
   player: minecraftUuid,
 });
 
+/** Claiming a mailbox item: `count` takes part of a Market purchase and leaves the rest waiting. */
+export const economyMailboxClaimBody = economyListingActionBody.extend({
+  count: z
+    .int()
+    .positive()
+    .max(32767)
+    .optional()
+    .describe('Market items only: how many to take. The rest stays in the mailbox.'),
+});
+export type EconomyMailboxClaimBody = z.input<typeof economyMailboxClaimBody>;
+
 export const economyListingBuyBody = economyListingActionBody.extend({
   account: economyAccountRef
     .optional()
@@ -883,6 +914,7 @@ export const economyMailboxReason = z.enum([
   'expired',
   'removed',
   'questReward',
+  'market',
 ]);
 
 export const economyMailboxView = z.object({
@@ -980,7 +1012,7 @@ export const economyAdminShopRow = economyServerShop.extend({
   createdBy: z.object({ userId: z.string(), name: z.string() }).nullable(),
   createdAt: isoDate,
   orders: z.number().describe('Orders since the shop opened.'),
-  volume: z.number().describe('LNBits moved by those orders.'),
+  volume: z.number().describe('Cents of LNBit moved by those orders.'),
 });
 export type EconomyAdminShopRow = z.infer<typeof economyAdminShopRow>;
 
@@ -1063,7 +1095,7 @@ export const economyStats = z.object({
   burned: z.number(),
   activePlayers: z.number().describe('Players who paid at least once over the period.'),
   transactions: z.number().describe('Transactions between players over the period.'),
-  moved: z.number().describe('LNBits moved between players over the period.'),
+  moved: z.number().describe('Cents of LNBit moved between players over the period.'),
   days: z
     .array(
       z.object({
@@ -1111,7 +1143,7 @@ export const economySettingsView = z.object({
   auctionTaxPercent: z.number().describe('The auction house sale tax, burned, in percent.'),
   auctionMaxListings: z.number().describe('The most listings a player has up at once.'),
   auctionDays: z.number().describe('How many days a listing stays up.'),
-  casinoLicensePrice: z.number().describe('What a casino license costs. Burned.'),
+  casinoLicensePrice: z.number().describe('What a casino license costs, in cents. Burned.'),
   updatedAt: isoDate,
 });
 export type EconomySettingsView = z.infer<typeof economySettingsView>;
@@ -1119,7 +1151,10 @@ export type EconomySettingsView = z.infer<typeof economySettingsView>;
 /** PATCH /api/economy/admin/settings */
 export const economySettingsBody = z
   .object({
-    startingBalance: z.int().min(0).max(1_000_000),
+    startingBalance: z
+      .int()
+      .min(0)
+      .max(1_000_000 * CENTS_PER_LNBIT),
     maxOwnedShared: z.int().min(0).max(50),
     maxMembers: z.int().min(1).max(200),
     auctionTaxPercent: z.int().min(0).max(50),

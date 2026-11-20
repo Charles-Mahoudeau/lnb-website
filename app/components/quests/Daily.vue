@@ -56,7 +56,7 @@ const done = (id: string) => props.data.me?.daily.includes(id) ?? false;
               {{ questName(entry.definition.name, locale) }}
             </h3>
             <p class="text-sm text-muted">
-              {{ t('quests.daily.goal', { n: formatLnbits(entry.quantity, locale) }) }}
+              {{ t('quests.daily.goal', { n: formatCount(entry.quantity, locale) }) }}
               {{
                 entry.definition.description
                   ? questName(entry.definition.description, locale)
@@ -68,7 +68,7 @@ const done = (id: string) => props.data.me?.daily.includes(id) ?? false;
         <div class="flex items-end justify-between gap-2">
           <div>
             <span class="font-display text-lg font-medium text-highlighted tabular-nums">
-              ≈ {{ formatLnbits((entry.definition.today[0] ?? 0) * kPlayer, locale) }}
+              ≈ {{ formatLnbits(Math.round((entry.definition.today[0] ?? 0) * kPlayer), locale) }}
             </span>
             <span class="text-sm text-muted"> LNBits</span>
           </div>

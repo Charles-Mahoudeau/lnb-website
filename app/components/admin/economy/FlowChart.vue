@@ -2,7 +2,9 @@
 import type { EconomyStats } from '#shared/schemas/economy';
 
 // Money created (above the line, highlight) and destroyed (below, dimmed) per day, on one scale.
-const props = defineProps<{ days: EconomyStats['days'] }>();
+const props = defineProps<{
+  days: Pick<EconomyStats['days'][number], 'day' | 'minted' | 'burned'>[];
+}>();
 const { t, locale } = useI18n();
 
 const W = 600;
@@ -26,10 +28,7 @@ const bars = computed(() =>
     burned: scale(day.burned),
   })),
 );
-const compact = (value: number) =>
-  new Intl.NumberFormat(locale.value, { notation: 'compact', maximumFractionDigits: 1 }).format(
-    value,
-  );
+const compact = (value: number) => formatCompactLnbits(value, locale.value);
 const labels = computed(() => {
   const last = props.days.length - 1;
   return [...new Set([0, Math.round(last / 2), last])].map((i) => ({

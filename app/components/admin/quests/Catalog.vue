@@ -23,11 +23,11 @@ function summary(row: NonNullable<typeof data.value>[number]) {
   if (quest.family === 'individual') {
     return {
       objective: quest.objective.target ?? t(`admin.quests.objective.${quest.objective.type}`),
-      base: quest.tiers.map((tier) => formatLnbits(tier.reward, locale.value)).join(' / '),
+      base: quest.tiers.map((tier) => formatWholeLnbits(tier.reward, locale.value)).join(' / '),
     };
   }
   if (quest.family === 'server') {
-    return { objective: quest.advancement, base: formatLnbits(quest.reward, locale.value) };
+    return { objective: quest.advancement, base: formatWholeLnbits(quest.reward, locale.value) };
   }
   if (quest.family === 'daily') {
     return {

@@ -35,7 +35,8 @@
     "download": "Télécharger",
     "downloadDescription": "Java, un launcher et l’instance LNB",
     "rules": "Règlement",
-    "rulesDescription": "Ce qui est autorisé ou non sur le serveur"
+    "rulesDescription": "Ce qui est autorisé ou non sur le serveur",
+    "marketDescription": "Les prix de ce que le serveur achète et vend"
   },
   "home": {
     "intro": {
@@ -731,7 +732,9 @@
       "community": "Communauté",
       "categories": "Catégories",
       "rewardIndex": "Indice des récompenses",
-      "bans": "Bannissements"
+      "bans": "Bannissements",
+      "market": "Market",
+      "orders": "Ordres"
     },
     "cancel": "Annuler",
     "typedConfirm": {
@@ -1431,6 +1434,18 @@
           "label": "Quêtes",
           "description": "Les quêtes en jeu et sur le site : paliers, records, objectifs communs et quêtes flash. Désactivé, le serveur ne compte plus rien et rien n’est versé."
         },
+        "economy_market": {
+          "label": "Market",
+          "description": "Le Market : la page publique des prix et les ordres du serveur. Désactivé par défaut. Désactivé, personne ne peut lui vendre ni lui acheter."
+        },
+        "economy_market_sell": {
+          "label": "Ventes au Market",
+          "description": "Vendre des objets au Market, qui crée des LNBits. Désactivé par défaut : à ouvrir avec des plafonds serrés."
+        },
+        "economy_market_buy": {
+          "label": "Achats au Market",
+          "description": "Acheter des objets au Market, qui détruit des LNBits et envoie les objets dans la boîte aux lettres. Désactivé par défaut."
+        },
         "jobs_economySnapshot": {
           "label": "Stats de l’économie",
           "description": "L’enregistrement nocturne des graphiques de l’économie, et la fermeture des comptes bancaires des joueurs supprimés."
@@ -1458,6 +1473,14 @@
         "jobs_anticheatPrune": {
           "label": "Nettoyage de l’anticheat",
           "description": "La suppression nocturne des anciens rapports, liens d’usage, alertes et fichiers inutilisés."
+        },
+        "jobs_marketSnapshot": {
+          "label": "Relevés du Market",
+          "description": "L’enregistrement horaire du prix et du stock de chaque objet, pour les graphiques du Market."
+        },
+        "jobs_marketPrune": {
+          "label": "Nettoyage du Market",
+          "description": "La suppression nocturne des anciens relevés et des ventes de plus de deux jours du Market."
         },
         "jobs_questsIndex": {
           "label": "Indice des quêtes",
@@ -2506,7 +2529,9 @@
           "auctionTax": "Créé : taxe de l’hôtel des ventes",
           "casinoLicense": "Créé : licences de casino",
           "mobDrop": "Créé : butin des monstres",
-          "questReward": "Créé : récompenses de quêtes"
+          "questReward": "Créé : récompenses de quêtes",
+          "marketSale": "Créé : ventes du Market",
+          "marketPurchase": "Créé : achats du Market"
         },
         "burn": {
           "startingBalance": "Détruit : capitaux de départ",
@@ -2515,7 +2540,9 @@
           "auctionTax": "Détruit : taxe de l’hôtel des ventes",
           "casinoLicense": "Détruit : licences de casino",
           "mobDrop": "Détruit : butin des monstres",
-          "questReward": "Détruit : récompenses de quêtes"
+          "questReward": "Détruit : récompenses de quêtes",
+          "marketSale": "Détruit : ventes du Market",
+          "marketPurchase": "Détruit : achats du Market"
         }
       },
       "volume": {
@@ -4352,7 +4379,8 @@
         "banPlayer": "Bannir un joueur",
         "newEvent": "Nouvel événement",
         "adjustBalance": "Ajuster un solde",
-        "newShortLink": "Nouveau lien court"
+        "newShortLink": "Nouveau lien court",
+        "marketCatalog": "Ouvrir le catalogue du Market"
       }
     },
     "activity": {
@@ -4575,7 +4603,204 @@
         "economyQuestsCategoryUpdate": "{actor} a modifié une catégorie de quêtes",
         "economyQuestsCategoryDelete": "{actor} a supprimé une catégorie de quêtes",
         "economySweep": "D’anciens comptes et enchères de l’économie ont été clôturés",
-        "economyQuestsIndex": "L’indice de richesse des quêtes a été mis à jour"
+        "economyQuestsIndex": "L’indice de richesse des quêtes a été mis à jour",
+        "economyMarketItemCreate": "{actor} a ajouté {name} au Marché",
+        "economyMarketItemUpdate": "{actor} a modifié {name} sur le Marché",
+        "economyMarketItemResetStock": "{actor} a réinitialisé le stock de {name} sur le Marché",
+        "economyMarketSettings": "{actor} a modifié les réglages du Marché",
+        "economyMarketRecipes": "Le serveur Minecraft a envoyé {recipes} recettes au Marché",
+        "economyMarketPrune": "Les anciennes commandes et l’historique des prix du Marché ont été supprimés"
+      }
+    },
+    "market": {
+      "lede": "La boutique du serveur. Les joueurs lui vendent des objets pour créer des LNBits, ou lui en achètent pour en détruire, et les prix suivent le stock. Commencez par ce qui demande un coup d’œil, et ouvrez un objet pour changer sa courbe.",
+      "loadFailed": "Le Market ne s’est pas chargé. Réessayez.",
+      "noTrades": "Aucun ordre pour l’instant.",
+      "flow": "Créé et détruit par jour",
+      "traded": "Les plus échangés",
+      "tier": "Palier {tier}",
+      "status": {
+        "on": "Actif",
+        "off": "Désactivé",
+        "flags": "Fonctionnalités",
+        "ask": "Un administrateur du site l’active dans les paramètres."
+      },
+      "tiles": {
+        "minted": "Créé par les ventes, 30 jours",
+        "mintedSub": "{n} ordres",
+        "burned": "Détruit par les achats",
+        "burnedSub": "Net {net}",
+        "budget": "Budget de création utilisé",
+        "budgetSub": "sur {cap}, ce qu’il peut créer en 30 jours",
+        "orders": "Ordres, dernières 24 heures",
+        "ordersSub": "{n} plafonné | {n} plafonnés"
+      },
+      "attention": {
+        "title": "À surveiller",
+        "none": "Rien à surveiller.",
+        "open": "Ouvrir l’objet",
+        "orders": "Voir les ordres",
+        "flooded": "{name} est saturé",
+        "floodedBody": "Son stock est à {ratio}× sa cible, donc il paie près du plancher. Il revient de {drift} de l’écart chaque heure.",
+        "scarce": "{name} est rare",
+        "scarceBody": "Son stock est à {ratio}× sa cible, donc il se vend près du plafond.",
+        "capped": "{n} vente a été plafonnée ces dernières 24 heures | {n} ventes ont été plafonnées ces dernières 24 heures",
+        "cappedBody": "Le budget de création sur 30 jours ou une limite a réduit ce que ces joueurs ont reçu.",
+        "noRecipes": "Le serveur Minecraft n’a jamais envoyé ses recettes",
+        "noRecipesBody": "Sans elles, l’enregistrement d’un objet qui pourrait ouvrir une boucle est refusé. Démarrez le serveur avec le mod d’économie.",
+        "oldRecipes": "La liste des recettes a changé pour la dernière fois {when}",
+        "oldRecipesBody": "La vérification des boucles utilise la dernière liste envoyée par le serveur. Si les mods ont changé depuis, le serveur doit la renvoyer."
+      },
+      "board": {
+        "title": "Tableau des stocks",
+        "lede": "Où se situe le stock de chaque objet par rapport à sa cible. Le trait sombre est la cible, le clair marque le seuil où un objet est saturé."
+      },
+      "stock": {
+        "ratio": "{ratio}× la cible",
+        "flooded": "Saturé",
+        "scarce": "Rare"
+      },
+      "catalog": {
+        "search": "Rechercher un objet",
+        "filter": "Filtrer par palier",
+        "all": "Tous",
+        "off": "Achat ou vente coupé",
+        "empty": "Aucun objet ne correspond",
+        "item": "Objet",
+        "price": "Prix actuel",
+        "vsBase": "Vs base",
+        "stock": "Stock",
+        "sell": "Vente",
+        "buy": "Achat",
+        "edit": "Modifier",
+        "count": "{n} objet | {n} objets",
+        "on": "Activé",
+        "offState": "Coupé"
+      },
+      "chart": {
+        "now": "Maintenant {ratio}× · {price}",
+        "label": "Courbe de prix de {name} selon son stock",
+        "reference": "Prix de référence",
+        "sellBuy": "Prix de vente et d’achat",
+        "spread": "La marge (±{percent} %)"
+      },
+      "drawer": {
+        "missing": "Objet introuvable",
+        "missingBody": "Cet objet n’existe pas. Il a peut-être été retiré du lien.",
+        "now": "Prix de référence actuel",
+        "sells": "Se vend",
+        "buys": "S’achète",
+        "notSold": "Non vendable",
+        "notBought": "Non vendu",
+        "stock": "Stock",
+        "stockOf": "{stock} sur une cible de {target}",
+        "parameters": "Paramètres",
+        "numbers": "Chaque paramètre doit être un nombre supérieur à zéro.",
+        "order": "Le prix plancher ne peut pas dépasser le prix de base, et le prix de base ne peut pas dépasser le plafond.",
+        "keep": "Garder le prix actuel",
+        "keepHelp": "Déplace le stock pour que les joueurs ne voient aucun saut à l’enregistrement.",
+        "sellable": "Les joueurs peuvent le vendre au Market",
+        "buyable": "Les joueurs peuvent l’acheter au Market",
+        "save": "Enregistrer",
+        "saved": "{name} enregistré"
+      },
+      "params": {
+        "p0": "Prix de base",
+        "p0Help": "LNBits par objet au stock cible",
+        "pMin": "Prix plancher",
+        "pMinHelp": "Le prix ne descend jamais dessous",
+        "pMax": "Prix plafond",
+        "pMaxHelp": "Le prix ne monte jamais au-dessus",
+        "s0": "Stock cible",
+        "s0Help": "C’est aussi la profondeur du marché",
+        "k": "Élasticité",
+        "kHelp": "Plus elle est haute, plus le prix réagit vite",
+        "alpha": "Dérive horaire (%)",
+        "alphaHelp": "Part de l’écart à la cible refermée chaque heure"
+      },
+      "sim": {
+        "title": "Essayer un ordre",
+        "side": "Sens",
+        "sell": "Un joueur vend",
+        "buy": "Un joueur achète",
+        "items": "Objets",
+        "window": "Déjà vendu aujourd’hui (LNBits)",
+        "cantSell": "Cet objet ne peut pas être vendu au Market.",
+        "cantBuy": "Cet objet ne peut pas être acheté au Market.",
+        "paid": "Le joueur reçoit",
+        "pays": "Le joueur paie",
+        "perItem": "Par objet",
+        "after": "Prix après",
+        "bracket": "{items} à {rate} paient {paid}",
+        "split": "Un ordre contient au plus {max} objets, donc un vrai joueur enverrait {orders} ordres."
+      },
+      "recipes": {
+        "title": "Recettes",
+        "none": "Aucune recette n’utilise ni ne fabrique cet objet.",
+        "line": "{inputs} → {output}",
+        "loop": "Boucle",
+        "noLoop": "Pas de boucle",
+        "more": "Et {n} de plus."
+      },
+      "reset": {
+        "action": "Remettre le stock à la cible",
+        "title": "Remettre à zéro le stock de {name}",
+        "lede": "Le stock revient à sa cible, et le prix au prix de base. Les joueurs voient le changement tout de suite.",
+        "confirm": "Remettre le stock",
+        "reason": "Motif",
+        "done": "Le stock de {name} est revenu à sa cible"
+      },
+      "refusal": {
+        "notSaved": "Non enregistré.",
+        "loop": "Acheter {inputs} et vendre {output} permettrait à n’importe qui de fabriquer à profit : aux pires prix, en fabriquer un coûte {cost} et il se vend {value}. Coupez l’achat de {inputs} ou la vente de {output}.",
+        "loopShort": "Ce changement ouvrirait une boucle de fabrication qui rapporte de l’argent.",
+        "noRecipes": "Le serveur Minecraft n’a pas encore envoyé ses recettes, donc le Market ne peut pas chercher de boucles. Seuls les changements qui ferment des portes peuvent être enregistrés.",
+        "notFound": "Cet objet n’existe plus.",
+        "invalid": "Les valeurs ne sont pas valides.",
+        "failed": "Quelque chose s’est mal passé."
+      },
+      "orders": {
+        "player": "Joueur",
+        "item": "Objet, par exemple minecraft:glass",
+        "side": "Sens",
+        "allSides": "Ventes et achats",
+        "sold": "Vendu",
+        "bought": "Acheté",
+        "cappedOnly": "Plafonnés seulement",
+        "empty": "Aucun ordre",
+        "emptyBody": "Les ordres envoyés par le serveur Minecraft s’affichent ici, du plus récent au plus ancien.",
+        "when": "Quand",
+        "playerCol": "Joueur",
+        "itemCol": "Objet",
+        "items": "Objets",
+        "total": "Total",
+        "capped": "Plafonné",
+        "atRate": "À {rate}",
+        "more": "Afficher plus ancien"
+      },
+      "settings": {
+        "title": "Paramètres du Market",
+        "lede": "Les changements s’appliquent tout de suite, arrivent au serveur Minecraft et sont écrits dans le journal d’activité.",
+        "sigmaPercent": "Marge (%)",
+        "sigmaPercentHelp": "Les ventes paient moins et les achats coûtent plus que le prix de référence de cette part.",
+        "tolerancePercent": "Tolérance des ordres (%)",
+        "tolerancePercentHelp": "De combien le prix peut bouger entre le devis et l’ordre.",
+        "maxOrderItems": "Objets par ordre",
+        "maxOrderItemsHelp": "36 piles, un inventaire plein.",
+        "mintCapPercent": "Budget de création (%)",
+        "mintCapPercentHelp": "De l’argent en circulation, sur 30 jours.",
+        "historyDays": "Historique conservé (jours)",
+        "historyDaysHelp": "Relevés de prix toutes les heures.",
+        "tiers": "Seuils par palier",
+        "tiersLede": "Par joueur, sur 24 heures. Plein tarif jusqu’au premier seuil, puis le taux intermédiaire, puis le taux final.",
+        "q1": "Premier seuil (LNBits)",
+        "q2": "Second seuil (LNBits)",
+        "mid": "Taux intermédiaire (%)",
+        "tail": "Taux final (%)",
+        "thresholds": "Le premier seuil doit être inférieur au second.",
+        "flagsNote": "Le Market s’active et se coupe dans Paramètres › Fonctionnalités : Market, puis Ventes du Market et Achats du Market, l’un après l’autre.",
+        "save": "Enregistrer les paramètres",
+        "saved": "Paramètres du Market enregistrés"
       }
     }
   },
@@ -5249,6 +5474,7 @@
       "shop": "Shop",
       "trade": "Échange",
       "auction": "Hôtel des ventes",
+      "market": "Market",
       "mint": "Création",
       "burn": "Destruction",
       "reversal": "Annulation"
@@ -5291,6 +5517,8 @@
       "adjustment": "Ajustement par LNB",
       "mobDrop": "Butin des monstres",
       "questReward": "Récompense de quête",
+      "marketSale": "Vendu au Market",
+      "marketPurchase": "Acheté au Market",
       "casinoLicense": "Licence de casino",
       "reversal": "Annulé par LNB",
       "reversed": "Annulée",
@@ -5424,6 +5652,13 @@
       "legendVolume": "Entrées et sorties par jour",
       "chartLabel": "Le solde est passé de {from} à {to} LNBits sur la période.",
       "dayLabel": "{day} : {balance} LNBits, {in} entrés, {out} sortis"
+    },
+    "amountInput": {
+      "format": "Saisissez un montant comme 12 ou 12,50.",
+      "decimals": "Un montant a au plus 2 décimales (un centime vaut 0,01).",
+      "min": "Le montant doit être supérieur à 0.",
+      "max": "Ce montant est trop élevé.",
+      "placeholder": "0,00"
     }
   },
   "partnerEvents": {
@@ -5926,6 +6161,98 @@
       "title": "La liste est injoignable",
       "text": "La liste des mods n’a pas chargé. Vérifiez votre connexion, puis réessayez.",
       "retry": "Réessayer"
+    }
+  },
+  "market": {
+    "title": "Marché",
+    "tier": "Palier {tier}",
+    "all": "Tous les paliers",
+    "lede": "Vends ce que tu cultives et achète ce qu’il te faut, à des prix qui suivent l’offre. Les prix sont mis à jour toutes les heures. Les échanges se font en jeu avec /market.",
+    "loadFailed": "Le Marché n’a pas pu se charger. Vérifie ta connexion, puis recharge la page.",
+    "off": {
+      "sell": "La vente est désactivée",
+      "buy": "L’achat est désactivé",
+      "both": "La vente et l’achat sont désactivés"
+    },
+    "empty": {
+      "title": "Rien n’est en vente pour l’instant",
+      "body": "Le Marché n’a aucun objet. Reviens bientôt."
+    },
+    "me": {
+      "title": "Ta journée au Marché",
+      "hint": "Sur les dernières 24 heures. Le trait marque la fin de la partie au taux plein.",
+      "rate": "Taux {rate}",
+      "full": "Encore {left} LNBits au taux plein, puis {next}.",
+      "reduced": "Encore {left} LNBits à ce taux, puis {next}.",
+      "last": "Tu es au dernier palier, {rate}. Il se rétablit au fil de la journée.",
+      "capped": "Le Marché a versé tout ce qu’il peut créer pour l’instant : les ventes sont payées moins cher jusqu’au rétablissement de son budget.",
+      "signInPrompt": "Connecte-toi avec ton compte d’école pour voir ce qu’il te reste à vendre au taux plein aujourd’hui, palier par palier.",
+      "linkPrompt": "Lie ton compte Minecraft pour voir ce qu’il te reste à vendre au taux plein aujourd’hui, palier par palier.",
+      "signIn": "Se connecter",
+      "link": "Lier mon compte"
+    },
+    "movers": {
+      "paying": {
+        "title": "Les mieux payés",
+        "hint": "Le plus au-dessus du prix de base"
+      },
+      "cheapest": {
+        "title": "Les moins chers à l’achat",
+        "hint": "Le plus en dessous du prix de base"
+      },
+      "sellsFor": "Palier {tier} · se vend {amount}",
+      "buysFor": "Palier {tier} · s’achète {amount}"
+    },
+    "board": "Prix",
+    "search": "Rechercher un objet",
+    "tiers": "Paliers",
+    "noMatch": "Aucun objet ne correspond.",
+    "each": "{price} pièce",
+    "for64": "{amount} les 64",
+    "notBought": "Non racheté",
+    "notSold": "Non vendu",
+    "blurb": {
+      "1": "Fermes et générateurs. Les prix chutent vite quand tu inondes le marché.",
+      "2": "Produits cuits et fabriqués.",
+      "3": "Miné ou récupéré à la main. Garde son prix."
+    },
+    "cols": {
+      "item": "Objet",
+      "price": "Prix",
+      "vsBase": "Vs base",
+      "sell": "Tu vends à",
+      "buy": "Tu achètes à",
+      "last24": "Dernières 24 h"
+    },
+    "footnote": "Les prix sont en LNBits par objet, et le prix de référence se place entre ce que tu touches en vendant et ce que tu paies en achetant. Les grosses commandes font bouger le prix, et vendre beaucoup en une journée rapporte moins. Ces montants sont indicatifs : le total exact est fixé quand tu échanges en jeu.",
+    "drawer": {
+      "missing": "Objet introuvable",
+      "missingBody": "Cet objet n’est plus au Marché.",
+      "each": "LNBits pièce, référence",
+      "period": "Période",
+      "periods": {
+        "24h": "24 h",
+        "7d": "7 jours",
+        "30d": "30 jours",
+        "1y": "1 an"
+      },
+      "ago": {
+        "24h": "Il y a 24 h",
+        "7d": "Il y a 7 jours",
+        "30d": "Il y a 30 jours",
+        "1y": "Il y a 1 an"
+      },
+      "now": "maintenant",
+      "chart": "Prix de {name} sur {period}",
+      "chartFailed": "L’historique n’a pas pu se charger. Essaie une autre période.",
+      "noHistory": "Pas encore assez d’historique.",
+      "sell1": "Tu vends 1 à",
+      "sell64": "Tu vends 64 à",
+      "buy1": "Tu achètes 1 à",
+      "buy64": "Tu achètes 64 à",
+      "plentiful": "Cet objet abonde, donc il se paie bien en dessous de son prix de base.",
+      "scarce": "Cet objet est rare, donc il se paie bien au-dessus de son prix de base.",
+      "base": "Prix de base {price}."
     }
   }
 }

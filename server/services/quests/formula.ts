@@ -1,9 +1,14 @@
 import type { QuestSettings, QuestShareFamily } from '../../../shared/schemas/quests.ts';
+import { CENTS_PER_LNBIT } from '../../../shared/utils/lnbits.ts';
 
 // The reward formula, without the database: R = Rbase × Kglobal × Kplayer, then the cap.
 // Taken from the economy spec (lnb-economy, "Spécification Technique — Économie Serveur"):
 // a daily index of the active players' wealth, a damped global multiplier, and a catch-up bonus
 // for players below the index. See docs/quests.md.
+//
+// The index and the base rewards are in whole LNBits, and so are `kPlayer` and `reward`. The ledger
+// counts cents: balances come in through `centsToLnbits`, and a reward goes out through
+// `rewardCents`, which is the reward in whole LNBits times 100.
 
 type Formula = QuestSettings['formula'];
 
@@ -64,7 +69,20 @@ export function reward(base: number, global: number, player: number): number {
   return Math.max(0, Math.round(base * global * player));
 }
 
-/** One family's budget over 30 rolling days: its share of `cap.percent` of the money in circulation. */
+/** The reward before the cap, in cents: the whole-LNBit reward times 100. */
+export function rewardCents(base: number, global: number, player: number): number {
+  return reward(base, global, player) * CENTS_PER_LNBIT;
+}
+
+/** A balance in cents, as LNBits for the index and the catch-up bonus. */
+export function centsToLnbits(cents: number): number {
+  return cents / CENTS_PER_LNBIT;
+}
+
+/**
+ * One family's budget over 30 rolling days: its share of `cap.percent` of the money in circulation.
+ * Cents in, cents out.
+ */
 export function familyBudget(
   family: QuestShareFamily,
   circulation: number,

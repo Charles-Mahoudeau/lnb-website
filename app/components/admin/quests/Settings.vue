@@ -364,9 +364,9 @@ async function resetQuests() {
         <p class="text-sm text-muted">
           {{
             t('admin.quests.settings.previewHelp', {
-              median: formatLnbits(preview.median, locale),
-              q3: formatLnbits(preview.q3, locale),
-              mean: formatLnbits(preview.mean, locale),
+              median: formatWholeLnbits(preview.median, locale),
+              q3: formatWholeLnbits(preview.q3, locale),
+              mean: formatWholeLnbits(preview.mean, locale),
               n: preview.activePlayers,
             })
           }}
@@ -382,7 +382,7 @@ async function resetQuests() {
           <div>
             <dt class="text-sm text-muted">{{ t('admin.quests.index.index') }}</dt>
             <dd class="font-display text-xl font-bold text-highlighted tabular-nums">
-              {{ formatLnbits(preview.index, locale) }}
+              {{ formatWholeLnbits(preview.index, locale) }}
             </dd>
           </div>
           <div>
@@ -401,7 +401,9 @@ async function resetQuests() {
               </th>
               <th class="py-2 text-right font-semibold">
                 {{
-                  t('admin.quests.settings.balance', { n: formatLnbits(preview.index / 2, locale) })
+                  t('admin.quests.settings.balance', {
+                    n: formatWholeLnbits(preview.index / 2, locale),
+                  })
                 }}
               </th>
               <th class="py-2 text-right font-semibold">
@@ -411,13 +413,13 @@ async function resetQuests() {
           </thead>
           <tbody class="divide-y divide-default">
             <tr v-for="example in preview.examples" :key="example.base">
-              <td class="py-2 tabular-nums">{{ formatLnbits(example.base, locale) }}</td>
+              <td class="py-2 tabular-nums">{{ formatWholeLnbits(example.base, locale) }}</td>
               <td
                 v-for="(value, i) in example.values"
                 :key="i"
                 class="py-2 text-right tabular-nums"
               >
-                {{ formatLnbits(value, locale) }}
+                {{ formatWholeLnbits(value, locale) }}
               </td>
             </tr>
           </tbody>

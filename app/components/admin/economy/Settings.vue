@@ -12,14 +12,24 @@ const { user } = useAuth();
 const { data, refresh } = await useEconomySettings();
 const resetModal = overlay.create(AdminEconomyResetModal);
 
-const state = reactive<Required<EconomySettingsBody>>({
+// Both amounts are cents in the form, typed as LNBits with up to two decimals.
+type SettingsState = Omit<
+  Required<EconomySettingsBody>,
+  'startingBalance' | 'casinoLicensePrice'
+> & {
+  startingBalance?: number;
+  casinoLicensePrice?: number;
+};
+const startingInvalid = ref(false);
+const priceInvalid = ref(false);
+const state = reactive<SettingsState>({
   startingBalance: 0,
   maxOwnedShared: 3,
   maxMembers: 20,
   auctionTaxPercent: 5,
   auctionMaxListings: 20,
   auctionDays: 7,
-  casinoLicensePrice: 100_000,
+  casinoLicensePrice: 10_000_000,
 });
 watchEffect(() => {
   if (!data.value) return;
@@ -34,9 +44,15 @@ watchEffect(() => {
 
 const saving = ref(false);
 async function onSave() {
+  if (startingInvalid.value || priceInvalid.value) return;
+  if (state.startingBalance === undefined || state.casinoLicensePrice === undefined) return;
   saving.value = true;
   try {
-    await economyAdminActions.updateSettings({ ...state });
+    await economyAdminActions.updateSettings({
+      ...state,
+      startingBalance: state.startingBalance,
+      casinoLicensePrice: state.casinoLicensePrice,
+    });
     toast.add({
       title: t('admin.economy.settings.saved'),
       color: 'success',
@@ -87,7 +103,13 @@ async function onReset() {
         :label="t('admin.economy.settings.startingBalance')"
         :help="t('admin.economy.settings.startingBalanceHelp')"
       >
-        <UInputNumber v-model="state.startingBalance" :min="0" :step="10" class="w-48" />
+        <EconomyAmountInput
+          v-model="state.startingBalance"
+          v-model:invalid="startingInvalid"
+          allow-zero
+          :max-lnbits="1_000_000"
+          class="w-48"
+        />
       </UFormField>
       <UFormField
         name="maxOwnedShared"
@@ -129,12 +151,18 @@ async function onReset() {
         :label="t('admin.economy.settings.casinoLicensePrice')"
         :help="t('admin.economy.settings.casinoLicensePriceHelp')"
       >
-        <UInputNumber v-model="state.casinoLicensePrice" :min="0" :step="1000" class="w-48" />
+        <EconomyAmountInput
+          v-model="state.casinoLicensePrice"
+          v-model:invalid="priceInvalid"
+          allow-zero
+          class="w-48"
+        />
       </UFormField>
       <UButton
         type="submit"
         class="self-start"
         :loading="saving"
+        :disabled="startingInvalid || priceInvalid"
         :label="t('admin.economy.settings.save')"
       />
     </UForm>

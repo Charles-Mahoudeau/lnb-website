@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   applyCap,
+  centsToLnbits,
   computeIndex,
   drawDaily,
   endOfParisDay,
@@ -12,6 +13,7 @@ import {
   previousDay,
   quantile,
   reward,
+  rewardCents,
   withinHours,
 } from '../../server/services/quests/formula.ts';
 import { questSettings } from '../../shared/schemas/quests.ts';
@@ -63,6 +65,27 @@ describe('quest reward formula', () => {
 
   it('rounds rewards to whole LNBits', () => {
     expect(reward(50, 1.189, 1.25)).toBe(74);
+  });
+
+  it('pays the rounded whole-LNBit reward in cents', () => {
+    expect(rewardCents(50, 1.189, 1.25)).toBe(7400);
+    expect(rewardCents(0.004, 1, 1)).toBe(0);
+    // The index and the catch-up bonus keep working in LNBits: a balance in cents is divided.
+    expect(centsToLnbits(250_000)).toBe(2500);
+    expect(kPlayer(centsToLnbits(100_000), 2000, formula)).toBe(1.25);
+    const lnbits = computeIndex([1000, 1000, 2000, 3000, 5000], formula, 5);
+    const cents = computeIndex(
+      [100_000, 100_000, 200_000, 300_000, 500_000].map(centsToLnbits),
+      formula,
+      5,
+    );
+    expect(cents).toEqual(lnbits);
+  });
+
+  it('keeps the cap budget in cents: the same share of the money in circulation', () => {
+    // 5 % of 1,000,000 LNBits (100,000,000 cents) for individual quests, 40 of 110 shares.
+    expect(familyBudget('individual', 100_000_000, settings.cap)).toBe(1_818_181);
+    expect(applyCap(50_000, 500_000, 480_000)).toEqual({ amount: 20_000, capped: true });
   });
 
   it('splits the cap between families and cuts what is over', () => {

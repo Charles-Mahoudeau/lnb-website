@@ -118,7 +118,7 @@ async function toggleTemplate(id: string, definition: unknown, enabled: boolean)
           >
             <span class="w-7 font-semibold text-muted tabular-nums">{{ index + 1 }}</span>
             <span class="flex-1">{{ row.username }}</span>
-            <span class="text-sm tabular-nums">{{ formatLnbits(row.amount, locale) }}</span>
+            <span class="text-sm tabular-nums">{{ formatCount(row.amount, locale) }}</span>
             <UBadge
               :color="
                 row.amount >= Math.ceil((running.goal * running.thresholdPercent) / 100)

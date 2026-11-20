@@ -11,7 +11,7 @@ import { auditService } from '~~/server/services/audit';
 import { player } from '~~/server/services/economy/server';
 import { minecraftEventService } from '~~/server/services/minecraft-events';
 
-import { applyCap, familyBudget, kPlayer, reward } from './formula';
+import { applyCap, centsToLnbits, familyBudget, kPlayer, rewardCents } from './formula';
 import {
   circulation,
   getSettings,
@@ -55,7 +55,7 @@ async function view(dbx: Db, row: Row): Promise<QuestCommunityView> {
     goal: definition.goal,
     tiers: definition.tiers.map((tier) => ({
       ...tier,
-      rewardToday: reward(tier.reward, today.kGlobal, 1),
+      rewardToday: rewardCents(tier.reward, today.kGlobal, 1),
     })),
     thresholdPercent: definition.thresholdPercent,
     topBonusPercent: definition.topBonusPercent,
@@ -144,10 +144,10 @@ async function pay(id: string) {
       const who = uuid ? await player(tx, uuid).catch(() => null) : null;
       if (!who) continue;
       const bonus = entry.userId === topUserId ? 1 + definition.topBonusPercent / 100 : 1;
-      const raw = reward(
+      const raw = rewardCents(
         base * bonus,
         today.kGlobal,
-        kPlayer(who.personal.balance, today.index, settings.formula),
+        kPlayer(centsToLnbits(who.personal.balance), today.index, settings.formula),
       );
       const { amount } = applyCap(raw, budget, spent);
       spent += amount;

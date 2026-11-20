@@ -46,7 +46,13 @@ describe('admin sidebar entries', () => {
   });
 
   it('shows an economy admin Economy and Quests', () => {
-    expect(ids(adminEntries('economy-admin'))).toEqual(['home', 'people', 'economy', 'quests']);
+    expect(ids(adminEntries('economy-admin'))).toEqual([
+      'home',
+      'people',
+      'economy',
+      'market',
+      'quests',
+    ]);
   });
 
   it('gives a person with several roles the union, in sidebar order', () => {
@@ -59,6 +65,7 @@ describe('admin sidebar entries', () => {
       'notifications',
       'partnerEvents',
       'economy',
+      'market',
       'quests',
     ]);
   });
@@ -83,6 +90,7 @@ describe('admin sidebar entries', () => {
       'anticheat',
       'modpack',
       'economy',
+      'market',
       'quests',
     ]);
   });
@@ -245,6 +253,10 @@ describe('Ctrl K pages and actions', () => {
       'economy.overview',
       'economy.accounts',
       'economy.ledger',
+      'market.overview',
+      'market.catalog',
+      'market.orders',
+      'market.settings',
       'quests.catalog',
       'quests.community',
       'quests.categories',
@@ -256,7 +268,13 @@ describe('Ctrl K pages and actions', () => {
     const actions = (role: string) => adminActions(role).map((action) => action.id);
     expect(actions('warden-admin')).toEqual(['banPlayer']);
     expect(actions('events-manager')).toEqual(['newEvent', 'newShortLink']);
-    expect(actions('economy-admin')).toEqual(['adjustBalance']);
-    expect(actions('admin')).toEqual(['banPlayer', 'newEvent', 'adjustBalance', 'newShortLink']);
+    expect(actions('economy-admin')).toEqual(['adjustBalance', 'marketCatalog']);
+    expect(actions('admin')).toEqual([
+      'banPlayer',
+      'newEvent',
+      'adjustBalance',
+      'marketCatalog',
+      'newShortLink',
+    ]);
   });
 });

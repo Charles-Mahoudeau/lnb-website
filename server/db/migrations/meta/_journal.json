@@ -407,6 +407,27 @@
       "when": 1795143769458,
       "tag": "0057_activity_log",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1795186533999,
+      "tag": "0058_economy-cents",
+      "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1795189174623,
+      "tag": "0059_market-engine",
+      "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1795200091587,
+      "tag": "0060_market-retune",
+      "breakpoints": true
     }
   ]
 }

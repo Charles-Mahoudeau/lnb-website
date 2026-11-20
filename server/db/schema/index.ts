@@ -11,6 +11,7 @@ export * from './files';
 export * from './flags';
 export * from './gamesplanet';
 export * from './map';
+export * from './market';
 export * from './minecraft-events';
 export * from './mods';
 export * from './partner-events';

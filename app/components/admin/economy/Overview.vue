@@ -16,6 +16,7 @@ const tiles = computed(() => {
   const stats = data.value;
   if (!stats) return [];
   const n = (value: number) => formatLnbits(value, locale.value);
+  const count = (value: number) => formatCount(value, locale.value);
   return [
     {
       label: t('admin.economy.tiles.supply'),
@@ -31,12 +32,12 @@ const tiles = computed(() => {
     },
     {
       label: t('admin.economy.tiles.active'),
-      value: n(stats.activePlayers),
+      value: count(stats.activePlayers),
       sub: t('admin.economy.tiles.activeSub'),
     },
     {
       label: t('admin.economy.tiles.transactions'),
-      value: n(stats.transactions),
+      value: count(stats.transactions),
       sub: t('admin.economy.tiles.transactionsSub', { moved: n(stats.moved) }),
     },
   ];
@@ -59,10 +60,7 @@ const histogram = computed(() => {
   const max = Math.max(1, ...buckets.map((bucket) => bucket.count));
   return buckets.map((bucket) => ({ ...bucket, share: bucket.count / max }));
 });
-const compact = (value: number) =>
-  new Intl.NumberFormat(locale.value, { notation: 'compact', maximumFractionDigits: 1 }).format(
-    value,
-  );
+const compact = (value: number) => formatCompactLnbits(value, locale.value);
 const percent = (share: number) =>
   new Intl.NumberFormat(locale.value, { style: 'percent', maximumFractionDigits: 0 }).format(share);
 </script>
@@ -169,7 +167,7 @@ const percent = (share: number) =>
               <strong>{{ formatLnbits(row.amount, locale) }}</strong>
               <span class="text-muted">
                 {{
-                  t('admin.economy.volume.count', { n: formatLnbits(row.count, locale) }, row.count)
+                  t('admin.economy.volume.count', { n: formatCount(row.count, locale) }, row.count)
                 }}</span
               >
             </span>

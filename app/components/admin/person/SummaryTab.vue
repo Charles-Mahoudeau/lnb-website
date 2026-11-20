@@ -98,7 +98,7 @@ const rows = computed<Row[]>(() => {
       id: 'lnbits',
       label: t('admin.person.tabs.lnbits'),
       value: s.economy
-        ? t('admin.people.lnbits', { n: s.economy.balance.toLocaleString(locale.value) }) +
+        ? t('admin.people.lnbits', { n: formatLnbits(s.economy.balance, locale.value) }) +
           (s.economy.frozen ? `, ${t('economy.accounts.frozen')}` : '')
         : t('admin.person.lnbits.none'),
     });
