@@ -1,6 +1,6 @@
 import { createError } from 'nuxt/server';
 
-import type { ChangelogLang } from '~~/server/db/schema';
+type ChangelogLang = 'en' | 'fr';
 
 // Machine translation through DeepL, for the changelog (docs/changelog.md). It runs only when an
 // editor presses "Translate". The source text is never logged.
