@@ -217,7 +217,7 @@ const axis = [
           <span
             class="flex min-w-0 flex-1 items-center gap-2.5 font-semibold text-highlighted sm:w-56 sm:flex-none"
           >
-            <AdminMarketTile :name="item.name" />
+            <MarketTile :name="item.name" />
             <span class="truncate">{{ item.name }}</span>
           </span>
           <span class="w-32 text-right tabular-nums sm:text-left">
