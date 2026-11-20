@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { RATE_LIMIT_MODES } from '../rate-limit.ts';
+import { AUDIT_AREAS } from '../utils/audit.ts';
 import { SCHOOLS } from '../utils/schools.ts';
 
 // Admin contracts, shared by the /api/admin routes and the /admin pages.
@@ -385,115 +386,6 @@ export const adminBulkResult = z.object({
 });
 export type AdminBulkResult = z.infer<typeof adminBulkResult>;
 
-/** One admin change, for the Overview. A deleted account shows as a null actor or target. */
-export const adminAuditView = z.object({
-  id: z.number(),
-  at: isoDate,
-  action: z.enum([
-    'user.roles',
-    'user.ban',
-    'user.unban',
-    'user.signOut',
-    'user.delete',
-    'user.ghostCreate',
-    'user.ghostUpdate',
-    'user.ghostClaim',
-    'users.deleteInactive',
-    'flag.update',
-    'rateLimit.mode',
-    'event.create',
-    'event.update',
-    'event.cancel',
-    'event.delete',
-    'event.announce',
-    'event.announceResend',
-    'event.registrationAdd',
-    'event.registrationRemove',
-    'eventTeam.create',
-    'eventTeam.rename',
-    'eventTeam.delete',
-    'eventTeam.memberAdd',
-    'eventTeam.memberRemove',
-    'eventTeam.captain',
-    'eventTeam.force',
-    'eventRoom.create',
-    'eventRoom.update',
-    'eventType.create',
-    'eventType.update',
-    'push.settings',
-    'teamPole.create',
-    'teamPole.update',
-    'teamPole.delete',
-    'teamMember.add',
-    'teamMember.update',
-    'teamMember.remove',
-    'team.settings',
-    'partner.create',
-    'partner.update',
-    'partner.delete',
-    'map.settings',
-    'downloads.update',
-    'partners.settings',
-    'rule.create',
-    'rule.update',
-    'rule.retire',
-    'rule.restore',
-    'rule.categoryCreate',
-    'rule.categoryUpdate',
-    'rule.categoryDelete',
-    'rule.seed',
-    'gamesplanet.settings',
-    'gamesplanet.pin',
-    'gamesplanet.unpin',
-    'gamesplanet.sync',
-    'partnerEvent.update',
-    'partnerEvent.close',
-    'partnerEvent.reopen',
-    'partnerEvent.export',
-    'partnerEvent.announce',
-    'partnerEvent.purge',
-    'shortLink.create',
-    'shortLink.update',
-    'shortLink.delete',
-    'shortLink.export',
-    'poster.create',
-    'poster.update',
-    'poster.delete',
-    'apiKey.create',
-    'apiKey.rotate',
-    'apiKey.revoke',
-    'economy.adjust',
-    'economy.freeze',
-    'economy.unfreeze',
-    'economy.reverse',
-    'economy.settings',
-    'economy.reset',
-    'economy.shopDisable',
-    'economy.shopEnable',
-    'economy.listingRemove',
-    'economy.accountType',
-    'economy.licenseGrant',
-    'economy.licenseRevoke',
-    'quests.settings',
-    'quests.create',
-    'quests.update',
-    'quests.delete',
-    'quests.import',
-    'quests.reset',
-    'quests.communityCreate',
-    'quests.communityUpdate',
-    'quests.communityCancel',
-    'quests.communityTemplate',
-    'quests.categoryCreate',
-    'quests.categoryUpdate',
-    'quests.categoryDelete',
-  ]),
-  actor: z.object({ userId: z.string(), name: z.string() }).nullable(),
-  target: z.object({ userId: z.string(), name: z.string() }).nullable(),
-  data: z.record(z.string(), z.unknown()),
-});
-export type AdminAuditView = z.infer<typeof adminAuditView>;
-
 export const ADMIN_INBOX_IDS = [
   'appeals',
   'transfers',
@@ -537,3 +429,63 @@ export const adminInbox = z.object({
     ),
 });
 export type AdminInbox = z.infer<typeof adminInbox>;
+
+const activityList = <T extends z.ZodType>(item: T) =>
+  z.preprocess((value) => (typeof value === 'string' ? value.split(',') : value), z.array(item));
+
+/** The filters of GET /api/admin/activity, which the CSV export takes too. */
+export const adminActivityFilters = z.object({
+  q: z
+    .string()
+    .trim()
+    .max(100)
+    .optional()
+    .describe('Part of the name of the person it happened to or of who did it.'),
+  areas: activityList(z.enum(AUDIT_AREAS))
+    .optional()
+    .describe(
+      'Areas to keep, repeated or comma-separated. Areas the role cannot read are refused.',
+    ),
+  from: z.iso
+    .datetime({ offset: true })
+    .optional()
+    .describe('Entries at or after this date. 30 days ago when left out.'),
+  to: z.iso.datetime({ offset: true }).optional().describe('Entries before this date.'),
+  user: z.string().max(64).optional().describe('Entries about one account, or made by it.'),
+});
+export type AdminActivityFilters = z.infer<typeof adminActivityFilters>;
+
+/** GET /api/admin/activity query. */
+export const adminActivityQuery = adminActivityFilters.extend({
+  cursor: z.coerce
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe('The `nextCursor` of the page before.'),
+});
+
+const adminActivityPerson = z.object({
+  userId: z.string(),
+  name: z.string().nullable(),
+});
+
+/** One entry of the activity log. `data` holds what the action's sentence needs. */
+export const adminActivityEntry = z.object({
+  id: z.number(),
+  at: isoDate,
+  action: z.string().describe('`<area>.<what>`, such as `minecraft.ban` (docs/activity-log.md).'),
+  source: z.enum(['site', 'server', 'system']),
+  actor: adminActivityPerson
+    .nullable()
+    .describe('Null for a job or the Minecraft server, and for an account since deleted.'),
+  actorMinecraftName: z.string().nullable(),
+  target: adminActivityPerson
+    .nullable()
+    .describe('Null when nobody is concerned, and for an account since deleted.'),
+  data: z.record(z.string(), z.unknown()),
+});
+export type AdminActivityEntry = z.infer<typeof adminActivityEntry>;
+
+export const adminActivityPage = page(adminActivityEntry);
+export type AdminActivityPage = z.infer<typeof adminActivityPage>;
