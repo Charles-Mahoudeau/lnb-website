@@ -43,7 +43,7 @@ Every number above is a setting (`quest_settings`, `/admin/economy/quests`, Sett
 
 There are no seasons: quests run until an admin resets them. **Reset the quests** (Settings tab, `POST /api/quests/admin/reset`, typing `reset the quests`) deletes what players did: completions and ranks, progress, flash runs, daily completions and community quests (with their contributions). The catalogue, categories, settings, daily draws, community templates and the reward index stay, and so do LNBits already paid, so players can earn them again. It is for the economy admin and site admins, and goes to the admin log as `quests.reset` with the rows deleted per table. Use it after testing in production, or to start over.
 
-The site stores the date of the last reset (`quest_settings.reset_at`) and sends it as `resetAt` in `GET /config`; the Minecraft server starts every player over when that date changes. What the mod has to do is in `docs/plans/quests-mod.md`.
+The site stores the date of the last reset (`quest_settings.reset_at`) and sends it as `resetAt` in `GET /config`; the Minecraft server starts every player over when that date changes.
 
 ## Minecraft server routes
 

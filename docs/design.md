@@ -145,7 +145,7 @@ Original mock (not code to port): [bulk user actions mock](https://claude.ai/art
 
 ## Anticheat
 
-Original mock (not code to port): [anticheat admin mocks](https://claude.ai/artifact/8f2BCEe7yXvjdpNNeWhEEx), Files proposition A, "Table and drawer". See `docs/plans/anticheat.md`. Players see nothing of it, so everything here is admin.
+Original mock (not code to port): [anticheat admin mocks](https://claude.ai/artifact/8f2BCEe7yXvjdpNNeWhEEx), Files proposition A, "Table and drawer". See `docs/anticheat.md`. Players see nothing of it, so everything here is admin.
 
 - **Files** (`/admin/anticheat`): pill tabs for Mods, Resource packs and Shaders, a search field and status filters as toggle chips (second accent when on, like the push reminders), then a table on one raised section with rows separated by dividers. The file or project name is semibold, with platform badges (neutral outline) and a muted line under it. "Approve a project" is the page's one solid button, "Ban a project" the neutral soft one. The review queue (`/admin/anticheat/review`) is the same table, sorted by who is waiting.
 - **Drawer** (`USlideover`): the score large in the display font, the status pill and a sentence on how it was reached, a warning note when sessions wait for the score, the actions (Approve project solid, Approve this hash soft, Ban outline destructive, the rest ghost), then pill tabs for Criteria, Identity, Players and History. A project opens its versions as rows that open the file.
@@ -189,7 +189,7 @@ Original mock (not code to port): [quests mocks](https://claude.ai/artifact/CJ8W
 
 ## Minecraft account
 
-Original mock (not code to port): [Minecraft account mocks](https://claude.ai/artifact/Emp7XZbq4adjKHCqu7BQEs), layout A, "Playtime on top". One page for everything a player has on the server: playtime, linked accounts, bank and quests, then devices, warnings and sessions. It holds the weekly playtime limit (see `docs/plans/playtime-limits-mod.md`), so playtime has no page of its own. There is no solid red button: nothing here is the main action, and every link out is a neutral soft button.
+Original mock (not code to port): [Minecraft account mocks](https://claude.ai/artifact/Emp7XZbq4adjKHCqu7BQEs), layout A, "Playtime on top". One page for everything a player has on the server: playtime, linked accounts, bank and quests, then devices, warnings and sessions. It holds the weekly playtime limit, so playtime has no page of its own. There is no solid red button: nothing here is the main action, and every link out is a neutral soft button.
 
 - **Order**: header, Playtime (full width), Bank and Quests side by side, Linked accounts, then Devices and Warnings and bans (two per row at most, one on phones), then Recent sessions full width. A section hidden by a flag or by a role drops out and the rest closes up.
 - **Playtime** leads with what the player did, not with what is left: "Played this week" in the display font, all time included, even outside the restricted hours, then one friendly line and the all-time total. It is a positivity-first card: no counted/free breakdown, never a ranking.
