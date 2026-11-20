@@ -10,6 +10,7 @@ import {
   minecraftAccount,
   playtimeLedger,
   user,
+  wardenAccountTransfer,
   wardenBan,
 } from '~~/server/db/schema';
 import { anticheatSettingsService } from '~~/server/services/anticheat/settings';
@@ -61,6 +62,7 @@ const FILTER_ACCESS: Record<AdminPeopleFilter, (access: PeopleAccess) => boolean
   overLimit: (access) => access.warden,
   hasRole: (access) => access.warden,
   inactive: (access) => access.admin,
+  transfer: (access) => access.warden,
   ghost: () => true,
 };
 
@@ -120,6 +122,24 @@ export const fileNeedsLook = sql`(
 )`;
 
 /** Players the anticheat holds, or who use a file that needs a look. */
+/** Either side of a takeover nobody has dismissed. */
+function transferWhere() {
+  return exists(
+    db
+      .select({ one: sql`1` })
+      .from(wardenAccountTransfer)
+      .where(
+        and(
+          isNull(wardenAccountTransfer.dismissedAt),
+          or(
+            eq(wardenAccountTransfer.fromUserId, user.id),
+            eq(wardenAccountTransfer.toUserId, user.id),
+          ),
+        ),
+      ),
+  );
+}
+
 function flaggedWhere(held: number) {
   return or(
     exists(
@@ -227,5 +247,6 @@ export async function peopleWhere(
         )
       : undefined,
     filters.has('inactive') ? lt(lastActive, inactiveBefore(now)) : undefined,
+    filters.has('transfer') ? transferWhere() : undefined,
   );
 }

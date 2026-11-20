@@ -211,7 +211,7 @@ const responseSchemas = {
   EconomyLedgerPage: economy.economyLedgerPage,
   EconomySettingsView: economy.economySettingsView,
   EconomyExport: economy.economyExport,
-  AdminOverview: admin.adminOverview,
+  AdminInbox: admin.adminInbox,
   AdminAuditView: admin.adminAuditView,
   AdminPersonRow: admin.adminPersonRow,
   AdminGhost: admin.adminGhost,
@@ -500,13 +500,13 @@ const routes: RouteDoc[] = [
   // Admin
   {
     method: 'get',
-    path: '/api/admin/overview',
+    path: '/api/admin/inbox',
     tag: TAGS.admin,
-    summary: 'Overview',
+    summary: 'Admin inbox',
     description:
-      'What needs an admin (Warden appeals waiting, accounts inactive for 24 months, site bans in force) and the 10 latest admin changes.',
-    access: 'admin',
-    response: admin.adminOverview,
+      "What is waiting for the caller's roles, most important first, with the page that opens each queue, and the counts for the sidebar. Warden admins: ban appeals, account takeovers, anticheat files to review and alerts, mod suggestions (while the vote is on) and newer Modlist files. Events managers: upcoming events with a waitlist. Site admins: API keys about to expire, rate limiting when it isn't normal, accounts inactive for 24 months and site bans in force. Queues at zero are left out.",
+    access: 'peopleAdmin',
+    response: admin.adminInbox,
   },
   {
     method: 'get',

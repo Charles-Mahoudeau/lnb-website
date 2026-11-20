@@ -41,6 +41,7 @@ export const ADMIN_PEOPLE_FILTERS = [
   'ghost',
   'hasRole',
   'inactive',
+  'transfer',
 ] as const;
 export type AdminPeopleFilter = (typeof ADMIN_PEOPLE_FILTERS)[number];
 const adminPeopleFilter = z.enum(ADMIN_PEOPLE_FILTERS);
@@ -73,7 +74,7 @@ export const adminPeopleFilters = z.object({
     .max(ADMIN_PEOPLE_FILTERS.length)
     .default([])
     .describe(
-      '`banned`: a site or Warden ban in force (Warden admins: Warden bans). `flagged`: the anticheat holds the player, or they use a file to review, refused or banned. `overLimit`: played past the playtime allowance this week. `ghost`: made by an admin for someone who has not signed in yet. `hasRole`: has any admin role. `inactive`: no sign-in for 24 months, so due for deletion (site admins).',
+      '`banned`: a site or Warden ban in force (Warden admins: Warden bans). `flagged`: the anticheat holds the player, or they use a file to review, refused or banned. `overLimit`: played past the playtime allowance this week. `ghost`: made by an admin for someone who has not signed in yet. `hasRole`: has any admin role. `inactive`: no sign-in for 24 months, so due for deletion (site admins). `transfer`: a Minecraft account takeover nobody has dismissed yet, on either side (Warden admins).',
     ),
 });
 export type AdminPeopleFilters = z.input<typeof adminPeopleFilters>;
@@ -493,18 +494,46 @@ export const adminAuditView = z.object({
 });
 export type AdminAuditView = z.infer<typeof adminAuditView>;
 
-/** GET /api/admin/overview: what needs an admin, and the latest changes. */
-export const adminOverview = z.object({
-  appeals: z.object({
-    pending: z.number().describe('Warden appeals waiting for an answer.'),
-    oldestAt: isoDate.nullable(),
-  }),
-  inactiveAccounts: z.number().describe('Accounts with no sign-in for 24 months.'),
-  siteBans: z.number().describe('Site bans in force.'),
-  apiKeysSoon: z.number().describe('API keys that expire within 30 days and were not replaced.'),
-  rateLimitMode: z
-    .enum(RATE_LIMIT_MODES)
-    .describe('Rate limiting mode; `normal` needs no attention.'),
-  recent: z.array(adminAuditView).describe('The 10 latest admin changes, newest first.'),
+export const ADMIN_INBOX_IDS = [
+  'appeals',
+  'transfers',
+  'anticheat',
+  'apiKeys',
+  'rateLimit',
+  'eventWaitlists',
+  'suggestions',
+  'modpackUpdates',
+  'inactive',
+  'siteBans',
+] as const;
+export type AdminInboxId = (typeof ADMIN_INBOX_IDS)[number];
+
+const adminInboxItem = z.object({
+  id: z.enum(ADMIN_INBOX_IDS),
+  count: z
+    .number()
+    .describe(
+      'What is waiting: appeals, takeovers, files and alerts, keys, suggestions, newer files, accounts, bans, or events with a waitlist. 1 for rate limiting, which is not a count.',
+    ),
+  to: z.string().describe('The admin page that opens the queue.'),
+  at: isoDate
+    .nullable()
+    .describe('The oldest item, or the start of the next event for `eventWaitlists`.'),
+  name: z.string().nullable().describe('The first item to look at, when it has a name.'),
+  review: z.number().optional().describe('`anticheat`: files to review.'),
+  alerts: z.number().optional().describe('`anticheat`: alerts nobody dismissed.'),
+  waiting: z.number().optional().describe('`eventWaitlists`: people or teams waiting in all.'),
+  mode: z.enum(RATE_LIMIT_MODES).optional().describe('`rateLimit`: the mode in force.'),
 });
-export type AdminOverview = z.infer<typeof adminOverview>;
+export type AdminInboxItem = z.infer<typeof adminInboxItem>;
+
+/** GET /api/admin/inbox: what is waiting for the caller's roles, most important first. */
+export const adminInbox = z.object({
+  items: z.array(adminInboxItem).describe('Queues with something in them. Empty: nothing waits.'),
+  badges: z
+    .record(z.string(), z.number())
+    .describe(
+      'The count to show on each sidebar entry, by entry ID. Entries at zero are left out.',
+    ),
+});
+export type AdminInbox = z.infer<typeof adminInbox>;
