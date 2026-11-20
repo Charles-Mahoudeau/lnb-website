@@ -22,7 +22,9 @@ import { economyTransaction } from './economy';
 
 // Quests on the Minecraft server: tiers each player climbs, advancements paid by rank, community
 // goals, flash races and daily quests. Rewards are LNBits minted with the reason `questReward`, sized by a daily
-// index of the players' wealth. See docs/quests.md.
+// index of the players' wealth. Amounts paid (`amount` of a completion, a flash run or a daily
+// completion, a community `payout`) are cents of LNBit; base rewards in definitions and the index
+// stay in whole LNBits. See docs/quests.md.
 
 export type QuestFamily = 'individual' | 'server' | 'flash' | 'daily';
 export type QuestCategoryFamily = 'individual' | 'server';

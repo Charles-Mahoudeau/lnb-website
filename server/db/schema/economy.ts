@@ -21,6 +21,7 @@ import {
 import { user } from './auth';
 
 // The Minecraft economy: LNBits on bank accounts, moved only through a double-entry ledger.
+// Every amount in this file is an integer number of cents of LNBit (1 LNBit = 100 cents).
 // See docs/economy.md.
 
 export type EconomyAccountKind = 'personal' | 'shared';
@@ -377,8 +378,8 @@ export const economySettings = pgTable(
   'economy_settings',
   {
     id: smallint('id').primaryKey().default(1),
-    // Minted onto every new personal account.
-    startingBalance: integer('starting_balance').default(0).notNull(),
+    // Minted onto every new personal account, in cents.
+    startingBalance: bigint('starting_balance', { mode: 'number' }).default(0).notNull(),
     maxOwnedShared: smallint('max_owned_shared').default(3).notNull(),
     maxMembers: smallint('max_members').default(20).notNull(),
     // The auction house: the sale tax (burned, in percent of the price), and per seller the most
@@ -386,9 +387,9 @@ export const economySettings = pgTable(
     auctionTaxPercent: smallint('auction_tax_percent').default(5).notNull(),
     auctionMaxListings: smallint('auction_max_listings').default(20).notNull(),
     auctionDays: smallint('auction_days').default(7).notNull(),
-    // What a casino license costs. Burned.
+    // What a casino license costs, in cents. Burned.
     casinoLicensePrice: bigint('casino_license_price', { mode: 'number' })
-      .default(100_000)
+      .default(10_000_000)
       .notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
     updatedByUserId: text('updated_by_user_id').references(() => user.id, {

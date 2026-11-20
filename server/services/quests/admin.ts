@@ -20,7 +20,7 @@ import { auditService } from '~~/server/services/audit';
 import { minecraftEventService } from '~~/server/services/minecraft-events';
 
 import { questCategoryService } from './categories';
-import { computeIndex, familyBudget, parisDay } from './formula';
+import { centsToLnbits, computeIndex, familyBudget, parisDay } from './formula';
 import {
   circulation,
   getSettings,
@@ -48,7 +48,7 @@ import { hasRole } from '#shared/utils/roles';
 
 export { parisDay };
 
-/** The personal balances of the active players, staff left out. */
+/** The personal balances of the active players in LNBits (the index is in LNBits), staff left out. */
 async function activeBalances(dbx: Db, settings: QuestSettings) {
   const since = new Date(Date.now() - settings.active.hours * 3600 * 1000);
   const rows = await dbx
@@ -82,7 +82,7 @@ async function activeBalances(dbx: Db, settings: QuestSettings) {
         ),
       ),
     );
-  return accounts.map((row) => row.balance);
+  return accounts.map((row) => centsToLnbits(row.balance));
 }
 
 /** The quests:index task: today's index, written once per Paris day (a rerun replaces it). */

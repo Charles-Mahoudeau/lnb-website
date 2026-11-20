@@ -7,7 +7,9 @@ import { auditService } from '~~/server/services/audit';
 import type { Db } from './shared';
 
 import type { EconomySettingsBody, EconomySettingsView } from '#shared/schemas/economy';
+import { CENTS_PER_LNBIT } from '#shared/utils/lnbits';
 
+// Money is in cents of LNBit.
 const DEFAULTS = {
   startingBalance: 0,
   maxOwnedShared: 3,
@@ -15,7 +17,7 @@ const DEFAULTS = {
   auctionTaxPercent: 5,
   auctionMaxListings: 20,
   auctionDays: 7,
-  casinoLicensePrice: 100_000,
+  casinoLicensePrice: 100_000 * CENTS_PER_LNBIT,
 };
 
 /** The global settings. The migration creates their single row. */

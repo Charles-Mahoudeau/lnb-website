@@ -15,7 +15,7 @@ import {
 import { questCategoryService } from './categories';
 import { communityService } from './community';
 import { questDailyService } from './daily';
-import { kPlayer, reward } from './formula';
+import { centsToLnbits, kPlayer, rewardCents } from './formula';
 import { getSettings, loadCatalog, todayIndex } from './shared';
 
 import type { QuestDefinition, QuestItemReward } from '#shared/schemas/quests';
@@ -134,7 +134,7 @@ async function overview(input: { userId?: string }) {
       me = {
         username: linked.username,
         uuid: linked.uuid,
-        kPlayer: kPlayer(personal?.balance ?? 0, today.index, settings.formula),
+        kPlayer: kPlayer(centsToLnbits(personal?.balance ?? 0), today.index, settings.formula),
         progress: Object.fromEntries(progress.map((row) => [row.questId, row.value])),
         completions: mine
           .filter((row) => row.family === 'individual')
@@ -172,21 +172,21 @@ async function overview(input: { userId?: string }) {
       ...withoutSnbt(maskSecret(quest, podiums)),
       today:
         quest.family === 'individual'
-          ? quest.tiers.map((tier) => reward(tier.reward, today.kGlobal, 1))
+          ? quest.tiers.map((tier) => rewardCents(tier.reward, today.kGlobal, 1))
           : quest.family === 'server'
             ? [...quest.ranks, quest.restShare].map((share) =>
-                reward((quest.reward * share) / 100, today.kGlobal, 1),
+                rewardCents((quest.reward * share) / 100, today.kGlobal, 1),
               )
             : quest.family === 'daily'
               ? [
-                  reward(
+                  rewardCents(
                     quest.rewardPerUnit *
                       (daily.quests.find((entry) => entry.quest === quest.id)?.quantity ?? 1),
                     today.kGlobal,
                     1,
                   ),
                 ]
-              : [reward(quest.rewardPerUnit, today.kGlobal, 1)],
+              : [rewardCents(quest.rewardPerUnit, today.kGlobal, 1)],
     })),
     podiums,
     rest,
