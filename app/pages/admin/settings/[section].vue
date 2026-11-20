@@ -30,7 +30,7 @@ const { user } = useAuth();
 // Resolved by name, the lazy ones load when their section opens. Rooms and Types are not lazy,
 // because the page calls their `onAdd`.
 const PANES = {
-  activity: resolveComponent('LazyWardenAdminActivity'),
+  activity: resolveComponent('LazyAdminActivity'),
   flags: resolveComponent('LazyAdminFlags'),
   'rate-limit': resolveComponent('LazyAdminRateLimit'),
   'api-keys': resolveComponent('LazyAdminApiKeys'),

@@ -79,7 +79,7 @@ function toRow(item: AdminInboxItem): Row {
 }
 
 const rows = computed(() => (data.value?.items ?? []).map(toRow));
-// The activity log moves to Settings (docs/plans/admin-redesign.md): link it for those who can open it.
+// The activity log is in Settings, and every role reads its own part of it.
 const canSeeActivity = computed(() =>
   settingsSections(user.value?.role).some((section) => section.id === 'activity'),
 );
