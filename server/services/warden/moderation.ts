@@ -186,6 +186,45 @@ async function revokeById(input: {
   });
 }
 
+/**
+ * Sets a new end for a ban in force, or none for a permanent one. The new end must be in the
+ * future: to end a ban now, lift it. The Minecraft server hears about it as the ban again.
+ */
+async function updateBan(input: {
+  banId: string;
+  expiresAt: string | null;
+  actor: WardenActor;
+}): Promise<WardenBanView> {
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .select()
+      .from(wardenBan)
+      .where(eq(wardenBan.id, input.banId))
+      .for('update');
+    if (!row) refuse(404, 'notFound');
+    const now = new Date();
+    if (row.revokedAt || (row.expiresAt && row.expiresAt <= now)) refuse(409, 'notBanned');
+    const expiresAt = input.expiresAt === null ? null : new Date(input.expiresAt);
+    if (expiresAt && expiresAt <= now) refuse(400, 'invalidEnd');
+    const [updated] = await tx
+      .update(wardenBan)
+      .set({ expiresAt })
+      .where(eq(wardenBan.id, row.id))
+      .returning();
+    await wardenAuditService.record(tx, {
+      action: 'ban.update',
+      actor: input.actor,
+      targetUserId: row.userId,
+      data: {
+        banId: row.id,
+        before: row.expiresAt?.toISOString() ?? null,
+        expiresAt: expiresAt?.toISOString() ?? null,
+      },
+    });
+    return view(tx, updated!);
+  });
+}
+
 /** Adds a private note, or a warning the player sees. */
 async function addNote(input: {
   userId: string;
@@ -326,6 +365,7 @@ export const wardenModerationService = {
   ban,
   unban,
   revokeById,
+  updateBan,
   addNote,
   appeal,
   decideAppeal,

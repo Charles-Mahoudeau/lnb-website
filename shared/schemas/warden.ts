@@ -219,6 +219,15 @@ export type WardenBanBody = z.input<typeof wardenBanBody>;
 /** Body of POST /api/warden/admin/bans/:banId/revoke. */
 export const wardenRevokeBody = z.object({ reason: z.string().trim().max(500).optional() });
 
+/** Body of PATCH /api/warden/admin/bans/:banId. */
+export const wardenBanUpdateBody = z.object({
+  expiresAt: z.iso
+    .datetime()
+    .nullable()
+    .describe('The new end, in the future. Null makes the ban permanent.'),
+});
+export type WardenBanUpdateBody = z.input<typeof wardenBanUpdateBody>;
+
 /** Body of POST /api/warden/admin/players/:userId/notes. */
 export const wardenNoteBody = z.object({
   kind: z
@@ -662,6 +671,7 @@ export const WARDEN_PROBLEMS = [
   'notFound',
   'notLinked',
   'notBanned',
+  'invalidEnd',
   'issuerNotAllowed',
   'appealExists',
   'appealClosed',

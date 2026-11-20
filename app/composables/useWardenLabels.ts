@@ -46,6 +46,12 @@ export function useWardenLabels() {
               date: formatWardenDateTime(text('expiresAt'), locale.value),
             })
           : t('wardenAdmin.actions.banPermanent');
+      case 'ban.update':
+        return text('expiresAt')
+          ? t('wardenAdmin.actions.banUpdate', {
+              date: formatWardenDateTime(text('expiresAt'), locale.value),
+            })
+          : t('wardenAdmin.actions.banUpdatePermanent');
       case 'appeal.decide':
         return t(
           data.accepted
