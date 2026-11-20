@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { usesEconomyUnits } from './economy-units.ts';
 import type { ApiKeyPermission } from '../../shared/api-keys.ts';
 import * as admin from '../../shared/schemas/admin.ts';
 import * as anticheat from '../../shared/schemas/anticheat.ts';
@@ -6293,6 +6294,13 @@ function errorResponses(route: RouteDoc) {
   );
 }
 
+/** The units header of the Minecraft server routes under `/api/economy/server` and `/api/quests/server`. */
+const ECONOMY_UNITS_HEADER_DOC: OpenApiObject = {
+  description:
+    "`cents`: every money field of the request and of the answer is an integer number of cents of LNBit (100 cents = 1 LNBit). Without the header (legacy): a request is read as whole LNBits and multiplied by 100, and an answer is rounded down to whole LNBits. The money fields are `amount`, `balance`, `price`, `sellPrice`, `buyPrice`, `lotPrice`, `expectedLotPrice`, `tax`, `casinoLicensePrice` and a community quest tier's `rewardToday`. The legacy mode goes away once the mod sends the header. See `docs/economy.md`, Units.",
+  schema: { type: 'string', enum: ['cents'] },
+};
+
 function operation(route: RouteDoc) {
   const access = ACCESS[route.access];
   const success = route.noContent
@@ -6326,7 +6334,10 @@ function operation(route: RouteDoc) {
     parameters: [
       ...parameters('path', route.params),
       ...parameters('query', route.query),
-      ...Object.entries(route.headers ?? {}).map(([name, header]) => ({
+      ...Object.entries({
+        ...(usesEconomyUnits(route.path) ? { 'X-Economy-Units': ECONOMY_UNITS_HEADER_DOC } : {}),
+        ...route.headers,
+      }).map(([name, header]) => ({
         name,
         in: 'header',
         ...header,
@@ -6388,6 +6399,7 @@ Every route under \`/api\` is limited per IP, and writes are also limited per ac
 - Errors have an HTTP status, and a \`data.problem\` code when the reason matters. Each route lists its codes.
 - An invalid body or query is a 400, and an invalid path parameter a 404.
 - Lists take \`cursor\` and return \`{ items, nextCursor }\`, with \`nextCursor\` null on the last page.
+- Money is counted in cents of LNBit (100 cents = 1 LNBit), as integers. The Minecraft server routes also take \`X-Economy-Units: cents\`; without it they speak whole LNBits (see the header on each route).
 
 Warden's flows are described in \`docs/warden.md\`, and sign-in and app linking in \`docs/authentication.md\`.
 `.trim();
@@ -6459,7 +6471,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       {
         name: TAGS.economyServer,
         description:
-          'Called by the LNB Minecraft server only, with `WARDEN_SERVER_SECRET`. Every money move goes through one call. See `docs/economy.md`.',
+          'Called by the LNB Minecraft server only, with `WARDEN_SERVER_SECRET`. Every money move goes through one call. Money is in cents with `X-Economy-Units: cents`, and in whole LNBits without it (legacy). See `docs/economy.md`.',
       },
       {
         name: TAGS.economy,
@@ -6473,7 +6485,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       {
         name: TAGS.questsServer,
         description:
-          'Called by the LNB Minecraft server only, with `WARDEN_SERVER_SECRET`, behind `economy.serverApi` and `economy.quests`. See `docs/quests.md`.',
+          'Called by the LNB Minecraft server only, with `WARDEN_SERVER_SECRET`, behind `economy.serverApi` and `economy.quests`. Amounts follow `X-Economy-Units` like the economy routes. See `docs/quests.md`.',
       },
       { name: TAGS.quests, description: 'The quests page, `/minecraft/quests`.' },
       {
