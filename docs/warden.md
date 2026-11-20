@@ -220,23 +220,25 @@ Server-Sent Events. Each event's `id` is its audit log ID. Send `Last-Event-ID` 
 
 ## Admin routes
 
-| Route                                                        | What it does                                                                                         |
-| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| `GET /api/warden/admin/players?q=&status=`                   | Players, searched by name, email or Minecraft username. `status`: `all`, `banned`, `online`.         |
-| `GET /api/warden/admin/players/:userId`                      | One player: accounts, username history, bans, notes, sessions and audit trail.                       |
-| `PATCH /api/warden/admin/players/:userId`                    | `{ "maxAccounts": 3 }`, or `null` to use the global limit.                                           |
-| `PUT /api/warden/admin/players/:userId/role`                 | `{ "wardenAdmin": true }`. Site admins only.                                                         |
-| `DELETE /api/warden/admin/players/:userId/devices/:deviceId` | Revokes one of the player's devices.                                                                 |
-| `DELETE /api/warden/admin/players/:userId/accounts/:uuid`    | Unlinks an account.                                                                                  |
-| `POST /api/warden/admin/transfers/:transferId/dismiss`       | Dismisses the warning about an account takeover, for both players (204, `alreadyDismissed` 409).     |
-| `POST /api/warden/admin/players/:userId/bans`                | `{ "reason": "...", "durationSeconds": 86400 }`                                                      |
-| `POST /api/warden/admin/bans/:banId/revoke`                  | `{ "reason": "optional" }`                                                                           |
-| `POST /api/warden/admin/players/:userId/notes`               | `{ "kind": "note", "body": "..." }`. A `note` stays private, and a `warning` is shown to the player. |
-| `GET /api/warden/admin/appeals?status=`                      | Appeals, with their ban.                                                                             |
-| `GET /api/warden/admin/users?q=`                             | Players of Warden's schools, by name or email, for pickers such as the mod editor's.                 |
-| `POST /api/warden/admin/appeals/:id/decision`                | `{ "accept": true, "response": "..." }`. Accepting lifts the ban.                                    |
-| `GET /api/warden/admin/audit?userId=&action=&source=`        | The audit log.                                                                                       |
-| `GET` and `PATCH /api/warden/admin/settings`                 | `{ "defaultMaxAccounts": 1 }`                                                                        |
+| Route                                                        | What it does                                                                                                                                                                                                                           |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/warden/admin/players?q=&status=`                   | Players, searched by name, email or Minecraft username. `status`: `all`, `banned`, `online`. The admin's own list is `GET /api/admin/people` (`docs/people.md`).                                                                       |
+| `GET /api/warden/admin/players/:userId`                      | One player: accounts, username history, bans, notes, sessions and audit trail.                                                                                                                                                         |
+| `PATCH /api/warden/admin/players/:userId`                    | `{ "maxAccounts": 3 }`, or `null` to use the global limit.                                                                                                                                                                             |
+| `PUT /api/warden/admin/players/:userId/role`                 | `{ "wardenAdmin": true }`. Site admins only.                                                                                                                                                                                           |
+| `DELETE /api/warden/admin/players/:userId/devices/:deviceId` | Revokes one of the player's devices.                                                                                                                                                                                                   |
+| `DELETE /api/warden/admin/players/:userId/accounts/:uuid`    | Unlinks an account.                                                                                                                                                                                                                    |
+| `POST /api/warden/admin/transfers/:transferId/dismiss`       | Dismisses the warning about an account takeover, for both players (204, `alreadyDismissed` 409).                                                                                                                                       |
+| `POST /api/warden/admin/players/:userId/bans`                | `{ "reason": "...", "durationSeconds": 86400 }`                                                                                                                                                                                        |
+| `POST /api/warden/admin/bans/:banId/revoke`                  | `{ "reason": "optional" }`                                                                                                                                                                                                             |
+| `PATCH /api/warden/admin/bans/:banId`                        | `{ "expiresAt": "2027-01-01T00:00:00Z" }`, or `null` for a permanent ban. A ban in force only, and the end must be in the future (`invalidEnd`). Audited as `ban.update`, and sent to the server as a `kick` with the reason `banned`. |
+| `GET /api/warden/admin/feed?kind=`                           | Bans in force and the latest 50 warnings and notes, for Moderation > Bans.                                                                                                                                                             |
+| `POST /api/warden/admin/players/:userId/notes`               | `{ "kind": "note", "body": "..." }`. A `note` stays private, and a `warning` is shown to the player.                                                                                                                                   |
+| `GET /api/warden/admin/appeals?status=`                      | Appeals, with their ban.                                                                                                                                                                                                               |
+| `GET /api/warden/admin/users?q=`                             | Players of Warden's schools, by name or email, for pickers such as the mod editor's.                                                                                                                                                   |
+| `POST /api/warden/admin/appeals/:id/decision`                | `{ "accept": true, "response": "..." }`. Accepting lifts the ban.                                                                                                                                                                      |
+| `GET /api/warden/admin/audit?userId=&action=&source=`        | The audit log.                                                                                                                                                                                                                         |
+| `GET` and `PATCH /api/warden/admin/settings`                 | `{ "defaultMaxAccounts": 1 }`                                                                                                                                                                                                          |
 
 ## Account takeovers
 
@@ -245,7 +247,7 @@ The server is in offline mode, so a username proves nothing: an unlinked account
 - The account moves to the new player and starts again at no playtime, with the new player's username and link date.
 - The sessions stay with the previous owner (`warden_session.user_id`). The account's playtime is added to `warden_player.transferred_playtime_seconds`, so the previous owner's total stays the same.
 - The takeover is recorded in `warden_account_transfer` and in the audit log (`link.transfer`, on the new player, with the previous one's ID). It counts against the new player's limit like any link.
-- Admins see a warning pill in the Players list on both players ("Took over an account", "Account taken over", or "Account takeovers" when both), and the takeovers on each player's page. Any Warden admin can dismiss a takeover, for both players (`transfer.dismiss`). The pill goes away when none is left to review, and the takeover stays on the page.
+- Admins see a warning pill in the People list on both players ("Took over an account", "Account taken over", or "Account takeovers" when both), and the takeovers on each player's page. Any Warden admin can dismiss a takeover, for both players (`transfer.dismiss`). The pill goes away when none is left to review, and the takeover stays on the page.
 - Players never see any of this, in the site, the mod or the API. Their unlink dialog only says the playtime is kept if they link the account again.
 
 A link by the same player is not a takeover.
