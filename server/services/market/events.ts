@@ -7,7 +7,7 @@ import { loadConfig } from './shared';
 //
 // - `market` { revision, items: [{ id, stock, at }] }: orders moved stocks. At most one a second,
 //   with the latest stock of each item touched since the last one.
-// - `market-config` { revision }: an item, a tier, a setting, a flag or the recipes changed.
+// - `market-config` { revision }: an item, a tier, a setting or the recipes changed.
 //
 // Recording an event never fails the change behind it: the mod also reads `/state` again.
 

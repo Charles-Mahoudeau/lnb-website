@@ -5690,6 +5690,7 @@ const routes: RouteDoc[] = [
     problems: [
       { status: 403, problems: ['notEligible', 'notAllowed'] },
       { status: 404, problems: ['notLinked', 'notFound'] },
+      { status: 400, problems: ['tooManyItems'] },
       { status: 409, problems: ['itemDisabled', 'notSellable', 'notBuyable'] },
       { status: 503, problems: ['disabled'] },
     ],
@@ -5705,6 +5706,7 @@ const routes: RouteDoc[] = [
     body: market.marketOrderBody,
     response: market.marketOrderResult,
     problems: [
+      { status: 400, problems: ['tooManyItems'] },
       { status: 403, problems: ['notEligible', 'notAllowed'] },
       { status: 404, problems: ['notLinked', 'notFound'] },
       {

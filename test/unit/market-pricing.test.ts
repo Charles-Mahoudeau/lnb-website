@@ -115,9 +115,9 @@ describe('market sale', () => {
     expect(tail.total).toBe(977);
     expect(tail.stock).toBeCloseTo(120230.4, 6);
 
-    const top = sell(1150000, 0, 10000);
-    expect(top.total).toBe(2238);
-    expect(top.stock).toBeCloseTo(1160000, 6);
+    const nearTop = sell(1150000, 0, 10000); // ends at 1,160,000, short of sMax
+    expect(nearTop.total).toBe(2238);
+    expect(nearTop.stock).toBeCloseTo(1160000, 6);
   });
 
   it('gives the numbers of the vectors under 1e-6, not only the cents', () => {
