@@ -98,7 +98,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await db.update(economySettings).set({ startingBalance: 0 }).where(eq(economySettings.id, 1));
-  await db.update(marketSettings).set({ mintCapPercent: 25 }).where(eq(marketSettings.id, 1));
+  await db.update(marketSettings).set({ mintCapPercent: 15 }).where(eq(marketSettings.id, 1));
   await db.delete(marketRecipe);
   const test = (await db.select({ id: marketItem.id }).from(marketItem))
     .filter((row) => row.id.startsWith('test:'))
