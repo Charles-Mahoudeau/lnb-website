@@ -216,11 +216,10 @@ async function payingAccount(
  * Sells or buys items. The item row is locked and its stock drifted to now; the player's window
  * and the mint budget are read under locks; the ledger transaction, the order, the mailbox item of
  * a purchase and the stock are written together. A retry with the same key gives back the first
- * answer. Events go out after the commit.
+ * answer, even with the Market switched off. Events go out after the commit.
  */
 async function order(input: MarketOrderBody): Promise<MarketOrderResult> {
   const body = marketOrderBody.parse(input);
-  await requireMarketFlags(body.direction);
   const print = hashRequest({
     player: body.player,
     account: body.account ?? null,
@@ -231,6 +230,8 @@ async function order(input: MarketOrderBody): Promise<MarketOrderResult> {
   });
   const previous = await previousOrder(db, body.idempotencyKey, print);
   if (previous) return previous;
+  // After the key lookup: a retry settles an order that exists even when a flag was switched off.
+  await requireMarketFlags(body.direction);
 
   try {
     const done = await db.transaction(async (tx) => {

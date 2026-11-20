@@ -5701,7 +5701,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.economyServer,
     summary: 'Sell or buy items',
     description:
-      'One transaction: the item is locked, its stock drifted, the quote computed, then the ledger, the order and a mailbox item (a purchase) written. `expectedTotal` is what the player saw: a worse total beyond the tolerance is a 409 `priceChanged` carrying the new quote. A retry with the same `idempotencyKey` gets the first answer with `replayed: true`. A sale cut to 0 by the mint budget is a 409 `zeroPayout`.',
+      'One transaction: the item is locked, its stock drifted, the quote computed, then the ledger, the order and a mailbox item (a purchase) written. `expectedTotal` is what the player saw: a worse total beyond the tolerance is a 409 `priceChanged` carrying the new quote. A retry with the same `idempotencyKey` gets the first answer with `replayed: true`, even when the Market or that direction has been switched off since; a new order then gets 503 `disabled`. A sale cut to 0 by the mint budget is a 409 `zeroPayout`.',
     access: 'wardenServer',
     body: market.marketOrderBody,
     response: market.marketOrderResult,
