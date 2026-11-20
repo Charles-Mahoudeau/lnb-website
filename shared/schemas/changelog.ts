@@ -13,6 +13,7 @@ export const CHANGELOG_PROBLEMS = [
 export type ChangelogProblem = (typeof CHANGELOG_PROBLEMS)[number];
 
 export const CHANGELOG_LANGS = ['en', 'fr'] as const;
+export const changelogLang = z.enum(CHANGELOG_LANGS);
 export const CHANGELOG_STATUSES = ['draft', 'scheduled', 'published'] as const;
 
 const isoDate = z.string().meta({ format: 'date-time' });

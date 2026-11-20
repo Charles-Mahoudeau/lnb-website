@@ -28,6 +28,7 @@ export default defineNuxtConfig({
       '/minecraft/mods',
       '/minecraft/download',
       '/minecraft/rules',
+      '/minecraft/changelog',
       '/minecraft/map',
     ],
   },
