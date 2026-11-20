@@ -1,4 +1,4 @@
-import type { MarketPublic } from '#shared/schemas/market';
+import type { MarketPublic } from '../../shared/schemas/market.ts';
 
 // What the public Market page works out in the browser from `GET /api/market` (docs/market.md).
 
