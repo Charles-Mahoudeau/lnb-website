@@ -1,6 +1,6 @@
 # Playtime limits
 
-A weekly limit on how long players can be on the Minecraft server during restricted hours (for example Monday to Friday, 9:00 to 17:00). The plan is `docs/plans/playtime-limits.md`, and the contract for the mod developers is `docs/plans/playtime-limits-mod.md`. This page says what is built.
+A weekly limit on how long players can be on the Minecraft server during restricted hours (for example Monday to Friday, 9:00 to 17:00). This page says what is built.
 
 **Status:** the data, the counting, the player view, the Minecraft account page and the enforcement (login denial, warnings, grace, kicks) are built. The mode starts in `observe`: everything is counted and shown, and nobody is denied, kicked or warned. The mod doesn't support the events yet, so switch to `enforce` only after it does. The admin is built: the Rules, Closures and Live tabs (`/admin/warden/playtime`) and the Playtime panel of a player's Warden page. Event mode and the nightly prune are built, so the feature is complete apart from the real-browser checks. None of the admin screens has been checked in a real browser.
 
@@ -32,7 +32,7 @@ The mode is `off`, `observe` or `enforce`, in `playtime_settings`. It starts in 
 
 ## Enforcement
 
-Only in `enforce`. In `observe` and `off` the server is told nothing and nobody is denied: it counts and shows, and that is all. The contract the mod follows is in `docs/warden.md` and `docs/plans/playtime-limits-mod.md`.
+Only in `enforce`. In `observe` and `off` the server is told nothing and nobody is denied: it counts and shows, and that is all. The contract the mod follows is in `docs/warden.md`.
 
 - **The timer** (`server/plugins/playtime.ts`, every 5 seconds) counts each online player's time, then in `enforce` (`server/services/playtime/enforcement.ts`) writes what is due as audit rows, which the events stream sends within a second: `playtime.warning`, `playtime.grace`, `playtime.update` and `playtime.kick`. They are hidden from the admin audit log, like the anticheat's stream events.
 - **Warnings** are sent at each "minutes left" mark of the allowance (30, 10, 5, 1), but only when the allowance really runs out before the window ends. A player online with nothing left gets the start warnings (5 and 1 minutes) before a window opens, then the kick when it does. Each notice is kept to once per session and week in `playtime_notice` (kinds like `2026-11-16:w10`), so the timer is safe to run twice. A player who joins with 3 minutes left gets one warning that says so, covering the marks already crossed.
