@@ -402,3 +402,8 @@ export const marketAdminOrders = z.object({
   items: z.array(marketAdminOrder),
   nextCursor: z.string().nullable(),
 });
+
+export const marketAdminOverview = z.object({
+  settings: marketAdminSettings,
+  items: z.array(marketAdminItem),
+});

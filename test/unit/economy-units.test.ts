@@ -16,6 +16,7 @@ describe('X-Economy-Units', () => {
   it('applies to the Minecraft server routes only', () => {
     expect(usesEconomyUnits('/api/economy/server/transfers')).toBe(true);
     expect(usesEconomyUnits('/api/quests/server/config')).toBe(true);
+    expect(usesEconomyUnits('/api/economy/server/market/orders')).toBe(false);
     expect(usesEconomyUnits('/api/economy/me')).toBe(false);
     expect(usesEconomyUnits('/api/economy/admin/settings')).toBe(false);
     expect(usesEconomyUnits('/api/quests')).toBe(false);
