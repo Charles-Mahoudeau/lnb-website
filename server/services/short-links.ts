@@ -3,7 +3,7 @@ import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
 import { shortLink, shortLinkClick, user } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 import { flagService } from '~~/server/services/flags';
 
 import type {
@@ -199,9 +199,9 @@ async function create(input: {
             createdBy: input.actorId,
           })
           .returning();
-        await adminAuditService.record(tx, {
-          action: 'shortLink.create',
-          actorUserId: input.actorId,
+        await auditService.record(tx, {
+          action: 'links.create',
+          actor: { source: 'web', userId: input.actorId },
           targetUserId: null,
           data: { id: row!.shortId, name: row!.name, ...input.actorData },
         });
@@ -247,9 +247,9 @@ async function update(input: {
       })
       .where(eq(shortLink.id, input.id))
       .returning();
-    await adminAuditService.record(tx, {
-      action: 'shortLink.update',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'links.update',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: row!.shortId, name: row!.name, patch },
     });
@@ -260,9 +260,9 @@ async function remove(input: { actorId: string; id: string }): Promise<void> {
   await db.transaction(async (tx) => {
     const [row] = await tx.delete(shortLink).where(eq(shortLink.id, input.id)).returning();
     if (!row) refuse(404, 'shortLinkNotFound');
-    await adminAuditService.record(tx, {
-      action: 'shortLink.delete',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'links.delete',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: row.shortId, name: row.name },
     });
@@ -289,9 +289,9 @@ async function exportClicks(input: {
     .where(and(eq(shortLinkClick.linkId, input.id), eq(shortLinkClick.outcome, 'opened')))
     .orderBy(desc(shortLinkClick.at));
   await db.transaction((tx) =>
-    adminAuditService.record(tx, {
-      action: 'shortLink.export',
-      actorUserId: input.actorId,
+    auditService.record(tx, {
+      action: 'links.export',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: row.shortId, name: row.name, rows: clicks.length },
     }),

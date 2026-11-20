@@ -19,7 +19,7 @@ import {
   questFlashRun,
   user,
 } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 
 import { economyEvents } from './events';
 import { economyLedger } from './ledger';
@@ -48,7 +48,7 @@ import type {
 import { ECONOMY_RESET_CONFIRM } from '#shared/schemas/economy';
 
 // The Economy section of the admin area: every account, the ledger, adjustments, freezes,
-// reversals and the reset. Each change is written to admin_audit. See docs/economy.md.
+// reversals and the reset. Each change is written to audit. See docs/economy.md.
 
 type Account = typeof economyAccount.$inferSelect;
 
@@ -216,9 +216,9 @@ async function adjust(actorId: string, accountId: string, body: EconomyAdjustBod
       memo: body.reason,
       actor: { source: 'web', userId: actorId },
     });
-    await adminAuditService.record(tx, {
+    await auditService.record(tx, {
       action: 'economy.adjust',
-      actorUserId: actorId,
+      actor: { source: 'web', userId: actorId },
       targetUserId: account.ownerUserId,
       data: {
         name: await auditName(tx, account),
@@ -245,9 +245,9 @@ async function setType(actorId: string, accountId: string, type: EconomyAccountT
     if (account.closedAt) refuse(409, 'closed');
     if (account.type === type) return;
     await tx.update(economyAccount).set({ type }).where(eq(economyAccount.id, accountId));
-    await adminAuditService.record(tx, {
+    await auditService.record(tx, {
       action: 'economy.accountType',
-      actorUserId: actorId,
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { name: await auditName(tx, account), accountId, from: account.type, type },
     });
@@ -275,9 +275,9 @@ async function grantLicense(actorId: string, accountId: string) {
       .insert(economyCasinoLicense)
       .values({ userId, price: 0, grantedByUserId: actorId })
       .returning({ id: economyCasinoLicense.id });
-    await adminAuditService.record(tx, {
+    await auditService.record(tx, {
       action: 'economy.licenseGrant',
-      actorUserId: actorId,
+      actor: { source: 'web', userId: actorId },
       targetUserId: userId,
       data: { name: await auditName(tx, account), accountId, licenseId: license?.id ?? null },
     });
@@ -305,9 +305,9 @@ async function revokeLicense(actorId: string, accountId: string) {
       .for('update');
     if (!free) refuse(409, 'noFreeLicense');
     await tx.delete(economyCasinoLicense).where(eq(economyCasinoLicense.id, free.id));
-    await adminAuditService.record(tx, {
+    await auditService.record(tx, {
       action: 'economy.licenseRevoke',
-      actorUserId: actorId,
+      actor: { source: 'web', userId: actorId },
       targetUserId: userId,
       data: { name: await auditName(tx, account), accountId, licenseId: free.id },
     });
@@ -337,9 +337,9 @@ async function freeze(actorId: string, accountId: string, body: EconomyFreezeBod
         .set({ defaultAccountId: null })
         .where(eq(economyProfile.defaultAccountId, accountId));
     }
-    await adminAuditService.record(tx, {
+    await auditService.record(tx, {
       action: body.frozen ? 'economy.freeze' : 'economy.unfreeze',
-      actorUserId: actorId,
+      actor: { source: 'web', userId: actorId },
       targetUserId: account.ownerUserId,
       data: { name: await auditName(tx, account), accountId, reason: body.reason ?? null },
     });
@@ -358,9 +358,9 @@ async function reverse(actorId: string, transactionId: number, reason: string) {
     });
     const [first] = [...posted.balances.keys()];
     const account = first ? await requireAccount(first, tx) : undefined;
-    await adminAuditService.record(tx, {
+    await auditService.record(tx, {
       action: 'economy.reverse',
-      actorUserId: actorId,
+      actor: { source: 'web', userId: actorId },
       targetUserId: account?.ownerUserId ?? null,
       data: {
         name: account ? await auditName(tx, account) : '',
@@ -512,9 +512,9 @@ async function reset(actorId: string, confirm: string) {
     await tx.delete(economyProfile);
     await tx.delete(economyDailyStat);
     await tx.delete(economyAccount);
-    await adminAuditService.record(tx, {
+    await auditService.record(tx, {
       action: 'economy.reset',
-      actorUserId: actorId,
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { accounts: accounts.length, supply: Number(totals?.supply ?? 0) },
     });

@@ -1,5 +1,6 @@
 import { defineTask } from 'nitropack/runtime';
 
+import { auditService } from '~~/server/services/audit';
 import { flagService } from '~~/server/services/flags';
 import { gamesplanetService } from '~~/server/services/gamesplanet';
 import { gamesplanetDealsService } from '~~/server/services/gamesplanet-deals';
@@ -15,6 +16,7 @@ export default defineTask({
       return { result: { removed: 0, clicks: 0, skipped: true } };
     const removed = await gamesplanetService.pruneCovers();
     const clicks = await gamesplanetDealsService.pruneClicks();
+    await auditService.recordJob('site.gamesplanet.prune', { removed, clicks });
     return { result: { removed, clicks, skipped: false } };
   },
 });

@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '~~/server/db';
 import { mod } from '~~/server/db/schema';
 import { modsEnv } from '~~/server/lib/mods-env';
-import { wardenAuditService } from '~~/server/services/warden/audit';
+import { auditService } from '~~/server/services/audit';
 import type { WardenActor } from '~~/server/services/warden/shared';
 
 import { CatalogUnavailableError, modCatalog } from './catalog';
@@ -106,8 +106,8 @@ async function apply(input: { modId: number; body: ModRefreshBody; actor: WebAct
         .where(eq(mod.id, row.id))
         .returning({ id: mod.id });
       if (!updated) refuse(404, 'notFound');
-      await wardenAuditService.record(tx, {
-        action: 'mod.refresh',
+      await auditService.record(tx, {
+        action: 'minecraft.mod.refresh',
         actor: input.actor,
         targetUserId: row.proposerUserId,
         data: { modId: row.id, name: set.name ?? row.name, fields: applied },

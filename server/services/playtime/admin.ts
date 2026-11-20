@@ -16,8 +16,8 @@ import {
   wardenPlayer,
   wardenSession,
 } from '~~/server/db/schema';
+import { auditService } from '~~/server/services/audit';
 import { flagService } from '~~/server/services/flags';
-import { wardenAuditService } from '~~/server/services/warden/audit';
 import { wardenPlayerService } from '~~/server/services/warden/players';
 
 import { playtimeSettingsService } from './settings';
@@ -106,8 +106,8 @@ async function updateSettings(actor: Actor, patch: PlaytimeSettingsPatch) {
       .update(playtimeSettings)
       .set({ ...patch, updatedAt: new Date(), updatedByUserId: actor.userId })
       .where(eq(playtimeSettings.id, 1));
-    await wardenAuditService.record(tx, {
-      action: 'playtime.settings',
+    await auditService.record(tx, {
+      action: 'minecraft.playtime.settings',
       actor,
       data: { scope: 'global', before: pick(before, patch), after: patch },
     });
@@ -142,8 +142,8 @@ async function setSchool(actor: Actor, tenantId: string, body: PlaytimeSchoolBod
         target: playtimeSchool.tenantId,
         set: { ...body, updatedAt: new Date(), updatedByUserId: actor.userId },
       });
-    await wardenAuditService.record(tx, {
-      action: 'playtime.school',
+    await auditService.record(tx, {
+      action: 'minecraft.playtime.school',
       actor,
       data: { tenantId, before: before ?? null, after: body },
     });
@@ -159,8 +159,8 @@ async function clearSchool(actor: Actor, tenantId: string) {
       .where(eq(playtimeSchool.tenantId, tenantId))
       .returning();
     if (!before) return;
-    await wardenAuditService.record(tx, {
-      action: 'playtime.school',
+    await auditService.record(tx, {
+      action: 'minecraft.playtime.school',
       actor,
       data: { tenantId, before, after: null },
     });
@@ -189,8 +189,8 @@ async function setPlayerOverrides(actor: Actor, userId: string, body: PlaytimePl
         playtimeWarningsMinutes: body.warningsMinutes,
       })
       .where(eq(wardenPlayer.userId, userId));
-    await wardenAuditService.record(tx, {
-      action: 'playtime.settings',
+    await auditService.record(tx, {
+      action: 'minecraft.playtime.settings',
       actor,
       targetUserId: userId,
       data: { scope: 'player', before: before ?? null, after: body },
@@ -205,8 +205,8 @@ async function createClosure(actor: Actor, body: PlaytimeClosureBody) {
       .insert(playtimeClosure)
       .values({ ...body, createdByUserId: actor.userId })
       .returning();
-    await wardenAuditService.record(tx, {
-      action: 'playtime.closure',
+    await auditService.record(tx, {
+      action: 'minecraft.playtime.closure',
       actor,
       data: { change: 'create', closure },
     });
@@ -232,8 +232,8 @@ async function updateClosure(actor: Actor, id: number, body: PlaytimeClosureBody
     if (!before) problem(404, 'notFound');
     if (before.eventId) problem(409, 'eventClosure');
     await tx.update(playtimeClosure).set(body).where(eq(playtimeClosure.id, id));
-    await wardenAuditService.record(tx, {
-      action: 'playtime.closure',
+    await auditService.record(tx, {
+      action: 'minecraft.playtime.closure',
       actor,
       data: { change: 'update', before, after: body },
     });
@@ -246,8 +246,8 @@ async function deleteClosure(actor: Actor, id: number) {
     if (!before) problem(404, 'notFound');
     if (before.eventId) problem(409, 'eventClosure');
     await tx.delete(playtimeClosure).where(eq(playtimeClosure.id, id));
-    await wardenAuditService.record(tx, {
-      action: 'playtime.closure',
+    await auditService.record(tx, {
+      action: 'minecraft.playtime.closure',
       actor,
       data: { change: 'delete', closure: before },
     });
@@ -280,8 +280,8 @@ async function addExemption(actor: Actor, body: PlaytimeExemptionBody, forUserId
         setByUserId: actor.userId,
       })
       .returning();
-    await wardenAuditService.record(tx, {
-      action: 'playtime.exemption',
+    await auditService.record(tx, {
+      action: 'minecraft.playtime.exemption',
       actor,
       targetUserId,
       targetMinecraftUuid: body.minecraftUuid ?? null,
@@ -316,8 +316,8 @@ async function revokeExemption(actor: Actor, id: number, forUserId?: string) {
       .where(and(eq(playtimeExemption.id, id), isNull(playtimeExemption.revokedAt)))
       .returning();
     if (!exemption) problem(404, 'notFound');
-    await wardenAuditService.record(tx, {
-      action: 'playtime.exemption',
+    await auditService.record(tx, {
+      action: 'minecraft.playtime.exemption',
       actor,
       targetUserId: exemption.userId,
       targetMinecraftUuid: exemption.minecraftUuid,
@@ -341,8 +341,8 @@ async function addGrant(actor: Actor, userId: string, body: PlaytimeGrantBody, n
         grantedByUserId: actor.userId,
       })
       .returning();
-    await wardenAuditService.record(tx, {
-      action: 'playtime.grant',
+    await auditService.record(tx, {
+      action: 'minecraft.playtime.grant',
       actor,
       targetUserId: userId,
       data: { change: 'add', grant },
@@ -365,8 +365,8 @@ async function revokeGrant(actor: Actor, userId: string, id: number) {
       )
       .returning();
     if (!grant) problem(404, 'notFound');
-    await wardenAuditService.record(tx, {
-      action: 'playtime.grant',
+    await auditService.record(tx, {
+      action: 'minecraft.playtime.grant',
       actor,
       targetUserId: userId,
       data: { change: 'revoke', grant },
@@ -398,8 +398,8 @@ async function reset(actor: Actor, confirm: string) {
       .where(inArray(playtimeLedger.sessionId, open))
       .returning({ id: sql`1` });
     const notices = await tx.delete(playtimeNotice).returning({ id: sql`1` });
-    await wardenAuditService.record(tx, {
-      action: 'playtime.reset',
+    await auditService.record(tx, {
+      action: 'minecraft.playtime.reset',
       actor,
       data: { ledger: ledger.length + zeroed.length, notices: notices.length },
     });
@@ -428,8 +428,8 @@ async function resetAll(actor: Actor, confirm: string) {
       .set({ transferredPlaytimeSeconds: 0 })
       .where(ne(wardenPlayer.transferredPlaytimeSeconds, 0))
       .returning({ userId: wardenPlayer.userId });
-    await wardenAuditService.record(tx, {
-      action: 'playtime.resetAll',
+    await auditService.record(tx, {
+      action: 'minecraft.playtime.resetAll',
       actor,
       data: { sessions: sessions.length, accounts: accounts.length, players: players.length },
     });

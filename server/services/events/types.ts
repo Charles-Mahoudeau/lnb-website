@@ -3,7 +3,7 @@ import { asc, eq, sql } from 'drizzle-orm';
 import { db } from '~~/server/db';
 import { isUniqueViolation } from '~~/server/db/errors';
 import { eventType } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 
 import { refuse } from './shared';
 
@@ -36,9 +36,9 @@ async function create(input: { actorId: string; body: EventTypeBody }): Promise<
   try {
     return await db.transaction(async (tx) => {
       const [row] = await tx.insert(eventType).values(input.body).returning();
-      await adminAuditService.record(tx, {
-        action: 'eventType.create',
-        actorUserId: input.actorId,
+      await auditService.record(tx, {
+        action: 'events.type.create',
+        actor: { source: 'web', userId: input.actorId },
         targetUserId: null,
         data: { id: row!.id, name: row!.nameEn },
       });
@@ -72,9 +72,9 @@ async function update(input: {
         .where(eq(eventType.id, input.id))
         .returning();
       if (!row) refuse(404, 'typeNotFound');
-      await adminAuditService.record(tx, {
-        action: 'eventType.update',
-        actorUserId: input.actorId,
+      await auditService.record(tx, {
+        action: 'events.type.update',
+        actor: { source: 'web', userId: input.actorId },
         targetUserId: null,
         data: { id: row.id, name: row.nameEn, patch: input.patch },
       });

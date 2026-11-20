@@ -16,7 +16,7 @@ import {
   questSettingsRow,
   user,
 } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 import { minecraftEventService } from '~~/server/services/minecraft-events';
 
 import { questCategoryService } from './categories';
@@ -137,9 +137,9 @@ async function updateSettings(actorId: string, input: unknown) {
       .insert(questSettingsRow)
       .values({ id: 1, ...set })
       .onConflictDoUpdate({ target: questSettingsRow.id, set });
-    await adminAuditService.record(tx, {
-      action: 'quests.settings',
-      actorUserId: actorId,
+    await auditService.record(tx, {
+      action: 'economy.quests.settings',
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { ...patch },
     });
@@ -195,9 +195,9 @@ async function createQuest(actorId: string, input: unknown) {
       .onConflictDoNothing()
       .returning({ id: quest.id });
     if (!inserted.length) refuse(409, 'idTaken');
-    await adminAuditService.record(tx, {
-      action: 'quests.create',
-      actorUserId: actorId,
+    await auditService.record(tx, {
+      action: 'economy.quests.create',
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { id },
     });
@@ -224,9 +224,9 @@ async function updateQuest(actorId: string, id: string, input: unknown) {
   if (body.sortOrder !== undefined) set.sortOrder = body.sortOrder;
   await db.transaction(async (tx) => {
     await tx.update(quest).set(set).where(eq(quest.id, id));
-    await adminAuditService.record(tx, {
-      action: 'quests.update',
-      actorUserId: actorId,
+    await auditService.record(tx, {
+      action: 'economy.quests.update',
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { id, name: id, enabled: body.enabled, definition: body.definition !== undefined },
     });
@@ -256,9 +256,9 @@ async function deleteQuest(actorId: string, id: string) {
     if (used || raced || drawn) refuse(409, 'questInUse');
     const deleted = await tx.delete(quest).where(eq(quest.id, id)).returning({ id: quest.id });
     if (!deleted.length) refuse(404, 'notFound');
-    await adminAuditService.record(tx, {
-      action: 'quests.delete',
-      actorUserId: actorId,
+    await auditService.record(tx, {
+      action: 'economy.quests.delete',
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { id },
     });
@@ -316,9 +316,9 @@ async function importCatalog(actorId: string, input: unknown) {
         replaced.push(id);
       }
     }
-    await adminAuditService.record(tx, {
-      action: 'quests.import',
-      actorUserId: actorId,
+    await auditService.record(tx, {
+      action: 'economy.quests.import',
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { added, replaced, categories: categoriesResult },
     });
@@ -354,9 +354,9 @@ async function reset(actorId: string, input: unknown) {
       .insert(questSettingsRow)
       .values({ id: 1, values: {}, resetAt })
       .onConflictDoUpdate({ target: questSettingsRow.id, set: { resetAt } });
-    await adminAuditService.record(tx, {
-      action: 'quests.reset',
-      actorUserId: actorId,
+    await auditService.record(tx, {
+      action: 'economy.quests.reset',
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: deleted,
     });

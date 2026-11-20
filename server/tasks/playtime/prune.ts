@@ -1,5 +1,6 @@
 import { defineTask } from 'nitropack/runtime';
 
+import { auditService } from '~~/server/services/audit';
 import { flagService } from '~~/server/services/flags';
 import { playtimePruneService } from '~~/server/services/playtime/prune';
 
@@ -13,6 +14,8 @@ export default defineTask({
   async run() {
     if (!(await flagService.isEnabled('jobs.playtimePrune')))
       return { result: { ledger: 0, notices: 0, skipped: true } };
-    return { result: { ...(await playtimePruneService.prune()), skipped: false } };
+    const pruned = await playtimePruneService.prune();
+    await auditService.recordJob('minecraft.playtime.prune', pruned);
+    return { result: { ...pruned, skipped: false } };
   },
 });

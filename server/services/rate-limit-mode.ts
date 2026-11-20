@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import { rateLimitSetting, user } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 
 import { RATE_LIMIT_MODES } from '#shared/rate-limit';
 import type { RateLimitMode } from '#shared/rate-limit';
@@ -46,7 +46,7 @@ async function get(): Promise<AdminRateLimit> {
   };
 }
 
-/** Sets the mode, and writes admin_audit. A no-op change writes nothing. */
+/** Sets the mode, and writes audit. A no-op change writes nothing. */
 async function set(input: { mode: RateLimitMode; actorId: string }): Promise<void> {
   const { mode, actorId } = input;
   await db.transaction(async (tx) => {
@@ -62,9 +62,9 @@ async function set(input: { mode: RateLimitMode; actorId: string }): Promise<voi
         target: rateLimitSetting.id,
         set: { mode, updatedAt: new Date(), updatedByUserId: actorId },
       });
-    await adminAuditService.record(tx, {
-      action: 'rateLimit.mode',
-      actorUserId: actorId,
+    await auditService.record(tx, {
+      action: 'settings.rateLimit',
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { mode },
     });

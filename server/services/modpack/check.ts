@@ -3,10 +3,11 @@ import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
 import { modpackMod } from '~~/server/db/schema';
+import { auditService } from '~~/server/services/audit';
+import type { AuditActor } from '~~/server/services/audit';
 import { modCatalog } from '~~/server/services/mods/catalog';
 import { modIconService } from '~~/server/services/mods/icons';
 import { modSettingsService } from '~~/server/services/mods/settings';
-import { wardenAuditService } from '~~/server/services/warden/audit';
 import type { WardenActor } from '~~/server/services/warden/shared';
 
 import { downloadAndHash, DownloadError } from './download';
@@ -109,7 +110,9 @@ async function fillIcon(row: Row, target: Awaited<ReturnType<typeof modSettingsS
 }
 
 /** Looks for newer files for the mods that come from a source or a link. */
-async function check(input: { ids?: string[] } = {}): Promise<ModpackCheckResult> {
+async function check(
+  input: { ids?: string[]; actor?: AuditActor } = {},
+): Promise<ModpackCheckResult> {
   const target = await modSettingsService.get();
   const rows = input.ids
     ? await db.select().from(modpackMod).where(inArray(modpackMod.id, input.ids))
@@ -136,6 +139,16 @@ async function check(input: { ids?: string[] } = {}): Promise<ModpackCheckResult
       if (leaves || returns) await bump(tx);
     });
     if (statusOf(next) === 'update') result.updates++;
+  }
+  if (result.checked) {
+    // The nightly job has no actor: it is the site itself.
+    await db.transaction((tx) =>
+      auditService.record(tx, {
+        action: 'minecraft.modpack.check',
+        actor: input.actor ?? { source: 'system' },
+        data: { ...result },
+      }),
+    );
   }
   return result;
 }
@@ -172,8 +185,8 @@ async function adopt(input: { id?: string; actor: WebActor }): Promise<{ adopted
         continue;
       }
       await tx.update(modpackMod).set(values).where(eq(modpackMod.id, row.id));
-      await wardenAuditService.record(tx, {
-        action: 'modpack.adopt',
+      await auditService.record(tx, {
+        action: 'minecraft.modpack.adopt',
         actor: input.actor,
         data: {
           modId: row.id,

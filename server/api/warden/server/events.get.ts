@@ -12,11 +12,12 @@ const PING_MS = 25_000;
 export default defineEventHandler(async (event) => {
   requireWardenServer(event);
   await requireFlag(event, 'warden.serverApi');
-  const lastEventId = Number(getRequestHeader(event, 'last-event-id'));
-  let cursor =
-    Number.isSafeInteger(lastEventId) && lastEventId >= 0
-      ? lastEventId
-      : await wardenEventService.latestId();
+  const header = getRequestHeader(event, 'last-event-id');
+  const lastEventId = header === undefined || header === '' ? NaN : Number(header);
+  // An ID above the newest one is from before the log's IDs restarted: start from the newest.
+  let cursor = await wardenEventService.startAfter(
+    Number.isSafeInteger(lastEventId) ? lastEventId : null,
+  );
 
   // nuxt/server's event is h3's at runtime. The portable surface has no event streams yet.
   const stream = createEventStream(event as unknown as H3Event);

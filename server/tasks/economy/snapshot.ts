@@ -1,6 +1,7 @@
 import { defineTask } from 'nitropack/runtime';
 
 import { db } from '~~/server/db';
+import { auditService } from '~~/server/services/audit';
 import { economyAccountService } from '~~/server/services/economy/accounts';
 import { economyAuctionService } from '~~/server/services/economy/auctions';
 import { economyStatsService } from '~~/server/services/economy/stats';
@@ -20,6 +21,7 @@ export default defineTask({
     const swept = await db.transaction((tx) => economyAccountService.sweepOrphans(tx));
     const expired = await economyAuctionService.expireDue(db);
     const days = await economyStatsService.snapshot();
+    await auditService.recordJob('economy.sweep', { closed: swept.closed, expired });
     return { result: { ...swept, expired, days, skipped: false } };
   },
 });

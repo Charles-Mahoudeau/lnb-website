@@ -4,7 +4,7 @@ import { createError } from 'nuxt/server';
 import { db } from '~~/server/db';
 import { apiKey, apiKeyUsage, user } from '~~/server/db/schema';
 import { generateApiKey, hashApiKey } from '~~/server/lib/api-keys';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 import { flagService } from '~~/server/services/flags';
 
 import {
@@ -117,9 +117,9 @@ async function create(input: { actorId: string; body: ApiKeyBody }): Promise<Api
         createdBy: input.actorId,
       })
       .returning();
-    await adminAuditService.record(tx, {
-      action: 'apiKey.create',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'settings.apiKey.create',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: created!.id, name: created!.name, permissions: created!.permissions },
     });
@@ -164,9 +164,9 @@ async function rotate(input: {
         createdBy: input.actorId,
       })
       .returning();
-    await adminAuditService.record(tx, {
-      action: 'apiKey.rotate',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'settings.apiKey.rotate',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: old.id, name: old.name, newId: created!.id, overlapDays: input.body.overlapDays },
     });
@@ -182,9 +182,9 @@ async function revoke(input: { actorId: string; id: string }): Promise<void> {
     if (!row) refuse(404, 'apiKeyNotFound');
     if (row.revokedAt) return;
     await tx.update(apiKey).set({ revokedAt: new Date() }).where(eq(apiKey.id, row.id));
-    await adminAuditService.record(tx, {
-      action: 'apiKey.revoke',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'settings.apiKey.revoke',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: row.id, name: row.name },
     });

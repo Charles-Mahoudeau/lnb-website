@@ -6,8 +6,8 @@ import { db } from '~~/server/db';
 import { deviceCode, user, wardenDeviceRequest } from '~~/server/db/schema';
 import { generateDeviceCode } from '~~/server/lib/link-codes';
 import { wardenEnv } from '~~/server/lib/warden-env';
+import { auditService } from '~~/server/services/audit';
 
-import { wardenAuditService } from './audit';
 import {
   insertDeviceCode,
   LINK_CODE_LIFETIME_SECONDS,
@@ -173,8 +173,8 @@ async function decide(
     .update(deviceCode)
     .set({ status: input.decision })
     .where(eq(deviceCode.id, input.deviceCodeId));
-  await wardenAuditService.record(tx, {
-    action: input.decision === 'approved' ? 'device.link' : 'device.deny',
+  await auditService.record(tx, {
+    action: input.decision === 'approved' ? 'minecraft.device.link' : 'minecraft.device.deny',
     actor: { source: 'web', userId: input.actorId },
     targetUserId: input.actorId,
     data: { requestId: request.id, deviceName: request.deviceName },

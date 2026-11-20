@@ -4,10 +4,10 @@ import { createError } from 'nuxt/server';
 import { db } from '~~/server/db';
 import { isUniqueViolation } from '~~/server/db/errors';
 import { modpackMod, modpackState, storedFile } from '~~/server/db/schema';
+import { auditService } from '~~/server/services/audit';
 import { modCatalog, CatalogUnavailableError } from '~~/server/services/mods/catalog';
 import { modIconService } from '~~/server/services/mods/icons';
 import { modSettingsService } from '~~/server/services/mods/settings';
-import { wardenAuditService } from '~~/server/services/warden/audit';
 import type { WardenActor } from '~~/server/services/warden/shared';
 
 import { downloadAndHash, DownloadError } from './download';
@@ -29,7 +29,7 @@ import type {
 } from '#shared/schemas/modpack';
 
 // The Modlist: the launcher's modpack, apart from the mod vote. Every change that a launcher could
-// see bumps the manifest's revision and is written to warden_audit. See docs/modpack.md.
+// see bumps the manifest's revision and is written to audit. See docs/modpack.md.
 
 type WebActor = WardenActor & { source: 'web' };
 type Row = typeof modpackMod.$inferSelect;
@@ -235,8 +235,8 @@ async function add(input: { body: ModpackAddBody; actor: WebActor }): Promise<{ 
     return await db.transaction(async (tx) => {
       const [row] = await tx.insert(modpackMod).values(values).returning({ id: modpackMod.id });
       await bump(tx);
-      await wardenAuditService.record(tx, {
-        action: 'modpack.add',
+      await auditService.record(tx, {
+        action: 'minecraft.modpack.add',
         actor: input.actor,
         data: { modId: row!.id, name: values.name, source: values.source },
       });
@@ -265,8 +265,8 @@ async function edit(input: { id: string; patch: ModpackPatchBody; actor: WebActo
     if (Object.keys(set).length === 0) return;
     await tx.update(modpackMod).set(set).where(eq(modpackMod.id, input.id));
     await bump(tx);
-    await wardenAuditService.record(tx, {
-      action: 'modpack.edit',
+    await auditService.record(tx, {
+      action: 'minecraft.modpack.edit',
       actor: input.actor,
       data: { modId: row.id, name: row.name, fields: Object.keys(set) },
     });
@@ -287,8 +287,8 @@ async function pinFile(input: { id: string; body: ModpackPinBody; actor: WebActo
       .set({ ...pinnedFromLibrary(file, input.body.version), attention: null })
       .where(eq(modpackMod.id, input.id));
     await bump(tx);
-    await wardenAuditService.record(tx, {
-      action: 'modpack.pin',
+    await auditService.record(tx, {
+      action: 'minecraft.modpack.pin',
       actor: input.actor,
       data: { modId: row.id, name: row.name, fileId: file.id, version: input.body.version },
     });
@@ -300,8 +300,8 @@ async function remove(input: { id: string; actor: WebActor }) {
     const [row] = await tx.delete(modpackMod).where(eq(modpackMod.id, input.id)).returning();
     if (!row) refuse(404, 'notFound');
     await bump(tx);
-    await wardenAuditService.record(tx, {
-      action: 'modpack.remove',
+    await auditService.record(tx, {
+      action: 'minecraft.modpack.remove',
       actor: input.actor,
       data: { modId: row.id, name: row.name },
     });

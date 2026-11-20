@@ -1,5 +1,6 @@
 import { defineTask } from 'nitropack/runtime';
 
+import { auditService } from '~~/server/services/audit';
 import { eventImageService } from '~~/server/services/events/images';
 import { flagService } from '~~/server/services/flags';
 
@@ -14,6 +15,7 @@ export default defineTask({
     if (!(await flagService.isEnabled('jobs.pruneEventImages')))
       return { result: { removed: 0, skipped: true } };
     const removed = await eventImageService.prune();
+    await auditService.recordJob('events.pruneImages', { removed });
     return { result: { removed, skipped: false } };
   },
 });

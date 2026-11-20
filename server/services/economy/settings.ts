@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import { economySettings } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 
 import type { Db } from './shared';
 
@@ -45,9 +45,9 @@ async function update(actorId: string, body: EconomySettingsBody): Promise<Econo
       .insert(economySettings)
       .values({ id: 1, ...DEFAULTS, ...values })
       .onConflictDoUpdate({ target: economySettings.id, set: values });
-    await adminAuditService.record(tx, {
+    await auditService.record(tx, {
       action: 'economy.settings',
-      actorUserId: actorId,
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { ...body },
     });

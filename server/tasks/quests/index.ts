@@ -1,5 +1,6 @@
 import { defineTask } from 'nitropack/runtime';
 
+import { auditService } from '~~/server/services/audit';
 import { flagService } from '~~/server/services/flags';
 import { questAdminService } from '~~/server/services/quests/admin';
 
@@ -13,6 +14,7 @@ export default defineTask({
   async run() {
     if (!(await flagService.isEnabled('jobs.questsIndex'))) return { result: { skipped: true } };
     const result = await questAdminService.runIndex();
+    await auditService.recordJob('economy.quests.index', { days: 1, day: result.day });
     return { result: { ...result, skipped: false } };
   },
 });

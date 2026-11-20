@@ -11,7 +11,7 @@ import {
   wardenSession,
 } from '~~/server/db/schema';
 import type { AnticheatDeclared } from '~~/server/db/schema';
-import { wardenAuditService } from '~~/server/services/warden/audit';
+import { auditService } from '~~/server/services/audit';
 
 import { anticheatAlertService } from './alerts';
 import { anticheatLookupService } from './lookup';
@@ -494,8 +494,8 @@ async function reevaluate(reportIds: string[]): Promise<number> {
           .select()
           .from(anticheatReport)
           .where(eq(anticheatReport.id, reportId));
-        await wardenAuditService.record(tx, {
-          action: 'anticheat.verdict',
+        await auditService.record(tx, {
+          action: 'minecraft.anticheat.verdict',
           actor: { source: 'system' },
           targetUserId: report!.userId,
           targetMinecraftUuid: report!.minecraftUuid,

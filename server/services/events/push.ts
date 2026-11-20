@@ -11,7 +11,7 @@ import {
   user,
 } from '~~/server/db/schema';
 import type { PushKind } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 import { buildMessage } from '~~/server/services/push/messages';
 import { pushQueueService } from '~~/server/services/push/queue';
 import { afterQuietHours, quietOf } from '~~/server/services/push/rules';
@@ -205,9 +205,9 @@ async function announce(input: {
           ? `newEvent:${row.id}:${userId}:resend:${String(resentAt)}`
           : `newEvent:${row.id}:${userId}`,
     });
-    await adminAuditService.record(tx, {
-      action: input.resend ? 'event.announceResend' : 'event.announce',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: input.resend ? 'events.event.announceResend' : 'events.event.announce',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { eventId: row.id, name: row.name, recipients },
     });

@@ -13,7 +13,7 @@ import {
   user,
 } from '~~/server/db/schema';
 import { siteUrl } from '~~/server/lib/site';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 import { shortLinkService } from '~~/server/services/short-links';
 
 import type { PosterBody, PosterEvent, PosterProblem, PosterView } from '#shared/schemas/posters';
@@ -245,9 +245,9 @@ async function create(input: { actorId: string; body: PosterBody }): Promise<{ i
         updatedBy: input.actorId,
       })
       .returning();
-    await adminAuditService.record(tx, {
-      action: 'poster.create',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.poster.create',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: row!.id, name: row!.name },
     });
@@ -271,9 +271,9 @@ async function update(input: { actorId: string; id: string; body: PosterBody }):
       .where(eq(poster.id, input.id))
       .returning();
     if (!row) refuse(404, 'posterNotFound');
-    await adminAuditService.record(tx, {
-      action: 'poster.update',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.poster.update',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: row.id, name: row.name },
     });
@@ -299,9 +299,9 @@ async function duplicate(input: {
         updatedBy: input.actorId,
       })
       .returning();
-    await adminAuditService.record(tx, {
-      action: 'poster.create',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.poster.create',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: row!.id, name: row!.name, from: source.id },
     });
@@ -314,9 +314,9 @@ async function remove(input: { actorId: string; id: string }): Promise<void> {
   await db.transaction(async (tx) => {
     const [row] = await tx.delete(poster).where(eq(poster.id, input.id)).returning();
     if (!row) refuse(404, 'posterNotFound');
-    await adminAuditService.record(tx, {
-      action: 'poster.delete',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.poster.delete',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: row.id, name: row.name },
     });

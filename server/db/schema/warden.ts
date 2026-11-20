@@ -1,7 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
   bigint,
-  bigserial,
   boolean,
   check,
   index,
@@ -289,122 +288,6 @@ export const wardenNote = pgTable(
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
   (table) => [index('warden_note_user_id_created_at_idx').on(table.userId, table.createdAt)],
-);
-
-export const WARDEN_AUDIT_ACTIONS = [
-  'link',
-  'link.request',
-  'link.cancel',
-  'unlink',
-  // Another player linked an account that was unlinked, and then dismissing the warning about it.
-  'link.transfer',
-  'transfer.dismiss',
-  'token.rotate',
-  // A device of the LNB Warden mod (docs/warden.md): linked from /link, denied there, or revoked.
-  'device.link',
-  'device.deny',
-  'device.revoke',
-  'ban',
-  'unban',
-  'ban.expire',
-  // An admin changed the end of a ban in force.
-  'ban.update',
-  'appeal.create',
-  'appeal.decide',
-  'note.create',
-  'warning.create',
-  'limit.set',
-  'role.set',
-  'settings.update',
-  'identity.update',
-  // Written by the migration to offline UUIDs, for premium accounts it couldn't move.
-  'uuid.collision',
-  // The mod list (docs/mods.md), run by the same staff. Not sent to the Minecraft server.
-  'mod.add',
-  'mod.promote',
-  'mod.edit',
-  'mod.convert',
-  'mod.refresh',
-  'mod.remove',
-  'mod.restore',
-  'mod.delete',
-  'modSettings.update',
-  // The Files library (docs/files.md), run by the same staff.
-  'file.upload',
-  'file.delete',
-  'file.kind',
-  // The Modlist (docs/modpack.md), run by the same staff.
-  'modpack.add',
-  'modpack.edit',
-  'modpack.pin',
-  'modpack.adopt',
-  'modpack.export',
-  'modpack.remove',
-  'modpack.tool',
-  // The anticheat (docs/anticheat.md), run by the same staff. The last two are written by the site
-  // itself and exist to feed the event stream.
-  'anticheat.approve',
-  'anticheat.ban',
-  'anticheat.clear',
-  'anticheat.reviewed',
-  'anticheat.link',
-  'anticheat.unlink',
-  'anticheat.modIdBan',
-  'anticheat.modIdUnban',
-  'anticheat.playerAdjust',
-  'anticheat.hold',
-  'anticheat.holdClear',
-  'anticheat.bulk',
-  'anticheat.settings',
-  'anticheat.verdict',
-  'anticheat.alert',
-  // The two resets, by a site admin: the decisions on files, or the players' scores and sanctions.
-  'anticheat.resetFiles',
-  'anticheat.resetSanctions',
-  // The playtime limit (docs/playtime.md), run by the same staff. The two settings actions cover
-  // the global rules and a school's, the others one closure, exemption or grant.
-  'playtime.settings',
-  'playtime.school',
-  'playtime.closure',
-  'playtime.exemption',
-  'playtime.grant',
-  // Everything counted and every warning wiped, by a site admin.
-  'playtime.reset',
-  // Everything wiped, the sessions and the totals too, by a site admin.
-  'playtime.resetAll',
-  // Every ban, appeal and note wiped, with the anticheat's sanctions, by a site admin.
-  'warden.resetSanctions',
-  // Written by the site's playtime timer to feed the event stream, one per event.
-  'playtime.warning',
-  'playtime.grace',
-  'playtime.update',
-  'playtime.kick',
-] as const;
-
-export type WardenAuditAction = (typeof WARDEN_AUDIT_ACTIONS)[number];
-
-/**
- * Every Warden change: who, when, from where, and to whom. Its IDs also number the events sent
- * to the Minecraft server, which replays missed ones from here.
- */
-export const wardenAudit = pgTable(
-  'warden_audit',
-  {
-    id: bigserial('id', { mode: 'number' }).primaryKey(),
-    at: timestamp('at').defaultNow().notNull(),
-    action: text('action').$type<WardenAuditAction>().notNull(),
-    source: text('source').$type<WardenSource>().notNull(),
-    actorUserId: text('actor_user_id').references(() => user.id, { onDelete: 'set null' }),
-    actorMinecraftUuid: uuid('actor_minecraft_uuid'),
-    actorMinecraftName: text('actor_minecraft_name'),
-    targetUserId: text('target_user_id').references(() => user.id, { onDelete: 'cascade' }),
-    targetMinecraftUuid: uuid('target_minecraft_uuid'),
-    data: jsonb('data').$type<Record<string, unknown>>().default({}).notNull(),
-  },
-  (table) => [
-    index('warden_audit_target_user_id_idx').on(table.targetUserId, table.id),
-    index('warden_audit_action_idx').on(table.action, table.id),
-  ],
 );
 
 /** Global settings, in a single row (id 1). */

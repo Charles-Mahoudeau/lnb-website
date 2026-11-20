@@ -1,6 +1,6 @@
 import { db } from '~~/server/db';
 import { pushSetting } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 
 import { PUSH_DEFAULT_SETTINGS } from '#shared/schemas/push';
 import type { PushSettings } from '#shared/schemas/push';
@@ -31,9 +31,9 @@ async function set(input: { actorId: string; settings: PushSettings }): Promise<
         target: pushSetting.id,
         set: { weeklyCap, silenceDays, quietEnabled, quietFrom, quietUntil },
       });
-    await adminAuditService.record(tx, {
-      action: 'push.settings',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.push.settings',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { weeklyCap, silenceDays, quietEnabled, quietFrom, quietUntil },
     });

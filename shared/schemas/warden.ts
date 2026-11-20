@@ -504,19 +504,6 @@ export type WardenTransferView = z.infer<typeof wardenTransferView>;
 
 export const wardenTransferParams = z.object({ transferId: z.uuid() });
 
-export const wardenAuditView = z.object({
-  id: z.number(),
-  at: isoDate,
-  action: z.string(),
-  source: wardenSource,
-  actor: wardenActorView,
-  target: z.object({ userId: z.string(), name: z.string().nullable() }).nullable(),
-  targetMinecraftUuid: z.string().nullable(),
-  data: z.record(z.string(), z.unknown()),
-});
-export type WardenAuditView = z.infer<typeof wardenAuditView>;
-export const wardenAuditPage = wardenPage(wardenAuditView);
-
 /** GET /api/warden/admin/players/:userId */
 export const wardenPlayerDetail = z.object({
   player: z.object({
@@ -545,7 +532,6 @@ export const wardenPlayerDetail = z.object({
   notes: z.array(wardenNoteView),
   transfers: z.array(wardenTransferView),
   sessions: wardenSessionPage,
-  audit: z.array(wardenAuditView),
 });
 export type WardenPlayerDetail = z.infer<typeof wardenPlayerDetail>;
 
@@ -556,14 +542,6 @@ export const wardenPlayerPatchBody = z.object({
 
 /** Body of PUT /api/warden/admin/players/:userId/role. */
 export const wardenRoleBody = z.object({ wardenAdmin: z.boolean() });
-
-/** GET /api/warden/admin/audit query. */
-export const wardenAuditQuery = z.object({
-  userId: z.string().max(64).optional(),
-  action: z.string().max(40).optional(),
-  source: wardenSource.optional(),
-  cursor: z.coerce.number().int().positive().optional(),
-});
 
 export const wardenSettingsView = z.object({
   defaultMaxAccounts: z.number(),

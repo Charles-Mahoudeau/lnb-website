@@ -5,7 +5,7 @@ import { db } from '~~/server/db';
 import type { Tx } from '~~/server/db';
 import { isUniqueViolation } from '~~/server/db/errors';
 import { teamMember, teamPole, teamSetting, user } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 import { avatarService } from '~~/server/services/avatars';
 import { flagService } from '~~/server/services/flags';
 
@@ -232,9 +232,9 @@ async function createPole(input: { actorId: string; body: TeamPoleBody }): Promi
         position: await nextPolePosition(tx),
       })
       .returning();
-    await adminAuditService.record(tx, {
-      action: 'teamPole.create',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'site.teamPole.create',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: row!.id, name: row!.nameEn },
     });
@@ -264,9 +264,9 @@ async function updatePole(input: {
       .where(eq(teamPole.id, input.id))
       .returning();
     if (!row) refuse(404, 'poleNotFound');
-    await adminAuditService.record(tx, {
-      action: 'teamPole.update',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'site.teamPole.update',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: row.id, name: row.nameEn, patch },
     });
@@ -283,9 +283,9 @@ async function deletePole(input: { actorId: string; id: string }): Promise<void>
     if (used) refuse(409, 'hasMembers');
     const [row] = await tx.delete(teamPole).where(eq(teamPole.id, input.id)).returning();
     if (!row) refuse(404, 'poleNotFound');
-    await adminAuditService.record(tx, {
-      action: 'teamPole.delete',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'site.teamPole.delete',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: row.id, name: row.nameEn },
     });
@@ -293,7 +293,12 @@ async function deletePole(input: { actorId: string; id: string }): Promise<void>
 }
 
 /** Swaps a pole with its neighbour. At the end of the list, nothing happens. */
-async function movePole(id: string, direction: 'up' | 'down'): Promise<void> {
+async function movePole(input: {
+  actorId: string;
+  id: string;
+  direction: 'up' | 'down';
+}): Promise<void> {
+  const { id, direction } = input;
   await db.transaction(async (tx) => {
     const rows = await tx
       .select({ id: teamPole.id })
@@ -308,6 +313,11 @@ async function movePole(id: string, direction: 'up' | 'down'): Promise<void> {
     for (const [position, row] of rows.entries()) {
       await tx.update(teamPole).set({ position }).where(eq(teamPole.id, row.id));
     }
+    await auditService.record(tx, {
+      action: 'site.teamPole.move',
+      actor: { source: 'web', userId: input.actorId },
+      data: { id, direction },
+    });
   });
 }
 
@@ -342,9 +352,9 @@ async function addMember(input: { actorId: string; body: TeamMemberBody }): Prom
         visible: body.visible,
         position: await nextMemberPosition(tx, body.poleId),
       });
-      await adminAuditService.record(tx, {
-        action: 'teamMember.add',
-        actorUserId: input.actorId,
+      await auditService.record(tx, {
+        action: 'site.teamMember.add',
+        actor: { source: 'web', userId: input.actorId },
         targetUserId: body.userId,
         data: { poleId: body.poleId },
       });
@@ -389,9 +399,9 @@ async function updateMember(input: {
         visible: patch.visible,
       })
       .where(eq(teamMember.userId, input.userId));
-    await adminAuditService.record(tx, {
-      action: 'teamMember.update',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'site.teamMember.update',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: input.userId,
       data: { patch },
     });
@@ -405,9 +415,9 @@ async function removeMember(input: { actorId: string; userId: string }): Promise
       .where(eq(teamMember.userId, input.userId))
       .returning({ poleId: teamMember.poleId });
     if (!row) refuse(404, 'memberNotFound');
-    await adminAuditService.record(tx, {
-      action: 'teamMember.remove',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'site.teamMember.remove',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: input.userId,
       data: { poleId: row.poleId },
     });
@@ -415,7 +425,12 @@ async function removeMember(input: { actorId: string; userId: string }): Promise
 }
 
 /** Swaps a member with their neighbour in the same pole. */
-async function moveMember(userId: string, direction: 'up' | 'down'): Promise<void> {
+async function moveMember(input: {
+  actorId: string;
+  userId: string;
+  direction: 'up' | 'down';
+}): Promise<void> {
+  const { userId, direction } = input;
   await db.transaction(async (tx) => {
     const [current] = await tx
       .select({ poleId: teamMember.poleId })
@@ -435,6 +450,12 @@ async function moveMember(userId: string, direction: 'up' | 'down'): Promise<voi
     for (const [position, row] of rows.entries()) {
       await tx.update(teamMember).set({ position }).where(eq(teamMember.userId, row.userId));
     }
+    await auditService.record(tx, {
+      action: 'site.teamMember.move',
+      actor: { source: 'web', userId: input.actorId },
+      targetUserId: userId,
+      data: { poleId: current.poleId, direction },
+    });
   });
 }
 
@@ -450,9 +471,9 @@ async function setSettings(input: {
       .insert(teamSetting)
       .values({ id: 1, joinUrl })
       .onConflictDoUpdate({ target: teamSetting.id, set: { joinUrl } });
-    await adminAuditService.record(tx, {
-      action: 'team.settings',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'site.team.settings',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { joinUrl },
     });

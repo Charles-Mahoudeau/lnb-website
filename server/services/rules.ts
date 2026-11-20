@@ -5,7 +5,7 @@ import { db } from '~~/server/db';
 import type { Db, Tx } from '~~/server/db';
 import { rule, ruleCategory } from '~~/server/db/schema';
 import { DRAFT_RULES } from '~~/server/lib/rules-draft';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 import { flagService } from '~~/server/services/flags';
 
 import type {
@@ -205,9 +205,9 @@ async function createCategory(input: {
         position: await nextCategoryPosition(tx),
       })
       .returning();
-    await adminAuditService.record(tx, {
-      action: 'rule.categoryCreate',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'minecraft.rule.categoryCreate',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: row!.id, name: row!.nameEn },
     });
@@ -233,9 +233,9 @@ async function updateCategory(input: {
       })
       .where(eq(ruleCategory.id, input.id))
       .returning();
-    await adminAuditService.record(tx, {
-      action: 'rule.categoryUpdate',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'minecraft.rule.categoryUpdate',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: input.id, name: row!.nameEn },
     });
@@ -253,16 +253,21 @@ async function removeCategory(input: { actorId: string; id: string }): Promise<v
       .limit(1);
     if (held) refuse(409, 'categoryNotEmpty');
     await tx.delete(ruleCategory).where(eq(ruleCategory.id, input.id));
-    await adminAuditService.record(tx, {
-      action: 'rule.categoryDelete',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'minecraft.rule.categoryDelete',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: input.id, name: category.nameEn },
     });
   });
 }
 
-async function moveCategory(id: string, direction: 'up' | 'down'): Promise<void> {
+async function moveCategory(input: {
+  actorId: string;
+  id: string;
+  direction: 'up' | 'down';
+}): Promise<void> {
+  const { id, direction } = input;
   await db.transaction(async (tx) => {
     await requireCategory(tx, id);
     const rows = await tx
@@ -280,6 +285,11 @@ async function moveCategory(id: string, direction: 'up' | 'down'): Promise<void>
         .set({ position, updatedAt: new Date() })
         .where(eq(ruleCategory.id, row.id));
     }
+    await auditService.record(tx, {
+      action: 'minecraft.rule.categoryMove',
+      actor: { source: 'web', userId: input.actorId },
+      data: { id, direction },
+    });
   });
 }
 
@@ -298,9 +308,9 @@ async function createRule(input: { actorId: string; body: RuleBody }): Promise<{
         position: await nextRulePosition(tx, body.categoryId),
       })
       .returning();
-    await adminAuditService.record(tx, {
-      action: 'rule.create',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'minecraft.rule.create',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: row!.id, ref: row!.ref, name: row!.titleEn },
     });
@@ -336,9 +346,9 @@ async function updateRule(input: {
       })
       .where(eq(rule.id, input.id))
       .returning();
-    await adminAuditService.record(tx, {
-      action: 'rule.update',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'minecraft.rule.update',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: input.id, ref: row!.ref, name: row!.titleEn },
     });
@@ -360,9 +370,9 @@ async function setRetired(input: { actorId: string; id: string; retired: boolean
         updatedAt: now,
       })
       .where(eq(rule.id, input.id));
-    await adminAuditService.record(tx, {
-      action: input.retired ? 'rule.retire' : 'rule.restore',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: input.retired ? 'minecraft.rule.retire' : 'minecraft.rule.restore',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { id: input.id, ref: current.ref, name: current.titleEn },
     });
@@ -370,7 +380,12 @@ async function setRetired(input: { actorId: string; id: string; retired: boolean
 }
 
 /** Swaps a rule with its neighbour of the same category. Retired rules count for their place. */
-async function moveRule(id: string, direction: 'up' | 'down'): Promise<void> {
+async function moveRule(input: {
+  actorId: string;
+  id: string;
+  direction: 'up' | 'down';
+}): Promise<void> {
+  const { id, direction } = input;
   await db.transaction(async (tx) => {
     const [current] = await tx
       .select({ categoryId: rule.categoryId })
@@ -393,6 +408,11 @@ async function moveRule(id: string, direction: 'up' | 'down'): Promise<void> {
     for (const [position, row] of rows.entries()) {
       await tx.update(rule).set({ position, updatedAt: new Date() }).where(eq(rule.id, row.id));
     }
+    await auditService.record(tx, {
+      action: 'minecraft.rule.move',
+      actor: { source: 'web', userId: input.actorId },
+      data: { id, direction },
+    });
   });
 }
 
@@ -424,9 +444,9 @@ async function loadDraft(input: { actorId: string }): Promise<{ rules: number }>
         count++;
       }
     }
-    await adminAuditService.record(tx, {
-      action: 'rule.seed',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'minecraft.rule.seed',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { rules: count },
     });

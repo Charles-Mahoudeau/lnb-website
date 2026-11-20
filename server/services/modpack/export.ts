@@ -2,7 +2,7 @@ import { and, eq, inArray } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import { mod, modpackMod, modpackState } from '~~/server/db/schema';
-import { wardenAuditService } from '~~/server/services/warden/audit';
+import { auditService } from '~~/server/services/audit';
 import type { WardenActor } from '~~/server/services/warden/shared';
 
 import { valuesFor } from './index';
@@ -161,8 +161,8 @@ async function apply(input: {
     }
     if (result.added + result.removed + result.updated === 0) return;
     await bump(tx);
-    await wardenAuditService.record(tx, {
-      action: 'modpack.export',
+    await auditService.record(tx, {
+      action: 'minecraft.modpack.export',
       actor: input.actor,
       data: {
         name: input.mode,

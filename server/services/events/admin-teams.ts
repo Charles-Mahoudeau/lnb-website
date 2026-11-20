@@ -10,7 +10,7 @@ import {
   eventTeamMember,
   user,
 } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 
 import { lockEvent, refuse } from './shared';
 import { checkName, eventTeamService, membershipOf, registrationOf } from './teams';
@@ -22,7 +22,7 @@ import { schoolForTenant } from '#shared/utils/schools';
 // A manager can bypass the player rules (the window, the start, the maximum, the minimum, one
 // team per player), but a player still needs an account and a registration. Nobody is notified
 // of these changes, except through the usual places notifications when a team becomes valid. Each
-// change is logged in `admin_audit`.
+// change is logged in `audit`.
 
 type Actor = { actorId: string };
 
@@ -170,9 +170,9 @@ async function create(
       .returning({ id: eventTeam.id });
     await tx.insert(eventTeamMember).values({ teamId: team!.id, registrationId: reg.id });
     await eventTeamService.settle(tx, row);
-    await adminAuditService.record(tx, {
-      action: 'eventTeam.create',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.team.create',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: input.userId,
       data: { eventId: row.id, name: row.name, team: name },
     });
@@ -206,16 +206,16 @@ async function update(
     }
     await tx.update(eventTeam).set(set).where(eq(eventTeam.id, team.id));
     await eventTeamService.settle(tx, row);
-    const audit = (action: 'eventTeam.rename' | 'eventTeam.force' | 'eventTeam.captain') =>
-      adminAuditService.record(tx, {
+    const audit = (action: 'events.team.rename' | 'events.team.force' | 'events.team.captain') =>
+      auditService.record(tx, {
         action,
-        actorUserId: input.actorId,
+        actor: { source: 'web', userId: input.actorId },
         targetUserId: body.captainUserId ?? null,
         data: { eventId: row.id, name: row.name, team: set.name ?? team.name, forced: set.forced },
       });
-    if (body.name !== undefined) await audit('eventTeam.rename');
-    if (body.forced !== undefined) await audit('eventTeam.force');
-    if (body.captainUserId !== undefined) await audit('eventTeam.captain');
+    if (body.name !== undefined) await audit('events.team.rename');
+    if (body.forced !== undefined) await audit('events.team.force');
+    if (body.captainUserId !== undefined) await audit('events.team.captain');
   });
 }
 
@@ -226,9 +226,9 @@ async function remove(input: Actor & { eventId: string; teamId: string }): Promi
     const team = await teamOf(tx, row.id, input.teamId);
     await tx.delete(eventTeam).where(eq(eventTeam.id, team.id));
     await eventTeamService.settle(tx, row);
-    await adminAuditService.record(tx, {
-      action: 'eventTeam.delete',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.team.delete',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { eventId: row.id, name: row.name, team: team.name },
     });
@@ -263,9 +263,9 @@ async function addMember(
         .where(eq(eventTeam.id, team.id));
     }
     await eventTeamService.settle(tx, row);
-    await adminAuditService.record(tx, {
-      action: 'eventTeam.memberAdd',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.team.memberAdd',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: input.userId,
       data: {
         eventId: row.id,
@@ -289,9 +289,9 @@ async function removeMember(
     if (!mine) refuse(404, 'notInTeam');
     await tx.delete(eventTeamMember).where(eq(eventTeamMember.id, mine.id));
     await eventTeamService.settle(tx, row);
-    await adminAuditService.record(tx, {
-      action: 'eventTeam.memberRemove',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'events.team.memberRemove',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: input.userId,
       data: {
         eventId: row.id,

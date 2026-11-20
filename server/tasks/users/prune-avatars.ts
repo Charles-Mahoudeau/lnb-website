@@ -1,5 +1,6 @@
 import { defineTask } from 'nitropack/runtime';
 
+import { auditService } from '~~/server/services/audit';
 import { avatarService } from '~~/server/services/avatars';
 import { flagService } from '~~/server/services/flags';
 
@@ -14,6 +15,7 @@ export default defineTask({
     if (!(await flagService.isEnabled('jobs.pruneAvatars')))
       return { result: { removed: 0, skipped: true } };
     const removed = await avatarService.prune();
+    await auditService.recordJob('people.pruneAvatars', { removed });
     return { result: { removed, skipped: false } };
   },
 });

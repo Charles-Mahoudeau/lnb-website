@@ -57,7 +57,7 @@ const roles = {
 
 // The admin plugin stays for its role and ban columns and for refusing banned sign-ins, but its
 // own routes are off: admins go through /api/admin (server/services/users.ts), which checks our
-// rules and writes admin_audit. Read from the plugin, so routes added by an upgrade are off too.
+// rules and writes audit. Read from the plugin, so routes added by an upgrade are off too.
 // This also turns off impersonation.
 const adminPlugin = admin({ ac, roles, adminRoles: [ADMIN_ROLE] });
 const adminPluginPaths = Object.values(adminPlugin.endpoints).map((endpoint) => endpoint.path);

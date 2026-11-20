@@ -1,6 +1,6 @@
 import { db } from '~~/server/db';
 import { mapSetting } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 
 import { DEFAULT_MAP_URL } from '#shared/schemas/map';
 import type {
@@ -100,9 +100,9 @@ async function update(input: { actorId: string; body: MapSettingsBody }): Promis
       .values(values)
       .onConflictDoUpdate({ target: mapSetting.id, set: values })
       .returning();
-    await adminAuditService.record(tx, {
-      action: 'map.settings',
-      actorUserId: input.actorId,
+    await auditService.record(tx, {
+      action: 'settings.map',
+      actor: { source: 'web', userId: input.actorId },
       targetUserId: null,
       data: { url, mode, opensAt: iso(opensAt) },
     });

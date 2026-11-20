@@ -400,6 +400,13 @@
       "when": 1795122673839,
       "tag": "0056_shared_hide_from_baltop",
       "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "7",
+      "when": 1795143769458,
+      "tag": "0057_activity_log",
+      "breakpoints": true
     }
   ]
 }

@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import { featureFlag, user } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 
 import { FLAG_DEFINITIONS, resolveFlags } from '#shared/flags';
 import type { FlagKey } from '#shared/flags';
@@ -53,7 +53,7 @@ async function list(): Promise<AdminFlag[]> {
   });
 }
 
-/** Switches a flag, and writes admin_audit. A no-op change writes nothing. */
+/** Switches a flag, and writes audit. A no-op change writes nothing. */
 async function set(input: { key: FlagKey; enabled: boolean; actorId: string }): Promise<void> {
   const { key, enabled, actorId } = input;
   await db.transaction(async (tx) => {
@@ -66,9 +66,9 @@ async function set(input: { key: FlagKey; enabled: boolean; actorId: string }): 
         target: featureFlag.key,
         set: { enabled, updatedAt: new Date(), updatedByUserId: actorId },
       });
-    await adminAuditService.record(tx, {
-      action: 'flag.update',
-      actorUserId: actorId,
+    await auditService.record(tx, {
+      action: 'settings.flag',
+      actor: { source: 'web', userId: actorId },
       targetUserId: null,
       data: { key, enabled },
     });

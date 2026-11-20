@@ -1,18 +1,4 @@
-import {
-  and,
-  asc,
-  desc,
-  eq,
-  exists,
-  gt,
-  ilike,
-  inArray,
-  isNull,
-  lt,
-  notInArray,
-  or,
-  sql,
-} from 'drizzle-orm';
+import { and, asc, desc, eq, exists, gt, ilike, inArray, isNull, or, sql } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import {
@@ -20,26 +6,23 @@ import {
   user,
   wardenAccountTransfer,
   wardenAppeal,
-  wardenAudit,
   wardenBan,
   wardenNote,
   wardenPlayer,
   wardenSession,
   wardenSettings,
 } from '~~/server/db/schema';
-import type { WardenAuditAction, WardenSource } from '~~/server/db/schema';
+import { auditService } from '~~/server/services/audit';
 
-import { wardenAuditService } from './audit';
 import { wardenDeviceService } from './devices';
 import { wardenPlayerService } from './players';
 import { isBanActive, isOnline, SESSION_TIMEOUT_MS } from './rules';
 import { wardenSettingsService } from './settings';
 import { refuse } from './shared';
 import type { Db, WardenActor } from './shared';
-import { actorView, appealView, banNameIds, banView, namesOf, noteView } from './views';
+import { appealView, banNameIds, banView, namesOf, noteView } from './views';
 
 import type {
-  WardenAuditView,
   WardenPage,
   WardenPlayerDetail,
   WardenPlayerRow,
@@ -256,7 +239,6 @@ async function player(userId: string): Promise<WardenPlayerDetail> {
     .from(wardenNote)
     .where(eq(wardenNote.userId, userId))
     .orderBy(desc(wardenNote.createdAt));
-  const audit = await auditEntries({ userId, limit: 50 });
   const transfers = await db
     .select()
     .from(wardenAccountTransfer)
@@ -312,7 +294,6 @@ async function player(userId: string): Promise<WardenPlayerDetail> {
       };
     }),
     sessions: await wardenPlayerService.sessions(userId),
-    audit: audit.items,
   };
 }
 
@@ -329,8 +310,8 @@ async function setMaxAccounts(input: {
       .update(wardenPlayer)
       .set({ maxAccounts: input.maxAccounts })
       .where(eq(wardenPlayer.userId, input.userId));
-    await wardenAuditService.record(tx, {
-      action: 'limit.set',
+    await auditService.record(tx, {
+      action: 'minecraft.limit.set',
       actor: input.actor,
       targetUserId: input.userId,
       data: { maxAccounts: input.maxAccounts },
@@ -346,8 +327,8 @@ async function setWardenAdmin(input: { userId: string; on: boolean; actor: Warde
       .update(user)
       .set({ role: withRole(target.role, WARDEN_ADMIN_ROLE, input.on) })
       .where(eq(user.id, input.userId));
-    await wardenAuditService.record(tx, {
-      action: 'role.set',
+    await auditService.record(tx, {
+      action: 'minecraft.role.set',
       actor: input.actor,
       targetUserId: input.userId,
       data: { role: WARDEN_ADMIN_ROLE, on: input.on },
@@ -359,62 +340,6 @@ async function requireUser(dbx: Db, userId: string) {
   const [row] = await dbx.select({ role: user.role }).from(user).where(eq(user.id, userId));
   if (!row) refuse(404, 'notFound');
   return row;
-}
-
-/** The audit log, newest first. `cursor` is the last ID of the previous page. */
-async function auditEntries(query: {
-  userId?: string;
-  action?: string;
-  source?: WardenSource;
-  cursor?: number;
-  limit?: number;
-}): Promise<WardenPage<WardenAuditView>> {
-  const limit = query.limit ?? PAGE_SIZE;
-  const rows = await db
-    .select({ entry: wardenAudit, targetName: user.name })
-    .from(wardenAudit)
-    .leftJoin(user, eq(user.id, wardenAudit.targetUserId))
-    .where(
-      and(
-        query.userId ? eq(wardenAudit.targetUserId, query.userId) : undefined,
-        query.action
-          ? eq(wardenAudit.action, query.action as WardenAuditAction)
-          : // The stream events of the anticheat and the playtime limit would bury everything else.
-            notInArray(wardenAudit.action, [
-              'anticheat.verdict',
-              'anticheat.alert',
-              'playtime.warning',
-              'playtime.grace',
-              'playtime.update',
-              'playtime.kick',
-            ]),
-        query.source ? eq(wardenAudit.source, query.source) : undefined,
-        query.cursor ? lt(wardenAudit.id, query.cursor) : undefined,
-      ),
-    )
-    .orderBy(desc(wardenAudit.id))
-    .limit(limit + 1);
-  const page = rows.slice(0, limit);
-  const names = await namesOf(
-    db,
-    page.map((row) => row.entry.actorUserId),
-  );
-  return {
-    items: page.map(({ entry, targetName }) => ({
-      id: entry.id,
-      at: entry.at.toISOString(),
-      action: entry.action,
-      source: entry.source,
-      actor: actorView(names, entry.source, entry.actorUserId, {
-        uuid: entry.actorMinecraftUuid,
-        name: entry.actorMinecraftName,
-      }),
-      target: entry.targetUserId ? { userId: entry.targetUserId, name: targetName } : null,
-      targetMinecraftUuid: entry.targetMinecraftUuid,
-      data: entry.data,
-    })),
-    nextCursor: rows.length > limit && page.length ? String(page.at(-1)!.entry.id) : null,
-  };
 }
 
 async function settings(): Promise<WardenSettingsView> {
@@ -432,8 +357,8 @@ async function updateSettings(input: {
       .where(eq(wardenSettings.id, 1))
       .returning({ defaultMaxAccounts: wardenSettings.defaultMaxAccounts });
     // The resulting settings too, so a replayed event carries the values of that time.
-    await wardenAuditService.record(tx, {
-      action: 'settings.update',
+    await auditService.record(tx, {
+      action: 'minecraft.settings.update',
       actor: input.actor,
       data: { changed: input.patch, settings: updated },
     });
@@ -486,8 +411,8 @@ async function dismissTransfer(input: { transferId: string; actor: WardenActor }
         .where(eq(wardenAccountTransfer.id, input.transferId));
       refuse(known ? 409 : 404, known ? 'alreadyDismissed' : 'notFound');
     }
-    await wardenAuditService.record(tx, {
-      action: 'transfer.dismiss',
+    await auditService.record(tx, {
+      action: 'minecraft.transfer.dismiss',
       actor: input.actor,
       targetUserId: transfer.toUserId,
       targetMinecraftUuid: transfer.minecraftUuid,
@@ -507,7 +432,6 @@ export const wardenAdminService = {
   setMaxAccounts,
   setWardenAdmin,
   dismissTransfer,
-  audit: auditEntries,
   settings,
   updateSettings,
 };

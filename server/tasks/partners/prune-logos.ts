@@ -1,5 +1,6 @@
 import { defineTask } from 'nitropack/runtime';
 
+import { auditService } from '~~/server/services/audit';
 import { flagService } from '~~/server/services/flags';
 import { partnerService } from '~~/server/services/partners';
 
@@ -14,6 +15,7 @@ export default defineTask({
     if (!(await flagService.isEnabled('jobs.prunePartnerLogos')))
       return { result: { removed: 0, skipped: true } };
     const removed = await partnerService.pruneLogos();
+    await auditService.recordJob('site.prunePartnerLogos', { removed });
     return { result: { removed, skipped: false } };
   },
 });

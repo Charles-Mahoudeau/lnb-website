@@ -3,7 +3,7 @@ import { asc, eq, sql } from 'drizzle-orm';
 import { db } from '~~/server/db';
 import { isUniqueViolation } from '~~/server/db/errors';
 import { eventRoom } from '~~/server/db/schema';
-import { adminAuditService } from '~~/server/services/admin-audit';
+import { auditService } from '~~/server/services/audit';
 
 import { refuse } from './shared';
 
@@ -34,9 +34,9 @@ async function create(input: { actorId: string; body: EventRoomBody }): Promise<
         .insert(eventRoom)
         .values({ name: input.body.name, details: input.body.details ?? null })
         .returning();
-      await adminAuditService.record(tx, {
-        action: 'eventRoom.create',
-        actorUserId: input.actorId,
+      await auditService.record(tx, {
+        action: 'events.room.create',
+        actor: { source: 'web', userId: input.actorId },
         targetUserId: null,
         data: { id: row!.id, name: row!.name },
       });
@@ -71,9 +71,9 @@ async function update(input: {
         .where(eq(eventRoom.id, input.id))
         .returning();
       if (!row) refuse(404, 'roomNotFound');
-      await adminAuditService.record(tx, {
-        action: 'eventRoom.update',
-        actorUserId: input.actorId,
+      await auditService.record(tx, {
+        action: 'events.room.update',
+        actor: { source: 'web', userId: input.actorId },
         targetUserId: null,
         data: { id: row.id, name: row.name, patch },
       });
