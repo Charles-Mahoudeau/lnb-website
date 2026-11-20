@@ -359,6 +359,53 @@ describe('admins', () => {
       }),
     ).rejects.toMatchObject({ data: { problem: 'insufficientFunds' } });
   });
+
+  it('filters the accounts list by type', async () => {
+    const owner = await player('Filter Owner');
+    const personal = await personalOf(owner.id);
+    const shared = await economyAccountService.create(owner.id, {
+      name: 'Filter Team',
+      handle: `filter-${String(++counter)}`,
+    });
+    const ids = async (kind?: 'personal' | 'shared') =>
+      (await economyAdminService.list({ q: 'Filter', kind })).items.map((row) => row.id);
+    expect(await ids()).toEqual(expect.arrayContaining([personal.id, shared.id]));
+    expect(await ids('personal')).toEqual([personal.id]);
+    expect(await ids('shared')).toEqual([shared.id]);
+  });
+
+  it("gives a shared account's members, with the owner to open the licence tab", async () => {
+    const admin = await player('Members Admin');
+    const owner = await player('Members Owner');
+    const dealer = await player('Members Dealer');
+    const account = await economyAccountService.create(owner.id, {
+      name: 'Members Casino',
+      handle: `members-${String(++counter)}`,
+    });
+    await economyAccountService.invite(owner.id, account.id, {
+      username: dealer.username,
+      role: 'member',
+    });
+    const me = await economyAccountService.me(dealer.id);
+    const invitation = me.invitations.find((row) => row.account.id === account.id);
+    await economyAccountService.acceptInvitation(dealer.id, invitation?.id ?? '');
+
+    const detail = await economyAdminService.detail(account.id);
+    expect(detail.kind).toBe('shared');
+    expect(detail.members.map((member) => [member.userId, member.role])).toEqual([
+      [owner.id, 'owner'],
+      [dealer.id, 'member'],
+    ]);
+    expect(detail.casinoLicense).toBeNull();
+
+    // A casino shows the license bound to it, and whose it is.
+    await economyAdminService.grantLicense(admin.id, (await personalOf(owner.id)).id);
+    await economyAccountService.update(owner.id, account.id, { type: 'casino' });
+    expect((await economyAdminService.detail(account.id)).casinoLicense).toMatchObject({
+      userId: owner.id,
+      name: 'Members Owner',
+    });
+  });
 });
 
 describe('deleted players', () => {
