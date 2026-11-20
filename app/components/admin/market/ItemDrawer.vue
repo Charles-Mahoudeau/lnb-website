@@ -375,7 +375,7 @@ const percent = (value: number) => n(value, { style: 'percent', maximumFractionD
 
         <section class="flex flex-col gap-4 rounded-lg bg-muted px-5 py-4">
           <h3 class="font-semibold text-highlighted">{{ t('admin.market.sim.title') }}</h3>
-          <div class="grid gap-4 sm:grid-cols-3">
+          <div class="grid gap-4 sm:grid-cols-2">
             <UFormField :label="t('admin.market.sim.side')">
               <USelect v-model="sim.direction" :items="directions" class="w-full" />
             </UFormField>

@@ -73,7 +73,7 @@ const nowLabel = computed(() =>
           :x="LEFT - 8"
           :y="y(tick) + 4"
           text-anchor="end"
-          class="fill-current text-xs text-muted"
+          class="fill-current text-sm text-muted"
         >
           {{ price(tick) }}
         </text>
@@ -84,7 +84,7 @@ const nowLabel = computed(() =>
         :x="x(m * curve.s0)"
         :y="H - 8"
         text-anchor="middle"
-        class="fill-current text-xs text-muted"
+        class="fill-current text-sm text-muted"
       >
         {{ m }}× s0
       </text>
@@ -118,12 +118,12 @@ const nowLabel = computed(() =>
         :x="now.x + (now.x > W - 120 ? -10 : 10)"
         :y="now.y - 10"
         :text-anchor="now.x > W - 120 ? 'end' : 'start'"
-        class="fill-current text-xs font-semibold text-highlighted"
+        class="fill-current text-sm font-semibold text-highlighted"
       >
         {{ nowLabel }}
       </text>
     </svg>
-    <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+    <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted">
       <span class="flex items-center gap-1.5">
         <span class="h-0.5 w-4 bg-inverted" aria-hidden="true" />{{
           t('admin.market.chart.reference')
