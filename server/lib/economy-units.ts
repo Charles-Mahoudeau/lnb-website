@@ -14,6 +14,8 @@ export const ECONOMY_UNITS_HEADER = 'x-economy-units';
 
 /** The routes the header applies to. */
 export function usesEconomyUnits(path: string): boolean {
+  // The Market's routes are cents only, with fractional prices per item: never converted.
+  if (path.startsWith('/api/economy/server/market/')) return false;
   return path.startsWith('/api/economy/server/') || path.startsWith('/api/quests/server/');
 }
 
