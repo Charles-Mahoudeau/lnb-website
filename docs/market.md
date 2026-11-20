@@ -4,7 +4,7 @@ The Market is the server's own shop: a commodity exchange where players sell raw
 
 This page is the contract between the site and the economy mod (`lnb-economy`, see `docs/market-mod.md` for what the mod must do), and the rules behind the pages. It extends `docs/economy.md`: accounts, the ledger, idempotency keys and flags work as described there.
 
-> Status: slices 1 to 3 are built: cents in the ledger, then the engine, the ledger kind, the server, admin and public routes, the jobs and the tests, then the admin pages. Still to do: the public page (slice 4) and the mod. The Market ships **off** (`economy.market`, `economy.market.sell` and `economy.market.buy` are seeded disabled by the migration). The design came out of the economy update document and a grilling session on 2026-11-20. The starting catalog below is a draft to simulate before launch.
+> Status: slices 1 to 4 are built: cents in the ledger, then the engine, the ledger kind, the server, admin and public routes, the jobs and the tests, then the admin pages and the public page. Still to do: the mod. The Market ships **off** (`economy.market`, `economy.market.sell` and `economy.market.buy` are seeded disabled by the migration). The design came out of the economy update document and a grilling session on 2026-11-20. The starting catalog below is a draft to simulate before launch.
 
 See "What was built differently" at the end for where the code departs from this page.
 
@@ -284,9 +284,14 @@ Flags: `economy.market`, `economy.market.sell` and `economy.market.buy` (`docs/f
   - **Item drawer**: the price now, the curve drawn in the browser with the same functions as the server (`shared/utils/market.ts`), the parameters, "keep the current price", a simulator (an order of a number of items for a player who already sold some LNBits that day, with the bracket breakdown), the recipes that make or use the item with Loop and No loop badges (a dry run through `POST /validate` while editing), the sell and buy switches, and Reset stock, Cancel and Save. A refusal from the server (a recipe loop, no recipes, invalid values) shows in plain words and nothing is saved.
   - **Orders** (`/admin/economy/market/orders`): 50 at a time, filtered by player, item, side and capped only.
   - **Settings** (`/admin/economy/market/settings`): the spread, tolerance, items per order, mint budget, history kept, and per tier the thresholds and rates.
-- `/minecraft/market` (Minecraft menu): prices, delta badges, sparklines and, signed in, the player's efficiency per tier. Still to do.
-
-Mocks with several propositions are reviewed before anything is built.
+- `/minecraft/market` (Minecraft menu, behind `economy.market`, no account needed to read; mock D, "mix of A and C"):
+  - A header with a badge only when selling or buying is off (`sell` and `buy` of the answer).
+  - "Your day at the Market": signed out, a sign-in prompt; signed in without a linked account, a "Link my account" prompt to `/minecraft/account`; linked (`me`), one tile per tier with a meter (the fill is the nominal value of the last 24 hours against `q2`, the tick sits at `q1`), the rate, and what is left at this rate before the next bracket. When `me.capped`, a notice says sales pay reduced until the mint budget recovers.
+  - "Paying the most" (the five sellable items furthest above their base price) and "Cheapest to buy" (the five buyable ones furthest below it), computed in the browser and hidden when empty.
+  - The price board, by tier, with a search and tier chips: reference price, the gap against the base price (`deltaPercent`, an arrow and a percentage as text), sell and buy for 1 and 64 items, a 24-hour sparkline. Below `md` the sparkline and the 64-item columns are dropped. Prices are decimals formatted like the admin does (`formatItemPrice`), totals use the cents formatter.
+  - An item opens in a drawer (`?item=<id>`, so it can be linked) with four period chips (24 h, 7 days, 30 days, 1 year, from `GET /api/market/items/:id/history`), a line chart, the four quotes, and a sentence when the price is 30 % or more under or over the base price (plentiful or scarce). The public answer has no stock, so this is read from the price, not the stock.
+  - The page refetches every five minutes while the tab is visible. Quotes are indicative: the footnote says the exact total is set in the game, and gives no spread figure because the public answer doesn't carry it.
+  - `me.tiers` also carries `q1`, `q2` (LNBits of nominal value) and `nextRate` (null in the last bracket), added for the meter. They are on the mod's `GET /players/:uuid` too.
 
 ## Jobs
 

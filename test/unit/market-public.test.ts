@@ -33,7 +33,8 @@ describe('market delta and meter', () => {
   it('formats a delta with a real minus sign and one decimal under 10 points', () => {
     expect(formatMarketDelta(12.34, 'en')).toBe('+12%');
     expect(formatMarketDelta(-8.26, 'en')).toBe('−8.3%');
-    expect(formatMarketDelta(0, 'en')).toBe('+0%');
+    expect(formatMarketDelta(0, 'en')).toBe('0%');
+    expect(formatMarketDelta(0.02, 'en')).toBe('0%');
     expect(formatMarketDelta(-8.26, 'fr')).toBe('−8,3%');
   });
 
