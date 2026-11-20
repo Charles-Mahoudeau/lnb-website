@@ -354,6 +354,7 @@ export const marketAdminRecipes = z.object({
 
 export const marketAdminRecipesQuery = z.object({
   item: z.string().trim().max(100).optional().describe('Recipes that make this item.'),
+  uses: z.string().trim().max(100).optional().describe('Recipes that use this item as an input.'),
 });
 
 export const marketAdminStats = z.object({
@@ -370,6 +371,14 @@ export const marketAdminStats = z.object({
   ),
   volume: z.object({ orders: z.number(), minted: z.number(), burned: z.number() }),
   mintCap: z.object({ cap: z.number(), used: z.number(), remaining: z.number() }),
+  today: z.object({
+    orders: z.number().describe('Orders in the last 24 hours.'),
+    capped: z.number().describe('Of those, the sales the mint budget or a cap cut.'),
+  }),
+  recipes: z.object({
+    total: z.number(),
+    updatedAt: isoDate.nullable().describe('When the server last changed the list. Null: never.'),
+  }),
   topSellers: z.array(
     z.object({ userId: z.string().nullable(), name: z.string(), minted: z.number() }),
   ),

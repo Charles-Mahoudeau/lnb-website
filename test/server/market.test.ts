@@ -371,4 +371,14 @@ describe('the Market admin', () => {
     const reset = await marketAdminService.resetStock(admin, 'test:sand', 'test');
     expect(reset.stock).toBeCloseTo(1000, 3);
   });
+
+  it('lists the recipes that use an item, and says how fresh the list and the day are', async () => {
+    const using = await marketRecipeService.list(undefined, 'test:sand');
+    expect(using.items.map((recipe) => recipe.output.id)).toEqual(['test:glass']);
+    const stats = await marketAdminService.stats('7d');
+    expect(stats.recipes.total).toBe(1);
+    expect(stats.recipes.updatedAt).toEqual(expect.any(String));
+    expect(stats.today.orders).toBeGreaterThanOrEqual(1);
+    expect(stats.today.capped).toBeGreaterThanOrEqual(0);
+  });
 });

@@ -4,9 +4,11 @@ import { createError } from 'nuxt/server';
 import { db } from '~~/server/db';
 import type { Tx } from '~~/server/db';
 import {
+  audit,
   marketItem,
   marketItemVersion,
   marketOrder,
+  marketRecipe,
   marketSettings,
   marketTierSettings,
   user,
@@ -24,6 +26,7 @@ import {
   priceNow,
   problem,
   stockNow,
+  DAY_MS,
 } from './shared';
 import type { MarketItemRow } from './shared';
 
@@ -276,7 +279,7 @@ async function stats(period: '7d' | '30d' | '90d' | 'all') {
   const since = periodStart(period);
   const where = since ? gt(marketOrder.createdAt, since) : undefined;
   const now = new Date();
-  const [days, perItem, sellers, items, config] = await Promise.all([
+  const [days, perItem, sellers, items, config, today, recipes] = await Promise.all([
     db
       .select({
         day: sql<string>`to_char(${marketOrder.createdAt} at time zone 'Europe/Paris', 'YYYY-MM-DD')`,
@@ -313,9 +316,19 @@ async function stats(period: '7d' | '30d' | '90d' | 'all') {
       .limit(10),
     db.select().from(marketItem).orderBy(asc(marketItem.tier), asc(marketItem.id)),
     loadConfig(db),
+    db
+      .select({
+        orders: sql<number>`count(*)::int`,
+        capped: sql<number>`(count(*) filter (where ${marketOrder.capped}))::int`,
+      })
+      .from(marketOrder)
+      .where(gt(marketOrder.createdAt, new Date(now.getTime() - DAY_MS))),
+    recipeInfo(),
   ]);
   return {
     period,
+    today: today[0] ?? { orders: 0, capped: 0 },
+    recipes,
     days,
     items: perItem,
     volume: {
@@ -333,6 +346,20 @@ async function stats(period: '7d' | '30d' | '90d' | 'all') {
       price: priceNow(row, now),
     })),
   };
+}
+
+/** How many recipes are stored, and when the Minecraft server last changed the list. */
+async function recipeInfo() {
+  const [[count], [last]] = await Promise.all([
+    db.select({ total: sql<number>`count(*)::int` }).from(marketRecipe),
+    db
+      .select({ at: audit.at })
+      .from(audit)
+      .where(eq(audit.action, 'economy.market.recipes'))
+      .orderBy(desc(audit.id))
+      .limit(1),
+  ]);
+  return { total: count?.total ?? 0, updatedAt: last?.at.toISOString() ?? null };
 }
 
 async function orderCount(where: ReturnType<typeof gt> | undefined): Promise<number> {

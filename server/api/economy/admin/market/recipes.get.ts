@@ -6,5 +6,6 @@ import { marketAdminRecipesQuery } from '#shared/schemas/market';
 
 export default defineEventHandler(async (event) => {
   await requireEconomyAdmin(event);
-  return marketRecipeService.list(parseQuery(event, marketAdminRecipesQuery).item);
+  const query = parseQuery(event, marketAdminRecipesQuery);
+  return marketRecipeService.list(query.item, query.uses);
 });
