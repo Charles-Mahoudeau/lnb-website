@@ -6,7 +6,7 @@ const official = useTemplateRef('official');
 </script>
 
 <template>
-  <AdminPage :title="t('admin.nav.modVote')" :parents="[{ label: t('admin.nav.mods') }]">
+  <AdminTabPage entry="modpack" tab="vote">
     <template #actions>
       <UButton
         color="neutral"
@@ -22,7 +22,8 @@ const official = useTemplateRef('official');
       />
     </template>
     <div class="flex max-w-5xl flex-col gap-6">
+      <AdminModpackVoteSwitch />
       <ModsAdminOfficial ref="official" />
     </div>
-  </AdminPage>
+  </AdminTabPage>
 </template>

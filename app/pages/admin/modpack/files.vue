@@ -6,10 +6,10 @@ const files = useTemplateRef('files');
 </script>
 
 <template>
-  <AdminPage :title="t('admin.nav.files')" :parents="[{ label: t('admin.nav.mods') }]">
+  <AdminTabPage entry="modpack" tab="files">
     <template #actions>
       <UButton icon="i-lucide-upload" :label="t('admin.files.upload')" @click="files?.choose()" />
     </template>
     <AdminFiles ref="files" />
-  </AdminPage>
+  </AdminTabPage>
 </template>
