@@ -88,7 +88,7 @@ const time = computed(() =>
     <time
       :datetime="entry.at"
       :title="formatWardenDateTime(entry.at, locale)"
-      class="w-28 text-right text-sm text-muted"
+      class="text-sm whitespace-nowrap text-muted sm:w-36 sm:text-right"
     >
       {{ time }}
     </time>
