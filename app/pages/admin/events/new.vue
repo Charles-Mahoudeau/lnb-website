@@ -16,7 +16,7 @@ async function onSubmit(body: EventBody) {
       color: 'success',
       icon: 'i-lucide-circle-check',
     });
-    await navigateTo(`/admin/events/${id}`);
+    await navigateTo(`/admin/events/${id}/details`);
   } catch (error) {
     const problem = error instanceof EventError ? error.problem : 'failed';
     toast.add({

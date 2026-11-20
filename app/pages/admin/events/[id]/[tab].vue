@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import type { DropdownMenuItem, TabsItem } from '@nuxt/ui';
+import type { DropdownMenuItem } from '@nuxt/ui';
 
 import { EventsAdminDuplicateModal, WardenConfirmModal } from '#components';
 
 import { eventIdParams } from '#shared/schemas/events';
 import type { EventBody } from '#shared/schemas/events';
 
-// An event, for managers: the form, and its registrations in a second tab.
+// An event, for managers: the form, its registrations and its teams, one route each.
 definePageMeta({
   eventsManagers: true,
-  validate: (route) => eventIdParams.safeParse(route.params).success,
+  validate: (route) =>
+    eventIdParams.safeParse(route.params).success &&
+    ['details', 'registrations', 'teams'].includes(String((route.params as { tab?: string }).tab)),
 });
 
 const { t, locale } = useI18n();
 const route = useRoute();
-const router = useRouter();
 const toast = useToast();
 const overlay = useOverlay();
 
@@ -25,22 +26,25 @@ if (error.value || !event.value) {
 }
 const { data: registrations, refresh: refreshRegistrations } = await useEventRegistrations(id);
 
-const tab = computed({
-  get: () =>
-    route.query.tab === 'registrations' || (route.query.tab === 'teams' && event.value?.teamMode)
-      ? route.query.tab
-      : 'event',
-  set: (value) => void router.replace({ query: { ...route.query, tab: value } }),
+// The teams tab only exists for events in team mode.
+const tab = computed(() => {
+  const value = String(route.params.tab);
+  return value === 'teams' && !event.value?.teamMode ? 'details' : value;
 });
-const tabs = computed<TabsItem[]>(() => [
-  { label: t('admin.events.tabs.event'), value: 'event' },
+if (String(route.params.tab) === 'teams' && !event.value.teamMode) {
+  await navigateTo(`/admin/events/${id}/details`, { replace: true });
+}
+const tabs = computed(() => [
+  { label: t('admin.events.tabs.event'), to: `/admin/events/${id}/details` },
   {
     label: t('admin.events.tabs.registrations', {
       count: (event.value?.counts.registered ?? 0) + (event.value?.counts.waitlist ?? 0),
     }),
-    value: 'registrations',
+    to: `/admin/events/${id}/registrations`,
   },
-  ...(event.value?.teamMode ? [{ label: t('admin.events.tabs.teams'), value: 'teams' }] : []),
+  ...(event.value?.teamMode
+    ? [{ label: t('admin.events.tabs.teams'), to: `/admin/events/${id}/teams` }]
+    : []),
 ]);
 
 const pending = ref(false);
@@ -126,7 +130,7 @@ const duplicateModal = overlay.create(EventsAdminDuplicateModal);
 async function onDuplicate() {
   if (!event.value) return;
   const copy: unknown = await duplicateModal.open({ event: event.value }).result;
-  if (typeof copy === 'string') await navigateTo(`/admin/events/${copy}`);
+  if (typeof copy === 'string') await navigateTo(`/admin/events/${copy}/details`);
 }
 
 async function onCancelEvent() {
@@ -295,7 +299,7 @@ async function onRegistrationsChanged() {
         />
       </UDropdownMenu>
       <UButton
-        v-if="tab === 'event' && !event.cancelledAt && !event.hidden"
+        v-if="tab === 'details' && !event.cancelledAt && !event.hidden"
         type="submit"
         form="event-form"
         color="neutral"
@@ -305,7 +309,7 @@ async function onRegistrationsChanged() {
         @click="silent = true"
       />
       <UButton
-        v-if="tab === 'event' && !event.cancelledAt"
+        v-if="tab === 'details' && !event.cancelledAt"
         type="submit"
         form="event-form"
         :loading="pending"
@@ -315,8 +319,8 @@ async function onRegistrationsChanged() {
     </template>
 
     <div class="flex flex-col gap-6">
-      <UTabs v-model="tab" :items="tabs" :content="false" variant="link" class="w-full" />
-      <template v-if="tab === 'event'">
+      <AdminTabs :items="tabs" />
+      <template v-if="tab === 'details'">
         <UAlert
           v-if="event.cancelledAt"
           color="error"
