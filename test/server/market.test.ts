@@ -218,7 +218,10 @@ describe('the Market', () => {
     });
     expect(second.brackets![0]!.rate).toBeLessThan(1);
     expect(second.total).toBeLessThan(first.total);
-    expect((await marketReadService.playerWindow(who.uuid)).tiers[0]!.rate).toBeLessThan(1);
+    const window = (await marketReadService.playerWindow(who.uuid)).tiers[0]!;
+    expect(window.rate).toBeLessThan(1);
+    expect(window.q2).toBeGreaterThan(window.q1);
+    expect(window.nextRate).toBeNull();
   });
 
   it('cuts a sale to the 30-day mint budget, and refuses one paying nothing', async () => {

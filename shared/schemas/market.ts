@@ -239,6 +239,9 @@ export const marketTierWindow = z.object({
   nominal: z.number().describe('LNBits sold in the last 24 hours, before any reduction.'),
   rate: z.number(),
   toNextBracket: z.number().nullable().describe('LNBits of nominal value, null in the last one.'),
+  q1: z.number().describe('LNBits of nominal value where the rate first drops.'),
+  q2: z.number().describe('LNBits of nominal value where the rate drops again.'),
+  nextRate: z.number().nullable().describe('The rate after the next threshold, null in the last.'),
 });
 
 export type MarketTierWindowView = z.infer<typeof marketTierWindow>;

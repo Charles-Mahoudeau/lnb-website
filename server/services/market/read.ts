@@ -36,7 +36,20 @@ import {
 function tierWindows(config: MarketConfig, windows: Map<number, number>): MarketTierWindowView[] {
   return config.tiers.map((tier) => {
     const nominal = windows.get(tier.tier) ?? 0;
-    return { tier: tier.tier, nominal, ...marketRate(bracketsOf(config, tier.tier), nominal) };
+    const brackets = bracketsOf(config, tier.tier);
+    const { rate, toNextBracket } = marketRate(brackets, nominal);
+    // The thresholds and the rate after the next one let the page draw a meter.
+    const nextRate =
+      nominal < brackets.q1 ? brackets.mid : nominal < brackets.q2 ? brackets.tail : null;
+    return {
+      tier: tier.tier,
+      nominal,
+      rate,
+      toNextBracket,
+      q1: brackets.q1,
+      q2: brackets.q2,
+      nextRate,
+    };
   });
 }
 
