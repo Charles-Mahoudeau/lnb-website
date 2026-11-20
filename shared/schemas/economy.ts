@@ -774,6 +774,10 @@ export const economyAdminAccountDetail = economyAdminAccountRow.extend({
   licenses: economyLicenseCount
     .nullable()
     .describe("Personal accounts: the owner's casino licenses. Null for shared accounts."),
+  casinoLicense: z
+    .object({ userId: z.string(), name: z.string().nullable(), boundAt: isoDate.nullable() })
+    .nullable()
+    .describe('Shared accounts: the license bound to it and whose it is. Null if it has none.'),
 });
 export type EconomyAdminAccountDetail = z.infer<typeof economyAdminAccountDetail>;
 

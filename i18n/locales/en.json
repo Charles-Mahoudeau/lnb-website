@@ -2558,7 +2558,21 @@
         "grantLicense": "Give a license",
         "revokeLicense": "Take one back",
         "licenseGranted": "License given to {name}",
-        "licenseRevoked": "License taken back"
+        "licenseRevoked": "License taken back",
+        "tabs": {
+          "overview": "Overview",
+          "members": "Members",
+          "transactions": "Transactions",
+          "licenses": "Licenses"
+        },
+        "recent": "Latest transactions",
+        "allTransactions": "All transactions",
+        "noMembers": "No member.",
+        "joined": "Joined {date}",
+        "typeHint": "Any type, with no license needed.",
+        "licenseBound": "Casino license of {name}, used on {date}.",
+        "noLicense": "No casino license is bound to this account.",
+        "licenseOwner": "Open the owner’s LNBits tab"
       },
       "adjust": {
         "title": "Adjust {name}",

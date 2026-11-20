@@ -54,6 +54,13 @@ const kindItems = computed(() => [
   { label: t('admin.economy.accounts.shared'), value: 'shared' },
 ]);
 
+// A personal account is the LNBits tab of its owner's Person page. A shared one has its own page.
+function href(row: EconomyAdminAccountRow): string {
+  return row.kind === 'personal' && row.owner
+    ? `/admin/people/${encodeURIComponent(row.owner.userId)}/lnbits`
+    : `/admin/economy/accounts/${row.id}`;
+}
+
 function label(row: EconomyAdminAccountRow): string {
   if (row.kind === 'shared') return row.name ?? '';
   return row.owner?.name ?? t('admin.economy.deletedAccount');
@@ -103,7 +110,7 @@ function sub(row: EconomyAdminAccountRow): string {
     <ul v-else class="flex flex-col divide-y divide-default rounded-lg bg-elevated">
       <li v-for="row in rows" :key="row.id">
         <NuxtLink
-          :to="`/admin/economy/accounts/${row.id}`"
+          :to="href(row)"
           class="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3 hover:bg-accented/40"
         >
           <span class="flex min-w-48 flex-1 flex-col">
