@@ -1,10 +1,14 @@
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import AdminLayout from '~/layouts/admin.vue';
 import SettingsPage from '~/pages/admin/settings/[section].vue';
 
-registerEndpoint('/api/anticheat/admin/summary', () => ({ alerts: 2, waiting: 3 }));
+// The inbox the sidebar badges read: the Warden's queues and the events' waitlists.
+registerEndpoint('/api/admin/inbox', () => ({
+  items: [],
+  badges: { anticheat: 5, moderation: 2, modpack: 1, events: 4 },
+}));
 
 function signIn(role: string | null) {
   useState('auth-session').value = { user: { id: 'u1', name: 'Test', role, tenantId: 'x' } };
@@ -72,11 +76,29 @@ describe('admin sidebar', () => {
     expect(links).not.toContain('Moderation');
   });
 
+  it('shows the counts of the inbox as neutral badges, and the total on a folded group', async () => {
+    signIn('admin');
+    const layout = await mountSuspended(AdminLayout, { route: '/admin' });
+    await vi.waitFor(() => {
+      expect(layout.text()).toContain('Anticheat5');
+    });
+    expect(layout.text()).toContain('Moderation2');
+    // Both groups are open: no total on their headers yet.
+    const header = layout.findAll('button').find((button) => button.text().startsWith('Minecraft'));
+    expect(header?.text()).toBe('Minecraft');
+    await header?.trigger('click');
+    await nextTick();
+    // Folded, Minecraft shows 5 + 2 + 1.
+    expect(header?.text()).toBe('Minecraft8');
+    // The fold lives in shared state: open the group again for the next test.
+    await header?.trigger('click');
+  });
+
   it('folds a group and remembers it in this browser', async () => {
     signIn('admin');
     const layout = await mountSuspended(AdminLayout, { route: '/admin' });
     expect(layout.text()).toContain('Playtime');
-    const header = layout.findAll('button').find((button) => button.text() === 'Minecraft');
+    const header = layout.findAll('button').find((button) => button.text().startsWith('Minecraft'));
     expect(header).toBeDefined();
     await header?.trigger('click');
     await nextTick();

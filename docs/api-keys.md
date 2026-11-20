@@ -6,7 +6,7 @@ Admins make API keys at `/admin/settings/api-keys` for integrations they vouch f
 
 - A standalone service identity: a name, a description, permissions and an expiry. Nobody's account is behind it, so it survives its creator leaving. `created_by` is kept for the audit and set to null if that account is deleted.
 - The secret is `lnb_` + 40 characters. Only its SHA-256 is stored (`api_key.key_hash`). It is shown once, when the key is made or rotated. The first 8 characters (`prefix`) tell keys apart in the admin.
-- Every key expires: 30, 90 or 365 days (the maximum, and the default). The table flags a key within 30 days of expiry, and the Overview lists it.
+- Every key expires: 30, 90 or 365 days (the maximum, and the default). The table flags a key within 30 days of expiry, and the admin Home lists them (`GET /api/admin/inbox`).
 - Rotating issues a new one-year key with the same name and permissions, and brings the old key's expiry forward to the end of an overlap (1, 3 or 7 days) so the integration can switch without a gap. The old key shows as "Rotating out".
 - Revoking stops a key at once and can't be undone.
 - The nightly `api-keys:prune` task deletes keys 90 days after they expired or were revoked, and call counts older than 30 days.

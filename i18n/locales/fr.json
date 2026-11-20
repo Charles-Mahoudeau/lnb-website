@@ -889,140 +889,6 @@
       "isGhost": "Ce compte ne s’est pas encore connecté, il ne peut pas avoir de rôles.",
       "notGhost": "Cette personne s’est connectée, son compte lui appartient."
     },
-    "overview": {
-      "attention": "À traiter",
-      "nothing": "Rien ne vous attend pour l’instant.",
-      "appeals": "1 contestation Warden attend une réponse | {n} contestations Warden attendent une réponse",
-      "appealsOldest": "La plus ancienne date du {date}.",
-      "reviewAppeals": "Voir les contestations",
-      "inactive": "1 compte ne s’est pas connecté depuis 24 mois | {n} comptes ne se sont pas connectés depuis 24 mois",
-      "inactiveDetail": "Le nettoyage de la nuit les supprime, sauf s’ils ont un bannissement en cours.",
-      "seeAccounts": "Voir les comptes",
-      "bans": "1 compte est banni du site | {n} comptes sont bannis du site",
-      "bansDetail": "Ils ne peuvent pas se connecter avant la fin de leur bannissement.",
-      "rateLimit": {
-        "event": "La limitation de débit est en mode Soirée d’événement",
-        "eventDetail": "Les limites par adresse IP sont 5 fois plus hautes. Repasse en Normal après l’événement.",
-        "off": "La limitation de débit est désactivée",
-        "offDetail": "Rien ne ralentit les inondations ni les abus de l’API et des liens courts.",
-        "change": "Changer le mode"
-      },
-      "recent": "Derniers changements",
-      "noChanges": "Aucun changement pour l’instant. Les rôles, bannissements et suppressions apparaîtront ici.",
-      "deletedAdmin": "Un admin supprimé",
-      "deletedAccount": "un compte supprimé",
-      "log": {
-        "roles": "{actor} a modifié les rôles de {target} : {roles}.",
-        "ban": "{actor} a banni {target} du site jusqu’au {date}.",
-        "banPermanent": "{actor} a banni {target} du site définitivement.",
-        "unban": "{actor} a levé le bannissement de {target}.",
-        "signOut": "{actor} a déconnecté {target} partout.",
-        "delete": "{actor} a supprimé un compte.",
-        "deleteInactive": "Le nettoyage de la nuit a supprimé 1 compte sans connexion depuis 24 mois. | Le nettoyage de la nuit a supprimé {count} comptes sans connexion depuis 24 mois.",
-        "flagOn": "{actor} a activé {name}.",
-        "flagOff": "{actor} a coupé {name}.",
-        "rateLimitMode": "{actor} a réglé la limitation de débit sur {mode}.",
-        "user_ghostCreate": "{actor} a créé un compte fantôme pour {target}.",
-        "user_ghostUpdate": "{actor} a modifié le compte fantôme de {target}.",
-        "user_ghostClaim": "{target} s’est connecté·e et a repris son compte fantôme.",
-        "event_create": "{actor} a créé l’événement {name}.",
-        "event_update": "{actor} a modifié l’événement {name}.",
-        "event_cancel": "{actor} a annulé l’événement {name}.",
-        "event_announce": "{actor} a envoyé la notification du nouvel événement {name}.",
-        "event_announceResend": "{actor} a renvoyé la notification du nouvel événement {name}.",
-        "push_settings": "{actor} a modifié les réglages des notifications push.",
-        "event_delete": "{actor} a supprimé l’événement {name}.",
-        "eventRoom_create": "{actor} a ajouté la salle {name}.",
-        "eventRoom_update": "{actor} a modifié la salle {name}.",
-        "eventType_create": "{actor} a ajouté le type d’événement {name}.",
-        "eventType_update": "{actor} a modifié le type d’événement {name}.",
-        "event_registrationAdd": "{actor} a inscrit {target} à {name}.",
-        "eventTeam_create": "{actor} a créé l’équipe {team} dans {name}.",
-        "eventTeam_rename": "{actor} a renommé l’équipe {team} dans {name}.",
-        "eventTeam_delete": "{actor} a supprimé l’équipe {team} dans {name}.",
-        "eventTeam_memberAdd": "{actor} a ajouté {target} à {team} dans {name}.",
-        "eventTeam_memberRemove": "{actor} a retiré {target} de {team} dans {name}.",
-        "eventTeam_captain": "{actor} a changé le capitaine de {team} dans {name}.",
-        "eventTeam_force": "{actor} a changé la validation à la main de {team} dans {name}.",
-        "event_registrationRemove": "{actor} a retiré {target} de {name}.",
-        "teamPole_create": "{actor} a ajouté le pôle {name}.",
-        "teamPole_update": "{actor} a modifié le pôle {name}.",
-        "teamPole_delete": "{actor} a supprimé le pôle {name}.",
-        "teamMember_add": "{actor} a ajouté {target} à l’équipe.",
-        "teamMember_update": "{actor} a modifié {target} dans l’équipe.",
-        "teamMember_remove": "{actor} a retiré {target} de l’équipe.",
-        "team_settings": "{actor} a modifié les réglages de la page de l’équipe.",
-        "partner_create": "{actor} a ajouté le partenaire {name}.",
-        "partner_update": "{actor} a modifié le partenaire {name}.",
-        "partner_delete": "{actor} a supprimé le partenaire {name}.",
-        "map_settings": "{actor} a modifié l’adresse de la carte Minecraft.",
-        "partners_settings": "{actor} a modifié les réglages de la page des partenaires.",
-        "gamesplanet_settings": "{actor} a modifié le code d’affiliation Gamesplanet.",
-        "gamesplanet_pin": "{actor} a épinglé un jeu Gamesplanet.",
-        "gamesplanet_unpin": "{actor} a désépinglé un jeu Gamesplanet.",
-        "gamesplanet_sync": "{actor} a actualisé les offres Gamesplanet à la main.",
-        "partnerEvent_update": "{actor} a modifié l’événement partenaire {slug}.",
-        "partnerEvent_announce": "{actor} a annoncé l’événement partenaire {slug} par notification.",
-        "partnerEvent_close": "{actor} a clos l’événement partenaire {slug}.",
-        "partnerEvent_reopen": "{actor} a rouvert l’événement partenaire {slug}.",
-        "partnerEvent_export": "{actor} a exporté le tableur de l’événement partenaire {slug}.",
-        "partnerEvent_purge": "Les données de l’événement partenaire {slug} ont été supprimées, 60 jours après sa clôture.",
-        "shortLink_create": "{actor} a créé le lien court {name}.",
-        "shortLink_update": "{actor} a modifié le lien court {name}.",
-        "shortLink_delete": "{actor} a supprimé le lien court {name}.",
-        "shortLink_export": "{actor} a téléchargé la liste des clics du lien court {name}.",
-        "poster_create": "{actor} a créé l’affiche {name}.",
-        "poster_update": "{actor} a modifié l’affiche {name}.",
-        "poster_delete": "{actor} a supprimé l’affiche {name}.",
-        "apiKey_create": "{actor} a créé la clé API {name}.",
-        "apiKey_rotate": "{actor} a renouvelé la clé API {name}.",
-        "apiKey_revoke": "{actor} a révoqué la clé API {name}.",
-        "economy_mint": "{actor} a créé {amount} LNBits sur {name}.",
-        "economy_burn": "{actor} a détruit {amount} LNBits de {name}.",
-        "economy_freeze": "{actor} a gelé le compte bancaire {name}.",
-        "economy_unfreeze": "{actor} a dégelé le compte bancaire {name}.",
-        "economy_reverse": "{actor} a annulé une transaction sur {name}.",
-        "economy_settings": "{actor} a modifié les réglages de l’économie.",
-        "economy_reset": "{actor} a remis l’économie à zéro.",
-        "economy_shopDisable": "{actor} a fermé le shop {name}.",
-        "economy_shopEnable": "{actor} a rouvert le shop {name}.",
-        "economy_listingRemove": "{actor} a retiré l’annonce {name}.",
-        "economy_accountType": "{actor} a changé le type du compte bancaire {name}.",
-        "quests_settings": "{actor} a modifié les réglages des quêtes.",
-        "quests_create": "{actor} a créé la quête {name}.",
-        "quests_update": "{actor} a modifié la quête {name}.",
-        "quests_delete": "{actor} a supprimé la quête {name}.",
-        "quests_import": "{actor} a importé des quêtes.",
-        "quests_reset": "{actor} a remis les quêtes à zéro.",
-        "quests_communityCreate": "{actor} a programmé la quête communautaire {name}.",
-        "quests_communityUpdate": "{actor} a modifié la quête communautaire {name}.",
-        "quests_communityCancel": "{actor} a annulé la quête communautaire {name}.",
-        "quests_communityTemplate": "{actor} a enregistré un modèle de quête communautaire.",
-        "economy_licenseGrant": "{actor} a donné une licence de casino à {name}.",
-        "economy_licenseRevoke": "{actor} a repris une licence de casino à {name}.",
-        "quests_categoryCreate": "{actor} a créé une catégorie de quêtes.",
-        "quests_categoryUpdate": "{actor} a modifié une catégorie de quêtes.",
-        "quests_categoryDelete": "{actor} a supprimé une catégorie de quêtes.",
-        "downloads_update": "{actor} a modifié la page de téléchargement Minecraft.",
-        "rule_create": "{actor} a ajouté la règle {name}.",
-        "rule_update": "{actor} a modifié la règle {name}.",
-        "rule_retire": "{actor} a retiré la règle {name}.",
-        "rule_restore": "{actor} a rétabli la règle {name}.",
-        "rule_categoryCreate": "{actor} a ajouté la catégorie de règles {name}.",
-        "rule_categoryUpdate": "{actor} a modifié la catégorie de règles {name}.",
-        "rule_categoryDelete": "{actor} a supprimé la catégorie de règles {name}.",
-        "rule_seed": "{actor} a chargé le brouillon du règlement."
-      },
-      "loadFailed": "La vue d’ensemble n’a pas pu être chargée. Vérifiez votre connexion, puis rechargez la page.",
-      "apiKeysSoon": "1 clé API expire dans moins de 30 jours | {n} clés API expirent dans moins de 30 jours",
-      "apiKeysSoonDetail": "Renouvelez-les avant, sinon les intégrations qui les utilisent s’arrêteront.",
-      "seeApiKeys": "Voir les clés API",
-      "apiKeyActor": "La clé API {name}",
-      "anticheatReview": "{count} fichiers attendent une revue | {count} fichier attend une revue | {count} fichiers attendent une revue",
-      "anticheatAlerts": "{count} alertes anticheat ouvertes | {count} alerte anticheat ouverte | {count} alertes anticheat ouvertes",
-      "anticheatDetail": "Des fichiers à examiner et des signaux à clore.",
-      "seeAnticheat": "Ouvrir la file de revue"
-    },
     "mods": {
       "settings": {
         "title": "Réglages",
@@ -4186,8 +4052,66 @@
       }
     },
     "home": {
-      "title": "Rien ici pour l’instant",
-      "lede": "Choisissez une page dans la barre latérale. Cette page listera ce qui vous attend."
+      "loadFailed": "La boîte de réception ne s’est pas chargée. Rechargez la page.",
+      "emptyTitle": "Rien en attente",
+      "emptyLede": "Aucune contestation, aucun changement de compte ni aucune file ne vous attend. Vous pouvez chercher quelqu’un dans Personnes.",
+      "emptyAction": "Ouvrir Personnes",
+      "activity": "Voir toute l’activité",
+      "items": {
+        "appeals": {
+          "title": "{n} contestation de bannissement en attente | {n} contestations de bannissement en attente",
+          "detail": "La plus ancienne a été envoyée le {date}.",
+          "action": "Examiner les contestations"
+        },
+        "transfers": {
+          "title": "{n} reprise de compte à examiner | {n} reprises de compte à examiner",
+          "detail": "Quelqu’un a lié un compte Minecraft qu’un autre joueur avait. La plus ancienne date du {date}.",
+          "action": "Voir les comptes"
+        },
+        "anticheat": {
+          "review": "{n} fichier à examiner | {n} fichiers à examiner",
+          "alerts": "{n} alerte anticheat ouverte | {n} alertes anticheat ouvertes",
+          "detail": "Des mods et des packs de ressources attendent une décision.",
+          "action": "Ouvrir la file d’examen"
+        },
+        "apiKeys": {
+          "title": "{n} clé API expire dans moins de 30 jours | {n} clés API expirent dans moins de 30 jours",
+          "detail": "Renouvelez-les avant, sinon les intégrations qui les utilisent s’arrêteront.",
+          "action": "Voir les clés API"
+        },
+        "rateLimit": {
+          "event": "La limitation de débit est en mode Soirée d’événement",
+          "eventDetail": "Les limites par adresse IP sont 5 fois plus hautes. Repassez en Normal après l’événement.",
+          "off": "La limitation de débit est désactivée",
+          "offDetail": "Rien ne ralentit les inondations ni les abus de l’API et des liens courts.",
+          "action": "Changer le mode"
+        },
+        "eventWaitlists": {
+          "title": "{n} événement à venir a une liste d’attente | {n} événements à venir ont une liste d’attente",
+          "detail": "Le premier est {name}, le {date}, avec {waiting} en attente.",
+          "action": "Voir les événements"
+        },
+        "suggestions": {
+          "title": "{n} proposition de mod en attente | {n} propositions de mods en attente",
+          "detail": "La plus ancienne date du {date}.",
+          "action": "Examiner les propositions"
+        },
+        "modpackUpdates": {
+          "title": "{n} mod de la Modlist a un fichier plus récent | {n} mods de la Modlist ont un fichier plus récent",
+          "detail": "À commencer par {name}. Les lanceurs gardent les fichiers épinglés jusqu’à ce que vous adoptiez les nouveaux.",
+          "action": "Ouvrir la Modlist"
+        },
+        "inactive": {
+          "title": "{n} compte ne s’est pas connecté depuis 24 mois | {n} comptes ne se sont pas connectés depuis 24 mois",
+          "detail": "Le nettoyage de la nuit les supprime, sauf s’ils ont un bannissement en cours.",
+          "action": "Voir les comptes"
+        },
+        "siteBans": {
+          "title": "{n} compte est banni du site | {n} comptes sont bannis du site",
+          "detail": "Ils ne peuvent pas se connecter avant la fin de leur bannissement.",
+          "action": "Voir les comptes"
+        }
+      }
     },
     "settings": {
       "find": "Trouver un réglage",
@@ -4261,7 +4185,8 @@
         "overLimit": "Au-delà de la limite de temps de jeu",
         "ghost": "Pas encore connecté",
         "hasRole": "A un rôle",
-        "inactive": "Inactif depuis 24 mois"
+        "inactive": "Inactif depuis 24 mois",
+        "transfer": "Reprise de compte à examiner"
       },
       "quickFilters": "Filtres rapides",
       "searchWarden": "Chercher par nom, email, pseudo Minecraft ou UUID",
@@ -4357,9 +4282,9 @@
         "noAccounts": "Aucun compte Minecraft lié.",
         "transfers": "1 reprise de compte à vérifier | {n} reprises de compte à vérifier",
         "notBanned": "Non banni.",
-        "bans": "Bannissements",
-        "warnings": "Avertissements",
-        "notes": "Notes",
+        "bans": "aucun bannissement | 1 bannissement | {n} bannissements",
+        "warnings": "aucun avertissement | 1 avertissement | {n} avertissements",
+        "notes": "aucune note | 1 note | {n} notes",
         "overLimit": "{time} au-delà de la limite cette semaine.",
         "underLimit": "Dans la limite cette semaine.",
         "score": "Score de confiance {score}",
@@ -4375,10 +4300,26 @@
         "registrations": "Inscrit à aucun événement. | Inscrit à 1 événement. | Inscrit à {n} événements.",
         "glance": "En un coup d’œil",
         "accountsUsed": "{used} comptes sur {max}",
-        "bans": "aucun bannissement | 1 bannissement | {n} bannissements",
-        "warnings": "aucun avertissement | 1 avertissement | {n} avertissements",
-        "notes": "aucune note | 1 note | {n} notes",
         "openTab": "Ouvrir {tab}"
+      }
+    },
+    "search": {
+      "button": "Rechercher",
+      "placeholder": "Chercher une personne, une page ou une action",
+      "title": "Recherche",
+      "description": "Trouvez une personne, ouvrez une page ou un réglage, ou lancez une action.",
+      "empty": "Aucun résultat.",
+      "groups": {
+        "people": "Personnes",
+        "pages": "Pages",
+        "settings": "Réglages",
+        "actions": "Actions"
+      },
+      "actions": {
+        "banPlayer": "Bannir un joueur",
+        "newEvent": "Nouvel événement",
+        "adjustBalance": "Ajuster un solde",
+        "newShortLink": "Nouveau lien court"
       }
     }
   },

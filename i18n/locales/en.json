@@ -885,140 +885,6 @@
       "isGhost": "This account hasn’t signed in yet, so it can’t have roles.",
       "notGhost": "This person has signed in, so their account is theirs to edit."
     },
-    "overview": {
-      "attention": "Needs attention",
-      "nothing": "Nothing needs you right now.",
-      "appeals": "1 Warden appeal is waiting | {n} Warden appeals are waiting",
-      "appealsOldest": "The oldest was sent on {date}.",
-      "reviewAppeals": "Review appeals",
-      "inactive": "1 account hasn’t signed in for 24 months | {n} accounts haven’t signed in for 24 months",
-      "inactiveDetail": "The nightly cleanup deletes them, unless they have a ban in force.",
-      "seeAccounts": "See the accounts",
-      "bans": "1 account is banned from the site | {n} accounts are banned from the site",
-      "bansDetail": "They can’t sign in until their ban ends.",
-      "rateLimit": {
-        "event": "Rate limiting is in Event night mode",
-        "eventDetail": "The limits per IP address are 5 times higher. Switch back to Normal after the event.",
-        "off": "Rate limiting is off",
-        "offDetail": "Nothing slows down floods or abuse of the API and the short links.",
-        "change": "Change the mode"
-      },
-      "recent": "Recent admin changes",
-      "noChanges": "No changes yet. Role changes, bans and deletions show up here.",
-      "deletedAdmin": "A deleted admin",
-      "deletedAccount": "a deleted account",
-      "log": {
-        "roles": "{actor} set the roles of {target}: {roles}.",
-        "ban": "{actor} banned {target} from the site until {date}.",
-        "banPermanent": "{actor} banned {target} from the site permanently.",
-        "unban": "{actor} lifted the site ban of {target}.",
-        "signOut": "{actor} signed {target} out everywhere.",
-        "delete": "{actor} deleted an account.",
-        "deleteInactive": "The nightly cleanup deleted 1 account with no sign-in for 24 months. | The nightly cleanup deleted {count} accounts with no sign-in for 24 months.",
-        "flagOn": "{actor} switched {name} on.",
-        "flagOff": "{actor} switched {name} off.",
-        "rateLimitMode": "{actor} set rate limiting to {mode}.",
-        "user_ghostCreate": "{actor} created a ghost account for {target}.",
-        "user_ghostUpdate": "{actor} changed the ghost account of {target}.",
-        "user_ghostClaim": "{target} signed in and took over their ghost account.",
-        "event_create": "{actor} created the event {name}.",
-        "event_update": "{actor} edited the event {name}.",
-        "event_cancel": "{actor} cancelled the event {name}.",
-        "event_delete": "{actor} deleted the event {name}.",
-        "event_announce": "{actor} sent the new-event notification for {name}.",
-        "event_announceResend": "{actor} sent the new-event notification for {name} again.",
-        "push_settings": "{actor} changed the push notification settings.",
-        "eventRoom_create": "{actor} added the room {name}.",
-        "eventRoom_update": "{actor} changed the room {name}.",
-        "eventType_create": "{actor} added the event type {name}.",
-        "eventType_update": "{actor} changed the event type {name}.",
-        "event_registrationAdd": "{actor} registered {target} for {name}.",
-        "eventTeam_create": "{actor} created the team {team} in {name}.",
-        "eventTeam_rename": "{actor} renamed the team {team} in {name}.",
-        "eventTeam_delete": "{actor} deleted the team {team} in {name}.",
-        "eventTeam_memberAdd": "{actor} added {target} to {team} in {name}.",
-        "eventTeam_memberRemove": "{actor} removed {target} from {team} in {name}.",
-        "eventTeam_captain": "{actor} changed the captain of {team} in {name}.",
-        "eventTeam_force": "{actor} changed whether {team} is validated by hand in {name}.",
-        "event_registrationRemove": "{actor} removed {target} from {name}.",
-        "teamPole_create": "{actor} added the team pole {name}.",
-        "teamPole_update": "{actor} changed the team pole {name}.",
-        "teamPole_delete": "{actor} deleted the team pole {name}.",
-        "teamMember_add": "{actor} added {target} to the team.",
-        "teamMember_update": "{actor} changed {target} on the team.",
-        "teamMember_remove": "{actor} removed {target} from the team.",
-        "team_settings": "{actor} changed the team page settings.",
-        "partner_create": "{actor} added the partner {name}.",
-        "partner_update": "{actor} changed the partner {name}.",
-        "partner_delete": "{actor} deleted the partner {name}.",
-        "map_settings": "{actor} changed the address of the Minecraft map.",
-        "partners_settings": "{actor} changed the partners page settings.",
-        "gamesplanet_settings": "{actor} changed the Gamesplanet affiliate code.",
-        "gamesplanet_pin": "{actor} pinned a Gamesplanet game.",
-        "gamesplanet_unpin": "{actor} unpinned a Gamesplanet game.",
-        "gamesplanet_sync": "{actor} refreshed the Gamesplanet deals by hand.",
-        "partnerEvent_update": "{actor} changed the partner event {slug}.",
-        "partnerEvent_announce": "{actor} announced the partner event {slug} by notification.",
-        "partnerEvent_close": "{actor} closed the partner event {slug}.",
-        "partnerEvent_reopen": "{actor} reopened the partner event {slug}.",
-        "partnerEvent_export": "{actor} exported the spreadsheet of the partner event {slug}.",
-        "partnerEvent_purge": "The data of the partner event {slug} was deleted, 60 days after it closed.",
-        "shortLink_create": "{actor} created the short link {name}.",
-        "shortLink_update": "{actor} changed the short link {name}.",
-        "shortLink_delete": "{actor} deleted the short link {name}.",
-        "shortLink_export": "{actor} downloaded who clicked the short link {name}.",
-        "poster_create": "{actor} created the poster {name}.",
-        "poster_update": "{actor} changed the poster {name}.",
-        "poster_delete": "{actor} deleted the poster {name}.",
-        "apiKey_create": "{actor} created the API key {name}.",
-        "apiKey_rotate": "{actor} rotated the API key {name}.",
-        "apiKey_revoke": "{actor} revoked the API key {name}.",
-        "economy_mint": "{actor} minted {amount} LNBits on {name}.",
-        "economy_burn": "{actor} burned {amount} LNBits from {name}.",
-        "economy_freeze": "{actor} froze the bank account {name}.",
-        "economy_unfreeze": "{actor} unfroze the bank account {name}.",
-        "economy_reverse": "{actor} reversed a transaction on {name}.",
-        "economy_settings": "{actor} changed the economy settings.",
-        "economy_reset": "{actor} reset the economy.",
-        "economy_shopDisable": "{actor} turned off the shop {name}.",
-        "economy_shopEnable": "{actor} turned the shop {name} back on.",
-        "economy_listingRemove": "{actor} took down the listing {name}.",
-        "economy_accountType": "{actor} changed the type of the bank account {name}.",
-        "quests_settings": "{actor} changed the quest settings.",
-        "quests_create": "{actor} created the quest {name}.",
-        "quests_update": "{actor} changed the quest {name}.",
-        "quests_delete": "{actor} deleted the quest {name}.",
-        "quests_import": "{actor} imported quests.",
-        "quests_reset": "{actor} reset the quests.",
-        "quests_communityCreate": "{actor} planned the community quest {name}.",
-        "quests_communityUpdate": "{actor} changed the community quest {name}.",
-        "quests_communityCancel": "{actor} cancelled the community quest {name}.",
-        "quests_communityTemplate": "{actor} saved a community quest template.",
-        "economy_licenseGrant": "{actor} gave a casino license to {name}.",
-        "economy_licenseRevoke": "{actor} took back a casino license from {name}.",
-        "quests_categoryCreate": "{actor} created a quest category.",
-        "quests_categoryUpdate": "{actor} changed a quest category.",
-        "quests_categoryDelete": "{actor} deleted a quest category.",
-        "downloads_update": "{actor} changed the Minecraft download page.",
-        "rule_create": "{actor} added the rule {name}.",
-        "rule_update": "{actor} edited the rule {name}.",
-        "rule_retire": "{actor} retired the rule {name}.",
-        "rule_restore": "{actor} restored the rule {name}.",
-        "rule_categoryCreate": "{actor} added the rules category {name}.",
-        "rule_categoryUpdate": "{actor} edited the rules category {name}.",
-        "rule_categoryDelete": "{actor} deleted the rules category {name}.",
-        "rule_seed": "{actor} loaded the draft rules."
-      },
-      "loadFailed": "The overview couldn’t be loaded. Check your connection, then reload the page.",
-      "apiKeysSoon": "1 API key expires within 30 days | {n} API keys expire within 30 days",
-      "apiKeysSoonDetail": "Rotate them before then, or the integrations using them stop working.",
-      "seeApiKeys": "See the API keys",
-      "apiKeyActor": "The API key {name}",
-      "anticheatReview": "{count} files wait for review | {count} file waits for review | {count} files wait for review",
-      "anticheatAlerts": "{count} open anticheat alerts | {count} open anticheat alert | {count} open anticheat alerts",
-      "anticheatDetail": "Files that need a look and signals to dismiss.",
-      "seeAnticheat": "Open the review queue"
-    },
     "mods": {
       "settings": {
         "title": "Settings",
@@ -4182,8 +4048,66 @@
       }
     },
     "home": {
-      "title": "Nothing here yet",
-      "lede": "Pick a page in the sidebar. This page will list what is waiting for you."
+      "loadFailed": "The inbox didn’t load. Reload the page.",
+      "emptyTitle": "Nothing waiting",
+      "emptyLede": "No appeal, takeover or queue needs you right now. You can look someone up in People.",
+      "emptyAction": "Open People",
+      "activity": "See all activity",
+      "items": {
+        "appeals": {
+          "title": "{n} ban appeal waiting | {n} ban appeals waiting",
+          "detail": "The oldest was sent on {date}.",
+          "action": "Review appeals"
+        },
+        "transfers": {
+          "title": "{n} account takeover to review | {n} account takeovers to review",
+          "detail": "Someone linked a Minecraft account another player had. The oldest is from {date}.",
+          "action": "See the accounts"
+        },
+        "anticheat": {
+          "review": "{n} file to review | {n} files to review",
+          "alerts": "{n} open anticheat alert | {n} open anticheat alerts",
+          "detail": "Mods and resource packs waiting for a decision.",
+          "action": "Open the review queue"
+        },
+        "apiKeys": {
+          "title": "{n} API key expires within 30 days | {n} API keys expire within 30 days",
+          "detail": "Rotate them before they stop, or the integrations that use them will fail.",
+          "action": "See the API keys"
+        },
+        "rateLimit": {
+          "event": "Rate limiting is in Event night mode",
+          "eventDetail": "The limits per IP address are 5 times higher. Switch back to Normal after the event.",
+          "off": "Rate limiting is off",
+          "offDetail": "Nothing slows down floods or abuse of the API and the short links.",
+          "action": "Change the mode"
+        },
+        "eventWaitlists": {
+          "title": "{n} upcoming event has a waitlist | {n} upcoming events have a waitlist",
+          "detail": "First up is {name}, on {date}, with {waiting} waiting.",
+          "action": "See the events"
+        },
+        "suggestions": {
+          "title": "{n} mod suggestion waiting | {n} mod suggestions waiting",
+          "detail": "The oldest was made on {date}.",
+          "action": "Review suggestions"
+        },
+        "modpackUpdates": {
+          "title": "{n} Modlist mod has a newer file | {n} Modlist mods have a newer file",
+          "detail": "Starting with {name}. Launchers keep the pinned files until you adopt the new ones.",
+          "action": "Open the Modlist"
+        },
+        "inactive": {
+          "title": "{n} account hasn’t signed in for 24 months | {n} accounts haven’t signed in for 24 months",
+          "detail": "The nightly cleanup deletes them, unless they have a ban in force.",
+          "action": "See the accounts"
+        },
+        "siteBans": {
+          "title": "{n} account is banned from the site | {n} accounts are banned from the site",
+          "detail": "They can’t sign in until their ban ends.",
+          "action": "See the accounts"
+        }
+      }
     },
     "settings": {
       "find": "Find a setting",
@@ -4257,7 +4181,8 @@
         "overLimit": "Over the playtime limit",
         "ghost": "Not signed in yet",
         "hasRole": "Has a role",
-        "inactive": "Inactive for 24 months"
+        "inactive": "Inactive for 24 months",
+        "transfer": "Account takeover to review"
       },
       "quickFilters": "Quick filters",
       "searchWarden": "Search by name, email, Minecraft name or UUID",
@@ -4353,9 +4278,9 @@
         "noAccounts": "No Minecraft account linked.",
         "transfers": "1 account takeover to check | {n} account takeovers to check",
         "notBanned": "Not banned.",
-        "bans": "Bans",
-        "warnings": "Warnings",
-        "notes": "Notes",
+        "bans": "no bans | 1 ban | {n} bans",
+        "warnings": "no warnings | 1 warning | {n} warnings",
+        "notes": "no notes | 1 note | {n} notes",
         "overLimit": "{time} past the limit this week.",
         "underLimit": "Within the limit this week.",
         "score": "Trust score {score}",
@@ -4371,10 +4296,26 @@
         "registrations": "Not registered to any event. | Registered to 1 event. | Registered to {n} events.",
         "glance": "At a glance",
         "accountsUsed": "{used} of {max} accounts",
-        "bans": "no bans | 1 ban | {n} bans",
-        "warnings": "no warnings | 1 warning | {n} warnings",
-        "notes": "no notes | 1 note | {n} notes",
         "openTab": "Open {tab}"
+      }
+    },
+    "search": {
+      "button": "Search",
+      "placeholder": "Search a person, a page or an action",
+      "title": "Search",
+      "description": "Find a person, open a page or a setting, or start an action.",
+      "empty": "Nothing matches.",
+      "groups": {
+        "people": "People",
+        "pages": "Pages",
+        "settings": "Settings",
+        "actions": "Actions"
+      },
+      "actions": {
+        "banPlayer": "Ban a player",
+        "newEvent": "New event",
+        "adjustBalance": "Adjust a balance",
+        "newShortLink": "New short link"
       }
     }
   },

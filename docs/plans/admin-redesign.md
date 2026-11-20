@@ -163,6 +163,15 @@ A ghost account only has Summary, Events and Site account.
 - Ctrl K (and a search button in the sidebar header) opens `UDashboardSearch` with three groups: People (from `/api/admin/people`, with the role's limits), pages and Settings sections (a fixed list in the app), and quick actions (Ban a player, New event, Adjust a balance, New short link). Each role sees only what it can open.
 - Tests: the inbox for each role (server), the search groups for each role (Nuxt).
 
+Built, with these choices the plan left open:
+
+- The old Overview and `GET /api/admin/overview` are gone. The inbox gives each queue its count, its oldest date or first name, and the page that opens it. Events waitlists count upcoming, uncancelled events with someone on the waitlist (teams, for a tournament). The mod suggestions row only shows while the `modList` flag is on, like the Vote tab.
+- Account takeovers have no page of their own: People gets a `transfer` quick filter (Warden admins), and the row opens it.
+- Order of the rows: appeals, takeovers, anticheat, API keys about to expire, rate limit mode, event waitlists, suggestions, newer Modlist files, inactive accounts, site bans.
+- Sidebar badges count work, not notices: Moderation (appeals), People (takeovers), Anticheat (files to review and alerts), Events (events with a waitlist) and Modpack (suggestions and newer files). Settings, inactive accounts and bans have none. The inbox loads on the client and refreshes on each navigation, no polling (the old anticheat badge didn't poll either). The anticheat's "waiting" files are no longer counted (only files to review and alerts, as the Overview did).
+- Ctrl K: the pages of a role come from the same data as the sidebar and tab rows (`adminSearchPages`), the quick actions are `ADMIN_ACTIONS` in `app/utils/admin-nav.ts`. "Ban a player" opens People, and "New short link" opens the short links page with its create drawer (`?new`). People wait for two characters and a 250 ms pause.
+- "See all activity" at the bottom of Home goes to Settings › Activity, for the roles that can open it.
+
 ## Slice 4: one activity log
 
 See `docs/activity-log.md` for the table, every action and who sees what.

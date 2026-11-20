@@ -1,6 +1,6 @@
 # Feature flags
 
-Admins switch a feature, or one part of it, off and on from `/admin/settings/flags`, without a deploy. A change is logged in `admin_audit` (`flag.update`) and shows on the Overview.
+Admins switch a feature, or one part of it, off and on from `/admin/settings/flags`, without a deploy. A change is logged in `admin_audit` (`flag.update`) and is in the admin log.
 
 ## How it works
 

@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 import {
+  adminActions,
   adminEntries,
+  adminSearchPages,
   adminTabs,
   ADMIN_ENTRIES,
   personTabs,
@@ -215,5 +217,40 @@ describe('admin redirects', () => {
     expect(Object.keys(ADMIN_REDIRECTS)).toHaveLength(30);
     expect(ADMIN_REDIRECTS['/admin/mods/suggestions']).toBe('/admin/modpack/vote/suggestions');
     expect(ADMIN_REDIRECTS['/admin/mods/vote/suggestions']).toBe('/admin/modpack/vote/suggestions');
+  });
+});
+
+describe('Ctrl K pages and actions', () => {
+  const on = () => true;
+
+  it('lists a page per tab, and leaves out a tab whose flag is off', () => {
+    const pages = adminSearchPages('warden-admin', on).map((page) => page.to);
+    expect(pages).toContain('/admin/moderation/appeals');
+    expect(pages).toContain('/admin/modpack/vote');
+    expect(adminSearchPages('warden-admin', () => false).map((page) => page.to)).not.toContain(
+      '/admin/modpack/vote',
+    );
+  });
+
+  it('keeps a role to the pages of its sidebar', () => {
+    expect(adminSearchPages('economy-admin', on).map((page) => page.id)).toEqual([
+      'home',
+      'people',
+      'economy.overview',
+      'economy.accounts',
+      'economy.ledger',
+      'quests.catalog',
+      'quests.community',
+      'quests.categories',
+      'quests.rewardIndex',
+    ]);
+  });
+
+  it('gives each role only the actions it can open', () => {
+    const actions = (role: string) => adminActions(role).map((action) => action.id);
+    expect(actions('warden-admin')).toEqual(['banPlayer']);
+    expect(actions('events-manager')).toEqual(['newEvent', 'newShortLink']);
+    expect(actions('economy-admin')).toEqual(['adjustBalance']);
+    expect(actions('admin')).toEqual(['banPlayer', 'newEvent', 'adjustBalance', 'newShortLink']);
   });
 });

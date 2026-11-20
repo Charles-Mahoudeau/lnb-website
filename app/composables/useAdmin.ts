@@ -6,7 +6,7 @@ import type {
   AdminGhostUpdateBody,
   AdminBulkBody,
   AdminBulkResult,
-  AdminOverview,
+  AdminInbox,
   AdminProblem,
   AdminRolesBody,
   AdminPeoplePage,
@@ -34,9 +34,16 @@ async function call<T>(request: () => Promise<T>): Promise<T> {
   }
 }
 
-/** What needs an admin, and the latest changes. */
-export function useAdminOverview() {
-  return useFetch<AdminOverview>('/api/admin/overview', { key: 'admin-overview' });
+/**
+ * What is waiting for the caller's roles. The Home rows and the sidebar badges share this one
+ * fetch (same key), loaded on the client and refreshed on each admin navigation.
+ */
+export function useAdminInbox() {
+  return useFetch<AdminInbox>('/api/admin/inbox', {
+    key: 'admin-inbox',
+    lazy: true,
+    server: false,
+  });
 }
 
 /** One page of People, refetched when the query changes. */

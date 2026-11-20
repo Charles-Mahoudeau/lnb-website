@@ -21,7 +21,7 @@ Notifications (waitlist places, reminders, cancellations and moves, announcement
 - **Capacity** is optional. Past it, registrations join a waitlist, promoted in order when a place frees up, until the event starts. Each promotion queues a notification.
 - **Reminders** are set per event, as offsets before the start (default 1 hour). Managers can also announce a published event once, from the "..." menu.
 - **BDE rules.** While an event is pushed to the BDE website, its name must be 3 to 100 characters and its description at least 10, since the BDE refuses anything else.
-- Every manager change is written to `admin_audit` (`event.*`, `eventRoom.*`, `eventType.*`) and shows on the Overview.
+- Every manager change is written to `admin_audit` (`event.*`, `eventRoom.*`, `eventType.*`) and is in the admin log.
 
 ## Registration
 
