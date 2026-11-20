@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 
-import { asc, eq, sql } from 'drizzle-orm';
+import { asc, eq, or, sql } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import type { Db } from '~~/server/db';
@@ -131,10 +131,15 @@ async function replace(body: MarketRecipeBody) {
   return { stored: incoming.length, changed, problems: validation.loops };
 }
 
-/** The stored graph, or the recipes that make one item. */
-async function list(item?: string) {
+/** The stored graph, or the recipes that make or use one item. */
+async function list(item?: string, uses?: string) {
   const query = db.select().from(marketRecipe);
-  const rows = await (item ? query.where(eq(marketRecipe.outputId, item)) : query)
+  const filters = [
+    item ? eq(marketRecipe.outputId, item) : undefined,
+    uses ? sql`${marketRecipe.inputs} @> ${JSON.stringify([{ id: uses }])}::jsonb` : undefined,
+  ].filter((filter) => filter !== undefined);
+  // Recipes that make the item and recipes that use it, when both are asked for.
+  const rows = await (filters.length ? query.where(or(...filters)) : query)
     .orderBy(asc(marketRecipe.id))
     .limit(500);
   const [{ total } = { total: 0 }] = await db
