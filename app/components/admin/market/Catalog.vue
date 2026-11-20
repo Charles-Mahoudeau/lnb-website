@@ -106,7 +106,7 @@ const itemLink = (id: string) => ({ path: route.path, query: { ...route.query, i
             <tr v-for="item in group.items" :key="item.id" :class="{ 'opacity-60': !item.enabled }">
               <td class="px-3 py-2.5">
                 <NuxtLink :to="itemLink(item.id)" class="flex items-center gap-2.5">
-                  <AdminMarketTile :name="item.name" />
+                  <MarketTile :name="item.name" />
                   <span>
                     <span class="block font-semibold text-highlighted hover:underline">{{
                       item.name
