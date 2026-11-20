@@ -25,7 +25,7 @@ The currency is the **LNBit**, counted in **cents** (1 LNBit = 100 cents) as int
 - A shared account can only be closed once its balance is 0.
 - Each player has a **default account**, the one that pays when they name none (`/pay`, shops). It is stored on the site, so it's the same on all their Minecraft accounts. When they can no longer spend from it (removed, viewer, frozen, closed), the personal account pays instead.
 - Casinos are shared accounts of type `casino`, run by players. The server credits them for bets and pays winnings from them.
-- **Casino licenses.** A player buys a license in the game, for `casinoLicensePrice` (100,000 LNBits by default, set in the admin), which is burned. The license belongs to the LNB account and is **free** until it is used: making a shared account a casino, when opening it or later, binds one of the owner's free licenses to it, for good. Closing the casino doesn't free its license. An economy admin can also **give** a license, free of charge (a prize, or one lost to a bug), and take back a free one, from a personal account's page in the admin.
+- **Casino licenses.** A player buys a license in the game, for `casinoLicensePrice` (1,050 LNBits by default, 1 % of the circulation at about 105,000 LNBits, so an autofarmer earns it in about 17 days; set in the admin), which is burned. The license belongs to the LNB account and is **free** until it is used: making a shared account a casino, when opening it or later, binds one of the owner's free licenses to it, for good. Closing the casino doesn't free its license. An economy admin can also **give** a license, free of charge (a prize, or one lost to a bug), and take back a free one, from a personal account's page in the admin.
 
 ## The ledger
 

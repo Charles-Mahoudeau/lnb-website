@@ -4,7 +4,7 @@ The Market is the server's own shop: a commodity exchange where players sell raw
 
 This page is the contract between the site and the economy mod (`lnb-economy`, see `docs/market-mod.md` for what the mod must do), and the rules behind the pages. It extends `docs/economy.md`: accounts, the ledger, idempotency keys and flags work as described there.
 
-> Status: slices 1 to 4 are built: cents in the ledger, then the engine, the ledger kind, the server, admin and public routes, the jobs and the tests, then the admin pages and the public page. The mod document (`docs/market-mod.md`) is final. Still to do: the mod itself (outside this repository) and the tuning of the numbers (catalog, thresholds, spread, mint budget). The Market ships **off** (`economy.market`, `economy.market.sell` and `economy.market.buy` are seeded disabled by the migration). The design came out of the economy update document and a grilling session on 2026-11-20. The starting catalog below is a draft to simulate before launch.
+> Status: slices 1 to 4 are built: cents in the ledger, then the engine, the ledger kind, the server, admin and public routes, the jobs and the tests, then the admin pages and the public page. The mod document (`docs/market-mod.md`) is final. Still to do: the mod itself (outside this repository) and re-tuning the numbers as the economy grows (catalog, thresholds, spread, mint budget). The Market ships **off** (`economy.market`, `economy.market.sell` and `economy.market.buy` are seeded disabled by the migration). The design came out of the economy update document and a grilling session on 2026-11-20. The starting catalog was tuned by simulation for about 9 active players and 105,000 LNBits in circulation (see Tuning): it must be revisited as the economy grows.
 
 See "What was built differently" at the end for where the code departs from this page.
 
@@ -107,13 +107,13 @@ Every read and every trade applies it first, then writes `s` and `stockAt` again
 
 Per player and per tier, the Market tracks the **nominal value** of what they sold over the last 24 hours (a rolling window, exact: the sum of their sale events younger than 24 h). Nominal means before any reduction: `I / rate` of the stock walked. Their window `w` decides the **rate** `r` of the next sale:
 
-| Window `w`        | Rate `r`             |
-| ----------------- | -------------------- |
-| below `q1`        | 100 %                |
-| from `q1` to `q2` | `midPercent` (50 %)  |
-| from `q2` on      | `tailPercent` (10 %) |
+| Window `w`        | Rate `r`            |
+| ----------------- | ------------------- |
+| below `q1`        | 100 %               |
+| from `q1` to `q2` | `midPercent` (40 %) |
+| from `q2` on      | `tailPercent` (5 %) |
 
-A sale at rate `r` pays and moves the stock **by the paid share**: selling `n` items walks `r × n` of stock along the curve, and the player is paid `(1 − σ) × I` over that walked span. So a farmer past the thresholds earns less per item, and the price doesn't crash for everyone because of what they dump at 10 %. An order that crosses a threshold is split exactly at the boundary: the boundary is found by inverting `I`, so a sale pays the same in one order as in several.
+A sale at rate `r` pays and moves the stock **by the paid share**: selling `n` items walks `r × n` of stock along the curve, and the player is paid `(1 − σ) × I` over that walked span. So a farmer past the thresholds earns less per item, and the price doesn't crash for everyone because of what they dump at the tail rate. An order that crosses a threshold is split exactly at the boundary: the boundary is found by inverting `I`, so a sale pays the same in one order as in several.
 
 Purchases do not offset the window. The window is per tier, so spreading sales over the tier's items doesn't escape it.
 
@@ -121,7 +121,7 @@ The algorithm, with vectors a mod can check against, is in `docs/market-mod.md`.
 
 ### Mint cap
 
-Like quests, the Market has a rolling budget: over 30 days it mints at most `mintCapPercent` (25 % by default) of the money in circulation. A sale past the budget is paid what's left and the answer says `capped: true`. The state the mod reads carries `mintRemaining`, so its preview already shows the capped payout.
+Like quests, the Market has a rolling budget: over 30 days it mints at most `mintCapPercent` (15 % by default, a backstop: about 13 % is minted in a normal month, see Tuning) of the money in circulation. A sale past the budget is paid what's left and the answer says `capped: true`. The state the mod reads carries `mintRemaining`, so its preview already shows the capped payout.
 
 ### Orders and slippage
 
@@ -186,7 +186,7 @@ Under `/api/economy/server/market`, behind the `economy.serverApi` and `economy.
     "sell": true,
     "buy": true
   },
-  "tiers": [{ "tier": 1, "q1": 500000, "q2": 1500000, "midPercent": 50, "tailPercent": 10 }],
+  "tiers": [{ "tier": 1, "q1": 3500, "q2": 9300, "midPercent": 40, "tailPercent": 5 }],
   "mintRemaining": 83000000,
   "items": [
     {
@@ -264,15 +264,15 @@ Under `/api/economy/admin/market`, for `admin` and `economy-admin`. Never behind
 
 ### Settings
 
-| Setting                              | Default                 | Meaning                                                         |
-| ------------------------------------ | ----------------------- | --------------------------------------------------------------- |
-| `sigma`                              | 15 %                    | The spread.                                                     |
-| `tolerancePercent`                   | 1 %                     | The slippage an order accepts.                                  |
-| `maxOrderItems`                      | 2,304                   | Items per order.                                                |
-| `mintCapPercent`                     | 25 %                    | The 30-day mint budget, as a share of the money in circulation. |
-| `historyDays`                        | 365                     | How long hourly snapshots are kept.                             |
-| per tier `q1`, `q2`                  | 5,000 and 15,000 LNBits | The thresholds of the window.                                   |
-| per tier `midPercent`, `tailPercent` | 50 % and 10 %           | The rates after each threshold.                                 |
+| Setting                              | Default                                              | Meaning                                                                        |
+| ------------------------------------ | ---------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `sigma`                              | 15 %                                                 | The spread.                                                                    |
+| `tolerancePercent`                   | 1 %                                                  | The slippage an order accepts.                                                 |
+| `maxOrderItems`                      | 2,304                                                | Items per order.                                                               |
+| `mintCapPercent`                     | 15 %                                                 | The 30-day mint budget, as a share of the money in circulation.                |
+| `historyDays`                        | 365                                                  | How long hourly snapshots are kept.                                            |
+| per tier `q1`, `q2`                  | 35 and 93 LNBits (tiers 1 and 3), 29 and 70 (tier 2) | The thresholds of the window, tuned for about 11,700 LNBits per active player. |
+| per tier `midPercent`, `tailPercent` | 40 % and 5 %                                         | The rates after each threshold.                                                |
 
 Flags: `economy.market`, `economy.market.sell` and `economy.market.buy` (`docs/feature-flags.md`). The Market ships with `economy.market` off, and its two directions are switched on one at a time, starting with tight caps.
 
@@ -298,44 +298,55 @@ Flags: `economy.market`, `economy.market.sell` and `economy.market.buy` (`docs/f
 - `market:snapshot`, hourly: writes one row per item (`market_snapshot`: price, stock, time) from the drifted stock. It changes nothing.
 - `market:prune`, nightly: deletes snapshots older than `historyDays` and sale events older than two days.
 
-## Starting catalog (draft)
+## Starting catalog
 
-Prices are LNBits per item. They assume a dedicated farmer earns about 2,500 LNBits an hour at full rate, so a casino license (100,000) takes about 40 hours, and `s0 × p0` is about 6,000 / 3,000 / 1,500 LNBits for tiers 1 / 2 / 3. These numbers come from reasoning, not a simulation: run one on real play data before launch. `Buy` is off wherever an item would be a loop input or break progression.
+Prices are LNBits per item. The numbers come from the economy simulation (see Tuning below): `p0` is the first draft's price divided by 4 (rounded), and `s0` is the draft's depth divided by 4 for 9 active players (rare items floored at 6), so `s0` should grow with the number of active players. The tier shapes (`k`, `alpha`, `pMin`, `pMax`) are unchanged. `Buy` is off wherever an item would be a loop input or break progression (sand's buy stays off).
 
-| Tier | Item           | `p0` | `s0`    | Sell | Buy |
-| ---- | -------------- | ---- | ------- | ---- | --- |
-| 1    | Cobblestone    | 0.05 | 120,000 | yes  | yes |
-| 1    | Sand           | 0.08 | 75,000  | yes  | no  |
-| 1    | Oak Log        | 0.30 | 20,000  | yes  | yes |
-| 1    | Wheat          | 0.25 | 24,000  | yes  | no  |
-| 1    | Sugar Cane     | 0.20 | 30,000  | yes  | no  |
-| 1    | Melon Slice    | 0.06 | 100,000 | yes  | no  |
-| 1    | Kelp           | 0.10 | 60,000  | yes  | no  |
-| 1    | Gunpowder      | 0.80 | 7,500   | yes  | no  |
-| 1    | Bone           | 0.35 | 17,000  | yes  | no  |
-| 1    | Rotten Flesh   | 0.15 | 40,000  | yes  | no  |
-| 1    | String         | 0.50 | 12,000  | yes  | no  |
-| 1    | Iron Ingot     | 4    | 1,500   | yes  | no  |
-| 2    | Glass          | 0.50 | 6,000   | yes  | yes |
-| 2    | Terracotta     | 1.50 | 2,000   | yes  | yes |
-| 2    | Bricks         | 2    | 1,500   | yes  | yes |
-| 2    | Cooked Beef    | 1.20 | 2,500   | yes  | no  |
-| 2    | Golden Carrot  | 3    | 1,000   | yes  | no  |
-| 2    | Coal           | 1.50 | 2,000   | yes  | yes |
-| 2    | Copper Ingot   | 1.20 | 2,500   | yes  | yes |
-| 2    | Redstone       | 1    | 3,000   | yes  | yes |
-| 2    | Glowstone Dust | 1.20 | 2,500   | yes  | yes |
-| 2    | Ender Pearl    | 25   | 120     | yes  | no  |
-| 3    | Gold Ingot     | 12   | 125     | yes  | no  |
-| 3    | Lapis Lazuli   | 1.50 | 1,000   | yes  | no  |
-| 3    | Diamond        | 120  | 12      | yes  | no  |
-| 3    | Emerald        | 60   | 25      | yes  | no  |
-| 3    | Quartz         | 2.50 | 600     | yes  | yes |
-| 3    | Slimeball      | 8    | 190     | yes  | no  |
-| 3    | Blaze Rod      | 30   | 50      | yes  | no  |
-| 3    | Ancient Debris | 400  | 4       | yes  | no  |
+| Tier | Item           | `p0`  | `s0`   | Sell | Buy |
+| ---- | -------------- | ----- | ------ | ---- | --- |
+| 1    | Cobblestone    | 0.012 | 30,000 | yes  | yes |
+| 1    | Sand           | 0.02  | 19,000 | yes  | no  |
+| 1    | Oak Log        | 0.075 | 5,000  | yes  | yes |
+| 1    | Wheat          | 0.06  | 6,000  | yes  | no  |
+| 1    | Sugar Cane     | 0.05  | 7,500  | yes  | no  |
+| 1    | Melon Slice    | 0.015 | 25,000 | yes  | no  |
+| 1    | Kelp           | 0.025 | 15,000 | yes  | no  |
+| 1    | Gunpowder      | 0.2   | 1,900  | yes  | no  |
+| 1    | Bone           | 0.09  | 4,250  | yes  | no  |
+| 1    | Rotten Flesh   | 0.04  | 10,000 | yes  | no  |
+| 1    | String         | 0.12  | 3,000  | yes  | no  |
+| 1    | Iron Ingot     | 1     | 375    | yes  | no  |
+| 2    | Glass          | 0.125 | 1,500  | yes  | yes |
+| 2    | Terracotta     | 0.38  | 500    | yes  | yes |
+| 2    | Bricks         | 0.5   | 375    | yes  | yes |
+| 2    | Cooked Beef    | 0.3   | 625    | yes  | no  |
+| 2    | Golden Carrot  | 0.75  | 250    | yes  | no  |
+| 2    | Coal           | 0.38  | 500    | yes  | yes |
+| 2    | Copper Ingot   | 0.3   | 625    | yes  | yes |
+| 2    | Redstone       | 0.25  | 750    | yes  | yes |
+| 2    | Glowstone Dust | 0.3   | 625    | yes  | yes |
+| 2    | Ender Pearl    | 6     | 30     | yes  | no  |
+| 3    | Gold Ingot     | 3     | 30     | yes  | no  |
+| 3    | Lapis Lazuli   | 0.38  | 250    | yes  | no  |
+| 3    | Diamond        | 30    | 6      | yes  | no  |
+| 3    | Emerald        | 15    | 6      | yes  | no  |
+| 3    | Quartz         | 0.63  | 150    | yes  | yes |
+| 3    | Slimeball      | 2     | 48     | yes  | no  |
+| 3    | Blaze Rod      | 7.5   | 12     | yes  | no  |
+| 3    | Ancient Debris | 100   | 6      | yes  | no  |
 
-The validator may still refuse parts of this table once the real recipe graph is in.
+The validator may still refuse parts of this table once the real recipe graph is in. The seed passes it against the recipes between these items and their usual inputs (`test/db/market-retune-migration.test.ts`).
+
+### Tuning
+
+The numbers above, the thresholds and the mint cap come from a simulation of the economy run on 2026-11-20, for **about 9 active players and about 105,000 LNBits in circulation** (`W`, the circulation per active player, is about 11,700). They replace a first draft that assumed a farmer earning 2,500 LNBits an hour. Migration `0060_market-retune` applies them to a database that has the draft, and only to rows still at the draft values, so an admin's edit is kept.
+
+- Thresholds are a share of `W`: tier 1 and 3 at 0.30 % and 0.80 % (35 and 93 LNBits), tier 2 at 0.25 % and 0.60 % (29 and 70). Mid rate 40 %, tail rate 5 %, spread unchanged at 15 %.
+- The mint cap is 15 % over 30 days: a backstop, not the limiter. About 13 % of circulation is minted in a normal month; the thresholds and rates are what limit farming.
+- The casino license costs 1 % of circulation (1,050 LNBits at 105,000): an autofarmer earns it in about 17 days. This is `casinoLicensePrice` in the economy settings, which admins still edit.
+- The depth `s0` is fixed per active player, so it should grow with the player count; the thresholds and the license price should follow the circulation.
+
+Limits: production rates per player were guesses, not measured. Quests, mob drops and the auction tax were not simulated, so total issuance (the Market plus everything else) can reach about 20 % of circulation a month. Revisit all of this with real play data and as the economy grows.
 
 ## Data
 
