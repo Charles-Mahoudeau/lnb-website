@@ -280,6 +280,10 @@ describe('the Market', () => {
       .where(eq(marketItem.id, COBBLE));
     await expect(sell(who, 10)).rejects.toMatchObject({ data: { problem: 'itemDisabled' } });
     await db.update(marketItem).set({ enabled: true }).where(eq(marketItem.id, COBBLE));
+    await expect(sell(who, 2305)).rejects.toMatchObject({
+      statusCode: 400,
+      data: { problem: 'tooManyItems' },
+    });
     await flagService.set({ key: 'economy.market.sell', enabled: false, actorId: admin });
     await expect(sell(who, 10)).rejects.toMatchObject({
       statusCode: 503,

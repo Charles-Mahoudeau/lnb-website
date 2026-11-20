@@ -50,6 +50,7 @@ export const ECONOMY_PROBLEMS = [
   'itemDisabled',
   'notSellable',
   'notBuyable',
+  'tooManyItems',
   'zeroPayout',
   'noRecipes',
   'loop',

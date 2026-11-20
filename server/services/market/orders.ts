@@ -143,8 +143,7 @@ function checkTradable(
   if (direction === 'sell' ? !row.sellable : !row.buyable) {
     problem(409, direction === 'sell' ? 'notSellable' : 'notBuyable');
   }
-  if (quantity > config.maxOrderItems)
-    throw createError({ status: 400, statusText: 'Bad Request' });
+  if (quantity > config.maxOrderItems) problem(400, 'tooManyItems');
 }
 
 async function itemById(dbx: Db, id: string, lock = false) {

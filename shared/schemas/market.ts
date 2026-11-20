@@ -275,7 +275,11 @@ export const marketPlayerWindow = z.object({
   capped: z.boolean().describe('The mint budget is spent.'),
 });
 
-export const marketRecipeResult = z.object({ stored: z.number(), problems: z.array(z.unknown()) });
+export const marketRecipeResult = z.object({
+  stored: z.number(),
+  changed: z.boolean(),
+  problems: z.array(z.unknown()),
+});
 
 const marketLoop = z.object({
   item: z.string(),
