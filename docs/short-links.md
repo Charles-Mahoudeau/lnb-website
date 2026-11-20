@@ -38,7 +38,7 @@ One `short_link_click` row per followed link, with the time, whether the visitor
 - The list is a table: the short URL and name, who can open it, clicks, people (only for links that record), created, a switch, and copy. Rows open the link's page; "New link" and "Edit" open the form in a drawer.
 - The form: destination, short ID with "Generate", a name only managers see, who can open it (three cards, then the school buttons for `schools`), "Record who clicks" (disabled without sign-in or with the flag off), "Link is on", and a plain-words summary of who can open it.
 - The link page: the short URL, two badges (who can open it, records or counts only), four counts (clicks, people, clicks without sign-in, refused for the wrong school), clicks per day for 30 Paris days (stacked: signed in and not), and, for links that record: people by school, and the 50 people who clicked last. "Export CSV" lists date, name, email and school for every recorded click.
-- The export hands out names and emails, so it writes `shortLink.export` to the admin log. Creating, changing and deleting write `shortLink.create`, `.update` and `.delete`, shown on the Overview.
+- The export hands out names and emails, so it writes `shortLink.export` to the admin log. Creating, changing and deleting write `shortLink.create`, `.update` and `.delete`, in the admin log.
 - Cells starting with `=`, `+`, `-` or `@` get a quote in the CSV, so a spreadsheet can't run a name.
 
 ## Flags

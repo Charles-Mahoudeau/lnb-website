@@ -314,3 +314,79 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
 export function settingsSections(role: string | null | undefined): SettingsSection[] {
   return SETTINGS_SECTIONS.filter((candidate) => hasAdminArea(role, candidate.areas));
 }
+
+export interface AdminSearchPage {
+  id: string;
+  /** The page's own label, or the entry's then the tab's, joined by a chevron by the search. */
+  labelKeys: string[];
+  icon: string;
+  to: string;
+}
+
+/**
+ * The pages Ctrl K opens for a role: one per entry, or one per tab for an entry with tabs. Tabs
+ * whose feature flag is off are left out, like in the tab rows.
+ */
+export function adminSearchPages(
+  role: string | null | undefined,
+  isEnabled: (flag: 'modList') => boolean,
+): AdminSearchPage[] {
+  return adminEntries(role).flatMap((entry): AdminSearchPage[] => {
+    const tabs = adminTabs(entry.id, isEnabled);
+    if (!tabs.length) {
+      return [{ id: entry.id, labelKeys: [entry.labelKey], icon: entry.icon, to: entry.to }];
+    }
+    return tabs.map((tab) => ({
+      id: `${entry.id}.${tab.id}`,
+      labelKeys: [entry.labelKey, tab.labelKey],
+      icon: entry.icon,
+      to: tab.to,
+    }));
+  });
+}
+
+export interface AdminAction {
+  id: string;
+  labelKey: string;
+  icon: string;
+  to: string;
+  areas: AdminArea[];
+}
+
+/** The quick actions of Ctrl K. Each one goes to a page the same role can open. */
+export const ADMIN_ACTIONS: AdminAction[] = [
+  {
+    id: 'banPlayer',
+    labelKey: 'admin.search.actions.banPlayer',
+    icon: 'i-lucide-gavel',
+    to: '/admin/people',
+    areas: ['warden'],
+  },
+  {
+    id: 'newEvent',
+    labelKey: 'admin.search.actions.newEvent',
+    icon: 'i-lucide-calendar-plus',
+    to: '/admin/events/new',
+    areas: ['events'],
+  },
+  {
+    id: 'adjustBalance',
+    labelKey: 'admin.search.actions.adjustBalance',
+    icon: 'i-lucide-landmark',
+    to: '/admin/economy/accounts',
+    areas: ['economy'],
+  },
+  {
+    id: 'newShortLink',
+    labelKey: 'admin.search.actions.newShortLink',
+    icon: 'i-lucide-link',
+    // The short links page opens its create drawer for `new`.
+    to: '/admin/short-links?new=1',
+    areas: ['events'],
+  },
+];
+
+/** The quick actions a role may use, in order. */
+export function adminActions(role: string | null | undefined): AdminAction[] {
+  return ADMIN_ACTIONS.filter((action) => hasAdminArea(role, action.areas));
+}

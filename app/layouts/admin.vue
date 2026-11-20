@@ -11,13 +11,14 @@ const { user, school } = useAuth();
 const route = useRoute();
 const fold = useAdminFold();
 
-// The anticheat's waiting work, for the badge on its entry. Warden admins only. The counts of
-// every entry come from one inbox endpoint later.
-const summary = isWardenAdmin(user.value?.role) ? useAnticheatSummary() : null;
-const anticheatBadge = computed(() => {
-  const count = (summary?.data.value?.alerts ?? 0) + (summary?.data.value?.waiting ?? 0);
-  return count > 0 ? count : undefined;
-});
+// What is waiting, for the badges: the same fetch as the Home rows (one key), refreshed on each
+// navigation inside the admin. A count is work to do, so the badges are neutral, never red.
+const { data: inbox, refresh } = useAdminInbox();
+watch(
+  () => route.path,
+  () => void refresh(),
+);
+const counts = computed(() => inbox.value?.badges ?? {});
 
 const entries = computed(() => adminEntries(user.value?.role));
 
@@ -27,7 +28,9 @@ function toItem(entry: AdminEntry): NavigationMenuItem {
     icon: entry.icon,
     to: entry.to,
     active: entryIsActive(entry, route.path),
-    badge: entry.id === 'anticheat' ? anticheatBadge.value : undefined,
+    badge: counts.value[entry.id]
+      ? { label: String(counts.value[entry.id]), color: 'neutral', variant: 'subtle' }
+      : undefined,
   };
 }
 
@@ -45,6 +48,10 @@ const groups = computed(() =>
     .map((group) => ({
       ...group,
       items: entries.value.filter((entry) => entry.group === group.id).map(toItem),
+      // A folded group shows the total of its entries.
+      total: entries.value
+        .filter((entry) => entry.group === group.id)
+        .reduce((sum, entry) => sum + (counts.value[entry.id] ?? 0), 0),
     }))
     .filter((group) => group.items.length > 0),
 );
@@ -67,14 +74,17 @@ const settings = computed<NavigationMenuItem[]>(() =>
   <UDashboardGroup>
     <UDashboardSidebar :ui="{ footer: 'flex-col items-stretch gap-1' }">
       <template #header>
-        <NuxtLink
-          to="/admin"
-          class="flex items-center gap-2.5 font-display font-bold text-highlighted"
-        >
-          <img src="/logo.svg" alt="" class="size-7 dark:hidden" />
-          <img src="/logo-dark.svg" alt="" class="hidden size-7 dark:block" />
-          <span>{{ t('admin.title') }}</span>
-        </NuxtLink>
+        <div class="flex w-full flex-col gap-3">
+          <NuxtLink
+            to="/admin"
+            class="flex items-center gap-2.5 font-display font-bold text-highlighted"
+          >
+            <img src="/logo.svg" alt="" class="size-7 dark:hidden" />
+            <img src="/logo-dark.svg" alt="" class="hidden size-7 dark:block" />
+            <span>{{ t('admin.title') }}</span>
+          </NuxtLink>
+          <UDashboardSearchButton :label="t('admin.search.button')" class="w-full" />
+        </div>
       </template>
 
       <div class="flex flex-col gap-3">
@@ -92,12 +102,26 @@ const settings = computed<NavigationMenuItem[]>(() =>
             size="sm"
             class="justify-start text-muted"
             :icon="group.icon"
-            :trailing-icon="
-              fold.open.value[group.id] ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'
-            "
             :label="group.label"
-            :ui="{ trailingIcon: 'ms-auto' }"
-          />
+          >
+            <template #trailing>
+              <span class="ms-auto flex items-center gap-2">
+                <UBadge
+                  v-if="!fold.open.value[group.id] && group.total"
+                  color="neutral"
+                  variant="subtle"
+                  size="sm"
+                  :label="String(group.total)"
+                />
+                <UIcon
+                  :name="
+                    fold.open.value[group.id] ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'
+                  "
+                  class="size-5 shrink-0"
+                />
+              </span>
+            </template>
+          </UButton>
           <template #content>
             <UNavigationMenu :items="group.items" orientation="vertical" class="mt-1" />
           </template>
@@ -121,6 +145,8 @@ const settings = computed<NavigationMenuItem[]>(() =>
         </UUser>
       </template>
     </UDashboardSidebar>
+
+    <AdminSearch />
 
     <slot />
   </UDashboardGroup>

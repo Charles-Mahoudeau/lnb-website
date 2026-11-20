@@ -243,7 +243,7 @@ The latest report's answer for that session, read again from the database, for a
 
 ## Alerts
 
-In the admin only, never sent to players, by email or by push: a badge on the Anticheat entry of the nav, an item on the Overview, a list at the top of the review queue, and an `anticheatAlert` event on the Warden stream. Kinds: `fileRefused`, `bannedFileSeen`, `playerHeld`, `factsDisputed`, `banAffectsPlayers`. An open alert of the same kind, player and file is not raised twice. The audit rows that feed the stream (`anticheat.verdict`, `anticheat.alert`) are left out of the Warden activity log's default list.
+In the admin only, never sent to players, by email or by push: a badge on the Anticheat entry of the nav (files to review plus open alerts), a row on the admin Home, a list at the top of the review queue, and an `anticheatAlert` event on the Warden stream. Kinds: `fileRefused`, `bannedFileSeen`, `playerHeld`, `factsDisputed`, `banAffectsPlayers`. An open alert of the same kind, player and file is not raised twice. The audit rows that feed the stream (`anticheat.verdict`, `anticheat.alert`) are left out of the Warden activity log's default list.
 
 ## Admin
 

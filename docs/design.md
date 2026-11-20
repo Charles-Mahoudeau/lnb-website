@@ -31,7 +31,7 @@ Three custom palettes, wired into Nuxt UI as `neutral: 'night'`, `primary: 'crim
 - **Deep crimson only marks actions**: the main button, links, focus rings, errors and destructive actions. Never use red on large surfaces, backgrounds, banners, cards or decoration.
 - **Dusk violet is the second accent, and it never marks an action.** It brings color to these places only:
   - the big date numbers in event lists (`text-secondary`, the month stays muted);
-  - icons in small tinted tiles: activities, menu items, admin overview items, team poles (the `IconTile` component, `bg-secondary/15 text-secondary`);
+  - icons in small tinted tiles: activities, menu items, admin Home rows, team poles (the `IconTile` component, `bg-secondary/15 text-secondary`);
   - the scattered activity icons on an event hero or the sign-in banner without banner art (see Imagery);
   - the current page in navigation menus (header and admin sidebar) and the selected tab (Nuxt UI's `secondary` color, set globally in `app.config.ts`);
   - the counting state of the playtime band on the Minecraft account page, and its allowance bar (see Minecraft account);

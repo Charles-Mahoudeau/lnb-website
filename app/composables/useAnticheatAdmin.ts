@@ -17,7 +17,6 @@ import type {
   AnticheatProjectSearchResult,
   AnticheatSettings,
   AnticheatSettingsPatch,
-  AnticheatSummary,
   AnticheatTimelineEvent,
 } from '#shared/schemas/anticheat';
 import { ANTICHEAT_PROBLEMS } from '#shared/schemas/anticheat';
@@ -46,15 +45,6 @@ async function call<T>(request: () => Promise<T>): Promise<T> {
 }
 
 const base = '/api/anticheat/admin';
-
-/** Counts for the nav badge. Only fetched for Warden admins, on the client. */
-export function useAnticheatSummary() {
-  return useFetch<AnticheatSummary>(`${base}/summary`, {
-    key: 'anticheat-summary',
-    lazy: true,
-    server: false,
-  });
-}
 
 /** One page of the file registry. The first page is a `useFetch`; more pages come by cursor. */
 export function useAnticheatFiles(query: Ref<Omit<AnticheatFilesQuery, 'cursor'>>) {
