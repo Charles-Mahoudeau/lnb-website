@@ -1,149 +1,66 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui';
 
-// The admin area (/admin): a sidebar instead of the public header. Each page renders an
-// AdminPage. Warden admins only see the Warden and Mods sections, events managers only Events,
-// Push and Short links, economy admins only Economy.
+import type { AdminEntry } from '~/utils/admin-nav';
+
+// The admin area (/admin): a sidebar instead of the public header. The entries, the groups and
+// who sees what are data in utils/admin-nav.ts, from docs/plans/admin-redesign.md. Each page
+// renders an AdminPage or an AdminTabPage.
 const { t } = useI18n();
 const { user, school } = useAuth();
 const route = useRoute();
-const { isEnabled } = useFlags();
+const fold = useAdminFold();
 
-// The anticheat's waiting work, for the badge on its group. Warden admins only.
+// The anticheat's waiting work, for the badge on its entry. Warden admins only. The counts of
+// every entry come from one inbox endpoint later.
 const summary = isWardenAdmin(user.value?.role) ? useAnticheatSummary() : null;
 const anticheatBadge = computed(() => {
   const count = (summary?.data.value?.alerts ?? 0) + (summary?.data.value?.waiting ?? 0);
   return count > 0 ? count : undefined;
 });
 
-const wardenItems = computed<NavigationMenuItem[]>(() => [
-  {
-    label: t('admin.nav.warden'),
-    icon: 'i-lucide-pickaxe',
-    defaultOpen: true,
-    children: [
-      { label: t('admin.nav.players'), to: '/admin/warden/players' },
-      { label: t('admin.nav.appeals'), to: '/admin/warden/appeals' },
-      { label: t('admin.nav.activity'), to: '/admin/warden/activity' },
-      { label: t('admin.nav.playtime'), to: '/admin/warden/playtime' },
-      { label: t('admin.nav.rules'), to: '/admin/warden/rules' },
-      { label: t('admin.nav.settings'), to: '/admin/warden/settings' },
-    ],
-  },
-  {
-    label: t('admin.nav.anticheat'),
-    icon: 'i-lucide-shield-check',
-    defaultOpen: true,
-    badge: anticheatBadge.value,
-    children: [
-      { label: t('admin.nav.anticheatFiles'), to: '/admin/anticheat', exact: true },
-      { label: t('admin.nav.anticheatReview'), to: '/admin/anticheat/review' },
-      { label: t('admin.nav.anticheatPlayers'), to: '/admin/anticheat/players' },
-      { label: t('admin.nav.anticheatSettings'), to: '/admin/anticheat/settings' },
-    ],
-  },
-  {
-    label: t('admin.nav.mods'),
-    icon: 'i-lucide-blocks',
-    defaultOpen: true,
-    children: [
-      { label: t('admin.nav.modlist'), to: '/admin/mods', exact: true },
-      // The vote is a feature that can be switched off (the modList flag), so its entries go with it.
-      ...(isEnabled('modList')
-        ? [
-            { label: t('admin.nav.modVote'), to: '/admin/mods/vote', exact: true },
-            { label: t('admin.nav.modSuggestions'), to: '/admin/mods/vote/suggestions' },
-          ]
-        : []),
-      { label: t('admin.nav.files'), to: '/admin/mods/files' },
-      { label: t('admin.nav.downloads'), to: '/admin/mods/downloads' },
-      { label: t('admin.nav.settings'), to: '/admin/mods/settings' },
-    ],
-  },
-]);
+const entries = computed(() => adminEntries(user.value?.role));
 
-const items = computed<NavigationMenuItem[][]>(() => [
-  ...(isAdmin(user.value?.role)
+function toItem(entry: AdminEntry): NavigationMenuItem {
+  return {
+    label: t(entry.labelKey),
+    icon: entry.icon,
+    to: entry.to,
+    active: entryIsActive(entry, route.path),
+    badge: entry.id === 'anticheat' ? anticheatBadge.value : undefined,
+  };
+}
+
+const top = computed<NavigationMenuItem[]>(() =>
+  entries.value.filter((entry) => !entry.group).map(toItem),
+);
+
+const groups = computed(() =>
+  (
+    [
+      { id: 'events', icon: 'i-lucide-calendar-days', label: t('admin.nav.eventsGroup') },
+      { id: 'minecraft', icon: 'i-lucide-pickaxe', label: t('admin.nav.minecraftGroup') },
+    ] as const
+  )
+    .map((group) => ({
+      ...group,
+      items: entries.value.filter((entry) => entry.group === group.id).map(toItem),
+    }))
+    .filter((group) => group.items.length > 0),
+);
+
+const settings = computed<NavigationMenuItem[]>(() =>
+  settingsSections(user.value?.role).length
     ? [
-        [
-          {
-            label: t('admin.nav.overview'),
-            icon: 'i-lucide-layout-dashboard',
-            to: '/admin',
-            exact: true,
-          },
-          { label: t('admin.nav.users'), icon: 'i-lucide-users', to: '/admin/users' },
-          { label: t('admin.nav.team'), icon: 'i-lucide-users-round', to: '/admin/team' },
-          { label: t('admin.nav.map'), icon: 'i-lucide-map', to: '/admin/map' },
-          { label: t('admin.nav.partners'), icon: 'i-lucide-handshake', to: '/admin/partners' },
-          {
-            label: t('admin.nav.gamesplanet'),
-            icon: 'i-lucide-gamepad-2',
-            to: '/admin/gamesplanet',
-          },
-          { label: t('admin.nav.flags'), icon: 'i-lucide-toggle-right', to: '/admin/flags' },
-          {
-            label: t('admin.nav.rateLimit'),
-            icon: 'i-lucide-gauge',
-            to: '/admin/rate-limit',
-          },
-          { label: t('admin.nav.apiKeys'), icon: 'i-lucide-key-round', to: '/admin/api-keys' },
-        ],
+        {
+          label: t('admin.nav.settings'),
+          icon: 'i-lucide-settings',
+          to: '/admin/settings',
+          active: route.path.startsWith('/admin/settings'),
+        },
       ]
-    : []),
-  [
-    ...(isEventsManager(user.value?.role)
-      ? [
-          {
-            label: t('admin.nav.events'),
-            icon: 'i-lucide-calendar',
-            defaultOpen: true,
-            children: [
-              {
-                label: t('admin.nav.eventList'),
-                to: '/admin/events',
-                // The list, and each event's page under it, but not rooms or types.
-                active:
-                  route.path === '/admin/events' ||
-                  /^\/admin\/events\/(?!rooms|types)/.test(route.path),
-              },
-              { label: t('admin.nav.eventRooms'), to: '/admin/events/rooms' },
-              { label: t('admin.nav.eventTypes'), to: '/admin/events/types' },
-              { label: t('admin.nav.posters'), to: '/admin/posters' },
-            ],
-          },
-        ]
-      : []),
-    ...(isEventsManager(user.value?.role)
-      ? [
-          { label: t('admin.nav.push'), icon: 'i-lucide-bell', to: '/admin/push' },
-          {
-            label: t('admin.nav.partnerEvents'),
-            icon: 'i-lucide-trophy',
-            to: '/admin/partner-events',
-          },
-          { label: t('admin.nav.shortLinks'), icon: 'i-lucide-link', to: '/admin/short-links' },
-        ]
-      : []),
-    ...(isWardenAdmin(user.value?.role) ? wardenItems.value : []),
-    ...(isEconomyAdmin(user.value?.role)
-      ? [
-          {
-            label: t('admin.nav.economy'),
-            icon: 'i-lucide-landmark',
-            defaultOpen: true,
-            children: [
-              { label: t('admin.nav.economyOverview'), to: '/admin/economy', exact: true },
-              { label: t('admin.nav.economyAccounts'), to: '/admin/economy/accounts' },
-              { label: t('admin.nav.economyLedger'), to: '/admin/economy/ledger' },
-              { label: t('admin.nav.economyQuests'), to: '/admin/economy/quests' },
-              { label: t('admin.nav.settings'), to: '/admin/economy/settings' },
-            ],
-          },
-        ]
-      : []),
-  ],
-]);
+    : [],
+);
 </script>
 
 <template>
@@ -160,9 +77,35 @@ const items = computed<NavigationMenuItem[][]>(() => [
         </NuxtLink>
       </template>
 
-      <UNavigationMenu :items="items" orientation="vertical" />
+      <div class="flex flex-col gap-3">
+        <UNavigationMenu :items="top" orientation="vertical" />
+        <UCollapsible
+          v-for="group in groups"
+          :key="group.id"
+          :open="fold.open.value[group.id]"
+          @update:open="(value: boolean) => fold.set(group.id, value)"
+        >
+          <UButton
+            color="neutral"
+            variant="ghost"
+            block
+            size="sm"
+            class="justify-start text-muted"
+            :icon="group.icon"
+            :trailing-icon="
+              fold.open.value[group.id] ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'
+            "
+            :label="group.label"
+            :ui="{ trailingIcon: 'ms-auto' }"
+          />
+          <template #content>
+            <UNavigationMenu :items="group.items" orientation="vertical" class="mt-1" />
+          </template>
+        </UCollapsible>
+      </div>
 
       <template #footer>
+        <UNavigationMenu v-if="settings.length" :items="settings" orientation="vertical" />
         <UButton
           to="/"
           color="neutral"

@@ -693,47 +693,44 @@
     "menu": "Admin",
     "backToSite": "Retour au site",
     "nav": {
-      "warden": "Warden",
-      "players": "Joueurs",
-      "appeals": "Contestations",
-      "activity": "Activité",
-      "playtime": "Temps de jeu",
-      "settings": "Réglages",
-      "users": "Utilisateurs",
-      "overview": "Vue d’ensemble",
-      "mods": "Mods",
-      "modList": "Liste de mods",
-      "modVote": "Vote des mods",
-      "modSuggestions": "Propositions",
-      "files": "Fichiers",
-      "flags": "Fonctionnalités",
-      "rateLimit": "Limitation de débit",
-      "events": "Événements",
-      "eventRooms": "Salles",
-      "eventTypes": "Types d’événements",
-      "eventList": "Tous les événements",
-      "push": "Notifications push",
-      "team": "Équipe",
-      "map": "Carte",
-      "partners": "Partenaires",
-      "partnerEvents": "Événements partenaires",
+      "home": "Accueil",
+      "people": "Personnes",
       "shortLinks": "Liens courts",
+      "site": "Site",
+      "eventsGroup": "Événements",
+      "minecraftGroup": "Minecraft",
+      "events": "Événements",
       "posters": "Affiches",
-      "apiKeys": "Clés API",
-      "economy": "Économie",
-      "economyOverview": "Vue d’ensemble",
-      "economyAccounts": "Comptes",
-      "economyLedger": "Grand livre",
+      "notifications": "Notifications",
+      "partnerEvents": "Événements partenaires",
+      "moderation": "Modération",
+      "playtime": "Temps de jeu",
       "anticheat": "Anticheat",
-      "anticheatFiles": "Fichiers",
-      "anticheatReview": "À examiner",
-      "anticheatPlayers": "Joueurs",
-      "anticheatSettings": "Réglages",
-      "economyQuests": "Quêtes",
+      "modpack": "Modpack",
+      "economy": "Économie",
+      "quests": "Quêtes",
+      "settings": "Réglages",
+      "team": "Équipe",
+      "partners": "Partenaires",
       "gamesplanet": "Gamesplanet",
+      "appeals": "Contestations",
+      "rules": "Règlement",
+      "live": "En direct",
+      "closures": "Fermetures",
+      "review": "À examiner",
+      "files": "Fichiers",
       "modlist": "Modlist",
+      "vote": "Vote",
       "downloads": "Téléchargements",
-      "rules": "Règlement"
+      "voteMods": "Mods",
+      "voteSuggestions": "Propositions",
+      "overview": "Vue d’ensemble",
+      "accounts": "Comptes",
+      "ledger": "Grand livre",
+      "catalog": "Catalogue",
+      "community": "Communauté",
+      "categories": "Catégories",
+      "rewardIndex": "Indice des récompenses"
     },
     "cancel": "Annuler",
     "typedConfirm": {
@@ -2015,7 +2012,6 @@
       }
     },
     "push": {
-      "title": "Notifications push",
       "week": "Notifications envoyées cette semaine",
       "max": "Maximum reçu par une personne",
       "subs": "Personnes avec les notifications activées",
@@ -2059,10 +2055,10 @@
       "quietHelp": "Quand c’est activé, l’annonce d’un nouvel événement envoyée pendant les heures calmes attend leur fin. Les rappels, places en liste d’attente, annulations et changements ne sont jamais retenus. Désactivez pour envoyer les annonces à toute heure.",
       "quietFrom": "De",
       "quietUntil": "jusqu’à",
-      "quietEmpty": "Choisissez deux heures différentes."
+      "quietEmpty": "Choisissez deux heures différentes.",
+      "settingsAdminsOnly": "Seuls les admins du site peuvent modifier les réglages des notifications."
     },
     "team": {
-      "title": "Équipe",
       "note": "Les personnes apparaissent sur la page publique de l’équipe avec leur nom, leur école et leur photo de profil. Demandez leur accord avant de les ajouter.",
       "addPole": "Ajouter un pôle",
       "addMember": "Ajouter un membre",
@@ -2146,7 +2142,6 @@
       }
     },
     "map": {
-      "title": "Carte",
       "note": "La page de la carte Minecraft montre une carte en direct dans le site, dans un cadre.",
       "flagOff": "La page de la carte est désactivée dans les drapeaux de fonctionnalités.",
       "address": {
@@ -2195,7 +2190,6 @@
       }
     },
     "partners": {
-      "title": "Partenaires",
       "note": "Les partenaires apparaissent sur la page publique des partenaires avec leur logo, leur description et leur lien. Chaque partenaire a besoin d’une description.",
       "add": "Ajouter un partenaire",
       "edit": "Modifier",
@@ -2780,7 +2774,6 @@
       }
     },
     "anticheat": {
-      "title": "Anticheat",
       "cancel": "Annuler",
       "close": "Fermer",
       "more": "Afficher plus",
@@ -3052,9 +3045,7 @@
         },
         "skipped": "{count} sont laissés tels quels | {count} est laissé tel quel | {count} sont laissés tels quels"
       },
-      "review": {
-        "title": "À examiner"
-      },
+      "review": {},
       "actions": {
         "allow": "Autorisé",
         "flag": "Signalé",
@@ -3156,7 +3147,6 @@
         }
       },
       "settings": {
-        "title": "Réglages",
         "loadFailed": "Impossible de charger les réglages.",
         "mode": "Mode",
         "modeLede": "Détermine si le verdict est appliqué sur le serveur Minecraft.",
@@ -3293,13 +3283,6 @@
     "quests": {
       "lede": "Le catalogue, les quêtes communautaires et le calcul des récompenses. Le serveur Minecraft lit ces réglages au démarrage, puis toutes les quelques minutes.",
       "loadFailed": "Le chargement a échoué. Vérifie ta connexion, puis recharge la page.",
-      "tabs": {
-        "catalog": "Catalogue",
-        "community": "Communautaires",
-        "settings": "Réglages",
-        "index": "Indice des récompenses",
-        "categories": "Catégories"
-      },
       "family": {
         "individual": "Individuelle",
         "server": "Serveur",
@@ -3561,7 +3544,6 @@
       }
     },
     "gamesplanet": {
-      "title": "Gamesplanet",
       "note": "Gamesplanet est un partenaire d’affiliation. Les offres de la page des partenaires viennent de ses flux publics, lus automatiquement.",
       "flagOff": "Le drapeau Gamesplanet est désactivé : la page publique n’affiche rien. Activez-le dans les drapeaux de fonctionnalité.",
       "never": "Jamais",
@@ -3817,12 +3799,6 @@
       }
     },
     "playtime": {
-      "title": "Temps de jeu",
-      "tabs": {
-        "rules": "Règles",
-        "closures": "Fermetures",
-        "live": "En direct"
-      },
       "loadFailed": "Les réglages du temps de jeu n’ont pas pu être chargés.",
       "flagOff": "Le drapeau « playtime » est désactivé",
       "flagOffBody": "Rien n’est compté, affiché ni appliqué, quel que soit le mode ci-dessous. Réactivez-le dans les drapeaux de fonctionnalités.",
@@ -4206,6 +4182,75 @@
         "categoryNotEmpty": "Cette catégorie contient encore des règles, même retirées.",
         "alreadyLoaded": "Il y a déjà des règles, le brouillon ne peut donc pas être chargé.",
         "failed": "Le changement n’a pas été enregistré. Vérifiez votre connexion et réessayez."
+      }
+    },
+    "home": {
+      "title": "Rien ici pour l’instant",
+      "lede": "Choisissez une page dans la barre latérale. Cette page listera ce qui vous attend."
+    },
+    "settings": {
+      "find": "Trouver un réglage",
+      "section": "Section",
+      "noMatch": "Aucun réglage ne correspond.",
+      "dangerZone": "Zone de danger",
+      "areas": {
+        "general": "Général",
+        "site": "Site",
+        "events": "Événements",
+        "minecraft": "Minecraft"
+      },
+      "sections": {
+        "activity": {
+          "title": "Activité"
+        },
+        "flags": {
+          "title": "Fonctionnalités"
+        },
+        "rate-limit": {
+          "title": "Limitation de débit"
+        },
+        "api-keys": {
+          "title": "Clés API"
+        },
+        "map": {
+          "title": "Carte"
+        },
+        "team": {
+          "title": "Équipe"
+        },
+        "partners": {
+          "title": "Partenaires"
+        },
+        "gamesplanet": {
+          "title": "Gamesplanet"
+        },
+        "rooms": {
+          "title": "Salles"
+        },
+        "types": {
+          "title": "Types d’événements"
+        },
+        "notifications": {
+          "title": "Notifications"
+        },
+        "warden": {
+          "title": "Warden"
+        },
+        "anticheat": {
+          "title": "Anticheat"
+        },
+        "modpack": {
+          "title": "Modpack"
+        },
+        "playtime": {
+          "title": "Temps de jeu"
+        },
+        "economy": {
+          "title": "Économie"
+        },
+        "quests": {
+          "title": "Quêtes"
+        }
       }
     }
   },

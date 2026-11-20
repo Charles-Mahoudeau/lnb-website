@@ -689,47 +689,44 @@
     "menu": "Admin",
     "backToSite": "Back to the site",
     "nav": {
-      "warden": "Warden",
-      "players": "Players",
-      "appeals": "Appeals",
-      "activity": "Activity",
-      "playtime": "Playtime",
-      "settings": "Settings",
-      "users": "Users",
-      "overview": "Overview",
-      "mods": "Mods",
-      "modList": "Mod list",
-      "modVote": "Mod vote",
-      "modSuggestions": "Suggestions",
-      "files": "Files",
-      "flags": "Feature flags",
-      "rateLimit": "Rate limiting",
-      "events": "Events",
-      "eventRooms": "Rooms",
-      "eventTypes": "Event types",
-      "eventList": "All events",
-      "push": "Push notifications",
-      "team": "Team",
-      "map": "Map",
-      "partners": "Partners",
-      "partnerEvents": "Partner events",
+      "home": "Home",
+      "people": "People",
       "shortLinks": "Short links",
+      "site": "Site",
+      "eventsGroup": "Events",
+      "minecraftGroup": "Minecraft",
+      "events": "Events",
       "posters": "Posters",
-      "apiKeys": "API keys",
-      "economy": "Economy",
-      "economyOverview": "Overview",
-      "economyAccounts": "Accounts",
-      "economyLedger": "Ledger",
+      "notifications": "Notifications",
+      "partnerEvents": "Partner events",
+      "moderation": "Moderation",
+      "playtime": "Playtime",
       "anticheat": "Anticheat",
-      "anticheatFiles": "Files",
-      "anticheatReview": "Review queue",
-      "anticheatPlayers": "Players",
-      "anticheatSettings": "Settings",
-      "economyQuests": "Quests",
+      "modpack": "Modpack",
+      "economy": "Economy",
+      "quests": "Quests",
+      "settings": "Settings",
+      "team": "Team",
+      "partners": "Partners",
       "gamesplanet": "Gamesplanet",
+      "appeals": "Appeals",
+      "rules": "Rules",
+      "live": "Live",
+      "closures": "Closures",
+      "review": "Review queue",
+      "files": "Files",
       "modlist": "Modlist",
+      "vote": "Vote",
       "downloads": "Downloads",
-      "rules": "Rules"
+      "voteMods": "Mods",
+      "voteSuggestions": "Suggestions",
+      "overview": "Overview",
+      "accounts": "Accounts",
+      "ledger": "Ledger",
+      "catalog": "Catalog",
+      "community": "Community",
+      "categories": "Categories",
+      "rewardIndex": "Reward index"
     },
     "cancel": "Cancel",
     "typedConfirm": {
@@ -2011,7 +2008,6 @@
       }
     },
     "push": {
-      "title": "Push notifications",
       "week": "Notifications sent this week",
       "max": "Most received by one person",
       "subs": "People with notifications on",
@@ -2055,10 +2051,10 @@
       "quietHelp": "While on, a new-event announcement sent during the quiet hours waits for their end. Reminders, waitlist places, cancellations and moves are never held. Turn it off to send announcements at any hour.",
       "quietFrom": "From",
       "quietUntil": "until",
-      "quietEmpty": "Pick two different hours."
+      "quietEmpty": "Pick two different hours.",
+      "settingsAdminsOnly": "Only site admins can change the notification settings."
     },
     "team": {
-      "title": "Team",
       "note": "People appear on the public team page with their name, school and profile photo. Ask for their agreement before adding them.",
       "addPole": "Add a pole",
       "addMember": "Add a member",
@@ -2142,7 +2138,6 @@
       }
     },
     "map": {
-      "title": "Map",
       "note": "The Minecraft map page shows a live map inside the site, in a frame.",
       "flagOff": "The map page is switched off in the feature flags.",
       "address": {
@@ -2191,7 +2186,6 @@
       }
     },
     "partners": {
-      "title": "Partners",
       "note": "Partners appear on the public partners page with their logo, description and link. Every partner needs a description.",
       "add": "Add a partner",
       "edit": "Edit",
@@ -2776,7 +2770,6 @@
       }
     },
     "anticheat": {
-      "title": "Anticheat",
       "cancel": "Cancel",
       "close": "Close",
       "more": "Show more",
@@ -3048,9 +3041,7 @@
         },
         "skipped": "{count} were left as they are | {count} was left as it is | {count} were left as they are"
       },
-      "review": {
-        "title": "Review queue"
-      },
+      "review": {},
       "actions": {
         "allow": "Allowed",
         "flag": "Flagged",
@@ -3152,7 +3143,6 @@
         }
       },
       "settings": {
-        "title": "Settings",
         "loadFailed": "We couldn’t load the settings.",
         "mode": "Mode",
         "modeLede": "Whether the verdict is applied on the Minecraft server.",
@@ -3289,13 +3279,6 @@
     "quests": {
       "lede": "The catalogue, community quests and how rewards are computed. The Minecraft server reads these settings when it starts, then every few minutes.",
       "loadFailed": "This couldn’t be loaded. Check your connection, then reload the page.",
-      "tabs": {
-        "catalog": "Catalogue",
-        "community": "Community",
-        "settings": "Settings",
-        "index": "Reward index",
-        "categories": "Categories"
-      },
       "family": {
         "individual": "Personal",
         "server": "Server",
@@ -3557,7 +3540,6 @@
       }
     },
     "gamesplanet": {
-      "title": "Gamesplanet",
       "note": "Gamesplanet is an affiliate partner. The deals on the partners page come from its public feeds, which are read automatically.",
       "flagOff": "The Gamesplanet flag is off, so the public page shows nothing. Turn it on in Feature flags.",
       "never": "Never",
@@ -3813,12 +3795,6 @@
       }
     },
     "playtime": {
-      "title": "Playtime",
-      "tabs": {
-        "rules": "Rules",
-        "closures": "Closures",
-        "live": "Live"
-      },
       "loadFailed": "The playtime settings could not be loaded.",
       "flagOff": "The playtime flag is off",
       "flagOffBody": "Nothing is counted, shown or enforced, whatever the mode below. Switch the flag on from Feature flags.",
@@ -4202,6 +4178,75 @@
         "categoryNotEmpty": "This category still has rules, retired ones included.",
         "alreadyLoaded": "There are already rules, so the draft can’t be loaded.",
         "failed": "The change wasn’t saved. Check your connection and try again."
+      }
+    },
+    "home": {
+      "title": "Nothing here yet",
+      "lede": "Pick a page in the sidebar. This page will list what is waiting for you."
+    },
+    "settings": {
+      "find": "Find a setting",
+      "section": "Section",
+      "noMatch": "No setting matches.",
+      "dangerZone": "Danger zone",
+      "areas": {
+        "general": "General",
+        "site": "Site",
+        "events": "Events",
+        "minecraft": "Minecraft"
+      },
+      "sections": {
+        "activity": {
+          "title": "Activity"
+        },
+        "flags": {
+          "title": "Feature flags"
+        },
+        "rate-limit": {
+          "title": "Rate limiting"
+        },
+        "api-keys": {
+          "title": "API keys"
+        },
+        "map": {
+          "title": "Map"
+        },
+        "team": {
+          "title": "Team"
+        },
+        "partners": {
+          "title": "Partners"
+        },
+        "gamesplanet": {
+          "title": "Gamesplanet"
+        },
+        "rooms": {
+          "title": "Rooms"
+        },
+        "types": {
+          "title": "Event types"
+        },
+        "notifications": {
+          "title": "Notifications"
+        },
+        "warden": {
+          "title": "Warden"
+        },
+        "anticheat": {
+          "title": "Anticheat"
+        },
+        "modpack": {
+          "title": "Modpack"
+        },
+        "playtime": {
+          "title": "Playtime"
+        },
+        "economy": {
+          "title": "Economy"
+        },
+        "quests": {
+          "title": "Quests"
+        }
       }
     }
   },

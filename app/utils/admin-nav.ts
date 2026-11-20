@@ -1,0 +1,291 @@
+import {
+  isAdmin,
+  isEconomyAdmin,
+  isEventsManager,
+  isWardenAdmin,
+} from '../../shared/utils/roles.ts';
+
+// The admin's navigation, as data: the sidebar entries with their tabs, and the Settings sections.
+// The layout, the tab rows and the Settings page all read it, and it holds the role rules, so one
+// test covers who sees what (docs/plans/admin-redesign.md). Labels are i18n keys.
+
+/** The roles that open parts of the admin. Site admins pass every check. */
+export type AdminArea = 'admin' | 'warden' | 'events' | 'economy';
+
+const CHECKS: Record<AdminArea, (role: string | null | undefined) => boolean> = {
+  admin: isAdmin,
+  warden: isWardenAdmin,
+  events: isEventsManager,
+  economy: isEconomyAdmin,
+};
+
+/** Whether a role list holds at least one of the areas. A person with several roles gets the union. */
+export function hasAdminArea(role: string | null | undefined, areas: AdminArea[]): boolean {
+  return areas.some((area) => CHECKS[area](role));
+}
+
+export interface AdminTab {
+  id: string;
+  labelKey: string;
+  to: string;
+  /** Active only on this exact path, not under it. */
+  exact?: boolean;
+  /** The feature flag that hides this tab when it is off. */
+  flag?: 'modList';
+}
+
+export interface AdminEntry {
+  id: string;
+  labelKey: string;
+  icon: string;
+  /** Where the sidebar entry goes: its first tab. */
+  to: string;
+  /** The entry is active on this path and under it. */
+  base: string;
+  exact?: boolean;
+  areas: AdminArea[];
+  group?: 'events' | 'minecraft';
+  tabs?: AdminTab[];
+}
+
+const ALL: AdminArea[] = ['admin', 'warden', 'events', 'economy'];
+
+export const ADMIN_ENTRIES: AdminEntry[] = [
+  {
+    id: 'home',
+    labelKey: 'admin.nav.home',
+    icon: 'i-lucide-layout-dashboard',
+    to: '/admin',
+    base: '/admin',
+    exact: true,
+    areas: ALL,
+  },
+  {
+    id: 'people',
+    labelKey: 'admin.nav.people',
+    icon: 'i-lucide-users',
+    to: '/admin/people',
+    base: '/admin/people',
+    // Events managers and economy admins join when the People list is rebuilt for them.
+    areas: ['warden'],
+  },
+  {
+    id: 'shortLinks',
+    labelKey: 'admin.nav.shortLinks',
+    icon: 'i-lucide-link',
+    to: '/admin/short-links',
+    base: '/admin/short-links',
+    areas: ['events'],
+  },
+  {
+    id: 'site',
+    labelKey: 'admin.nav.site',
+    icon: 'i-lucide-globe',
+    to: '/admin/site/team',
+    base: '/admin/site',
+    areas: ['admin'],
+    tabs: [
+      { id: 'team', labelKey: 'admin.nav.team', to: '/admin/site/team' },
+      { id: 'partners', labelKey: 'admin.nav.partners', to: '/admin/site/partners' },
+      { id: 'gamesplanet', labelKey: 'admin.nav.gamesplanet', to: '/admin/site/gamesplanet' },
+    ],
+  },
+  {
+    id: 'events',
+    labelKey: 'admin.nav.events',
+    icon: 'i-lucide-calendar',
+    to: '/admin/events',
+    base: '/admin/events',
+    areas: ['events'],
+    group: 'events',
+  },
+  {
+    id: 'posters',
+    labelKey: 'admin.nav.posters',
+    icon: 'i-lucide-image',
+    to: '/admin/posters',
+    base: '/admin/posters',
+    areas: ['events'],
+    group: 'events',
+  },
+  {
+    id: 'notifications',
+    labelKey: 'admin.nav.notifications',
+    icon: 'i-lucide-bell',
+    to: '/admin/notifications',
+    base: '/admin/notifications',
+    areas: ['events'],
+    group: 'events',
+  },
+  {
+    id: 'partnerEvents',
+    labelKey: 'admin.nav.partnerEvents',
+    icon: 'i-lucide-trophy',
+    to: '/admin/partner-events',
+    base: '/admin/partner-events',
+    areas: ['events'],
+    group: 'events',
+  },
+  {
+    id: 'moderation',
+    labelKey: 'admin.nav.moderation',
+    icon: 'i-lucide-gavel',
+    to: '/admin/moderation/appeals',
+    base: '/admin/moderation',
+    areas: ['warden'],
+    group: 'minecraft',
+    // Bans join when the bans list is built.
+    tabs: [
+      { id: 'appeals', labelKey: 'admin.nav.appeals', to: '/admin/moderation/appeals' },
+      { id: 'rules', labelKey: 'admin.nav.rules', to: '/admin/moderation/rules' },
+    ],
+  },
+  {
+    id: 'playtime',
+    labelKey: 'admin.nav.playtime',
+    icon: 'i-lucide-clock',
+    to: '/admin/playtime/live',
+    base: '/admin/playtime',
+    areas: ['warden'],
+    group: 'minecraft',
+    tabs: [
+      { id: 'live', labelKey: 'admin.nav.live', to: '/admin/playtime/live' },
+      { id: 'rules', labelKey: 'admin.nav.rules', to: '/admin/playtime/rules' },
+      { id: 'closures', labelKey: 'admin.nav.closures', to: '/admin/playtime/closures' },
+    ],
+  },
+  {
+    id: 'anticheat',
+    labelKey: 'admin.nav.anticheat',
+    icon: 'i-lucide-shield-check',
+    to: '/admin/anticheat/review',
+    base: '/admin/anticheat',
+    areas: ['warden'],
+    group: 'minecraft',
+    tabs: [
+      { id: 'review', labelKey: 'admin.nav.review', to: '/admin/anticheat/review' },
+      { id: 'files', labelKey: 'admin.nav.files', to: '/admin/anticheat/files' },
+    ],
+  },
+  {
+    id: 'modpack',
+    labelKey: 'admin.nav.modpack',
+    icon: 'i-lucide-blocks',
+    to: '/admin/modpack/modlist',
+    base: '/admin/modpack',
+    areas: ['warden'],
+    group: 'minecraft',
+    tabs: [
+      { id: 'modlist', labelKey: 'admin.nav.modlist', to: '/admin/modpack/modlist' },
+      // The vote is a feature that can be switched off (the modList flag).
+      { id: 'vote', labelKey: 'admin.nav.vote', to: '/admin/modpack/vote', flag: 'modList' },
+      { id: 'files', labelKey: 'admin.nav.files', to: '/admin/modpack/files' },
+      { id: 'downloads', labelKey: 'admin.nav.downloads', to: '/admin/modpack/downloads' },
+    ],
+  },
+  {
+    id: 'economy',
+    labelKey: 'admin.nav.economy',
+    icon: 'i-lucide-landmark',
+    to: '/admin/economy',
+    base: '/admin/economy',
+    areas: ['economy'],
+    group: 'minecraft',
+    tabs: [
+      { id: 'overview', labelKey: 'admin.nav.overview', to: '/admin/economy', exact: true },
+      { id: 'accounts', labelKey: 'admin.nav.accounts', to: '/admin/economy/accounts' },
+      { id: 'ledger', labelKey: 'admin.nav.ledger', to: '/admin/economy/ledger' },
+    ],
+  },
+  {
+    id: 'quests',
+    labelKey: 'admin.nav.quests',
+    icon: 'i-lucide-scroll-text',
+    to: '/admin/quests/catalog',
+    base: '/admin/quests',
+    areas: ['economy'],
+    group: 'minecraft',
+    tabs: [
+      { id: 'catalog', labelKey: 'admin.nav.catalog', to: '/admin/quests/catalog' },
+      { id: 'community', labelKey: 'admin.nav.community', to: '/admin/quests/community' },
+      { id: 'categories', labelKey: 'admin.nav.categories', to: '/admin/quests/categories' },
+      { id: 'rewardIndex', labelKey: 'admin.nav.rewardIndex', to: '/admin/quests/reward-index' },
+    ],
+  },
+];
+
+/** The sidebar entries a role sees, in order. */
+export function adminEntries(role: string | null | undefined): AdminEntry[] {
+  return ADMIN_ENTRIES.filter((entry) => hasAdminArea(role, entry.areas));
+}
+
+export function adminEntry(id: string): AdminEntry {
+  const entry = ADMIN_ENTRIES.find((candidate) => candidate.id === id);
+  if (!entry) throw new Error(`Unknown admin entry: ${id}`);
+  return entry;
+}
+
+/** The tabs of an entry, without those whose feature flag is off. */
+export function adminTabs(id: string, isEnabled: (flag: 'modList') => boolean): AdminTab[] {
+  return (adminEntry(id).tabs ?? []).filter((tab) => !tab.flag || isEnabled(tab.flag));
+}
+
+/** Whether an entry is the current one for a path. */
+export function entryIsActive(entry: AdminEntry, path: string): boolean {
+  if (entry.exact) return path === entry.base;
+  return path === entry.base || path.startsWith(`${entry.base}/`);
+}
+
+export type SettingsArea = 'general' | 'site' | 'events' | 'minecraft';
+
+export interface SettingsSection {
+  id: string;
+  labelKey: string;
+  icon: string;
+  area: SettingsArea;
+  areas: AdminArea[];
+}
+
+export const SETTINGS_AREAS: { id: SettingsArea; labelKey: string }[] = [
+  { id: 'general', labelKey: 'admin.settings.areas.general' },
+  { id: 'site', labelKey: 'admin.settings.areas.site' },
+  { id: 'events', labelKey: 'admin.settings.areas.events' },
+  { id: 'minecraft', labelKey: 'admin.settings.areas.minecraft' },
+];
+
+function section(
+  id: string,
+  icon: string,
+  area: SettingsArea,
+  areas: AdminArea[],
+): SettingsSection {
+  return { id, labelKey: `admin.settings.sections.${id}.title`, icon, area, areas };
+}
+
+/** In list order. Sections whose form doesn't exist yet are left out, not shown empty. */
+export const SETTINGS_SECTIONS: SettingsSection[] = [
+  // Today's Activity is the Warden audit, which only Warden admins can read. Events managers and
+  // economy admins get it when the one activity log replaces it.
+  section('activity', 'i-lucide-history', 'general', ['warden']),
+  section('flags', 'i-lucide-toggle-right', 'general', ['admin']),
+  section('rate-limit', 'i-lucide-gauge', 'general', ['admin']),
+  section('api-keys', 'i-lucide-key-round', 'general', ['admin']),
+  section('map', 'i-lucide-map', 'site', ['admin']),
+  section('team', 'i-lucide-users-round', 'site', ['admin']),
+  section('partners', 'i-lucide-handshake', 'site', ['admin']),
+  section('gamesplanet', 'i-lucide-gamepad-2', 'site', ['admin']),
+  section('rooms', 'i-lucide-door-open', 'events', ['events']),
+  section('types', 'i-lucide-tags', 'events', ['events']),
+  section('notifications', 'i-lucide-bell', 'events', ['events']),
+  section('warden', 'i-lucide-pickaxe', 'minecraft', ['warden']),
+  section('anticheat', 'i-lucide-shield-check', 'minecraft', ['warden']),
+  section('modpack', 'i-lucide-blocks', 'minecraft', ['warden']),
+  section('playtime', 'i-lucide-clock', 'minecraft', ['warden']),
+  section('economy', 'i-lucide-landmark', 'minecraft', ['economy']),
+  section('quests', 'i-lucide-scroll-text', 'minecraft', ['economy']),
+];
+
+/** The Settings sections a role may open, in order. */
+export function settingsSections(role: string | null | undefined): SettingsSection[] {
+  return SETTINGS_SECTIONS.filter((candidate) => hasAdminArea(role, candidate.areas));
+}
