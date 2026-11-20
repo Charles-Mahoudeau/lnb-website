@@ -74,20 +74,19 @@ const settings = computed<NavigationMenuItem[]>(() =>
   <UDashboardGroup>
     <UDashboardSidebar :ui="{ footer: 'flex-col items-stretch gap-1' }">
       <template #header>
-        <div class="flex w-full flex-col gap-3">
-          <NuxtLink
-            to="/admin"
-            class="flex items-center gap-2.5 font-display font-bold text-highlighted"
-          >
-            <img src="/logo.svg" alt="" class="size-7 dark:hidden" />
-            <img src="/logo-dark.svg" alt="" class="hidden size-7 dark:block" />
-            <span>{{ t('admin.title') }}</span>
-          </NuxtLink>
-          <UDashboardSearchButton :label="t('admin.search.button')" class="w-full" />
-        </div>
+        <NuxtLink
+          to="/admin"
+          class="flex items-center gap-2.5 font-display font-bold text-highlighted"
+        >
+          <img src="/logo.svg" alt="" class="size-7 dark:hidden" />
+          <img src="/logo-dark.svg" alt="" class="hidden size-7 dark:block" />
+          <span>{{ t('admin.title') }}</span>
+        </NuxtLink>
       </template>
 
       <div class="flex flex-col gap-3">
+        <!-- Below the header: the header has a fixed height and only fits one row. -->
+        <UDashboardSearchButton :label="t('admin.search.button')" class="w-full" />
         <UNavigationMenu :items="top" orientation="vertical" />
         <UCollapsible
           v-for="group in groups"
