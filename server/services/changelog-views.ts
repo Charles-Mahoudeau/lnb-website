@@ -1,10 +1,12 @@
 import type { changelogPost } from '~~/server/db/schema';
+import { siteUrl } from '~~/server/lib/site';
 import type { ChangelogView } from '~~/server/services/changelog';
 
 import type {
   ChangelogDetail,
   ChangelogList,
   ChangelogPublicPost,
+  ChangelogServerPost,
 } from '#shared/schemas/changelog';
 
 // The admin's views of a changelog post (docs/changelog.md).
@@ -59,5 +61,19 @@ export function publicPost(view: ChangelogView): ChangelogPublicPost {
       ? [view.sourceLang, view.sourceLang === 'en' ? 'fr' : 'en']
       : [view.sourceLang],
     coverUrl: view.coverKey ? `/api/media/${view.coverKey}` : null,
+  };
+}
+
+/** A published post as the Minecraft server's API shows it, with its link on the site. */
+export function serverPost(view: ChangelogView): ChangelogServerPost {
+  return {
+    id: view.id,
+    slug: view.slug,
+    title: view.title,
+    summary: view.summary,
+    versionTag: view.versionTag,
+    publishedAt: view.publishedAt!.toISOString(),
+    lang: view.lang,
+    url: siteUrl(`/minecraft/changelog/${view.slug}`),
   };
 }

@@ -11,7 +11,7 @@ import {
   user,
 } from '~~/server/db/schema';
 import { changelogService } from '~~/server/services/changelog';
-import { publicPost } from '~~/server/services/changelog-views';
+import { publicPost, serverPost } from '~~/server/services/changelog-views';
 
 const EPITECH = '901cb4ca-b862-4029-9306-e5cd0f6d9f86';
 const ADMIN = 'changelog-test-admin';
@@ -199,14 +199,43 @@ describe('changelog service', () => {
     ).toBeNull();
   });
 
-  it('deletes the seen rows with the account', async () => {
+  it('shows a post to the game with an absolute link and the Markdown body', async () => {
+    process.env.BETTER_AUTH_SECRET ??= 'x'.repeat(32);
+    process.env.BETTER_AUTH_URL ??= 'https://lnb.example.com';
+    process.env.MICROSOFT_CLIENT_ID ??= 'id';
+    process.env.MICROSOFT_CLIENT_SECRET ??= 'secret';
+    process.env.AUTH_ALLOWED_TENANTS ??= EPITECH;
+    const created = await post('Hello', 'en');
+    await changelogService.publish(created.id, system);
+    const found = await changelogService.get(
+      { id: created.id },
+      { lang: 'fr', publishedOnly: true },
+    );
+    expect(serverPost(found!)).toMatchObject({ id: created.id, lang: 'en' });
+    expect(serverPost(found!).url).toMatch(/^https?:\/\/.+\/minecraft\/changelog\/hello$/);
+    expect(found!.body).toBe('Body');
+  });
+
+  it('stores seen state for a UUID no account has linked', async () => {
+    const created = await post();
+    await changelogService.publish(created.id, system);
+    const stranger = '5c2a7a3e-0000-4000-8000-00000000c10c';
+    expect(await changelogService.unseenFor(stranger, 'en')).not.toBeNull();
+    await changelogService.markSeen(created.id, stranger);
+    await changelogService.markSeen(created.id, stranger);
+    expect(await db.select().from(changelogSeen)).toHaveLength(1);
+    expect(await changelogService.unseenFor(stranger, 'en')).toBeNull();
+  });
+
+  it('deletes the seen rows of the account, and only those', async () => {
     await seedPlayer();
     const created = await post();
     await changelogService.publish(created.id, system);
     await changelogService.markSeen(created.id, UUID);
     await changelogService.markSeen(created.id, '5c2a7a3e-0000-4000-8000-00000000c10c');
-    expect(await db.select().from(changelogSeen)).toHaveLength(1);
-    await db.delete(user).where(eq(user.id, PLAYER));
-    expect(await db.select().from(changelogSeen)).toHaveLength(0);
+    expect(await db.select().from(changelogSeen)).toHaveLength(2);
+    await db.transaction((tx) => changelogService.forgetUsers(tx, [PLAYER]));
+    const left = await db.select().from(changelogSeen);
+    expect(left.map((row) => row.minecraftUuid)).toEqual(['5c2a7a3e-0000-4000-8000-00000000c10c']);
   });
 });

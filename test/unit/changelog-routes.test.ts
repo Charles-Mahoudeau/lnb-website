@@ -7,6 +7,8 @@ import {
   changelogCreateBody,
   changelogPatchBody,
   changelogScheduleBody,
+  changelogSeenBody,
+  changelogServerUnseenQuery,
 } from '../../shared/schemas/changelog.ts';
 
 const DIR = join(import.meta.dirname, '../../server/api/admin/changelog');
@@ -29,13 +31,33 @@ describe('changelog admin routes', () => {
 
 describe('changelog public routes', () => {
   it('check the flag before anything else', () => {
-    const found = files(join(import.meta.dirname, '../../server/api/changelog'));
+    const found = files(join(import.meta.dirname, '../../server/api/changelog/posts'));
     expect(found).toHaveLength(2);
     for (const path of found) {
       expect(readFileSync(path, 'utf8'), path).toMatch(
         /defineEventHandler\(async \(event\) => \{\n\s+await requireFlag\(event, 'changelog'\);/,
       );
     }
+  });
+});
+
+describe('changelog server routes', () => {
+  it('check the server secret, then the flag, before anything else', () => {
+    const found = files(join(import.meta.dirname, '../../server/api/changelog/server'));
+    expect(found).toHaveLength(4);
+    for (const path of found) {
+      expect(readFileSync(path, 'utf8'), path).toMatch(
+        /defineEventHandler\(async \(event\) => \{\n\s+requireWardenServer\(event\);\n\s+await requireFlag\(event, 'changelog'\);/,
+      );
+    }
+  });
+
+  it('wants a UUID for the player', () => {
+    const player = '5c2a7a3e-0000-4000-8000-00000000c10a';
+    expect(changelogServerUnseenQuery.safeParse({ player, lang: 'fr' }).success).toBe(true);
+    expect(changelogServerUnseenQuery.safeParse({ player: 'Steve' }).success).toBe(false);
+    expect(changelogSeenBody.safeParse({ player }).success).toBe(true);
+    expect(changelogSeenBody.safeParse({}).success).toBe(false);
   });
 });
 

@@ -130,3 +130,35 @@ export const changelogPublicDetail = changelogPublicPost.extend({
   newer: neighbour,
 });
 export type ChangelogPublicDetail = z.infer<typeof changelogPublicDetail>;
+
+// The Minecraft server's side: `/api/changelog/server/*`, with the server secret.
+
+export const changelogServerPost = z.object({
+  id: z.uuid(),
+  slug: z.string(),
+  title: z.string(),
+  summary: z.string().nullable(),
+  versionTag: z.string().nullable(),
+  publishedAt: isoDate,
+  lang: z.enum(CHANGELOG_LANGS).describe('The language actually returned.'),
+  url: z.string().describe('The post on the site, absolute.'),
+});
+export const changelogServerDetail = changelogServerPost.extend({
+  body: z.string().describe('Markdown source, in the language returned.'),
+});
+export type ChangelogServerPost = z.infer<typeof changelogServerPost>;
+export const changelogServerList = z.object({
+  posts: z.array(changelogServerPost),
+  next: z.string().nullable().describe('The cursor of the following page, or null at the end.'),
+});
+export const changelogServerUnseenQuery = z.object({
+  player: z.uuid(),
+  lang: z
+    .enum(CHANGELOG_LANGS)
+    .optional()
+    .describe('French when the post has it, else its source.'),
+});
+export const changelogServerUnseen = z.object({
+  post: changelogServerDetail.nullable().describe('Null when there is nothing to show.'),
+});
+export const changelogSeenBody = z.object({ player: z.uuid() });
