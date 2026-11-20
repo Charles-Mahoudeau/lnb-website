@@ -236,3 +236,22 @@ export function marketItemName(id: string): string {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }
+
+/** The defaults of a tier (docs/market.md, "Items"), for the parameters an item doesn't override. */
+export function marketTierDefaults(tier: 1 | 2 | 3, p0: number, s0: number) {
+  const shape = {
+    1: { k: 1.3, pMin: 0.05, pMax: 3, alpha: 0.05 },
+    2: { k: 0.9, pMin: 0.15, pMax: 3, alpha: 0.1 },
+    3: { k: 0.5, pMin: 0.4, pMax: 2, alpha: 0.2 },
+  }[tier];
+  // Parameters are stored with six decimals.
+  const round = (x: number) => Math.round(x * 1e6) / 1e6;
+  return {
+    k: shape.k,
+    alpha: shape.alpha,
+    pMin: round(p0 * shape.pMin),
+    pMax: round(p0 * shape.pMax),
+    sMin: round(s0 * 0.1),
+    sMax: round(s0 * 10),
+  };
+}

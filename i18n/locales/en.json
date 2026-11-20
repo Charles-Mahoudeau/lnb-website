@@ -4595,7 +4595,13 @@
         "economyQuestsCategoryUpdate": "{actor} edited a quest category",
         "economyQuestsCategoryDelete": "{actor} deleted a quest category",
         "economySweep": "Old economy accounts and auctions were closed",
-        "economyQuestsIndex": "The quest wealth index was updated"
+        "economyQuestsIndex": "The quest wealth index was updated",
+        "economyMarketItemCreate": "{actor} added {name} to the Market",
+        "economyMarketItemUpdate": "{actor} changed {name} on the Market",
+        "economyMarketItemResetStock": "{actor} reset the stock of {name} on the Market",
+        "economyMarketSettings": "{actor} changed the Market settings",
+        "economyMarketRecipes": "The Minecraft server sent {recipes} recipes to the Market",
+        "economyMarketPrune": "Old Market orders and price history were deleted"
       }
     }
   },
