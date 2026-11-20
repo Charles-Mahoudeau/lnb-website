@@ -35,6 +35,8 @@
     "download": "Download",
     "downloadDescription": "Java, a launcher and the LNB instance",
     "rules": "Rules",
+    "changelog": "Changelog",
+    "changelogDescription": "What changed on the Minecraft server",
     "rulesDescription": "What is and isn’t allowed on the server"
   },
   "home": {
@@ -5963,6 +5965,29 @@
     },
     "releases": "Releases and source on GitHub",
     "rulesLink": "Read the server rules before you join"
+  },
+  "changelog": {
+    "title": "Changelog",
+    "lede": "What changed on the Minecraft server, post by post.",
+    "read": "Read the changelog",
+    "loadMore": "Load more",
+    "loadError": "The posts couldn’t be loaded. Try again in a moment.",
+    "empty": {
+      "title": "No post yet",
+      "body": "Updates about the server will show up here."
+    },
+    "navigation": "Other posts",
+    "older": "Older",
+    "newer": "Newer",
+    "language": "Language",
+    "languages": {
+      "en": "English",
+      "fr": "Français"
+    },
+    "notTranslated": "Not translated. This post is only available in {language}.",
+    "recent": "Recent posts",
+    "inGame": "In game",
+    "inGameHint": "Type {command} to read it on the server."
   },
   "rules": {
     "title": "Server rules",

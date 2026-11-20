@@ -266,6 +266,13 @@ Original mock (not code to port): [changelog mocks](https://claude.ai/artifact/Q
 - **One solid red button:** Publish for a draft or scheduled post (with Save as neutral outline, Schedule as neutral soft once a future date is typed, and "Back to draft" as outline destructive for a scheduled one); Save for a published post (Unpublish is outline destructive, with a confirm); Save for a new post.
 - **On the site** renders the body through the server's renderer, so it is what the public page shows, inside `changelog-prose` (listed on `/styleguide`).
 
+## Changelog (public)
+
+Original mock (not code to port): [changelog mocks](https://claude.ai/artifact/Q7FywHY51Wi9TPX5aGbHQv), public list B (no image) and post page B with navigation at the bottom.
+
+- **List** (`/minecraft/changelog`): the newest post is a raised band (`bg-elevated`, `rounded-lg`): the version as a second-accent soft badge, the date muted, the title in the display font, the whole summary and one solid red button ("Read the changelog"). A cover image takes the left of the band only when the post has one. Older posts are dated rows like the events agenda (day in the second accent over the month and the year, a divider, title and a two-line summary, the version as an outline badge on the right). "Load more" is a neutral outline button, no page numbers. The empty state is the usual centered `IconTile` moment.
+- **Post** (`/minecraft/changelog/:slug`): the text at reading width (`max-w-prose`) in `changelog-prose`, with a small primary link back to the list, the version badge and date, then the title. A side column of raised sections: Language (a pill `UTabs` switch when the post has both languages, else a muted "Not translated" note), Recent posts (title and short date rows), In game (the `/changelog` command as a neutral soft badge). Older and Newer are neutral outline buttons under the text, with a small muted label over the neighbour's title, Older on the left and Newer on the right. Phones: the side column drops below the text. No button on this page is solid red.
+
 ## Motion
 
 - Motion answers user actions only: opening, expanding, confirming. Use Nuxt UI's built-in transitions.

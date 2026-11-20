@@ -4,6 +4,7 @@ import type { NavigationMenuItem, TableColumn, TabsItem } from '@nuxt/ui';
 import { EventsAdminImagePicker } from '#components';
 
 import type { AnticheatBreakdown, AnticheatStatus } from '#shared/schemas/anticheat';
+import type { ChangelogPublicPost } from '#shared/schemas/changelog';
 import type { EventTeamsView, EventTeamView } from '#shared/schemas/event-teams';
 import type { EventAdminView, EventSummary, EventView } from '#shared/schemas/events';
 import type { ModView } from '#shared/schemas/mods';
@@ -172,6 +173,17 @@ function onSampleVote(value: -1 | 0 | 1) {
 }
 
 // Example IDs, user-1 to user-8, so each of the eight tints shows once.
+const changelogSample: ChangelogPublicPost = {
+  slug: 'the-nether-wakes',
+  title: 'The Nether wakes',
+  summary: 'A new dimension to explore, bank adjustments and a fix for teleporting between bases.',
+  versionTag: 'Season 4.2',
+  publishedAt: '2026-11-18T10:00:00.000Z',
+  lang: 'en',
+  languages: ['en', 'fr'],
+  coverUrl: null,
+};
+
 const people = [
   { id: 'user-1', name: 'Alex Laurent' },
   { id: 'user-6', name: 'Inès Moreau' },
@@ -987,6 +999,27 @@ const sampleGamesplanet = {
           :key="index"
           :poster="sample"
           :width="280"
+        />
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Changelog list</h2>
+      <p class="max-w-2xl text-muted">
+        <code>ChangelogFeatured</code>: the newest post as a raised band with the page's one solid
+        button, and the cover only when the post has one. <code>ChangelogRow</code>: an older post
+        as a dated row, like the events agenda.
+      </p>
+      <div class="flex max-w-3xl flex-col gap-2">
+        <ChangelogFeatured :post="changelogSample" />
+        <ChangelogRow
+          :post="{
+            ...changelogSample,
+            title: 'Weekly quests',
+            summary: 'Community challenges now pay according to your wealth.',
+            versionTag: 'Season 4.1',
+            publishedAt: '2026-11-04T10:00:00.000Z',
+          }"
         />
       </div>
     </section>
