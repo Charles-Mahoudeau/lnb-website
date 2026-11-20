@@ -2,7 +2,9 @@
 import type { EconomyStats } from '#shared/schemas/economy';
 
 // Money created (above the line, highlight) and destroyed (below, dimmed) per day, on one scale.
-const props = defineProps<{ days: EconomyStats['days'] }>();
+const props = defineProps<{
+  days: Pick<EconomyStats['days'][number], 'day' | 'minted' | 'burned'>[];
+}>();
 const { t, locale } = useI18n();
 
 const W = 600;

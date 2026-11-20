@@ -727,7 +727,9 @@
       "community": "Community",
       "categories": "Categories",
       "rewardIndex": "Reward index",
-      "bans": "Bans"
+      "bans": "Bans",
+      "market": "Market",
+      "orders": "Orders"
     },
     "cancel": "Cancel",
     "typedConfirm": {
@@ -4372,7 +4374,8 @@
         "banPlayer": "Ban a player",
         "newEvent": "New event",
         "adjustBalance": "Adjust a balance",
-        "newShortLink": "New short link"
+        "newShortLink": "New short link",
+        "marketCatalog": "Open the Market catalog"
       }
     },
     "activity": {
@@ -4602,6 +4605,197 @@
         "economyMarketSettings": "{actor} changed the Market settings",
         "economyMarketRecipes": "The Minecraft server sent {recipes} recipes to the Market",
         "economyMarketPrune": "Old Market orders and price history were deleted"
+      }
+    },
+    "market": {
+      "lede": "The server's own shop. Players sell items to it to mint LNBits, or buy items from it to burn them, and prices follow the stock. Start from what needs a look, and open an item to change its curve.",
+      "loadFailed": "The Market didn’t load. Try again.",
+      "noTrades": "No order yet.",
+      "flow": "Minted and burned per day",
+      "traded": "Most traded",
+      "tier": "Tier {tier}",
+      "status": {
+        "on": "On",
+        "off": "Off",
+        "flags": "Feature flags",
+        "ask": "A site admin switches it in Settings."
+      },
+      "tiles": {
+        "minted": "Minted by sales, 30 days",
+        "mintedSub": "{n} orders",
+        "burned": "Burned by purchases",
+        "burnedSub": "Net {net}",
+        "budget": "Mint budget used",
+        "budgetSub": "of {cap}, what it may mint over 30 days",
+        "orders": "Orders, last 24 hours",
+        "ordersSub": "{n} capped | {n} capped"
+      },
+      "attention": {
+        "title": "Needs a look",
+        "none": "Nothing needs a look.",
+        "open": "Open item",
+        "orders": "See orders",
+        "flooded": "{name} is flooded",
+        "floodedBody": "Its stock is {ratio}× its target, so it pays near the floor. It recovers {drift} of the gap every hour.",
+        "scarce": "{name} is scarce",
+        "scarceBody": "Its stock is {ratio}× its target, so it sells near the ceiling.",
+        "capped": "{n} sale was capped in the last 24 hours | {n} sales were capped in the last 24 hours",
+        "cappedBody": "The 30-day mint budget or a limit cut what these players were paid.",
+        "noRecipes": "The Minecraft server never sent its recipes",
+        "noRecipesBody": "Without them, saving an item that could open a loop is refused. Start the server with the economy mod.",
+        "oldRecipes": "The recipe list last changed {when}",
+        "oldRecipesBody": "The loop check uses the last list the server sent. If the mods changed since, the server needs to send it again."
+      },
+      "board": {
+        "title": "Stock board",
+        "lede": "Where each item's stock sits against its target. The dark tick is the target, the light one is where an item counts as flooded."
+      },
+      "stock": {
+        "ratio": "{ratio}× target",
+        "flooded": "Flooded",
+        "scarce": "Scarce"
+      },
+      "catalog": {
+        "search": "Search items",
+        "filter": "Filter by tier",
+        "all": "All",
+        "off": "Buy or sell off",
+        "empty": "No item matches",
+        "item": "Item",
+        "price": "Price now",
+        "vsBase": "Vs base",
+        "stock": "Stock",
+        "sell": "Sell",
+        "buy": "Buy",
+        "edit": "Edit",
+        "count": "{n} item | {n} items",
+        "on": "On",
+        "offState": "Off"
+      },
+      "chart": {
+        "now": "Now {ratio}× · {price}",
+        "label": "Price curve of {name} against its stock",
+        "reference": "Reference price",
+        "sellBuy": "Sell and buy price",
+        "spread": "The spread (±{percent}%)"
+      },
+      "drawer": {
+        "missing": "Item not found",
+        "missingBody": "This item doesn’t exist. It may have been removed from the link.",
+        "now": "Reference price now",
+        "sells": "Sells for",
+        "buys": "Buys for",
+        "notSold": "Not sold to",
+        "notBought": "Not for sale",
+        "stock": "Stock",
+        "stockOf": "{stock} of {target} target",
+        "parameters": "Parameters",
+        "numbers": "Every parameter must be a number above zero.",
+        "order": "The floor price can’t be above the base price, and the base price can’t be above the ceiling.",
+        "keep": "Keep the current price",
+        "keepHelp": "Moves the stock so players see no jump when you save.",
+        "sellable": "Players can sell it to the Market",
+        "buyable": "Players can buy it from the Market",
+        "save": "Save",
+        "saved": "{name} saved"
+      },
+      "params": {
+        "p0": "Base price",
+        "p0Help": "LNBits per item at the target stock",
+        "pMin": "Floor price",
+        "pMinHelp": "The price never goes below it",
+        "pMax": "Ceiling price",
+        "pMaxHelp": "The price never goes above it",
+        "s0": "Target stock",
+        "s0Help": "Also the market's depth",
+        "k": "Elasticity",
+        "kHelp": "Higher reacts faster",
+        "alpha": "Hourly drift (%)",
+        "alphaHelp": "Share of the gap to the target closed each hour"
+      },
+      "sim": {
+        "title": "Try an order",
+        "side": "Side",
+        "sell": "A player sells",
+        "buy": "A player buys",
+        "items": "Items",
+        "window": "Sold already today (LNBits)",
+        "cantSell": "This item can’t be sold to the Market.",
+        "cantBuy": "This item can’t be bought from the Market.",
+        "paid": "The player is paid",
+        "pays": "The player pays",
+        "perItem": "Per item",
+        "after": "Price after",
+        "bracket": "{items} at {rate} pay {paid}",
+        "split": "An order holds at most {max} items, so a real player would send {orders} orders."
+      },
+      "recipes": {
+        "title": "Recipes",
+        "none": "No recipe uses or makes this item.",
+        "line": "{inputs} → {output}",
+        "loop": "Loop",
+        "noLoop": "No loop",
+        "more": "And {n} more."
+      },
+      "reset": {
+        "action": "Reset stock to target",
+        "title": "Reset the stock of {name}",
+        "lede": "The stock goes back to its target, and the price to the base price. Players see the change at once.",
+        "confirm": "Reset stock",
+        "reason": "Reason",
+        "done": "The stock of {name} is back to its target"
+      },
+      "refusal": {
+        "notSaved": "Not saved.",
+        "loop": "Buying {inputs} and selling {output} would let anyone craft a profit: at the worst prices, making one costs {cost} and it sells for {value}. Turn off buying of {inputs} or selling of {output}.",
+        "loopShort": "This change would open a crafting loop that earns money.",
+        "noRecipes": "The Minecraft server hasn’t sent its recipes yet, so the Market can’t check for crafting loops. Only changes that close doors can be saved.",
+        "notFound": "This item no longer exists.",
+        "invalid": "The values aren’t valid.",
+        "failed": "Something went wrong."
+      },
+      "orders": {
+        "player": "Player",
+        "item": "Item, such as minecraft:glass",
+        "side": "Side",
+        "allSides": "Sales and purchases",
+        "sold": "Sold",
+        "bought": "Bought",
+        "cappedOnly": "Capped only",
+        "empty": "No order",
+        "emptyBody": "Orders the Minecraft server sends show here, newest first.",
+        "when": "When",
+        "playerCol": "Player",
+        "itemCol": "Item",
+        "items": "Items",
+        "total": "Total",
+        "capped": "Capped",
+        "atRate": "At {rate}",
+        "more": "Show older"
+      },
+      "settings": {
+        "title": "Market settings",
+        "lede": "Changes apply at once, reach the Minecraft server and are written to the activity log.",
+        "sigmaPercent": "Spread (%)",
+        "sigmaPercentHelp": "Sales pay less and purchases cost more than the reference price by this much.",
+        "tolerancePercent": "Order tolerance (%)",
+        "tolerancePercentHelp": "How far the price may move between the quote and the order.",
+        "maxOrderItems": "Items per order",
+        "maxOrderItemsHelp": "36 stacks, a full inventory.",
+        "mintCapPercent": "Mint budget (%)",
+        "mintCapPercentHelp": "Of the money in circulation, over 30 days.",
+        "historyDays": "History kept (days)",
+        "historyDaysHelp": "Hourly price snapshots.",
+        "tiers": "Thresholds per tier",
+        "tiersLede": "Per player, over 24 hours. Full price up to the first threshold, then the middle rate, then the tail rate.",
+        "q1": "First threshold (LNBits)",
+        "q2": "Second threshold (LNBits)",
+        "mid": "Middle rate (%)",
+        "tail": "Tail rate (%)",
+        "thresholds": "The first threshold must be below the second.",
+        "flagsNote": "The Market is switched on and off in Settings › Feature flags: Market, then Market sales and Market purchases, one at a time.",
+        "save": "Save settings",
+        "saved": "Market settings saved"
       }
     }
   },
