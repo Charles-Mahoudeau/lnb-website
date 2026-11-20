@@ -35,6 +35,16 @@ const ghost = computed(() => props.summary.ghost);
 const ban = computed(() => props.summary.moderation?.activeBan ?? null);
 const appealPending = computed(() => props.summary.moderation?.appeal?.status === 'pending');
 const flaggedFile = computed(() => props.summary.anticheat?.flaggedFile ?? null);
+const roleNames = computed(() => {
+  const flags = props.summary.roles;
+  if (!flags) return [];
+  return [
+    flags.admin && t('admin.roles.admin'),
+    flags.wardenAdmin && t('admin.roles.wardenAdmin'),
+    flags.eventsManager && t('admin.roles.eventsManager'),
+    flags.economyAdmin && t('admin.roles.economyAdmin'),
+  ].filter(Boolean) as string[];
+});
 const overLimit = computed(() => (props.summary.playtime?.overSeconds ?? 0) > 0);
 
 const modals = {
@@ -217,6 +227,7 @@ const actions = computed<Action[]>(() => {
         key: 'unban',
         label: t('admin.person.actions.unban'),
         icon: 'i-lucide-undo-2',
+        destructive: true,
         onSelect: () => void onUnban(),
       });
     } else {
@@ -304,6 +315,14 @@ const deskItems = computed<DropdownMenuItem[][]>(() => [extras.value]);
           <div class="flex flex-wrap items-center gap-3">
             <h2 class="text-3xl font-bold break-words text-highlighted">{{ summary.name }}</h2>
             <UBadge v-if="ghost" color="neutral" variant="soft" :label="t('admin.ghost.badge')" />
+            <UBadge v-if="summary.school" color="neutral" variant="soft" :label="summary.school" />
+            <UBadge
+              v-for="name in roleNames"
+              :key="name"
+              color="neutral"
+              variant="soft"
+              :label="name"
+            />
             <UBadge
               v-if="ban"
               color="error"
@@ -321,9 +340,7 @@ const deskItems = computed<DropdownMenuItem[][]>(() => [extras.value]);
               :label="t('admin.users.status.banned')"
             />
           </div>
-          <span class="text-muted">
-            {{ [summary.email, summary.school].filter(Boolean).join(', ') }}
-          </span>
+          <span v-if="summary.email" class="text-muted">{{ summary.email }}</span>
         </div>
       </div>
 
@@ -333,7 +350,7 @@ const deskItems = computed<DropdownMenuItem[][]>(() => [extras.value]);
             v-for="action in actions"
             :key="action.key"
             :color="action.destructive ? 'error' : 'neutral'"
-            variant="outline"
+            :variant="action.destructive ? 'outline' : 'soft'"
             :icon="action.icon"
             :label="action.label"
             @click="action.onSelect"

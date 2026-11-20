@@ -4352,7 +4352,6 @@
         "account": "Account",
         "noAccounts": "No Minecraft account linked.",
         "transfers": "1 account takeover to check | {n} account takeovers to check",
-        "open": "Open the tab",
         "notBanned": "Not banned.",
         "bans": "Bans",
         "warnings": "Warnings",
@@ -4369,7 +4368,11 @@
         "hold": "Held by an admin.",
         "flaggedFiles": "No file to look at. | 1 file to look at. | {n} files to look at.",
         "unseen": "The anticheat hasn’t seen this player yet.",
-        "registrations": "Not registered to any event. | Registered to 1 event. | Registered to {n} events."
+        "registrations": "Not registered to any event. | Registered to 1 event. | Registered to {n} events.",
+        "glance": "At a glance",
+        "accountsUsed": "{used} of {max} accounts",
+        "counts": "{bans} bans, {warnings} warnings, {notes} notes",
+        "openTab": "Open {tab}"
       }
     }
   },

@@ -111,6 +111,8 @@ describe('the Person page header', () => {
     // The destructive and moderation actions are outline buttons.
     const lift = page.findAll('button').find((button) => button.text() === 'Lift the ban');
     expect(lift?.classes().join(' ')).toContain('ring');
+    const note = page.findAll('button').find((button) => button.text() === 'Add a note');
+    expect(note?.classes().join(' ')).not.toContain('ring');
   });
 
   it('shows the callouts that need an answer', async () => {
@@ -186,10 +188,11 @@ describe('the Person page tabs', () => {
   it('shows the Summary cards the role may read', async () => {
     const warden = await open('warden-admin', 'banned');
     expect(warden.text()).toContain('AlexCraft');
-    expect(warden.text()).toContain('Griefing');
+    expect(warden.text()).toContain('1 bans, 2 warnings, 0 notes');
+    expect(warden.find('[aria-label="Open Moderation"]').exists()).toBe(true);
     expect(warden.text()).toContain('1 file to look at.');
     const bank = await open('economy-admin', 'bank');
     expect(bank.text()).toContain('420 LNBits');
-    expect(bank.text()).not.toContain('Griefing');
+    expect(bank.text()).not.toContain('warnings');
   });
 });
