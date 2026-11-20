@@ -49,24 +49,25 @@ From top to bottom:
 
 The group is never in the URL. Folding a group never changes one.
 
-| Page           | URL                                                                                                                                    |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Home           | `/admin`                                                                                                                               |
-| People         | `/admin/people`                                                                                                                        |
-| Person         | `/admin/people/:userId/:tab` (`summary`, `minecraft`, `moderation`, `playtime`, `anticheat`, `lnbits`, `events`, `account`)            |
-| Short links    | `/admin/short-links`, `/admin/short-links/:id`                                                                                         |
-| Site           | `/admin/site/team`, `/admin/site/partners`, `/admin/site/gamesplanet`                                                                  |
-| Events         | `/admin/events`, `/admin/events/new`, `/admin/events/:id/:tab` (`details`, `registrations`, `teams`, `poster`)                         |
-| Posters        | `/admin/posters`, `/admin/posters/new`, `/admin/posters/:id`, `/admin/posters/:id/print`                                               |
-| Notifications  | `/admin/notifications`                                                                                                                 |
-| Partner events | `/admin/partner-events`                                                                                                                |
-| Moderation     | `/admin/moderation/appeals`, `/admin/moderation/bans`, `/admin/moderation/rules`                                                       |
-| Playtime       | `/admin/playtime/live`, `/admin/playtime/rules`, `/admin/playtime/closures`                                                            |
-| Anticheat      | `/admin/anticheat/review`, `/admin/anticheat/files`                                                                                    |
-| Modpack        | `/admin/modpack/modlist`, `/admin/modpack/vote`, `/admin/modpack/vote/suggestions`, `/admin/modpack/files`, `/admin/modpack/downloads` |
-| Economy        | `/admin/economy`, `/admin/economy/accounts`, `/admin/economy/accounts/:id`, `/admin/economy/ledger`                                    |
-| Quests         | `/admin/quests/catalog`, `/admin/quests/community`, `/admin/quests/categories`                                                         |
-| Settings       | `/admin/settings/:section`                                                                                                             |
+| Page           | URL                                                                                                                                                           |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Home           | `/admin`                                                                                                                                                      |
+| People         | `/admin/people`                                                                                                                                               |
+| Person         | `/admin/people/:userId/:tab` (`summary`, `minecraft`, `moderation`, `playtime`, `anticheat`, `lnbits`, `events`, `account`)                                   |
+| Short links    | `/admin/short-links`, `/admin/short-links/:id`                                                                                                                |
+| Site           | `/admin/site/team`, `/admin/site/partners`, `/admin/site/gamesplanet`                                                                                         |
+| Events         | `/admin/events`, `/admin/events/new`, `/admin/events/:id/:tab` (`details`, `registrations`, `teams`, `poster`)                                                |
+| Posters        | `/admin/posters`, `/admin/posters/new`, `/admin/posters/:id`, `/admin/posters/:id/print`                                                                      |
+| Notifications  | `/admin/notifications`                                                                                                                                        |
+| Partner events | `/admin/partner-events`                                                                                                                                       |
+| Moderation     | `/admin/moderation/appeals`, `/admin/moderation/bans`, `/admin/moderation/rules`                                                                              |
+| Playtime       | `/admin/playtime/live`, `/admin/playtime/rules`, `/admin/playtime/closures`                                                                                   |
+| Anticheat      | `/admin/anticheat/review`, `/admin/anticheat/files`                                                                                                           |
+| Modpack        | `/admin/modpack/modlist`, `/admin/modpack/vote`, `/admin/modpack/vote/suggestions`, `/admin/modpack/files`, `/admin/modpack/downloads`                        |
+| Economy        | `/admin/economy`, `/admin/economy/accounts`, `/admin/economy/accounts/:id`, `/admin/economy/ledger`                                                           |
+| Market         | `/admin/economy/market`, `/admin/economy/market/catalog`, `/admin/economy/market/orders`, `/admin/economy/market/settings` (an item's drawer is `?item=<id>`) |
+| Quests         | `/admin/quests/catalog`, `/admin/quests/community`, `/admin/quests/categories`                                                                                |
+| Settings       | `/admin/settings/:section`                                                                                                                                    |
 
 Settings sections: `activity`, `flags`, `rate-limit`, `api-keys`, `map`, `team`, `partners`, `gamesplanet` (site admins); `rooms`, `types`, `notifications` (events managers); `warden`, `anticheat`, `modpack`, `playtime` (Warden admins); `economy`, `quests` (economy admins). `/admin/settings` opens the first section the role may see.
 

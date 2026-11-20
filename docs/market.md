@@ -4,7 +4,7 @@ The Market is the server's own shop: a commodity exchange where players sell raw
 
 This page is the contract between the site and the economy mod (`lnb-economy`, see `docs/market-mod.md` for what the mod must do), and the rules behind the pages. It extends `docs/economy.md`: accounts, the ledger, idempotency keys and flags work as described there.
 
-> Status: slices 1 and 2 are built: cents in the ledger, then the engine, the ledger kind, the server, admin and public routes, the jobs and the tests. Still to do: the admin pages (slice 3), the public page (slice 4) and the mod. The Market ships **off** (`economy.market`, `economy.market.sell` and `economy.market.buy` are seeded disabled by the migration). The design came out of the economy update document and a grilling session on 2026-11-20. The starting catalog below is a draft to simulate before launch.
+> Status: slices 1 to 3 are built: cents in the ledger, then the engine, the ledger kind, the server, admin and public routes, the jobs and the tests, then the admin pages. Still to do: the public page (slice 4) and the mod. The Market ships **off** (`economy.market`, `economy.market.sell` and `economy.market.buy` are seeded disabled by the migration). The design came out of the economy update document and a grilling session on 2026-11-20. The starting catalog below is a draft to simulate before launch.
 
 See "What was built differently" at the end for where the code departs from this page.
 
@@ -278,8 +278,13 @@ Flags: `economy.market`, `economy.market.sell` and `economy.market.buy` (`docs/f
 
 ## Pages
 
-- `/admin/economy/market`, in the Economy group: the catalog (table, editor drawer with a live curve preview, the item's recipes and the validator's answer), the settings and the stats.
-- `/minecraft/market` (Minecraft menu): prices, delta badges, sparklines and, signed in, the player's efficiency per tier.
+- `/admin/economy/market`, in the Minecraft group of the sidebar as its own entry "Market" (right after Economy, same `economy-admin` role). Each tab is its own URL, and an item's drawer is the query `?item=<id>`, so it can be linked; closing it removes the query. A badge says whether `economy.market` is on, with a link to Settings › Feature flags for full admins (it never toggles anything).
+  - **Overview** (`/admin/economy/market`): figures (minted and burned over 30 days, mint budget used, orders in the last 24 hours and how many were capped), "Needs a look" (flooded items, stock at 3 times its target or more; scarce ones, at half or less; capped orders; no recipe list ever sent, or unchanged for 14 days), the stock board per tier on a log axis from 0.1x to 10x with ticks at 1x and 3x, the minted and burned chart and the most traded items.
+  - **Catalog** (`/admin/economy/market/catalog`): items by tier in a table, with a search, tier chips and a "buy or sell off" chip.
+  - **Item drawer**: the price now, the curve drawn in the browser with the same functions as the server (`shared/utils/market.ts`), the parameters, "keep the current price", a simulator (an order of a number of items for a player who already sold some LNBits that day, with the bracket breakdown), the recipes that make or use the item with Loop and No loop badges (a dry run through `POST /validate` while editing), the sell and buy switches, and Reset stock, Cancel and Save. A refusal from the server (a recipe loop, no recipes, invalid values) shows in plain words and nothing is saved.
+  - **Orders** (`/admin/economy/market/orders`): 50 at a time, filtered by player, item, side and capped only.
+  - **Settings** (`/admin/economy/market/settings`): the spread, tolerance, items per order, mint budget, history kept, and per tier the thresholds and rates.
+- `/minecraft/market` (Minecraft menu): prices, delta badges, sparklines and, signed in, the player's efficiency per tier. Still to do.
 
 Mocks with several propositions are reviewed before anything is built.
 
@@ -346,3 +351,9 @@ No bids, no limit orders, no player-set prices (that is the auction house and pl
 - `market:prune` deletes snapshots and sale events only; orders are kept.
 - `market`: at most one event a second, with the latest stock of each item touched. `market-config`: `{ revision }`, sent after every committed change of an item, a setting, a tier or the recipes. Flag changes send none: the mod reads `/state`'s `settings.sell` and `settings.buy`.
 - The routes are cents only, and exempt from the units layer (`usesEconomyUnits`).
+- The admin pages needed three small read-only additions: `GET /stats` also answers `today` (orders and capped orders in the last 24 hours) and `recipes` (count and when the server last changed the list, from the audit log), `GET /recipes` takes `uses` (recipes that use an item; with `item`, those that make or use it), and `GET /orders` takes `capped=true` and gives each order its lowest `rate`.
+- Prices per item and the parameters are typed as plain numbers in LNBits (up to six decimals), not with `EconomyAmountInput`, which stops at cents: a cobblestone costs a fraction of a cent. Thresholds and the mint budget use cents helpers as elsewhere.
+- Changing the target stock in the drawer scales `sMin` and `sMax` with it, so their share of the target stays the same.
+- "Reset stock" asks for the reason the route needs, in a modal. Creating an item from the admin (`POST /items`) has no page yet.
+- The catalog's sell and buy columns show whether each is on (read only); the switches are in the drawer, where the loop check can answer.
+- "Orders today" is the last 24 hours, not the Paris day.
