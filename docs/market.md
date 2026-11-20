@@ -4,7 +4,9 @@ The Market is the server's own shop: a commodity exchange where players sell raw
 
 This page is the contract between the site and the economy mod (`lnb-economy`, see `docs/market-mod.md` for what the mod must do), and the rules behind the pages. It extends `docs/economy.md`: accounts, the ledger, idempotency keys and flags work as described there.
 
-> Status: designed, not built. The design came out of the economy update document and a grilling session on 2026-11-20. Slices: (1) cents in the ledger, (2) the engine, the ledger kind and the API, (3) the admin pages, (4) the public page, (5) the mod document finalized. The starting catalog below is a draft to simulate before launch.
+> Status: slices 1 and 2 are built: cents in the ledger, then the engine, the ledger kind, the server, admin and public routes, the jobs and the tests. Still to do: the admin pages (slice 3), the public page (slice 4) and the mod. The Market ships **off** (`economy.market`, `economy.market.sell` and `economy.market.buy` are seeded disabled by the migration). The design came out of the economy update document and a grilling session on 2026-11-20. The starting catalog below is a draft to simulate before launch.
+
+See "What was built differently" at the end for where the code departs from this page.
 
 ## Principles
 
@@ -332,3 +334,15 @@ New tables (see `server/db/schema/`): `market_item` (parameters, `stock`, `stock
 ## Not in the Market
 
 No bids, no limit orders, no player-set prices (that is the auction house and player shops), no trading from the site, and no other currency than the LNBit.
+
+## What was built differently
+
+- The mailbox reason of a purchase is `market`, not `source: market` (the column is `reason`).
+- A sale the mint budget cuts to 0 cents is refused with 409 `zeroPayout`, not stored.
+- Brackets are not capped when the total is: they show the uncapped sale, `total` and `capped` say what was paid.
+- `GET /state` sends every stock already drifted to `asOf`, and `stockAt` equals `asOf`.
+- The default-off flags are rows seeded by the migration (flags default to on otherwise), so `docs/feature-flags.md`'s "no migration needed" does not hold for them.
+- A catalog change that only closes doors (`enabled`, `sellable`, `buyable` set to false) skips the loop validator. Any other change, and a new spread, runs it; with no recipe graph stored it answers 409 `noRecipes`.
+- `market:prune` deletes snapshots and sale events only; orders are kept.
+- `market`: at most one event a second, with the latest stock of each item touched. `market-config`: `{ revision }`, sent after every committed change of an item, a setting, a tier or the recipes. Flag changes send none: the mod reads `/state`'s `settings.sell` and `settings.buy`.
+- The routes are cents only, and exempt from the units layer (`usesEconomyUnits`).

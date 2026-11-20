@@ -36,6 +36,8 @@ The currency is the **LNBit**, counted in **cents** (1 LNBit = 100 cents) as int
 - **Frozen accounts** take and give nothing. An account is frozen when an admin freezes it, or when its owner has a site or Warden ban in force. Admin adjustments and reversals still work on frozen accounts.
 - When an LNB account is deleted (by an admin, or after 24 months without sign-in), its personal account is emptied (the money is burned with the reason `accountClosed`), closed and anonymized: its entries stay, without a link to the person. A shared account left without an owner passes to its oldest member, or is emptied and closed when nobody is left. This runs right after the deletion, and every night in case an account went another way.
 
+The ledger's kind `market` (mint `marketSale`, burn `marketPurchase`) belongs to the Market: see `docs/market.md`. Its server routes are cents only and skip the units header.
+
 ## Authentication
 
 | Caller           | How                                                               |

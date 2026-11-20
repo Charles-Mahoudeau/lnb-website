@@ -1,7 +1,7 @@
 import { lt } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
-import { marketItem, marketOrder, marketSale, marketSnapshot } from '~~/server/db/schema';
+import { marketItem, marketSale, marketSnapshot } from '~~/server/db/schema';
 
 import { DAY_MS, priceNow, stockNow } from './shared';
 
@@ -33,11 +33,7 @@ async function prune(historyDays: number, now = new Date()) {
     .delete(marketSale)
     .where(lt(marketSale.createdAt, new Date(now.getTime() - 2 * DAY_MS)))
     .returning({ id: marketSale.id });
-  const orders = await db
-    .delete(marketOrder)
-    .where(lt(marketOrder.createdAt, cutoff))
-    .returning({ id: marketOrder.id });
-  return { snapshots: snapshots.length, sales: sales.length, orders: orders.length };
+  return { snapshots: snapshots.length, sales: sales.length };
 }
 
 export const marketJobs = { snapshot, prune };
