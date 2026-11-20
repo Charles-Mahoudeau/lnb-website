@@ -6,6 +6,7 @@
 import { AdminEconomyReasonModal } from '#components';
 
 import type { MarketValidationView } from '#shared/schemas/market';
+import { marketItemName, marketPRef, marketStockForPrice } from '#shared/utils/market';
 import type { MarketCurve } from '#shared/utils/market';
 
 const { t, locale, n } = useI18n();

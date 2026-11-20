@@ -1,5 +1,5 @@
-import { marketPRef, marketQuotePurchase, marketQuoteSale } from '../../shared/utils/market.ts';
-import type { MarketBrackets, MarketCurve } from '../../shared/utils/market.ts';
+import { marketPRef, marketQuotePurchase, marketQuoteSale } from '#shared/utils/market';
+import type { MarketBrackets, MarketCurve } from '#shared/utils/market';
 
 // What the Market admin draws and simulates in the browser, with the same pricing functions as the
 // server (shared/utils/market.ts), so a quote here is the one an order would get.
