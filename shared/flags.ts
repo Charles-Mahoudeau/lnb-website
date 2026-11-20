@@ -1,4 +1,4 @@
-// The feature flags an admin can switch from /admin/flags. This list is the source of truth for
+// The feature flags an admin can switch from /admin/settings/flags. This list is the source of truth for
 // which flags exist: the database only stores the ones an admin changed. See docs/feature-flags.md
 // to add one.
 

@@ -74,7 +74,7 @@ async function onSubmit() {
             class="w-full"
           />
           <template #hint>
-            <ULink to="/admin/mods/files" class="text-sm">{{
+            <ULink to="/admin/modpack/files" class="text-sm">{{
               t('admin.modlist.tools.openFiles')
             }}</ULink>
           </template>

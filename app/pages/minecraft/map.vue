@@ -173,7 +173,7 @@ onBeforeUnmount(() => {
       </p>
       <UButton
         v-if="isAdmin(user?.role)"
-        to="/admin/map"
+        to="/admin/settings/map"
         color="neutral"
         variant="soft"
         size="md"

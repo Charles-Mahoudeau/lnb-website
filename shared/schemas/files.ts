@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// The Files library (/admin/mods/files): jars and assets the launcher downloads. Contracts shared
+// The Files library (/admin/modpack/files): jars and assets the launcher downloads. Contracts shared
 // by the routes and the pages. See docs/files.md. Responses are schemas too, so the API reference
 // is built from the same definitions as the types.
 

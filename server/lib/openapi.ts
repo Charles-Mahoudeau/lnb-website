@@ -6411,7 +6411,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       { name: TAGS.quests, description: 'The quests page, `/minecraft/quests`.' },
       {
         name: TAGS.questsAdmin,
-        description: 'The Quests page of the admin area, `/admin/economy/quests`.',
+        description: 'The Quests page of the admin area, `/admin/quests/catalog`.',
       },
       {
         name: TAGS.wardenClient,
@@ -6427,16 +6427,16 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       {
         name: TAGS.playtimeAdmin,
         description:
-          'The playtime rules, schools, closures, live view and each player’s panel, at `/admin/warden/playtime`. Warden admins only, except grants. See `docs/playtime.md`.',
+          'The playtime rules, schools, closures, live view and each player’s panel, at `/admin/playtime/live`. Warden admins only, except grants. See `docs/playtime.md`.',
       },
       {
         name: TAGS.wardenAdmin,
-        description: 'The Warden section of the admin area, `/admin/warden`.',
+        description: 'The Moderation section of the admin area, `/admin/moderation`.',
       },
       { name: TAGS.mods, description: 'The `/minecraft/mod-vote` page. See `docs/mods.md`.' },
       {
         name: TAGS.modsAdmin,
-        description: 'The Mods section of the admin area, `/admin/mods`.',
+        description: 'The Modpack section of the admin area, `/admin/modpack`.',
       },
       {
         name: TAGS.files,
@@ -6444,7 +6444,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       },
       {
         name: TAGS.filesAdmin,
-        description: 'The Files library, `/admin/mods/files`. See `docs/files.md`.',
+        description: 'The Files library, `/admin/modpack/files`. See `docs/files.md`.',
       },
       {
         name: TAGS.downloads,
@@ -6452,7 +6452,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       },
       {
         name: TAGS.downloadsAdmin,
-        description: 'The Downloads section of the admin area, `/admin/mods/downloads`.',
+        description: 'The Downloads section of the admin area, `/admin/modpack/downloads`.',
       },
       {
         name: TAGS.rules,
@@ -6460,11 +6460,12 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       },
       {
         name: TAGS.rulesAdmin,
-        description: 'The Rules section of the admin area, `/admin/warden/rules`.',
+        description: 'The Rules section of the admin area, `/admin/moderation/rules`.',
       },
       {
         name: TAGS.modpackAdmin,
-        description: "The Modlist, `/admin/mods`: the launcher's modpack. See `docs/modpack.md`.",
+        description:
+          "The Modlist, `/admin/modpack/modlist`: the launcher's modpack. See `docs/modpack.md`.",
       },
       {
         name: TAGS.push,
@@ -6473,7 +6474,8 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       },
       {
         name: TAGS.pushAdmin,
-        description: 'The Push section of the admin area, `/admin/push`, and the confirmations.',
+        description:
+          'The Notifications section of the admin area, `/admin/notifications`, and the confirmations.',
       },
       { name: TAGS.auth, description: AUTH_TAG_DESCRIPTION },
       {

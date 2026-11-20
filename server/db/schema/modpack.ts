@@ -16,7 +16,7 @@ import { user } from './auth';
 import { storedFile } from './files';
 import { mod } from './mods';
 
-// The Modlist at /admin/mods: the launcher's modpack, apart from the mod vote. See docs/modpack.md.
+// The Modlist at /admin/modpack/modlist: the launcher's modpack, apart from the mod vote. See docs/modpack.md.
 
 /** The manifest's revision, in a single row (id 1). Goes up with every change a launcher can see. */
 export const modpackState = pgTable(

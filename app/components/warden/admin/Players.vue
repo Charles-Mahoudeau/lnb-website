@@ -61,7 +61,7 @@ function isPlaying(row: WardenPlayerRow) {
 }
 
 async function open(row: WardenPlayerRow) {
-  await navigateTo(`/admin/warden/players/${row.userId}`);
+  await navigateTo(`/admin/people/${row.userId}/minecraft`);
 }
 </script>
 
