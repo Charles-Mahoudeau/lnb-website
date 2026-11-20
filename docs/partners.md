@@ -24,7 +24,7 @@ Admins upload one logo per partner (`POST /api/admin/partners/logo`, multipart w
 
 ## Admin
 
-`/admin/site/partners` is for site admins, with no separate role. One section per kind (the contact link is in Settings › Partners, `/admin/settings/partners`): each partner with its logo, name, description, a switch, the arrows (which reorder inside the kind), edit and delete. Delete asks first. Every change is logged in `admin_audit` (`partner.*`, `partners.settings`).
+`/admin/site/partners` is for site admins, with no separate role. One section per kind (the contact link is in Settings › Partners, `/admin/settings/partners`): each partner with its logo, name, description, a switch, the arrows (which reorder inside the kind), edit and delete. Delete asks first. Every change is logged in `audit` (`partner.*`, `site.partners.settings`).
 
 ## Flags
 

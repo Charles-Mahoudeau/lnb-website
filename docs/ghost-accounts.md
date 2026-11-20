@@ -15,7 +15,7 @@ Status: the `ghost` column, the takeover, the service, the routes, the flag and 
 
 ## Making and changing ghosts
 
-`ghostService` (`server/services/ghosts.ts`) makes a ghost from a name, an email and a school, and changes them while the account is still a ghost. The email is lowercased and must not belong to any account, ghost or not (`emailTaken`, 409). The school is one of `SCHOOLS`, and only that school's students can take it over. Making and changing are logged in `admin_audit` (`user.ghostCreate`, `user.ghostUpdate`).
+`ghostService` (`server/services/ghosts.ts`) makes a ghost from a name, an email and a school, and changes them while the account is still a ghost. The email is lowercased and must not belong to any account, ghost or not (`emailTaken`, 409). The school is one of `SCHOOLS`, and only that school's students can take it over. Making and changing are logged in `audit` (`people.ghost.create`, `people.ghost.update`).
 
 | Route                                  | Who             | Does                                                            |
 | -------------------------------------- | --------------- | --------------------------------------------------------------- |
@@ -36,7 +36,7 @@ Better Auth finds a sign-in's account by the Microsoft `oid`, then by email. Bef
 
 So a school that reuses an address can't hand a real account to a new person. Better Auth already refuses the link while the real account's email is unverified, which is the usual case, and `validateUserInfo` refuses it when it is verified. `/link-social` is disabled, so a signed-in person can't link a second Microsoft account either.
 
-When the account is created, the `account.create.after` hook calls `claimGhost`: it sets `ghost = false` and writes a `user.ghostClaim` audit row (no actor). The same sign-in then refreshes the name, email, photo and tenant from Microsoft and opens a session, like any other.
+When the account is created, the `account.create.after` hook calls `claimGhost`: it sets `ghost = false` and writes a `people.ghost.claim` audit row (no actor). The same sign-in then refreshes the name, email, photo and tenant from Microsoft and opens a session, like any other.
 
 The match is the lowercased Microsoft `email` claim, which can differ from the address the admin typed (an alias, a changed name). Then no ghost matches and a second account is created. An admin can delete the stray one and fix the ghost's email. A merge tool isn't built.
 

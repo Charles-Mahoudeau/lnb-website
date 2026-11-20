@@ -20,7 +20,7 @@ Design: see Notifications in `docs/design.md` and the [push mock](https://claude
 
 Partner events are another organization's, so unlike the other switches the partner events one is off until the account turns it on, and an account with no preferences row doesn't get it. The announcement waits during the quiet hours like a new-event one. A student who turns down an invitation sends nothing to the captain. `push_notification.partner_event_id` stands in for `event_id`; the text is `buildPartnerMessage` and a tap opens `/special/<slug>`. See `docs/partner-events.md`.
 
-Removing someone by hand sends nothing. "Save without notifying" on a published event's form (`PUT /api/admin/events/:id?silent=true`) saves it with no move, waitlist-place or team notification: the waitlist still moves up and old reminders are still dropped, but nobody is told. It is written to `admin_audit` as `silent`. Events default to one reminder, 1 hour before. A moved event reminds again at its new time.
+Removing someone by hand sends nothing. "Save without notifying" on a published event's form (`PUT /api/admin/events/:id?silent=true`) saves it with no move, waitlist-place or team notification: the waitlist still moves up and old reminders are still dropped, but nobody is told. It is written to `audit` as `silent`. Events default to one reminder, 1 hour before. A moved event reminds again at its new time.
 
 ## The weekly limit warns, it never blocks
 
@@ -36,7 +36,7 @@ The limit (3 by default, an admin setting) is not enforced. `/admin/notification
 
 - Services in `server/services/push/`: `queue` (writes `push_notification` rows in the caller's transaction, after checking flags, devices and the person's switch), `deliver` (sends to every device with `web-push`), `reminders`, `subscriptions`, `settings`, `stats`, and the pure `rules` and `messages` that unit tests load.
 - `push_notification` is both the outbox and the log. `push:deliver` runs every minute: it queues the due reminders, claims due rows (`FOR UPDATE SKIP LOCKED`, moving `send_at` forward so a crash retries), and sends. A failure retries after 1, 5 and 30 minutes, then hourly, up to 6 attempts. A 404 or 410 from the push service deletes that device. `push:prune` removes rows after 90 days, every night.
-- An announced event can be announced again from its menu ("Resend notification", `POST /api/admin/events/:id/announce-resend`). The dialog is the usual impact one, in the destructive style, and warns that people who already got it get it again. The rows carry their own dedupe key, so the first announcement doesn't swallow them; quiet hours apply; it is audited as `event.announceResend`. Devices show it in place of the first one (same tag).
+- An announced event can be announced again from its menu ("Resend notification", `POST /api/admin/events/:id/announce-resend`). The dialog is the usual impact one, in the destructive style, and warns that people who already got it get it again. The rows carry their own dedupe key, so the first announcement doesn't swallow them; quiet hours apply; it is audited as `events.event.announceResend`. Devices show it in place of the first one (same tag).
 - Events call the queue from `registrations.promote` and `add`, and from `admin.update` and `admin.cancel` through `events/push.ts`. The announcement is `POST /api/admin/events/:id/announce`.
 - Text comes from `push.message.*` in the locale files, in the language saved on each device (kept up to date from `/account`). A tag per event makes the latest notification replace the earlier ones.
 - `public/sw.js` is the service worker: it shows the notification and opens the event page on tap. It caches nothing. Its icon is `public/notification-icon.png` (192 px, the LNB logo) and its Android status-bar badge is `public/notification-badge.png` (a white silhouette, the fox cut out of the moon). Both are rendered from `public/logo.svg` with `sharp`, since notifications can't use an SVG: change the logo, regenerate them.
@@ -48,7 +48,7 @@ Never cold. The sheet appears right after a registration, including for someone 
 
 ## Admin
 
-`/admin/notifications`: counts for admins and events managers. Admins also see who turned notifications on (name, school, switches, devices, date, received in the last 7 days) and, in Settings › Notifications, set the limit, the silence, and the quiet hours. Turning notifications on is visible to admins, and the settings card says so. Changes to the settings are written to `admin_audit` (`push.settings`), announcements as `event.announce`.
+`/admin/notifications`: counts for admins and events managers. Admins also see who turned notifications on (name, school, switches, devices, date, received in the last 7 days) and, in Settings › Notifications, set the limit, the silence, and the quiet hours. Turning notifications on is visible to admins, and the settings card says so. Changes to the settings are written to `audit` (`events.push.settings`), announcements as `events.event.announce`.
 
 ## Flags
 

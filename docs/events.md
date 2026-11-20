@@ -21,7 +21,7 @@ Notifications (waitlist places, reminders, cancellations and moves, announcement
 - **Capacity** is optional. Past it, registrations join a waitlist, promoted in order when a place frees up, until the event starts. Each promotion queues a notification.
 - **Reminders** are set per event, as offsets before the start (default 1 hour). Managers can also announce a published event once, from the "..." menu.
 - **BDE rules.** While an event is pushed to the BDE website, its name must be 3 to 100 characters and its description at least 10, since the BDE refuses anything else.
-- Every manager change is written to `admin_audit` (`event.*`, `eventRoom.*`, `eventType.*`) and is in the admin log.
+- Every manager change is written to `audit` (`events.event.*`, `events.room.*`, `eventType.*`) and is in the admin log.
 
 ## Registration
 
@@ -30,7 +30,7 @@ Notifications (waitlist places, reminders, cancellations and moves, announcement
 - Cancelling or leaving the waitlist is possible until the start. A freed place goes to the first person waiting, at once. Raising the capacity, removing someone and deleting an account promote too. Nobody is promoted once the event has started.
 - Every change locks the event row (`SELECT … FOR UPDATE`) before counting, so the last place can't go twice.
 - "Who's going" (first names and avatars of the first 6) is for signed-in members only.
-- Managers see everyone with their email and school, add someone by hand (any school, any time; past the limit only with `force`), remove someone, and export the list as CSV. Adding and removing are written to `admin_audit`. Adding someone sends them a waitlist-place notification, removing sends nothing (see `docs/push.md`).
+- Managers see everyone with their email and school, add someone by hand (any school, any time; past the limit only with `force`), remove someone, and export the list as CSV. Adding and removing are written to `audit`. Adding someone sends them a waitlist-place notification, removing sends nothing (see `docs/push.md`).
 - `events.registration` pauses sign-ups and cancellations, without hiding the pages. Managers can still add and remove people.
 
 ## Admin pages

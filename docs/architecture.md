@@ -45,7 +45,7 @@ server/               Nitro server, picked up by Nuxt automatically
                       warden/close-stale-sessions, users/delete-inactive, users/prune-avatars and
                       events/prune-images and partners/prune-logos and push/prune and economy/snapshot (every night at 03:00), push/deliver (every minute,
                       with the event reminders), anticheat/lookups (every minute), anticheat/rescore
-                      and anticheat/prune (every night at 03:00)
+                      and anticheat/prune and audit/prune (every night at 03:00)
   middleware/         rate-limit.ts (see docs/rate-limiting.md)
   plugins/            Nitro plugins: migrate.ts applies pending migrations at startup (its state feeds /api/health), avatars.ts
                       gives server/lib/ the avatars service

@@ -23,7 +23,7 @@ Profile photos are 96 px JPEGs behind `/api/avatars/:key`, which needs a sign-in
 
 ## Admin
 
-`/admin/site/team` is for site admins. Each pole with its members (the join link is in Settings › Team, `/admin/settings/team`): arrows reorder, a switch hides a member, and the modals add and edit. Accounts are found by name or email, and one that is already on the team doesn't come up. Every change is logged in `admin_audit` (`teamPole.*`, `teamMember.*`, `team.settings`).
+`/admin/site/team` is for site admins. Each pole with its members (the join link is in Settings › Team, `/admin/settings/team`): arrows reorder, a switch hides a member, and the modals add and edit. Accounts are found by name or email, and one that is already on the team doesn't come up. Every change is logged in `audit` (`teamPole.*`, `teamMember.*`, `site.team.settings`).
 
 ## Flags
 

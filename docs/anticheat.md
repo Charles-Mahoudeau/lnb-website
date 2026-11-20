@@ -110,10 +110,10 @@ Only the manual "hold the next join" is stored on the player. Holds from low sco
 
 ## Resets
 
-Two buttons at the bottom of `/admin/settings/anticheat`, for site admins only (not `warden-admin`). Each needs a typed sentence and is written to `warden_audit` with the rows it touched. Neither touches Warden bans: a ban stays until someone lifts it in Warden. The current mode is shown in the confirmation: in `enforce`, players are judged again at once.
+Two buttons at the bottom of `/admin/settings/anticheat`, for site admins only (not `warden-admin`). Each needs a typed sentence and is written to `audit` with the rows it touched. Neither touches Warden bans: a ban stays until someone lifts it in Warden. The current mode is shown in the confirmation: in `enforce`, players are judged again at once.
 
-- **Reset the file scores** (`reset the file scores`, `anticheat.resetFiles`): clears the approvals and bans on files and projects, the "reviewed" marks, the notes, the score history (`anticheat_history`) and the banned mod IDs, then marks every file stale so the re-score task scores them again from the platforms and the rules alone. Files, projects, platform data, project links and who used what stay.
-- **Reset the sanctions** (`reset the sanctions`, `anticheat.resetSanctions`): puts every trust score back to 50, clears the manual holds, deletes the timelines (`anticheat_player_event`), the log of what the server did (`anticheat_action`) and the alerts. Files and their decisions stay.
+- **Reset the file scores** (`reset the file scores`, `minecraft.anticheat.resetFiles`): clears the approvals and bans on files and projects, the "reviewed" marks, the notes, the score history (`anticheat_history`) and the banned mod IDs, then marks every file stale so the re-score task scores them again from the platforms and the rules alone. Files, projects, platform data, project links and who used what stay.
+- **Reset the sanctions** (`reset the sanctions`, `minecraft.anticheat.resetSanctions`): puts every trust score back to 50, clears the manual holds, deletes the timelines (`anticheat_player_event`), the log of what the server did (`anticheat_action`) and the alerts. Files and their decisions stay.
 
 ## Lookups
 
@@ -243,11 +243,11 @@ The latest report's answer for that session, read again from the database, for a
 
 ## Alerts
 
-In the admin only, never sent to players, by email or by push: a badge on the Anticheat entry of the nav (files to review plus open alerts), a row on the admin Home, a list at the top of the review queue, and an `anticheatAlert` event on the Warden stream. Kinds: `fileRefused`, `bannedFileSeen`, `playerHeld`, `factsDisputed`, `banAffectsPlayers`. An open alert of the same kind, player and file is not raised twice. The audit rows that feed the stream (`anticheat.verdict`, `anticheat.alert`) are left out of the Warden activity log's default list.
+In the admin only, never sent to players, by email or by push: a badge on the Anticheat entry of the nav (files to review plus open alerts), a row on the admin Home, a list at the top of the review queue, and an `anticheatAlert` event on the Warden stream. Kinds: `fileRefused`, `bannedFileSeen`, `playerHeld`, `factsDisputed`, `banAffectsPlayers`. An open alert of the same kind, player and file is not raised twice. The audit rows that feed the stream (`minecraft.anticheat.verdict`, `minecraft.anticheat.alert`) are left out of the Warden activity log's default list.
 
 ## Admin
 
-Access is for site admins and `warden-admin`, like Warden. Every admin action goes to `warden_audit` (see `docs/warden.md`), except notes, re-scores and dismissing alerts, which are not audited.
+Access is for site admins and `warden-admin`, like Warden. Every admin action goes to `audit` (see `docs/warden.md`), notes, re-scores and dismissals of alerts included.
 
 | Page                          | What it does                                                                                                          |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------- |

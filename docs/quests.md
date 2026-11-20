@@ -41,7 +41,7 @@ Every number above is a setting (`quest_settings`, Settings › Quests, `/admin/
 
 ## Reset
 
-There are no seasons: quests run until an admin resets them. **Reset the quests** (Settings › Quests, `POST /api/quests/admin/reset`, typing `reset the quests`) deletes what players did: completions and ranks, progress, flash runs, daily completions and community quests (with their contributions). The catalogue, categories, settings, daily draws, community templates and the reward index stay, and so do LNBits already paid, so players can earn them again. It is for the economy admin and site admins, and goes to the admin log as `quests.reset` with the rows deleted per table. Use it after testing in production, or to start over.
+There are no seasons: quests run until an admin resets them. **Reset the quests** (Settings › Quests, `POST /api/quests/admin/reset`, typing `reset the quests`) deletes what players did: completions and ranks, progress, flash runs, daily completions and community quests (with their contributions). The catalogue, categories, settings, daily draws, community templates and the reward index stay, and so do LNBits already paid, so players can earn them again. It is for the economy admin and site admins, and goes to the admin log as `economy.quests.reset` with the rows deleted per table. Use it after testing in production, or to start over.
 
 The site stores the date of the last reset (`quest_settings.reset_at`) and sends it as `resetAt` in `GET /config`; the Minecraft server starts every player over when that date changes.
 
@@ -73,7 +73,7 @@ Behind `economy.quests`.
 
 ## Admin routes
 
-Under `/api/quests/admin`, for `admin` and `economy-admin`, never behind a flag. Every change is written to `admin_audit` (`quests.*`).
+Under `/api/quests/admin`, for `admin` and `economy-admin`, never behind a flag. Every change is written to `audit` (`economy.quests.*`).
 
 | Route                                                                   | What it does                                                                                                            |
 | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |

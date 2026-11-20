@@ -639,7 +639,6 @@
     "shared/schemas/anticheat.ts",
     "server/api/warden/admin/appeals/[id]/decision.post.ts",
     "server/api/warden/admin/appeals/index.get.ts",
-    "server/api/warden/admin/audit.get.ts",
     "server/api/warden/admin/bans/[banId]/revoke.post.ts",
     "server/api/warden/admin/players/index.get.ts",
     "server/api/warden/admin/players/[userId]/bans.post.ts",
