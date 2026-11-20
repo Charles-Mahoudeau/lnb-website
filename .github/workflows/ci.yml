@@ -38,6 +38,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
+        env:
+          # Type-aware linting of the whole repo outgrew Node's default 4 GB heap.
+          NODE_OPTIONS: --max-old-space-size=8192
       - run: pnpm format:check
       - run: pnpm typecheck
       - run: pnpm test
