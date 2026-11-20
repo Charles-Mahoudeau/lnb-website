@@ -11,7 +11,7 @@ async function onAddPole() {
 </script>
 
 <template>
-  <AdminPage :title="t('admin.team.title')">
+  <AdminTabPage entry="site" tab="team">
     <template #actions>
       <UButton
         icon="i-lucide-plus"
@@ -23,5 +23,5 @@ async function onAddPole() {
       />
     </template>
     <AdminTeam />
-  </AdminPage>
+  </AdminTabPage>
 </template>

@@ -5,7 +5,7 @@ const { t } = useI18n();
 </script>
 
 <template>
-  <AdminPage :title="t('admin.push.title')">
+  <AdminPage :title="t('admin.nav.notifications')">
     <AdminPush />
   </AdminPage>
 </template>

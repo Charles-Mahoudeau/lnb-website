@@ -10,8 +10,8 @@ const id = computed(() => String(route.params.id));
   <AdminPage
     :title="t('admin.economy.account.title')"
     :parents="[
-      { label: t('admin.nav.economy') },
-      { label: t('admin.nav.economyAccounts'), to: '/admin/economy/accounts' },
+      { label: t('admin.nav.economy'), to: '/admin/economy' },
+      { label: t('admin.nav.accounts'), to: '/admin/economy/accounts' },
     ]"
   >
     <AdminEconomyAccount :id="id" :key="id" />

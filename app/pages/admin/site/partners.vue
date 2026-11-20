@@ -11,7 +11,7 @@ async function onAdd() {
 </script>
 
 <template>
-  <AdminPage :title="t('admin.partners.title')">
+  <AdminTabPage entry="site" tab="partners">
     <template #actions>
       <UButton
         icon="i-lucide-plus"
@@ -23,5 +23,5 @@ async function onAdd() {
       />
     </template>
     <AdminPartners />
-  </AdminPage>
+  </AdminTabPage>
 </template>
