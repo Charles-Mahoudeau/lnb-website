@@ -4356,7 +4356,6 @@
         "account": "Compte",
         "noAccounts": "Aucun compte Minecraft lié.",
         "transfers": "1 reprise de compte à vérifier | {n} reprises de compte à vérifier",
-        "open": "Ouvrir l’onglet",
         "notBanned": "Non banni.",
         "bans": "Bannissements",
         "warnings": "Avertissements",
@@ -4373,7 +4372,11 @@
         "hold": "Retenu par un admin.",
         "flaggedFiles": "Aucun fichier à examiner. | 1 fichier à examiner. | {n} fichiers à examiner.",
         "unseen": "L’anticheat n’a pas encore vu ce joueur.",
-        "registrations": "Inscrit à aucun événement. | Inscrit à 1 événement. | Inscrit à {n} événements."
+        "registrations": "Inscrit à aucun événement. | Inscrit à 1 événement. | Inscrit à {n} événements.",
+        "glance": "En un coup d’œil",
+        "accountsUsed": "{used} comptes sur {max}",
+        "counts": "{bans} bannissements, {warnings} avertissements, {notes} notes",
+        "openTab": "Ouvrir {tab}"
       }
     }
   },
