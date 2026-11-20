@@ -17,7 +17,7 @@ const DEFAULTS = {
   auctionTaxPercent: 5,
   auctionMaxListings: 20,
   auctionDays: 7,
-  casinoLicensePrice: 100_000 * CENTS_PER_LNBIT,
+  casinoLicensePrice: 1_050 * CENTS_PER_LNBIT,
 };
 
 /** The global settings. The migration creates their single row. */

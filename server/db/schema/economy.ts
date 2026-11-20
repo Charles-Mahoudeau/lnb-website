@@ -395,7 +395,7 @@ export const economySettings = pgTable(
     auctionDays: smallint('auction_days').default(7).notNull(),
     // What a casino license costs, in cents. Burned.
     casinoLicensePrice: bigint('casino_license_price', { mode: 'number' })
-      .default(10_000_000)
+      .default(105_000)
       .notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
     updatedByUserId: text('updated_by_user_id').references(() => user.id, {
