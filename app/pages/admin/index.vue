@@ -1,25 +1,19 @@
 <script setup lang="ts">
-definePageMeta({
-  wardenAdmins: true,
-  eventsManagers: true,
-  economyAdmins: true,
-  // The Overview is for site admins. Warden admins start on Warden's players, events managers on
-  // the events, economy admins on the economy.
-  middleware: () => {
-    const { user } = useAuth();
-    const role = user.value?.role;
-    if (isAdmin(role)) return;
-    if (isWardenAdmin(role)) return navigateTo('/admin/warden/players');
-    if (isEventsManager(role)) return navigateTo('/admin/events');
-    return navigateTo('/admin/economy');
-  },
-});
+// Home. Site admins get the Overview. Everyone else gets a short note until the Home inbox
+// (docs/plans/admin-redesign.md, slice 3) lists what is waiting for each role.
+definePageMeta({ wardenAdmins: true, eventsManagers: true, economyAdmins: true });
 
 const { t } = useI18n();
+const { user } = useAuth();
 </script>
 
 <template>
-  <AdminPage :title="t('admin.nav.overview')">
-    <AdminOverview />
+  <AdminPage :title="t('admin.nav.home')">
+    <AdminOverview v-if="isAdmin(user?.role)" />
+    <div v-else class="flex flex-col items-center gap-3 py-16 text-center">
+      <IconTile icon="i-lucide-layout-dashboard" />
+      <h2 class="text-lg font-medium text-highlighted">{{ t('admin.home.title') }}</h2>
+      <p class="max-w-md text-muted">{{ t('admin.home.lede') }}</p>
+    </div>
   </AdminPage>
 </template>
