@@ -1,7 +1,6 @@
 import { index, pgTable, primaryKey, text, timestamp, uuid, boolean } from 'drizzle-orm/pg-core';
 
 import { user } from './auth';
-import { minecraftAccount } from './warden';
 
 // The Minecraft changelog. See docs/changelog.md.
 
@@ -41,16 +40,17 @@ export const changelogPost = pgTable(
   (table) => [index('changelog_post_status_published_idx').on(table.status, table.publishedAt)],
 );
 
-/** A player has seen a post. Deleted with the Minecraft account, so with the site account. */
+/**
+ * A player has seen a post, by Minecraft UUID. No foreign key: players with no linked site account
+ * have seen state too. Deleted with the site account by `changelogService.forgetUsers`.
+ */
 export const changelogSeen = pgTable(
   'changelog_seen',
   {
     postId: uuid('post_id')
       .notNull()
       .references(() => changelogPost.id, { onDelete: 'cascade' }),
-    minecraftUuid: uuid('minecraft_uuid')
-      .notNull()
-      .references(() => minecraftAccount.uuid, { onDelete: 'cascade' }),
+    minecraftUuid: uuid('minecraft_uuid').notNull(),
     seenAt: timestamp('seen_at').defaultNow().notNull(),
   },
   (table) => [primaryKey({ columns: [table.postId, table.minecraftUuid] })],

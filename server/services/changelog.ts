@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gt, lt, lte, notExists, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, inArray, lt, lte, notExists, or, sql } from 'drizzle-orm';
 import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
@@ -430,19 +430,30 @@ async function unseenFor(
   return row ? view(row, lang) : null;
 }
 
-/** Marks a post seen. Idempotent. A UUID no site account has linked is ignored. */
+/** Marks a post seen by any Minecraft UUID, linked to a site account or not. Idempotent. */
 async function markSeen(postId: string, minecraftUuid: string): Promise<void> {
   const [post] = await db
     .select({ id: changelogPost.id })
     .from(changelogPost)
     .where(eq(changelogPost.id, postId));
   if (!post) refuse(404, 'notFound');
-  const [account] = await db
-    .select({ uuid: minecraftAccount.uuid })
-    .from(minecraftAccount)
-    .where(eq(minecraftAccount.uuid, minecraftUuid));
-  if (!account) return;
   await db.insert(changelogSeen).values({ postId, minecraftUuid }).onConflictDoNothing();
+}
+
+/** Deletes the seen rows of every Minecraft account of these users. Call before deleting them. */
+async function forgetUsers(tx: Tx, userIds: string[]): Promise<void> {
+  if (!userIds.length) return;
+  await tx
+    .delete(changelogSeen)
+    .where(
+      inArray(
+        changelogSeen.minecraftUuid,
+        tx
+          .select({ uuid: minecraftAccount.uuid })
+          .from(minecraftAccount)
+          .where(inArray(minecraftAccount.userId, userIds)),
+      ),
+    );
 }
 
 export const changelogService = {
@@ -460,4 +471,5 @@ export const changelogService = {
   getRow,
   unseenFor,
   markSeen,
+  forgetUsers,
 };
