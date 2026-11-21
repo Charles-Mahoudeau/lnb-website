@@ -62,3 +62,8 @@ ${entries.join('\n')}
 </feed>
 `;
 }
+
+/** Makes the site paths of `src="/..."` absolute, since a feed reader isn't on our site. */
+export function absoluteImages(html: string, origin: string): string {
+  return html.replace(/src="\/(?!\/)/g, `src="${origin}`);
+}

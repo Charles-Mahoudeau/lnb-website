@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { ATOM_LIMIT, buildAtom, escapeXml } from '../../server/lib/atom.ts';
+import { absoluteImages, ATOM_LIMIT, buildAtom, escapeXml } from '../../server/lib/atom.ts';
 
 const date = new Date('2026-11-18T10:00:00Z');
 const entry = (n: number) => ({
@@ -38,6 +38,14 @@ describe('atom feed', () => {
   it('keeps at most 20 entries', () => {
     const xml = feed(Array.from({ length: 25 }, (_, n) => entry(n)));
     expect(xml.match(/<entry>/g)).toHaveLength(ATOM_LIMIT);
+  });
+
+  it('makes site image paths absolute, and leaves other addresses alone', () => {
+    const html =
+      '<img src="/api/media/a.webp"><img src="//cdn.example/b.png"><img src="https://x/c">';
+    expect(absoluteImages(html, 'https://lnb.test/')).toBe(
+      '<img src="https://lnb.test/api/media/a.webp"><img src="//cdn.example/b.png"><img src="https://x/c">',
+    );
   });
 
   it('drops characters XML cannot hold', () => {

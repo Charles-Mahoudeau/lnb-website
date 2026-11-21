@@ -1,6 +1,6 @@
 import { defineEventHandler, getQuery } from 'nuxt/server';
 
-import { buildAtom, ATOM_LIMIT } from '~~/server/lib/atom';
+import { absoluteImages, buildAtom, ATOM_LIMIT } from '~~/server/lib/atom';
 import { siteUrl } from '~~/server/lib/site';
 import { changelogService, renderBody } from '~~/server/services/changelog';
 
@@ -18,7 +18,6 @@ export default defineEventHandler(async (event) => {
   const lang = changelogLang.catch('fr').parse(getQuery(event).lang);
   const { posts } = await changelogService.listPublished({ lang, limit: ATOM_LIMIT });
   // Image paths in the HTML are made absolute, since a reader isn't on our site.
-  const absolute = (html: string) => html.replace(/src="\/(?!\/)/g, `src="${siteUrl('/')}`);
   const feed = buildAtom({
     id: siteUrl('/minecraft/changelog'),
     title: TITLES[lang],
@@ -33,7 +32,7 @@ export default defineEventHandler(async (event) => {
       published: post.publishedAt!,
       updated: post.publishedAt!,
       summary: post.summary,
-      html: absolute(renderBody(post.body)),
+      html: absoluteImages(renderBody(post.body), siteUrl('/')),
     })),
   });
   return new Response(feed, {
