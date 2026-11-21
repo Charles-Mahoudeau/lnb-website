@@ -403,21 +403,24 @@ const dateShown = computed(() => {
     </template>
 
     <div class="flex max-w-4xl flex-col gap-4">
-      <section class="flex flex-wrap items-end gap-5 rounded-lg bg-elevated p-5">
+      <section class="flex flex-wrap items-start gap-x-5 gap-y-4 rounded-lg bg-elevated p-5">
         <div class="flex flex-col gap-2">
           <span class="text-sm font-medium text-highlighted">
             {{ t('admin.changelog.statusLabel') }}
           </span>
-          <UBadge
-            :color="statusColors[status]"
-            :variant="status === 'draft' ? 'outline' : 'subtle'"
-            size="lg"
-            :label="t(`admin.changelog.status.${status}`)"
-          />
+          <div class="flex h-10 items-center">
+            <UBadge
+              :color="statusColors[status]"
+              :variant="status === 'draft' ? 'outline' : 'subtle'"
+              size="lg"
+              :label="t(`admin.changelog.status.${status}`)"
+            />
+          </div>
         </div>
         <UFormField
           :label="t('admin.changelog.publishOn')"
           :help="status === 'published' ? undefined : t('admin.changelog.publishOnHelp')"
+          class="max-w-72"
         >
           <UInput
             v-model="publishLocal"
@@ -433,7 +436,7 @@ const dateShown = computed(() => {
         <UFormField
           :label="t('admin.changelog.summary')"
           :help="t('admin.changelog.summaryHelp')"
-          class="min-w-56 flex-1"
+          class="basis-full"
         >
           <UInput v-model="texts[lang].summary" :maxlength="400" class="w-full" />
         </UFormField>
