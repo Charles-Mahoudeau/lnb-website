@@ -127,22 +127,22 @@ Titles, summaries and bodies are all in that one language. The mod does not need
 
 The body is **Markdown** written by admins. The site sends it as source in `body` and also split into `blocks` (see `docs/changelog.md`, "Blocks"), so you can skip the parser: walk `blocks` and render each one. The table below is what each kind of Markdown becomes:
 
-| Markdown                             | Suggested rendering in game                                    |
-| ------------------------------------ | -------------------------------------------------------------- |
-| `## Heading`, `### Heading`          | A bold or coloured line, with a blank line before it           |
-| Paragraphs                           | Plain text lines                                               |
-| `**bold**`, `*italic*`, `` `code` `` | Minecraft bold, italic, and a grey or distinct colour for code |
-| `- item`, `1. item`                  | A line starting with a bullet or the number                    |
-| `> quote`                            | An indented or grey line                                       |
-| `[text](url)`                        | Clickable text if the screen supports it, otherwise the text   |
-| Tables                               | One line per row, cells separated by a space or a bar          |
-| Fenced code blocks                   | Plain lines in a code colour                                   |
-| `![alt](/api/media/…)`               | **Drop the image, keep the alt text**                          |
+| Markdown                             | Suggested rendering in game                                                                                  |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `## Heading`, `### Heading`          | A bold or coloured line, with a blank line before it                                                         |
+| Paragraphs                           | Plain text lines                                                                                             |
+| `**bold**`, `*italic*`, `` `code` `` | Minecraft bold, italic, and a grey or distinct colour for code                                               |
+| `- item`, `1. item`                  | A line starting with a bullet or the number                                                                  |
+| `> quote`                            | An indented or grey line                                                                                     |
+| `[text](url)`                        | Clickable text if the screen supports it, otherwise the text                                                 |
+| Tables                               | One line per row, cells separated by a space or a bar                                                        |
+| Fenced code blocks                   | Plain lines in a code colour                                                                                 |
+| `![alt](/api/media/…)`               | An `image` block in `blocks`: draw `pngUrl` (PNG, ≤ 1000 px wide), `width` × `height`; the alt text is `alt` |
 
 Notes:
 
 - There is no raw HTML in bodies, so you never need to parse any.
-- Image addresses are relative (`/api/media/<key>`). The game can't show images, so show the alt text (or nothing) and, if useful, a link to `url` ("See the pictures on the website").
+- Image addresses are relative (`/api/media/<key>`). In `blocks` they are `image` blocks (see `docs/changelog.md`): load `pngUrl`, since the game can't read the WebP in `src`. If you read `body` instead, drop the image and keep the alt text.
 - A link can be relative (`/minecraft/rules`). Resolve it against the site's address, or just point players to `url`.
 - Keep the in-game text short: the summary is meant for the notice (a chat line or a toast), and the `url` is the answer for anything long. A reasonable design is: notice = title + summary, a click or a command opens the body, and a link points to `url` for the full post.
 - Prefer `blocks` to parsing `body` yourself.

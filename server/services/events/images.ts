@@ -172,6 +172,36 @@ async function get(key: string): Promise<{ type: string; bytes: Buffer } | undef
   return { type: TYPES[extension], bytes: Buffer.from(bytes) };
 }
 
+/** The widest a PNG copy gets: the game only needs a screen's worth, and PNG is heavy. */
+export const PNG_MAX_WIDTH = 1000;
+
+/** A stored image as a PNG of at most PNG_MAX_WIDTH pixels wide, for clients without WebP. */
+async function getPng(key: string): Promise<Buffer | undefined> {
+  const stored = await get(key);
+  if (!stored) return undefined;
+  return sharp(stored.bytes)
+    .resize({ width: PNG_MAX_WIDTH, withoutEnlargement: true })
+    .png()
+    .toBuffer();
+}
+
+// Keys are content hashes, so a size never changes: remembered for the life of the process.
+const pngSizes = new Map<string, { width: number; height: number }>();
+
+/** The size getPng gives a stored image, or undefined when there is none. */
+async function pngSize(key: string): Promise<{ width: number; height: number } | undefined> {
+  const known = pngSizes.get(key);
+  if (known) return known;
+  const stored = await get(key);
+  if (!stored) return undefined;
+  const { width, height } = await sharp(stored.bytes).metadata();
+  if (!width || !height) return undefined;
+  const w = Math.min(width, PNG_MAX_WIDTH);
+  const size = { width: w, height: Math.round((height * w) / width) };
+  pngSizes.set(key, size);
+  return size;
+}
+
 async function exists(key: string): Promise<boolean> {
   return storage().hasItem(key);
 }
@@ -340,6 +370,8 @@ export const eventImageService = {
   ingestChangelog,
   importUrl,
   get,
+  getPng,
+  pngSize,
   exists,
   crops,
   treated,

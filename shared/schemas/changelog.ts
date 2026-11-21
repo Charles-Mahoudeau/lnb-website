@@ -175,6 +175,14 @@ export const changelogBlock = z.discriminatedUnion('type', [
     header: z.array(inlines),
     rows: z.array(z.array(inlines)),
   }),
+  z.object({
+    type: z.literal('image'),
+    src: z.string().describe('The stored image (WebP), absolute. Minecraft cannot load WebP.'),
+    pngUrl: z.string().describe('The same image as PNG, at most 1000 pixels wide, absolute.'),
+    alt: z.string(),
+    width: z.number().int().describe('Width of `pngUrl`.'),
+    height: z.number().int().describe('Height of `pngUrl`.'),
+  }),
   z.object({ type: z.literal('rule') }),
 ]);
 export type ChangelogBlock = z.infer<typeof changelogBlock>;

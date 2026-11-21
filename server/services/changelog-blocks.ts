@@ -6,8 +6,14 @@ import type { ChangelogBlock, ChangelogInline } from '../../shared/schemas/chang
 // A post's Markdown as a list of blocks, for the game (docs/changelog-mod.md). It walks the
 // same tokens as the site's HTML, so links and images follow the same rules. No Nuxt imports.
 
-function inlines(token: Token): ChangelogInline[] {
-  const out: ChangelogInline[] = [];
+type ImageBlock = Extract<ChangelogBlock, { type: 'image' }>;
+/** What the game needs to draw a stored image, or undefined to fall back to its alt text. */
+export type ImageResolver = (src: string) => Omit<ImageBlock, 'type' | 'alt'> | undefined;
+
+// With a resolver, a known image becomes an ImageBlock in the list; callers that pass one split
+// the list around it. Without one, an image is its alt text.
+function inlines(token: Token, images?: ImageResolver): (ChangelogInline | ImageBlock)[] {
+  const out: (ChangelogInline | ImageBlock)[] = [];
   let bold = 0;
   let italic = 0;
   const links: string[] = [];
@@ -30,14 +36,19 @@ function inlines(token: Token): ChangelogInline[] {
     else if (child.type === 'link_close') links.pop();
     else if (child.type === 'softbreak' || child.type === 'hardbreak') add('\n');
     else if (child.type === 'code_inline') add(child.content, true);
-    else if (child.type === 'text' || child.type === 'image') add(child.content); // image: its alt text
+    else if (child.type === 'image') {
+      const found = images?.(child.attrGet('src') ?? '');
+      if (found) out.push({ type: 'image', alt: child.content, ...found });
+      else add(child.content);
+    } else if (child.type === 'text') add(child.content);
   }
   return out;
 }
 
 type Cell = ChangelogInline[];
 
-export function changelogBlocks(markdown: string): ChangelogBlock[] {
+export function changelogBlocks(markdown: string, images?: ImageResolver): ChangelogBlock[] {
+  const plain = (t: Token) => inlines(t) as ChangelogInline[]; // no resolver: no image blocks
   const blocks: ChangelogBlock[] = [];
   let heading = 0;
   let depth = -1;
@@ -104,11 +115,22 @@ export function changelogBlocks(markdown: string): ChangelogBlock[] {
         blocks.push({ type: 'rule' });
         break;
       case 'inline': {
-        const content = inlines(t);
-        if (heading) blocks.push({ type: 'heading', level: heading, content });
-        else if (inCell) row.push(content);
-        else if (list) list.items.push({ depth, content });
-        else blocks.push({ type: quote ? 'quote' : 'paragraph', content });
+        if (heading) blocks.push({ type: 'heading', level: heading, content: plain(t) });
+        else if (inCell) row.push(plain(t));
+        else if (list) list.items.push({ depth, content: plain(t) });
+        else if (quote) blocks.push({ type: 'quote', content: plain(t) });
+        else {
+          // A paragraph with pictures becomes text, picture, text... in order.
+          let run: ChangelogInline[] = [];
+          for (const part of inlines(t, images)) {
+            if ('type' in part) {
+              if (run.length) blocks.push({ type: 'paragraph', content: run });
+              run = [];
+              blocks.push(part);
+            } else run.push(part);
+          }
+          if (run.length) blocks.push({ type: 'paragraph', content: run });
+        }
         break;
       }
       case 'heading_close':

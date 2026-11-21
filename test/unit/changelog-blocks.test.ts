@@ -38,3 +38,29 @@ describe('changelogBlocks', () => {
     expect(blocks.at(-1)).toEqual({ type: 'code', text: 'x = 1' });
   });
 });
+
+describe('changelogBlocks images', () => {
+  const md = 'Before ![a cat](/api/media/x.webp) after\n\n- ![in list](/api/media/x.webp)';
+  const known = {
+    src: 'https://s/x.webp',
+    pngUrl: 'https://s/x.webp?format=png',
+    width: 10,
+    height: 5,
+  };
+
+  it('puts a known image in order between the text around it', () => {
+    const blocks = changelogBlocks(md, (src) => (src === '/api/media/x.webp' ? known : undefined));
+    expect(blocks.map((b) => b.type)).toEqual(['paragraph', 'image', 'paragraph', 'list']);
+    expect(blocks[1]).toEqual({ type: 'image', alt: 'a cat', ...known });
+    // Inside a list it stays alt text.
+    expect(blocks[3]).toMatchObject({ items: [{ content: [{ text: 'in list' }] }] });
+  });
+
+  it('falls back to the alt text when the image is unknown', () => {
+    const blocks = changelogBlocks(md, () => undefined);
+    expect(blocks[0]).toMatchObject({
+      type: 'paragraph',
+      content: [{ text: 'Before ' }, { text: 'a cat' }, { text: ' after' }],
+    });
+  });
+});

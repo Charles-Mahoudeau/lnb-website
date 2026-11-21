@@ -33,7 +33,7 @@ md.disable(['image', 'table', 'heading', 'lheading', 'hr', 'code', 'fence']);
 // Changelog posts (docs/changelog.md) get the full Markdown, tables included. Images are kept
 // only from our own media library (/api/media/<key>); any other becomes its alt text.
 const changelogMd = create();
-const MEDIA_IMAGE = /^\/api\/media\/[\w.-]+$/;
+export const MEDIA_IMAGE = /^\/api\/media\/[\w.-]+$/;
 changelogMd.renderer.rules.image = (tokens, i, _options, env, self) => {
   const token = tokens[i]!;
   const src = token.attrGet('src') ?? '';

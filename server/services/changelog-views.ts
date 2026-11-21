@@ -2,6 +2,8 @@ import type { changelogPost } from '~~/server/db/schema';
 import { siteUrl } from '~~/server/lib/site';
 import type { ChangelogView } from '~~/server/services/changelog';
 import { changelogBlocks } from '~~/server/services/changelog-blocks';
+import { eventImageService } from '~~/server/services/events/images';
+import { MEDIA_IMAGE } from '~~/server/services/events/markdown';
 
 import type {
   ChangelogDetail,
@@ -81,6 +83,17 @@ export function serverPost(view: ChangelogView): ChangelogServerPost {
 }
 
 /** The same with the body, as Markdown and as blocks. */
-export function serverDetail(view: ChangelogView): ChangelogServerDetail {
-  return { ...serverPost(view), body: view.body, blocks: changelogBlocks(view.body) };
+export async function serverDetail(view: ChangelogView): Promise<ChangelogServerDetail> {
+  // Sizes come from storage, so they are looked up first and the block builder stays pure.
+  const found = new Map<string, { src: string; pngUrl: string; width: number; height: number }>();
+  for (const [, src] of view.body.matchAll(/!\[[^\]]*\]\((\/api\/media\/[\w.-]+)\)/g)) {
+    if (!src || found.has(src) || !MEDIA_IMAGE.test(src)) continue;
+    const size = await eventImageService.pngSize(src.slice('/api/media/'.length));
+    if (size) found.set(src, { src: siteUrl(src), pngUrl: siteUrl(`${src}?format=png`), ...size });
+  }
+  return {
+    ...serverPost(view),
+    body: view.body,
+    blocks: changelogBlocks(view.body, (s) => found.get(s)),
+  };
 }

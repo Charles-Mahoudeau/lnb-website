@@ -155,6 +155,9 @@ export const mediaParams = z.object({
   key: z.string().regex(/^(?:changelog-)?[0-9a-f]{64}\.(?:webp|jpg)$/),
 });
 
+/** `format=png` gives a PNG copy at most 1000 pixels wide, for clients that can't read WebP. */
+export const mediaQuery = z.object({ format: z.literal('png').optional() });
+
 /** An image picked for an event, and the point its crops are centered on (0 to 1). */
 export const eventImageInput = z.object({
   key: imageKey,

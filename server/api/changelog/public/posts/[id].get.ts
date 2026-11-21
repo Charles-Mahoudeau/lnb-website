@@ -15,5 +15,5 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, statusText: 'notFound', data: { problem: 'notFound' } });
   }
   event.res.headers.set('Cache-Control', 'public, max-age=60');
-  return serverDetail(post);
+  return await serverDetail(post);
 });

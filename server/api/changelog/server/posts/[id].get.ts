@@ -15,5 +15,5 @@ export default defineEventHandler(async (event) => {
   if (!post) {
     throw createError({ status: 404, statusText: 'notFound', data: { problem: 'notFound' } });
   }
-  return serverDetail(post);
+  return await serverDetail(post);
 });

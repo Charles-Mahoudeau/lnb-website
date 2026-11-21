@@ -22,7 +22,7 @@ Original mock (not code to port): [changelog mocks](https://claude.ai/artifact/Q
 - **Rendering:** `renderChangelog` keeps only `/api/media/<key>` images, with `loading="lazy"` and their alt text; any other image becomes its alt text. `changelog-prose` makes them responsive and rounded. The Atom feed makes their paths absolute.
 - **Not audited:** an upload has no audit entry. Editing the post that uses it is audited.
 - **Orphans:** images no post uses any more are not cleaned up yet. The nightly event-image prune skips the `changelog-` prefix, since posts are Markdown text and aren't scanned for keys.
-- **In game:** the game shows no images: the mod gets the Markdown source and should drop image syntax, keeping the alt text.
+- **In game:** `blocks` carry `image` blocks with a PNG address (`/api/media/<key>?format=png`, converted on request, at most 1000 pixels wide, since Minecraft can't read WebP). The Markdown `body` still has the image syntax.
 
 ## Public site
 
@@ -99,7 +99,7 @@ The same fields plus `body`, the Markdown source in the language returned, and `
 
 ### Blocks
 
-`blocks` is on `posts/:id`, `unseen` and the public detail, so the mod needs no Markdown parser. `body` stays. Block `type`s: `heading` (`level` 1-6, `content`), `paragraph` (`content`), `quote` (`content`, one block per quoted paragraph), `list` (`ordered`, `items` of `{ depth, content }`, nested items flattened with a deeper `depth`), `code` (`text`), `table` (`header` and `rows`, each cell a `content` array) and `rule`. `content` is a list of inlines: `{ text, bold?, italic?, code?, link? }`. A line break is `"\n"` in `text`; an image is its alt text; links are absolute http(s) or mailto. Built by `changelogBlocks` (`server/services/changelog-blocks.ts`) from the same tokens as the site's HTML.
+`blocks` is on `posts/:id`, `unseen` and the public detail, so the mod needs no Markdown parser. `body` stays. Block `type`s: `heading` (`level` 1-6, `content`), `paragraph` (`content`), `quote` (`content`, one block per quoted paragraph), `list` (`ordered`, `items` of `{ depth, content }`, nested items flattened with a deeper `depth`), `image` (`src`, `pngUrl`, `alt`, `width`, `height`), `code` (`text`), `table` (`header` and `rows`, each cell a `content` array) and `rule`. `content` is a list of inlines: `{ text, bold?, italic?, code?, link? }`. A line break is `"\n"` in `text`; a picture alone in a paragraph, or in the middle of one, is an `image` block in order (the paragraph splits around it); `src` is the stored WebP and `pngUrl` (`/api/media/<key>?format=png`, at most 1000 pixels wide) is what the game can load, `width` and `height` being those of `pngUrl`. Pictures in a heading, list, quote or table, and unknown ones, are their alt text; links are absolute http(s) or mailto. Built by `changelogBlocks` (`server/services/changelog-blocks.ts`) from the same tokens as the site's HTML.
 
 ### Public routes for the title screen
 

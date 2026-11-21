@@ -2817,14 +2817,16 @@ const routes: RouteDoc[] = [
     tag: TAGS.events,
     summary: 'An event image',
     description:
-      'A banner, thumbnail or embed image, or a picked original. Keyed by content, so cached for a year by everyone.',
+      'A banner, thumbnail or embed image, or a picked original. Keyed by content, so cached for a year by everyone. `?format=png` gives a PNG copy at most 1000 pixels wide, for clients that cannot read WebP.',
     access: 'public',
     params: events.mediaParams,
+    query: events.mediaQuery,
     response: {
       description: 'The image.',
       content: {
         'image/webp': { schema: { type: 'string', format: 'binary' } },
         'image/jpeg': { schema: { type: 'string', format: 'binary' } },
+        'image/png': { schema: { type: 'string', format: 'binary' } },
       },
     },
     problems: [{ status: 404, problems: [] }],

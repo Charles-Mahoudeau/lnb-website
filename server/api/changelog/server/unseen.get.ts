@@ -11,5 +11,5 @@ export default defineEventHandler(async (event) => {
   await requireFlag(event, 'changelog');
   const { player, lang } = parseQuery(event, changelogServerUnseenQuery);
   const post = await changelogService.unseenFor(player, lang ?? 'fr');
-  return { post: post ? serverDetail(post) : null };
+  return { post: post ? await serverDetail(post) : null };
 });
