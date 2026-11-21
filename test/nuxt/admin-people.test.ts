@@ -26,7 +26,7 @@ function row(overrides: Partial<AdminPersonRow>): AdminPersonRow {
     },
     anticheat: null,
     overLimit: false,
-    balance: 120,
+    balance: 12_000,
     registrations: { upcoming: 1, total: 3 },
     ...overrides,
   };

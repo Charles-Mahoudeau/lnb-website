@@ -209,6 +209,12 @@ export const AUDIT_ACTIONS = [
   'economy.quests.categoryDelete',
   'economy.sweep',
   'economy.quests.index',
+  'economy.market.itemCreate',
+  'economy.market.itemUpdate',
+  'economy.market.itemResetStock',
+  'economy.market.settings',
+  'economy.market.recipes',
+  'economy.market.prune',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

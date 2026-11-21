@@ -21,6 +21,7 @@ import {
 import { user } from './auth';
 
 // The Minecraft economy: LNBits on bank accounts, moved only through a double-entry ledger.
+// Every amount in this file is an integer number of cents of LNBit (1 LNBit = 100 cents).
 // See docs/economy.md.
 
 export type EconomyAccountKind = 'personal' | 'shared';
@@ -29,7 +30,7 @@ export type EconomyAccountType = 'team' | 'shop' | 'casino';
 export type EconomyMemberRole = 'owner' | 'member' | 'viewer';
 /** What a transaction was. `mint` and `burn` create and destroy money; nothing else does. */
 export type EconomyTransactionKind =
-  'payment' | 'casino' | 'shop' | 'trade' | 'auction' | 'mint' | 'burn' | 'reversal';
+  'payment' | 'casino' | 'shop' | 'trade' | 'auction' | 'market' | 'mint' | 'burn' | 'reversal';
 /** Why money was created or destroyed. Null for the other kinds. */
 export type EconomyReason =
   | 'startingBalance'
@@ -38,7 +39,9 @@ export type EconomyReason =
   | 'auctionTax'
   | 'casinoLicense'
   | 'mobDrop'
-  | 'questReward';
+  | 'questReward'
+  | 'marketSale'
+  | 'marketPurchase';
 /** Where a transaction came from: the Minecraft server, the site, or the site on its own. */
 export type EconomySource = 'minecraft' | 'web' | 'system';
 
@@ -343,8 +346,12 @@ export const economyListing = pgTable(
   ],
 );
 
-/** Why an item waits in a mailbox. `questReward` is an item given by a quest (docs/quests.md). */
-export type EconomyMailboxReason = 'bought' | 'cancelled' | 'expired' | 'removed' | 'questReward';
+/**
+ * Why an item waits in a mailbox. `questReward` is an item given by a quest (docs/quests.md),
+ * `market` one bought at the Market (docs/market.md), claimed whole or in part.
+ */
+export type EconomyMailboxReason =
+  'bought' | 'cancelled' | 'expired' | 'removed' | 'questReward' | 'market';
 
 /**
  * An item waiting for its player at the auction house: one they bought, or one of theirs that
@@ -377,8 +384,8 @@ export const economySettings = pgTable(
   'economy_settings',
   {
     id: smallint('id').primaryKey().default(1),
-    // Minted onto every new personal account.
-    startingBalance: integer('starting_balance').default(0).notNull(),
+    // Minted onto every new personal account, in cents.
+    startingBalance: bigint('starting_balance', { mode: 'number' }).default(0).notNull(),
     maxOwnedShared: smallint('max_owned_shared').default(3).notNull(),
     maxMembers: smallint('max_members').default(20).notNull(),
     // The auction house: the sale tax (burned, in percent of the price), and per seller the most
@@ -386,9 +393,9 @@ export const economySettings = pgTable(
     auctionTaxPercent: smallint('auction_tax_percent').default(5).notNull(),
     auctionMaxListings: smallint('auction_max_listings').default(20).notNull(),
     auctionDays: smallint('auction_days').default(7).notNull(),
-    // What a casino license costs. Burned.
+    // What a casino license costs, in cents. Burned.
     casinoLicensePrice: bigint('casino_license_price', { mode: 'number' })
-      .default(100_000)
+      .default(105_000)
       .notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
     updatedByUserId: text('updated_by_user_id').references(() => user.id, {

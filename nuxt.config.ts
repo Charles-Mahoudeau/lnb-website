@@ -116,6 +116,7 @@ export default defineNuxtConfig({
         'changelog:publish-scheduled',
       ],
       '*/5 * * * *': ['warden:close-stale-sessions', 'quests:community'],
+      '0 * * * *': ['market:snapshot'],
       // The best sellers and flash sales, every 6 hours.
       '0 */6 * * *': ['gamesplanet:sync-deals'],
       // The whole catalog, before the night's other jobs.
@@ -137,6 +138,7 @@ export default defineNuxtConfig({
         'modpack:check-latest',
         'playtime:prune',
         'audit:prune',
+        'market:prune',
       ],
       // After the economy snapshot, so the quest index reads the night's balances.
       '0 4 * * *': ['quests:index'],

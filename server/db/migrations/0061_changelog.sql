@@ -28,5 +28,4 @@ CREATE TABLE "changelog_seen" (
 --> statement-breakpoint
 ALTER TABLE "changelog_post" ADD CONSTRAINT "changelog_post_created_by_user_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "changelog_seen" ADD CONSTRAINT "changelog_seen_post_id_changelog_post_id_fk" FOREIGN KEY ("post_id") REFERENCES "public"."changelog_post"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "changelog_seen" ADD CONSTRAINT "changelog_seen_minecraft_uuid_minecraft_account_uuid_fk" FOREIGN KEY ("minecraft_uuid") REFERENCES "public"."minecraft_account"("uuid") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "changelog_post_status_published_idx" ON "changelog_post" USING btree ("status","published_at");

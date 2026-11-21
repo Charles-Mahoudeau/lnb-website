@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { usesEconomyUnits } from './economy-units.ts';
 import type { ApiKeyPermission } from '../../shared/api-keys.ts';
 import * as admin from '../../shared/schemas/admin.ts';
 import * as anticheat from '../../shared/schemas/anticheat.ts';
@@ -15,6 +16,7 @@ import * as flags from '../../shared/schemas/flags.ts';
 import * as gamesplanet from '../../shared/schemas/gamesplanet.ts';
 import { linkApproveBody, linkApproveResult, linkDenyBody } from '../../shared/schemas/link.ts';
 import * as map from '../../shared/schemas/map.ts';
+import * as market from '../../shared/schemas/market.ts';
 import * as modpack from '../../shared/schemas/modpack.ts';
 import * as mods from '../../shared/schemas/mods.ts';
 import * as partnerEvents from '../../shared/schemas/partner-events.ts';
@@ -5932,6 +5934,215 @@ const routes: RouteDoc[] = [
   },
   {
     method: 'get',
+    path: '/api/economy/server/market/state',
+    tag: TAGS.economyServer,
+    summary: 'The Market state',
+    description:
+      'Settings, tiers, the mint budget left and every enabled item with its curve and its stock drifted to `asOf`. Cents only: this route ignores the units header. Behind `economy.market`.',
+    access: 'wardenServer',
+    response: market.marketState,
+    problems: [{ status: 503, problems: ['disabled'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/economy/server/market/players/{uuid}',
+    tag: TAGS.economyServer,
+    summary: "A player's Market window",
+    description:
+      'The nominal value sold in the last 24 hours in each tier, the rate it gives, and whether the mint budget is spent.',
+    access: 'wardenServer',
+    params: market.marketPlayerParams,
+    response: market.marketPlayerWindow,
+    problems: [
+      { status: 403, problems: ['notEligible'] },
+      { status: 404, problems: ['notLinked'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/economy/server/market/quote',
+    tag: TAGS.economyServer,
+    summary: 'Quote a sale or a purchase',
+    description: "The site's price for this player and item, changing nothing.",
+    access: 'wardenServer',
+    body: market.marketQuoteBody,
+    response: market.marketQuote,
+    problems: [
+      { status: 403, problems: ['notEligible', 'notAllowed'] },
+      { status: 404, problems: ['notLinked', 'notFound'] },
+      { status: 400, problems: ['tooManyItems'] },
+      { status: 409, problems: ['itemDisabled', 'notSellable', 'notBuyable'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/economy/server/market/orders',
+    tag: TAGS.economyServer,
+    summary: 'Sell or buy items',
+    description:
+      'One transaction: the item is locked, its stock drifted, the quote computed, then the ledger, the order and a mailbox item (a purchase) written. `expectedTotal` is what the player saw: a worse total beyond the tolerance is a 409 `priceChanged` carrying the new quote. A retry with the same `idempotencyKey` gets the first answer with `replayed: true`, even when the Market or that direction has been switched off since; a new order then gets 503 `disabled`. A sale cut to 0 by the mint budget is a 409 `zeroPayout`.',
+    access: 'wardenServer',
+    body: market.marketOrderBody,
+    response: market.marketOrderResult,
+    problems: [
+      { status: 400, problems: ['tooManyItems'] },
+      { status: 403, problems: ['notEligible', 'notAllowed'] },
+      { status: 404, problems: ['notLinked', 'notFound'] },
+      {
+        status: 409,
+        problems: [
+          'frozen',
+          'itemDisabled',
+          'notSellable',
+          'notBuyable',
+          'zeroPayout',
+          'priceChanged',
+          'insufficientFunds',
+          'idempotencyMismatch',
+        ],
+      },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'put',
+    path: '/api/economy/server/market/recipes',
+    tag: TAGS.economyServer,
+    summary: 'Send the recipe graph',
+    description:
+      'Replaces the stored recipes, unless they are identical. The loop validator runs on the result; `problems` lists the loops found. Works while the Market is off.',
+    access: 'wardenServer',
+    body: market.marketRecipeBody,
+    response: market.marketRecipeResult,
+  },
+  {
+    method: 'get',
+    path: '/api/market',
+    tag: TAGS.economy,
+    summary: 'The Market page',
+    description:
+      "Every enabled item with its price, what 1 and 64 items trade for and a 24 hour sparkline. Signed in with a linked Minecraft account, also the caller's window.",
+    access: 'public',
+    response: market.marketPublic,
+    problems: [{ status: 503, problems: ['disabled'] }],
+  },
+  {
+    method: 'get',
+    path: '/api/market/items/{id}/history',
+    tag: TAGS.economy,
+    summary: "An item's price history",
+    description:
+      'From the hourly snapshots; the 30d and 1y periods are averaged per 4 hours and per day.',
+    access: 'public',
+    params: market.marketItemParams,
+    query: market.marketHistoryQuery,
+    response: market.marketHistory,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/economy/admin/market',
+    tag: TAGS.economyAdmin,
+    summary: 'The Market config',
+    access: 'economyAdmin',
+    response: market.marketAdminOverview,
+  },
+  {
+    method: 'post',
+    path: '/api/economy/admin/market/items',
+    tag: TAGS.economyAdmin,
+    summary: 'Add an item to the Market',
+    description:
+      'Starts at its equilibrium stock. Refused when the catalog would then allow a loop.',
+    access: 'economyAdmin',
+    body: market.marketItemCreateBody,
+    response: market.marketAdminItem,
+    problems: [{ status: 409, problems: ['itemExists', 'loop', 'noRecipes'] }],
+  },
+  {
+    method: 'patch',
+    path: '/api/economy/admin/market/items/{id}',
+    tag: TAGS.economyAdmin,
+    summary: 'Change an item',
+    description:
+      '`keepPrice` (default true) recomputes the stock so the price does not jump. A change that opens doors is checked by the loop validator; one that only closes them is not.',
+    access: 'economyAdmin',
+    params: market.marketItemParams,
+    body: market.marketItemPatchBody,
+    response: market.marketAdminItem,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 409, problems: ['loop', 'noRecipes'] },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/api/economy/admin/market/items/{id}/reset-stock',
+    tag: TAGS.economyAdmin,
+    summary: "Reset an item's stock to its equilibrium",
+    access: 'economyAdmin',
+    params: market.marketItemParams,
+    body: market.marketResetStockBody,
+    response: market.marketAdminItem,
+    problems: [{ status: 404, problems: ['notFound'] }],
+  },
+  {
+    method: 'patch',
+    path: '/api/economy/admin/market/settings',
+    tag: TAGS.economyAdmin,
+    summary: 'Change the Market settings',
+    description:
+      "The spread, tolerance, order size, mint budget, history and the tiers' brackets. A new spread is checked by the loop validator first.",
+    access: 'economyAdmin',
+    body: market.marketSettingsPatch,
+    response: market.marketAdminOverview,
+    problems: [{ status: 409, problems: ['loop', 'noRecipes'] }],
+  },
+  {
+    method: 'post',
+    path: '/api/economy/admin/market/validate',
+    tag: TAGS.economyAdmin,
+    summary: 'Try catalog changes on the loop validator',
+    description: 'Saves nothing.',
+    access: 'economyAdmin',
+    body: market.marketValidateBody,
+    response: market.marketValidation,
+  },
+  {
+    method: 'get',
+    path: '/api/economy/admin/market/orders',
+    tag: TAGS.economyAdmin,
+    summary: 'The Market orders',
+    access: 'economyAdmin',
+    query: market.marketOrdersQuery,
+    response: market.marketAdminOrders,
+  },
+  {
+    method: 'get',
+    path: '/api/economy/admin/market/stats',
+    tag: TAGS.economyAdmin,
+    summary: 'Market statistics',
+    access: 'economyAdmin',
+    query: market.marketStatsQuery,
+    response: market.marketAdminStats,
+  },
+  {
+    method: 'get',
+    path: '/api/economy/admin/market/recipes',
+    tag: TAGS.economyAdmin,
+    summary: 'The stored recipes',
+    description: '500 at most.',
+    access: 'economyAdmin',
+    query: market.marketAdminRecipesQuery,
+    response: market.marketAdminRecipes,
+  },
+  {
+    method: 'get',
     path: '/api/economy/admin/settings',
     tag: TAGS.economyAdmin,
     summary: 'Economy settings',
@@ -6574,6 +6785,13 @@ function errorResponses(route: RouteDoc) {
   );
 }
 
+/** The units header of the Minecraft server routes under `/api/economy/server` and `/api/quests/server`. */
+const ECONOMY_UNITS_HEADER_DOC: OpenApiObject = {
+  description:
+    "`cents`: every money field of the request and of the answer is an integer number of cents of LNBit (100 cents = 1 LNBit). Without the header (legacy): a request is read as whole LNBits and multiplied by 100, and an answer is rounded down to whole LNBits. The money fields are `amount`, `balance`, `price`, `sellPrice`, `buyPrice`, `lotPrice`, `expectedLotPrice`, `tax`, `casinoLicensePrice` and a community quest tier's `rewardToday`. The legacy mode goes away once the mod sends the header. See `docs/economy.md`, Units.",
+  schema: { type: 'string', enum: ['cents'] },
+};
+
 function operation(route: RouteDoc) {
   const access = ACCESS[route.access];
   const success = route.noContent
@@ -6607,7 +6825,10 @@ function operation(route: RouteDoc) {
     parameters: [
       ...parameters('path', route.params),
       ...parameters('query', route.query),
-      ...Object.entries(route.headers ?? {}).map(([name, header]) => ({
+      ...Object.entries({
+        ...(usesEconomyUnits(route.path) ? { 'X-Economy-Units': ECONOMY_UNITS_HEADER_DOC } : {}),
+        ...route.headers,
+      }).map(([name, header]) => ({
         name,
         in: 'header',
         ...header,
@@ -6669,6 +6890,7 @@ Every route under \`/api\` is limited per IP, and writes are also limited per ac
 - Errors have an HTTP status, and a \`data.problem\` code when the reason matters. Each route lists its codes.
 - An invalid body or query is a 400, and an invalid path parameter a 404.
 - Lists take \`cursor\` and return \`{ items, nextCursor }\`, with \`nextCursor\` null on the last page.
+- Money is counted in cents of LNBit (100 cents = 1 LNBit), as integers. The Minecraft server routes also take \`X-Economy-Units: cents\`; without it they speak whole LNBits (see the header on each route).
 
 Warden's flows are described in \`docs/warden.md\`, and sign-in and app linking in \`docs/authentication.md\`.
 `.trim();
@@ -6740,7 +6962,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       {
         name: TAGS.economyServer,
         description:
-          'Called by the LNB Minecraft server only, with `WARDEN_SERVER_SECRET`. Every money move goes through one call. See `docs/economy.md`.',
+          'Called by the LNB Minecraft server only, with `WARDEN_SERVER_SECRET`. Every money move goes through one call. Money is in cents with `X-Economy-Units: cents`, and in whole LNBits without it (legacy). See `docs/economy.md`.',
       },
       {
         name: TAGS.economy,
@@ -6754,7 +6976,7 @@ export function buildOpenApiDocument(authDocument: AuthOpenApi) {
       {
         name: TAGS.questsServer,
         description:
-          'Called by the LNB Minecraft server only, with `WARDEN_SERVER_SECRET`, behind `economy.serverApi` and `economy.quests`. See `docs/quests.md`.',
+          'Called by the LNB Minecraft server only, with `WARDEN_SERVER_SECRET`, behind `economy.serverApi` and `economy.quests`. Amounts follow `X-Economy-Units` like the economy routes. See `docs/quests.md`.',
       },
       { name: TAGS.quests, description: 'The quests page, `/minecraft/quests`.' },
       {

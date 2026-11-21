@@ -2,7 +2,17 @@
 
 The Minecraft economy runs on the site: every balance, every account and every movement of money lives here, and the LNB Minecraft server only asks. This page is the contract between the site and the economy mod (`lnb-economy`, Kotlin for Forge): the model, the rules and every route under `/api/economy`.
 
-The currency is the **LNBit**: whole numbers, no decimals.
+The currency is the **LNBit**, counted in **cents** (1 LNBit = 100 cents) as integers: see Units.
+
+## Units
+
+- Every amount stored or sent is an integer number of cents of LNBit: balances, entry amounts, prices, taxes, license price, starting balance, daily stats, quest payouts. Players and admins see LNBits with up to two decimals (`1,234.56`, `1,200`, `0.05`), through one formatter (`shared/utils/lnbits.ts`, integer math, per-locale separators). Amount fields accept up to two decimals (`.` or `,`) and refuse more.
+- Limits are defined in LNBits and converted: at most 10^12 LNBits, so 10^14 cents, far below 2^53.
+- Migration `0058_economy-cents` multiplied every stored amount by 100. Counts (shop lots, item counts, quest objective amounts, transaction counts in daily stats) were left alone.
+- Settings money fields (starting balance, casino license price) are edited in LNBits with up to 2 decimals and stored as cents.
+- The auction tax is rounded down to the cent. A shop or listing price is at least 1 cent.
+- **Minecraft server routes** (`/api/economy/server/**`, `/api/quests/server/**`) take the opt-in header `X-Economy-Units: cents`: requests and responses then carry integer cents (a decimal is refused). **Without it (legacy)**, a request is read as whole LNBits (multiplied by 100 before validation, a decimal is refused) and every money field of a response is rounded down to whole LNBits. The answer repeats the header. Any other value is a 400 (`invalidUnits`). The conversion lives in `server/lib/economy-units.ts`, with the one list of money fields (`amount`, `balance`, `balanceAfter`, `tax`, `price`, `sellPrice`, `buyPrice`, `lotPrice`, `expectedLotPrice`, `casinoLicensePrice`, `startingBalance`, `rewardToday`, `payout`); a community contribution's `amount` and the `quests` and `categories` of the quest config and catalog are not money and are left alone. Idempotency is checked on the cents form, so a replay gives the same answer in both modes (a retry of a legacy call made before the deploy may report `idempotencyMismatch`).
+- Site routes (players, admins, public) are always in cents. No API-key route carries money.
 
 ## Accounts
 
@@ -15,7 +25,7 @@ The currency is the **LNBit**: whole numbers, no decimals.
 - A shared account can only be closed once its balance is 0.
 - Each player has a **default account**, the one that pays when they name none (`/pay`, shops). It is stored on the site, so it's the same on all their Minecraft accounts. When they can no longer spend from it (removed, viewer, frozen, closed), the personal account pays instead.
 - Casinos are shared accounts of type `casino`, run by players. The server credits them for bets and pays winnings from them.
-- **Casino licenses.** A player buys a license in the game, for `casinoLicensePrice` (100,000 by default, set in the admin), which is burned. The license belongs to the LNB account and is **free** until it is used: making a shared account a casino, when opening it or later, binds one of the owner's free licenses to it, for good. Closing the casino doesn't free its license. An economy admin can also **give** a license, free of charge (a prize, or one lost to a bug), and take back a free one, from a personal account's page in the admin.
+- **Casino licenses.** A player buys a license in the game, for `casinoLicensePrice` (1,050 LNBits by default, 1 % of the circulation at about 105,000 LNBits, so an autofarmer earns it in about 17 days; set in the admin), which is burned. The license belongs to the LNB account and is **free** until it is used: making a shared account a casino, when opening it or later, binds one of the owner's free licenses to it, for good. Closing the casino doesn't free its license. An economy admin can also **give** a license, free of charge (a prize, or one lost to a bug), and take back a free one, from a personal account's page in the admin.
 
 ## The ledger
 
@@ -25,6 +35,8 @@ The currency is the **LNBit**: whole numbers, no decimals.
 - Kinds: `payment` (between players), `casino` (bets and payouts), `shop` (orders at a player shop), `trade` (the money part of a trade), `auction` (a sale at the auction house), `mint`, `burn` and `reversal`. Mint and burn carry a reason: `startingBalance`, `adjustment` (an admin, with a message), `accountClosed`, `mobDrop` (a mint: what the mobs a player killed dropped), `questReward` (a mint: a quest's reward, see `docs/quests.md`) or `casinoLicense` (a burn: the price of a license). An auction sale that burns a tax carries the reason `auctionTax`, counted with the burns.
 - **Frozen accounts** take and give nothing. An account is frozen when an admin freezes it, or when its owner has a site or Warden ban in force. Admin adjustments and reversals still work on frozen accounts.
 - When an LNB account is deleted (by an admin, or after 24 months without sign-in), its personal account is emptied (the money is burned with the reason `accountClosed`), closed and anonymized: its entries stay, without a link to the person. A shared account left without an owner passes to its oldest member, or is emptied and closed when nobody is left. This runs right after the deletion, and every night in case an account went another way.
+
+The ledger's kind `market` (mint `marketSale`, burn `marketPurchase`) belongs to the Market: see `docs/market.md`. Its server routes are cents only and skip the units header.
 
 ## Authentication
 
@@ -40,7 +52,7 @@ Only the server moves money. The economy mod on a player's computer never calls 
 
 - Bodies and responses are JSON. Their Zod schemas are in `shared/schemas/economy.ts`, and the full reference for every route is at `/api/docs`.
 - An account in a request is its ID or, for a shared account, its handle (a leading `#` is accepted).
-- Amounts are positive whole numbers, at most 10^12.
+- Amounts are positive integers in cents, at most 10^14 (10^12 LNBits).
 - Errors have an HTTP status and a `data.problem` code, listed with each route.
 - Lists take `cursor` and return `{ items, nextCursor }`, with `nextCursor` null on the last page.
 

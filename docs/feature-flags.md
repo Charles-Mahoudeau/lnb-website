@@ -51,4 +51,4 @@ Sign-in can't use `requireFlag`: Better Auth's `validateUserInfo` in `server/lib
 3. Gate the server: `await requireFlag(event, 'key')` in each route, or `flagService.isEnabled` in a job.
 4. Gate the client: `useFlags().isEnabled('key')` for what to show, or `definePageMeta({ flag: 'key' })` for a page.
 
-No migration is needed. `test/unit/flags.test.ts` checks the list and the translations.
+No migration is needed, except for a flag that ships off: the Market's (`economy.market`, `.sell`, `.buy`) are seeded as disabled rows by their migration, since an unknown flag is on. `test/unit/flags.test.ts` checks the list and the translations.

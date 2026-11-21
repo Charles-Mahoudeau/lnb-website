@@ -464,7 +464,7 @@ const roleNames = (flags: NonNullable<AdminPersonRow['roles']>) =>
         </template>
         <template #balance-cell="{ row }">
           <span v-if="row.original.balance != null">
-            {{ t('admin.people.lnbits', { n: row.original.balance.toLocaleString(locale) }) }}
+            {{ t('admin.people.lnbits', { n: formatLnbits(row.original.balance, locale) }) }}
           </span>
           <span v-else class="text-muted">{{ t('admin.people.noAccount') }}</span>
         </template>

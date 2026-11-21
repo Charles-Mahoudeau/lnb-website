@@ -1,6 +1,7 @@
 // Pure economy rules: no database, so they're easy to test. See docs/economy.md.
 
 import type { EconomyPeriod, EconomyRole } from '../../../shared/schemas/economy.ts';
+import { CENTS_PER_LNBIT } from '../../../shared/utils/lnbits.ts';
 
 /** Owners and members spend. Viewers only read. */
 export function canSpend(role: EconomyRole | null | undefined): boolean {
@@ -83,8 +84,10 @@ export function topShare(balances: readonly number[], fraction = 0.1): number {
   return sorted.slice(0, top).reduce((sum, value) => sum + value, 0) / total;
 }
 
-/** Balance ranges for the distribution histogram: 0, then up to 100k and more. */
-export const HISTOGRAM_BOUNDS = [0, 1, 100, 500, 1000, 5000, 20_000, 100_000] as const;
+/** Balance ranges for the distribution histogram, in cents: 0, then up to 100k LNBits and more. */
+export const HISTOGRAM_BOUNDS = [0, 1, 100, 500, 1000, 5000, 20_000, 100_000].map(
+  (lnbits) => lnbits * CENTS_PER_LNBIT,
+);
 
 export function histogram(balances: readonly number[]) {
   return HISTOGRAM_BOUNDS.map((from, i) => {
@@ -102,7 +105,7 @@ export function encodeCursor(id: number | string): string {
   return String(id);
 }
 
-/** The auction house tax on a sale: a whole percentage of the price, rounded down. */
+/** The auction house tax on a sale: a whole percentage of the price, rounded down to the cent. */
 export function auctionTax(price: number, percent: number): number {
   return Math.floor((price * percent) / 100);
 }

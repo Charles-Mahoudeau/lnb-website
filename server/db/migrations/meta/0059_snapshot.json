@@ -1,6 +1,6 @@
 {
-  "id": "9b49b452-4b6b-4bef-b185-0f76725c0a55",
-  "prevId": "225893a2-c082-407e-92bc-f4a28b7ef7ed",
+  "id": "36adbfdd-e98f-4572-8474-1d836cfa88c2",
+  "prevId": "f7b62668-65c8-4949-9993-0c4c1db689f9",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -2405,211 +2405,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.changelog_post": {
-      "name": "changelog_post",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "slug": {
-          "name": "slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "source_lang": {
-          "name": "source_lang",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "title_en": {
-          "name": "title_en",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "title_fr": {
-          "name": "title_fr",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "summary_en": {
-          "name": "summary_en",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "summary_fr": {
-          "name": "summary_fr",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "body_en": {
-          "name": "body_en",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "body_fr": {
-          "name": "body_fr",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "translation_unreviewed": {
-          "name": "translation_unreviewed",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "version_tag": {
-          "name": "version_tag",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "cover_key": {
-          "name": "cover_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'draft'"
-        },
-        "published_at": {
-          "name": "published_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "changelog_post_status_published_idx": {
-          "name": "changelog_post_status_published_idx",
-          "columns": [
-            {
-              "expression": "status",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "published_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "changelog_post_created_by_user_id_fk": {
-          "name": "changelog_post_created_by_user_id_fk",
-          "tableFrom": "changelog_post",
-          "tableTo": "user",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "changelog_post_slug_unique": {
-          "name": "changelog_post_slug_unique",
-          "nullsNotDistinct": false,
-          "columns": ["slug"]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.changelog_seen": {
-      "name": "changelog_seen",
-      "schema": "",
-      "columns": {
-        "post_id": {
-          "name": "post_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "minecraft_uuid": {
-          "name": "minecraft_uuid",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "seen_at": {
-          "name": "seen_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "changelog_seen_post_id_changelog_post_id_fk": {
-          "name": "changelog_seen_post_id_changelog_post_id_fk",
-          "tableFrom": "changelog_seen",
-          "tableTo": "changelog_post",
-          "columnsFrom": ["post_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "changelog_seen_post_id_minecraft_uuid_pk": {
-          "name": "changelog_seen_post_id_minecraft_uuid_pk",
-          "columns": ["post_id", "minecraft_uuid"]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.download_file": {
       "name": "download_file",
       "schema": "",
@@ -3787,7 +3582,7 @@
         },
         "starting_balance": {
           "name": "starting_balance",
-          "type": "integer",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": true,
           "default": 0
@@ -3832,7 +3627,7 @@
           "type": "bigint",
           "primaryKey": false,
           "notNull": true,
-          "default": 100000
+          "default": 10000000
         },
         "updated_at": {
           "name": "updated_at",
@@ -5822,6 +5617,851 @@
         "map_setting_single_row": {
           "name": "map_setting_single_row",
           "value": "\"map_setting\".\"id\" = 1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.market_item": {
+      "name": "market_item",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tier": {
+          "name": "tier",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "enabled": {
+          "name": "enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "sellable": {
+          "name": "sellable",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "buyable": {
+          "name": "buyable",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "p0": {
+          "name": "p0",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "p_min": {
+          "name": "p_min",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "p_max": {
+          "name": "p_max",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "s0": {
+          "name": "s0",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "s_min": {
+          "name": "s_min",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "s_max": {
+          "name": "s_max",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "k": {
+          "name": "k",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "alpha": {
+          "name": "alpha",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stock": {
+          "name": "stock",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stock_at": {
+          "name": "stock_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "market_item_tier": {
+          "name": "market_item_tier",
+          "value": "\"market_item\".\"tier\" between 1 and 3"
+        },
+        "market_item_prices": {
+          "name": "market_item_prices",
+          "value": "\"market_item\".\"p_min\" > 0 and \"market_item\".\"p_min\" <= \"market_item\".\"p0\" and \"market_item\".\"p0\" <= \"market_item\".\"p_max\""
+        },
+        "market_item_stocks": {
+          "name": "market_item_stocks",
+          "value": "\"market_item\".\"s_min\" > 0 and \"market_item\".\"s_min\" <= \"market_item\".\"s0\" and \"market_item\".\"s0\" <= \"market_item\".\"s_max\""
+        },
+        "market_item_shape": {
+          "name": "market_item_shape",
+          "value": "\"market_item\".\"k\" > 0 and \"market_item\".\"alpha\" >= 0 and \"market_item\".\"alpha\" <= 1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.market_item_version": {
+      "name": "market_item_version",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parameters": {
+          "name": "parameters",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "changed_by_user_id": {
+          "name": "changed_by_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "market_item_version_item_idx": {
+          "name": "market_item_version_item_idx",
+          "columns": [
+            {
+              "expression": "item_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "market_item_version_item_id_market_item_id_fk": {
+          "name": "market_item_version_item_id_market_item_id_fk",
+          "tableFrom": "market_item_version",
+          "tableTo": "market_item",
+          "columnsFrom": ["item_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "market_item_version_changed_by_user_id_user_id_fk": {
+          "name": "market_item_version_changed_by_user_id_user_id_fk",
+          "tableFrom": "market_item_version",
+          "tableTo": "user",
+          "columnsFrom": ["changed_by_user_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.market_order": {
+      "name": "market_order",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "idempotency_key": {
+          "name": "idempotency_key",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fingerprint": {
+          "name": "fingerprint",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "minecraft_uuid": {
+          "name": "minecraft_uuid",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "direction": {
+          "name": "direction",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total": {
+          "name": "total",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "capped": {
+          "name": "capped",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "transaction_id": {
+          "name": "transaction_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stock_before": {
+          "name": "stock_before",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stock_after": {
+          "name": "stock_after",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "result": {
+          "name": "result",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "market_order_created_idx": {
+          "name": "market_order_created_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "market_order_item_idx": {
+          "name": "market_order_item_idx",
+          "columns": [
+            {
+              "expression": "item_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "market_order_user_idx": {
+          "name": "market_order_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "market_order_direction_idx": {
+          "name": "market_order_direction_idx",
+          "columns": [
+            {
+              "expression": "direction",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "market_order_user_id_user_id_fk": {
+          "name": "market_order_user_id_user_id_fk",
+          "tableFrom": "market_order",
+          "tableTo": "user",
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "market_order_account_id_economy_account_id_fk": {
+          "name": "market_order_account_id_economy_account_id_fk",
+          "tableFrom": "market_order",
+          "tableTo": "economy_account",
+          "columnsFrom": ["account_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "market_order_item_id_market_item_id_fk": {
+          "name": "market_order_item_id_market_item_id_fk",
+          "tableFrom": "market_order",
+          "tableTo": "market_item",
+          "columnsFrom": ["item_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "market_order_transaction_id_economy_transaction_id_fk": {
+          "name": "market_order_transaction_id_economy_transaction_id_fk",
+          "tableFrom": "market_order",
+          "tableTo": "economy_transaction",
+          "columnsFrom": ["transaction_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "market_order_idempotency_key_unique": {
+          "name": "market_order_idempotency_key_unique",
+          "nullsNotDistinct": false,
+          "columns": ["idempotency_key"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.market_recipe": {
+      "name": "market_recipe",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "output_id": {
+          "name": "output_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "output_count": {
+          "name": "output_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inputs": {
+          "name": "inputs",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "market_recipe_output_idx": {
+          "name": "market_recipe_output_idx",
+          "columns": [
+            {
+              "expression": "output_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.market_sale": {
+      "name": "market_sale",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tier": {
+          "name": "tier",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nominal": {
+          "name": "nominal",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "market_sale_window_idx": {
+          "name": "market_sale_window_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "tier",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "market_sale_created_idx": {
+          "name": "market_sale_created_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "market_sale_user_id_user_id_fk": {
+          "name": "market_sale_user_id_user_id_fk",
+          "tableFrom": "market_sale",
+          "tableTo": "user",
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.market_settings": {
+      "name": "market_settings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "smallint",
+          "primaryKey": true,
+          "notNull": true,
+          "default": 1
+        },
+        "sigma_percent": {
+          "name": "sigma_percent",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 15
+        },
+        "tolerance_percent": {
+          "name": "tolerance_percent",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "max_order_items": {
+          "name": "max_order_items",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 2304
+        },
+        "mint_cap_percent": {
+          "name": "mint_cap_percent",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 25
+        },
+        "history_days": {
+          "name": "history_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 365
+        },
+        "revision": {
+          "name": "revision",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_by_user_id": {
+          "name": "updated_by_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "market_settings_updated_by_user_id_user_id_fk": {
+          "name": "market_settings_updated_by_user_id_user_id_fk",
+          "tableFrom": "market_settings",
+          "tableTo": "user",
+          "columnsFrom": ["updated_by_user_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "market_settings_single_row": {
+          "name": "market_settings_single_row",
+          "value": "\"market_settings\".\"id\" = 1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.market_snapshot": {
+      "name": "market_snapshot",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "price": {
+          "name": "price",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stock": {
+          "name": "stock",
+          "type": "numeric(20, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "at": {
+          "name": "at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "market_snapshot_item_idx": {
+          "name": "market_snapshot_item_idx",
+          "columns": [
+            {
+              "expression": "item_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "market_snapshot_at_idx": {
+          "name": "market_snapshot_at_idx",
+          "columns": [
+            {
+              "expression": "at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "market_snapshot_item_id_market_item_id_fk": {
+          "name": "market_snapshot_item_id_market_item_id_fk",
+          "tableFrom": "market_snapshot",
+          "tableTo": "market_item",
+          "columnsFrom": ["item_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.market_tier_settings": {
+      "name": "market_tier_settings",
+      "schema": "",
+      "columns": {
+        "tier": {
+          "name": "tier",
+          "type": "smallint",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "q1": {
+          "name": "q1",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "q2": {
+          "name": "q2",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mid_percent": {
+          "name": "mid_percent",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tail_percent": {
+          "name": "tail_percent",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "market_tier_settings_tier": {
+          "name": "market_tier_settings_tier",
+          "value": "\"market_tier_settings\".\"tier\" between 1 and 3"
+        },
+        "market_tier_settings_thresholds": {
+          "name": "market_tier_settings_thresholds",
+          "value": "\"market_tier_settings\".\"q1\" > 0 and \"market_tier_settings\".\"q1\" < \"market_tier_settings\".\"q2\""
         }
       },
       "isRLSEnabled": false

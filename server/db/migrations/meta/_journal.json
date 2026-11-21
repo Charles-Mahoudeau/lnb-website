@@ -411,15 +411,29 @@
     {
       "idx": 58,
       "version": "7",
-      "when": 1795215021572,
-      "tag": "0058_changelog",
+      "when": 1795186533999,
+      "tag": "0058_economy-cents",
       "breakpoints": true
     },
     {
       "idx": 59,
       "version": "7",
-      "when": 1795218946617,
-      "tag": "0059_changelog-seen-uuid",
+      "when": 1795189174623,
+      "tag": "0059_market-engine",
+      "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1795200091587,
+      "tag": "0060_market-retune",
+      "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1795300804079,
+      "tag": "0061_changelog",
       "breakpoints": true
     }
   ]

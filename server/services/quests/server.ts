@@ -17,7 +17,7 @@ import { ownerOf, player } from '~~/server/services/economy/server';
 import { questCategoryService } from './categories';
 import { communityService } from './community';
 import { questDailyService } from './daily';
-import { kPlayer } from './formula';
+import { centsToLnbits, kPlayer } from './formula';
 import {
   questResetAt,
   getSettings,
@@ -412,7 +412,7 @@ async function playerView(uuid: string): Promise<QuestServerPlayerResult> {
         .filter((row) => row.family === 'server' && serverIds.includes(row.questId))
         .map((row) => [row.questId, row.rank!]),
     ),
-    kPlayer: kPlayer(personal?.personal.balance ?? 0, today.index, settings.formula),
+    kPlayer: kPlayer(centsToLnbits(personal?.personal.balance ?? 0), today.index, settings.formula),
     community,
     daily,
   };

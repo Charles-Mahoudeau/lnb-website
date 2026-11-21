@@ -1,5 +1,5 @@
 {
-  "id": "225893a2-c082-407e-92bc-f4a28b7ef7ed",
+  "id": "f7b62668-65c8-4949-9993-0c4c1db689f9",
   "prevId": "a8957ca6-e1ec-4a82-9e44-8c9b52270393",
   "version": "7",
   "dialect": "postgresql",
@@ -2405,220 +2405,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.changelog_post": {
-      "name": "changelog_post",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "slug": {
-          "name": "slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "source_lang": {
-          "name": "source_lang",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "title_en": {
-          "name": "title_en",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "title_fr": {
-          "name": "title_fr",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "summary_en": {
-          "name": "summary_en",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "summary_fr": {
-          "name": "summary_fr",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "body_en": {
-          "name": "body_en",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "body_fr": {
-          "name": "body_fr",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "translation_unreviewed": {
-          "name": "translation_unreviewed",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "version_tag": {
-          "name": "version_tag",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "cover_key": {
-          "name": "cover_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'draft'"
-        },
-        "published_at": {
-          "name": "published_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "changelog_post_status_published_idx": {
-          "name": "changelog_post_status_published_idx",
-          "columns": [
-            {
-              "expression": "status",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "published_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "changelog_post_created_by_user_id_fk": {
-          "name": "changelog_post_created_by_user_id_fk",
-          "tableFrom": "changelog_post",
-          "tableTo": "user",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "changelog_post_slug_unique": {
-          "name": "changelog_post_slug_unique",
-          "nullsNotDistinct": false,
-          "columns": ["slug"]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.changelog_seen": {
-      "name": "changelog_seen",
-      "schema": "",
-      "columns": {
-        "post_id": {
-          "name": "post_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "minecraft_uuid": {
-          "name": "minecraft_uuid",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "seen_at": {
-          "name": "seen_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "changelog_seen_post_id_changelog_post_id_fk": {
-          "name": "changelog_seen_post_id_changelog_post_id_fk",
-          "tableFrom": "changelog_seen",
-          "tableTo": "changelog_post",
-          "columnsFrom": ["post_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "changelog_seen_minecraft_uuid_minecraft_account_uuid_fk": {
-          "name": "changelog_seen_minecraft_uuid_minecraft_account_uuid_fk",
-          "tableFrom": "changelog_seen",
-          "tableTo": "minecraft_account",
-          "columnsFrom": ["minecraft_uuid"],
-          "columnsTo": ["uuid"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "changelog_seen_post_id_minecraft_uuid_pk": {
-          "name": "changelog_seen_post_id_minecraft_uuid_pk",
-          "columns": ["post_id", "minecraft_uuid"]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.download_file": {
       "name": "download_file",
       "schema": "",
@@ -3796,7 +3582,7 @@
         },
         "starting_balance": {
           "name": "starting_balance",
-          "type": "integer",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": true,
           "default": 0
@@ -3841,7 +3627,7 @@
           "type": "bigint",
           "primaryKey": false,
           "notNull": true,
-          "default": 100000
+          "default": 10000000
         },
         "updated_at": {
           "name": "updated_at",

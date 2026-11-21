@@ -11,10 +11,18 @@ import {
   mergeLegs,
   topShare,
 } from '../../server/services/economy/rules.ts';
-import { economyHandle, economyTransferBody } from '../../shared/schemas/economy.ts';
+import {
+  ECONOMY_LISTING_MAX_PRICE,
+  economyHandle,
+  economyTransferBody,
+} from '../../shared/schemas/economy.ts';
 
 describe('economy rules', () => {
-  it('takes the auction tax as a whole percentage, rounded down', () => {
+  it('takes the auction tax as a whole percentage, rounded down to the cent', () => {
+    // 12.34 LNBits (1234 cents) at 5 % is 61.7 cents: 61, never 62.
+    expect(auctionTax(1234, 5)).toBe(61);
+    expect(auctionTax(1, 50)).toBe(0);
+    expect(auctionTax(ECONOMY_LISTING_MAX_PRICE, 50)).toBe(ECONOMY_LISTING_MAX_PRICE / 2);
     expect(auctionTax(50, 10)).toBe(5);
     expect(auctionTax(19, 5)).toBe(0);
     expect(auctionTax(1_000_000_000, 50)).toBe(500_000_000);
@@ -54,7 +62,8 @@ describe('economy rules', () => {
     expect(gini([0, 0, 0, 100])).toBeCloseTo(0.75);
     expect(topShare([90, 5, 5])).toBe(0.9);
     expect(topShare([])).toBe(0);
-    expect(histogram([0, 50, 150, 200_000]).map((bucket) => bucket.count)).toEqual([
+    // Balances are cents: 0, 50 LNBits, 150 LNBits and 200,000 LNBits.
+    expect(histogram([0, 5000, 15_000, 20_000_000]).map((bucket) => bucket.count)).toEqual([
       1, 1, 1, 0, 0, 0, 0, 1,
     ]);
   });

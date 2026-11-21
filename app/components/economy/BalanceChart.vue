@@ -55,10 +55,7 @@ const bars = computed(() =>
     };
   }),
 );
-const compact = (value: number) =>
-  new Intl.NumberFormat(locale.value, { notation: 'compact', maximumFractionDigits: 1 }).format(
-    value,
-  );
+const compact = (value: number) => formatCompactLnbits(value, locale.value);
 const ticks = computed(() =>
   [0, 0.5, 1].map((share) => {
     const value = range.value.low + (range.value.high - range.value.low) * share;
