@@ -105,6 +105,8 @@ The latest published post under 14 days old that the player has not seen, in the
 
 Answers 204 with no body, again and again for the same player and post.
 
+The guide for the mod developer, with the flow, examples and error handling, is [changelog-mod.md](changelog-mod.md).
+
 ## Open for the mod discussion
 
 - How the game shows a post (chat line and book, a toast and a screen, or something else), and whether the site sends a pre-rendered block list.
