@@ -34,6 +34,7 @@ describe('rulesFor', () => {
     expect(names('POST', '/api/link/approve')).toEqual(['api', 'write-sensitive']);
     expect(names('POST', '/api/warden/me/token')).toEqual(['api', 'write-sensitive']);
     expect(names('POST', '/api/admin/events/images')).toEqual(['api', 'write-heavy']);
+    expect(names('POST', '/api/admin/changelog/images')).toEqual(['api', 'write-heavy']);
     expect(names('POST', '/api/admin/users/bulk')).toEqual(['api', 'write-heavy']);
   });
 

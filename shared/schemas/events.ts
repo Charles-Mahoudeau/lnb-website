@@ -150,7 +150,10 @@ const eventImages = z
 
 /** A stored image: the SHA-256 of its bytes, then its format. */
 export const imageKey = z.string().regex(/^[0-9a-f]{64}\.(?:webp|jpg)$/);
-export const mediaParams = z.object({ key: imageKey });
+// Changelog images (docs/changelog.md) are served from the same route, under a prefix.
+export const mediaParams = z.object({
+  key: z.string().regex(/^(?:changelog-)?[0-9a-f]{64}\.(?:webp|jpg)$/),
+});
 
 /** An image picked for an event, and the point its crops are centered on (0 to 1). */
 export const eventImageInput = z.object({

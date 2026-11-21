@@ -18,6 +18,7 @@ import { db } from '~~/server/db';
 import type { Db } from '~~/server/db';
 import { session, user, wardenBan } from '~~/server/db/schema';
 import { auditService } from '~~/server/services/audit';
+import { changelogService } from '~~/server/services/changelog';
 import { economyAccountService } from '~~/server/services/economy/accounts';
 import { eventRegistrationService } from '~~/server/services/events/registrations';
 import {
@@ -180,6 +181,7 @@ async function remove(input: { actorId: string; userId: string }) {
       targetUserId: input.userId,
     });
     await auditService.forgetPeople(tx, [input.userId]);
+    await changelogService.forgetUsers(tx, [input.userId]);
     await tx.delete(user).where(eq(user.id, input.userId));
     // Their registrations went with the account: the waitlists move up.
     await eventRegistrationService.promoteAll(tx);
@@ -321,6 +323,7 @@ async function deleteInactive(now = new Date()): Promise<number> {
       );
     const ids = inactive.map((row) => row.id);
     await auditService.forgetPeople(tx, ids);
+    await changelogService.forgetUsers(tx, ids);
     const deleted = ids.length
       ? await tx.delete(user).where(inArray(user.id, ids)).returning({ id: user.id })
       : [];

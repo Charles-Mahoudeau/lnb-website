@@ -14,6 +14,8 @@ The admin (`/admin`) was rebuilt around a few rooms (see `docs/plans/admin-redes
 
 The Minecraft download page (`/minecraft/download`, see `docs/downloads.md`) lists the downloads for new players: Prism as a link to its own site, with package manager commands on Linux and macOS, and PrismCracked and the instance zip from the Files library (a new `download` file kind), picked in `/admin/modpack/downloads`. Java is not a step (the launchers install it), only a collapsed Troubleshooting entry with the Temurin JRE link. It isn't verified in a real browser yet.
 
+The Minecraft changelog (see `docs/changelog.md`) is posts about server changes, in English or French with an optional DeepL translation; the admin is built (`/admin/minecraft/changelog`, for Warden admins; no cover picker yet), the public pages (`/minecraft/changelog`, `/minecraft/changelog/:slug`), the Atom feed (`/minecraft/changelog.atom`) and the site's routes (`/api/changelog/posts*`) are built behind the `changelog` flag; and so is the API for the mod (`/api/changelog/server/*`, with seen state per Minecraft UUID). Everything is built; how the game displays a post waits for the mod developer. The editor hasn't been checked in a browser, and DeepL hasn't been tried with a real key.
+
 The target file structure and the server and client rules are in `docs/architecture.md`. Follow that layout when adding code.
 
 ## Commands

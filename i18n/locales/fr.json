@@ -35,6 +35,8 @@
     "download": "Télécharger",
     "downloadDescription": "Java, un launcher et l’instance LNB",
     "rules": "Règlement",
+    "changelog": "Changelog",
+    "changelogDescription": "Ce qui change sur le serveur Minecraft",
     "rulesDescription": "Ce qui est autorisé ou non sur le serveur"
   },
   "home": {
@@ -707,6 +709,7 @@
       "playtime": "Temps de jeu",
       "anticheat": "Anticheat",
       "modpack": "Modpack",
+      "changelog": "Changelog",
       "economy": "Économie",
       "quests": "Quêtes",
       "settings": "Réglages",
@@ -1482,6 +1485,14 @@
         "jobs_playtimePrune": {
           "label": "Nettoyage du temps de jeu",
           "description": "La suppression nocturne des lignes du registre de temps de jeu de plus de 26 semaines et des avertissements des sessions terminées."
+        },
+        "changelog": {
+          "label": "Changelog Minecraft",
+          "description": "Les pages publiques du changelog, le flux et l’API."
+        },
+        "jobs_changelogPublish": {
+          "label": "Billets du changelog programmés",
+          "description": "La tâche qui publie les billets du changelog quand leur date arrive."
         },
         "jobs_pruneAudit": {
           "label": "Nettoyage du journal d’activité",
@@ -2328,6 +2339,87 @@
         "shortLinkNotFound": "Ce lien n’existe plus. Rechargez la page.",
         "shortIdTaken": "Ce lien court est déjà utilisé. Choisissez-en un autre.",
         "failed": "La modification n’a pas été enregistrée. Vérifiez votre connexion et réessayez."
+      }
+    },
+    "changelog": {
+      "note": "Des billets sur ce qui change sur le serveur Minecraft. Écrivez-en un en français ou en anglais, traduisez-le avec DeepL si vous voulez, puis publiez-le ou programmez-le.",
+      "add": "Nouveau billet",
+      "untitled": "Billet sans titre",
+      "empty": {
+        "title": "Aucun billet pour l’instant",
+        "body": "Écrivez le premier : ce qui a changé sur le serveur, avec vos mots."
+      },
+      "goesOut": "Sort le",
+      "languages": {
+        "en": "Anglais",
+        "fr": "Français"
+      },
+      "source": "Source",
+      "notReviewed": "Non relue",
+      "translated": "Traduit",
+      "notTranslated": "Non traduit",
+      "status": {
+        "draft": "Brouillon",
+        "scheduled": "Programmé",
+        "published": "Publié"
+      },
+      "statusLabel": "Statut",
+      "publishOn": "Publier le",
+      "publishOnHelp": "Heure de Paris. Choisissez une date, puis Programmer. Laissez vide pour publier maintenant.",
+      "versionTag": "Étiquette de version",
+      "summary": "Résumé",
+      "summaryHelp": "La carte sur le site, et plus tard l’avis en jeu. Cette langue seulement.",
+      "writtenIn": "Écrit en",
+      "mode": "Mode",
+      "modes": {
+        "write": {
+          "label": "Écrire",
+          "description": "Le Markdown, tel que vous le saisissez"
+        },
+        "site": {
+          "label": "Sur le site",
+          "description": "Ce que la page affichera"
+        }
+      },
+      "titleField": "Titre",
+      "body": "Texte",
+      "bodyHelp": "Markdown : titres, listes, tableaux, code, citations et liens. Pas de HTML.",
+      "addImage": "Ajouter une image",
+      "addImageHelp": "Ou déposez-en une, ou collez-en une, dans le texte. PNG, JPEG, WebP ou GIF, 5 Mo au plus.",
+      "save": "Enregistrer",
+      "schedule": "Programmer",
+      "publish": "Publier",
+      "unpublish": "Dépublier",
+      "unschedule": "Repasser en brouillon",
+      "translateTo": "Traduire en {language}",
+      "translate": "Traduire",
+      "translationUnavailable": "La traduction n’est pas configurée sur ce site (pas de clé DeepL). Vous pouvez écrire les deux langues à la main.",
+      "translateReplaceTitle": "Remplacer le texte en {language} ?",
+      "translateReplaceLede": "Le texte en {language} déjà là, vos modifications comprises, sera remplacé par une nouvelle traduction automatique.",
+      "unreviewedTitle": "Traduction automatique, pas encore relue",
+      "unreviewedLede": "DeepL a écrit ce texte. Relisez-le, corrigez ce qu’il faut, puis enregistrez pour le marquer comme relu.",
+      "markReviewed": "Marquer comme relue",
+      "notTranslatedLede": "Il n’y a pas encore de texte dans cette langue. Tout le monde voit le texte en {language}, avec la mention « Non traduit », jusqu’à ce que vous le traduisiez ou l’écriviez.",
+      "unpublishTitle": "Dépublier ce billet ?",
+      "unpublishLede": "Il quitte le site et l’API et repasse en brouillon. Vous pourrez le publier à nouveau plus tard.",
+      "unscheduleTitle": "Annuler la programmation ?",
+      "unscheduleLede": "Le billet repasse en brouillon et ne sortira pas à sa date.",
+      "saved": "Billet enregistré",
+      "reviewed": "Traduction marquée comme relue",
+      "published": "Billet publié",
+      "scheduled": "Billet programmé",
+      "unpublished": "Billet repassé en brouillon",
+      "translationDone": "Traduction enregistrée en brouillon",
+      "errors": {
+        "failed": "Un problème est survenu. Réessayez.",
+        "notFound": "Ce billet n’existe pas.",
+        "invalid": "Le billet a besoin d’un titre et d’un texte, et la date de programmation doit être dans le futur.",
+        "alreadyPublished": "Ce billet est déjà publié.",
+        "translationUnavailable": "La traduction n’est pas configurée sur ce site.",
+        "translationQuota": "Le quota DeepL du mois est épuisé. Écrivez la traduction à la main, ou réessayez plus tard.",
+        "translationFailed": "DeepL n’a pas répondu. Réessayez dans un instant.",
+        "imageTooLarge": "Cette image dépasse 5 Mo. Choisissez-en une plus légère.",
+        "imageUnreadable": "Ce fichier n’est pas une image PNG, JPEG, WebP ou GIF que le site peut lire."
       }
     },
     "apiKeys": {
@@ -4352,7 +4444,8 @@
         "banPlayer": "Bannir un joueur",
         "newEvent": "Nouvel événement",
         "adjustBalance": "Ajuster un solde",
-        "newShortLink": "Nouveau lien court"
+        "newShortLink": "Nouveau lien court",
+        "newChangelog": "Nouveau billet du changelog"
       }
     },
     "activity": {
@@ -4463,6 +4556,12 @@
         "minecraftPlaytimePrune": "{actor} a nettoyé d’anciennes données de temps de jeu",
         "minecraftDownloadsUpdate": "{actor} a modifié un téléchargement",
         "minecraftEventsPrune": "{actor} a nettoyé d’anciens évènements Minecraft",
+        "minecraftChangelogCreate": "{actor} a créé le billet du changelog {name}",
+        "minecraftChangelogUpdate": "{actor} a modifié le billet du changelog {name}",
+        "minecraftChangelogTranslate": "{actor} a traduit le billet du changelog {name}",
+        "minecraftChangelogSchedule": "{actor} a programmé le billet du changelog {name}",
+        "minecraftChangelogPublish": "{actor} a publié le billet du changelog {name}",
+        "minecraftChangelogUnpublish": "{actor} a dépublié le billet du changelog {name}",
         "minecraftRuleCreate": "{actor} a ajouté une règle du serveur",
         "minecraftRuleUpdate": "{actor} a modifié une règle du serveur",
         "minecraftRuleRetire": "{actor} a retiré une règle du serveur",
@@ -5874,6 +5973,29 @@
     },
     "releases": "Versions et code source sur GitHub",
     "rulesLink": "Lisez le règlement du serveur avant de rejoindre"
+  },
+  "changelog": {
+    "title": "Changelog",
+    "lede": "Ce qui change sur le serveur Minecraft, post après post.",
+    "read": "Lire le changelog",
+    "loadMore": "Voir plus",
+    "loadError": "Les posts n’ont pas pu être chargés. Réessayez dans un instant.",
+    "empty": {
+      "title": "Aucun post pour l’instant",
+      "body": "Les nouveautés du serveur apparaîtront ici."
+    },
+    "navigation": "Autres posts",
+    "older": "Plus ancien",
+    "newer": "Plus récent",
+    "language": "Langue",
+    "languages": {
+      "en": "English",
+      "fr": "Français"
+    },
+    "notTranslated": "Non traduit. Ce post n’existe qu’en {language}.",
+    "recent": "Posts récents",
+    "inGame": "En jeu",
+    "inGameHint": "Tapez {command} pour le lire sur le serveur."
   },
   "rules": {
     "title": "Règlement du serveur",

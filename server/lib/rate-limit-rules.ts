@@ -83,6 +83,7 @@ const SENSITIVE = [
 // Uploads, imports and fan-out (push, bulk actions): expensive for the server.
 const HEAVY = [
   /^\/api\/admin\/events\/images(\/import)?$/,
+  /^\/api\/admin\/changelog\/images$/,
   /^\/api\/admin\/partners\/logo$/,
   /^\/api\/admin\/files$/,
   /^\/api\/minecraft\/admin\/modpack\/mods$/,
