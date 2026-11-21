@@ -226,6 +226,73 @@ onBeforeUnmount(() => {
   clearTimeout(timer);
 });
 
+// Images: uploaded to the media library, then inserted as Markdown where the cursor is. The alt
+// text starts as the file name and is selected, so typing replaces it.
+const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const bodyBox = useTemplateRef<HTMLElement>('bodyBox');
+const imageInput = useTemplateRef<HTMLInputElement>('imageInput');
+const uploading = ref(false);
+const dragging = ref(false);
+
+async function addImage(file: File) {
+  const target = lang.value;
+  const area = bodyBox.value?.querySelector('textarea');
+  const problem = !IMAGE_TYPES.includes(file.type)
+    ? 'imageUnreadable'
+    : file.size > MAX_IMAGE_BYTES
+      ? 'imageTooLarge'
+      : null;
+  if (problem) {
+    fail(new ChangelogError(problem));
+    return;
+  }
+  const from = area?.selectionStart ?? texts[target].body.length;
+  const to = area?.selectionEnd ?? from;
+  uploading.value = true;
+  try {
+    const { url } = await changelogActions.uploadImage(file);
+    const alt = file.name
+      .replace(/\.[^.]+$/, '')
+      .replace(/[-_]+/g, ' ')
+      .replace(/[[\]\\]/g, '');
+    const body = texts[target].body;
+    texts[target].body = `${body.slice(0, from)}![${alt}](${url})${body.slice(to)}`;
+    await nextTick();
+    area?.focus();
+    area?.setSelectionRange(from + 2, from + 2 + alt.length);
+  } catch (caught) {
+    fail(caught);
+  } finally {
+    uploading.value = false;
+  }
+}
+
+const firstImage = (files: FileList | null | undefined) =>
+  Array.from(files ?? []).find((file) => file.type.startsWith('image/'));
+
+function onPick(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = '';
+  if (file) void addImage(file);
+}
+
+function onDrop(event: DragEvent) {
+  dragging.value = false;
+  const file = firstImage(event.dataTransfer?.files);
+  if (!file) return;
+  event.preventDefault();
+  void addImage(file);
+}
+
+function onPaste(event: ClipboardEvent) {
+  const file = firstImage(event.clipboardData?.files);
+  if (!file) return;
+  event.preventDefault();
+  void addImage(file);
+}
+
 const langItems = computed<TabsItem[]>(() =>
   LANGS.map((value) => {
     const isSource = value === sourceLang.value;
@@ -460,13 +527,45 @@ const dateShown = computed(() => {
             :help="t('admin.changelog.bodyHelp')"
             required
           >
-            <UTextarea
-              v-model="texts[lang].body"
-              :rows="16"
-              autoresize
-              class="w-full"
-              :ui="{ base: 'font-mono text-sm' }"
-            />
+            <div
+              ref="bodyBox"
+              class="flex flex-col gap-2"
+              @dragover="dragging = true"
+              @dragleave="dragging = false"
+              @drop="onDrop"
+              @paste.capture="onPaste"
+            >
+              <div class="flex flex-wrap items-center gap-2">
+                <input
+                  ref="imageInput"
+                  type="file"
+                  class="hidden"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  @change="onPick"
+                />
+                <UButton
+                  color="neutral"
+                  variant="soft"
+                  size="md"
+                  icon="i-lucide-image-plus"
+                  :label="t('admin.changelog.addImage')"
+                  :loading="uploading"
+                  :disabled="uploading"
+                  @click="imageInput?.click()"
+                />
+                <span class="text-sm text-muted">{{ t('admin.changelog.addImageHelp') }}</span>
+              </div>
+              <UTextarea
+                v-model="texts[lang].body"
+                :rows="16"
+                autoresize
+                class="w-full"
+                :ui="{
+                  base: ['font-mono text-sm', dragging && 'ring-2 ring-secondary ring-inset'],
+                }"
+                :aria-busy="uploading"
+              />
+            </div>
           </UFormField>
         </template>
         <article v-else class="flex max-w-prose flex-col gap-4" :aria-busy="previewing">

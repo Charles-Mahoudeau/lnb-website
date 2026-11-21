@@ -1,6 +1,6 @@
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime';
 import type { VueWrapper } from '@vue/test-utils';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import Editor from '~/components/admin/changelog/Editor.vue';
 
@@ -86,5 +86,42 @@ describe('changelog editor', () => {
     const labels = live.findAll('button').map((button) => button.text());
     expect(labels).toEqual(expect.arrayContaining(['Unpublish', 'Save']));
     expect(labels).not.toContain('Publish');
+  });
+});
+
+describe('changelog editor images', () => {
+  it('inserts the image as Markdown at the cursor and selects the alt text', async () => {
+    registerEndpoint('/api/admin/changelog/images', {
+      method: 'POST',
+      handler: () => ({
+        key: 'changelog-a.webp',
+        url: '/api/media/changelog-a.webp',
+        width: 4,
+        height: 4,
+      }),
+    });
+    const view = await mountSuspended(Editor, { props: { post }, attachTo: document.body });
+    const area = view.find('textarea').element;
+    area.setSelectionRange(3, 3);
+    const input = view.find('input[type="file"]');
+    const file = new File(['x'], 'new-map.png', { type: 'image/png' });
+    Object.defineProperty(input.element, 'files', { value: [file] });
+    await input.trigger('change');
+    await vi.waitFor(() => {
+      expect(area.value).toContain('![new map](/api/media/changelog-a.webp)');
+    });
+    expect(area.value).toBe('## ![new map](/api/media/changelog-a.webp)News');
+    expect(area.value.slice(area.selectionStart, area.selectionEnd)).toBe('new map');
+    view.unmount();
+  });
+
+  it('refuses a file that is not an image, without calling the server', async () => {
+    const view = await mountSuspended(Editor, { props: { post } });
+    const input = view.find('input[type="file"]');
+    Object.defineProperty(input.element, 'files', {
+      value: [new File(['x'], 'notes.txt', { type: 'text/plain' })],
+    });
+    await input.trigger('change');
+    expect(view.find('textarea').element.value).toBe('## News');
   });
 });

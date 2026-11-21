@@ -2384,6 +2384,8 @@
       "titleField": "Titre",
       "body": "Texte",
       "bodyHelp": "Markdown : titres, listes, tableaux, code, citations et liens. Pas de HTML.",
+      "addImage": "Ajouter une image",
+      "addImageHelp": "Ou déposez-en une, ou collez-en une, dans le texte. PNG, JPEG, WebP ou GIF, 5 Mo au plus.",
       "save": "Enregistrer",
       "schedule": "Programmer",
       "publish": "Publier",
@@ -2415,7 +2417,9 @@
         "alreadyPublished": "Ce billet est déjà publié.",
         "translationUnavailable": "La traduction n’est pas configurée sur ce site.",
         "translationQuota": "Le quota DeepL du mois est épuisé. Écrivez la traduction à la main, ou réessayez plus tard.",
-        "translationFailed": "DeepL n’a pas répondu. Réessayez dans un instant."
+        "translationFailed": "DeepL n’a pas répondu. Réessayez dans un instant.",
+        "imageTooLarge": "Cette image dépasse 5 Mo. Choisissez-en une plus légère.",
+        "imageUnreadable": "Ce fichier n’est pas une image PNG, JPEG, WebP ou GIF que le site peut lire."
       }
     },
     "apiKeys": {

@@ -5,6 +5,7 @@ import type {
   ChangelogList,
   ChangelogPatchBody,
   ChangelogProblem,
+  ChangelogStoredImage,
 } from '#shared/schemas/changelog';
 
 // The Changelog section of the admin area. Writes throw a ChangelogError with the API's problem.
@@ -58,4 +59,9 @@ export const changelogActions = {
   schedule: (id: string, at: string) => post<ChangelogDetail>(`/${id}/schedule`, { at }),
   unpublish: (id: string) => post<ChangelogDetail>(`/${id}/unpublish`),
   preview: (markdown: string) => post<{ html: string }>('/preview', { markdown }),
+  uploadImage: (file: File) => {
+    const body = new FormData();
+    body.append('file', file);
+    return post<ChangelogStoredImage>('/images', body);
+  },
 };

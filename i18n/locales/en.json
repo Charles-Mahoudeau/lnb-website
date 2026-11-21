@@ -2380,6 +2380,8 @@
       "titleField": "Title",
       "body": "Body",
       "bodyHelp": "Markdown: headings, lists, tables, code, quotes and links. No HTML.",
+      "addImage": "Add an image",
+      "addImageHelp": "Or drop or paste one into the text. PNG, JPEG, WebP or GIF, up to 5 MB.",
       "save": "Save",
       "schedule": "Schedule",
       "publish": "Publish",
@@ -2411,7 +2413,9 @@
         "alreadyPublished": "This post is already published.",
         "translationUnavailable": "Translation isn’t set up on this site.",
         "translationQuota": "The DeepL quota is used up for this month. Write the translation by hand, or try again later.",
-        "translationFailed": "DeepL didn’t answer. Try again in a moment."
+        "translationFailed": "DeepL didn’t answer. Try again in a moment.",
+        "imageTooLarge": "This image is over 5 MB. Pick a smaller one.",
+        "imageUnreadable": "This file isn’t a PNG, JPEG, WebP or GIF image the site can read."
       }
     },
     "apiKeys": {
