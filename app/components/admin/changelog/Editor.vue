@@ -561,7 +561,7 @@ const dateShown = computed(() => {
                 autoresize
                 class="w-full"
                 :ui="{
-                  base: ['font-mono text-sm', dragging && 'ring-2 ring-secondary ring-inset'],
+                  base: [dragging && 'ring-2 ring-secondary ring-inset'],
                 }"
                 :aria-busy="uploading"
               />
