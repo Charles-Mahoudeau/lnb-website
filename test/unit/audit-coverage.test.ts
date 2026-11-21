@@ -23,6 +23,8 @@ const ROUTES: Record<string, string[] | string> = {
   'admin/changelog/[id]/translate.post': ['minecraft.changelog.translate'],
   'admin/changelog/[id]/unpublish.post': ['minecraft.changelog.unpublish'],
   'admin/changelog/index.post': ['minecraft.changelog.create'],
+  'admin/changelog/images.post':
+    'Not audited: an upload changes nothing a reader sees until a post uses it (docs/changelog.md).',
   'admin/changelog/preview.post': 'Read-only: renders Markdown for the editor.',
   'admin/downloads/[slot].delete': ['minecraft.downloads.update'],
   'admin/downloads/[slot].put': ['minecraft.downloads.update'],

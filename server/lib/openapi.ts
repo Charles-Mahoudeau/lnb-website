@@ -336,6 +336,7 @@ const responseSchemas = {
   ChangelogList: changelog.changelogList,
   ChangelogDetail: changelog.changelogDetail,
   ChangelogPreview: changelog.changelogPreviewView,
+  ChangelogStoredImage: changelog.changelogStoredImage,
   ChangelogPublicList: changelog.changelogPublicList,
   ChangelogPublicDetail: changelog.changelogPublicDetail,
   ChangelogServerList: changelog.changelogServerList,
@@ -3692,6 +3693,18 @@ const routes: RouteDoc[] = [
       'Drafts, scheduled and published posts, newest first, with the language state of each.',
     access: 'wardenAdmin',
     response: changelog.changelogList,
+  },
+  {
+    method: 'post',
+    path: '/api/admin/changelog/images',
+    tag: TAGS.changelogAdmin,
+    summary: 'Upload a changelog image',
+    description:
+      'Multipart form data with a `file` field: PNG, JPEG, WebP or GIF (first frame), up to 5 MB, checked by its bytes. It is re-encoded as WebP, without its metadata, at most 1600 pixels wide, and served from `/api/media/<key>`. Unused images are not removed yet.',
+    access: 'wardenAdmin',
+    response: changelog.changelogStoredImage,
+    created: true,
+    problems: [{ status: 400, problems: ['imageTooLarge', 'imageUnreadable'] }],
   },
   {
     method: 'post',

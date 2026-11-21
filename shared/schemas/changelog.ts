@@ -9,6 +9,8 @@ export const CHANGELOG_PROBLEMS = [
   'translationUnavailable',
   'translationQuota',
   'translationFailed',
+  'imageTooLarge',
+  'imageUnreadable',
 ] as const;
 export type ChangelogProblem = (typeof CHANGELOG_PROBLEMS)[number];
 
@@ -54,6 +56,15 @@ export const changelogScheduleBody = z.object({
 
 export const changelogPreviewBody = z.object({ markdown: z.string().max(50_000) });
 export const changelogPreviewView = z.object({ html: z.string() });
+
+/** An image uploaded for a post: its key in the media library and the address to put in the text. */
+export const changelogStoredImage = z.object({
+  key: z.string(),
+  url: z.string(),
+  width: z.number(),
+  height: z.number(),
+});
+export type ChangelogStoredImage = z.infer<typeof changelogStoredImage>;
 
 const textView = z.object({ title: z.string(), summary: z.string(), body: z.string() });
 export type ChangelogTextView = z.infer<typeof textView>;

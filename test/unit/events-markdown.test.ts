@@ -63,6 +63,17 @@ describe('changelog posts', () => {
     expect(html).not.toContain('href="javascript');
   });
 
+  it('keeps uploaded changelog images, lazy, and nothing pointing elsewhere', () => {
+    const key = `changelog-${'a'.repeat(64)}.webp`;
+    const html = renderChangelog(`![A shot](/api/media/${key})`);
+    expect(html).toContain(`src="/api/media/${key}"`);
+    expect(html).toContain('alt="A shot"');
+    expect(html).toContain('loading="lazy"');
+    for (const src of ['//evil.example/a.png', '/api/media/../x', 'data:image/png;base64,AAAA']) {
+      expect(renderChangelog(`![alt text](${src})`)).not.toContain('<img');
+    }
+  });
+
   it('keeps images from the media library only', () => {
     expect(renderChangelog('![map](/api/media/abc123.webp)')).toContain(
       '<img src="/api/media/abc123.webp" alt="map"',

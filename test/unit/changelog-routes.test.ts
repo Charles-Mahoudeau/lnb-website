@@ -29,6 +29,16 @@ describe('changelog admin routes', () => {
   });
 });
 
+describe('changelog image upload', () => {
+  it('is for Warden admins, not only events managers', () => {
+    const source = readFileSync(join(DIR, 'images.post.ts'), 'utf8');
+    expect(source).toMatch(
+      /defineEventHandler\(async \(event\) => \{\n\s+await requireWardenAdmin\(event\);/,
+    );
+    expect(source).not.toContain('requireEventsManager');
+  });
+});
+
 describe('changelog public routes', () => {
   it('check the flag before anything else', () => {
     const found = files(join(import.meta.dirname, '../../server/api/changelog/posts'));
