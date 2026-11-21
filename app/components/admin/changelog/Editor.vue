@@ -530,7 +530,7 @@ const dateShown = computed(() => {
             <div
               ref="bodyBox"
               class="flex flex-col gap-2"
-              @dragover="dragging = true"
+              @dragover.prevent="dragging = true"
               @dragleave="dragging = false"
               @drop="onDrop"
               @paste.capture="onPaste"

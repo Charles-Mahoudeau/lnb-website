@@ -124,4 +124,32 @@ describe('changelog editor images', () => {
     await input.trigger('change');
     expect(view.find('textarea').element.value).toBe('## News');
   });
+  it('accepts a drop of an image on the body and inserts it', async () => {
+    registerEndpoint('/api/admin/changelog/images', {
+      method: 'POST',
+      handler: () => ({
+        key: 'changelog-b.webp',
+        url: '/api/media/changelog-b.webp',
+        width: 4,
+        height: 4,
+      }),
+    });
+    const view = await mountSuspended(Editor, { props: { post }, attachTo: document.body });
+    const area = view.find('textarea').element;
+    // The test DOM keeps no files in a DataTransfer, so the events carry a plain object.
+    const dataTransfer = { files: [new File(['x'], 'dropped.png', { type: 'image/png' })] };
+    const fire = (type: string) => {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      Object.defineProperty(event, 'dataTransfer', { value: dataTransfer });
+      area.dispatchEvent(event);
+      return event;
+    };
+    // The browser only fires `drop` when `dragover` was cancelled.
+    expect(fire('dragover').defaultPrevented).toBe(true);
+    fire('drop');
+    await vi.waitFor(() => {
+      expect(area.value).toContain('![dropped](/api/media/changelog-b.webp)');
+    });
+    view.unmount();
+  });
 });
