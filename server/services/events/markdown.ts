@@ -56,6 +56,11 @@ export function renderChangelog(markdown: string): string {
   return changelogMd.render(markdown);
 }
 
+/** The tokens of a changelog post's Markdown, for the block list the mod reads. */
+export function changelogTokens(markdown: string) {
+  return changelogMd.parse(markdown, {});
+}
+
 /**
  * The description as plain text, for the BDE website and social embeds: the words, with a line
  * break between paragraphs and list items, and links reduced to their text.

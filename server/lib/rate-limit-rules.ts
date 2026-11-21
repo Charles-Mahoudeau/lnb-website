@@ -15,6 +15,13 @@ export interface RateRule {
 // Epitech campuses share one public IP, and an event can put a hundred people on it. The IP
 // ceilings are only there to stop floods; the tighter limits below are per account.
 const API_PER_IP: RateRule = { name: 'api', points: 3000, windowSeconds: 60, by: 'ip' };
+// The game's title screen reads the changelog without sign-in, from every player's own IP.
+const CHANGELOG_PUBLIC_PER_IP: RateRule = {
+  name: 'changelog-public',
+  points: 120,
+  windowSeconds: 60,
+  by: 'ip',
+};
 const GO_PER_IP: RateRule = { name: 'go', points: 240, windowSeconds: 60, by: 'ip' };
 // One caller, the Minecraft server: heartbeats, logins and events from a single IP.
 const WARDEN_SERVER_PER_IP: RateRule = {
@@ -114,6 +121,7 @@ export function rulesFor(method: string, path: string): RateRule[] {
   if (!path.startsWith('/api/')) return [];
   // Better Auth has its own limits (docs/authentication.md), and the health check must answer.
   if (path.startsWith('/api/auth/') || path === '/api/health') return [];
+  if (path.startsWith('/api/changelog/public/')) return [API_PER_IP, CHANGELOG_PUBLIC_PER_IP];
   if (path.startsWith('/api/warden/server/')) return [WARDEN_SERVER_PER_IP];
   if (path.startsWith('/api/economy/server/')) return [ECONOMY_SERVER_PER_IP];
   if (path.startsWith('/api/warden/client/')) {

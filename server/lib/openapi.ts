@@ -4589,6 +4589,37 @@ const routes: RouteDoc[] = [
   },
   {
     method: 'get',
+    path: '/api/changelog/public/posts',
+    tag: TAGS.changelogServer,
+    summary: 'The published changelog posts, for the game title screen',
+    description:
+      'As `/api/changelog/server/posts`, with no sign-in and no seen tracking (so no "new" dot). Limited per IP, `Cache-Control: max-age=60`. 503 `disabled` while the `changelog` flag is off.',
+    access: 'public',
+    query: changelog.changelogPublicListQuery,
+    response: changelog.changelogServerList,
+    problems: [
+      { status: 400, problems: ['invalid'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/api/changelog/public/posts/{id}',
+    tag: TAGS.changelogServer,
+    summary: 'A published changelog post, for the game title screen',
+    description:
+      'As `/api/changelog/server/posts/{id}`, with `body` and `blocks`, no sign-in, limited per IP, `Cache-Control: max-age=60`. 404 for an unknown or unpublished post.',
+    access: 'public',
+    params: changelog.changelogIdParams,
+    query: changelog.changelogPublicPostQuery,
+    response: changelog.changelogServerDetail,
+    problems: [
+      { status: 404, problems: ['notFound'] },
+      { status: 503, problems: ['disabled'] },
+    ],
+  },
+  {
+    method: 'get',
     path: '/api/changelog/server/posts',
     tag: TAGS.changelogServer,
     summary: 'The published changelog posts, for the game',
@@ -4608,7 +4639,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.changelogServer,
     summary: 'A published changelog post, for the game',
     description:
-      'One published post in `lang`, with `body`, its Markdown source in the language returned. 404 for an unknown or unpublished post.',
+      'One published post in `lang`, with `body`, its Markdown source in the language returned, and `blocks`, the same text already split into blocks (headings, paragraphs, lists, quotes, code, tables; inline text with bold, italic, code and link). 404 for an unknown or unpublished post.',
     access: 'wardenServer',
     params: changelog.changelogIdParams,
     query: changelog.changelogPublicPostQuery,

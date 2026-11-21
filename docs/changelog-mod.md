@@ -125,7 +125,7 @@ Titles, summaries and bodies are all in that one language. The mod does not need
 
 ## Reading the body
 
-The body is **Markdown** written by admins, kept as source: the site sends no pre-rendered text. What can appear:
+The body is **Markdown** written by admins. The site sends it as source in `body` and also split into `blocks` (see `docs/changelog.md`, "Blocks"), so you can skip the parser: walk `blocks` and render each one. The table below is what each kind of Markdown becomes:
 
 | Markdown                             | Suggested rendering in game                                    |
 | ------------------------------------ | -------------------------------------------------------------- |
@@ -145,7 +145,7 @@ Notes:
 - Image addresses are relative (`/api/media/<key>`). The game can't show images, so show the alt text (or nothing) and, if useful, a link to `url` ("See the pictures on the website").
 - A link can be relative (`/minecraft/rules`). Resolve it against the site's address, or just point players to `url`.
 - Keep the in-game text short: the summary is meant for the notice (a chat line or a toast), and the `url` is the answer for anything long. A reasonable design is: notice = title + summary, a click or a command opens the body, and a link points to `url` for the full post.
-- A Markdown parser (CommonMark with the table extension) does the job. Don't write your own.
+- Prefer `blocks` to parsing `body` yourself.
 
 ## Errors
 
@@ -167,11 +167,10 @@ Notes:
 - **Privacy.** The site stores a Minecraft UUID and the time a post was seen, nothing else. The rows are deleted when the player's site account is deleted.
 - **Testing.** There is no "unsee" call. To see the notice again, use a fresh player UUID. A post needs to be published (by an admin, in the admin at `/admin/minecraft/changelog`) and less than 14 days old to be offered.
 
-## Open questions for the mod developer
+## Title screen
 
-These are not decided yet. Tell the site team what you need:
+`GET /api/changelog/public/posts` and `/api/changelog/public/posts/:id` answer like the server's routes but need no secret, so the title screen (no server, no player) can call them. They don't track who has seen what, so no "new" dot. Answers are cached for 60 seconds and limited per IP.
 
-1. **How to show the notice and the post** (a chat line with a click, a toast, a book, a screen, or something else). The site can add a pre-rendered block list to the answers (headings, paragraphs, list items, links with their styles) if parsing Markdown in the mod is a burden.
-2. **Where the `unseen` call is made**: by the Minecraft server on join, or by the mod. Either works with the same routes.
-3. **Players whose language isn't known to the server.** Today the call defaults to French. If the mod can read the client's language, pass it as `lang`.
-4. Whether a **"mark all as seen"** call or a **"see the posts I missed"** list per player is wanted. Neither exists today.
+## Decided
+
+The server calls `unseen` on join and passes `lang`; the site sends `blocks`; "mark all as seen" and a per-player missed list aren't needed for the first version. Still open: how the game shows a post. Tell the site team what you need.

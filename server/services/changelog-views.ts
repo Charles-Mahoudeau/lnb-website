@@ -1,11 +1,13 @@
 import type { changelogPost } from '~~/server/db/schema';
 import { siteUrl } from '~~/server/lib/site';
 import type { ChangelogView } from '~~/server/services/changelog';
+import { changelogBlocks } from '~~/server/services/changelog-blocks';
 
 import type {
   ChangelogDetail,
   ChangelogList,
   ChangelogPublicPost,
+  ChangelogServerDetail,
   ChangelogServerPost,
 } from '#shared/schemas/changelog';
 
@@ -76,4 +78,9 @@ export function serverPost(view: ChangelogView): ChangelogServerPost {
     lang: view.lang,
     url: siteUrl(`/minecraft/changelog/${view.slug}`),
   };
+}
+
+/** The same with the body, as Markdown and as blocks. */
+export function serverDetail(view: ChangelogView): ChangelogServerDetail {
+  return { ...serverPost(view), body: view.body, blocks: changelogBlocks(view.body) };
 }

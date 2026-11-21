@@ -1,7 +1,7 @@
 import { createError, defineEventHandler } from 'nuxt/server';
 
 import { changelogService } from '~~/server/services/changelog';
-import { serverPost } from '~~/server/services/changelog-views';
+import { serverDetail } from '~~/server/services/changelog-views';
 
 import { changelogIdParams, changelogPublicPostQuery } from '#shared/schemas/changelog';
 
@@ -15,5 +15,5 @@ export default defineEventHandler(async (event) => {
   if (!post) {
     throw createError({ status: 404, statusText: 'notFound', data: { problem: 'notFound' } });
   }
-  return { ...serverPost(post), body: post.body };
+  return serverDetail(post);
 });

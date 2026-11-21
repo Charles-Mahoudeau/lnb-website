@@ -73,7 +73,7 @@ Published posts, newest first, without their body. `limit` is 1 to 50 (10 by def
 
 ### `GET /api/changelog/server/posts/:id?lang=en`
 
-The same fields plus `body`, the Markdown source in the language returned. No pre-rendered block list.
+The same fields plus `body`, the Markdown source in the language returned, and `blocks`, the same text already split (see "Blocks" below).
 
 ```json
 {
@@ -85,9 +85,25 @@ The same fields plus `body`, the Markdown source in the language returned. No pr
   "publishedAt": "2027-01-12T18:00:00.000Z",
   "lang": "en",
   "url": "https://lnb.bde-teknantes.fr/minecraft/changelog/saison-4-2",
-  "body": "## New districts\n\n- The market moved to the spawn.\n"
+  "body": "## New districts\n\n- The market moved to the spawn.\n",
+  "blocks": [
+    { "type": "heading", "level": 2, "content": [{ "text": "New districts" }] },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [{ "depth": 0, "content": [{ "text": "The market moved to the spawn." }] }]
+    }
+  ]
 }
 ```
+
+### Blocks
+
+`blocks` is on `posts/:id`, `unseen` and the public detail, so the mod needs no Markdown parser. `body` stays. Block `type`s: `heading` (`level` 1-6, `content`), `paragraph` (`content`), `quote` (`content`, one block per quoted paragraph), `list` (`ordered`, `items` of `{ depth, content }`, nested items flattened with a deeper `depth`), `code` (`text`), `table` (`header` and `rows`, each cell a `content` array) and `rule`. `content` is a list of inlines: `{ text, bold?, italic?, code?, link? }`. A line break is `"\n"` in `text`; an image is its alt text; links are absolute http(s) or mailto. Built by `changelogBlocks` (`server/services/changelog-blocks.ts`) from the same tokens as the site's HTML.
+
+### Public routes for the title screen
+
+`GET /api/changelog/public/posts` and `GET /api/changelog/public/posts/:id`: the same answers as the server's routes (list without body; detail with `body` and `blocks`), with no secret and no seen tracking, so the title screen can't show a "new" dot. Published only, 503 `disabled` while the flag is off, 404 `notFound`. A per-IP limit (`changelog-public`, 120 a minute, on top of the general one) and `Cache-Control: public, max-age=60` on successful answers.
 
 ### `GET /api/changelog/server/unseen?player=<uuid>&lang=fr`
 
@@ -109,9 +125,9 @@ The guide for the mod developer, with the flow, examples and error handling, is 
 
 ## Open for the mod discussion
 
-- How the game shows a post (chat line and book, a toast and a screen, or something else), and whether the site sends a pre-rendered block list.
-- Whether `unseen` is called on join by the server or by the mod.
-- What happens for a player whose language isn't known to the server.
+- How the game shows a post (chat line and book, a toast and a screen, or something else).
+
+Answered: the server calls `unseen` on join and the mod passes `lang`; the site sends pre-rendered blocks; "mark all as seen" and a per-player missed list aren't needed for the first version.
 
 ## Slices
 

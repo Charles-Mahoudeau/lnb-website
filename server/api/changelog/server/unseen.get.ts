@@ -1,7 +1,7 @@
 import { defineEventHandler } from 'nuxt/server';
 
 import { changelogService } from '~~/server/services/changelog';
-import { serverPost } from '~~/server/services/changelog-views';
+import { serverDetail } from '~~/server/services/changelog-views';
 
 import { changelogServerUnseenQuery } from '#shared/schemas/changelog';
 
@@ -11,5 +11,5 @@ export default defineEventHandler(async (event) => {
   await requireFlag(event, 'changelog');
   const { player, lang } = parseQuery(event, changelogServerUnseenQuery);
   const post = await changelogService.unseenFor(player, lang ?? 'fr');
-  return { post: post ? { ...serverPost(post), body: post.body } : null };
+  return { post: post ? serverDetail(post) : null };
 });

@@ -144,6 +144,41 @@ export type ChangelogPublicDetail = z.infer<typeof changelogPublicDetail>;
 
 // The Minecraft server's side: `/api/changelog/server/*`, with the server secret.
 
+// The body as a list of blocks, so the mod needs no Markdown parser. Images are gone (their alt
+// text stays), and links are absolute http(s) or mailto.
+export const changelogInline = z.object({
+  text: z.string().describe('A line break is a "\\n".'),
+  bold: z.literal(true).optional(),
+  italic: z.literal(true).optional(),
+  code: z.literal(true).optional(),
+  link: z.string().optional().describe('The address the text links to.'),
+});
+export type ChangelogInline = z.infer<typeof changelogInline>;
+const inlines = z.array(changelogInline);
+export const changelogBlock = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('heading'), level: z.number().int().min(1).max(6), content: inlines }),
+  z.object({ type: z.literal('paragraph'), content: inlines }),
+  z.object({ type: z.literal('quote'), content: inlines }),
+  z.object({
+    type: z.literal('list'),
+    ordered: z.boolean(),
+    items: z.array(
+      z.object({
+        depth: z.number().int().min(0).describe('0 is the top level.'),
+        content: inlines,
+      }),
+    ),
+  }),
+  z.object({ type: z.literal('code'), text: z.string() }),
+  z.object({
+    type: z.literal('table'),
+    header: z.array(inlines),
+    rows: z.array(z.array(inlines)),
+  }),
+  z.object({ type: z.literal('rule') }),
+]);
+export type ChangelogBlock = z.infer<typeof changelogBlock>;
+
 export const changelogServerPost = z.object({
   id: z.uuid(),
   slug: z.string(),
@@ -156,8 +191,10 @@ export const changelogServerPost = z.object({
 });
 export const changelogServerDetail = changelogServerPost.extend({
   body: z.string().describe('Markdown source, in the language returned.'),
+  blocks: z.array(changelogBlock).describe('The same text, already split into blocks.'),
 });
 export type ChangelogServerPost = z.infer<typeof changelogServerPost>;
+export type ChangelogServerDetail = z.infer<typeof changelogServerDetail>;
 export const changelogServerList = z.object({
   posts: z.array(changelogServerPost),
   next: z.string().nullable().describe('The cursor of the following page, or null at the end.'),
