@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { db } from '~~/server/db';
 import {
@@ -12,6 +12,8 @@ import {
 } from '~~/server/db/schema';
 import { changelogService } from '~~/server/services/changelog';
 import { publicPost, serverPost } from '~~/server/services/changelog-views';
+
+vi.mock('nitropack/runtime', () => ({ useStorage: () => ({}) }));
 
 const EPITECH = '901cb4ca-b862-4029-9306-e5cd0f6d9f86';
 const ADMIN = 'changelog-test-admin';
