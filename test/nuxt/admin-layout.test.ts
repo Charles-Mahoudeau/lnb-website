@@ -43,6 +43,7 @@ describe('admin sidebar', () => {
         'Playtime',
         'Anticheat',
         'Modpack',
+        'Changelog',
         'Economy',
         'Quests',
         'Settings',
@@ -55,7 +56,9 @@ describe('admin sidebar', () => {
 
   it('keeps a Warden admin to the Minecraft entries of the Warden', async () => {
     const links = await sidebar('warden-admin');
-    expect(links).toEqual(expect.arrayContaining(['Moderation', 'Anticheat', 'Modpack']));
+    expect(links).toEqual(
+      expect.arrayContaining(['Moderation', 'Anticheat', 'Modpack', 'Changelog']),
+    );
     expect(links).not.toContain('Short links');
     expect(links).not.toContain('Economy');
     expect(links).not.toContain('Posters');
@@ -66,12 +69,14 @@ describe('admin sidebar', () => {
     const links = await sidebar('events-manager');
     expect(links).toEqual(expect.arrayContaining(['Short links', 'Posters', 'Notifications']));
     expect(links).not.toContain('Moderation');
+    expect(links).not.toContain('Changelog');
     expect(links).not.toContain('Quests');
   });
 
   it('keeps an economy admin to Economy and Quests', async () => {
     const links = await sidebar('economy-admin');
     expect(links).toEqual(expect.arrayContaining(['Economy', 'Quests']));
+    expect(links).not.toContain('Changelog');
     expect(links).not.toContain('Short links');
     expect(links).not.toContain('Moderation');
   });

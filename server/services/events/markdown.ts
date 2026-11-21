@@ -5,30 +5,60 @@ import MarkdownIt from 'markdown-it';
 // no images, and links only to http, https and mailto, opening in a new tab. No Nuxt imports,
 // so unit tests can load it.
 
-const md = new MarkdownIt('default', {
-  html: false,
-  linkify: true,
-  breaks: true,
-  typographer: false,
-});
+const SAFE_LINK = /^(?:https?:|mailto:)/i;
+
+function create(): MarkdownIt {
+  const instance = new MarkdownIt('default', {
+    html: false,
+    linkify: true,
+    breaks: true,
+    typographer: false,
+  });
+  instance.validateLink = (url) => SAFE_LINK.test(url.trim());
+  const renderLink =
+    instance.renderer.rules.link_open ??
+    ((tokens, i, options, _env, self) => self.renderToken(tokens, i, options));
+  instance.renderer.rules.link_open = (tokens, i, options, env, self) => {
+    const token = tokens[i]!;
+    token.attrSet('target', '_blank');
+    token.attrSet('rel', 'noopener noreferrer nofollow');
+    return renderLink(tokens, i, options, env, self);
+  };
+  return instance;
+}
+
+const md = create();
 md.disable(['image', 'table', 'heading', 'lheading', 'hr', 'code', 'fence']);
 
-const SAFE_LINK = /^(?:https?:|mailto:)/i;
-md.validateLink = (url) => SAFE_LINK.test(url.trim());
-
-const renderLink =
-  md.renderer.rules.link_open ??
-  ((tokens, i, options, _env, self) => self.renderToken(tokens, i, options));
-md.renderer.rules.link_open = (tokens, i, options, env, self) => {
+// Changelog posts (docs/changelog.md) get the full Markdown, tables included. Images are kept
+// only from our own media library (/api/media/<key>); any other becomes its alt text.
+const changelogMd = create();
+export const MEDIA_IMAGE = /^\/api\/media\/[\w.-]+$/;
+changelogMd.renderer.rules.image = (tokens, i, _options, env, self) => {
   const token = tokens[i]!;
-  token.attrSet('target', '_blank');
-  token.attrSet('rel', 'noopener noreferrer nofollow');
-  return renderLink(tokens, i, options, env, self);
+  const src = token.attrGet('src') ?? '';
+  if (!MEDIA_IMAGE.test(src)) return changelogMd.utils.escapeHtml(token.content);
+  token.attrSet('alt', token.content);
+  token.attrSet('loading', 'lazy');
+  return self.renderToken(tokens, i, _options);
 };
+// The default validator only lets http(s) and mailto through: add the media path for images.
+const validate = changelogMd.validateLink.bind(changelogMd);
+changelogMd.validateLink = (url) => validate(url) || MEDIA_IMAGE.test(url.trim());
 
 /** The description as HTML, safe to render with v-html. */
 export function renderDescription(markdown: string): string {
   return md.render(markdown);
+}
+
+/** A changelog post's Markdown as HTML, safe to render with v-html. */
+export function renderChangelog(markdown: string): string {
+  return changelogMd.render(markdown);
+}
+
+/** The tokens of a changelog post's Markdown, for the block list the mod reads. */
+export function changelogTokens(markdown: string) {
+  return changelogMd.parse(markdown, {});
 }
 
 /**

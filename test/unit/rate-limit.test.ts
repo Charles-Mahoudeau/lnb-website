@@ -34,12 +34,14 @@ describe('rulesFor', () => {
     expect(names('POST', '/api/link/approve')).toEqual(['api', 'write-sensitive']);
     expect(names('POST', '/api/warden/me/token')).toEqual(['api', 'write-sensitive']);
     expect(names('POST', '/api/admin/events/images')).toEqual(['api', 'write-heavy']);
+    expect(names('POST', '/api/admin/changelog/images')).toEqual(['api', 'write-heavy']);
     expect(names('POST', '/api/admin/users/bulk')).toEqual(['api', 'write-heavy']);
   });
 
   it('gives the short links and the Minecraft server their own ceiling', () => {
     expect(names('GET', '/go/lan')).toEqual(['go']);
     expect(names('POST', '/api/warden/server/sessions/heartbeat')).toEqual(['warden-server']);
+    expect(names('GET', '/api/changelog/public/posts')).toEqual(['api', 'changelog-public']);
     expect(names('POST', '/api/economy/server/transfers')).toEqual(['economy-server']);
     expect(names('POST', '/api/economy/admin/accounts/x/adjustments')).toEqual([
       'api',

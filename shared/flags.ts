@@ -47,6 +47,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'events.imageSearch', parent: 'events' },
   { key: 'events.bdeSync', parent: 'events' },
   { key: 'map' },
+  { key: 'changelog' },
   { key: 'team' },
   { key: 'team.join', parent: 'team' },
   { key: 'partners' },
@@ -112,6 +113,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'jobs.modpackLatest', parent: 'jobs' },
   { key: 'jobs.playtimePrune', parent: 'jobs' },
   { key: 'jobs.pruneAudit', parent: 'jobs' },
+  { key: 'jobs.changelogPublish', parent: 'jobs' },
 ] as const satisfies readonly FlagDefinition[];
 
 export type FlagKey = (typeof FLAG_DEFINITIONS)[number]['key'];

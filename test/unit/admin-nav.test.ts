@@ -30,6 +30,7 @@ describe('admin sidebar entries', () => {
       'playtime',
       'anticheat',
       'modpack',
+      'changelog',
     ]);
   });
 
@@ -89,6 +90,7 @@ describe('admin sidebar entries', () => {
       'playtime',
       'anticheat',
       'modpack',
+      'changelog',
       'economy',
       'market',
       'quests',
@@ -266,12 +268,13 @@ describe('Ctrl K pages and actions', () => {
 
   it('gives each role only the actions it can open', () => {
     const actions = (role: string) => adminActions(role).map((action) => action.id);
-    expect(actions('warden-admin')).toEqual(['banPlayer']);
+    expect(actions('warden-admin')).toEqual(['banPlayer', 'newChangelog']);
     expect(actions('events-manager')).toEqual(['newEvent', 'newShortLink']);
     expect(actions('economy-admin')).toEqual(['adjustBalance', 'marketCatalog']);
     expect(actions('admin')).toEqual([
       'banPlayer',
       'newEvent',
+      'newChangelog',
       'adjustBalance',
       'marketCatalog',
       'newShortLink',

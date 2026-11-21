@@ -260,6 +260,23 @@ Original mock (not code to port): [admin redesign mock](https://claude.ai/artifa
 - **Empty states** everywhere a list can be empty: a centered `IconTile`, a title, one line on what to do next, and a button when there is something to do.
 - `IconTile` belongs on Home rows, Settings sections, empty states and state callouts only. Not on sidebar entries, section headings or table rows.
 
+## Changelog admin
+
+Original mock (not code to port): [changelog mocks](https://claude.ai/artifact/Q7FywHY51Wi9TPX5aGbHQv), admin editor B (publishing band on top, Write and On the site modes). The public pages are in `docs/changelog.md`.
+
+- **List** (`/admin/minecraft/changelog`): one raised section of rows separated by dividers, not a table. A row is the title in semibold, then the version tag as a small outline badge and the date muted; on the right a source-language badge, "Not reviewed" (warning) or "Translated" (neutral) for the other language, and the status pill (draft outline, scheduled neutral with a clock, published success). "New post" is the page's one solid red button. The empty state is the usual centered `IconTile` moment.
+- **Editor** (`/admin/minecraft/changelog/:id`): a raised publishing band on top (status pill, publish date in Paris time, version tag, summary), then one raised section: language tabs (pill `UTabs`) with a badge on each (Source, Not reviewed, Not translated) and the "Translate to X" neutral soft button on the right, two mode cards (`URadioGroup` card variant, second accent, like the short links access cards: Write and On the site), then the fields. A machine translation nobody read shows a warning callout with a "Mark as reviewed" outline button. Without a DeepL key the button is disabled with a muted note under the tabs.
+- **One solid red button:** Publish for a draft or scheduled post (with Save as neutral outline, Schedule as neutral soft once a future date is typed, and "Back to draft" as outline destructive for a scheduled one); Save for a published post (Unpublish is outline destructive, with a confirm); Save for a new post.
+- **Write mode** has a small toolbar over the body: "Add an image" as a neutral soft button with the `image-plus` icon (loading while it uploads) and a muted hint that drop and paste work too. The body gets a secondary ring while a file is dragged over it. Images in `changelog-prose` are `max-w-full`, `h-auto`, `rounded-lg`.
+- **On the site** renders the body through the server's renderer, so it is what the public page shows, inside `changelog-prose` (listed on `/styleguide`).
+
+## Changelog (public)
+
+Original mock (not code to port): [changelog mocks](https://claude.ai/artifact/Q7FywHY51Wi9TPX5aGbHQv), public list B (no image) and post page B with navigation at the bottom.
+
+- **List** (`/minecraft/changelog`): the newest post is a raised band (`bg-elevated`, `rounded-lg`): the version as a second-accent soft badge, the date muted, the title in the display font, the whole summary and one solid red button ("Read the changelog"). A cover image takes the left of the band only when the post has one. Older posts are dated rows like the events agenda (day in the second accent over the month and the year, a divider, title and a two-line summary, the version as an outline badge on the right). "Load more" is a neutral outline button, no page numbers. The empty state is the usual centered `IconTile` moment.
+- **Post** (`/minecraft/changelog/:slug`): the text at reading width (`max-w-prose`) in `changelog-prose`, with a small primary link back to the list, the version badge and date, then the title. A side column of raised sections: Language (a pill `UTabs` switch when the post has both languages, else a muted "Not translated" note), Recent posts (title and short date rows), In game (the `/changelog` command as a neutral soft badge). Older and Newer are neutral outline buttons under the text, with a small muted label over the neighbour's title, Older on the left and Newer on the right. Phones: the side column drops below the text. No button on this page is solid red.
+
 ## Motion
 
 - Motion answers user actions only: opening, expanding, confirming. Use Nuxt UI's built-in transitions.

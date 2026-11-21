@@ -68,6 +68,16 @@ const navItems = computed<NavigationMenuItem[]>(() => {
           },
         ]
       : []),
+    ...(isEnabled('changelog')
+      ? [
+          {
+            label: t('nav.changelog'),
+            description: t('nav.changelogDescription'),
+            icon: 'i-lucide-newspaper',
+            to: '/minecraft/changelog',
+          },
+        ]
+      : []),
     ...(isEnabled('downloads')
       ? [
           {

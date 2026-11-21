@@ -186,6 +186,15 @@ export const ADMIN_ENTRIES: AdminEntry[] = [
     ],
   },
   {
+    id: 'changelog',
+    labelKey: 'admin.nav.changelog',
+    icon: 'i-lucide-megaphone',
+    to: '/admin/minecraft/changelog',
+    base: '/admin/minecraft/changelog',
+    areas: ['warden'],
+    group: 'minecraft',
+  },
+  {
     id: 'economy',
     labelKey: 'admin.nav.economy',
     icon: 'i-lucide-landmark',
@@ -390,6 +399,13 @@ export const ADMIN_ACTIONS: AdminAction[] = [
     icon: 'i-lucide-calendar-plus',
     to: '/admin/events/new',
     areas: ['events'],
+  },
+  {
+    id: 'newChangelog',
+    labelKey: 'admin.search.actions.newChangelog',
+    icon: 'i-lucide-megaphone',
+    to: '/admin/minecraft/changelog/new',
+    areas: ['warden'],
   },
   {
     id: 'adjustBalance',

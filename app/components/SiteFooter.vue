@@ -42,6 +42,7 @@ const columns = computed(() => {
     ...(isEnabled('modsPage') ? [{ label: t('nav.mods'), to: '/minecraft/mods' }] : []),
     ...(isEnabled('modList') ? [{ label: t('nav.modVote'), to: '/minecraft/mod-vote' }] : []),
     ...(isEnabled('rules') ? [{ label: t('nav.rules'), to: '/minecraft/rules' }] : []),
+    ...(isEnabled('changelog') ? [{ label: t('nav.changelog'), to: '/minecraft/changelog' }] : []),
     ...(isEnabled('downloads') ? [{ label: t('nav.download'), to: '/minecraft/download' }] : []),
     ...(isEnabled('map') ? [{ label: t('map.title'), to: '/minecraft/map' }] : []),
     ...(canUseWarden.value

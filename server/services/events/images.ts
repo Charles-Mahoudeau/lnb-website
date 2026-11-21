@@ -43,8 +43,8 @@ function storage() {
   return useStorage('event-images');
 }
 
-async function store(bytes: Buffer, extension: Extension): Promise<string> {
-  const key = `${createHash('sha256').update(bytes).digest('hex')}.${extension}`;
+async function store(bytes: Buffer, extension: Extension, prefix = ''): Promise<string> {
+  const key = `${prefix}${createHash('sha256').update(bytes).digest('hex')}.${extension}`;
   if (!(await storage().hasItem(key))) await storage().setItemRaw(key, bytes);
   return key;
 }
@@ -55,9 +55,25 @@ export interface StoredImage {
   height: number;
 }
 
-/** Decodes an image, checks it, and stores it as WebP. Animated GIFs keep their first frame. */
-async function ingest(input: Buffer): Promise<StoredImage> {
-  if (input.length === 0 || input.length > MAX_BYTES) refuse(400, 'imageTooLarge');
+/** Changelog images (docs/changelog.md) live in the same storage under this key prefix. */
+export const CHANGELOG_PREFIX = 'changelog-';
+const CHANGELOG_LIMITS = { maxBytes: 5 * 1024 * 1024, maxWidth: 1600, prefix: CHANGELOG_PREFIX };
+
+interface IngestOptions {
+  maxBytes?: number;
+  maxWidth?: number;
+  prefix?: string;
+}
+
+/**
+ * Decodes an image, checks it by its bytes, and stores it as WebP. Animated GIFs keep their
+ * first frame.
+ */
+async function ingest(
+  input: Buffer,
+  { maxBytes = MAX_BYTES, maxWidth = MAX_WIDTH, prefix = '' }: IngestOptions = {},
+): Promise<StoredImage> {
+  if (input.length === 0 || input.length > maxBytes) refuse(400, 'imageTooLarge');
   let image: Sharp;
   let format: string | undefined;
   try {
@@ -69,10 +85,15 @@ async function ingest(input: Buffer): Promise<StoredImage> {
   if (!format || !INPUT_FORMATS.has(format)) refuse(400, 'imageUnreadable');
   const { data, info } = await image
     .rotate()
-    .resize({ width: MAX_WIDTH, withoutEnlargement: true })
+    .resize({ width: maxWidth, withoutEnlargement: true })
     .webp({ quality: 90 })
     .toBuffer({ resolveWithObject: true });
-  return { key: await store(data, 'webp'), width: info.width, height: info.height };
+  return { key: await store(data, 'webp', prefix), width: info.width, height: info.height };
+}
+
+/** An image for a changelog post: at most 5 MB, 1600 pixels wide, kept under its own prefix. */
+function ingestChangelog(input: Buffer): Promise<StoredImage> {
+  return ingest(input, CHANGELOG_LIMITS);
 }
 
 /** Refuses a host that resolves to a private, loopback or link-local address. */
@@ -149,6 +170,36 @@ async function get(key: string): Promise<{ type: string; bytes: Buffer } | undef
   if (!bytes) return undefined;
   const extension = key.split('.').pop() as Extension;
   return { type: TYPES[extension], bytes: Buffer.from(bytes) };
+}
+
+/** The widest a PNG copy gets: the game only needs a screen's worth, and PNG is heavy. */
+export const PNG_MAX_WIDTH = 1000;
+
+/** A stored image as a PNG of at most PNG_MAX_WIDTH pixels wide, for clients without WebP. */
+async function getPng(key: string): Promise<Buffer | undefined> {
+  const stored = await get(key);
+  if (!stored) return undefined;
+  return sharp(stored.bytes)
+    .resize({ width: PNG_MAX_WIDTH, withoutEnlargement: true })
+    .png()
+    .toBuffer();
+}
+
+// Keys are content hashes, so a size never changes: remembered for the life of the process.
+const pngSizes = new Map<string, { width: number; height: number }>();
+
+/** The size getPng gives a stored image, or undefined when there is none. */
+async function pngSize(key: string): Promise<{ width: number; height: number } | undefined> {
+  const known = pngSizes.get(key);
+  if (known) return known;
+  const stored = await get(key);
+  if (!stored) return undefined;
+  const { width, height } = await sharp(stored.bytes).metadata();
+  if (!width || !height) return undefined;
+  const w = Math.min(width, PNG_MAX_WIDTH);
+  const size = { width: w, height: Math.round((height * w) / width) };
+  pngSizes.set(key, size);
+  return size;
 }
 
 async function exists(key: string): Promise<boolean> {
@@ -304,7 +355,8 @@ async function prune(now = new Date()): Promise<number> {
   ]);
   let removed = 0;
   for (const key of await storage().getKeys()) {
-    if (used.has(key)) continue;
+    // Changelog images are referenced from Markdown text, which isn't scanned: kept for now.
+    if (used.has(key) || key.startsWith(CHANGELOG_PREFIX)) continue;
     const { mtime } = await storage().getMeta(key);
     if (mtime && now.getTime() - new Date(mtime).getTime() < PRUNE_GRACE_MS) continue;
     await storage().removeItem(key);
@@ -313,4 +365,15 @@ async function prune(now = new Date()): Promise<number> {
   return removed;
 }
 
-export const eventImageService = { ingest, importUrl, get, exists, crops, treated, prune };
+export const eventImageService = {
+  ingest,
+  ingestChangelog,
+  importUrl,
+  get,
+  getPng,
+  pngSize,
+  exists,
+  crops,
+  treated,
+  prune,
+};
