@@ -121,7 +121,6 @@ async function persist(reviewed = false) {
     };
     const created = await changelogActions.create(body);
     await refreshNuxtData('changelog-admin');
-    done('admin.changelog.saved');
     await navigateTo(`/admin/minecraft/changelog/${created.id}`);
     return;
   }

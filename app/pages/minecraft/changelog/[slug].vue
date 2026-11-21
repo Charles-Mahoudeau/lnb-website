@@ -57,6 +57,7 @@ const others = computed(() =>
             <h1 class="font-display text-3xl font-bold text-highlighted sm:text-4xl">
               {{ post.title }}
             </h1>
+            <p v-if="post.summary" class="text-lg text-muted">{{ post.summary }}</p>
           </header>
           <!-- eslint-disable-next-line vue/no-v-html -- sanitized by markdown-it on the server -->
           <div class="changelog-prose" v-html="post.html" />
