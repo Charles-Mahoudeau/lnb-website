@@ -136,6 +136,7 @@ type MarketAdminRecipesItem = {
 };
 const validation = ref<MarketValidationView | null>(null);
 const refusal = ref<string | null>(null);
+const refusalLoops = ref<MarketValidationView['loops']>([]);
 
 watch(
   item,
@@ -190,6 +191,48 @@ const note = computed(() => {
     color: 'warning' as const,
   };
 });
+
+// The loops to draw: the ones a refused save found, else the dry run's of the draft.
+const loopsShown = computed(() => {
+  if (refusal.value) return refusalLoops.value;
+  const result = validation.value;
+  return dirty.value && result?.reason === 'loop' ? result.loops : [];
+});
+const proposal = computed(() => ({ items: [{ id: itemId.value, ...patch.value }] }));
+
+async function revalidate() {
+  refusal.value = null;
+  validation.value = null;
+  if (!dirty.value || !itemId.value) return;
+  validation.value = await marketAdminActions.validate(itemId.value, patch.value).catch(() => null);
+}
+
+/** Closing a door of this item is a change of the draft; of another item, it is saved at once. */
+async function closeDoor({ id, side }: { id: string; side: 'buy' | 'sell' }) {
+  const field = side === 'buy' ? 'buyable' : 'sellable';
+  if (id === itemId.value) {
+    draft[field] = false;
+    return;
+  }
+  try {
+    await marketAdminActions.updateItem(id, { [field]: false });
+    await refresh();
+    await revalidate();
+  } catch {
+    toast.add({
+      title: t('admin.market.refusal.failed'),
+      color: 'error',
+      icon: 'i-lucide-circle-alert',
+    });
+  }
+}
+
+/** "Accept loop and save": the loop is let through, then the draft is saved as it is. */
+async function loopAccepted() {
+  refusal.value = null;
+  validation.value = null;
+  await (dirty.value ? save() : revalidate());
+}
 
 const sameRecipe = (a: MarketAdminRecipesItem, b: MarketAdminRecipesItem) =>
   a.type === b.type &&
@@ -250,6 +293,7 @@ async function save() {
   } catch (error) {
     if (error instanceof MarketError) {
       refusal.value = refusalText(error);
+      refusalLoops.value = error.loops;
     } else throw error;
   } finally {
     saving.value = false;
@@ -492,6 +536,13 @@ const percent = (value: number) => n(value, { style: 'percent', maximumFractionD
             icon="i-lucide-circle-alert"
             :description="note.text"
             role="alert"
+          />
+          <AdminMarketLoopPanel
+            v-if="loopsShown.length"
+            :loops="loopsShown"
+            :proposal="proposal"
+            @close="closeDoor"
+            @accepted="loopAccepted"
           />
         </section>
       </div>

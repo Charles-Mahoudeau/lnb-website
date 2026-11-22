@@ -2,7 +2,7 @@
 // The Market's settings (docs/market.md): the spread, the order limits, the mint budget, the history
 // and, per tier, the player's thresholds and rates. Thresholds are LNBits of nominal value, kept as
 // cents. Changes apply at once, are written to the activity log and reach the Minecraft server.
-import type { MarketSettingsPatch } from '#shared/schemas/market';
+import type { MarketSettingsPatch, MarketValidationView } from '#shared/schemas/market';
 
 const { t } = useI18n();
 const toast = useToast();
@@ -119,9 +119,25 @@ const dirty = computed(() => {
 
 const saving = ref(false);
 const refusal = ref<string | null>(null);
+const refusalLoops = ref<MarketValidationView['loops']>([]);
+
+/** Closing a door of an item is saved at once; the settings are then tried again. */
+async function closeDoor({ id, side }: { id: string; side: 'buy' | 'sell' }) {
+  try {
+    await marketAdminActions.updateItem(id, { [side === 'buy' ? 'buyable' : 'sellable']: false });
+    await save();
+  } catch {
+    toast.add({
+      title: t('admin.market.refusal.failed'),
+      color: 'error',
+      icon: 'i-lucide-circle-alert',
+    });
+  }
+}
 async function save() {
   saving.value = true;
   refusal.value = null;
+  refusalLoops.value = [];
   try {
     await marketAdminActions.updateSettings(body.value);
     await refresh();
@@ -132,8 +148,10 @@ async function save() {
       icon: 'i-lucide-circle-check',
     });
   } catch (failure) {
-    if (failure instanceof MarketError) refusal.value = refusalText(failure);
-    else throw failure;
+    if (failure instanceof MarketError) {
+      refusal.value = refusalText(failure);
+      refusalLoops.value = failure.loops;
+    } else throw failure;
   } finally {
     saving.value = false;
   }
@@ -221,6 +239,14 @@ async function save() {
       :description="refusal"
       role="alert"
     />
+    <AdminMarketLoopPanel
+      v-if="refusal && refusalLoops.length"
+      :loops="refusalLoops"
+      :proposal="{ items: [], sigmaPercent: body.sigmaPercent }"
+      @close="closeDoor"
+      @accepted="save"
+    />
+    <AdminMarketAcceptedLoops />
     <p class="border-l-2 border-secondary pl-3 text-sm text-muted">
       {{ t('admin.market.settings.flagsNote') }}
     </p>
