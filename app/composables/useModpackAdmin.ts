@@ -9,6 +9,11 @@ import type {
   ModpackPatchBody,
   ModpackPinBody,
   ModpackProblem,
+  ModpackRetiredAddBody,
+  ModpackRetiredAddResult,
+  ModpackRetiredList,
+  ModpackRetiredPatchBody,
+  ModpackRetiredPlayers,
   ModpackTool,
   ModpackToolBody,
   ModpackToolList,
@@ -36,6 +41,7 @@ async function call<T>(request: () => Promise<T>): Promise<T> {
 
 const BASE = '/api/minecraft/admin/modpack/mods';
 const TOOLS = '/api/minecraft/admin/modpack/tools';
+const RETIRED = '/api/minecraft/admin/modpack/retired';
 const EXPORT = '/api/minecraft/admin/modpack/export';
 
 /** Every mod of the pack, with the manifest's revision. */
@@ -46,6 +52,11 @@ export function useAdminModpack() {
 /** The current jar of the launcher and of the updater. */
 export function useAdminModpackTools() {
   return useFetch<ModpackToolList>(TOOLS, { key: 'modpack-tools-admin' });
+}
+
+/** The retired files, with how many players still have each. */
+export function useAdminModpackRetired() {
+  return useFetch<ModpackRetiredList>(RETIRED, { key: 'modpack-retired-admin' });
 }
 
 /** What admins can do to the pack. Each throws a ModpackError when refused. */
@@ -63,6 +74,13 @@ export const modpackActions = {
   exportApply: (mode: ModpackExportMode, keys: string[]) =>
     call(() => $fetch<ModpackExportResult>(EXPORT, { method: 'POST', body: { mode, keys } })),
   remove: (id: string) => call(() => $fetch(`${BASE}/${id}`, { method: 'DELETE' })),
+  retire: (body: ModpackRetiredAddBody) =>
+    call(() => $fetch<ModpackRetiredAddResult>(RETIRED, { method: 'POST', body })),
+  editRetired: (id: string, body: ModpackRetiredPatchBody) =>
+    call(() => $fetch(`${RETIRED}/${id}`, { method: 'PATCH', body })),
+  removeRetired: (id: string) => call(() => $fetch(`${RETIRED}/${id}`, { method: 'DELETE' })),
+  retiredPlayers: (id: string) =>
+    call(() => $fetch<ModpackRetiredPlayers>(`${RETIRED}/${id}/players`)),
   publishTool: (tool: ModpackTool, body: ModpackToolBody) =>
     call(() => $fetch(`${TOOLS}/${tool}`, { method: 'PUT', body })),
 };
