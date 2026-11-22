@@ -561,10 +561,10 @@ const dateShown = computed(() => {
               <UTextarea
                 v-model="texts[lang].body"
                 :rows="16"
-                autoresize
                 class="w-full"
                 :ui="{
-                  base: [dragging && 'ring-2 ring-secondary ring-inset'],
+                  // No `autoresize`: it collapses the page on every keystroke and jumps the scroll to the top.
+                  base: ['resize-y', dragging && 'ring-2 ring-secondary ring-inset'],
                 }"
                 :aria-busy="uploading"
               />
