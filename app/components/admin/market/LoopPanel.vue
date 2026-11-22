@@ -99,12 +99,14 @@ async function accept(loop: Loop) {
               :key="index"
               class="flex items-center gap-2"
             >
-              <UIcon name="i-lucide-arrow-right" class="size-4" />
+              <UIcon name="i-lucide-arrow-down" class="size-4 sm:hidden" />
+              <UIcon name="i-lucide-arrow-right" class="hidden size-4 sm:block" />
               <span class="rounded-full border border-default bg-default px-2 py-0.5 text-default">
                 {{ step.type }} · {{ step.inputs.map((input) => input.count).join(' + ') }} →
                 {{ step.output.count }}
               </span>
-              <UIcon name="i-lucide-arrow-right" class="size-4" />
+              <UIcon name="i-lucide-arrow-down" class="size-4 sm:hidden" />
+              <UIcon name="i-lucide-arrow-right" class="hidden size-4 sm:block" />
             </li>
           </ol>
           <div class="flex items-center gap-2 rounded-lg border border-error px-3 py-2 sm:flex-1">
