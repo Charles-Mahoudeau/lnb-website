@@ -108,4 +108,17 @@ describe('market loop validator', () => {
     expect(result.loops[0]).toMatchObject({ item: 'chest' });
     expect(result.loops[0]!.path).toEqual([chest, planks]);
   });
+
+  it('does not count the spread of an item reached back through a cycle of recipes', () => {
+    // Buy cobblestone, smelt it to stone, turn the stone back into cobblestone: only the spread.
+    const items = [
+      item('cobblestone', { buyable: true, pMin: 0.0006, pMax: 0.036 }),
+      item('stone', { sellable: false }),
+    ];
+    const recipes = [
+      recipe(['stone', 1], [['cobblestone', 1]], 'minecraft:smelting'),
+      recipe(['cobblestone', 1], [['stone', 1]], 'minecraft:stonecutting'),
+    ];
+    expect(validateMarketLoops(items, recipes, sigma)).toEqual({ ok: true, loops: [] });
+  });
 });

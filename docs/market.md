@@ -158,6 +158,7 @@ Dynamic prices make crafting loops possible: buy sand cheaply after a dump, smel
 - The mod sends the server's **recipe graph** (crafting, smelting, blasting, smoking, campfire, stonecutting; mods included) when it starts, with `PUT /api/economy/server/market/recipes`. The site stores it (`market_recipe`) and the admin sees each item's recipes in its editor.
 - The validator works on worst-case prices that can be reached on different items at the same time: it buys at `pMin × (1 + σ)` and sells at `pMax × (1 − σ)`.
   - The **cost** of an item is the cheapest way to obtain it: buy it (if `buyable`) or craft it from items that themselves have a cost. An input the Market doesn't sell has no cost: it can't be bought, so it is no loop, just play.
+  - Checking whether an item can be crafted at a profit, the item's own purchase price is left out, so buying cobblestone, smelting it to stone and turning the stone back into cobblestone is not a loop: that is only its spread.
   - The **value** of an item is its sale price if `sellable`.
   - A catalog is refused when some `sellable` item can be **crafted** for less than its value (`loop`, with the recipe path in the answer).
 - It runs when an admin saves an item or the settings (it can also be run as a dry run, `POST /validate`), when the recipe graph changes, and answers which side to switch off or reprice. The same item bought and sold directly is no loop: the stock is shared, so only time arbitrage remains, and the spread and the window bound it.
