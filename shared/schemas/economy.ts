@@ -116,7 +116,14 @@ export const ECONOMY_TRANSACTION_KINDS = [
 export const economyTransactionKind = z.enum(ECONOMY_TRANSACTION_KINDS);
 export type EconomyTransactionKind = z.infer<typeof economyTransactionKind>;
 /** Kinds that move money between players, counted as volume. Mint, burn and reversals aren't. */
-export const ECONOMY_VOLUME_KINDS = ['payment', 'casino', 'shop', 'trade', 'auction'] as const;
+export const ECONOMY_VOLUME_KINDS = [
+  'payment',
+  'casino',
+  'shop',
+  'trade',
+  'auction',
+  'market',
+] as const;
 
 export const economyReason = z.enum([
   'startingBalance',
