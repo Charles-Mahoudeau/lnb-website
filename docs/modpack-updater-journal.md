@@ -1,6 +1,6 @@
 # Updater plan: syncing mod removals with a local journal
 
-For the developer of `lnb-modsync-updater` (see `docs/modpack.md`). **No change is needed on the site.** The manifest already gives what the updater needs: a stable `id` per mod, `fileName`, `hashes.sha512`, `side`, `optional`, and `assets`.
+For the developer of `lnb-modsync-updater` (see `docs/modpack.md`). The manifest gives what the updater needs: a stable `id` per mod, `fileName`, `hashes.sha512`, `side`, `optional`, `assets`, and a `retired` list for files removed before the journal existed (see Retired files in the manifest). The manifest is public, at `/modpack/manifest.json`, and its fields are described in `docs/modpack.md`.
 
 ## Goal
 
@@ -69,13 +69,14 @@ There is no journal on installs made before this version, so the first run **cre
 - A missing file is downloaded, then journalled.
 - A file with the same name but another hash is not adopted or overwritten, since it may be an old version or the player's own. Log it and leave it; it is retried each run like any collision.
 
-From the second run the journal exists and the normal sync applies. Mods installed before the journal and removed from the manifest before the first run stay on disk for good, because the updater can't know they were ours. It is a known limit, not a bug. Tell the team to ask players to delete them once, or give the updater a one-off list of names.
+From the second run the journal exists and the normal sync applies. Mods installed before the journal and removed from the manifest before the first run can't be known as ours, so the journal never removes them. That is what `retired` is for, and it applies on the first run too: the "deletes nothing" above is about the journal's removals only. Admins fill `retired` with the old file names.
 
 ## Retired files in the manifest
 
 The manifest has a top-level `retired: [{ "fileName", "sha512"? }]` (see `docs/modpack.md`). It is the answer to the first-run limit above: files removed before the journal existed, which the updater can't know were ours. On every sync, after the removals above:
 
-- A file in `mods/` (or an asset's folder) whose name equals a `fileName` is deleted, even though the journal never listed it. When the entry has a `sha512`, the file's hash must equal it too, or the file is left alone.
+- A file in `mods/` whose name equals a `fileName` is deleted, even though the journal never listed it. When the entry has a `sha512`, the file's hash must equal it too (compare hex case-insensitively), or the file is left alone. Only the `mods/` folder is searched, never subfolders.
+- **Never delete a wanted file.** Skip an entry whose file name equals the file name of any wanted mod or asset, or any journal entry still in the pack. A mod removed and later added again with the same file name would otherwise be deleted right after it was installed. Apply `retired` last, after the installs.
 - The same rules as removals apply: paths confined to the instance folder (`fileName` is a plain name, refuse the entry otherwise), no deletion on a failed or doubtful manifest fetch, a locked file is retried next run, nothing while the game runs.
 - The mass-delete guard counts these deletions with the journal's.
 - An entry is idempotent: once the file is gone there is nothing to do. The site keeps entries until admins drop them, after players have synced, so the updater needn't remember them.
@@ -96,6 +97,7 @@ Plain-file tests against a temp directory with a fake manifest:
 - A side change removes the mod on the side that no longer applies.
 - A declined optional mod isn't reinstalled.
 - A retired file is deleted by name, and by name and hash when the entry has a hash; a same-name file with another hash is kept; a `fileName` with a separator is refused.
+- A retired entry whose file name is also a wanted mod's file is skipped, and a retired file is deleted on the first run (no journal) as well.
 
 ## Open questions for the developer
 
