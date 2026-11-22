@@ -13,6 +13,7 @@ import type { WardenActor } from '~~/server/services/warden/shared';
 import { downloadAndHash, DownloadError } from './download';
 import { statusOf } from './index';
 import { resolveLatest, SourceUnavailableError } from './latest';
+import { modpackRetiredService } from './retired';
 import { bump } from './revision';
 
 import type { ModpackCheckResult, ModpackProblem, ModpackSource } from '#shared/schemas/modpack';
@@ -185,6 +186,7 @@ async function adopt(input: { id?: string; actor: WebActor }): Promise<{ adopted
         continue;
       }
       await tx.update(modpackMod).set(values).where(eq(modpackMod.id, row.id));
+      await modpackRetiredService.unretire(tx, [values.pinnedFileName]);
       await auditService.record(tx, {
         action: 'minecraft.modpack.adopt',
         actor: input.actor,

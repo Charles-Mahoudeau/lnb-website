@@ -235,6 +235,7 @@ async function add(input: { body: ModpackAddBody; actor: WebActor }): Promise<{ 
   try {
     return await db.transaction(async (tx) => {
       const [row] = await tx.insert(modpackMod).values(values).returning({ id: modpackMod.id });
+      await modpackRetiredService.unretire(tx, [values.pinnedFileName]);
       await bump(tx);
       await auditService.record(tx, {
         action: 'minecraft.modpack.add',
@@ -287,6 +288,7 @@ async function pinFile(input: { id: string; body: ModpackPinBody; actor: WebActo
       .update(modpackMod)
       .set({ ...pinnedFromLibrary(file, input.body.version), attention: null })
       .where(eq(modpackMod.id, input.id));
+    await modpackRetiredService.unretire(tx, [file.name]);
     await bump(tx);
     await auditService.record(tx, {
       action: 'minecraft.modpack.pin',

@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { db } from '~~/server/db';
-import { modpackRetired, modpackState } from '~~/server/db/schema';
+import { modpackMod, modpackRetired, modpackState } from '~~/server/db/schema';
 import { anticheatReportService } from '~~/server/services/anticheat/reports';
 import { flagService } from '~~/server/services/flags';
 import { modpackManifestService } from '~~/server/services/modpack/manifest';
@@ -91,6 +91,20 @@ describe('retired files', () => {
     ).toBe('duplicate');
     await modpackRetiredService.remove({ id: a.id, actor });
     expect(await problemOf(modpackRetiredService.remove({ id: a.id, actor }))).toBe('notFound');
+  });
+
+  it('refuses to retire a file the pack uses now', async () => {
+    const [row] = await db
+      .insert(modpackMod)
+      .values({ source: 'url', name: 'In use', pinnedFileName: 'in-use.jar' })
+      .returning();
+    const result = await modpackRetiredService.add({
+      body: { items: [{ fileName: 'in-use.jar' }, { fileName: 'gone.jar' }], note: '' },
+      actor,
+    });
+    expect(result).toEqual({ added: 1, skipped: 1 });
+    expect((await modpackRetiredService.list()).items.map((i) => i.fileName)).toEqual(['gone.jar']);
+    await db.delete(modpackMod).where(eq(modpackMod.id, row!.id));
   });
 
   it('puts the entries in the manifest, and leaves them out when the flag is off', async () => {

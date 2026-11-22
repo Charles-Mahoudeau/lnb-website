@@ -196,6 +196,18 @@ describe('modpackService', () => {
     expect(statusOf({ ...row!, latestSha512: 'a' })).toBe('ok');
   });
 
+  it('drops the retired entry of a file the pack lists again', async () => {
+    await db.delete(modpackRetired);
+    await db.insert(modpackRetired).values({ fileName: 'tweak.jar' });
+    const file = await uploadJar();
+    const { id } = await modpackService.add({
+      body: { source: 'upload', name: 'Back Again', version: '1', fileId: file.id },
+      actor,
+    });
+    expect(await db.select().from(modpackRetired)).toHaveLength(0);
+    await modpackService.remove({ id, actor });
+  });
+
   it('removes a mod, and answers 404 for an unknown one', async () => {
     const file = await uploadJar();
     const { id } = await modpackService.add({
