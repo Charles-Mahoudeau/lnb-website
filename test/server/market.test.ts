@@ -422,6 +422,24 @@ describe('the Market admin', () => {
     expect((await marketAdminService.validate({ items: [] })).ok).toBe(true);
   });
 
+  it('checks loops on a settings save only when the spread changes', async () => {
+    await marketAdminService.updateSettings(admin, { sigmaPercent: 15, historyDays: 365 });
+    await db.delete(marketRecipe);
+    await marketAdminService.updateSettings(admin, { sigmaPercent: 15, historyDays: 365 });
+    await expect(
+      marketAdminService.updateSettings(admin, { sigmaPercent: 20 }),
+    ).rejects.toMatchObject({ data: { problem: 'noRecipes' } });
+    await marketRecipeService.replace({
+      recipes: [
+        {
+          type: 'test:smelt',
+          output: { id: 'test:glass', count: 1 },
+          inputs: [{ id: 'test:sand', count: 1 }],
+        },
+      ],
+    });
+  });
+
   it('keeps the price on a curve change unless asked, and writes a version', async () => {
     const before = await marketReadService.publicOverview();
     const price = before.items.find((i) => i.id === 'test:sand')?.price ?? 0;

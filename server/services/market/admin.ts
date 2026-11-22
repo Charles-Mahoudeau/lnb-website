@@ -213,7 +213,11 @@ async function resetStock(adminId: string, id: string, reason: string) {
 async function updateSettings(adminId: string, patch: MarketSettingsPatch) {
   await db.transaction(async (tx) => {
     // The spread decides which loops exist: the new one is checked before it is stored.
-    if (patch.sigmaPercent !== undefined) await assertValid(tx, [], patch.sigmaPercent);
+    // The form sends every field, so only a spread that really changes needs the check.
+    const { sigma } = await loadConfig(tx);
+    if (patch.sigmaPercent !== undefined && Math.abs(patch.sigmaPercent - sigma * 100) > 1e-9) {
+      await assertValid(tx, [], patch.sigmaPercent);
+    }
     const { tiers, ...single } = patch;
     if (Object.keys(single).length) {
       await tx.update(marketSettings).set(single).where(eq(marketSettings.id, 1));
