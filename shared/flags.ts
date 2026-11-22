@@ -26,6 +26,8 @@ export const FLAG_DEFINITIONS = [
   { key: 'files' },
   // The public modpack manifest the launcher reads (docs/modpack.md).
   { key: 'modpack' },
+  // The `retired` list of the manifest: files the updater deletes without having written them (docs/modpack.md).
+  { key: 'modpack.retired', parent: 'modpack' },
   // The public download page for new players (docs/downloads.md).
   { key: 'downloads' },
   // The public server rules page (docs/rules.md). Off, the page shows a notice that they are being rewritten.

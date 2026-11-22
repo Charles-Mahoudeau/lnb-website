@@ -720,6 +720,7 @@
       "review": "Review queue",
       "files": "Files",
       "modlist": "Modlist",
+      "retired": "Retired files",
       "vote": "Vote",
       "downloads": "Downloads",
       "voteMods": "Mods",
@@ -1188,6 +1189,10 @@
         "modpack": {
           "label": "Modpack manifest",
           "description": "The public manifest the Minecraft launcher reads. Off, it answers 503 and launchers keep what they have."
+        },
+        "modpack_retired": {
+          "label": "Retired files",
+          "description": "The list of files the updater deletes from players' mods folders although it never wrote them. Off, the manifest's `retired` list is empty and nothing is deleted from it."
         },
         "warden": {
           "label": "Warden",
@@ -3798,6 +3803,75 @@
         "done": "{name} {version} is now current"
       }
     },
+    "retired": {
+      "note": "Files the updater deletes from every player's mods folder, even though it never installed them. Use it for mods removed before the updater kept a journal. Players' own mods are never touched.",
+      "flagOff": {
+        "title": "Retired files are switched off",
+        "body": "The manifest leaves this list out, so no launcher deletes anything from it. The list is kept as it is."
+      },
+      "notCounted": "The anticheat is off, so the site can't tell which players still have these files. Counts show a dash instead of 0.",
+      "notCountedShort": "Not counted: the anticheat is off.",
+      "stats": {
+        "files": "Retired files",
+        "players": "Players still have one",
+        "safe": "Safe to drop"
+      },
+      "search": "Search retired files",
+      "exact": "Exact match: name and hash",
+      "byName": "Matched by name only",
+      "status": {
+        "safe": "Safe to drop",
+        "still": "Still on disks",
+        "zero": "None for {count} days",
+        "unknown": "Not counted"
+      },
+      "players": {
+        "count": "No player | 1 player | {count} players",
+        "unknown": "Not counted"
+      },
+      "empty": {
+        "none": "Nothing is retired. Removing a mod from the Modlist adds its file here, and you can add old files by hand.",
+        "search": "No retired file matches this search."
+      },
+      "saved": "Saved",
+      "removed": "Entry removed",
+      "add": {
+        "button": "Retire files",
+        "title": "Retire files",
+        "lede": "The updater deletes these from every mods folder at the next launch.",
+        "list": "Files",
+        "listHelp": "One file name per line. A SHA-512 after a space makes the match exact.",
+        "note": "Note, for the team (optional)",
+        "rules": "Names are plain file names, with no folder. One already in the list is skipped. At most 500 files.",
+        "submit": "Retire 0 files | Retire 1 file | Retire {count} files",
+        "done": "{added} retired, {skipped} already in the list."
+      },
+      "detail": {
+        "fileName": "File name",
+        "sha512": "SHA-512 (optional)",
+        "sha512Help": "128 hex characters. With it, only a file with this exact content is deleted.",
+        "note": "Note",
+        "noteHelp": "For the team. Never in the manifest.",
+        "manifest": "In the manifest:",
+        "save": "Save",
+        "players": "Players who still have it",
+        "lastReport": "last report {when}",
+        "anticheat": "Anticheat",
+        "more": "and {count} more",
+        "nobody": "No player has it. None for {count} days.",
+        "nobodyYet": "No player has it.",
+        "remove": "Remove entry",
+        "removeConfirm": "Launchers stop deleting this file from the next manifest. Files already deleted stay deleted.",
+        "removeYes": "Remove the entry",
+        "cancel": "Cancel"
+      },
+      "errors": {
+        "failed": "Something went wrong. Try again.",
+        "notFound": "This entry no longer exists.",
+        "duplicate": "Another entry already has this name.",
+        "tooManyRetired": "The list is full: 500 files at most. Remove entries that are safe to drop."
+      }
+    },
     "playtime": {
       "loadFailed": "The playtime settings could not be loaded.",
       "flagOff": "The playtime flag is off",
@@ -4543,6 +4617,9 @@
         "minecraftModpackExport": "{actor} exported the vote list to the Modlist",
         "minecraftModpackRemove": "{actor} removed {name} from the Modlist",
         "minecraftModpackTool": "{actor} published a new {name}",
+        "minecraftModpackRetire": "{actor} retired {count} files, starting with {name}",
+        "minecraftModpackRetireEdit": "{actor} edited the retired file {name}",
+        "minecraftModpackRetireRemove": "{actor} stopped retiring {name}",
         "minecraftModpackCheck": "{actor} checked the Modlist for newer files",
         "minecraftAnticheatApprove": "{actor} approved a file in the anticheat",
         "minecraftAnticheatBan": "{actor} banned a file in the anticheat",

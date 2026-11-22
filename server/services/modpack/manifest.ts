@@ -5,7 +5,9 @@ import { and, eq, isNull, isNotNull } from 'drizzle-orm';
 import { db } from '~~/server/db';
 import { modpackMod, modpackState, storedFile } from '~~/server/db/schema';
 import { siteUrl } from '~~/server/lib/site';
+import { flagService } from '~~/server/services/flags';
 import { latestLoaderVersion } from '~~/server/services/modpack/loader-version';
+import { modpackRetiredService } from '~~/server/services/modpack/retired';
 import { modpackToolService } from '~~/server/services/modpack/tools';
 import { modSettingsService } from '~~/server/services/mods/settings';
 
@@ -90,6 +92,10 @@ async function build(): Promise<ModpackManifest> {
       hashes: { sha256: file.sha256, sha512: file.sha512 },
       url: siteUrl(libraryPath(file.sha256, file.name)),
     })),
+    // Kill switch: off, launchers delete nothing from it.
+    retired: (await flagService.isEnabled('modpack.retired'))
+      ? await modpackRetiredService.forManifest()
+      : [],
   };
 }
 

@@ -7,7 +7,13 @@ import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { db } from '~~/server/db';
-import { modpackMod, modpackState, user, audit as auditLog } from '~~/server/db/schema';
+import {
+  modpackMod,
+  modpackRetired,
+  modpackState,
+  user,
+  audit as auditLog,
+} from '~~/server/db/schema';
 import { fileService } from '~~/server/services/files';
 import { modpackService, statusOf } from '~~/server/services/modpack';
 
@@ -196,9 +202,17 @@ describe('modpackService', () => {
       body: { source: 'upload', name: 'Short Lived', version: '1', fileId: file.id },
       actor,
     });
+    // Earlier tests removed mods with the same file name.
+    await db.delete(modpackRetired);
     await modpackService.remove({ id, actor });
     expect(await problemOf(modpackService.viewOf(id))).toBe('notFound');
     expect(await problemOf(modpackService.remove({ id, actor }))).toBe('notFound');
+    // Its file is retired, with the hash, for launchers that never kept a journal.
+    const [retired] = await db
+      .select()
+      .from(modpackRetired)
+      .where(eq(modpackRetired.sha512, file.sha512.toLowerCase()));
+    expect(retired).toMatchObject({ fileName: 'tweak.jar' });
   });
 
   it('lists the size of the pack without the mods that need attention', async () => {

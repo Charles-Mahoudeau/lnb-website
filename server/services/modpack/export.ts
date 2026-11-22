@@ -6,6 +6,7 @@ import { auditService } from '~~/server/services/audit';
 import type { WardenActor } from '~~/server/services/warden/shared';
 
 import { valuesFor } from './index';
+import { modpackRetiredService } from './retired';
 import { bump } from './revision';
 
 import type {
@@ -146,11 +147,9 @@ async function apply(input: {
       if (values.attention) result.flagged++;
     }
     if (removeIds.length > 0) {
-      const gone = await tx
-        .delete(modpackMod)
-        .where(inArray(modpackMod.id, removeIds))
-        .returning({ id: modpackMod.id });
+      const gone = await tx.delete(modpackMod).where(inArray(modpackMod.id, removeIds)).returning();
       result.removed = gone.length;
+      await modpackRetiredService.retirePinned(tx, gone, input.actor);
     }
     for (const change of updates) {
       await tx

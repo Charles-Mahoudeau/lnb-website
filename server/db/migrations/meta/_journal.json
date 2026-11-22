@@ -435,6 +435,13 @@
       "when": 1795300804079,
       "tag": "0061_changelog",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1795362631906,
+      "tag": "0062_modpack-retired",
+      "breakpoints": true
     }
   ]
 }

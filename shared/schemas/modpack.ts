@@ -23,6 +23,7 @@ export const MODPACK_PROBLEMS = [
   'notUploaded',
   'nothingToAdopt',
   'notToolFile',
+  'tooManyRetired',
 ] as const;
 export type ModpackProblem = (typeof MODPACK_PROBLEMS)[number];
 
@@ -287,5 +288,114 @@ export const modpackManifest = z.object({
       url: z.url(),
     }),
   ),
+  retired: z
+    .array(
+      z.object({
+        fileName: z.string(),
+        sha512: z.string().optional().describe('When set, only a file with this hash matches.'),
+      }),
+    )
+    .describe(
+      'Files the updater deletes from the mods folder although it never wrote them, such as mods removed before it kept a journal. Empty while the `modpack.retired` flag is off.',
+    ),
 });
 export type ModpackManifest = z.infer<typeof modpackManifest>;
+
+// Retired files: what launchers delete although the updater's journal never listed it. See docs/modpack.md.
+
+export const MODPACK_RETIRED_MAX = 500;
+/** A retired file counts as safe to drop once no player has had it for this many days. */
+export const MODPACK_RETIRED_SAFE_DAYS = 14;
+
+/** A plain file name: no folder, no control character, never `.` or `..`. */
+function isPlainFileName(name: string): boolean {
+  if (name === '.' || name === '..') return false;
+  for (let i = 0; i < name.length; i++) {
+    const code = name.charCodeAt(i);
+    if (code < 32 || name[i] === '/' || name[i] === '\\') return false;
+  }
+  return true;
+}
+export const retiredFileName = z
+  .string()
+  .trim()
+  .min(1)
+  .max(255)
+  .refine(isPlainFileName, { message: 'Not a plain file name' });
+const retiredSha512 = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .regex(/^[0-9a-f]{128}$/, '128 hex characters');
+const retiredNote = z.string().trim().max(300);
+
+export const modpackRetiredAddBody = z.object({
+  items: z
+    .array(z.object({ fileName: retiredFileName, sha512: retiredSha512.optional() }))
+    .min(1)
+    .max(MODPACK_RETIRED_MAX),
+  note: retiredNote.default(''),
+});
+export type ModpackRetiredAddBody = z.infer<typeof modpackRetiredAddBody>;
+
+export const modpackRetiredPatchBody = z
+  .object({
+    fileName: retiredFileName,
+    sha512: retiredSha512.nullable(),
+    note: retiredNote,
+  })
+  .partial()
+  .refine((body) => Object.keys(body).length > 0, { message: 'Nothing to change' });
+export type ModpackRetiredPatchBody = z.infer<typeof modpackRetiredPatchBody>;
+
+export const modpackRetiredView = z.object({
+  id: z.uuid(),
+  fileName: z.string(),
+  sha512: z.string().nullable(),
+  note: z.string(),
+  addedAt: isoDate,
+  addedBy: z
+    .string()
+    .nullable()
+    .describe('The first name of the admin, or null for a removed account.'),
+  players: z
+    .number()
+    .nullable()
+    .describe(
+      'Accounts whose latest anticheat report holds the file. Null while the anticheat is off.',
+    ),
+  lastSeenAt: isoDate
+    .nullable()
+    .describe(
+      'The newest report, of any player, that held the file. Null when none did or the anticheat is off.',
+    ),
+  safeToDrop: z
+    .boolean()
+    .describe('No player has had it for at least 14 days, and the entry is at least that old.'),
+  zeroDays: z
+    .number()
+    .nullable()
+    .describe(
+      'Days since a player last had it. Null while players still have it or are not counted.',
+    ),
+});
+export type ModpackRetiredView = z.infer<typeof modpackRetiredView>;
+
+export const modpackRetiredList = z.object({
+  items: z.array(modpackRetiredView),
+  counted: z.boolean().describe('False while the anticheat is off: players are not counted.'),
+  max: z.number(),
+});
+export type ModpackRetiredList = z.infer<typeof modpackRetiredList>;
+
+export const modpackRetiredAddResult = z.object({
+  added: z.number(),
+  skipped: z.number().describe('Names already in the list.'),
+});
+export type ModpackRetiredAddResult = z.infer<typeof modpackRetiredAddResult>;
+
+export const modpackRetiredPlayers = z.object({
+  items: z.array(z.object({ userId: z.string(), name: z.string(), lastReportAt: isoDate })),
+  total: z.number(),
+});
+export type ModpackRetiredPlayers = z.infer<typeof modpackRetiredPlayers>;
