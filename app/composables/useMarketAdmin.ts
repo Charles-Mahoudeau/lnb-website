@@ -1,4 +1,6 @@
 import type {
+  MarketAcceptLoopBody,
+  MarketAcceptedLoopsView,
   MarketAdminItem,
   MarketAdminOrder,
   MarketAdminOverview,
@@ -44,6 +46,12 @@ export function useMarketOverview() {
   return useFetch<MarketAdminOverview>('/api/economy/admin/market', { key: 'market-admin' });
 }
 
+export function useMarketAcceptedLoops() {
+  return useFetch<MarketAcceptedLoopsView>('/api/economy/admin/market/accepted-loops', {
+    key: 'market-accepted-loops',
+  });
+}
+
 export function useMarketStats() {
   return useFetch<MarketAdminStats>('/api/economy/admin/market/stats', {
     key: 'market-admin-stats',
@@ -84,6 +92,22 @@ export const marketAdminActions = {
       $fetch<MarketAdminItem>(
         `/api/economy/admin/market/items/${encodeURIComponent(id)}/reset-stock`,
         { method: 'POST', body: { reason } },
+      ),
+    ),
+  acceptedLoops: () =>
+    call(() => $fetch<MarketAcceptedLoopsView>('/api/economy/admin/market/accepted-loops')),
+  acceptLoop: (body: MarketAcceptLoopBody) =>
+    call(() =>
+      $fetch<MarketAcceptedLoopsView>('/api/economy/admin/market/accepted-loops', {
+        method: 'POST',
+        body,
+      }),
+    ),
+  revokeLoop: (id: string) =>
+    call(() =>
+      $fetch<MarketAcceptedLoopsView>(
+        `/api/economy/admin/market/accepted-loops/${encodeURIComponent(id)}`,
+        { method: 'DELETE' },
       ),
     ),
   updateSettings: (body: MarketSettingsPatch) =>

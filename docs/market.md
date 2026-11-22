@@ -161,8 +161,19 @@ Dynamic prices make crafting loops possible: buy sand cheaply after a dump, smel
   - Checking whether an item can be crafted at a profit, the item's own purchase price is left out, so buying cobblestone, smelting it to stone and turning the stone back into cobblestone is not a loop: that is only its spread.
   - The **value** of an item is its sale price if `sellable`.
   - A catalog is refused when some `sellable` item can be **crafted** for less than its value (`loop`, with the recipe path in the answer).
+- A loop an admin chose to keep is **accepted** (see "Accepted loops" below), and the check skips it.
 - It runs when an admin saves an item or the settings (it can also be run as a dry run, `POST /validate`), when the recipe graph changes, and answers which side to switch off or reprice. The same item bought and sold directly is no loop: the stock is shared, so only time arbitrage remains, and the spread and the window bound it.
 - With a graph the mod hasn't sent yet, saving is refused (`noRecipes`) rather than skipped.
+
+## Accepted loops
+
+A loop that exists on purpose (an input the shop never really stocks, a spread that can't be exploited in practice) would refuse every later save, since the validator checks the whole catalog. An admin can **accept** it from the refusal, with a reason, or revoke it from Settings.
+
+- A loop is identified by a **signature**: a SHA-256 of the item and the recipes of its path (type, output, inputs), not its prices. Prices and switches moving keep it accepted; any change of the recipes along the path makes it a new loop, refused again. The 409 `loop` answer and `POST /validate` carry each loop's `signature`.
+- Accepting stores the path, the cost and the value as a snapshot (`market_accepted_loop`), who, when and why, and records `economy.market.loopAccept`. Revoking records `economy.market.loopRevoke`.
+- The refusal shows the **chain**: what is bought, the recipes, what is sold, cost against sale price at the worst prices, and the profit. From it an admin turns off buying of an input or selling of the output (the item being edited changes in its draft, another item is saved at once), or accepts the loop ("Accept loop and save" accepts, then saves the draft). The Settings page shows the same panel when a spread change is refused.
+- Settings lists the accepted loops, each as "Still a loop" or "Not a loop now" (switched off, or its recipes changed), with Revoke.
+- A settings save checks loops only when the spread really changes: the form sends every field.
 
 ## Minecraft server routes
 
@@ -257,6 +268,9 @@ Under `/api/economy/admin/market`, for `admin` and `economy-admin`. Never behind
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `GET /items`, `POST`, `PATCH /items/:id` | The catalog. Changing parameters creates a version (`market_item_version`). `keepPrice` (true by default) recomputes the stock so the current price doesn't jump; with false the price follows the new curve. |
 | `POST /items/:id/reset-stock`            | Puts the stock back to `s0`, with a reason.                                                                                                                                                                   |
+| `GET /accepted-loops`                    | The accepted loops, each with `active` (it is a loop in the catalog as it is now).                                                                                                                            |
+| `POST /accepted-loops`                   | Accepts a loop of a proposed change: the dry run's body plus the loop's `signature` and a `reason`. The server finds the loop again, stores it and audits it (404 `notFound` if it is no longer there).       |
+| `DELETE /accepted-loops/{id}`            | Revokes it. The next save that could open it is refused again.                                                                                                                                                |
 | `POST /validate`                         | A dry run: a proposed catalog change against the recipes, answering the loops it would allow.                                                                                                                 |
 | `GET /recipes`                           | The stored recipe graph, with the recipes of an item.                                                                                                                                                         |
 | `GET /settings`, `PATCH /settings`       | Global and per-tier settings (below).                                                                                                                                                                         |
