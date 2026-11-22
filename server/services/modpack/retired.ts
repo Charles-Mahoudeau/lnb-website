@@ -1,9 +1,9 @@
-import { eq, sql } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import { createError } from 'nuxt/server';
 
 import { db } from '~~/server/db';
 import type { Tx } from '~~/server/db';
-import { modpackRetired, user } from '~~/server/db/schema';
+import { modpackMod, modpackRetired, user } from '~~/server/db/schema';
 import { anticheatSettingsService } from '~~/server/services/anticheat/settings';
 import { auditService } from '~~/server/services/audit';
 import type { WardenActor } from '~~/server/services/warden/shared';
@@ -134,7 +134,22 @@ async function add(input: {
     // Two admins pasting at once must not both pass the cap.
     await tx.execute(sql`select pg_advisory_xact_lock(hashtext('modpack_retired'))`);
     const count = await countAll(tx);
-    const byName = new Map(input.body.items.map((item) => [item.fileName, item]));
+    // A file the pack uses now must not be retired: launchers would delete what they just installed.
+    const names = input.body.items.map((item) => item.fileName);
+    const inUse = new Set(
+      (
+        await tx
+          .select({ name: modpackMod.pinnedFileName })
+          .from(modpackMod)
+          .where(inArray(modpackMod.pinnedFileName, names))
+      ).map((row) => row.name),
+    );
+    const byName = new Map(
+      input.body.items
+        .filter((item) => !inUse.has(item.fileName))
+        .map((item) => [item.fileName, item]),
+    );
+    if (byName.size === 0) return { added: 0, skipped: input.body.items.length };
     const rows = await tx
       .insert(modpackRetired)
       .values(
@@ -232,6 +247,17 @@ async function retirePinned(
   return rows.length;
 }
 
+/**
+ * Drops the entries for files the pack lists again, in the caller's transaction (the caller raises
+ * the revision). A mod added back, or pinned to a file that was retired, must not be deleted
+ * by the launchers right after they install it.
+ */
+async function unretire(tx: Tx, fileNames: (string | null | undefined)[]): Promise<void> {
+  const names = fileNames.filter((name): name is string => !!name);
+  if (names.length > 0)
+    await tx.delete(modpackRetired).where(inArray(modpackRetired.fileName, names));
+}
+
 /** What the manifest lists: every entry, with its hash when it has one. */
 async function forManifest(): Promise<{ fileName: string; sha512?: string }[]> {
   const rows = await db.select().from(modpackRetired).orderBy(modpackRetired.fileName);
@@ -248,5 +274,6 @@ export const modpackRetiredService = {
   edit,
   remove,
   retirePinned,
+  unretire,
   forManifest,
 };

@@ -136,6 +136,7 @@ async function apply(input: {
   const updates = chosen.filter((c) => c.kind === 'update' && c.packId);
 
   await db.transaction(async (tx) => {
+    const addedFiles: (string | null | undefined)[] = [];
     for (const { values, voteId } of inserts) {
       const rows = await tx
         .insert(modpackMod)
@@ -143,6 +144,7 @@ async function apply(input: {
         .onConflictDoNothing()
         .returning({ id: modpackMod.id });
       if (rows.length === 0) continue;
+      addedFiles.push(values.pinnedFileName);
       result.added++;
       if (values.attention) result.flagged++;
     }
@@ -151,6 +153,8 @@ async function apply(input: {
       result.removed = gone.length;
       await modpackRetiredService.retirePinned(tx, gone, input.actor);
     }
+    // After the removals, so a file both removed and added again stays out of the list.
+    await modpackRetiredService.unretire(tx, addedFiles);
     for (const change of updates) {
       await tx
         .update(modpackMod)
