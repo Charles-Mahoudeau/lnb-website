@@ -2,7 +2,7 @@
 
 The Modlist at `/admin/modpack/modlist` is the list of mods the Minecraft launcher downloads. It is **separate from the mod vote** (`docs/mods.md`): the vote is about what players want, the Modlist is what the launcher installs. The two meet in an "Export to manifest" button (not built yet). The page layout is "Manifest first" with the filters of "Table and drawer", from [the Modlist mocks](https://claude.ai/artifact/Qs6v2HynjKZ3ugYZcEEhXu).
 
-Everything is built: the Modlist, the nightly check and Adopt, the export from the vote, and the public manifest. Not verified against the real thing: the Prism wrapper jar reading the manifest.
+Everything is built: the Modlist, the nightly check and Adopt, the export from the vote, the public manifest and the Retired files list. Not verified against the real thing: the Prism wrapper jar reading the manifest, and the updater honoring `retired` (see `docs/modpack-updater-journal.md`).
 
 ## Model
 
@@ -94,6 +94,7 @@ CurseForge needs `CURSEFORGE_API_KEY`; without it those lookups answer `sourceUn
 - `hashes.sha512` is always there. `sha256` only when the site knows it (uploaded files and downloaded ones).
 - `assets` lists the library's asset files (not the tools). The game version, loader and loader version come from the Mods settings. The loader version is mandatory there: a version such as `21.1.267`, or `latest` (the default) to follow the loader's newest version for the game version (NeoForge's maven, Fabric's and Quilt's meta, Forge's promotions, cached for an hour). The settings show that newest version next to the field, and the manifest resolves `latest` to it, so the two agree. If the lookup fails, a `latest` manifest says an empty string.
 - The `ETag` is a hash of the content, so it also changes when the settings or an asset change, not only when `revision` does. A launcher sends `If-None-Match` and gets a 304. `Cache-Control` is 60 seconds.
+- `retired` lists the retired files (see Retired files). The updater deletes a matching file in `mods/` even when its journal doesn't list it.
 - `revision` goes up with every change an admin makes to the mods. A launcher can compare it to know whether its pack is current.
 - Change the format only by adding fields. A break means a new `schema` number.
 
@@ -122,6 +123,18 @@ A tool nobody has published is missing. A client compares `hashes.sha256` with i
 **First installs.** `GET /modpack/launcher.jar` and `GET /modpack/updater.jar` (outside `/api`, no sign-in, behind the `modpack` flag) answer a 302 to the current file, with no cache, for the Prism instance's pre-launch command and the Pelican egg's startup script. 404 while none is published. After the first install, everything updates through the manifest.
 
 **Updating each other.** A jar can't be replaced while it runs (Windows locks it), so each one replaces the other only while the other isn't running: the launcher replaces the updater before starting it, and the updater replaces the launcher and leaves it to be restarted. Download to a temporary file, check the SHA-256, then rename.
+
+## Retired files
+
+The **Retired files** tab (`/admin/modpack/retired`, full Warden admins) lists files the updater deletes from players' mods folders although it never wrote them: mods removed before the updater kept a journal (`docs/modpack-updater-journal.md`). From the journal on, removals clean themselves up, so this list is for the past, and for players who never ran the journaled updater.
+
+- `modpack_retired`: `file_name` (unique, a plain name with no folder), an optional `sha512` and a `note` for the team (never in the manifest). At most 500 entries.
+- **Matching**: the name must match, and the hash too when the entry has one. A hash makes it exact. A name-only entry also deletes a player's own jar with that name, which is nearly always the same mod.
+- **Adding**: the tab's "Retire files" modal takes a pasted list, one name per line with an optional SHA-512 after a space (`POST .../retired`). A name already in the list is skipped. Past 500 entries the whole request is refused (`tooManyRetired`).
+- **Automatic entries**: removing a mod from the Modlist, or an export that removes mods (Sync removals, Replace), retires each pinned file, with its name and hash. A mod with no pinned file adds nothing, and past the cap nothing is added (the removal still goes through). Adopt and file switches add nothing: the journal handles version swaps.
+- **Manifest**: an added top-level `retired: [{ "fileName", "sha512"? }]`, always present. The flag `modpack.retired` (default on) is the kill switch: off, the list is empty and launchers delete nothing from it, while the admin keeps the list and shows a notice. Every add, edit and removal raises the revision and is audited (`minecraft.modpack.retire`, `.retire.edit`, `.retire.remove`).
+- **Players who still have it**: from each account's latest anticheat report, a report whose file has the entry's name (and hash). Banned accounts count. `GET .../retired` gives each entry its `players` (null while the anticheat mode is `off`, shown as "Not counted"), `lastSeenAt` (the newest report of any player that held it) and `safeToDrop`: no player has it and the entry and the last sighting are at least 14 days old. `GET .../retired/{id}/players` lists up to 50 accounts, linking to their Person page's Anticheat tab. Nothing is ever dropped automatically: an admin removes an entry when it is safe.
+- **Limits of the count**: it only covers players who joined the Minecraft server while the anticheat was on, as fresh as their last report. Reports are pruned after 12 months.
 
 ## Page
 

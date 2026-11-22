@@ -71,6 +71,16 @@ There is no journal on installs made before this version, so the first run **cre
 
 From the second run the journal exists and the normal sync applies. Mods installed before the journal and removed from the manifest before the first run stay on disk for good, because the updater can't know they were ours. It is a known limit, not a bug. Tell the team to ask players to delete them once, or give the updater a one-off list of names.
 
+## Retired files in the manifest
+
+The manifest has a top-level `retired: [{ "fileName", "sha512"? }]` (see `docs/modpack.md`). It is the answer to the first-run limit above: files removed before the journal existed, which the updater can't know were ours. On every sync, after the removals above:
+
+- A file in `mods/` (or an asset's folder) whose name equals a `fileName` is deleted, even though the journal never listed it. When the entry has a `sha512`, the file's hash must equal it too, or the file is left alone.
+- The same rules as removals apply: paths confined to the instance folder (`fileName` is a plain name, refuse the entry otherwise), no deletion on a failed or doubtful manifest fetch, a locked file is retried next run, nothing while the game runs.
+- The mass-delete guard counts these deletions with the journal's.
+- An entry is idempotent: once the file is gone there is nothing to do. The site keeps entries until admins drop them, after players have synced, so the updater needn't remember them.
+- A manifest from a site where the `modpack.retired` flag is off has `retired: []`. A manifest without the field (an older site) is treated as empty.
+
 ## Tests
 
 Plain-file tests against a temp directory with a fake manifest:
@@ -85,6 +95,7 @@ Plain-file tests against a temp directory with a fake manifest:
 - A `fileName` with `..` or a separator is refused.
 - A side change removes the mod on the side that no longer applies.
 - A declined optional mod isn't reinstalled.
+- A retired file is deleted by name, and by name and hash when the entry has a hash; a same-name file with another hash is kept; a `fileName` with a separator is refused.
 
 ## Open questions for the developer
 
