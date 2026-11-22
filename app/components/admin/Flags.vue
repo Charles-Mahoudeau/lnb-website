@@ -9,11 +9,19 @@ const toast = useToast();
 const { data, error, refresh } = await useAdminFlags();
 const { ensureFlags } = useFlags();
 
+type Part = { part: AdminFlag; depth: number };
+// A part can have parts of its own (economy > economy.market > economy.market.sell), listed in order.
+function descendants(items: AdminFlag[], parentKey: FlagKey, depth: number): Part[] {
+  return items
+    .filter((part) => part.parent === parentKey)
+    .flatMap((part) => [{ part, depth }, ...descendants(items, part.key, depth + 1)]);
+}
+
 const groups = computed(() => {
   const items = data.value?.items ?? [];
   return items
     .filter((flag) => !flag.parent)
-    .map((flag) => ({ flag, parts: items.filter((part) => part.parent === flag.key) }));
+    .map((flag) => ({ flag, parts: descendants(items, flag.key, 0) }));
 });
 
 const pending = ref<FlagKey | null>(null);
@@ -80,13 +88,14 @@ const switchUi = {
         <p v-if="!flag.enabled" class="text-sm text-muted">{{ t('admin.flags.partsOff') }}</p>
         <div class="flex flex-col gap-4 pl-4">
           <USwitch
-            v-for="part in parts"
+            v-for="{ part, depth } in parts"
             :key="part.key"
             :model-value="part.enabled"
             :loading="pending === part.key"
             :disabled="pending !== null"
             :label="t(`admin.flags.items.${flagMessageKey(part.key)}.label`)"
             :description="t(`admin.flags.items.${flagMessageKey(part.key)}.description`)"
+            :class="depth ? 'ml-6' : ''"
             :ui="{ ...switchUi, root: `${switchUi.root} ${flag.enabled ? '' : 'opacity-60'}` }"
             @update:model-value="onToggle(part, $event)"
           />
