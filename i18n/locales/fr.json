@@ -724,6 +724,7 @@
       "review": "À examiner",
       "files": "Fichiers",
       "modlist": "Modlist",
+      "retired": "Fichiers retirés",
       "vote": "Vote",
       "downloads": "Téléchargements",
       "voteMods": "Mods",
@@ -1192,6 +1193,10 @@
         "modpack": {
           "label": "Manifeste du modpack",
           "description": "Le manifeste public que lit le lanceur Minecraft. Désactivé, il répond 503 et les lanceurs gardent ce qu'ils ont."
+        },
+        "modpack_retired": {
+          "label": "Fichiers retirés",
+          "description": "La liste des fichiers que l'updater supprime des dossiers mods des joueurs sans les avoir installés. Désactivée, la liste `retired` du manifeste est vide et rien n'est supprimé."
         },
         "warden": {
           "label": "Warden",
@@ -3802,6 +3807,75 @@
         "done": "{name} {version} est maintenant actif"
       }
     },
+    "retired": {
+      "note": "Les fichiers que l'updater supprime du dossier mods de chaque joueur, même s'il ne les a jamais installés. Sert aux mods retirés avant que l'updater tienne un journal. Les mods perso des joueurs ne sont jamais touchés.",
+      "flagOff": {
+        "title": "Les fichiers retirés sont désactivés",
+        "body": "Le manifeste omet cette liste : aucun lanceur n'en supprime rien. La liste est conservée telle quelle."
+      },
+      "notCounted": "L'anticheat est désactivé : le site ne sait pas quels joueurs ont encore ces fichiers. Les comptes affichent un tiret au lieu de 0.",
+      "notCountedShort": "Non compté : l'anticheat est désactivé.",
+      "stats": {
+        "files": "Fichiers retirés",
+        "players": "Joueurs en ayant encore un",
+        "safe": "À retirer de la liste"
+      },
+      "search": "Rechercher un fichier retiré",
+      "exact": "Correspondance exacte : nom et empreinte",
+      "byName": "Correspondance par le nom seulement",
+      "status": {
+        "safe": "À retirer de la liste",
+        "still": "Encore présent",
+        "zero": "Aucun depuis {count} jours",
+        "unknown": "Non compté"
+      },
+      "players": {
+        "count": "Aucun joueur | 1 joueur | {count} joueurs",
+        "unknown": "Non compté"
+      },
+      "empty": {
+        "none": "Rien n'est retiré. Retirer un mod de la Modlist ajoute son fichier ici, et vous pouvez ajouter d'anciens fichiers à la main.",
+        "search": "Aucun fichier retiré ne correspond à cette recherche."
+      },
+      "saved": "Enregistré",
+      "removed": "Entrée supprimée",
+      "add": {
+        "button": "Retirer des fichiers",
+        "title": "Retirer des fichiers",
+        "lede": "L'updater les supprime de chaque dossier mods au prochain lancement.",
+        "list": "Fichiers",
+        "listHelp": "Un nom de fichier par ligne. Un SHA-512 après un espace rend la correspondance exacte.",
+        "note": "Note pour l'équipe (facultatif)",
+        "rules": "Des noms de fichier simples, sans dossier. Un nom déjà dans la liste est ignoré. 500 fichiers au plus.",
+        "submit": "Retirer 0 fichier | Retirer 1 fichier | Retirer {count} fichiers",
+        "done": "{added} retirés, {skipped} déjà dans la liste."
+      },
+      "detail": {
+        "fileName": "Nom du fichier",
+        "sha512": "SHA-512 (facultatif)",
+        "sha512Help": "128 caractères hexadécimaux. Avec lui, seul un fichier au contenu identique est supprimé.",
+        "note": "Note",
+        "noteHelp": "Pour l'équipe. Jamais dans le manifeste.",
+        "manifest": "Dans le manifeste :",
+        "save": "Enregistrer",
+        "players": "Joueurs qui l'ont encore",
+        "lastReport": "dernier rapport {when}",
+        "anticheat": "Anticheat",
+        "more": "et {count} autres",
+        "nobody": "Aucun joueur ne l'a. Aucun depuis {count} jours.",
+        "nobodyYet": "Aucun joueur ne l'a.",
+        "remove": "Supprimer l'entrée",
+        "removeConfirm": "Les lanceurs arrêtent de supprimer ce fichier dès le prochain manifeste. Les fichiers déjà supprimés le restent.",
+        "removeYes": "Supprimer l'entrée",
+        "cancel": "Annuler"
+      },
+      "errors": {
+        "failed": "Une erreur s'est produite. Réessayez.",
+        "notFound": "Cette entrée n'existe plus.",
+        "duplicate": "Une autre entrée porte déjà ce nom.",
+        "tooManyRetired": "La liste est pleine : 500 fichiers au plus. Supprimez les entrées à retirer."
+      }
+    },
     "playtime": {
       "loadFailed": "Les réglages du temps de jeu n’ont pas pu être chargés.",
       "flagOff": "Le drapeau « playtime » est désactivé",
@@ -4547,6 +4621,9 @@
         "minecraftModpackExport": "{actor} a exporté la liste du vote vers la Modlist",
         "minecraftModpackRemove": "{actor} a retiré {name} de la Modlist",
         "minecraftModpackTool": "{actor} a publié un nouveau {name}",
+        "minecraftModpackRetire": "{actor} a retiré {count} fichiers, dont {name}",
+        "minecraftModpackRetireEdit": "{actor} a modifié le fichier retiré {name}",
+        "minecraftModpackRetireRemove": "{actor} a arrêté de retirer {name}",
         "minecraftModpackCheck": "{actor} a cherché des fichiers plus récents pour la Modlist",
         "minecraftAnticheatApprove": "{actor} a approuvé un fichier dans l’anticheat",
         "minecraftAnticheatBan": "{actor} a banni un fichier dans l’anticheat",

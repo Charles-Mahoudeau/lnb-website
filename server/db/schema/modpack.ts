@@ -104,3 +104,23 @@ export const modpackTool = pgTable('modpack_tool', {
     onDelete: 'set null',
   }),
 });
+
+/**
+ * A file launchers delete from a player's mods folder even though the updater never wrote it:
+ * what was removed before the updater kept a journal. A name always matches; a hash, when set,
+ * makes the match exact. Added by hand or when a mod leaves the Modlist. See docs/modpack.md.
+ */
+export const modpackRetired = pgTable(
+  'modpack_retired',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    fileName: text('file_name').notNull(),
+    // Lowercase hex, 128 characters. Null: the match is by name only.
+    sha512: text('sha512'),
+    // For the team. Never in the manifest.
+    note: text('note').default('').notNull(),
+    addedByUserId: text('added_by_user_id').references(() => user.id, { onDelete: 'set null' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex('modpack_retired_file_name_uidx').on(table.fileName)],
+);

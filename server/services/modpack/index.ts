@@ -12,6 +12,7 @@ import type { WardenActor } from '~~/server/services/warden/shared';
 
 import { downloadAndHash, DownloadError } from './download';
 import { resolveLatest, SourceUnavailableError } from './latest';
+import { modpackRetiredService } from './retired';
 import { bump } from './revision';
 
 import type {
@@ -300,10 +301,12 @@ async function remove(input: { id: string; actor: WebActor }) {
     const [row] = await tx.delete(modpackMod).where(eq(modpackMod.id, input.id)).returning();
     if (!row) refuse(404, 'notFound');
     await bump(tx);
+    // Launchers that never ran the updater's journal still hold the old file: retire it.
+    const retired = await modpackRetiredService.retirePinned(tx, [row], input.actor);
     await auditService.record(tx, {
       action: 'minecraft.modpack.remove',
       actor: input.actor,
-      data: { modId: row.id, name: row.name },
+      data: { modId: row.id, name: row.name, retired: retired > 0 },
     });
     return row;
   });
