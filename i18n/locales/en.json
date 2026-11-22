@@ -4796,6 +4796,8 @@
         "economyMarketItemResetStock": "{actor} reset the stock of {name} on the Market",
         "economyMarketSettings": "{actor} changed the Market settings",
         "economyMarketRecipes": "The Minecraft server sent {recipes} recipes to the Market",
+        "economyMarketLoopAccept": "{actor} accepted a crafting loop on {name}",
+        "economyMarketLoopRevoke": "{actor} revoked the crafting loop on {name}",
         "economyMarketPrune": "Old Market orders and price history were deleted"
       }
     },

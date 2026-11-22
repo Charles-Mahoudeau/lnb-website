@@ -4800,6 +4800,8 @@
         "economyMarketItemResetStock": "{actor} a réinitialisé le stock de {name} sur le Marché",
         "economyMarketSettings": "{actor} a modifié les réglages du Marché",
         "economyMarketRecipes": "Le serveur Minecraft a envoyé {recipes} recettes au Marché",
+        "economyMarketLoopAccept": "{actor} a accepté une boucle de fabrication sur {name}",
+        "economyMarketLoopRevoke": "{actor} a révoqué la boucle de fabrication sur {name}",
         "economyMarketPrune": "Les anciennes commandes et l’historique des prix du Marché ont été supprimés"
       }
     },

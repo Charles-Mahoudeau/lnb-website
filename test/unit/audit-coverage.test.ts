@@ -205,6 +205,8 @@ const ROUTES: Record<string, string[] | string> = {
   'economy/admin/market/items/[id].patch': ['economy.market.itemUpdate'],
   'economy/admin/market/items/[id]/reset-stock.post': ['economy.market.itemResetStock'],
   'economy/admin/market/items/index.post': ['economy.market.itemCreate'],
+  'economy/admin/market/accepted-loops/[id].delete': ['economy.market.loopRevoke'],
+  'economy/admin/market/accepted-loops/index.post': ['economy.market.loopAccept'],
   'economy/admin/market/settings.patch': ['economy.market.settings'],
   'economy/admin/market/validate.post': 'Read-only: runs the loop validator.',
   'quests/admin/categories/[family]/[id].delete': ['economy.quests.categoryDelete'],

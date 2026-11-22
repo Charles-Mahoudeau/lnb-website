@@ -5,6 +5,7 @@ import { db } from '~~/server/db';
 import type { Tx } from '~~/server/db';
 import {
   audit,
+  marketAcceptedLoop,
   marketItem,
   marketItemVersion,
   marketOrder,
@@ -17,7 +18,7 @@ import { auditService } from '~~/server/services/audit';
 import { periodStart } from '~~/server/services/economy/rules';
 
 import { marketEvents } from './events';
-import { assertValid, validateCatalog } from './recipes';
+import { assertValid, findLoops, validateCatalog } from './recipes';
 import {
   bumpRevision,
   curveOf,
@@ -31,6 +32,7 @@ import {
 import type { MarketItemRow } from './shared';
 
 import type {
+  MarketAcceptLoopBody,
   MarketItemCreateBody,
   MarketItemPatchBody,
   MarketOrdersQuery,
@@ -244,6 +246,76 @@ function validate(body: MarketValidateBody) {
   return validateCatalog(db, body.items, body.sigmaPercent);
 }
 
+/** The accepted loops, each with whether it is a loop in the catalog as it is now. */
+async function acceptedLoops() {
+  const [rows, current] = await Promise.all([
+    db
+      .select({ loop: marketAcceptedLoop, name: user.name })
+      .from(marketAcceptedLoop)
+      .leftJoin(user, eq(user.id, marketAcceptedLoop.acceptedByUserId))
+      .orderBy(desc(marketAcceptedLoop.createdAt)),
+    findLoops(db),
+  ]);
+  const active = new Set(current.loops.map((loop) => loop.signature));
+  return {
+    items: rows.map(({ loop, name }) => ({
+      id: loop.id,
+      item: loop.itemId,
+      path: loop.path,
+      value: loop.value,
+      cost: loop.cost,
+      reason: loop.reason,
+      acceptedBy: name,
+      acceptedAt: loop.createdAt.toISOString(),
+      active: active.has(loop.signature),
+    })),
+  };
+}
+
+/** Lets one loop of a proposed change through. The server finds it again by its signature. */
+async function acceptLoop(adminId: string, body: MarketAcceptLoopBody) {
+  await db.transaction(async (tx) => {
+    const found = await findLoops(tx, body.items, body.sigmaPercent);
+    const loop = found.loops.find((candidate) => candidate.signature === body.signature);
+    if (!loop) problem(404, 'notFound');
+    await tx
+      .insert(marketAcceptedLoop)
+      .values({
+        signature: loop.signature,
+        itemId: loop.item,
+        path: loop.path,
+        value: loop.value,
+        cost: loop.cost,
+        reason: body.reason,
+        acceptedByUserId: adminId,
+      })
+      .onConflictDoNothing();
+    await auditService.record(tx, {
+      action: 'economy.market.loopAccept',
+      actor: adminActor(adminId),
+      data: { name: marketItemName(loop.item), item: loop.item, reason: body.reason },
+    });
+  });
+  return acceptedLoops();
+}
+
+/** The loop is refused again from the next save that could open it. */
+async function revokeLoop(adminId: string, id: string) {
+  await db.transaction(async (tx) => {
+    const [gone] = await tx
+      .delete(marketAcceptedLoop)
+      .where(eq(marketAcceptedLoop.id, id))
+      .returning();
+    if (!gone) problem(404, 'notFound');
+    await auditService.record(tx, {
+      action: 'economy.market.loopRevoke',
+      actor: adminActor(adminId),
+      data: { name: marketItemName(gone.itemId), item: gone.itemId },
+    });
+  });
+  return acceptedLoops();
+}
+
 /** The lowest rate a sale was paid at, from the answer the order stored. */
 function lowestRate(result: Record<string, unknown>): number | null {
   const brackets = result.brackets;
@@ -390,6 +462,9 @@ export const marketAdminService = {
   resetStock,
   updateSettings,
   validate,
+  acceptedLoops,
+  acceptLoop,
+  revokeLoop,
   orders,
   stats,
 };

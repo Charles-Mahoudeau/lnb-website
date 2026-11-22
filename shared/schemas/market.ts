@@ -285,6 +285,9 @@ export const marketRecipeResult = z.object({
 });
 
 const marketLoop = z.object({
+  signature: z
+    .string()
+    .describe('Identifies the item and the recipes of the loop, not its prices.'),
   item: z.string(),
   value: z.number(),
   cost: z.number(),
@@ -296,6 +299,30 @@ export const marketValidation = z.object({
   loops: z.array(marketLoop),
 });
 export type MarketValidationView = z.infer<typeof marketValidation>;
+
+export const marketAcceptLoopBody = marketValidateBody.extend({
+  signature: z.string().min(1).max(100),
+  reason: z.string().trim().min(1).max(500).describe('Kept in the audit log.'),
+});
+export const marketLoopParams = z.object({ id: z.uuid() });
+export type MarketAcceptLoopBody = z.input<typeof marketAcceptLoopBody>;
+
+export const marketAcceptedLoops = z.object({
+  items: z.array(
+    z.object({
+      id: z.string(),
+      item: z.string(),
+      path: marketLoop.shape.path,
+      value: z.number(),
+      cost: z.number(),
+      reason: z.string(),
+      acceptedBy: z.string().nullable(),
+      acceptedAt: z.string(),
+      active: z.boolean().describe('The loop exists in the catalog as it is now.'),
+    }),
+  ),
+});
+export type MarketAcceptedLoopsView = z.infer<typeof marketAcceptedLoops>;
 
 /** GET /api/market */
 export const marketPublicItem = z.object({

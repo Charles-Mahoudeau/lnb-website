@@ -12,6 +12,7 @@ import {
   smallint,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
 
@@ -205,4 +206,35 @@ export const marketRecipe = pgTable(
     inputs: jsonb('inputs').$type<{ id: string; count: number }[]>().notNull(),
   },
   (table) => [index('market_recipe_output_idx').on(table.outputId)],
+);
+
+/**
+ * A crafting loop an admin chose to let through (docs/market.md, "Accepted loops"). The signature
+ * hashes the item and the recipes of its path, not the prices, so it keeps holding as prices move
+ * and stops holding when the recipes change. The path and numbers are a snapshot for the list.
+ */
+export const marketAcceptedLoop = pgTable(
+  'market_accepted_loop',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    signature: text('signature').notNull(),
+    itemId: text('item_id').notNull(),
+    path: jsonb('path')
+      .$type<
+        {
+          type: string;
+          output: { id: string; count: number };
+          inputs: { id: string; count: number }[];
+        }[]
+      >()
+      .notNull(),
+    value: quantity('value').notNull(),
+    cost: quantity('cost').notNull(),
+    reason: text('reason').notNull(),
+    acceptedByUserId: text('accepted_by_user_id').references(() => user.id, {
+      onDelete: 'set null',
+    }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex('market_accepted_loop_signature_uidx').on(table.signature)],
 );

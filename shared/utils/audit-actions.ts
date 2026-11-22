@@ -217,6 +217,8 @@ export const AUDIT_ACTIONS = [
   'economy.market.itemResetStock',
   'economy.market.settings',
   'economy.market.recipes',
+  'economy.market.loopAccept',
+  'economy.market.loopRevoke',
   'economy.market.prune',
 ] as const;
 

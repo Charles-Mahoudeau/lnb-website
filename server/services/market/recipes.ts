@@ -4,7 +4,7 @@ import { asc, eq, or, sql } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import type { Db } from '~~/server/db';
-import { marketItem, marketRecipe } from '~~/server/db/schema';
+import { marketAcceptedLoop, marketItem, marketRecipe } from '~~/server/db/schema';
 import { auditService } from '~~/server/services/audit';
 
 import { marketEvents } from './events';
@@ -34,6 +34,35 @@ export async function storedRecipes(dbx: Db): Promise<MarketRecipe[]> {
  * stored spread (or `sigmaPercent`). A proposed item that isn't stored yet needs its prices.
  */
 export async function validateCatalog(
+  dbx: Db,
+  proposed: readonly ProposedItem[] = [],
+  sigmaPercent?: number,
+): Promise<MarketValidationView> {
+  const found = await findLoops(dbx, proposed, sigmaPercent);
+  if (found.reason !== 'loop') return found;
+  const accepted = await acceptedSignatures(dbx);
+  const loops = found.loops.filter((loop) => !accepted.has(loop.signature));
+  return loops.length
+    ? { ok: false, reason: 'loop', loops }
+    : { ok: true, reason: null, loops: [] };
+}
+
+/** Identifies a loop by its item and the recipes of its path, so a change of recipes is a new loop. */
+export function loopSignature(item: string, path: readonly MarketRecipe[]): string {
+  return createHash('sha256')
+    .update(JSON.stringify([item, path.map((r) => [r.type, r.output, r.inputs])]))
+    .digest('hex');
+}
+
+const acceptedSignatures = async (dbx: Db) =>
+  new Set(
+    (await dbx.select({ signature: marketAcceptedLoop.signature }).from(marketAcceptedLoop)).map(
+      (row) => row.signature,
+    ),
+  );
+
+/** Every loop of the catalog with `proposed` applied, accepted or not. */
+export async function findLoops(
   dbx: Db,
   proposed: readonly ProposedItem[] = [],
   sigmaPercent?: number,
@@ -75,7 +104,10 @@ export async function validateCatalog(
   return {
     ok: result.ok,
     reason: result.ok ? null : result.reason,
-    loops: result.loops,
+    loops: result.loops.map((loop) => ({
+      ...loop,
+      signature: loopSignature(loop.item, loop.path),
+    })),
   };
 }
 
