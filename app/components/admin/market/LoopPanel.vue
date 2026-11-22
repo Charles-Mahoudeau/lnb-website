@@ -32,6 +32,10 @@ function bought(loop: Loop) {
   }
   return [...ids];
 }
+const stack = (part: { id: string; count: number }) =>
+  `${String(part.count)} ${marketItemName(part.id)}`;
+const stepText = (step: Loop['path'][number]) =>
+  `${step.inputs.map(stack).join(' + ')} → ${stack(step.output)}`;
 const initials = (id: string) => marketItemName(id).slice(0, 2);
 const costShare = (loop: Loop) => Math.max(2, Math.min(100, (loop.cost / loop.value) * 100));
 const profit = (loop: Loop) => loop.value - loop.cost;
@@ -101,9 +105,11 @@ async function accept(loop: Loop) {
             >
               <UIcon name="i-lucide-arrow-down" class="size-4 sm:hidden" />
               <UIcon name="i-lucide-arrow-right" class="hidden size-4 sm:block" />
-              <span class="rounded-full border border-default bg-default px-2 py-0.5 text-default">
-                {{ step.type }} · {{ step.inputs.map((input) => input.count).join(' + ') }} →
-                {{ step.output.count }}
+              <span
+                class="flex flex-col items-center rounded-lg border border-default bg-default px-2 py-1 text-default"
+              >
+                <span class="text-muted">{{ step.type }}</span>
+                <span>{{ stepText(step) }}</span>
               </span>
               <UIcon name="i-lucide-arrow-down" class="size-4 sm:hidden" />
               <UIcon name="i-lucide-arrow-right" class="hidden size-4 sm:block" />
