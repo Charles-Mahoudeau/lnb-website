@@ -181,6 +181,7 @@ export const ADMIN_ENTRIES: AdminEntry[] = [
       { id: 'modlist', labelKey: 'admin.nav.modlist', to: '/admin/modpack/modlist' },
       // The vote is a feature that can be switched off (the modList flag).
       { id: 'vote', labelKey: 'admin.nav.vote', to: '/admin/modpack/vote', flag: 'modList' },
+      { id: 'retired', labelKey: 'admin.nav.retired', to: '/admin/modpack/retired' },
       { id: 'files', labelKey: 'admin.nav.files', to: '/admin/modpack/files' },
       { id: 'downloads', labelKey: 'admin.nav.downloads', to: '/admin/modpack/downloads' },
     ],

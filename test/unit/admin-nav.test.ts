@@ -99,7 +99,12 @@ describe('admin sidebar entries', () => {
 
   it('hides the vote tab of Modpack when the modList flag is off', () => {
     expect(ids(adminTabs('modpack', () => true))).toContain('vote');
-    expect(ids(adminTabs('modpack', () => false))).toEqual(['modlist', 'files', 'downloads']);
+    expect(ids(adminTabs('modpack', () => false))).toEqual([
+      'modlist',
+      'retired',
+      'files',
+      'downloads',
+    ]);
   });
 });
 
