@@ -56,40 +56,47 @@ export function validateMarketLoops(
     byOutput.set(recipe.output.id, [...(byOutput.get(recipe.output.id) ?? []), recipe]);
   }
 
-  const cost = new Map<string, number>();
-  for (const item of trading.values()) {
-    if (item.buyable) cost.set(item.id, item.pMin * (1 + sigma));
-  }
-  const via = new Map<string, MarketRecipe>();
-
-  const craftCost = (recipe: MarketRecipe): number => {
-    let total = 0;
-    for (const input of recipe.inputs) {
-      const price = cost.get(input.id);
-      if (price === undefined) return Infinity;
-      total += price * input.count;
+  // Cheapest way to get every item. `skip` is not bought: a loop that starts by buying the item
+  // it ends with is only the spread of that item, which the price curve already covers.
+  const solve = (skip?: string) => {
+    const cost = new Map<string, number>();
+    for (const item of trading.values()) {
+      if (item.buyable && item.id !== skip) cost.set(item.id, item.pMin * (1 + sigma));
     }
-    return total / recipe.output.count;
-  };
+    const via = new Map<string, MarketRecipe>();
 
-  // Bellman-Ford: one pass per item settles every cost unless a cycle keeps lowering it.
-  const passes = trading.size + byOutput.size + 1;
-  for (let pass = 0; pass < passes; pass++) {
-    const changed = new Set<string>();
-    for (const [output, list] of byOutput) {
-      for (const recipe of list) {
-        const price = craftCost(recipe);
-        if (price < (cost.get(output) ?? Infinity) - EPSILON * Math.max(1, price)) {
-          cost.set(output, price);
-          via.set(output, recipe);
-          changed.add(output);
+    const craftCost = (recipe: MarketRecipe): number => {
+      let total = 0;
+      for (const input of recipe.inputs) {
+        const price = cost.get(input.id);
+        if (price === undefined) return Infinity;
+        total += price * input.count;
+      }
+      return total / recipe.output.count;
+    };
+
+    // Bellman-Ford: one pass per item settles every cost unless a cycle keeps lowering it.
+    const passes = trading.size + byOutput.size + 1;
+    for (let pass = 0; pass < passes; pass++) {
+      const changed = new Set<string>();
+      for (const [output, list] of byOutput) {
+        for (const recipe of list) {
+          const price = craftCost(recipe);
+          if (price < (cost.get(output) ?? Infinity) - EPSILON * Math.max(1, price)) {
+            cost.set(output, price);
+            via.set(output, recipe);
+            changed.add(output);
+          }
         }
       }
+      if (!changed.size) break;
     }
-    if (!changed.size) break;
-  }
+    return { via, craftCost };
+  };
 
-  const path = (item: string): MarketRecipe[] => {
+  const base = solve();
+
+  const path = (via: Map<string, MarketRecipe>, item: string): MarketRecipe[] => {
     const steps: MarketRecipe[] = [];
     const seen = new Set<string>();
     const walk = (id: string) => {
@@ -103,22 +110,34 @@ export function validateMarketLoops(
     return steps;
   };
 
-  const loops: MarketLoop[] = [];
-  for (const item of trading.values()) {
-    if (!item.sellable) continue;
-    const value = item.pMax * (1 - sigma);
-    // Crafted: the cheapest of its own recipes, whatever buying it would cost.
+  // Crafted: the cheapest of the item's own recipes, whatever buying it would cost.
+  const cheapest = (item: MarketRecipeItem, craftCost: (recipe: MarketRecipe) => number) => {
     let best = Infinity;
     let bestRecipe: MarketRecipe | undefined;
     for (const recipe of byOutput.get(item.id) ?? []) {
       const price = craftCost(recipe);
       if (price < best) [best, bestRecipe] = [price, recipe];
     }
-    if (!bestRecipe || best >= value * (1 - EPSILON)) continue;
+    return { best, bestRecipe };
+  };
+
+  const loops: MarketLoop[] = [];
+  for (const item of trading.values()) {
+    if (!item.sellable) continue;
+    const value = item.pMax * (1 - sigma);
+    let { best, bestRecipe } = cheapest(item, base.craftCost);
+    let via = base.via;
+    const isLoop = () => bestRecipe && best < value * (1 - EPSILON);
+    if (isLoop() && item.buyable) {
+      const alone = solve(item.id);
+      ({ best, bestRecipe } = cheapest(item, alone.craftCost));
+      via = alone.via;
+    }
+    if (!bestRecipe || !isLoop()) continue;
     const steps = [bestRecipe];
     const seen = new Set([item.id]);
     for (const input of bestRecipe.inputs) {
-      for (const step of path(input.id)) {
+      for (const step of path(via, input.id)) {
         if (seen.has(step.output.id)) continue;
         seen.add(step.output.id);
         steps.push(step);
