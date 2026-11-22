@@ -63,7 +63,13 @@ A mod whose side no longer applies (an admin changed `both` to `client` and this
 
 ## First run and migration
 
-There is no journal on installs made before this version. The first run with no journal must **delete nothing**: for each wanted file already on disk with the right hash, adopt it into the journal, then proceed. Mods installed before the journal and removed from the manifest before the first run stay on disk for good. For those, tell the team to ask players to delete them once, or give the updater a one-off list of names. It is a known limit, not a bug.
+There is no journal on installs made before this version, so the first run **creates it from the manifest** and deletes nothing. For each wanted entry:
+
+- A file on disk with the manifest's hash is adopted into the journal.
+- A missing file is downloaded, then journalled.
+- A file with the same name but another hash is not adopted or overwritten, since it may be an old version or the player's own. Log it and leave it; it is retried each run like any collision.
+
+From the second run the journal exists and the normal sync applies. Mods installed before the journal and removed from the manifest before the first run stay on disk for good, because the updater can't know they were ours. It is a known limit, not a bug. Tell the team to ask players to delete them once, or give the updater a one-off list of names.
 
 ## Tests
 
