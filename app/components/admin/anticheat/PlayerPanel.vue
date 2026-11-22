@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AdminAnticheatPlayerDialog } from '#components';
+import { AdminAnticheatEventDetail, AdminAnticheatPlayerDialog } from '#components';
 
 import type { AnticheatTimelineEvent } from '#shared/schemas/anticheat';
 
@@ -12,6 +12,8 @@ const { t, d } = useI18n();
 const toast = useToast();
 const overlay = useOverlay();
 const { data, error, status, refresh } = useAnticheatPlayer(props.userId);
+const eventDetail = overlay.create(AdminAnticheatEventDetail);
+const openEvent = (event: AnticheatTimelineEvent) => eventDetail.open({ event });
 
 const more = ref<AnticheatTimelineEvent[]>([]);
 const moreCursor = ref<string | null | undefined>(undefined);
@@ -173,30 +175,32 @@ function reasonOf(event: AnticheatTimelineEvent) {
             {{ t('admin.anticheat.panel.timelineEmpty') }}
           </p>
           <ul v-else class="flex flex-col divide-y divide-default">
-            <li
-              v-for="event in events"
-              :key="event.id"
-              class="flex flex-col gap-0.5 py-2.5"
-              data-testid="timeline-event"
-            >
-              <div class="flex items-baseline justify-between gap-3">
-                <span class="font-semibold text-highlighted">
-                  {{ t(`admin.anticheat.panel.events.${event.kind}`) }}
+            <li v-for="event in events" :key="event.id">
+              <button
+                type="button"
+                class="flex w-full cursor-pointer flex-col gap-0.5 rounded-md py-2.5 text-left hover:bg-accented/50 focus-visible:outline-2 focus-visible:outline-primary"
+                data-testid="timeline-event"
+                @click="openEvent(event)"
+              >
+                <div class="flex items-baseline justify-between gap-3">
+                  <span class="font-semibold text-highlighted">
+                    {{ t(`admin.anticheat.panel.events.${event.kind}`) }}
+                  </span>
+                  <span
+                    class="font-display tabular-nums"
+                    :class="event.applied ? 'text-highlighted' : 'text-muted'"
+                    >{{ minus(event.delta) }}</span
+                  >
+                </div>
+                <span v-if="!event.applied" class="text-sm text-muted">
+                  {{ t('admin.anticheat.panel.notApplied') }}
                 </span>
-                <span
-                  class="font-display tabular-nums"
-                  :class="event.applied ? 'text-highlighted' : 'text-muted'"
-                  >{{ minus(event.delta) }}</span
-                >
-              </div>
-              <span v-if="!event.applied" class="text-sm text-muted">
-                {{ t('admin.anticheat.panel.notApplied') }}
-              </span>
-              <span v-if="reasonOf(event)" class="text-sm text-muted">{{ reasonOf(event) }}</span>
-              <span class="text-sm text-muted tabular-nums">
-                {{ date(event.at) }},
-                {{ t('admin.anticheat.panel.scoreAfter', { score: event.scoreAfter }) }}
-              </span>
+                <span v-if="reasonOf(event)" class="text-sm text-muted">{{ reasonOf(event) }}</span>
+                <span class="text-sm text-muted tabular-nums">
+                  {{ date(event.at) }},
+                  {{ t('admin.anticheat.panel.scoreAfter', { score: event.scoreAfter }) }}
+                </span>
+              </button>
             </li>
           </ul>
           <UButton

@@ -3135,6 +3135,21 @@
           "confirmClear": "Lever la retenue",
           "scoreDone": "Score ajusté",
           "clearDone": "Retenue levée"
+        },
+        "detail": {
+          "delta": "Variation du score",
+          "after": "Score après",
+          "actor": "Par",
+          "noNames": "Les noms n'ont pas été conservés pour cet événement.",
+          "missing": "Mod manquant | Mods manquants",
+          "fields": {
+            "reason": "Raison",
+            "change": "Score",
+            "played": "Temps joué",
+            "points": "Points",
+            "file": "Fichier (SHA-512)",
+            "report": "Rapport"
+          }
         }
       },
       "reset": {
