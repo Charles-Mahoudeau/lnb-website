@@ -442,6 +442,13 @@
       "when": 1795362631906,
       "tag": "0062_modpack-retired",
       "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "7",
+      "when": 1795385630283,
+      "tag": "0063_market-accepted-loops",
+      "breakpoints": true
     }
   ]
 }

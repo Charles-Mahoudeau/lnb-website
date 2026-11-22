@@ -422,6 +422,51 @@ describe('the Market admin', () => {
     expect((await marketAdminService.validate({ items: [] })).ok).toBe(true);
   });
 
+  it('lets an accepted loop through until it is revoked or its recipes change', async () => {
+    const glass = { id: 'test:glass', pMin: 0.5, pMax: 1.5, sellable: true };
+    const refused = await marketAdminService
+      .validate({ items: [glass] })
+      .then((result) => result.loops[0]);
+    expect(refused?.signature).toEqual(expect.any(String));
+    await expect(
+      marketAdminService.acceptLoop(admin, {
+        items: [glass],
+        signature: 'nope',
+        reason: 'test',
+      }),
+    ).rejects.toMatchObject({ statusCode: 404 });
+    const listed = await marketAdminService.acceptLoop(admin, {
+      items: [glass],
+      signature: refused!.signature,
+      reason: 'never stocked',
+    });
+    expect(listed.items).toMatchObject([{ item: 'test:glass', reason: 'never stocked' }]);
+    expect((await marketAdminService.validate({ items: [glass] })).ok).toBe(true);
+    // The same recipes with another count are another loop.
+    await marketRecipeService.replace({
+      recipes: [
+        {
+          type: 'test:smelt',
+          output: { id: 'test:glass', count: 2 },
+          inputs: [{ id: 'test:sand', count: 1 }],
+        },
+      ],
+    });
+    expect((await marketAdminService.validate({ items: [glass] })).ok).toBe(false);
+    expect((await marketAdminService.acceptedLoops()).items[0]?.active).toBe(false);
+    const gone = await marketAdminService.revokeLoop(admin, listed.items[0]!.id);
+    expect(gone.items).toEqual([]);
+    await marketRecipeService.replace({
+      recipes: [
+        {
+          type: 'test:smelt',
+          output: { id: 'test:glass', count: 1 },
+          inputs: [{ id: 'test:sand', count: 1 }],
+        },
+      ],
+    });
+  });
+
   it('checks loops on a settings save only when the spread changes', async () => {
     await marketAdminService.updateSettings(admin, { sigmaPercent: 15, historyDays: 365 });
     await db.delete(marketRecipe);
