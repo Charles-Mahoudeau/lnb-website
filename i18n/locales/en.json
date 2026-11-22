@@ -3131,6 +3131,21 @@
           "confirmClear": "Clear the hold",
           "scoreDone": "Score adjusted",
           "clearDone": "Hold cleared"
+        },
+        "detail": {
+          "delta": "Score change",
+          "after": "Score after",
+          "actor": "By",
+          "noNames": "The names were not kept for this event.",
+          "missing": "Missing mod | Missing mods",
+          "fields": {
+            "reason": "Reason",
+            "change": "Score",
+            "played": "Played",
+            "points": "Points",
+            "file": "File (SHA-512)",
+            "report": "Report"
+          }
         }
       },
       "reset": {
