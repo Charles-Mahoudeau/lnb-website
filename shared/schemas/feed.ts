@@ -318,7 +318,29 @@ export const feedServerEvent = z.discriminatedUnion('type', [
 ]);
 export type FeedServerEvent = z.infer<typeof feedServerEvent>;
 
-// --- The browser and the admin (their routes come with the Feed page and the moderation tab) ----
+// --- The browser (/api/feed/, for the signed-in account) ------------------------------------------
+
+export const feedPageQuery = feedServerPageQuery.omit({ viewer: true });
+export const feedThreadQuery = feedServerThreadQuery.omit({ viewer: true });
+
+export const feedPostBody = feedServerPostBody.omit({ player: true });
+export type FeedPostBody = z.infer<typeof feedPostBody>;
+
+export const feedReplyBody = feedServerReplyBody.omit({ player: true });
+export type FeedReplyBody = z.infer<typeof feedReplyBody>;
+
+/** The body itself is optional: none pins without replacing. */
+export const feedPinBody = feedServerPinBody.omit({ player: true });
+export const feedPinBodyOrNone = feedPinBody.optional();
+
+export const feedSeenBody = feedServerSeenBody.omit({ player: true });
+
+export const feedMePatchBody = z.object({
+  postingAccount: minecraftUuid.describe('One of the caller’s linked Minecraft accounts.'),
+});
+export type FeedMePatchBody = z.infer<typeof feedMePatchBody>;
+
+// --- The browser and the admin ---------------------------------------------------------------------
 
 export const feedMe = z.object({
   linked: z.boolean(),
