@@ -150,6 +150,7 @@ const day = (iso: string) => formatFeedAdminDay(iso, locale.value, now.value);
 
 function replyLine(row: FeedAdminPost) {
   if (!row.threadId) return null;
+  if (row.replyToGone) return t('admin.feed.replyToGone');
   if (!row.replyTo) return t('admin.feed.replyToPost');
   return row.replyTo.anonymous || !row.replyTo.name
     ? t('admin.feed.replyTo', { name: t('feed.post.anonymous') })

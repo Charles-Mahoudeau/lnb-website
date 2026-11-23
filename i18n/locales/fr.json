@@ -5212,6 +5212,7 @@
       "nameHidden": "Nom réel masqué",
       "replyTo": "Réponse à {name}",
       "replyToPost": "Réponse au post",
+      "replyToGone": "Réponse à une réponse dont l’auteur n’existe plus",
       "likes": "Aucun j’aime | 1 j’aime | {count} j’aime",
       "replies": "Aucune réponse | 1 réponse | {count} réponses",
       "state": {
@@ -5264,6 +5265,7 @@
           "site": "Le site"
         },
         "answered": "{name}, « {text} »",
+        "answeredGone": "Une réponse dont l’auteur n’existe plus",
         "unknown": "Un compte supprimé",
         "discussion": "La discussion",
         "earlier": "1 réponse plus ancienne | 1 réponse plus ancienne | {count} réponses plus anciennes",

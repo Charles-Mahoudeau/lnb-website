@@ -86,11 +86,12 @@ function adminView(
     row.deletedCause === 'moderator' && row.deletedByUserId
       ? deleters.get(row.deletedByUserId)
       : undefined;
+  const replyTo = replyToOf(row, people);
   return {
     id: row.id,
     feed: row.feed,
     threadId: row.threadId,
-    replyTo: replyToOf(row, people),
+    replyTo,
     text: row.text,
     createdAt: row.createdAt.toISOString(),
     anonymous: row.anonymous,
@@ -99,6 +100,9 @@ function adminView(
     replies: row.replyCount,
     pinnedAt: row.pinnedAt?.toISOString() ?? null,
     authorUserId: row.authorUserId,
+    // `reply_to_minecraft_username` is set on a reply to a reply only, so a null `replyTo` there
+    // means the answered account is gone, not that it answers the main post.
+    replyToGone: row.threadId !== null && row.replyToMinecraftUsername !== null && replyTo === null,
     source: row.source,
     deletedAt: row.deletedAt?.toISOString() ?? null,
     deletedBy: deleter ? { userId: deleter.userId, name: deleter.name } : null,

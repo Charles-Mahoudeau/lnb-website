@@ -407,6 +407,11 @@ export const feedAdminPost = feedPostView
   .extend({
     author: feedAuthor.describe('Always filled, anonymous posts too.'),
     authorUserId: z.string(),
+    replyToGone: z
+      .boolean()
+      .describe(
+        'A reply to another reply whose author’s account was deleted since: `replyTo` is then null, as on a reply to the main post, which this tells apart.',
+      ),
     source: z.enum(['server', 'site']),
     deletedAt: isoDate.nullable(),
     deletedBy: z

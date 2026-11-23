@@ -42,6 +42,7 @@ function row(over: Partial<FeedAdminPost> = {}): FeedAdminPost {
     replies: 2,
     pinnedAt: null,
     authorUserId: 'u-alex',
+    replyToGone: false,
     source: 'server',
     deletedAt: null,
     deletedBy: null,

@@ -49,6 +49,7 @@ const answered = computed(() => {
   const value = row.value;
   const current = thread.value;
   if (!value?.threadId || !current) return null;
+  if (value.replyToGone) return { name: t('admin.feed.drawer.answeredGone'), text: null };
   const replyTo = value.replyTo;
   // A reply to a reply names it (gone once purged); a reply to the main post names nothing.
   const who = replyTo

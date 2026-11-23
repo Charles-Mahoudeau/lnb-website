@@ -198,6 +198,30 @@ describe('Feed admin routes', () => {
       expect(await ids('feeds=global&deleted=true&anonymous=true')).toEqual([global.id]);
     });
 
+    it('tells a reply to a reply whose author is gone from a reply to the main post', async () => {
+      const lune = await person('Lune Garnier', { role: 'warden-admin' });
+      const camille = await person('Camille Roux');
+      const mika = await person('Mika Lefort');
+      const { post: main } = await post(camille, 'Fil');
+      const { post: toMain } = await reply(camille, main.id);
+      const { post: byMika } = await reply(mika, main.id);
+      const { post: toMika } = await reply(camille, main.id, byMika.id);
+      const before = new Map(list(await admin.list(lune)).items.map((item) => [item.id, item]));
+      expect(before.get(toMika.id)).toMatchObject({
+        replyTo: { id: byMika.id },
+        replyToGone: false,
+      });
+      // Deleting Mika's account takes their reply with it and empties the line of the answer.
+      await db.delete(user).where(eq(user.id, mika.id));
+      const after = new Map(list(await admin.list(lune)).items.map((item) => [item.id, item]));
+      expect(after.get(toMika.id)).toMatchObject({ replyTo: null, replyToGone: true });
+      expect(after.get(toMain.id)).toMatchObject({ replyTo: null, replyToGone: false });
+      expect(after.get(main.id)).toMatchObject({ replyTo: null, replyToGone: false });
+      expect((await admin.row(lune, toMika.id)).body).toMatchObject({
+        post: { replyTo: null, replyToGone: true },
+      });
+    });
+
     it('answers a plain 400 for a bad filter or a forged cursor', async () => {
       const lune = await person('Lune Garnier', { role: 'warden-admin' });
       for (const query of [

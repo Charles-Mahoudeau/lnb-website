@@ -49,6 +49,7 @@ function row(over: Partial<FeedAdminPost> = {}): FeedAdminPost {
     replies: 2,
     pinnedAt: null,
     authorUserId: 'u-alex',
+    replyToGone: false,
     source: 'server',
     deletedAt: null,
     deletedBy: null,
@@ -373,6 +374,23 @@ describe('the drawer', () => {
     await vi.waitFor(() => {
       expect(remove.mock.calls).toEqual([[mine.id, '']]);
     });
+  });
+
+  it('says a reply answers a reply whose author is gone, not the main post', async () => {
+    const orphan = row({
+      id: id(41),
+      threadId: main.id,
+      text: 'Je confirme',
+      replyToGone: true,
+      createdAt: T(4),
+    });
+    serveList(() => list({ items: [orphan] }));
+    serveRow({ post: orphan, thread: { post: main, replies: [orphan] } });
+    const view = await mountTab(`/admin/moderation/feed?post=${orphan.id}`);
+    expect(words(view.find('tbody tr').text())).toContain('Reply to a reply whose author is gone');
+    expect(view.find('tbody tr').text()).not.toContain('Reply to the post');
+    expect(drawerText()).toContain('A reply whose author is gone');
+    expect(drawerText()).not.toContain('Alexandre M., “');
   });
 });
 

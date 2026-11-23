@@ -5208,6 +5208,7 @@
       "nameHidden": "Real name hidden",
       "replyTo": "Reply to {name}",
       "replyToPost": "Reply to the post",
+      "replyToGone": "Reply to a reply whose author is gone",
       "likes": "No likes | 1 like | {count} likes",
       "replies": "No replies | 1 reply | {count} replies",
       "state": {
@@ -5260,6 +5261,7 @@
           "site": "The website"
         },
         "answered": "{name}, “{text}”",
+        "answeredGone": "A reply whose author is gone",
         "unknown": "A deleted account",
         "discussion": "The discussion",
         "earlier": "1 earlier reply | 1 earlier reply | {count} earlier replies",
