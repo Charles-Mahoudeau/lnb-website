@@ -58,12 +58,14 @@ export async function useFeedTimeline(feed: Ref<FeedName>) {
   const next = ref<string | null>(null);
   const loadingMore = ref(false);
 
+  // While another tab's page loads, useFetch may still hold the last one: show nothing of it.
   watch(
-    fetched.data,
-    (page) => {
-      pinned.value = page?.pinned ?? [];
-      posts.value = page?.posts ?? [];
-      next.value = page?.next ?? null;
+    [fetched.data, feed],
+    ([page, name]) => {
+      const shown = page?.feed === name ? page : null;
+      pinned.value = shown?.pinned ?? [];
+      posts.value = shown?.posts ?? [];
+      next.value = shown?.next ?? null;
     },
     { immediate: true },
   );

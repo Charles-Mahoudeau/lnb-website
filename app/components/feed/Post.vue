@@ -103,7 +103,7 @@ const filled = (content: string) => content.replaceAll('fill="none"', 'fill="cur
             {{ name }}
           </span>
           <FeedAnnouncerBadge v-if="announcer" />
-          <span v-if="handle" class="min-w-0 shrink-2 truncate text-muted">{{ handle }}</span>
+          <span v-if="handle" class="min-w-0 shrink-20 truncate text-muted">{{ handle }}</span>
           <time
             v-if="props.mode !== 'main'"
             :datetime="props.post.createdAt"

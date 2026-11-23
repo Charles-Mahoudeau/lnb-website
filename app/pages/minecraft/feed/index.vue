@@ -230,10 +230,10 @@ function onWrite() {
           role="status"
         >
           <div v-for="n in 3" :key="n" class="flex gap-3">
-            <USkeleton class="size-10 rounded-sm" />
+            <USkeleton class="size-10 rounded-sm bg-accented" />
             <div class="flex flex-1 flex-col gap-2">
-              <USkeleton class="h-4 w-40" />
-              <USkeleton class="h-4 w-full" />
+              <USkeleton class="h-4 w-40 bg-accented" />
+              <USkeleton class="h-4 w-full bg-accented" />
             </div>
           </div>
         </div>
