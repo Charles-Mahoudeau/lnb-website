@@ -648,6 +648,9 @@ describe('Feed rights', () => {
     });
 
     it('sends one for each player whose ban in force the sanctions reset lifts', async () => {
+      // The reset deletes every ban in the database, other files' included: start from none, so
+      // only this test's bans are in play (it would delete those leftovers anyway).
+      await db.delete(wardenBan);
       const admin = await person('Admin Lune', { role: 'admin' });
       const camille = await person('Camille Roux');
       const mika = await person('Mika Lefort');
