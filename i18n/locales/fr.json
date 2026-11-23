@@ -1522,6 +1522,22 @@
           "label": "Billets du changelog programmés",
           "description": "La tâche qui publie les billets du changelog quand leur date arrive."
         },
+        "feed": {
+          "label": "Feed",
+          "description": "Le Feed du téléphone du jeu et du site : les annonces et les messages des joueurs. Désactivé par défaut. Désactivé, toutes les routes du Feed répondent qu’il est indisponible ; rien n’est supprimé."
+        },
+        "feed_serverApi": {
+          "label": "Feed pour le serveur Minecraft",
+          "description": "Les routes du Feed pour le serveur Minecraft et son flux en direct. Désactivé, le téléphone du jeu affiche le Feed comme indisponible ; le site continue de fonctionner."
+        },
+        "feed_writing": {
+          "label": "Écriture dans le Feed",
+          "description": "Publier, répondre et aimer, en jeu et sur le site. Désactivé, le Feed est en lecture seule ; supprimer et épingler restent possibles."
+        },
+        "jobs_feedPurge": {
+          "label": "Purge du Feed",
+          "description": "La suppression nocturne des messages du Feed supprimés depuis plus de 30 jours, et des notifications que personne n’a prises en 30 jours."
+        },
         "jobs_pruneAudit": {
           "label": "Nettoyage du journal d’activité",
           "description": "La suppression nocturne des entrées du journal d’activité de plus de 24 mois. Les bannissements, notes et avertissements n’en font pas partie."

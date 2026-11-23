@@ -1518,6 +1518,22 @@
           "label": "Scheduled changelog posts",
           "description": "The job that publishes changelog posts when their date comes."
         },
+        "feed": {
+          "label": "Feed",
+          "description": "The Feed of the game phone and the website: announcements and the players' posts. Off by default. With it off, every Feed route answers that it is unavailable; nothing is deleted."
+        },
+        "feed_serverApi": {
+          "label": "Feed for the Minecraft server",
+          "description": "The Minecraft server's Feed routes and live stream. Off, the game phone shows Feed as unavailable; the website keeps working."
+        },
+        "feed_writing": {
+          "label": "Feed writing",
+          "description": "Posting, replying and liking, in game and on the website. Off, Feed is read-only; deleting and pinning still work."
+        },
+        "jobs_feedPurge": {
+          "label": "Feed purge",
+          "description": "The nightly removal of Feed posts deleted more than 30 days ago, and of notifications nobody took in 30 days."
+        },
         "jobs_pruneAudit": {
           "label": "Activity log cleanup",
           "description": "The nightly removal of activity log entries older than 24 months. Bans, notes and warnings are not part of it."
