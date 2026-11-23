@@ -431,7 +431,7 @@ describe('the live routes, against the contract', () => {
       expect(await first('')).toBe(`ping:${String(latest)}`);
     });
 
-    it('answers 429 tooManyStreams with the caps reached, before any header, and frees a place on close', async () => {
+    it('answers 429 tooManyStreams past the total cap, before any header, and frees a place on close', async () => {
       const camille = await person('Camille Roux');
       const mika = await person('Mika Laurent');
       const lea = await person('Léa Martin');
@@ -440,10 +440,11 @@ describe('the live routes, against the contract', () => {
         await openStream(streamOn(hub), camille),
         await openStream(streamOn(hub), camille),
       ];
-      const perUser = await openStream(streamOn(hub), camille);
-      expect(perUser.error).toEqual({ statusCode: 429, data: { problem: 'tooManyStreams' } });
-      expect(perUser.streaming).toBe(false);
-      expect(perUser.headers.get('content-type')).toBeUndefined();
+      // Camille's third stream replaces her oldest instead of being refused.
+      const replacing = await openStream(streamOn(hub), camille);
+      expect(replacing.status).toBe(200);
+      expect((await kept[0]!.read(() => false)).at(-1)?.event).toBe('closed');
+      kept.splice(0, 1, replacing);
       const third = await openStream(streamOn(hub), mika);
       expect(third.status).toBe(200);
       const total = await openStream(streamOn(hub), lea);

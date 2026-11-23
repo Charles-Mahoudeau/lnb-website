@@ -332,17 +332,19 @@ describe('the live routes over HTTP', () => {
       expect((await lost.read((events) => events.length > 0))[0]!.event).toBe('reset');
     });
 
-    it('refuses a sixth stream for one account with 429 tooManyStreams', async () => {
+    it('closes the oldest stream of an account for its sixth, saying why', async () => {
       const camille = await person('Camille Roux');
-      const mika = await person('Mika Laurent');
-      for (let n = 0; n < 5; n++) expect((await open(camille)).status).toBe(200);
-      expect((await open(camille)).error).toEqual({
-        statusCode: 429,
-        data: { problem: 'tooManyStreams' },
-      });
-      expect((await open(mika)).status).toBe(200);
-      opened[0]!.close();
+      const first = await open(camille);
+      await first.read((events) => events.length > 0);
+      for (let n = 0; n < 4; n++) expect((await open(camille)).status).toBe(200);
       expect((await open(camille)).status).toBe(200);
+      const events = await first.read(() => false);
+      expect(events.at(-1)).toEqual({
+        id: undefined,
+        event: 'closed',
+        data: '{"problem":"tooManyStreams"}',
+      });
+      expect(feedLiveHub.stats().connections).toBe(5);
     });
 
     it('closes the open streams when feed.live goes off', async () => {

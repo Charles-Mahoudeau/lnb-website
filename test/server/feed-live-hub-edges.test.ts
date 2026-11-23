@@ -309,21 +309,26 @@ describe('the Feed live hub, edges', () => {
   });
 
   describe('the caps', () => {
-    it('refuses a sixth stream for one account before anything is sent or counted', async () => {
+    it('makes room for a sixth stream of one account by closing its oldest, saying why', async () => {
       const live = rig.hub();
       const mine = Array.from({ length: 5 }, () => connect(live));
       await tick(0);
       const before = mine.map((client) => client.state.messages.length);
       const { error, client } = refusedJoin(live, 'u1');
-      expect(error).toMatchObject({ statusCode: 429, data: { problem: 'tooManyStreams' } });
-      expect(client.state.messages).toEqual([]);
-      expect(client.state.closes).toBe(0);
+      expect(error).toBeNull();
+      expect(mine[0]!.state.closed).toBe(true);
+      expect(mine[0]!.state.messages.at(-1)).toEqual({
+        event: 'closed',
+        data: '{"problem":"tooManyStreams"}',
+      });
+      expect(mine.slice(1).map((one) => one.state.closed)).toEqual([false, false, false, false]);
+      expect(mine.slice(1).map((one) => one.state.messages.length)).toEqual(before.slice(1));
+      expect(client.state.messages).toEqual([{ id: '10', event: 'ping', data: '{}' }]);
       expect(live.stats()).toMatchObject({ connections: 5, users: 1 });
-      await tick();
-      expect(mine.map((one) => one.state.messages.length)).toEqual(before);
-      // Others are not affected, and the refused account stays at five.
+      // Others are not affected; the next one of the account takes the next oldest's place.
       expect(refusedJoin(live, 'u2').error).toBeNull();
-      expect(refusedJoin(live, 'u1').error).not.toBeNull();
+      expect(refusedJoin(live, 'u1').error).toBeNull();
+      expect(mine[1]!.state.closed).toBe(true);
       expect(live.stats()).toMatchObject({ connections: 6, users: 2 });
     });
 
@@ -365,8 +370,12 @@ describe('the Feed live hub, edges', () => {
         await tick(0);
         await free(mine[0]!);
         expect(live.stats().connections).toBe(4);
+        // The freed slot takes one stream without closing another; the next one closes the oldest.
         expect(refusedJoin(live, 'u1').error).toBeNull();
-        expect(refusedJoin(live, 'u1').error).toMatchObject({ statusCode: 429 });
+        expect(mine.slice(1).some((one) => one.state.closed)).toBe(false);
+        expect(refusedJoin(live, 'u1').error).toBeNull();
+        expect(mine[1]!.state.closed).toBe(true);
+        expect(live.stats().connections).toBe(5);
       });
     }
 
@@ -378,12 +387,11 @@ describe('the Feed live hub, edges', () => {
       await tick(0);
       await tick(25_000);
       expect(live.stats().connections).toBe(5);
-      expect(refusedJoin(live, 'u1').error).not.toBeNull();
+      expect(first.state.closed).toBe(false);
       answer = () => Promise.resolve(false);
       await tick(25_000);
       expect(first.state.closed).toBe(true);
       expect(live.stats().connections).toBe(4);
-      expect(refusedJoin(live, 'u1').error).toBeNull();
     });
 
     it('does not free a second slot when a closed connection is left again', async () => {
@@ -399,7 +407,10 @@ describe('the Feed live hub, edges', () => {
       expect(live.stats().connections).toBe(3);
       expect(refusedJoin(live, 'u1').error).toBeNull();
       expect(refusedJoin(live, 'u1').error).toBeNull();
-      expect(refusedJoin(live, 'u1').error).toMatchObject({ statusCode: 429 });
+      expect(mine.slice(2).some((one) => one.state.closed)).toBe(false);
+      expect(refusedJoin(live, 'u1').error).toBeNull();
+      expect(mine[2]!.state.closed).toBe(true);
+      expect(live.stats().connections).toBe(5);
     });
 
     it('stops at 500 streams in all, at 5 each, and frees one place per close', async () => {
@@ -450,14 +461,16 @@ describe('the Feed live hub, edges', () => {
       const again = Array.from({ length: 5 }, () => connect(live));
       await tick(0);
       expect(again.every((client) => !client.state.closed)).toBe(true);
-      expect(refusedJoin(live, 'u1').error).not.toBeNull();
-      expect(again[0]!.state.messages).toEqual([{ id: '12', event: 'ping', data: '{}' }]);
+      // A sixth takes the oldest's place, as before the switch.
+      expect(refusedJoin(live, 'u1').error).toBeNull();
+      expect(again[0]!.state.closed).toBe(true);
+      expect(again[1]!.state.messages).toEqual([{ id: '12', event: 'ping', data: '{}' }]);
       // A tab that comes back with its old ID is told to reload: nothing is replayed from before.
       const old = connect(live, { user: 'u3', last: 11 });
       expect(old.state.messages).toEqual([{ event: 'reset', data: '{}' }]);
       rig.db.add('counts', { items: [] });
       await tick();
-      expect(again[0]!.ids()).toEqual(['13']);
+      expect(again[1]!.ids()).toEqual(['13']);
     });
 
     it('closes a connection that opens while a flag is off, sending nothing', async () => {

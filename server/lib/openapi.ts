@@ -5005,7 +5005,7 @@ const routes: RouteDoc[] = [
     description: [
       'Keep it open while a Feed page shows: `post` (ask `GET /api/feed/views` for your view), `deleted`, `counts` and `pins` (the whole group), with the same data as the Minecraft server’s stream. Never `rights` or `notification`, and nothing per viewer.',
       '',
-      "Server-Sent Events: each event's `id` is its number, its `event` the type and its `data` the JSON below. A `ping` comes at opening and after 25 quiet seconds, its `id` the last event read. Send `Last-Event-ID` when reconnecting to get the events missed (the last 500); an older or unknown ID gets `reset` first, and the page reloads what it shows. The stream closes when your session ends or when `feed` or `feed.live` goes off. 5 open streams per account and 500 in all, past which `tooManyStreams`. Behind `feed` and `feed.live`.",
+      "Server-Sent Events: each event's `id` is its number, its `event` the type and its `data` the JSON below. A `ping` comes at opening and after 25 quiet seconds, its `id` the last event read. Send `Last-Event-ID` when reconnecting to get the events missed (the last 500); an older or unknown ID gets `reset` first, and the page reloads what it shows. The stream closes when your session ends or when `feed` or `feed.live` goes off. 5 open streams per account: a sixth closes the account's oldest, which gets a `closed` event first. 500 in all, past which `tooManyStreams`. Behind `feed` and `feed.live`.",
     ].join('\n'),
     access: 'user',
     response: {

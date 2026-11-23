@@ -377,6 +377,14 @@ export const feedLiveEvent = z.discriminatedUnion('type', [
         'Events were missed (`Last-Event-ID` older than the replay buffer, or unknown): reload what the page shows and merge it.',
       ),
   }),
+  z.object({
+    type: z.literal('closed'),
+    data: z
+      .object({ problem: z.literal('tooManyStreams') })
+      .describe(
+        'The last message of a stream closed for a newer one of the same account (5 at most): come back later, not at once.',
+      ),
+  }),
 ]);
 export type FeedLiveEvent = z.infer<typeof feedLiveEvent>;
 

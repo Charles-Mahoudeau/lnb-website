@@ -92,6 +92,8 @@ interface Buffered extends FeedLiveMessage {
 }
 
 const RESET: FeedLiveMessage = { event: 'reset', data: '{}' };
+/** Sent to an account's oldest stream before it is closed for a newer one of the account. */
+const REPLACED: FeedLiveMessage = { event: 'closed', data: '{"problem":"tooManyStreams"}' };
 
 /**
  * A hub with its own source, flags and clock, so tests can drive it. The site uses one,
@@ -330,11 +332,19 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
   }
 
   /**
-   * Opens a connection: 429 `tooManyStreams` past the caps, before anything is sent. Returns the
-   * function to call when the response closes.
+   * Opens a connection. An account at its cap gets its oldest stream closed to make room (one a
+   * client left without closing, a laptop asleep or a network change, would otherwise hold its
+   * place until TCP gives up); past the total cap, 429 `tooManyStreams`, before anything is sent.
+   * Returns the function to call when the response closes.
    */
   function join(input: FeedLiveJoin): () => void {
-    if (connections.size >= limits.total || (perUser.get(input.userId) ?? 0) >= limits.perUser) {
+    if ((perUser.get(input.userId) ?? 0) >= limits.perUser) {
+      const oldest = [...connections].find((conn) => conn.userId === input.userId);
+      if (oldest) {
+        send(oldest, REPLACED);
+        kick(oldest);
+      }
+    } else if (connections.size >= limits.total) {
       refuse(429, 'tooManyStreams');
     }
     const at = now();

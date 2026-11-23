@@ -274,24 +274,29 @@ describe('the Feed live hub', () => {
     expect(current.state.messages).toEqual([{ id: '10', event: 'ping', data: '{}' }]);
   });
 
-  it('refuses a sixth stream for one account, and a stream past the total, with 429', () => {
+  it('closes an account’s oldest stream for its sixth, and refuses one past the total', () => {
     const live = hub({ total: 7 });
     const mine = Array.from({ length: 5 }, () => connect(live));
+    const sixth = connect(live);
+    expect(mine[0]!.state.closed).toBe(true);
+    expect(sixth.state.closed).toBe(false);
+    connect(live, { user: 'u2' });
+    connect(live, { user: 'u3' });
     const refusal = (() => {
       try {
-        connect(live);
+        connect(live, { user: 'u4' });
       } catch (error) {
         return error as { statusCode: number; data: unknown };
       }
       return null;
     })();
     expect(refusal).toMatchObject({ statusCode: 429, data: { problem: 'tooManyStreams' } });
-    connect(live, { user: 'u2' });
-    connect(live, { user: 'u3' });
-    expect(() => connect(live, { user: 'u4' })).toThrow();
-    // A tab that closes frees its place.
-    mine[0]!.leave();
+    // At the total, an account at its own cap still replaces its oldest.
     expect(() => connect(live)).not.toThrow();
+    expect(mine[1]!.state.closed).toBe(true);
+    // A tab that closes frees its place.
+    mine[2]!.leave();
+    expect(() => connect(live, { user: 'u4' })).not.toThrow();
     expect(live.stats().connections).toBe(7);
   });
 
