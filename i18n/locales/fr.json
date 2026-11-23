@@ -455,7 +455,7 @@
     "aside": {
       "title": "Bon à savoir",
       "text": "280 caractères, du texte seulement.",
-      "anonymous": "Un post anonyme cache ton nom aux joueurs. Les modérateurs le voient.",
+      "anonymous": "Une publication anonyme cache ton nom aux joueurs. Les modérateurs le voient.",
       "rules": "Le Feed suit le règlement du serveur.",
       "rulesLink": "Lire le règlement"
     },
@@ -464,8 +464,8 @@
       "placeholder": "Quoi de neuf sur le serveur ?",
       "changeAccount": "Changer de compte",
       "postWith": "Publier avec",
-      "accountShows": "Tes posts afficheront {name}",
-      "accountChanged": "Tes posts affichent maintenant {name}",
+      "accountShows": "Tes publications afficheront {name}",
+      "accountChanged": "Tes publications affichent maintenant {name}",
       "hidden": "Masqué aux joueurs",
       "anonymous": "Publier anonymement",
       "anonymousHelp": "Masqué aux joueurs, visible par les modérateurs",
@@ -482,7 +482,7 @@
       "banned": "Tu es banni du serveur",
       "bannedText": "Tu peux lire le Feed, mais pas publier, répondre ni aimer pendant le bannissement.",
       "bannedAction": "Voir mon bannissement",
-      "paused": "La publication est en pause pour l’instant. Tu peux toujours lire et supprimer tes posts."
+      "paused": "Impossible de publier pour l’instant. Tu peux toujours lire et supprimer tes publications."
     },
     "post": {
       "label": "Post de {name}",
@@ -492,6 +492,7 @@
       "now": "à l’instant",
       "replyTo": "En réponse à {name}",
       "privateMine": "Publié anonymement par toi",
+      "privateMineReply": "Publiée anonymement par toi",
       "privateAuthor": "Auteur : {name}",
       "replies": "Aucune réponse | {count} réponse | {count} réponses",
       "unseen": "{count} nouvelle | {count} nouvelles",
@@ -548,19 +549,19 @@
       "goneBack": "Retour au Feed"
     },
     "errors": {
-      "notFound": "Ce post a été supprimé.",
+      "notFound": "Cette publication a été supprimée.",
       "notLinked": "Lie d’abord un compte Minecraft, depuis la page de ton compte Minecraft.",
       "banned": "Tu ne peux pas publier, répondre ni aimer pendant un bannissement.",
       "notAllowed": "Seuls les annonceurs peuvent faire ça.",
       "emptyText": "Écris d’abord quelque chose.",
-      "tooLong": "Un post fait 280 caractères au plus. Raccourcis-le un peu.",
+      "tooLong": "Une publication fait 280 caractères au plus. Raccourcis-la un peu.",
       "notPinnable": "Seules les annonces peuvent être épinglées.",
       "rateLimited": "Tu vas un peu vite. Réessaie dans {seconds} s.",
       "failed": "Ça n’est pas passé. Vérifie ta connexion et réessaie.",
-      "writingPaused": "La publication est en pause pour l’instant. Réessaie plus tard.",
+      "writingPaused": "Impossible de publier pour l’instant. Réessaie plus tard.",
       "unavailable": "Le Feed est indisponible pour l’instant. Réessaie plus tard.",
       "sendFailed": "Ça n’est pas passé. Vérifie ta connexion et renvoie-le : il ne sera pas publié deux fois.",
-      "sentThenDeleted": "Ce post était déjà parti, puis il a été supprimé : il n’est pas republié. Le brouillon est effacé."
+      "sentThenDeleted": "Cette publication était déjà partie, puis elle a été supprimée : elle n’est pas republiée. Le brouillon est effacé."
     }
   },
   "warden": {
@@ -5181,7 +5182,7 @@
         "global": "Global",
         "replies": "Réponses",
         "anonymous": "Anonymes",
-        "deleted": "Supprimés"
+        "deleted": "Supprimées"
       },
       "person": {
         "label": "Personne",
@@ -5216,11 +5217,17 @@
       "likes": "Aucun j’aime | 1 j’aime | {count} j’aime",
       "replies": "Aucune réponse | 1 réponse | {count} réponses",
       "state": {
-        "deleted": "Supprimé",
+        "deleted": {
+          "post": "Supprimé",
+          "reply": "Supprimée"
+        },
         "by": "Par {name}, {date}",
         "author": "Par l’auteur, {date}",
         "thread": "Avec son post, {date}",
-        "purge": "Effacé le {date}"
+        "purge": {
+          "post": "Effacé le {date}",
+          "reply": "Effacée le {date}"
+        }
       },
       "first": "Première page",
       "next": "Page suivante",
@@ -5228,9 +5235,9 @@
       "pageFailed": "Cette page de la table du Feed ne s’est pas chargée. Son adresse est peut-être périmée : reviens à la première page.",
       "empty": {
         "title": "Aucune publication",
-        "text": "Les posts et réponses du jeu et du site s’affichent ici, les supprimés aussi pendant 30 jours.",
+        "text": "Les publications du jeu et du site s’affichent ici, les supprimées aussi pendant 30 jours.",
         "filteredTitle": "Rien ne correspond",
-        "filteredText": "Aucun post ni réponse ne correspond à ces filtres. Retire un filtre ou change la recherche.",
+        "filteredText": "Aucune publication ne correspond à ces filtres. Retire un filtre ou change la recherche.",
         "clear": "Effacer les filtres"
       },
       "drawer": {
@@ -5254,9 +5261,9 @@
         "facts": {
           "feed": "Fil",
           "replyingTo": "En réponse à",
-          "posted": "Publiée",
+          "posted": "Date",
           "account": "Compte Minecraft",
-          "source": "Publiée depuis",
+          "source": "Provenance",
           "likes": "J’aime",
           "replies": "Réponses",
           "reason": "Raison"
@@ -5279,8 +5286,8 @@
       "delete": {
         "postTitle": "Supprimer ce post ?",
         "replyTitle": "Supprimer cette réponse ?",
-        "postText": "Il disparaît tout de suite pour tout le monde, en jeu et sur le site. Les modérateurs le retrouvent dans « Supprimés » pendant 30 jours, puis il est effacé. | Il disparaît tout de suite pour tout le monde, en jeu et sur le site, avec sa réponse. Les modérateurs le retrouvent dans « Supprimés » pendant 30 jours, puis il est effacé. | Il disparaît tout de suite pour tout le monde, en jeu et sur le site, avec ses {count} réponses. Les modérateurs le retrouvent dans « Supprimés » pendant 30 jours, puis il est effacé.",
-        "replyText": "Elle disparaît tout de suite pour tout le monde, en jeu et sur le site. Les modérateurs la retrouvent dans « Supprimés » pendant 30 jours, puis elle est effacée.",
+        "postText": "Il disparaît tout de suite pour tout le monde, en jeu et sur le site. Les modérateurs le retrouvent dans « Supprimées » pendant 30 jours, puis il est effacé. | Il disparaît tout de suite pour tout le monde, en jeu et sur le site, avec sa réponse. Les modérateurs le retrouvent dans « Supprimées » pendant 30 jours, puis il est effacé. | Il disparaît tout de suite pour tout le monde, en jeu et sur le site, avec ses {count} réponses. Les modérateurs le retrouvent dans « Supprimées » pendant 30 jours, puis il est effacé.",
+        "replyText": "Elle disparaît tout de suite pour tout le monde, en jeu et sur le site. Les modérateurs la retrouvent dans « Supprimées » pendant 30 jours, puis elle est effacée.",
         "reason": "Raison (facultative)",
         "reasonHelp": "Gardée dans le journal d’activité et sur la ligne supprimée. Les joueurs ne la voient pas.",
         "ownText": "C’est ta propre publication : elle est supprimée comme par son auteur, comme sur la page Feed. Aucune raison n’est gardée et rien n’est inscrit au journal d’activité.",

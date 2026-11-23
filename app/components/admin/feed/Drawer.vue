@@ -43,6 +43,8 @@ const name = (post: FeedAdminPost) => feedDisplayName(post.author);
 const handle = (post: FeedAdminPost) => feedHandle(post.author);
 const fullDate = (iso: string) => formatFeedDate(iso, locale.value);
 const day = (iso: string) => formatFeedAdminDay(iso, locale.value);
+/** A main post or a reply: French words agree with it. */
+const kindOf = (post: FeedAdminPost) => (post.threadId ? 'reply' : 'post');
 
 /** What the row answers: the reply it names, or the main post. */
 const answered = computed(() => {
@@ -179,7 +181,9 @@ async function onDelete() {
           icon="i-lucide-trash-2"
           :title="deletedLine"
           :description="
-            row.purgeAt ? t('admin.feed.state.purge', { date: day(row.purgeAt) }) : undefined
+            row.purgeAt
+              ? t(`admin.feed.state.purge.${kindOf(row)}`, { date: day(row.purgeAt) })
+              : undefined
           "
         />
 
@@ -257,7 +261,7 @@ async function onDelete() {
                 class="flex items-center gap-1.5 px-4 pb-3 pl-17 text-sm text-muted sm:px-5 sm:pl-18"
               >
                 <UIcon name="i-lucide-trash-2" class="size-4 shrink-0" />
-                {{ t('admin.feed.state.deleted') }}
+                {{ t(`admin.feed.state.deleted.${kindOf(item.post)}`) }}
               </p>
               <p
                 v-if="item.kind === 'main' && around.before"

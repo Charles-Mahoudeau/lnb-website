@@ -492,6 +492,7 @@
       "now": "now",
       "replyTo": "Replying to {name}",
       "privateMine": "Posted anonymously by you",
+      "privateMineReply": "Posted anonymously by you",
       "privateAuthor": "Author: {name}",
       "replies": "No replies | {count} reply | {count} replies",
       "unseen": "{count} new | {count} new",
@@ -5212,11 +5213,17 @@
       "likes": "No likes | 1 like | {count} likes",
       "replies": "No replies | 1 reply | {count} replies",
       "state": {
-        "deleted": "Deleted",
+        "deleted": {
+          "post": "Deleted",
+          "reply": "Deleted"
+        },
         "by": "By {name}, {date}",
         "author": "By the author, {date}",
         "thread": "With its post, {date}",
-        "purge": "Erased on {date}"
+        "purge": {
+          "post": "Erased on {date}",
+          "reply": "Erased on {date}"
+        }
       },
       "first": "First page",
       "next": "Next page",

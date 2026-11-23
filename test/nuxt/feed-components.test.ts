@@ -130,6 +130,23 @@ describe('a post', () => {
     expect(view.text()).not.toContain('Author:');
   });
 
+  it('makes the French private line agree with a post or a reply', async () => {
+    const i18n = useNuxtApp().$i18n;
+    await i18n.setLocale('fr');
+    try {
+      const own = await mountSuspended(Post, {
+        props: { post: post({ anonymous: true, mine: true }) },
+      });
+      expect(own.text()).toContain('Publié anonymement par toi');
+      const ownReply = await mountSuspended(Post, {
+        props: { post: post({ anonymous: true, mine: true, threadId: MAIN_ID }), mode: 'reply' },
+      });
+      expect(ownReply.text()).toContain('Publiée anonymement par toi');
+    } finally {
+      await i18n.setLocale('en');
+    }
+  });
+
   it('tells the author of an anonymous post, and gives a moderator the real author', async () => {
     const own = await mountSuspended(Post, {
       props: { post: post({ anonymous: true, mine: true }) },

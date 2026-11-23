@@ -380,11 +380,15 @@ async function onDeleted() {
                     color="neutral"
                     variant="subtle"
                     size="md"
-                    :label="t('admin.feed.state.deleted')"
+                    :label="t(`admin.feed.state.deleted.${row.threadId ? 'reply' : 'post'}`)"
                   />
                   <span class="text-muted tabular-nums">{{ deletedLine(row) }}</span>
                   <span v-if="row.purgeAt" class="text-muted tabular-nums">
-                    {{ t('admin.feed.state.purge', { date: day(row.purgeAt) }) }}
+                    {{
+                      t(`admin.feed.state.purge.${row.threadId ? 'reply' : 'post'}`, {
+                        date: day(row.purgeAt),
+                      })
+                    }}
                   </span>
                 </div>
               </td>

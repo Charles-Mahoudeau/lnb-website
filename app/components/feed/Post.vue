@@ -39,7 +39,9 @@ const announcer = computed(() => !anonymous.value && author.value?.announcer ===
 /** The lock line: the author's own anonymous post, or the real author for a moderator. */
 const privateLine = computed(() => {
   if (!anonymous.value || !author.value) return null;
-  if (props.post.mine) return t('feed.post.privateMine');
+  if (props.post.mine) {
+    return t(props.post.threadId ? 'feed.post.privateMineReply' : 'feed.post.privateMine');
+  }
   const shown = [feedDisplayName(author.value), feedHandle(author.value)].filter(Boolean);
   return t('feed.post.privateAuthor', { name: shown.join(' ') });
 });

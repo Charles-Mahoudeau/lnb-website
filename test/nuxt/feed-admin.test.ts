@@ -233,6 +233,32 @@ describe('the Feed table', () => {
     expect(view.findAll('tbody tr')).toHaveLength(3);
   });
 
+  it('makes the French words agree with a post or a reply', async () => {
+    const deletedReply = row({
+      ...deleted,
+      id: id(42),
+      threadId: main.id,
+      deletedCause: 'author',
+      deletedBy: null,
+    });
+    serveList(() => list({ items: [deleted, deletedReply] }));
+    const i18n = useNuxtApp().$i18n;
+    await i18n.setLocale('fr');
+    try {
+      const view = await mountTab('/admin/moderation/feed?deleted=true');
+      const [post, reply] = view.findAll('tbody tr').map((tr) => words(tr.text()));
+      expect(post).toContain('Supprimé');
+      expect(post).not.toContain('Supprimée');
+      expect(post).toContain('Effacé le');
+      expect(reply).toContain('Supprimée');
+      expect(reply).toContain('Effacée le');
+      expect(words(view.text())).toContain('Supprimées');
+      expect(words(view.text())).toContain('publications supprimées');
+    } finally {
+      await i18n.setLocale('en');
+    }
+  });
+
   it('sends the search after a pause, and only from 2 characters', async () => {
     serveList();
     const view = await mountTab();
