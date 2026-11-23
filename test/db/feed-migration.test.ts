@@ -77,6 +77,28 @@ describe('0064_feed', () => {
     expect(flags).toEqual([{ key: 'feed', enabled: false }]);
   });
 
+  it('indexes every foreign key of its tables, with no condition a cascade could not use', async () => {
+    // A foreign key whose column leads no plain index costs a scan of its table for each row a
+    // cascade deletes or sets to null: deleting one account read the whole of feed_post per post.
+    const unindexed = await rows<{ fk: string }>(`
+      SELECT c.conname AS fk
+      FROM pg_constraint c
+      WHERE c.contype = 'f'
+        AND c.conrelid::regclass::text LIKE 'feed_%'
+        AND NOT EXISTS (
+          SELECT 1 FROM pg_index i
+          WHERE i.indrelid = c.conrelid
+            AND i.indkey[0] = c.conkey[1]
+            AND i.indpred IS NULL
+        )
+      ORDER BY 1`);
+    expect(unindexed).toEqual([]);
+    const fks = await rows(
+      `SELECT 1 FROM pg_constraint WHERE contype = 'f' AND conrelid::regclass::text LIKE 'feed_%'`,
+    );
+    expect(fks.length).toBeGreaterThanOrEqual(14);
+  });
+
   it('counts the text in code points: 280 astral characters fit, 281 and none do not', async () => {
     const smile = String.fromCodePoint(0x1f600);
     expect(await failure(POST, insertPost({ text: smile.repeat(280) }))).toBeNull();

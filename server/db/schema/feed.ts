@@ -89,17 +89,17 @@ export const feedPost = pgTable(
       .where(
         sql`${table.threadId} is null and ${table.deletedAt} is null and ${table.pinnedAt} is null`,
       ),
-    index('feed_post_thread_idx')
-      .on(table.threadId, table.createdAt, table.id)
-      .where(sql`${table.deletedAt} is null`),
+    // Not partial: it also serves the foreign key, which a cascade looks up for every deleted row.
+    index('feed_post_thread_idx').on(table.threadId, table.createdAt, table.id),
     index('feed_post_pinned_idx')
       .on(table.pinnedAt)
       .where(sql`${table.pinnedAt} is not null`),
     index('feed_post_author_idx').on(table.authorUserId, table.createdAt),
-    index('feed_post_reply_to_user_idx')
-      .on(table.replyToUserId, table.threadId)
-      .where(sql`${table.deletedAt} is null`),
+    index('feed_post_reply_to_user_idx').on(table.replyToUserId, table.threadId),
     index('feed_post_reply_to_idx').on(table.replyToId),
+    // For the foreign keys: deleting an account sets these to null.
+    index('feed_post_pinned_by_idx').on(table.pinnedByUserId),
+    index('feed_post_deleted_by_idx').on(table.deletedByUserId),
     index('feed_post_deleted_idx')
       .on(table.deletedAt)
       .where(sql`${table.deletedAt} is not null`),
@@ -128,17 +128,22 @@ export const feedLike = pgTable(
  * An LNB account that used Feed: the browser's posting account and when it last viewed each feed
  * (the unread dots). Created on first need.
  */
-export const feedMember = pgTable('feed_member', {
-  userId: text('user_id')
-    .primaryKey()
-    .references(() => user.id, { onDelete: 'cascade' }),
-  postingMinecraftUuid: uuid('posting_minecraft_uuid').references(() => minecraftAccount.uuid, {
-    onDelete: 'set null',
-  }),
-  announcementsSeenAt: timestamp('announcements_seen_at'),
-  globalSeenAt: timestamp('global_seen_at'),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+export const feedMember = pgTable(
+  'feed_member',
+  {
+    userId: text('user_id')
+      .primaryKey()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    postingMinecraftUuid: uuid('posting_minecraft_uuid').references(() => minecraftAccount.uuid, {
+      onDelete: 'set null',
+    }),
+    announcementsSeenAt: timestamp('announcements_seen_at'),
+    globalSeenAt: timestamp('global_seen_at'),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  // For the foreign key: when the Minecraft account's row goes, the choice goes with it.
+  (table) => [index('feed_member_posting_idx').on(table.postingMinecraftUuid)],
+);
 
 /** When an LNB account last opened a thread, for the unseen-replies markers. */
 export const feedThreadSeen = pgTable(
@@ -152,7 +157,11 @@ export const feedThreadSeen = pgTable(
       .references(() => feedPost.id, { onDelete: 'cascade' }),
     seenAt: timestamp('seen_at').notNull(),
   },
-  (table) => [primaryKey({ columns: [table.userId, table.threadId] })],
+  (table) => [
+    primaryKey({ columns: [table.userId, table.threadId] }),
+    // For the foreign key: the key starts with the account, a deleted thread looks up its rows.
+    index('feed_thread_seen_thread_idx').on(table.threadId),
+  ],
 );
 
 /**
@@ -174,5 +183,8 @@ export const feedNotification = pgTable(
   (table) => [
     check('feed_notification_kind_check', sql`${table.kind} in ('announcement', 'reply')`),
     index('feed_notification_created_at_idx').on(table.createdAt),
+    // For the foreign keys: a deleted post or account takes its rows.
+    index('feed_notification_post_idx').on(table.postId),
+    index('feed_notification_recipient_idx').on(table.recipientUserId),
   ],
 );

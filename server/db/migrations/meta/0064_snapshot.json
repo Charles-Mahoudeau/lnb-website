@@ -1,5 +1,5 @@
 {
-  "id": "9296ff7e-e25e-451f-87bf-2c64a0227b95",
+  "id": "23bdf095-6d3e-42ed-8ae3-9e52967d9e3a",
   "prevId": "854a1f01-0cc1-4a8f-8b9a-c2ac6d334e5f",
   "version": "7",
   "dialect": "postgresql",
@@ -5418,7 +5418,23 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "feed_member_posting_idx": {
+          "name": "feed_member_posting_idx",
+          "columns": [
+            {
+              "expression": "posting_minecraft_uuid",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "feed_member_user_id_user_id_fk": {
           "name": "feed_member_user_id_user_id_fk",
@@ -5488,6 +5504,36 @@
           "columns": [
             {
               "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "feed_notification_post_idx": {
+          "name": "feed_notification_post_idx",
+          "columns": [
+            {
+              "expression": "post_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "feed_notification_recipient_idx": {
+          "name": "feed_notification_recipient_idx",
+          "columns": [
+            {
+              "expression": "recipient_user_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -5737,7 +5783,6 @@
             }
           ],
           "isUnique": false,
-          "where": "\"feed_post\".\"deleted_at\" is null",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -5796,7 +5841,6 @@
             }
           ],
           "isUnique": false,
-          "where": "\"feed_post\".\"deleted_at\" is null",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -5806,6 +5850,36 @@
           "columns": [
             {
               "expression": "reply_to_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "feed_post_pinned_by_idx": {
+          "name": "feed_post_pinned_by_idx",
+          "columns": [
+            {
+              "expression": "pinned_by_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "feed_post_deleted_by_idx": {
+          "name": "feed_post_deleted_by_idx",
+          "columns": [
+            {
+              "expression": "deleted_by_user_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -5949,7 +6023,23 @@
           "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "feed_thread_seen_thread_idx": {
+          "name": "feed_thread_seen_thread_idx",
+          "columns": [
+            {
+              "expression": "thread_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "feed_thread_seen_user_id_user_id_fk": {
           "name": "feed_thread_seen_user_id_user_id_fk",

@@ -200,7 +200,7 @@ Main posts and replies.
 
 Checks: `char_length(text) between 1 and 280` (PostgreSQL counts code points in UTF-8); `feed in ('announcements', 'global')`; `pinned_at` only on an announcement's main post (`pinned_at is null or (thread_id is null and feed = 'announcements')`); `reply_to_id` only on a reply.
 
-Indexes: the feeds, `(feed, created_at desc, id desc) where thread_id is null and deleted_at is null and pinned_at is null`; threads, `(thread_id, created_at, id) where deleted_at is null`; `(pinned_at) where pinned_at is not null`; `(author_user_id, created_at)`; markers, `(reply_to_user_id, thread_id) where deleted_at is null`; replies to a reply, `(reply_to_id)`; the purge, `(deleted_at) where deleted_at is not null`.
+Indexes: the feeds, `(feed, created_at desc, id desc) where thread_id is null and deleted_at is null and pinned_at is null`; threads, `(thread_id, created_at, id)`; `(pinned_at) where pinned_at is not null`; `(author_user_id, created_at)`; markers, `(reply_to_user_id, thread_id)`; replies to a reply, `(reply_to_id)`; `(pinned_by_user_id)` and `(deleted_by_user_id)`; the purge, `(deleted_at) where deleted_at is not null`. Every foreign key leads a plain index (none partial), since a cascade looks up the referencing rows for each row it deletes or sets to null: without them, deleting one account scanned `feed_post` once per post.
 
 ### `feed_like`
 
@@ -223,6 +223,8 @@ One row per LNB account that used Feed, created on first need.
 | `announcements_seen_at`, `global_seen_at` | `timestamp` null                                             | See "Unread dots".                                     |
 | `updated_at`                              | `timestamp` not null, default now                            |                                                        |
 
+Index `(posting_minecraft_uuid)`, for its foreign key.
+
 The **effective posting account** is `posting_minecraft_uuid` while it is linked to this account, otherwise the account's earliest-linked account that is still linked, otherwise none (the person can't write). Browser posts and replies carry it; the row is written the first time the person picks an account in the composer (`PATCH /api/feed/me`) and kept until they pick another.
 
 ### `feed_thread_seen`
@@ -233,7 +235,7 @@ The **effective posting account** is `posting_minecraft_uuid` while it is linked
 | `thread_id` | `uuid`, FK `feed_post.id`, on delete cascade |       |
 | `seen_at`   | `timestamp` not null                         |       |
 
-Primary key `(user_id, thread_id)`.
+Primary key `(user_id, thread_id)`; index `(thread_id)`, for its foreign key.
 
 ### `feed_notification`
 
@@ -245,7 +247,7 @@ Primary key `(user_id, thread_id)`.
 | `recipient_user_id` | `text` null, FK `user.id`, on delete cascade          | Null for an announcement (everyone). |
 | `created_at`        | `timestamp` not null, default now                     |                                      |
 
-Index `(created_at)`. Acknowledged rows are deleted.
+Indexes `(created_at)`, and `(post_id)` and `(recipient_user_id)` for the foreign keys. Acknowledged rows are deleted.
 
 ### Stream topic
 
