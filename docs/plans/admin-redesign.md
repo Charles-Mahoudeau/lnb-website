@@ -60,7 +60,7 @@ The group is never in the URL. Folding a group never changes one.
 | Posters        | `/admin/posters`, `/admin/posters/new`, `/admin/posters/:id`, `/admin/posters/:id/print`                                                                      |
 | Notifications  | `/admin/notifications`                                                                                                                                        |
 | Partner events | `/admin/partner-events`                                                                                                                                       |
-| Moderation     | `/admin/moderation/appeals`, `/admin/moderation/bans`, `/admin/moderation/rules`                                                                              |
+| Moderation     | `/admin/moderation/appeals`, `/admin/moderation/bans`, `/admin/moderation/rules`, `/admin/moderation/feed` (a row's drawer is `?post=<id>`)                   |
 | Playtime       | `/admin/playtime/live`, `/admin/playtime/rules`, `/admin/playtime/closures`                                                                                   |
 | Anticheat      | `/admin/anticheat/review`, `/admin/anticheat/files`                                                                                                           |
 | Modpack        | `/admin/modpack/modlist`, `/admin/modpack/vote`, `/admin/modpack/vote/suggestions`, `/admin/modpack/files`, `/admin/modpack/downloads`                        |
@@ -125,16 +125,16 @@ Links the site sends out (push notifications, Minecraft server messages, emails)
 - The People list replaces Users, Warden players and Anticheat players. The bulk actions of today's Users page (`AdminUsersBulkBar`, `AdminBulkModal`) stay, for site admins only. "Add a ghost account" stays for admins and events managers.
 - The Person page, `/admin/people/:userId/:tab`. Each tab loads its own data when opened, from the routes that exist today. Only Summary gets a new endpoint (`GET /api/admin/people/:userId/summary`). A Minecraft name or UUID in the search opens the account that owns it.
 
-| Tab          | Roles                | Content                                                             |
-| ------------ | -------------------- | ------------------------------------------------------------------- |
-| Summary      | everyone with People | "At a glance" rows linking to the other tabs, and the account facts |
-| Minecraft    | admin, Warden        | linked accounts, devices, sessions, transfers, account limit        |
-| Moderation   | admin, Warden        | bans, notes, warnings and appeals, in one timeline                  |
-| Playtime     | admin, Warden        | today's playtime panel                                              |
-| Anticheat    | admin, Warden        | today's anticheat panel and trust score                             |
-| LNBits       | admin, economy       | the personal account, balance history, transactions                 |
-| Events       | admin, events        | registrations, teams                                                |
-| Site account | admin                | roles, site ban, sign out, delete                                   |
+| Tab          | Roles                | Content                                                                                 |
+| ------------ | -------------------- | --------------------------------------------------------------------------------------- |
+| Summary      | everyone with People | "At a glance" rows linking to the other tabs, and the account facts                     |
+| Minecraft    | admin, Warden        | linked accounts, devices, sessions, transfers, account limit, the Feed announcer switch |
+| Moderation   | admin, Warden        | bans, notes, warnings and appeals, in one timeline                                      |
+| Playtime     | admin, Warden        | today's playtime panel                                                                  |
+| Anticheat    | admin, Warden        | today's anticheat panel and trust score                                                 |
+| LNBits       | admin, economy       | the personal account, balance history, transactions                                     |
+| Events       | admin, events        | registrations, teams                                                                    |
+| Site account | admin                | roles, site ban, sign out, delete                                                       |
 
 A ghost account only has Summary, Events and Site account.
 
