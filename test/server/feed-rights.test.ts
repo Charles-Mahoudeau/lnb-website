@@ -15,6 +15,7 @@ import { feedLimits } from '~~/server/services/feed/shared';
 import { feedViewService } from '~~/server/services/feed/views';
 import { wardenAdminService } from '~~/server/services/warden/admin';
 import { wardenModerationService } from '~~/server/services/warden/moderation';
+import { wardenResetService } from '~~/server/services/warden/reset';
 
 import {
   eventsSince,
@@ -29,6 +30,14 @@ import {
   wipe,
 } from './feed-helpers';
 import type { Person } from './feed-helpers';
+
+import { WARDEN_RESET_SANCTIONS_CONFIRM } from '#shared/schemas/warden';
+
+// The sanctions reset reaches the anticheat, whose catalog caches through Nitro.
+vi.mock('nitropack/runtime', () => ({
+  defineCachedFunction: (fn: unknown) => fn,
+  useStorage: () => ({}),
+}));
 
 // The rights table of docs/feed.md ("Rights"), row by row, as GET /players/:uuid reads it and as
 // every action enforces it: guest, linked, banned, announcer, moderator, and an author while
@@ -583,11 +592,9 @@ describe('Feed rights', () => {
       expect(await rightsSince(from)).toEqual([]);
     });
 
-    // Accepting an appeal lifts the ban through the moderation service's own revoke, not unban,
-    // so no rights event goes out (the contract lists an unban among what sends one). A banned
-    // player can't be on the server, so the mod reads the state again at their next join; the
-    // gap is the contract's, not one a player sees.
-    it.fails('sends one when an accepted appeal lifts the ban', async () => {
+    // Accepting an appeal lifts the ban through the moderation service's own revoke, not unban:
+    // it sends the event itself.
+    it('sends one when an accepted appeal lifts the ban', async () => {
       const admin = await person('Admin Lune', { role: 'admin' });
       const camille = await person('Camille Roux');
       const web = { source: 'web' as const, userId: admin.id };
@@ -609,6 +616,28 @@ describe('Feed rights', () => {
         response: 'Accordé',
       });
       expect((await feedRightsService.playerState(camille.uuid)).banned).toBe(false);
+      expect(await rightsSince(from)).toEqual([[camille.uuid]]);
+    });
+
+    it('sends one for each player whose ban in force the sanctions reset lifts', async () => {
+      const admin = await person('Admin Lune', { role: 'admin' });
+      const camille = await person('Camille Roux');
+      const mika = await person('Mika Lefort');
+      const web = { source: 'web' as const, userId: admin.id };
+      await wardenModerationService.ban({
+        userId: camille.id,
+        body: { reason: 'Spam', durationSeconds: 3600 },
+        actor: web,
+      });
+      // An old ban, over: lifting it changes nothing.
+      await db.insert(wardenBan).values({
+        userId: mika.id,
+        reason: 'Old',
+        source: 'web',
+        expiresAt: new Date(Date.now() - 1000),
+      });
+      const from = await latestEvent();
+      await wardenResetService.resetSanctions(web, WARDEN_RESET_SANCTIONS_CONFIRM);
       expect(await rightsSince(from)).toEqual([[camille.uuid]]);
     });
   });

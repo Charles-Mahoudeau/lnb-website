@@ -301,7 +301,7 @@ async function decideAppeal(input: {
   accept: boolean;
   response: string;
 }): Promise<WardenAppealView> {
-  return db.transaction(async (tx) => {
+  const { decided, lifted } = await db.transaction(async (tx) => {
     const [row] = await tx
       .select({ appeal: wardenAppeal, ban: wardenBan })
       .from(wardenAppeal)
@@ -333,8 +333,14 @@ async function decideAppeal(input: {
     if (input.accept && stillActive) {
       await revoke(tx, row.ban, actor, `Appeal accepted: ${input.response}`);
     }
-    return appealView(decided!, await namesOf(tx, [input.actorId]));
+    return {
+      decided: appealView(decided!, await namesOf(tx, [input.actorId])),
+      lifted: input.accept && stillActive ? row.ban.userId : null,
+    };
   });
+  // An accepted appeal lifts the ban: Feed's rights come back.
+  if (lifted) await feedEvents.rightsOfUsers([lifted]);
+  return decided;
 }
 
 /** Appeals for the admin panel, newest first. */
