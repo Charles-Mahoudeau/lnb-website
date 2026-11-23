@@ -71,6 +71,35 @@ export function feedLiveRetryDelay(attempt: number, random: () => number = Math.
   return Math.round(base * (0.5 + 0.5 * random()));
 }
 
+/**
+ * The wait before trying again after the site said there are too many streams (`tooManyStreams`,
+ * or a stream closed for a newer one of the account): 1, 2, 4, then 10 minutes, each between half
+ * and all of it.
+ */
+export function feedLiveLongDelay(attempt: number, random: () => number = Math.random): number {
+  const base = Math.min(600_000, 60_000 * 2 ** Math.max(0, attempt));
+  return Math.round(base * (0.5 + 0.5 * random()));
+}
+
+/** What the page does after the stream request was refused: stop, try much later, or retry. */
+export type FeedLiveRefusal = 'stop' | 'later' | 'retry';
+
+/**
+ * Reads a refusal of the stream request: only the site's own answers stop live updates (signed
+ * out, 403, and a 503 `disabled` from a flag); `tooManyStreams` tries again much later; anything
+ * else (a proxy's 502 or 503 during a deploy, the per-IP rule's 429) retries with the backoff.
+ */
+export function feedLiveRefusal(status: number, body: unknown): FeedLiveRefusal {
+  if (status === 401 || status === 403) return 'stop';
+  const problem =
+    typeof body === 'object' && body !== null
+      ? ((body as { data?: { problem?: unknown } }).data?.problem ?? null)
+      : null;
+  if (status === 503 && problem === 'disabled') return 'stop';
+  if (problem === 'tooManyStreams') return 'later';
+  return 'retry';
+}
+
 /** What a feed's first page, read again after a `reset`, changes on the page. */
 export interface FeedTimelineMerge {
   pinned: FeedPostView[];

@@ -51,7 +51,7 @@ const answer = (n: number, over: Partial<FeedPostView> = {}) =>
 
 beforeAll(async () => {
   playStream();
-  live.fallback = { status: 503 };
+  live.fallback = { status: 503, problem: 'disabled' };
   servePages(() => page({ posts: [] }));
   const view = await mountSuspended(inApp(FeedPage), { route: '/minecraft/feed?feed=global' });
   await new Promise((resolve) => setTimeout(resolve, 1500));

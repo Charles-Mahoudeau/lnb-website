@@ -10,8 +10,9 @@ import type {
 // The Feed page's live updates (docs/feed.md, "Live updates in the browser"): one stream per
 // tab, opened on /minecraft/feed and /minecraft/feed/:id only, in the browser only. New posts
 // come as IDs; the page asks GET /api/feed/views for its own view of them, a second's worth at a
-// time. A 503, 429 or 401 stops the stream for good and the page works as without it (reload to
-// see newer posts); a dropped connection comes back after 1 to 30 seconds with Last-Event-ID.
+// time. Signed out, a 403 or the site's 503 `disabled` stops the stream for good and the page works
+// as without it (reload to see newer posts); `tooManyStreams` tries again minutes later; anything
+// else, a dropped connection included, comes back after up to 1 to 30 seconds with Last-Event-ID.
 
 /** A tab hidden this long drops its stream, and takes it again with Last-Event-ID when shown. */
 const HIDDEN_CLOSE_MS = 60_000;
@@ -21,8 +22,6 @@ const GATHER_MS = 1000;
 const SEEN_EVERY_MS = 2000;
 /** The room a new post needs to count as visible where it would go. */
 const POST_ROOM_PX = 96;
-/** The answers that mean "no live updates for this page": signed out, too many tabs, off. */
-const GIVE_UP = new Set([401, 403, 429, 503]);
 
 type Timeline = Awaited<ReturnType<typeof useFeedTimeline>>;
 type Thread = Awaited<ReturnType<typeof useFeedThread>>;
@@ -79,6 +78,15 @@ function dispatch(handlers: FeedLiveHandlers, message: FeedLiveMessage) {
   }
 }
 
+/** A refusal's JSON body, when it has one. */
+async function bodyOf(response: Response): Promise<unknown> {
+  try {
+    return typeof response.json === 'function' ? await response.json() : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * The page's one stream of live events, read with fetch rather than EventSource: EventSource
  * can't tell a 503 or a 429 (stop) from a proxy's 502 (try again), and only resends Last-Event-ID
@@ -94,6 +102,9 @@ export function useFeedStream(handlers: FeedLiveHandlers) {
   let retryTimer: ReturnType<typeof setTimeout> | undefined;
   let hiddenTimer: ReturnType<typeof setTimeout> | undefined;
   let attempt = 0;
+  /** Set when the site said there are too many streams: the next try waits minutes. */
+  let tooMany = false;
+  let longAttempt = 0;
   let lastId: string | null = null;
   let stopped = false;
 
@@ -110,15 +121,25 @@ export function useFeedStream(handlers: FeedLiveHandlers) {
         credentials: 'same-origin',
         signal: current.signal,
       });
-      if (GIVE_UP.has(response.status)) {
-        stop();
-        return;
-      }
-      if (!response.ok || !response.body)
+      if (!response.ok || !response.body) {
+        const verdict = feedLiveRefusal(response.status, await bodyOf(response));
+        if (verdict === 'stop') {
+          stop();
+          return;
+        }
+        tooMany = verdict === 'later';
         throw new Error(`stream answered ${String(response.status)}`);
+      }
       state.value = 'open';
       const reader = createFeedSseReader((message) => {
+        if (message.event === 'closed') {
+          // Closed for a newer stream of the account (5 at most): that one has the updates.
+          tooMany = true;
+          return;
+        }
         attempt = 0;
+        longAttempt = 0;
+        tooMany = false;
         if (message.id) lastId = message.id;
         dispatch(handlers, message);
       });
@@ -138,7 +159,8 @@ export function useFeedStream(handlers: FeedLiveHandlers) {
     current.abort();
     controller = null;
     state.value = 'retrying';
-    retryTimer = setTimeout(() => void connect(), feedLiveRetryDelay(attempt++));
+    const delay = tooMany ? feedLiveLongDelay(longAttempt++) : feedLiveRetryDelay(attempt++);
+    retryTimer = setTimeout(() => void connect(), delay);
   }
 
   /** Closes the connection; `connect` opens it again. */

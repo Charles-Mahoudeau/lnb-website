@@ -45,7 +45,7 @@ const mounted: { unmount: () => void }[] = [];
 // test driving the clock would then run for ever. Showing it once, in real time, lets them settle.
 beforeAll(async () => {
   playStream();
-  live.fallback = { status: 503 };
+  live.fallback = { status: 503, problem: 'disabled' };
   servePages(() => page({ posts: [glob(1)] }));
   const view = await mountSuspended(inApp(FeedPage), { route: '/minecraft/feed?feed=global' });
   await new Promise((resolve) => setTimeout(resolve, 2500));
@@ -100,9 +100,14 @@ function hide(state: 'hidden' | 'visible') {
 const advance = (ms: number) => vi.advanceTimersByTimeAsync(ms);
 
 describe('what each answer to the stream request means', () => {
-  for (const refused of [401, 403, 429, 503]) {
-    it(`gives up for good on ${String(refused)}, for any later time`, async () => {
-      live.fallback = { status: refused };
+  const refusals: [string, { status: number; problem?: string }][] = [
+    ['401', { status: 401 }],
+    ['403', { status: 403 }],
+    ['the site’s 503 disabled', { status: 503, problem: 'disabled' }],
+  ];
+  for (const [name, refused] of refusals) {
+    it(`gives up for good on ${name}, for any later time`, async () => {
+      live.fallback = refused;
       fakeClock();
       const view = await mountFeed();
       await settle();
@@ -119,9 +124,18 @@ describe('what each answer to the stream request means', () => {
     });
   }
 
-  for (const failed of [500, 502, 504, 404, 400, 408, 307]) {
-    it(`tries again after ${String(failed)}, which is not the site refusing the stream`, async () => {
-      live.queue = [{ status: failed }];
+  const retried: [string, { status: number; problem?: string }][] = [
+    ...[500, 502, 504, 404, 400, 408, 307].map(
+      (status) => [String(status), { status }] as [string, { status: number }],
+    ),
+    ['a proxy’s bare 503, as during a deploy', { status: 503 }],
+    ['a 503 with another problem', { status: 503, problem: 'notFound' }],
+    ['the per-IP rule’s 429', { status: 429, problem: 'rateLimited' }],
+    ['a bare 429', { status: 429 }],
+  ];
+  for (const [name, failed] of retried) {
+    it(`tries again after ${name}, which is not the site refusing the stream`, async () => {
+      live.queue = [failed];
       fakeClock();
       await mountFeed();
       await settle();
@@ -131,6 +145,33 @@ describe('what each answer to the stream request means', () => {
       expect(live.streams).toHaveLength(1);
     });
   }
+
+  it('tries again minutes later, not at once, after 429 tooManyStreams', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(1);
+    live.queue = [{ status: 429, problem: 'tooManyStreams' }];
+    fakeClock();
+    await mountFeed();
+    await settle();
+    expect(live.requests).toBe(1);
+    await advance(59_000);
+    expect(live.requests).toBe(1);
+    await advance(1100);
+    expect(live.requests).toBe(2);
+    expect(live.streams).toHaveLength(1);
+  });
+
+  it('waits minutes before coming back when its stream was closed for a newer one', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(1);
+    await mountFeed();
+    const first = await current();
+    fakeClock();
+    first.send('closed', { problem: 'tooManyStreams' });
+    first.end();
+    await advance(30_000);
+    expect(live.requests).toBe(1);
+    await advance(31_000);
+    expect(live.requests).toBe(2);
+  });
 
   it('tries again after a network error', async () => {
     live.queue = ['network'];
@@ -164,11 +205,11 @@ describe('what each answer to the stream request means', () => {
     expect(second.headers.get('last-event-id')).toBe('8');
   });
 
-  it('gives up when the reconnection is refused with a 503, and stays quiet', async () => {
+  it('gives up when the reconnection is refused with a 503 disabled, and stays quiet', async () => {
     await mountFeed();
     const first = await current();
     fakeClock();
-    live.queue = [{ status: 503 }];
+    live.queue = [{ status: 503, problem: 'disabled' }];
     first.end();
     await advance(1300);
     expect(live.requests).toBe(2);

@@ -75,7 +75,16 @@ function playStream() {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
     if (!url.includes('/api/feed/events')) return realFetch(input, init);
     requests++;
-    if (status !== 200) return Promise.resolve({ status, ok: false, body: null });
+    if (status !== 200) {
+      // The site's own refusals, as Nitro answers them.
+      const problem = status === 503 ? 'disabled' : status === 429 ? 'tooManyStreams' : undefined;
+      return Promise.resolve({
+        status,
+        ok: false,
+        body: null,
+        json: () => Promise.resolve({ statusCode: status, data: { problem } }),
+      });
+    }
     const queue: (Uint8Array | null)[] = [];
     let wake: (() => void) | null = null;
     const signal = init!.signal!;
@@ -216,7 +225,7 @@ describe('the stream of the Feed page', () => {
   });
 
   for (const refused of [503, 429, 401]) {
-    it(`stops for good, silently, on ${String(refused)}: the page works as loaded`, async () => {
+    it(`stops, silently, on the site’s ${String(refused)}: the page works as loaded`, async () => {
       servePages(() => page({ posts: [glob(1)] }));
       status = refused;
       const view = await mountFeed();

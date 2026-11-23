@@ -25,7 +25,8 @@ export interface Played {
 }
 
 /** What the next stream request is answered with, in the order queued. */
-export type Outcome = { status: number } | 'network' | 'nobody' | 'ok';
+/** A refusal may carry the site's `data.problem` in its JSON body, as Nitro answers errors. */
+export type Outcome = { status: number; problem?: string } | 'network' | 'nobody' | 'ok';
 
 const realFetch = globalThis.fetch;
 
@@ -56,7 +57,15 @@ export function playStream() {
     if (outcome === 'network') return Promise.reject(new TypeError('Failed to fetch'));
     if (outcome === 'nobody') return Promise.resolve({ status: 200, ok: true, body: null });
     if (typeof outcome === 'object') {
-      return Promise.resolve({ status: outcome.status, ok: outcome.status < 300, body: null });
+      const json = outcome.problem
+        ? { statusCode: outcome.status, data: { problem: outcome.problem } }
+        : null;
+      return Promise.resolve({
+        status: outcome.status,
+        ok: outcome.status < 300,
+        body: null,
+        json: () => (json ? Promise.resolve(json) : Promise.reject(new SyntaxError('no JSON'))),
+      });
     }
     const queue: (Uint8Array | Error | null)[] = [];
     let wake: (() => void) | null = null;

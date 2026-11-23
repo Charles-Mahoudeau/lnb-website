@@ -51,7 +51,7 @@ const ann = (n: number, over: Partial<FeedPostView> = {}) =>
 // The first page shown asks for icons that fail and retry on timers: show one in real time first.
 beforeAll(async () => {
   playStream();
-  live.fallback = { status: 503 };
+  live.fallback = { status: 503, problem: 'disabled' };
   servePages(() => page({ posts: [glob(1)] }));
   const view = await mountSuspended(inApp(FeedPage), { route: '/minecraft/feed?feed=global' });
   await new Promise((resolve) => setTimeout(resolve, 1500));

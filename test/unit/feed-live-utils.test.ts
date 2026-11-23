@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import {
   createFeedSseReader,
+  feedLiveLongDelay,
+  feedLiveRefusal,
   feedLiveRetryDelay,
   mergeFeedFirstPage,
   mergeFeedThread,
@@ -87,6 +89,31 @@ describe('the reconnection delay', () => {
     expect(feedLiveRetryDelay(1, () => 0)).toBe(1000);
     expect(feedLiveRetryDelay(9, () => 0)).toBe(15_000);
     expect(feedLiveRetryDelay(-3, () => 0.5)).toBe(500);
+  });
+});
+
+describe('a refusal of the stream request', () => {
+  it('stops only on the site’s own answers: signed out, 403, and 503 disabled', () => {
+    const body = (problem: string) => ({ statusCode: 0, data: { problem } });
+    expect(feedLiveRefusal(401, null)).toBe('stop');
+    expect(feedLiveRefusal(403, 'Forbidden')).toBe('stop');
+    expect(feedLiveRefusal(503, body('disabled'))).toBe('stop');
+    expect(feedLiveRefusal(429, body('tooManyStreams'))).toBe('later');
+    // A proxy's answer during a deploy, the per-IP rule, a server error: try again.
+    expect(feedLiveRefusal(503, null)).toBe('retry');
+    expect(feedLiveRefusal(503, '<html>Bad gateway</html>')).toBe('retry');
+    expect(feedLiveRefusal(503, body('notFound'))).toBe('retry');
+    expect(feedLiveRefusal(429, body('rateLimited'))).toBe('retry');
+    expect(feedLiveRefusal(429, null)).toBe('retry');
+    expect(feedLiveRefusal(502, null)).toBe('retry');
+    expect(feedLiveRefusal(500, { data: null })).toBe('retry');
+  });
+
+  it('waits 1, 2, 4, then 10 minutes after too many streams, each from half to all', () => {
+    expect([0, 1, 2, 3, 4, 20].map((n) => feedLiveLongDelay(n, () => 1))).toEqual([
+      60_000, 120_000, 240_000, 480_000, 600_000, 600_000,
+    ]);
+    expect(feedLiveLongDelay(0, () => 0)).toBe(30_000);
   });
 });
 
