@@ -1665,6 +1665,10 @@
           "label": "Écriture dans le Feed",
           "description": "Publier, répondre et aimer, en jeu et sur le site. Désactivé, le Feed est en lecture seule ; supprimer et épingler restent possibles."
         },
+        "feed_live": {
+          "label": "Feed en direct",
+          "description": "Les nouveaux posts, les suppressions, les j’aime et les épingles qui apparaissent sur la page Feed du site sans recharger. Désactivé, les pages ouvertes ne se mettent plus à jour et montrent les nouveaux posts quand on recharge ; rien d’autre ne change."
+        },
         "jobs_feedPurge": {
           "label": "Purge du Feed",
           "description": "La suppression nocturne des messages du Feed supprimés depuis plus de 30 jours, et des notifications que personne n’a prises en 30 jours."

@@ -1661,6 +1661,10 @@
           "label": "Feed writing",
           "description": "Posting, replying and liking, in game and on the website. Off, Feed is read-only; deleting and pinning still work."
         },
+        "feed_live": {
+          "label": "Feed live updates",
+          "description": "New posts, deletions, likes and pins appearing on the website's Feed page without a reload. Off, open pages stop updating and show newer posts on reload; nothing else changes."
+        },
         "jobs_feedPurge": {
           "label": "Feed purge",
           "description": "The nightly removal of Feed posts deleted more than 30 days ago, and of notifications nobody took in 30 days."
