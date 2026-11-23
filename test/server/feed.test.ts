@@ -27,6 +27,7 @@ import { feedReadStateService } from '~~/server/services/feed/read-state';
 import { feedRightsService } from '~~/server/services/feed/rights';
 import { feedLimits } from '~~/server/services/feed/shared';
 import { feedViewService } from '~~/server/services/feed/views';
+import { flagService } from '~~/server/services/flags';
 import { minecraftEventService } from '~~/server/services/minecraft-events';
 import { usersService } from '~~/server/services/users';
 import { wardenModerationService } from '~~/server/services/warden/moderation';
@@ -143,6 +144,8 @@ describe('Feed services', () => {
   beforeEach(async () => {
     await wipe();
     limits = vi.spyOn(feedLimits, 'check').mockResolvedValue();
+    // Feed ships off: these tests switch it on.
+    vi.spyOn(flagService, 'isEnabled').mockResolvedValue(true);
   });
   afterAll(async () => {
     await wipe();

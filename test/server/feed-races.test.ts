@@ -19,6 +19,7 @@ import {
   problemOf,
   reply,
   server,
+  setFlags,
   wipe,
 } from './feed-helpers';
 
@@ -68,6 +69,8 @@ describe('Feed races', () => {
   beforeEach(async () => {
     await wipe();
     limits = vi.spyOn(feedLimits, 'check').mockResolvedValue();
+    // Feed ships off: these tests switch it on.
+    setFlags();
   });
   afterAll(async () => {
     await wipe();

@@ -5,7 +5,7 @@ import { feedLike, feedPost } from '~~/server/db/schema';
 
 import { feedEvents } from './events';
 import { feedRightsService } from './rights';
-import { feedLimits, livePost, refuse } from './shared';
+import { feedLimits, livePost, refuse, requireWriting } from './shared';
 import type { FeedActor } from './shared';
 
 import type { FeedLikeResult } from '#shared/schemas/feed';
@@ -19,6 +19,7 @@ async function setLiked(input: {
   postId: string;
   liked: boolean;
 }): Promise<FeedLikeResult> {
+  await requireWriting();
   const writer = await feedRightsService.writer(db, input.actor, 'linked');
   if (writer.person.banned) refuse(403, 'banned');
   await livePost(db, input.postId);

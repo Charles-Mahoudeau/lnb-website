@@ -153,6 +153,22 @@ describe('Feed rate limits', () => {
     expect((await like(camille.uuid, true)).likes).toBe(2);
   });
 
+  it('replays simultaneous retries of one key, whatever the limits say', async () => {
+    const camille = await person('Camille Roux');
+    await post(camille, 'Un');
+    await post(camille, 'Deux');
+    // One post left this minute: ten copies of one request, at once, all get the same post.
+    const key = randomUUID();
+    const answers = await Promise.all(
+      Array.from({ length: 10 }, () => post(camille, 'Trois', { key })),
+    );
+    expect(new Set(answers.map((answer) => answer.post.id)).size).toBe(1);
+    expect(answers.filter((answer) => !answer.replayed)).toHaveLength(1);
+    // The limit counted the one post made, and is now full.
+    expect(await outcome(post(camille, 'Quatre'))).toBe('429 rateLimited');
+    expect((await post(camille, 'Trois', { key })).replayed).toBe(true);
+  });
+
   it('refuses a like on an unknown post before counting it', async () => {
     const mika = await person('Mika Lefort');
     const { post: created } = await post(mika, 'Like');

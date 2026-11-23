@@ -1,7 +1,6 @@
 import { and, eq, inArray, isNotNull, isNull, notInArray, or, sql } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
-import { isUniqueViolation } from '~~/server/db/errors';
 import { feedLike, feedNotification, feedPost } from '~~/server/db/schema';
 import type { FeedDeletedCause } from '~~/server/db/schema';
 import { auditService } from '~~/server/services/audit';
@@ -12,17 +11,17 @@ import { feedRightsService } from './rights';
 import type { FeedViewer, FeedWriter } from './rights';
 import { fingerprint } from './rules';
 import type { FeedRequester, FeedTarget } from './rules';
-import { feedLimits, livePost, refuse } from './shared';
-import type { Db, FeedActor, Tx } from './shared';
+import { feedLimits, livePost, refuse, requireWriting } from './shared';
+import type { Db, FeedActor, FeedPostRow, Tx } from './shared';
 import { feedViewService } from './views';
 
 import type { FeedCreated, FeedName } from '#shared/schemas/feed';
 import { checkFeedText } from '#shared/utils/feed-text';
 
 // Creating, replying and deleting (docs/feed.md, "Writing" and "Deleting"). Creations are
-// idempotent by key; the checks run in the order of docs/feed-mod.md 4.5: the flags (in the
-// handler), the key, the player, the ban, the right, the text, the rate. Events go out after the
-// transaction commits.
+// idempotent by key; the checks run in the order of docs/feed-mod.md 4.5: the flags (`feed` and
+// `feed.serverApi` in the handler, `feed.writing` here too), the key, the player, the ban, the
+// right, the text, the rate. Events go out after the transaction commits.
 
 function requesterOf(actor: FeedActor): FeedRequester {
   return actor.source === 'server'
@@ -39,45 +38,59 @@ function viewerOf(writer: FeedWriter, actor: FeedActor): FeedViewer {
   };
 }
 
+/** Who reads the answer: the actor, as a reader. */
+function whoOf(actor: FeedActor) {
+  return actor.source === 'server' ? { player: actor.player } : { userId: actor.userId };
+}
+
 /**
- * The post already created with this key, as the actor sees it, or nothing. Another request with
- * the key is 409 `idempotencyMismatch`; a post deleted since is 404 `notFound`.
+ * The post already created with this key, or nothing. Another request with the key is 409
+ * `idempotencyMismatch`; a post deleted since is 404 `notFound`, whatever the request.
  */
-async function replay(
-  dbx: Db,
-  actor: FeedActor,
-  key: string,
-  print: string,
-): Promise<FeedCreated | undefined> {
+async function previous(dbx: Db, key: string, print: string): Promise<FeedPostRow | undefined> {
   const [row] = await dbx.select().from(feedPost).where(eq(feedPost.idempotencyKey, key));
   if (!row) return undefined;
   if (row.fingerprint !== print) refuse(409, 'idempotencyMismatch');
   if (row.deletedAt) refuse(404, 'notFound');
-  const viewer = await feedRightsService.viewer(
-    dbx,
-    actor.source === 'server' ? { player: actor.player } : { userId: actor.userId },
-  );
-  return { replayed: true, post: await feedViewService.viewFor(dbx, row, viewer) };
+  return row;
 }
 
-/** Runs a creation, and answers a replay when a concurrent call with the same key won. */
+/** What a creation did, for the events sent once it has committed. */
+interface Inserted {
+  row: FeedPostRow;
+  viewer: FeedViewer;
+  /** Posts whose counts changed. */
+  counted: string[];
+  notify: boolean;
+}
+
+/**
+ * Runs a creation idempotently. `feed.writing` comes first, then the key: calls with the same
+ * key wait for each other on a lock of the key, so a retry sent while the first call runs
+ * replays its post once it commits, and never meets the rate limits or a unique violation.
+ */
 async function idempotent(
   actor: FeedActor,
   key: string,
   print: string,
-  create: () => Promise<FeedCreated>,
+  insert: (tx: Tx) => Promise<Inserted>,
 ): Promise<FeedCreated> {
-  const previous = await replay(db, actor, key, print);
-  if (previous) return previous;
-  try {
-    return await create();
-  } catch (error) {
-    if (isUniqueViolation(error)) {
-      const raced = await replay(db, actor, key, print);
-      if (raced) return raced;
-    }
-    throw error;
+  await requireWriting();
+  const lock = `feed:key:${key.toLowerCase()}`;
+  const outcome = await db.transaction(async (tx) => {
+    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${lock}))`);
+    const row = await previous(tx, key, print);
+    return row ? { replayed: row } : { inserted: await insert(tx) };
+  });
+  if ('replayed' in outcome) {
+    const viewer = await feedRightsService.viewer(db, whoOf(actor));
+    return { replayed: true, post: await feedViewService.viewFor(db, outcome.replayed, viewer) };
   }
+  const { row, viewer, counted, notify } = outcome.inserted;
+  await feedEvents.post(row);
+  await feedEvents.counts(counted);
+  if (notify) await feedEvents.notification();
+  return { replayed: false, post: await feedViewService.viewFor(db, row, viewer) };
 }
 
 function checkedText(raw: string): string {
@@ -96,51 +109,42 @@ async function create(input: {
 }): Promise<FeedCreated> {
   const target: FeedTarget = { kind: 'post', feed: input.feed };
   const print = fingerprint(requesterOf(input.actor), target, input.text, input.anonymous);
-  return idempotent(input.actor, input.idempotencyKey, print, async () => {
-    const writer = await feedRightsService.writer(db, input.actor, 'posting');
+  return idempotent(input.actor, input.idempotencyKey, print, async (tx) => {
+    const writer = await feedRightsService.writer(tx, input.actor, 'posting');
     if (writer.person.banned) refuse(403, 'banned');
-    if (input.feed === 'announcements' && !writer.person.rights.announce) {
-      refuse(403, 'notAllowed');
-    }
+    const announcement = input.feed === 'announcements';
+    if (announcement && !writer.person.rights.announce) refuse(403, 'notAllowed');
     const text = checkedText(input.text);
     await feedLimits.check('post', writer.userId);
-    const announcement = input.feed === 'announcements';
-    const created = await db.transaction(async (tx) => {
-      const now = new Date();
-      const [row] = await tx
-        .insert(feedPost)
-        .values({
-          feed: input.feed,
-          authorUserId: writer.userId,
-          minecraftUuid: writer.account!.uuid,
-          minecraftUsername: writer.account!.username,
-          source: input.actor.source,
-          text,
-          anonymous: input.anonymous,
-          createdAt: now,
-          idempotencyKey: input.idempotencyKey,
-          fingerprint: print,
-        })
-        .returning();
-      if (announcement) {
-        await tx
-          .insert(feedNotification)
-          .values({ kind: 'announcement', postId: row!.id, recipientUserId: null, createdAt: now });
-      }
-      return row!;
-    });
-    await feedEvents.post(created);
-    if (announcement) await feedEvents.notification();
-    return {
-      replayed: false,
-      post: await feedViewService.viewFor(db, created, viewerOf(writer, input.actor)),
-    };
+    const now = new Date();
+    const [row] = await tx
+      .insert(feedPost)
+      .values({
+        feed: input.feed,
+        authorUserId: writer.userId,
+        minecraftUuid: writer.account!.uuid,
+        minecraftUsername: writer.account!.username,
+        source: input.actor.source,
+        text,
+        anonymous: input.anonymous,
+        createdAt: now,
+        idempotencyKey: input.idempotencyKey,
+        fingerprint: print,
+      })
+      .returning();
+    if (announcement) {
+      await tx
+        .insert(feedNotification)
+        .values({ kind: 'announcement', postId: row!.id, recipientUserId: null, createdAt: now });
+    }
+    return { row: row!, viewer: viewerOf(writer, input.actor), counted: [], notify: announcement };
   });
 }
 
 /**
  * Creates a reply in the thread of main post `threadId`, answering the main post or one of its
- * replies. Notifies the author of what it answers, unless that is the replier.
+ * replies. Notifies the author of what it answers, unless that is the replier. Checks, after the
+ * key: the player, the ban, the thread and the reply answered, the text, the rate.
  */
 async function reply(input: {
   actor: FeedActor;
@@ -152,69 +156,53 @@ async function reply(input: {
 }): Promise<FeedCreated> {
   const target: FeedTarget = { kind: 'reply', threadId: input.threadId, replyTo: input.replyTo };
   const print = fingerprint(requesterOf(input.actor), target, input.text, input.anonymous);
-  return idempotent(input.actor, input.idempotencyKey, print, async () => {
-    const writer = await feedRightsService.writer(db, input.actor, 'posting');
+  return idempotent(input.actor, input.idempotencyKey, print, async (tx) => {
+    const writer = await feedRightsService.writer(tx, input.actor, 'posting');
     if (writer.person.banned) refuse(403, 'banned');
-    const main = await livePost(db, input.threadId);
-    if (main.threadId) refuse(404, 'notFound');
-    if (input.replyTo) {
-      const answered = await livePost(db, input.replyTo);
-      if (answered.threadId !== main.id) refuse(404, 'notFound');
-    }
+    // The main post first, as every write in a thread, so a deletion can't slip in between.
+    const thread = await livePost(tx, input.threadId, true);
+    if (thread.threadId) refuse(404, 'notFound');
+    const answered = input.replyTo ? await livePost(tx, input.replyTo, true) : thread;
+    if (input.replyTo && answered.threadId !== thread.id) refuse(404, 'notFound');
     const text = checkedText(input.text);
     await feedLimits.check('reply', writer.userId);
-    const { created, notify } = await db.transaction(async (tx) => {
-      // Locked, so a deletion of the thread can't slip in between the checks and the insert.
-      const thread = await livePost(tx, input.threadId, true);
-      const answered = input.replyTo ? await livePost(tx, input.replyTo, true) : thread;
-      if (answered.threadId !== null && answered.threadId !== thread.id) refuse(404, 'notFound');
-      const now = new Date();
-      const [row] = await tx
-        .insert(feedPost)
-        .values({
-          feed: thread.feed,
-          threadId: thread.id,
-          replyToId: input.replyTo ? answered.id : null,
-          replyToUserId: answered.authorUserId,
-          replyToAnonymous: answered.anonymous,
-          // Only for a reply to a reply: its line keeps a name once that reply is purged.
-          replyToMinecraftUsername: input.replyTo ? answered.minecraftUsername : null,
-          authorUserId: writer.userId,
-          minecraftUuid: writer.account!.uuid,
-          minecraftUsername: writer.account!.username,
-          source: input.actor.source,
-          text,
-          anonymous: input.anonymous,
-          createdAt: now,
-          idempotencyKey: input.idempotencyKey,
-          fingerprint: print,
-        })
-        .returning();
-      const counted = input.replyTo ? [thread.id, answered.id] : [thread.id];
-      await tx
-        .update(feedPost)
-        .set({ replyCount: sql`${feedPost.replyCount} + 1` })
-        .where(inArray(feedPost.id, counted));
-      const notify = answered.authorUserId !== writer.userId;
-      if (notify) {
-        await tx.insert(feedNotification).values({
-          kind: 'reply',
-          postId: row!.id,
-          recipientUserId: answered.authorUserId,
-          createdAt: now,
-        });
-      }
-      return { created: row!, notify };
-    });
-    await feedEvents.post(created);
-    await feedEvents.counts(
-      created.replyToId ? [created.threadId!, created.replyToId] : [created.threadId!],
-    );
-    if (notify) await feedEvents.notification();
-    return {
-      replayed: false,
-      post: await feedViewService.viewFor(db, created, viewerOf(writer, input.actor)),
-    };
+    const now = new Date();
+    const [row] = await tx
+      .insert(feedPost)
+      .values({
+        feed: thread.feed,
+        threadId: thread.id,
+        replyToId: input.replyTo ? answered.id : null,
+        replyToUserId: answered.authorUserId,
+        replyToAnonymous: answered.anonymous,
+        // Only for a reply to a reply: its line keeps a name once that reply is purged.
+        replyToMinecraftUsername: input.replyTo ? answered.minecraftUsername : null,
+        authorUserId: writer.userId,
+        minecraftUuid: writer.account!.uuid,
+        minecraftUsername: writer.account!.username,
+        source: input.actor.source,
+        text,
+        anonymous: input.anonymous,
+        createdAt: now,
+        idempotencyKey: input.idempotencyKey,
+        fingerprint: print,
+      })
+      .returning();
+    const counted = input.replyTo ? [thread.id, answered.id] : [thread.id];
+    await tx
+      .update(feedPost)
+      .set({ replyCount: sql`${feedPost.replyCount} + 1` })
+      .where(inArray(feedPost.id, counted));
+    const notify = answered.authorUserId !== writer.userId;
+    if (notify) {
+      await tx.insert(feedNotification).values({
+        kind: 'reply',
+        postId: row!.id,
+        recipientUserId: answered.authorUserId,
+        createdAt: now,
+      });
+    }
+    return { row: row!, viewer: viewerOf(writer, input.actor), counted, notify };
   });
 }
 

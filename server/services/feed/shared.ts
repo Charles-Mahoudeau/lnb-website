@@ -4,6 +4,7 @@ import { createError } from 'nuxt/server';
 import type { Db, Tx } from '~~/server/db';
 import { feedPost, minecraftAccount } from '~~/server/db/schema';
 import { createLimiter } from '~~/server/lib/rate-limit';
+import { flagService } from '~~/server/services/flags';
 
 import type { FeedProblem } from '#shared/schemas/feed';
 
@@ -68,6 +69,13 @@ export async function livePost(dbx: Db, id: string, lock = false): Promise<FeedP
   const [row] = await (lock ? query.for('update') : query);
   if (!row) refuse(404, 'notFound');
   return row;
+}
+
+/** Refuses with 503 `disabled` while `feed.writing` is off: posting, replying and liking. */
+export async function requireWriting(): Promise<void> {
+  if (!(await flagService.isEnabled('feed.writing'))) {
+    refuse(503, 'disabled', { flag: 'feed.writing' });
+  }
 }
 
 // Per LNB account, counted together in the browser and in game (docs/feed.md, Rate limits). In

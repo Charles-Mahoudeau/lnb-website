@@ -345,6 +345,34 @@ describe('Feed rights', () => {
       // feed.serverApi off leaves writing on for the browser.
       expect((await feedRightsService.me(lune.id)).writing).toBe(true);
     });
+
+    it('feed.writing off refuses posting, replying and liking in the services, before the key', async () => {
+      const camille = await person('Camille Roux');
+      const key = randomUUID();
+      const { post: created } = await post(camille, 'Salut', { key });
+      setFlags({ 'feed.writing': false });
+      const off = { status: 503, problem: 'disabled', flag: 'feed.writing' };
+      // From the browser too: its routes get the check from the services.
+      const site = { source: 'site' as const, userId: camille.id };
+      expect(await problemOf(post(camille, 'Salut', { key }))).toMatchObject(off);
+      expect(
+        await problemOf(
+          feedPostService.create({
+            actor: site,
+            idempotencyKey: randomUUID(),
+            feed: 'global',
+            text: 'x',
+            anonymous: false,
+          }),
+        ),
+      ).toMatchObject(off);
+      expect(await problemOf(reply(camille, created.id))).toMatchObject(off);
+      for (const liked of [true, false]) {
+        expect(
+          await problemOf(feedLikeService.setLiked({ actor: site, postId: created.id, liked })),
+        ).toMatchObject(off);
+      }
+    });
   });
 
   describe('the announcer command (4.14, 4.15)', () => {
