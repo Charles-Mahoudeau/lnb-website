@@ -86,6 +86,8 @@ The Minecraft server never sees action names: `server/services/warden/events.ts`
 
 Changelog actions (`docs/changelog.md`), in `minecraft`, so Warden admins read them: `minecraft.changelog.create`, `.update`, `.translate`, `.schedule`, `.publish` and `.unpublish`. A scheduled post published by the job is a `.publish` by `system`.
 
+Feed actions (`docs/feed.md`, "Audit actions"), in `minecraft`: `minecraft.feed.delete` (a moderator deleting someone else's post or reply, in game or from the admin; target the author, `data` the post, its thread and feed, whether it was a reply and anonymous, and the reason), `.pin` and `.unpin` (an announcer, in game or on the Feed page; target the post's author, none for an anonymous one; `data.replaced` the pin a `replace` took out), `.announcer` (the role given or taken, from the admin or `/feed announcer`; target the person) and `.purge` (the nightly purge, by `system`, with `posts` and `notifications`). Posting, replying, liking, reading and an author's own delete record nothing. Until the moderation tab's routes exist, `test/unit/audit-coverage.test.ts` lists the first four under the other origins.
+
 Actions the migration did not have, because the routes recorded nothing before: `people.pruneAvatars`, `events.event.bdeRetry`, `events.image.add`, `events.pruneImages`, `events.push.prune`, `site.teamPole.move`, `site.teamMember.move`, `site.partner.move`, `site.prunePartnerLogos`, `site.gamesplanet.pinMove`, `site.gamesplanet.prune`, `minecraft.rule.move`, `minecraft.rule.categoryMove`, `minecraft.anticheat.alertDismiss`, `minecraft.anticheat.note`, `minecraft.anticheat.rescore`, `minecraft.anticheat.prune`, `minecraft.modpack.check`, `minecraft.modpack.retire`, `minecraft.modpack.retire.edit`, `minecraft.modpack.retire.remove`, `minecraft.events.prune`, `minecraft.playtime.prune`, `settings.apiKey.prune`, `settings.activityPrune`, `economy.sweep` and `economy.quests.index`. The Market adds `economy.market.itemCreate`, `itemUpdate`, `itemResetStock`, `settings`, `recipes` (the Minecraft server sending its recipes), `loopAccept`, `loopRevoke` and `prune`.
 
 Some old actions are no longer written but stay in `AuditAction` for the old rows and have a sentence: `minecraft.link.request`, `minecraft.link.cancel`, `minecraft.token.rotate`, `minecraft.ban.expire` and `minecraft.uuid.collision`.
@@ -94,7 +96,7 @@ Some old actions are no longer written but stay in `AuditAction` for the old row
 
 ## Jobs
 
-`auditService.recordJob(action, data)` records one `system` action from a nightly task, and only when a count in `data` is above zero, so a quiet night leaves nothing. The jobs that run often (`events:bde-sync`, `push:deliver`, `warden:close-stale-sessions`, `anticheat:lookups`, `gamesplanet:sync-deals`, `quests:community`) record nothing: they would bury the log. `audit:prune` runs at 03:00 with the other prunes, behind the `jobs.pruneAudit` flag, and records `settings.activityPrune` with the number removed.
+`auditService.recordJob(action, data)` records one `system` action from a nightly task, and only when a count in `data` is above zero, so a quiet night leaves nothing. The jobs that run often (`events:bde-sync`, `push:deliver`, `warden:close-stale-sessions`, `anticheat:lookups`, `gamesplanet:sync-deals`, `quests:community`) record nothing: they would bury the log. `feed:purge` records `minecraft.feed.purge`. `audit:prune` runs at 03:00 with the other prunes, behind the `jobs.pruneAudit` flag, and records `settings.activityPrune` with the number removed.
 
 ## Writing
 
