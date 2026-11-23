@@ -188,6 +188,23 @@ describe('the Feed table', () => {
     expect(words(view.text())).toContain('1 deleted post from the last 30 days');
   });
 
+  it('adds up two chip clicks made faster than the navigation', async () => {
+    serveList();
+    const view = await mountTab();
+    const chip = (label: string) =>
+      view.findAll('button').find((button) => button.text() === label)!
+        .element as HTMLButtonElement;
+    // No wait between the clicks: the first navigation hasn't landed when the second click comes.
+    chip('Deleted').click();
+    chip('Anonymous').click();
+    chip('Global').click();
+    await vi.waitFor(() => {
+      expect(currentQuery()).toEqual({ feeds: 'global', anonymous: 'true', deleted: 'true' });
+    });
+    await settle(10);
+    expect(asked.at(-1)).toEqual({ feeds: 'global', anonymous: 'true', deleted: 'true' });
+  });
+
   it('sends the search after a pause, and only from 2 characters', async () => {
     serveList();
     const view = await mountTab();

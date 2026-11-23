@@ -12,12 +12,19 @@ const { t, locale } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
-const state = computed(() => feedAdminStateFromQuery(route.query));
+// The URL's query, or the one a navigation still on its way will set: two clicks faster than
+// the router add up instead of the second starting from the URL the first hasn't changed yet.
+const pending = shallowRef<Record<string, string> | null>(null);
+const state = computed(() => feedAdminStateFromQuery(pending.value ?? route.query));
 
 /** Moves to another state: a filter replaces the URL and goes back to the first page. */
 function go(patch: Partial<FeedAdminState>, options: { push?: boolean } = {}) {
   const query = feedAdminUrlQuery({ ...state.value, ...patch });
-  void (options.push ? router.push({ query }) : router.replace({ query }));
+  pending.value = query;
+  const done = options.push ? router.push({ query }) : router.replace({ query });
+  void done.finally(() => {
+    if (pending.value === query) pending.value = null;
+  });
 }
 
 // The search field: typed here, sent after a short pause.
