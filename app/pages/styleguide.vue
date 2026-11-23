@@ -576,7 +576,7 @@ const feedBase: FeedPostView = {
   threadId: null,
   replyTo: null,
   text: 'Quelqu’un a vu des pillards près du spawn ? J’y ai perdu tout mon stuff hier soir.',
-  createdAt: new Date(Date.now() - 12 * 60_000).toISOString(),
+  createdAt: '2026-11-23T14:08:00.000Z',
   anonymous: false,
   author: {
     uuid: '069a79f4-44e9-4726-a5be-fca90e38aaf5',
@@ -601,7 +601,7 @@ const feedSamples: FeedPostView[] = [
     feed: 'announcements',
     text: 'La saison 2 commence samedi à 18 h ! Pensez à vider vos coffres avant vendredi soir.',
     author: { ...feedBase.author!, username: 'Ines_Rdl', realName: 'Inès R.', announcer: true },
-    pinnedAt: new Date().toISOString(),
+    pinnedAt: '2026-11-23T14:20:00.000Z',
     canPin: true,
   },
   feedBase,
