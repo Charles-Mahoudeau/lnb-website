@@ -379,10 +379,11 @@ describe('the live routes, against the contract', () => {
       await stream.read((events) => events.length > 0);
       const { post: made } = await post(camille, 'Un');
       await stream.read((events) => events.some((event) => event.event === 'post'));
-      const [{ id: rightsId }] = await db
+      const [inserted] = await db
         .insert(minecraftServerEvent)
         .values({ topic: 'feed', type: 'rights', data: { uuids: [camille.uuid] } })
         .returning({ id: minecraftServerEvent.id });
+      const rightsId = inserted!.id;
       const last = await stream.read(
         (events) => events.at(-1)!.event === 'ping' && events.at(-1)!.id === String(rightsId),
         3000,
