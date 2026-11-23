@@ -18,7 +18,13 @@ import type {
   FeedServerAnnouncer,
 } from '#shared/schemas/feed';
 import type { WardenIssuer } from '#shared/schemas/warden';
-import { FEED_ANNOUNCER_ROLE, hasRole, isFeedModerator, withRole } from '#shared/utils/roles';
+import {
+  FEED_ANNOUNCER_ROLE,
+  hasRole,
+  isFeedAnnouncer,
+  isFeedModerator,
+  withRole,
+} from '#shared/utils/roles';
 
 // The `feed-announcer` role (docs/feed.md, "Granting the announcer role"), given or taken by
 // moderators from the admin, or in game by `/feed announcer`. Moderators announce by role: giving
@@ -61,11 +67,17 @@ async function setRole(
   return { changed: true, viaRole };
 }
 
-/** The person's announce right now, and whether it comes from a moderator role. */
+/**
+ * Whether the person is an announcer, for the Person page's switch and header pill: they hold the
+ * role, or a moderator role that implies it. The role, not the right: a ban or the lack of a
+ * linked account takes the right away but leaves the role, which the switch must show to be
+ * turned off.
+ */
 async function get(userId: string): Promise<FeedAnnouncerState> {
-  const person = await feedRightsService.person(db, userId);
-  if (!person) refuse(404, 'notFound');
-  return { userId, announcer: person.rights.announce, viaRole: isFeedModerator(person.role) };
+  const [target] = await db.select({ role: user.role }).from(user).where(eq(user.id, userId));
+  if (!target) refuse(404, 'notFound');
+  const viaRole = isFeedModerator(target.role);
+  return { userId, announcer: isFeedAnnouncer(target.role), viaRole };
 }
 
 /** From the admin's Person page, by a moderator. */
