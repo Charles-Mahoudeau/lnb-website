@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   FEED_TABS,
   appendFeedPosts,
+  appendFeedReplies,
   applyFeedPins,
   feedByNewest,
   feedDisplayName,
@@ -313,17 +314,31 @@ describe('Load more', () => {
     expect(next.filter((known) => known.id === 'old')).toHaveLength(1);
   });
 
-  // DEFECT: a post unpinned from beyond the loaded range goes to the end of the loaded list, and
-  // appendFeedPosts only appends: the pages Load more brings next, which are newer than that post,
-  // then follow it, so the list is no longer newest first (and the post sits mid-list, where the
-  // feed would not put it). Nothing is repeated, but the order the contract promises is lost.
-  it.fails('keeps the list newest first when Load more follows an unpin of an old pin', () => {
+  // A post unpinned from beyond the loaded range goes to the end of the loaded list; the pages Load
+  // more brings next are newer than it, so they go before it, and the list stays newest first.
+  it('keeps the list newest first when Load more follows an unpin of an old pin', () => {
     const b = post('b', T(11));
     const c = post('c', T(9));
     const old = post('old', T(1), T(2));
     const unpinned = applyFeedPins({ pinned: [old], posts: [b, c] }, []);
-    const next = appendFeedPosts(unpinned!.posts, [post('d', T(8)), post('old', T(1))]);
-    expect(ids(next)).toEqual(['b', 'c', 'd', 'old']);
+    expect(ids(unpinned!.posts)).toEqual(['b', 'c', 'old']);
+    const next = appendFeedPosts(unpinned!.posts, [post('d', T(8)), post('e', T(7))]);
+    expect(ids(next)).toEqual(['b', 'c', 'd', 'e', 'old']);
+    expect(ids(appendFeedPosts(next, [post('f', T(5)), post('old', T(1))]))).toEqual([
+      'b',
+      'c',
+      'd',
+      'e',
+      'f',
+      'old',
+    ]);
+  });
+
+  it('appends the replies of a thread oldest first, without repeating one', () => {
+    const r1 = post('r1', T(8));
+    const r2 = post('r2', T(9));
+    const r3 = post('r3', T(10));
+    expect(ids(appendFeedReplies([r1, r2], [r2, r3]))).toEqual(['r1', 'r2', 'r3']);
   });
 });
 

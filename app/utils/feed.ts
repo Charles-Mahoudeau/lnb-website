@@ -108,10 +108,23 @@ export function mergeFeedPinned(
   return { pinned: fresh, posts };
 }
 
-/** Appends a page of older posts, leaving out any the page already shows. */
-export function appendFeedPosts(current: FeedPostView[], more: FeedPostView[]): FeedPostView[] {
+function appendUnseen(current: FeedPostView[], more: FeedPostView[]): FeedPostView[] {
   const seen = new Set(current.map((post) => post.id));
   return [...current, ...more.filter((post) => !seen.has(post.id))];
+}
+
+/**
+ * Appends a page of older posts to a feed, leaving out any the page already shows, and keeps the
+ * list newest first: a post unpinned from beyond the loaded range sits at the end of the list
+ * until Load more brings the newer posts that go before it.
+ */
+export function appendFeedPosts(current: FeedPostView[], more: FeedPostView[]): FeedPostView[] {
+  return appendUnseen(current, more).sort(feedByNewest);
+}
+
+/** Appends a page of newer replies to a thread (oldest first), leaving out any already shown. */
+export function appendFeedReplies(current: FeedPostView[], more: FeedPostView[]): FeedPostView[] {
+  return appendUnseen(current, more);
 }
 
 /** What a draft would send. The same request must carry the same key, and only it. */

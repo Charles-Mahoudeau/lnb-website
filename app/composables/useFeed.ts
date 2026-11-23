@@ -174,7 +174,7 @@ export async function useFeedThread(id: string) {
       const page = await call(() =>
         $fetch<FeedThread>(`/api/feed/posts/${id}`, { query: { after: next.value } }),
       );
-      replies.value = appendFeedPosts(replies.value, page.replies);
+      replies.value = appendFeedReplies(replies.value, page.replies);
       next.value = page.next;
     } finally {
       loadingMore.value = false;
