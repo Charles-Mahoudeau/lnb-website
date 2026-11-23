@@ -232,6 +232,19 @@ async function remove(input: {
 }): Promise<void> {
   const outcome = await db.transaction(async (tx) => {
     const who = await deleter(tx, input.actor);
+    // A reply's main post is locked first, in the order a new reply locks them.
+    const [peek] = await tx
+      .select({ threadId: feedPost.threadId })
+      .from(feedPost)
+      .where(eq(feedPost.id, input.postId));
+    if (!peek) refuse(404, 'notFound');
+    if (peek.threadId) {
+      await tx
+        .select({ id: feedPost.id })
+        .from(feedPost)
+        .where(eq(feedPost.id, peek.threadId))
+        .for('update');
+    }
     const [post] = await tx
       .select()
       .from(feedPost)
