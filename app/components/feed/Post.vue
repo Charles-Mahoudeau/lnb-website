@@ -112,7 +112,7 @@ const filled = (content: string) => content.replaceAll('fill="none"', 'fill="cur
           >
             {{ age }}
           </time>
-          <UDropdownMenu v-if="props.post.mine" :items="menu" :content="{ align: 'end' }">
+          <UDropdownMenu v-if="props.post.canDelete" :items="menu" :content="{ align: 'end' }">
             <UButton
               color="neutral"
               variant="ghost"
