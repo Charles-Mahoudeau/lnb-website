@@ -1254,13 +1254,29 @@ const feedSamples: FeedPostView[] = [
         the neutral announcer badge, the pinned line, the lock line of one's own anonymous post, the
         reply-to line, the "2 new" pill and the liked state (a filled heart in the highlight color
         on a neutral background, like your vote on a mod). No new color: likes, the badge and unseen
-        replies stay neutral.
+        replies stay neutral. New posts that arrive live while the reader is further down wait
+        behind a floating neutral pill, with an up arrow only when their place is above the screen.
       </p>
       <div class="flex flex-wrap items-center gap-6">
         <FeedAnonymousAvatar size="sm" />
         <FeedAnonymousAvatar />
         <FeedAnnouncerBadge />
         <UBadge color="neutral" variant="soft" size="md" label="2 new" />
+        <UButton
+          color="neutral"
+          variant="solid"
+          size="md"
+          class="rounded-full shadow-lg"
+          icon="i-lucide-arrow-up"
+          label="2 new posts"
+        />
+        <UButton
+          color="neutral"
+          variant="solid"
+          size="md"
+          class="rounded-full shadow-lg"
+          label="1 new announcement"
+        />
       </div>
       <div class="flex max-w-2xl flex-col divide-y divide-default rounded-lg bg-elevated">
         <FeedPost v-for="post in feedSamples" :key="post.id" :post="post" can-act />

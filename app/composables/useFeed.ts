@@ -218,6 +218,35 @@ export async function useFeedThread(id: string) {
     if (post.value) post.value = { ...post.value, replies: Math.max(0, post.value.replies - 1) };
   }
 
+  /**
+   * A reply the live stream announced: at the end, unless more replies are still to load (it
+   * comes with them). Its counts come from the stream's own `counts` event.
+   */
+  function appendLive(reply: FeedPostView) {
+    if (next.value || replies.value.some((known) => known.id === reply.id)) return;
+    replies.value = [...replies.value, reply];
+  }
+
+  /** A reply the live stream says went: out of the list; the counts come with `counts`. */
+  function dropReply(replyId: string) {
+    replies.value = replies.value.filter((known) => known.id !== replyId);
+  }
+
+  /** The thread read again after the stream's `reset`, merged into what the page shows. */
+  function merge(fresh: FeedThread) {
+    post.value = fresh.post;
+    const merged = mergeFeedThread({ replies: replies.value, next: next.value }, fresh);
+    replies.value = merged.replies;
+    next.value = merged.next;
+  }
+
+  /** The main post went: the page shows the thread as deleted. */
+  function markGone() {
+    post.value = null;
+    replies.value = [];
+    next.value = null;
+  }
+
   /** A reply just posted: at the end, with the counts it changes. */
   function addReply(reply: FeedPostView) {
     if (replies.value.some((known) => known.id === reply.id)) return;
@@ -244,6 +273,10 @@ export async function useFeedThread(id: string) {
     update,
     addReply,
     removeReply,
+    appendLive,
+    dropReply,
+    merge,
+    markGone,
   };
 }
 

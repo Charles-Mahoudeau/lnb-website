@@ -5,7 +5,8 @@ import type { FeedMe, FeedName, FeedPostView } from '#shared/schemas/feed';
 
 // The Feed (docs/feed.md, "The Feed page", mock A "one column"): the Announcements and Global
 // tabs, the composer or the band that replaces it, then the feed with its pinned group and "Load
-// more". Signed in only. Without live updates, a reload shows newer posts.
+// more". Signed in only. Live updates (useFeedTimelineLive) bring new posts at the top, or behind
+// the "N new posts" button when the reader is further down; without them, a reload shows them.
 definePageMeta({ flag: 'feed' });
 
 const { t } = useI18n();
@@ -34,6 +35,15 @@ const canPost = computed(
   () => canAct.value && (feed.value === 'global' || me.value?.rights.announce === true),
 );
 const composer = useTemplateRef<{ $el: HTMLElement }>('composer');
+const list = useTemplateRef<HTMLElement>('list');
+const live = useFeedTimelineLive({ feed, timeline, me, list });
+const waitingLabel = computed(() =>
+  t(
+    feed.value === 'announcements' ? 'feed.live.newAnnouncements' : 'feed.live.newPosts',
+    { count: live.waitingCount.value },
+    live.waitingCount.value,
+  ),
+);
 
 const tabs = computed(() =>
   FEED_TABS.map((value) => ({
@@ -240,26 +250,43 @@ function onWrite() {
           </div>
         </div>
         <FeedEmpty v-else-if="empty" :feed="feed" :can-post="canPost" @write="onWrite" />
-        <div v-else class="flex flex-col divide-y divide-default rounded-lg bg-elevated">
-          <FeedPost
-            v-for="post in [...timeline.pinned.value, ...timeline.posts.value]"
-            :key="post.id"
-            :post="post"
-            :can-act="canAct"
-            :busy="busy.has(post.id)"
-            @like="onLike"
-            @pin="onPin"
-            @delete="onDelete"
-          />
-          <div v-if="timeline.next.value" class="flex justify-center p-3.5">
+        <div v-else class="relative">
+          <div
+            class="sticky top-header z-10 flex h-0 items-start justify-center"
+            aria-live="polite"
+          >
             <UButton
+              v-if="live.waitingCount.value"
               color="neutral"
-              variant="outline"
+              variant="solid"
               size="md"
-              :label="t('feed.loadMore')"
-              :loading="timeline.loadingMore.value"
-              @click="onLoadMore"
+              class="mt-3 rounded-full shadow-lg"
+              :icon="live.waitingAbove.value ? 'i-lucide-arrow-up' : undefined"
+              :label="waitingLabel"
+              @click="live.showWaiting()"
             />
+          </div>
+          <div ref="list" class="flex flex-col divide-y divide-default rounded-lg bg-elevated">
+            <FeedPost
+              v-for="post in [...timeline.pinned.value, ...timeline.posts.value]"
+              :key="post.id"
+              :post="post"
+              :can-act="canAct"
+              :busy="busy.has(post.id)"
+              @like="onLike"
+              @pin="onPin"
+              @delete="onDelete"
+            />
+            <div v-if="timeline.next.value" class="flex justify-center p-3.5">
+              <UButton
+                color="neutral"
+                variant="outline"
+                size="md"
+                :label="t('feed.loadMore')"
+                :loading="timeline.loadingMore.value"
+                @click="onLoadMore"
+              />
+            </div>
           </div>
         </div>
       </div>

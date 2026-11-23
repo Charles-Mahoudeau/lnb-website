@@ -446,6 +446,10 @@
     "loadMore": "Load more",
     "cancel": "Cancel",
     "announcementsNote": "Only the team posts here. You can like and reply.",
+    "live": {
+      "newPosts": "1 new post | {count} new posts",
+      "newAnnouncements": "1 new announcement | {count} new announcements"
+    },
     "tabs": {
       "label": "Feeds",
       "announcements": "Announcements",

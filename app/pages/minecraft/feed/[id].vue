@@ -5,7 +5,8 @@ import type { FeedPostView } from '#shared/schemas/feed';
 
 // A thread as its own page (docs/feed.md, "The Feed page"): the main post with its full date,
 // the replies oldest first, then the reply composer, docked at the bottom on phones. Opening it
-// marks the thread seen. A deleted or unknown post says so, with the way back.
+// marks the thread seen. A deleted or unknown post says so, with the way back. Live updates
+// (useFeedThreadLive) add new replies and show the thread as deleted when its post goes.
 definePageMeta({ flag: 'feed' });
 
 const { t } = useI18n();
@@ -19,6 +20,7 @@ const id = String(route.params.id);
 const { data: me } = await useFeedMe();
 const thread = await useFeedThread(id);
 const main = thread.post;
+useFeedThreadLive({ id, thread });
 
 useSeoMeta({ title: () => t('feed.thread.title'), robots: 'noindex' });
 

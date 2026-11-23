@@ -220,6 +220,12 @@
   min-height: calc(100svh - var(--ui-header-height));
 }
 
+/* Something that sticks under the site's sticky header, with a little room: the Feed's "N new
+   posts" button. */
+@utility top-header {
+  top: calc(var(--ui-header-height) + 0.75rem);
+}
+
 /* The Minecraft map: the frame takes what the header and the title bar leave of the screen
    (5rem for the bar and the 1rem around the page), never less than 30rem. */
 @utility h-map {

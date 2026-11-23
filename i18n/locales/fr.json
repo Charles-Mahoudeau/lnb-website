@@ -446,6 +446,10 @@
     "loadMore": "Charger plus",
     "cancel": "Annuler",
     "announcementsNote": "Seule l’équipe publie ici. Tu peux aimer et répondre.",
+    "live": {
+      "newPosts": "1 nouveau post | {count} nouveaux posts",
+      "newAnnouncements": "1 nouvelle annonce | {count} nouvelles annonces"
+    },
     "tabs": {
       "label": "Fils",
       "announcements": "Annonces",
