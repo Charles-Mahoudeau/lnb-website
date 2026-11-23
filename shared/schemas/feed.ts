@@ -341,7 +341,8 @@ export const feedViewsQuery = z.object({
   ids: z
     .string()
     .max(800)
-    .transform((value) => value.split(','))
+    // Lowercased, as the site writes them and answers them, so a repeat in capitals isn't distinct.
+    .transform((value) => value.toLowerCase().split(','))
     .pipe(z.array(z.uuid()).min(1).max(20).refine(distinct, 'Distinct IDs'))
     .describe('1 to 20 distinct post or reply IDs, comma-separated.'),
 });

@@ -301,7 +301,8 @@ async function liveByIds(dbx: Db, ids: readonly string[]): Promise<FeedPostRow[]
     .from(feedPost)
     .where(and(inArray(feedPost.id, [...ids]), isNull(feedPost.deletedAt)));
   const byId = new Map(rows.map((row) => [row.id, row]));
-  return ids.flatMap((id) => byId.get(id) ?? []);
+  // PostgreSQL finds a uuid whatever its case; the rows come back lowercased.
+  return ids.flatMap((id) => byId.get(id.toLowerCase()) ?? []);
 }
 
 /** Many players' views of a few posts, for what the stream announces (`POST /views`). */

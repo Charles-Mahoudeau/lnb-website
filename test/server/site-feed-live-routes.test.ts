@@ -185,17 +185,14 @@ describe('the live routes, against the contract', () => {
       expect((await views(camille, ids.join(','))).status).toBe(200);
     });
 
-    // DEFECT (low, server/services/feed/views.ts, `liveByIds`): the posts are matched back to the
-    // IDs asked by string, but PostgreSQL finds a uuid whatever its case. A valid UUID written in
-    // capitals is accepted by the schema (and a repeat that differs only in case passes the
-    // distinct check), then looked up by a key that never matches: its post is answered as
-    // unknown. The site never writes IDs in capitals, so this needs a hand-made request.
-    it.fails('answers a post asked for by its ID in capitals', async () => {
+    // A UUID in capitals is the same UUID: it is answered, and a repeat in another case is a repeat.
+    it('answers a post asked for by its ID in capitals', async () => {
       const camille = await person('Camille Roux');
       const { post: made } = await post(camille);
       expect(postsOf(await views(camille, made.id.toUpperCase())).map((view) => view.id)).toEqual([
         made.id,
       ]);
+      expect((await views(camille, `${made.id},${made.id.toUpperCase()}`)).status).toBe(400);
     });
 
     it('leaves out deleted posts, replies that went with their thread, and unknown IDs', async () => {
