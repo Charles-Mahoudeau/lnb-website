@@ -256,6 +256,12 @@ const OTHER_ORIGINS: Record<string, string> = {
   'minecraft.playtime.update': 'the playtime enforcement',
   'minecraft.playtime.kick': 'the playtime enforcement',
   'economy.market.recipes': 'the Minecraft server, sending its recipes',
+  'minecraft.feed.delete':
+    'Feed: a moderator deleting a post in game (the admin route comes with the moderation tab)',
+  'minecraft.feed.pin': 'Feed: an announcer pinning, in game or on the Feed page',
+  'minecraft.feed.unpin': 'Feed: an announcer unpinning, in game or on the Feed page',
+  'minecraft.feed.announcer':
+    'Feed: /feed announcer in game (the admin route comes with the moderation tab)',
   'people.ghost.claim': 'the first sign-in of a person with a ghost account',
   'events.partnerEvent.export': 'a GET route, which downloads personal data',
   'links.export': 'a GET route, which downloads personal data',
