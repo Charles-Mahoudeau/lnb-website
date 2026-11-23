@@ -62,7 +62,7 @@ const adminPeopleCommon = {
     .optional()
     .describe("The school's Microsoft tenant ID."),
   role: z
-    .enum(['any', 'admin', 'warden-admin', 'events-manager', 'economy-admin'])
+    .enum(['any', 'admin', 'warden-admin', 'events-manager', 'economy-admin', 'feed-announcer'])
     .default('any')
     .describe('Site admins only.'),
 };
@@ -97,7 +97,7 @@ export const adminPeopleQuery = z.object({
 export type AdminPeopleQuery = {
   q?: string;
   tenantId?: string;
-  role?: 'any' | 'admin' | 'warden-admin' | 'events-manager' | 'economy-admin';
+  role?: 'any' | 'admin' | 'warden-admin' | 'events-manager' | 'economy-admin' | 'feed-announcer';
   /** Comma-separated. */
   filters?: string;
   cursor?: string;
