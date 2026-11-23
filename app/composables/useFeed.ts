@@ -57,6 +57,23 @@ async function call<T>(request: () => Promise<T>): Promise<T> {
   }
 }
 
+/**
+ * Where the live stream of the page shown starts: the newest event ID the site read before the
+ * page's data (`X-Feed-Event-Id`), kept through the server render. The stream's first opening
+ * sends it as Last-Event-ID, so nothing made since the page was read is missed.
+ */
+export function useFeedEventId() {
+  return useState<string | null>('feed-event-id', () => null);
+}
+
+/** Keeps the page's `X-Feed-Event-Id` from a read of its data. */
+function keepEventId(eventId: Ref<string | null>) {
+  return ({ response }: { response: { headers: Headers } }) => {
+    const value = response.headers.get('x-feed-event-id');
+    if (value && /^\d+$/.test(value)) eventId.value = value;
+  };
+}
+
 /** The signed-in person's rights, ban, unread dots and posting account. */
 export function useFeedMe() {
   return useFetch<FeedMe>('/api/feed/me', { key: 'feed-me' });
@@ -67,9 +84,11 @@ export function useFeedMe() {
  * the changes the page's own actions make (likes, pins, deletes, a new post).
  */
 export async function useFeedTimeline(feed: Ref<FeedName>) {
+  const eventId = useFeedEventId();
   const fetched = await useFetch<FeedPage>('/api/feed/posts', {
     key: () => `feed-page-${feed.value}`,
     query: { feed },
+    onResponse: keepEventId(eventId),
   });
   const pinned = ref<FeedPostView[]>([]);
   const posts = ref<FeedPostView[]>([]);
@@ -167,8 +186,10 @@ export async function useFeedTimeline(feed: Ref<FeedName>) {
 
 /** A thread: its main post, then its replies, oldest first, with "Load more replies". */
 export async function useFeedThread(id: string) {
+  const eventId = useFeedEventId();
   const fetched = await useFetch<FeedThread>(`/api/feed/posts/${id}`, {
     key: `feed-thread-${id}`,
+    onResponse: keepEventId(eventId),
   });
   const post = ref<FeedPostView | null>(null);
   const replies = ref<FeedPostView[]>([]);

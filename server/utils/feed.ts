@@ -1,5 +1,6 @@
 import type { RequestEvent } from 'nuxt/server';
 
+import { minecraftEventService } from '~~/server/services/minecraft-events';
 import { requireFlag } from '~~/server/utils/flags';
 import { requireWardenServer } from '~~/server/utils/warden';
 
@@ -11,6 +12,19 @@ export async function requireFeedServer(event: RequestEvent): Promise<void> {
   requireWardenServer(event);
   await requireFlag(event, 'feed');
   await requireFlag(event, 'feed.serverApi');
+}
+
+/** The header that tells a page where its live stream starts, read before the page's data. */
+export const FEED_EVENT_ID_HEADER = 'X-Feed-Event-Id';
+
+/**
+ * Sets `X-Feed-Event-Id` to the newest event of the `feed` topic, read before what the page reads:
+ * every change after it has its event after it, so the page's live stream opens with it as
+ * Last-Event-ID and misses nothing that happened since the page was read, however old the page
+ * is by then (past the replay buffer, the stream says `reset` and the page reads itself again).
+ */
+export async function setFeedEventId(event: RequestEvent): Promise<void> {
+  event.res.headers.set(FEED_EVENT_ID_HEADER, String(await minecraftEventService.latestId('feed')));
 }
 
 /**

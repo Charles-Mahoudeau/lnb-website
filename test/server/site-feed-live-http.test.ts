@@ -14,9 +14,18 @@ import { feedPostService } from '~~/server/services/feed/posts';
 import { feedLimits } from '~~/server/services/feed/shared';
 import { feedLastEventId, streamFeedLive } from '~~/server/utils/feed-live';
 
-import { BASE, problem, refusal, requireTestUser } from './feed-browser-helpers';
+import { BASE, api, problem, refusal, requireTestUser } from './feed-browser-helpers';
 import type { As } from './feed-browser-helpers';
-import { call, person, post, reply, setFlags, stubServerUtils, wipe } from './feed-helpers';
+import {
+  call,
+  latestEvent,
+  person,
+  post,
+  reply,
+  setFlags,
+  stubServerUtils,
+  wipe,
+} from './feed-helpers';
 
 // The two routes of the browser's live updates at the HTTP level (docs/feed.md, "For the
 // browser" and "Live updates in the browser"): GET /views, the caller's own views of a few posts,
@@ -166,6 +175,32 @@ describe('the live routes over HTTP', () => {
     await wipe();
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+  });
+
+  describe('where a page’s stream starts (X-Feed-Event-Id)', () => {
+    it('comes with a page of a feed and a thread: the newest event, read before the page', async () => {
+      const camille = await person('Camille Roux');
+      const { post: made } = await post(camille);
+      const newest = await latestEvent();
+      const page = await api.page(camille, 'feed=global');
+      expect(page.headers.get('X-Feed-Event-Id')).toBe(String(newest));
+      // The page holds the post whose event is at or before that ID.
+      expect((page.body as { posts: { id: string }[] }).posts.map((one) => one.id)).toContain(
+        made.id,
+      );
+      const thread = await api.thread(camille, made.id);
+      expect(thread.headers.get('X-Feed-Event-Id')).toBe(String(newest));
+      await reply(camille, made.id);
+      expect((await api.thread(camille, made.id)).headers.get('X-Feed-Event-Id')).toBe(
+        String(await latestEvent()),
+      );
+    });
+
+    it('is not sent on a refusal', async () => {
+      const camille = await person('Camille Roux');
+      setFlags({ feed: false });
+      expect((await api.page(camille, 'feed=global')).headers.get('X-Feed-Event-Id')).toBeNull();
+    });
   });
 
   describe('GET /views', () => {

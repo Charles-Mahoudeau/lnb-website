@@ -13,6 +13,7 @@ import {
   deferred,
   id,
   inApp,
+  me,
   page,
   post,
   queryOf,
@@ -155,6 +156,16 @@ function soon(check: () => void) {
   return vi.waitFor(check, { timeout: 3000 });
 }
 
+/** Sets a response header from an endpoint registered with registerEndpoint, whatever its h3. */
+function header(event: unknown, name: string, value: string) {
+  const target = event as {
+    node?: { res: { setHeader: (n: string, v: string) => void } };
+    res?: { headers: Headers };
+  };
+  if (target.node) target.node.res.setHeader(name, value);
+  else target.res?.headers.set(name, value);
+}
+
 const postEvent = (one: FeedPostView) => ({
   id: one.id,
   feed: one.feed,
@@ -171,6 +182,7 @@ beforeEach(() => {
   clearToasts();
   clearPortals();
   playStream();
+  useFeedEventId().value = null;
   vi.spyOn(feedActions, 'markFeedSeen').mockResolvedValue(null);
   vi.spyOn(feedActions, 'markThreadSeen').mockResolvedValue(null);
 });
@@ -295,6 +307,37 @@ describe('the stream of the Feed page', () => {
     document.dispatchEvent(new Event('visibilitychange'));
     const again = await current(2);
     expect(again.headers.get('last-event-id')).toBe('7');
+  });
+
+  it('starts where the page was read, so nothing made since is missed', async () => {
+    registerEndpoint('/api/feed/me', () => me());
+    registerEndpoint('/api/feed/seen', { method: 'POST', handler: () => null });
+    registerEndpoint('/api/feed/posts', {
+      method: 'GET',
+      handler: (event) => {
+        header(event, 'X-Feed-Event-Id', '77');
+        return page({ posts: [glob(1)] });
+      },
+    });
+    await mountFeed();
+    const stream = await current();
+    expect(stream.headers.get('last-event-id')).toBe('77');
+    // Once events came, a reconnection sends the last one, not the page's.
+    stream.send('counts', { items: [] }, 80);
+    await settle();
+    stream.end();
+    expect((await current(2)).headers.get('last-event-id')).toBe('80');
+  });
+
+  it('starts a thread where it was read too', async () => {
+    registerEndpoint('/api/feed/me', () => me());
+    registerEndpoint(`/api/feed/posts/${MAIN_ID}`, (event) => {
+      header(event, 'X-Feed-Event-Id', '91');
+      return thread(post({ id: MAIN_ID }), []);
+    });
+    registerEndpoint(`/api/feed/posts/${MAIN_ID}/seen`, { method: 'POST', handler: () => null });
+    await mountThread();
+    expect((await current()).headers.get('last-event-id')).toBe('91');
   });
 
   it('opens no stream while feed.live is off for the page', async () => {

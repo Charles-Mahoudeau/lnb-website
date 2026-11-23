@@ -98,6 +98,7 @@ export function useFeedStream(handlers: FeedLiveHandlers) {
 
   const { user } = useAuth();
   const { isEnabled } = useFlags();
+  const pageEventId = useFeedEventId();
   let controller: AbortController | null = null;
   let retryTimer: ReturnType<typeof setTimeout> | undefined;
   let hiddenTimer: ReturnType<typeof setTimeout> | undefined;
@@ -105,6 +106,7 @@ export function useFeedStream(handlers: FeedLiveHandlers) {
   /** Set when the site said there are too many streams: the next try waits minutes. */
   let tooMany = false;
   let longAttempt = 0;
+  /** The last event ID seen; at first, where the page's data was read (useFeedEventId). */
   let lastId: string | null = null;
   let stopped = false;
 
@@ -114,6 +116,8 @@ export function useFeedStream(handlers: FeedLiveHandlers) {
     retryTimer = undefined;
     const current = new AbortController();
     controller = current;
+    // The first opening starts where the page was read, however long ago (a background tab).
+    lastId ??= pageEventId.value;
     try {
       const response = await fetch('/api/feed/events', {
         headers: { accept: 'text/event-stream', ...(lastId ? { 'last-event-id': lastId } : {}) },

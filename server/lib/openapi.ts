@@ -4812,7 +4812,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.feed,
     summary: 'A page of a feed',
     description:
-      'Main posts of `feed`, newest first, as you see them. `pinned` holds the pinned announcements, most recent pin first, on the first page of `announcements` only; `posts` never repeats them. Pass `next` as `before` for the next page. A cursor that isn’t one of ours is a plain 400.',
+      'Main posts of `feed`, newest first, as you see them. `pinned` holds the pinned announcements, most recent pin first, on the first page of `announcements` only; `posts` never repeats them. Pass `next` as `before` for the next page. A cursor that isn’t one of ours is a plain 400. `X-Feed-Event-Id` gives the newest event of the live stream read before the page: send it as `Last-Event-ID` at the stream’s first opening to miss nothing made since.',
     access: 'user',
     query: feed.feedPageQuery,
     response: feed.feedPage,
@@ -4824,7 +4824,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.feed,
     summary: 'A thread',
     description:
-      'The main post `id` and a page of its replies, oldest first. Pass `next` as `after` for the following replies. A reply’s ID, or a deleted or unknown post, is `notFound`. Call `POST /api/feed/posts/{id}/seen` once it is shown.',
+      'The main post `id` and a page of its replies, oldest first. Pass `next` as `after` for the following replies. A reply’s ID, or a deleted or unknown post, is `notFound`. Call `POST /api/feed/posts/{id}/seen` once it is shown. `X-Feed-Event-Id` gives where its live stream starts, as for a page.',
     access: 'user',
     params: feed.feedIdParams,
     query: feed.feedThreadQuery,
