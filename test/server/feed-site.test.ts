@@ -402,8 +402,8 @@ describe('Feed in the browser and the admin', () => {
       });
     });
 
-    // See the HTTP test of the same name: a time past the largest Date throws a RangeError.
-    it.fails('refuses a cursor whose time is past the largest date with a 400', async () => {
+    // See the HTTP test of the same name: a time past the largest Date is no cursor of ours.
+    it('refuses a cursor whose time is past the largest date with a 400', async () => {
       const huge = Buffer.from(`[9007199254740991,"${randomUUID()}"]`).toString('base64url');
       expect(await problemOf(feedAdminService.list(query({ cursor: huge })))).toMatchObject({
         status: 400,

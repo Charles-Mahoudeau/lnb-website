@@ -85,6 +85,8 @@ export interface FeedCursor {
   id: string;
 }
 
+/** The largest time a JavaScript Date holds, in milliseconds. */
+const MAX_DATE_MS = 8.64e15;
 const UUID = /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i;
 
 /** A keyset cursor on `(createdAt, id)`: opaque, under 128 characters. */
@@ -101,6 +103,8 @@ export function decodeCursor(cursor: string): FeedCursor | null {
       value.length === 2 &&
       Number.isSafeInteger(value[0]) &&
       (value[0] as number) >= 0 &&
+      // Past it the Date is invalid, and the query would fail with a 500.
+      (value[0] as number) <= MAX_DATE_MS &&
       typeof value[1] === 'string' &&
       UUID.test(value[1])
     ) {

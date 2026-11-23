@@ -161,9 +161,9 @@ describe('Feed rules', () => {
     });
   });
 
-  // Number.isSafeInteger lets through times past the largest Date (8.64e15 ms): the cursor
-  // decodes to an Invalid Date, which the query then fails on (a 500 where a 400 is due).
-  it.fails('refuses a cursor whose time is past the largest date', () => {
+  // A time past the largest Date (8.64e15 ms) would decode to an Invalid Date, which the query
+  // would then fail on (a 500 where a 400 is due).
+  it('refuses a cursor whose time is past the largest date', () => {
     const id = '0d1c7e3a-7f2b-4a51-9a63-2f5d8c1b4e70';
     const cursor = Buffer.from(`[8640000000000001,"${id}"]`).toString('base64url');
     expect(decodeCursor(cursor)).toBeNull();

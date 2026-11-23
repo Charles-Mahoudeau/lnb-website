@@ -475,10 +475,9 @@ describe('Feed server routes over HTTP', () => {
       ).toMatchObject({ posts: [], next: null });
     });
 
-    // A cursor is a millisecond time: one past the largest Date (8.64e15) passes decodeCursor's
-    // safe-integer check, becomes an Invalid Date, and the query fails while building its
-    // parameters. The mod never sends it; a forged or corrupted cursor gets a 500, not a 400.
-    it.fails('refuses a cursor whose time is past the largest date with a 400', async () => {
+    // A cursor is a millisecond time: one past the largest Date (8.64e15) would be an Invalid
+    // Date, on which the query fails. The mod never sends it; a forged cursor gets a 400.
+    it('refuses a cursor whose time is past the largest date with a 400', async () => {
       const camille = await person('Camille Roux');
       const { post: main } = await post(camille);
       const huge = Buffer.from(`[9007199254740991,"${main.id}"]`).toString('base64url');
