@@ -323,6 +323,10 @@ const deskItems = computed<DropdownMenuItem[][]>(() => [extras.value]);
               variant="soft"
               :label="name"
             />
+            <AdminFeedAnnouncerPill
+              v-if="isWardenAdmin(role) && !ghost"
+              :user-id="summary.userId"
+            />
             <UBadge
               v-if="ban"
               color="error"

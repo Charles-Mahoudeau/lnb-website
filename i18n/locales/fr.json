@@ -878,7 +878,8 @@
       "admin": "Admin",
       "wardenAdmin": "Admin Warden",
       "eventsManager": "Gestion des événements",
-      "economyAdmin": "Gestion de l’économie"
+      "economyAdmin": "Gestion de l’économie",
+      "feedAnnouncer": "Annonceur du Feed"
     },
     "users": {
       "search": "Rechercher par nom ou e-mail",
@@ -5288,6 +5289,21 @@
         "failed": "La publication n’a pas pu être supprimée. Vérifie ta connexion, puis réessaie.",
         "notFound": "Cette publication n’est plus gardée : il n’y a rien à supprimer.",
         "notAllowed": "Tu ne peux pas supprimer de publications tant qu’un bannissement est en cours sur ton compte."
+      },
+      "announcer": {
+        "title": "Annonceur du Feed",
+        "text": "Peut publier dans Annonces et épingler. Les modérateurs le sont d’office. Se donne aussi en jeu par commande.",
+        "viaRole": "Annonceur d’office, en tant que modérateur : ça ne se retire pas ici.",
+        "pill": "Annonceur",
+        "given": "{name} est maintenant annonceur du Feed",
+        "taken": "{name} n’est plus annonceur du Feed",
+        "loadFailed": "Le rôle d’annonceur du Feed ne s’est pas chargé. Recharge la page pour réessayer.",
+        "errors": {
+          "failed": "Le rôle d’annonceur n’a pas pu être changé. Vérifie ta connexion, puis réessaie.",
+          "impliedByRole": "Les modérateurs sont annonceurs d’office : retire plutôt leur rôle de modérateur.",
+          "isGhost": "Un compte fantôme ne peut pas être annonceur avant que la personne se connecte.",
+          "notFound": "Ce compte n’existe plus."
+        }
       }
     }
   },

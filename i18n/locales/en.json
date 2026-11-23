@@ -874,7 +874,8 @@
       "admin": "Admin",
       "wardenAdmin": "Warden admin",
       "eventsManager": "Events manager",
-      "economyAdmin": "Economy admin"
+      "economyAdmin": "Economy admin",
+      "feedAnnouncer": "Feed announcer"
     },
     "users": {
       "search": "Search by name or email",
@@ -5284,6 +5285,21 @@
         "failed": "The post couldn’t be deleted. Check your connection, then try again.",
         "notFound": "This post is no longer kept, so there is nothing to delete.",
         "notAllowed": "You can’t delete posts while a ban is in force on your account."
+      },
+      "announcer": {
+        "title": "Feed announcer",
+        "text": "Can post in Announcements and pin. Moderators are announcers by role. Also given in game by command.",
+        "viaRole": "An announcer by role, as a moderator: it can’t be turned off here.",
+        "pill": "Announcer",
+        "given": "{name} is now a Feed announcer",
+        "taken": "{name} is no longer a Feed announcer",
+        "loadFailed": "The Feed announcer role didn’t load. Reload the page to try again.",
+        "errors": {
+          "failed": "The announcer role couldn’t be changed. Check your connection, then try again.",
+          "impliedByRole": "Moderators are announcers by role: take their moderator role instead.",
+          "isGhost": "A ghost account can’t be an announcer before the person signs in.",
+          "notFound": "This account no longer exists."
+        }
       }
     }
   },
