@@ -90,6 +90,7 @@ export const AUDIT_ACTIONS = [
   'minecraft.feed.pin',
   'minecraft.feed.unpin',
   'minecraft.feed.announcer',
+  'minecraft.feed.purge',
   'minecraft.rule.create',
   'minecraft.rule.update',
   'minecraft.rule.retire',

@@ -4698,6 +4698,7 @@
         "minecraftFeedPin": "{actor} pinned a Feed announcement",
         "minecraftFeedUnpin": "{actor} unpinned a Feed announcement",
         "minecraftFeedAnnouncer": "{actor} changed whether {target} is a Feed announcer",
+        "minecraftFeedPurge": "{actor} erased the Feed posts deleted more than 30 days ago",
         "minecraftRuleCreate": "{actor} added a server rule",
         "minecraftRuleUpdate": "{actor} edited a server rule",
         "minecraftRuleRetire": "{actor} retired a server rule",

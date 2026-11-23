@@ -277,6 +277,7 @@ const TASKS: Record<string, string> = {
   'economy/snapshot': 'economy.sweep',
   'changelog/publish-scheduled': 'minecraft.changelog.publish',
   'market/prune': 'economy.market.prune',
+  'feed/purge': 'minecraft.feed.purge',
   'market/snapshot': 'Frequent: hourly price history, nothing a person decided.',
   'events/bde-sync': 'Frequent: syncs with the BDE website.',
   'events/prune-images': 'events.pruneImages',

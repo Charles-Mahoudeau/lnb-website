@@ -139,6 +139,7 @@ export default defineNuxtConfig({
         'playtime:prune',
         'audit:prune',
         'market:prune',
+        'feed:purge',
       ],
       // After the economy snapshot, so the quest index reads the night's balances.
       '0 4 * * *': ['quests:index'],

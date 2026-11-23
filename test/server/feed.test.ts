@@ -22,6 +22,7 @@ import { feedLikeService } from '~~/server/services/feed/likes';
 import { feedNotificationService } from '~~/server/services/feed/notifications';
 import { feedPinService } from '~~/server/services/feed/pins';
 import { feedPostService } from '~~/server/services/feed/posts';
+import { feedPurgeService } from '~~/server/services/feed/purge';
 import { feedReadStateService } from '~~/server/services/feed/read-state';
 import { feedRightsService } from '~~/server/services/feed/rights';
 import { feedLimits } from '~~/server/services/feed/shared';
@@ -544,6 +545,34 @@ describe('Feed services', () => {
         announcements: false,
         global: false,
       });
+    });
+  });
+
+  describe('the nightly purge', () => {
+    it('erases rows deleted over 30 days ago and old notifications, keeping reply lines', async () => {
+      const camille = await person('Camille Roux');
+      const mika = await person('Mika Lefort');
+      const { post: main } = await post(camille, 'Fil');
+      const { post: mikaReply } = await reply(mika, main.id);
+      const { post: answer } = await reply(camille, main.id, mikaReply.id);
+      await feedPostService.remove({ actor: server(mika), postId: mikaReply.id });
+      const { post: fresh } = await post(mika, 'Récent');
+      await feedPostService.remove({ actor: server(mika), postId: fresh.id });
+
+      const now = new Date();
+      const old = new Date(now.getTime() - 31 * 86_400_000);
+      await db.update(feedPost).set({ deletedAt: old }).where(eq(feedPost.id, mikaReply.id));
+      await db.update(feedNotification).set({ createdAt: old });
+
+      expect(await feedPurgeService.purge(now)).toEqual({ posts: 1, notifications: 1 });
+      const left = (await db.select({ id: feedPost.id }).from(feedPost)).map((row) => row.id);
+      expect(left.sort()).toEqual([main.id, answer.id, fresh.id].sort());
+      expect((await viewOf(camille, answer.id))!.replyTo).toEqual({
+        id: null,
+        anonymous: false,
+        name: 'Mika L.',
+      });
+      expect(await feedPurgeService.purge(now)).toEqual({ posts: 0, notifications: 0 });
     });
   });
 
