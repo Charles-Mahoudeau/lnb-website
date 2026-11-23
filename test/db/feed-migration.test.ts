@@ -77,6 +77,39 @@ describe('0064_feed', () => {
     expect(flags).toEqual([{ key: 'feed', enabled: false }]);
   });
 
+  it('stores the times the API sends back to the millisecond, as JSON carries them', async () => {
+    const columns = await rows<{ name: string; precision: number }>(
+      `SELECT table_name || '.' || column_name AS name, datetime_precision AS precision
+         FROM information_schema.columns
+        WHERE table_name IN ('feed_post', 'feed_member', 'feed_thread_seen')
+          AND column_name IN ('created_at', 'pinned_at', 'deleted_at', 'announcements_seen_at',
+                              'global_seen_at', 'seen_at')
+        ORDER BY name`,
+    );
+    expect(columns).toEqual(
+      [
+        'feed_member.announcements_seen_at',
+        'feed_member.global_seen_at',
+        'feed_post.created_at',
+        'feed_post.deleted_at',
+        'feed_post.pinned_at',
+        'feed_thread_seen.seen_at',
+      ].map((name) => ({ name, precision: 3 })),
+    );
+    // A row written outside the app, to the microsecond, is kept to the millisecond.
+    const id = crypto.randomUUID();
+    await pool.query(POST, insertPost({ id }));
+    await pool.query(
+      `UPDATE feed_post SET created_at = '2026-11-23 14:00:00.123456' WHERE id = $1`,
+      [id],
+    );
+    const [stored] = await rows<{ at: string }>(
+      `SELECT to_char(created_at, 'HH24:MI:SS.US') AS at FROM feed_post WHERE id = $1`,
+      [id],
+    );
+    expect(stored?.at).toBe('14:00:00.123000');
+  });
+
   it('indexes every foreign key of its tables, with no condition a cascade could not use', async () => {
     // A foreign key whose column leads no plain index costs a scan of its table for each row a
     // cascade deletes or sets to null: deleting one account read the whole of feed_post per post.

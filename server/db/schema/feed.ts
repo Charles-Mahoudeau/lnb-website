@@ -24,6 +24,13 @@ export type FeedDeletedCause = 'author' | 'moderator' | 'thread';
 export type FeedNotificationKind = 'announcement' | 'reply';
 
 /**
+ * Feed's times that the API sends back and later compares (`createdAt` as a cursor or as the
+ * `upTo` of a seen mark, the seen times): stored to the millisecond, as JSON carries them, so a
+ * row written outside the app can neither keep a dot unread nor be skipped by paging.
+ */
+const ms = (name: string) => timestamp(name, { precision: 3 });
+
+/**
  * A main post (`thread_id` null) or a reply in its thread. Deleting sets `deleted_at` and hides the
  * row from everyone; the nightly purge removes it 30 days later. The author's names are read at
  * answer time, from Warden, except the Minecraft account it was posted from, which is history.
@@ -56,10 +63,10 @@ export const feedPost = pgTable(
     anonymous: boolean('anonymous').default(false).notNull(),
     likeCount: integer('like_count').default(0).notNull(),
     replyCount: integer('reply_count').default(0).notNull(),
-    pinnedAt: timestamp('pinned_at'),
+    pinnedAt: ms('pinned_at'),
     pinnedByUserId: text('pinned_by_user_id').references(() => user.id, { onDelete: 'set null' }),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    deletedAt: timestamp('deleted_at'),
+    createdAt: ms('created_at').defaultNow().notNull(),
+    deletedAt: ms('deleted_at'),
     deletedByUserId: text('deleted_by_user_id').references(() => user.id, {
       onDelete: 'set null',
     }),
@@ -137,8 +144,8 @@ export const feedMember = pgTable(
     postingMinecraftUuid: uuid('posting_minecraft_uuid').references(() => minecraftAccount.uuid, {
       onDelete: 'set null',
     }),
-    announcementsSeenAt: timestamp('announcements_seen_at'),
-    globalSeenAt: timestamp('global_seen_at'),
+    announcementsSeenAt: ms('announcements_seen_at'),
+    globalSeenAt: ms('global_seen_at'),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   // For the foreign key: when the Minecraft account's row goes, the choice goes with it.
@@ -155,7 +162,7 @@ export const feedThreadSeen = pgTable(
     threadId: uuid('thread_id')
       .notNull()
       .references(() => feedPost.id, { onDelete: 'cascade' }),
-    seenAt: timestamp('seen_at').notNull(),
+    seenAt: ms('seen_at').notNull(),
   },
   (table) => [
     primaryKey({ columns: [table.userId, table.threadId] }),

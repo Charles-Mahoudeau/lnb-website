@@ -168,6 +168,42 @@ describe('Feed over time', () => {
       expect(await unread()).toEqual({ announcements: true, global: false });
     });
 
+    it('keeps rows written outside the app to the millisecond: seen marks and pages still hold', async () => {
+      const camille = await person('Camille Roux');
+      const mika = await person('Mika Lefort');
+      const ids: string[] = [];
+      for (let i = 0; i < 3; i++) ids.push((await post(mika, `G${String(i)}`)).post.id);
+      // Written by hand to the microsecond, as a script or a console might.
+      for (const [i, id] of ids.entries()) {
+        await db.execute(
+          sql`update feed_post set created_at = ${`2026-11-01 20:14:05.12${String(i)}789`}::timestamp where id = ${id}`,
+        );
+      }
+      const first = await feedViewService.page({ who: { player: camille.uuid }, feed: 'global' });
+      const newest = first.posts[0]!;
+      expect(newest.createdAt).toBe('2026-11-01T20:14:05.123Z');
+      await feedReadStateService.markFeedSeen(
+        { player: camille.uuid },
+        'global',
+        new Date(newest.createdAt),
+      );
+      expect((await feedRightsService.playerState(camille.uuid)).unread.global).toBe(false);
+      const seen: string[] = [];
+      let before: string | undefined;
+      for (let guard = 0; guard < 10; guard++) {
+        const page = await feedViewService.page({
+          who: { player: camille.uuid },
+          feed: 'global',
+          limit: 1,
+          before,
+        });
+        seen.push(...page.posts.map((row) => row.id));
+        if (!page.next) break;
+        before = page.next;
+      }
+      expect(seen).toEqual([...ids].reverse());
+    });
+
     it('clears unseen replies at the thread mark, and counts only answers to the viewer', async () => {
       const camille = await person('Camille Roux');
       const mika = await person('Mika Lefort');

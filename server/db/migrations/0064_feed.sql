@@ -8,8 +8,8 @@ CREATE TABLE "feed_like" (
 CREATE TABLE "feed_member" (
 	"user_id" text PRIMARY KEY NOT NULL,
 	"posting_minecraft_uuid" uuid,
-	"announcements_seen_at" timestamp,
-	"global_seen_at" timestamp,
+	"announcements_seen_at" timestamp (3),
+	"global_seen_at" timestamp (3),
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
@@ -38,10 +38,10 @@ CREATE TABLE "feed_post" (
 	"anonymous" boolean DEFAULT false NOT NULL,
 	"like_count" integer DEFAULT 0 NOT NULL,
 	"reply_count" integer DEFAULT 0 NOT NULL,
-	"pinned_at" timestamp,
+	"pinned_at" timestamp (3),
 	"pinned_by_user_id" text,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"deleted_at" timestamp,
+	"created_at" timestamp (3) DEFAULT now() NOT NULL,
+	"deleted_at" timestamp (3),
 	"deleted_by_user_id" text,
 	"deleted_cause" text,
 	"deleted_reason" text,
@@ -59,7 +59,7 @@ CREATE TABLE "feed_post" (
 CREATE TABLE "feed_thread_seen" (
 	"user_id" text NOT NULL,
 	"thread_id" uuid NOT NULL,
-	"seen_at" timestamp NOT NULL,
+	"seen_at" timestamp (3) NOT NULL,
 	CONSTRAINT "feed_thread_seen_user_id_thread_id_pk" PRIMARY KEY("user_id","thread_id")
 );
 --> statement-breakpoint

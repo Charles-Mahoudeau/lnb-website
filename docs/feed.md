@@ -165,7 +165,7 @@ The Minecraft server takes the rows (`GET /api/feed/server/notifications`), deli
 
 ## Data
 
-In `server/db/schema/feed.ts`. Every timestamp is `timestamp` without time zone, in UTC, like the rest of the schema.
+In `server/db/schema/feed.ts`. Every timestamp is `timestamp` without time zone, in UTC, like the rest of the schema. The times the API sends back and later compares are stored to the millisecond (`timestamp(3)`), as JSON carries them: `feed_post.created_at` (cursors and the `upTo` of a seen mark), `pinned_at` and `deleted_at`, and the seen times of `feed_member` and `feed_thread_seen`. A row written outside the app can then neither keep a dot unread nor be skipped by paging.
 
 ### `feed_post`
 

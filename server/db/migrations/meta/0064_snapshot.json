@@ -1,5 +1,5 @@
 {
-  "id": "23bdf095-6d3e-42ed-8ae3-9e52967d9e3a",
+  "id": "57f64d7c-50b5-4e06-aae1-7dd900458445",
   "prevId": "854a1f01-0cc1-4a8f-8b9a-c2ac6d334e5f",
   "version": "7",
   "dialect": "postgresql",
@@ -5400,13 +5400,13 @@
         },
         "announcements_seen_at": {
           "name": "announcements_seen_at",
-          "type": "timestamp",
+          "type": "timestamp (3)",
           "primaryKey": false,
           "notNull": false
         },
         "global_seen_at": {
           "name": "global_seen_at",
-          "type": "timestamp",
+          "type": "timestamp (3)",
           "primaryKey": false,
           "notNull": false
         },
@@ -5677,7 +5677,7 @@
         },
         "pinned_at": {
           "name": "pinned_at",
-          "type": "timestamp",
+          "type": "timestamp (3)",
           "primaryKey": false,
           "notNull": false
         },
@@ -5689,14 +5689,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp (3)",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "deleted_at": {
           "name": "deleted_at",
-          "type": "timestamp",
+          "type": "timestamp (3)",
           "primaryKey": false,
           "notNull": false
         },
@@ -6018,7 +6018,7 @@
         },
         "seen_at": {
           "name": "seen_at",
-          "type": "timestamp",
+          "type": "timestamp (3)",
           "primaryKey": false,
           "notNull": true
         }
