@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import AnnouncerPill from '~/components/admin/feed/AnnouncerPill.vue';
 import AnnouncerRow from '~/components/admin/feed/AnnouncerRow.vue';
-import { FeedError } from '~/composables/useFeed';
+import { FeedError, useFeedNow } from '~/composables/useFeed';
 import { feedAdminActions } from '~/composables/useFeedAdmin';
 import FeedTab from '~/pages/admin/moderation/feed.vue';
 
@@ -204,6 +204,15 @@ describe('the Feed table', () => {
     });
     await settle(10);
     expect(asked.at(-1)).toEqual({ feeds: 'global', anonymous: 'true', deleted: 'true' });
+  });
+
+  it('starts the clock its dates read, so today moves on with the page open', async () => {
+    serveList();
+    const now = useFeedNow();
+    now.value = Date.parse('2026-01-01T00:00:00.000Z');
+    const before = Date.now();
+    await mountTab();
+    expect(now.value).toBeGreaterThanOrEqual(before);
   });
 
   it('sends the search after a pause, and only from 2 characters', async () => {

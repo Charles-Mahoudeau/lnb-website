@@ -144,6 +144,8 @@ function first() {
   go({ cursor: null, post: null }, { push: true });
 }
 
+// The page's clock, started here: the dates (today's as a time) and the drawer's ages move on.
+useFeedClock();
 const now = useFeedNow();
 const date = (iso: string) => formatFeedAdminDate(iso, locale.value, now.value);
 const day = (iso: string) => formatFeedAdminDay(iso, locale.value, now.value);
