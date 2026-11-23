@@ -7,7 +7,7 @@ import { minecraftAccount, minecraftServerEvent } from '~~/server/db/schema';
 // Emitting never fails the change that caused it: the mods also poll, so a lost event only means
 // a slower refresh.
 
-export type MinecraftTopic = 'economy' | 'quests';
+export type MinecraftTopic = 'economy' | 'quests' | 'feed';
 
 const KEEP_MS = 24 * 60 * 60 * 1000;
 
