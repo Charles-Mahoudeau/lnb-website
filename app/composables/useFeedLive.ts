@@ -195,18 +195,22 @@ export function useFeedStream(handlers: FeedLiveHandlers) {
 function useFeedViewBatch(onViews: (posts: FeedPostView[]) => void) {
   const wanted = new Set<string>();
   let timer: ReturnType<typeof setTimeout> | undefined;
-  let disposed = false;
+  let left = false;
+  // A function, so that a check after an await isn't narrowed away by the one before it.
+  const isLeft = () => left;
 
   async function flush() {
     timer = undefined;
     const ids = [...wanted];
     wanted.clear();
     for (let start = 0; start < ids.length; start += 20) {
+      // The page was left: nobody reads the rest.
+      if (isLeft()) return;
       try {
         const { posts } = await $fetch<FeedViewsOf>('/api/feed/views', {
           query: { ids: ids.slice(start, start + 20).join(',') },
         });
-        if (!disposed) onViews(posts);
+        if (!isLeft()) onViews(posts);
       } catch {
         // Missed: shown at the next reload.
       }
@@ -214,7 +218,7 @@ function useFeedViewBatch(onViews: (posts: FeedPostView[]) => void) {
   }
 
   onBeforeUnmount(() => {
-    disposed = true;
+    left = true;
     clearTimeout(timer);
   });
 

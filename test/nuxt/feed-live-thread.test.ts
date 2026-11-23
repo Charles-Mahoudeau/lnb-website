@@ -385,33 +385,27 @@ describe('the main post going, being pinned, or the page being read again', () =
 });
 
 describe('leaving a thread', () => {
-  // DEFECT (low, app/composables/useFeedLive.ts, `useFeedViewBatch`): `flush` asks for the IDs it
-  // gathered 20 at a time, one call after the other, and `disposed` is only looked at before the
-  // answer is used. A page left while the first call is out still sends the next ones (a tab
-  // closed during a burst of 21 or more posts keeps asking for views nobody will read).
-  it.fails(
-    'asks for no more views, and drops the answer of one in flight, once the page was left',
-    async () => {
-      const slow = deferred<{ posts: FeedPostView[] }>();
-      serveThread(MAIN_ID, () => thread(main(), [answer(1)]));
-      const asked: string[] = [];
-      registerEndpoint('/api/feed/views', (event) => {
-        asked.push(event.path);
-        return slow.promise;
-      });
-      const view = await mountThread();
-      const stream = await current();
-      // Twenty-five in one second: two calls, the second only once the first is answered.
-      for (let n = 0; n < 25; n++) stream.send('post', postEvent(answer(10 + n)), n + 1);
-      await soon(() => {
-        expect(asked).toHaveLength(1);
-      });
-      view.unmount();
-      mounted.splice(0);
-      slow.resolve({ posts: [answer(10)] });
-      await settle(10);
-      await wait(300);
+  // A page left while the views of a burst are being asked asks for no more of them.
+  it('asks for no more views, and drops the answer of one in flight, once the page was left', async () => {
+    const slow = deferred<{ posts: FeedPostView[] }>();
+    serveThread(MAIN_ID, () => thread(main(), [answer(1)]));
+    const asked: string[] = [];
+    registerEndpoint('/api/feed/views', (event) => {
+      asked.push(event.path);
+      return slow.promise;
+    });
+    const view = await mountThread();
+    const stream = await current();
+    // Twenty-five in one second: two calls, the second only once the first is answered.
+    for (let n = 0; n < 25; n++) stream.send('post', postEvent(answer(10 + n)), n + 1);
+    await soon(() => {
       expect(asked).toHaveLength(1);
-    },
-  );
+    });
+    view.unmount();
+    mounted.splice(0);
+    slow.resolve({ posts: [answer(10)] });
+    await settle(10);
+    await wait(300);
+    expect(asked).toHaveLength(1);
+  });
 });
