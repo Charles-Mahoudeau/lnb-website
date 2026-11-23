@@ -283,9 +283,8 @@ describe('the Feed live hub, poller lifecycle', () => {
       await serves(live);
     });
 
-    // DEFECT (trivial, `poll`): a connection dropped while the first poll welcomes it stops the
-    // hub, and the poll still reads `since(cursor)` with the cursor `stop()` reset to null.
-    it.fails('reads nothing once its only connection went while it was welcomed', async () => {
+    // A connection dropped while the first read welcomes it stops the hub before it reads.
+    it('reads nothing once its only connection went while it was welcomed', async () => {
       const live = rig.hub();
       const broken = (() => {
         const client = connect(live);

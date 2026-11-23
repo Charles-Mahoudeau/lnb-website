@@ -250,6 +250,8 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
         cursor = latest;
         floor = latest;
         for (const conn of [...connections]) if (!conn.ready) welcome(conn);
+        // A welcome may have dropped the only connection, which stopped this loop.
+        if (gen !== generation) return;
       }
       for (let page = 0; page < limits.pagesPerPoll; page++) {
         const rows = await deps.source.since(cursor, limits.page);
