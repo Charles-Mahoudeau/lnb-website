@@ -253,8 +253,12 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
       }
       for (let page = 0; page < limits.pagesPerPoll; page++) {
         const rows = await deps.source.since(cursor, limits.page);
+        for (const row of rows) {
+          // Sending may drop the last connection, which stops this loop: read nothing more.
+          if (gen !== generation) return;
+          take(row);
+        }
         if (gen !== generation) return;
-        for (const row of rows) take(row);
         if (rows.length < limits.page) break;
       }
       failures = 0;
@@ -325,8 +329,9 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
     };
     connections.add(conn);
     perUser.set(input.userId, (perUser.get(input.userId) ?? 0) + 1);
-    if (cursor !== null) welcome(conn);
-    else start();
+    // A running loop welcomes it now, or at its first read when it hasn't read yet.
+    if (!running) start();
+    else if (cursor !== null) welcome(conn);
     return () => {
       drop(conn);
     };

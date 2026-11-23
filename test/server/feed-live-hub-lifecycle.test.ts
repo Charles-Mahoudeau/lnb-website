@@ -266,12 +266,9 @@ describe('the Feed live hub, poller lifecycle', () => {
       await serves(live);
     });
 
-    // DEFECT (serious, `take` and `drop`): the same stop, from inside a poll. When sending an
-    // event drops the last connection and the poll has more rows in hand, `take` goes on for the
-    // next row and writes `cursor` and the ring again, after `stop()` cleared them. The hub then
-    // has a cursor, no loop and no timer: the next tab is welcomed at that stale cursor, and as
-    // `join` only starts the loop when the cursor is null, nothing ever polls for it.
-    it.fails('serves the next tab after an event dropped the last one mid-batch', async () => {
+    // The same stop, from inside a read: once sending an event drops the last connection, the
+    // read leaves the rest of its batch, and the next tab starts a loop of its own.
+    it('serves the next tab after an event dropped the last one mid-batch', async () => {
       const live = rig.hub();
       const stalled = connect(live);
       await tick(0);
