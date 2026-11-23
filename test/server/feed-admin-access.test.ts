@@ -5,6 +5,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 
 import { db } from '~~/server/db';
 import { audit, feedPost, user, wardenBan } from '~~/server/db/schema';
+import { feedPostService } from '~~/server/services/feed/posts';
 import { feedLimits } from '~~/server/services/feed/shared';
 
 import { admin, listOf, requireTestWardenAdmin } from './feed-admin-helpers';
@@ -195,37 +196,48 @@ describe('who may call the admin’s Feed routes', () => {
       await db.insert(wardenBan).values({ userId: banned.id, reason: 'Test', source: 'web' });
     });
 
-    it('cannot delete: they lose the moderate right while the ban lasts', async () => {
-      expect(refusal(await admin.remove(banned, mainId))).toEqual(problem(403, 'notAllowed'));
+    // Decided: the admin follows the role alone, as every other Warden page does (a banned Warden
+    // admin keeps bans, notes, appeals, people and the activity log). Whether a Warden ban should
+    // suspend the admin site-wide is the owner's question (docs/feed.md, Rights). In game and on
+    // the Feed page the ban still removes moderate.
+    it('still deletes anyone’s post from the admin, audited with the reason', async () => {
+      expect((await admin.remove(banned, mainId, { reason: 'Spam' })).status).toBe(204);
+      const [row] = await db.select().from(feedPost).where(eq(feedPost.id, mainId));
+      expect(row).toMatchObject({ deletedCause: 'moderator', deletedReason: 'Spam' });
+      const entries = await db
+        .select()
+        .from(audit)
+        .where(eq(audit.action, 'minecraft.feed.delete'));
+      expect(entries).toHaveLength(1);
+      expect(entries[0]).toMatchObject({ actorUserId: banned.id });
+    });
+
+    it('still sees the real author of an anonymous post in the admin', async () => {
+      const answer = await admin.list(banned);
+      expect(answer.status).toBe(200);
+      const secret = listOf(answer).items.find((item) => item.id === mainId);
+      expect(secret).toMatchObject({ anonymous: true, author: { uuid: camille.uuid } });
+    });
+
+    it('still opens a row', async () => {
+      expect((await admin.row(banned, mainId)).status).toBe(200);
+    });
+
+    it('still gives and takes the announcer role', async () => {
+      expect((await admin.setAnnouncer(banned, camille.id, { announcer: true })).status).toBe(200);
+      expect((await admin.announcer(banned, camille.id)).body).toMatchObject({ announcer: true });
+      expect((await admin.setAnnouncer(banned, camille.id, { announcer: false })).status).toBe(200);
+    });
+
+    it('loses the moderate right in game, where it cannot delete someone else’s post', async () => {
+      await expect(
+        feedPostService.remove({
+          actor: { source: 'server', player: banned.uuid },
+          postId: mainId,
+        }),
+      ).rejects.toMatchObject({ statusCode: 403, data: { problem: 'notAllowed' } });
       const [row] = await db.select().from(feedPost).where(eq(feedPost.id, mainId));
       expect(row!.deletedAt).toBeNull();
-      expect(
-        await db.select().from(audit).where(eq(audit.action, 'minecraft.feed.delete')),
-      ).toEqual([]);
-    });
-
-    // DEFECT (contract): the rights table says `moderate` needs "no ban in force" and covers
-    // "seeing anonymous authors, the admin's Feed tab, granting the announcer role", yet the routes
-    // are guarded by `requireWardenAdmin`, which looks at the role only. A moderator under a Warden
-    // ban still reads every anonymous author in the admin and grants the announcer role, while
-    // the game and the browser refuse them both. Left as failing tests until the contract says
-    // which line wins.
-    it.fails('does not show a banned moderator the real author of an anonymous post', async () => {
-      const answer = await admin.list(banned);
-      expect(answer.status).toBe(403);
-    });
-
-    it.fails('does not let a banned moderator open a row', async () => {
-      expect((await admin.row(banned, mainId)).status).toBe(403);
-    });
-
-    it.fails('does not let a banned moderator give the announcer role', async () => {
-      expect((await admin.setAnnouncer(banned, camille.id, { announcer: true })).status).toBe(403);
-    });
-
-    it('still lets them read, as the route guard goes by role (what is shipped today)', async () => {
-      expect(listOf(await admin.list(banned)).items).toHaveLength(2);
-      expect((await admin.announcer(banned, camille.id)).status).toBe(200);
     });
   });
 });

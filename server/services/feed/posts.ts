@@ -216,13 +216,17 @@ async function deleter(tx: Tx, actor: FeedActor) {
 /**
  * Deletes a main post (and its whole thread) or a reply. The author deletes their own, banned or
  * not; a moderator any, unless `ownOnly` (the browser, where moderators delete others' from the
- * admin). Deleting what is already deleted answers again when the caller could have deleted it.
- * A moderator deleting someone else's post is audited, with the admin's reason.
+ * admin). In game a moderator under a ban deletes only their own; `admin` is the admin, whose
+ * route guard already checked the moderator role, and which follows the role alone, as the rest of
+ * the admin does (docs/feed.md, Rights). Deleting what is already deleted answers again when the
+ * caller could have deleted it. A moderator deleting someone else's post is audited, with the
+ * admin's reason.
  */
 async function remove(input: {
   actor: FeedActor;
   postId: string;
   ownOnly?: boolean;
+  admin?: boolean;
   reason?: string | null;
 }): Promise<void> {
   const outcome = await db.transaction(async (tx) => {
@@ -230,7 +234,8 @@ async function remove(input: {
     const post = await lockPost(tx, input.postId);
     if (!post) refuse(404, 'notFound');
     const own = post.authorUserId === who.userId;
-    const allowed = own || (!input.ownOnly && who.person.rights.moderate);
+    const moderates = input.admin === true || who.person.rights.moderate;
+    const allowed = own || (!input.ownOnly && moderates);
     if (post.deletedAt) {
       if (allowed) return null;
       refuse(404, 'notFound');

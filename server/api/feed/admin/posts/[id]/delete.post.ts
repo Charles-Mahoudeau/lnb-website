@@ -13,6 +13,8 @@ export default defineEventHandler(async (event) => {
   await feedPostService.remove({
     actor: { source: 'site', userId: user.id },
     postId: id,
+    // The admin follows the role alone, a Warden ban included (docs/feed.md, Rights).
+    admin: true,
     reason: body?.reason || null,
   });
   setResponseStatus(event, 204);

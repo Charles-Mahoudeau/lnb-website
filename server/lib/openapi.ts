@@ -5290,15 +5290,12 @@ const routes: RouteDoc[] = [
     tag: TAGS.feedAdmin,
     summary: 'Delete a Feed post or reply',
     description:
-      'As a moderator, with an optional reason (the body may be left out). A main post takes its whole thread with it and is unpinned. It disappears at once for everyone, in game and on the site, and stays 30 days in the table before the nightly purge. Deleting someone else’s is audited as `minecraft.feed.delete` with the reason; your own is deleted as its author, without a reason or an audit entry. Deleting what is already deleted answers 204 again. `notAllowed` while a ban is in force on you. Not behind `feed` or `feed.writing`.',
+      'As a moderator, with an optional reason (the body may be left out). A main post takes its whole thread with it and is unpinned. It disappears at once for everyone, in game and on the site, and stays 30 days in the table before the nightly purge. Deleting someone else’s is audited as `minecraft.feed.delete` with the reason; your own is deleted as its author, without a reason or an audit entry. Deleting what is already deleted answers 204 again. The admin follows the role alone, so a Warden ban on you changes nothing here (it does in game). Not behind `feed` or `feed.writing`.',
     access: 'wardenAdmin',
     params: feed.feedIdParams,
     body: feed.feedAdminDeleteBody,
     noContent: true,
-    problems: [
-      { status: 403, problems: ['notAllowed'] },
-      { status: 404, problems: ['notFound'] },
-    ],
+    problems: [{ status: 404, problems: ['notFound'] }],
   },
   {
     method: 'get',

@@ -383,14 +383,14 @@ describe('Feed admin routes', () => {
       expect(refusal(await admin.remove(lune, 'nope'))).toEqual(plain(404));
     });
 
-    it('refuses a moderator under a Warden ban with notAllowed', async () => {
+    it('lets a moderator under a Warden ban delete from the admin, which follows the role', async () => {
       const lune = await person('Lune Garnier', { role: 'warden-admin' });
       const camille = await person('Camille Roux');
       const { post: target } = await post(camille);
       await db.insert(wardenBan).values({ userId: lune.id, reason: 'Test', source: 'web' });
-      expect(refusal(await admin.remove(lune, target.id))).toEqual(problem(403, 'notAllowed'));
+      expect((await admin.remove(lune, target.id)).status).toBe(204);
       const [row] = await db.select().from(feedPost).where(eq(feedPost.id, target.id));
-      expect(row!.deletedAt).toBeNull();
+      expect(row!.deletedCause).toBe('moderator');
     });
   });
 
