@@ -29,6 +29,7 @@ import {
 import type { HttpAnswer } from './feed-helpers';
 
 import type { FeedAdminDetail, FeedAdminList } from '#shared/schemas/feed';
+import type { AuditAction } from '#shared/utils/audit-actions';
 import { isWardenAdmin } from '#shared/utils/roles';
 
 // The admin's Feed routes at the HTTP level (docs/feed.md, "For the admin"): each handler called
@@ -83,7 +84,7 @@ const admin = {
 const list = (answer: HttpAnswer) => answer.body as FeedAdminList;
 const b64 = (value: unknown) => Buffer.from(JSON.stringify(value)).toString('base64url');
 
-const auditOf = (action: string) =>
+const auditOf = (action: AuditAction) =>
   db.select().from(audit).where(eq(audit.action, action)).orderBy(audit.id);
 
 describe('Feed admin routes', () => {
