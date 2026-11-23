@@ -272,6 +272,7 @@ const roleNames = (flags: NonNullable<AdminPersonRow['roles']>) =>
     flags.wardenAdmin && t('admin.roles.wardenAdmin'),
     flags.eventsManager && t('admin.roles.eventsManager'),
     flags.economyAdmin && t('admin.roles.economyAdmin'),
+    flags.feedAnnouncer && t('admin.roles.feedAnnouncer'),
   ].filter(Boolean) as string[];
 </script>
 

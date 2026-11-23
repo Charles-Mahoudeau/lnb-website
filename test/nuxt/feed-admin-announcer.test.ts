@@ -293,7 +293,13 @@ describe('the pill in the header of the Person page', () => {
     ghost: false,
     createdAt: '2025-09-01T12:00:00.000Z',
     email: 'alex@epitech.eu',
-    roles: { admin: false, wardenAdmin: false, eventsManager: false, economyAdmin: false },
+    roles: {
+      admin: false,
+      wardenAdmin: false,
+      eventsManager: false,
+      economyAdmin: false,
+      feedAnnouncer: false,
+    },
     ...over,
   });
   let announcerCalls: string[] = [];
@@ -306,6 +312,24 @@ describe('the pill in the header of the Person page', () => {
   }
   beforeEach(() => {
     announcerCalls = [];
+  });
+
+  it('lists Feed announcer in the Summary tab’s Roles fact', async () => {
+    serve('hp-roles', {
+      roles: {
+        admin: false,
+        wardenAdmin: false,
+        eventsManager: false,
+        economyAdmin: false,
+        feedAnnouncer: true,
+      },
+    });
+    signIn('warden-admin');
+    const page = await mountSuspended(PersonPage, { route: '/admin/people/hp-roles/summary' });
+    mounted.push(page);
+    await settle(10);
+    const facts = page.findAll('dt').find((node) => node.text() === 'Roles');
+    expect(facts?.element.nextElementSibling?.textContent).toContain('Feed announcer');
   });
 
   it('shows the pill to a Warden admin for an announcer', async () => {
@@ -364,6 +388,40 @@ describe('the People role filter', () => {
       queries.push(Object.fromEntries(new URL(event.path, 'http://localhost').searchParams));
       return { items: [], nextCursor: null, total: 0, match: null };
     });
+  });
+
+  it('lists Feed announcer in the Roles column', async () => {
+    registerEndpoint('/api/admin/people', () => ({
+      items: [
+        {
+          userId: 'pr-theo',
+          name: 'Théo Leclerc',
+          image: null,
+          school: 'Epitech',
+          ghost: false,
+          email: 'theo@epitech.eu',
+          roles: {
+            admin: false,
+            wardenAdmin: false,
+            eventsManager: true,
+            economyAdmin: false,
+            feedAnnouncer: true,
+          },
+          minecraft: { accounts: [], transferWarning: null },
+        },
+      ],
+      nextCursor: null,
+      total: 1,
+      match: null,
+    }));
+    signIn('warden-admin');
+    const view = await mountSuspended(AdminPeople);
+    mounted.push(view);
+    await settle(10);
+    const row = view.find('tbody tr').text();
+    expect(row).toContain('Events manager');
+    expect(row).toContain('Feed announcer');
+    expect(row).not.toContain('None');
   });
 
   it('offers Feed announcer, and sends it as the role', async () => {

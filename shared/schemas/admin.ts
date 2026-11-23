@@ -114,6 +114,9 @@ const adminRoleFlags = z.object({
   economyAdmin: z
     .boolean()
     .describe('Has the economy-admin role itself. Site admins have its rights anyway.'),
+  feedAnnouncer: z
+    .boolean()
+    .describe('Has the feed-announcer role itself. Moderators announce by role anyway.'),
 });
 export type AdminRoleFlags = z.infer<typeof adminRoleFlags>;
 

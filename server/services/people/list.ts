@@ -34,6 +34,7 @@ import type {
 import {
   ECONOMY_ADMIN_ROLE,
   EVENTS_MANAGER_ROLE,
+  FEED_ANNOUNCER_ROLE,
   hasRole,
   isAdmin,
   WARDEN_ADMIN_ROLE,
@@ -52,6 +53,7 @@ export function rolesOf(role: string | null): AdminRoleFlags {
     wardenAdmin: hasRole(role, WARDEN_ADMIN_ROLE),
     eventsManager: hasRole(role, EVENTS_MANAGER_ROLE),
     economyAdmin: hasRole(role, ECONOMY_ADMIN_ROLE),
+    feedAnnouncer: hasRole(role, FEED_ANNOUNCER_ROLE),
   };
 }
 

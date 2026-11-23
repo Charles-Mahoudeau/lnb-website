@@ -52,6 +52,15 @@ describe('the feed-announcer role in the People list', () => {
     expect(await ids({ role: 'any' })).toHaveLength(5);
   });
 
+  it('lists the role in the row’s role flags, beside the others', async () => {
+    const rows = (await peopleService.list('admin', { q: tag })).items;
+    const flags = (id: string) => rows.find((row) => row.userId === id)?.roles;
+    expect(flags(people.announcer.id)).toMatchObject({ feedAnnouncer: true });
+    expect(flags(people.mixed.id)).toMatchObject({ eventsManager: true, feedAnnouncer: true });
+    expect(flags(people.moderator.id)).toMatchObject({ wardenAdmin: true, feedAnnouncer: false });
+    expect(flags(people.lookalike.id)).toMatchObject({ feedAnnouncer: false });
+  });
+
   it('does not count a moderator as holding the role, as the role is not theirs to hold', async () => {
     expect(await ids({ role: 'feed-announcer' })).not.toContain(people.moderator.id);
   });
