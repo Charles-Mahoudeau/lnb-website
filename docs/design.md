@@ -36,6 +36,7 @@ Three custom palettes, wired into Nuxt UI as `neutral: 'night'`, `primary: 'crim
   - the current page in navigation menus (header and admin sidebar) and the selected tab (Nuxt UI's `secondary` color, set globally in `app.config.ts`);
   - the counting state of the playtime band on the Minecraft account page, and its allowance bar (see Minecraft account);
   - selection in the playtime admin: the selected range and day of the schedule editor, the days picked on the closures calendar and the days closed for some schools only.
+  - the open row of a table whose drawer is open (the Feed moderation table, mock M1) and that row in the drawer's discussion, with the faint tint of ticked People rows (`bg-secondary/10`).
 
   Nowhere else: no violet buttons, links, headings, large surfaces or decoration. Status colors and your own vote on a mod stay as they are.
 
@@ -219,6 +220,8 @@ Original mock (not code to port): [Feed web mocks](https://claude.ai/artifact/4m
 - **Composer**: a raised section. Collapsed, the posting account's head and a field; open, the author row (or the anonymous one while the switch is on) with a ghost "Change account" menu for people with several linked accounts (each account with its head and the name it will show, a check on the current one), the text area, then the destination as a small pill `UTabs` for announcers, the anonymous switch with its line, the `n/280` counter in muted tabular numbers (error color past 280) and the solid Post button. The thread's reply composer is the same, docked at the bottom on phones (`bg-default` with a top border) and raised on wider screens.
 - **Bands** in the composer's place: no linked account is a raised band with a neutral soft "Link my account"; a ban is an error subtle callout (`UAlert`) with the ban's end and an outline "See my ban"; posting paused is one muted line with a pause icon. The actions stay drawn, static.
 - **Unread dot**: a small dot in the inverted color after the label of the tab that isn't shown.
+- **Moderation** (`/admin/moderation/feed`, mock M1, "Table and drawer"): no new pattern. The table on one raised section is the anticheat's and the short links' (rows separated by dividers, a search field, status chips as second-accent toggle chips, here with a check when on), the person filter is the admin pickers' searchable select, and the drawer is a `USlideover` like the anticheat's. A deleted row stays, its cells dimmed (`opacity-60`) but not its State column, which holds a neutral subtle "Deleted" pill and two muted lines. An anonymous row shows "Anonymous" muted with the real author behind a lock. The open row takes the faint second-accent tint of ticked People rows (`bg-secondary/10`): selection is state. The drawer's author band is a raised band with the 40 px head and a neutral soft "Open the profile"; its discussion reuses `FeedPost` (static, the open row tinted, deleted ones dimmed); Delete is the outline destructive button, confirmed in a dialog that takes an optional reason. No solid red button on the page.
+- **Announcer switch** (Person page, Minecraft tab): a raised band like the settings rows, a semibold title, one muted line and a `USwitch`; for a moderator it stays on, disabled, with a muted line saying why. The header's "Announcer" pill is a neutral soft pill like the role pills.
 
 ## Partner event page
 
