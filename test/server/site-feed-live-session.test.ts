@@ -1,6 +1,4 @@
 import { createHmac } from 'node:crypto';
-import { readdirSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 
 import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -16,12 +14,7 @@ import { person, wipe } from './feed-helpers';
 // stream when the answer is "no session". The other tests stub the check; this one signs a cookie
 // the way Better Auth does and deletes, expires and breaks the session underneath it.
 
-vi.mock('h3', () => {
-  const store = fileURLToPath(new URL('../../node_modules/.pnpm/', import.meta.url));
-  const version = readdirSync(store).find((name) => /^h3@1\./.test(name));
-  if (!version) throw new Error('h3 1.x is not installed');
-  return import(`${store}${version}/node_modules/h3/dist/index.mjs`);
-});
+vi.mock('h3', async () => (await import((await import('./nitro-h3')).nitroH3())) as object);
 
 const SECRET = 'x'.repeat(40);
 const COOKIE = 'better-auth.session_token';

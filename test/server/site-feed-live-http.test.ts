@@ -1,7 +1,5 @@
 import { randomUUID } from 'node:crypto';
 import { EventEmitter } from 'node:events';
-import { readdirSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -46,13 +44,8 @@ function postsOf(answer: { body: unknown }) {
 }
 
 // Nitro brings h3 to the server bundle; the site doesn't depend on it, so the test loads the h3
-// that Nitro uses, from pnpm's store.
-vi.mock('h3', () => {
-  const store = fileURLToPath(new URL('../../node_modules/.pnpm/', import.meta.url));
-  const version = readdirSync(store).find((name) => /^h3@1\./.test(name));
-  if (!version) throw new Error('h3 1.x is not installed');
-  return import(`${store}${version}/node_modules/h3/dist/index.mjs`);
-});
+// that Nitro itself uses (test/server/nitro-h3.ts).
+vi.mock('h3', async () => (await import((await import('./nitro-h3')).nitroH3())) as object);
 
 // --- The stream, opened as h3 opens it ------------------------------------------------------------
 
