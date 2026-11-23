@@ -169,6 +169,19 @@ describe('Feed rules', () => {
     expect(decodeCursor(cursor)).toBeNull();
   });
 
+  // PostgreSQL refuses a timestamp past the year 9999, so a cursor stops there.
+  it('takes a cursor up to the end of the year 9999 and refuses one after it', () => {
+    const id = '0d1c7e3a-7f2b-4a51-9a63-2f5d8c1b4e70';
+    const last = Date.parse('9999-12-31T23:59:59.999Z');
+    expect(decodeCursor(Buffer.from(JSON.stringify([last, id])).toString('base64url'))).toEqual({
+      at: new Date(last),
+      id,
+    });
+    expect(
+      decodeCursor(Buffer.from(JSON.stringify([last + 1, id])).toString('base64url')),
+    ).toBeNull();
+  });
+
   it('reads the 4,000-character raw cap in code points', () => {
     const body = { idempotencyKey: crypto.randomUUID(), player, feed: 'global', anonymous: false };
     const smile = String.fromCodePoint(0x1f600);

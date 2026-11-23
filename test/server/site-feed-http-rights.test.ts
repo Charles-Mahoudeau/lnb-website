@@ -1090,31 +1090,27 @@ describe('Feed browser routes against the contract', () => {
       expect(answer.body).toMatchObject({ posts: [{ text: 'Un' }] });
     });
 
-    // DEFECT: decodeCursor accepts any time a JavaScript Date holds (up to 8.64e15 ms, year
-    // 275760), but a Date after the year 9999 reaches PostgreSQL as "+YYYYYY-..." which it
-    // refuses ("time zone displacement out of range"): a forged cursor makes the route answer
-    // 500 instead of the plain 400 a forged cursor gets. The thread's `after` has the same hole.
+    // A Date after the year 9999 reaches PostgreSQL as "+YYYYYY-...", which it refuses ("time
+    // zone displacement out of range"): decodeCursor stops at the end of 9999, so such a cursor
+    // is a forged one and gets the plain 400, in a feed and in a thread.
     const FAR = [Date.parse('+010000-01-01T00:00:00.000Z'), 8.64e15];
 
-    it.fails('does not fail with a 500 on a cursor dated after the year 9999 (feed)', async () => {
+    it('answers a plain 400 for a cursor dated after the year 9999 (feed)', async () => {
       const camille = await person('Camille Roux');
       for (const at of FAR) {
         const answer = await api.page(camille, `feed=global&before=${b64([at, randomUUID()])}`);
-        expect([200, 400]).toContain(answer.status);
+        expect(refusal(answer), String(at)).toEqual(plain(400));
       }
     });
 
-    it.fails(
-      'does not fail with a 500 on a cursor dated after the year 9999 (thread)',
-      async () => {
-        const camille = await person('Camille Roux');
-        const { post: main } = await post(camille);
-        for (const at of FAR) {
-          const answer = await api.thread(camille, main.id, `after=${b64([at, randomUUID()])}`);
-          expect([200, 400]).toContain(answer.status);
-        }
-      },
-    );
+    it('answers a plain 400 for a cursor dated after the year 9999 (thread)', async () => {
+      const camille = await person('Camille Roux');
+      const { post: main } = await post(camille);
+      for (const at of FAR) {
+        const answer = await api.thread(camille, main.id, `after=${b64([at, randomUUID()])}`);
+        expect(refusal(answer), String(at)).toEqual(plain(400));
+      }
+    });
 
     it('answers a plain 400 for a bad limit, a bad feed, a repeated or odd query', async () => {
       const camille = await person('Camille Roux');
