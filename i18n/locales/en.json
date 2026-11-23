@@ -5276,6 +5276,7 @@
         "replyText": "It disappears at once for everyone, in game and on the site. Moderators find it in Deleted for 30 days, then it is erased.",
         "reason": "Reason (optional)",
         "reasonHelp": "Kept in the activity log and on the deleted row. Players don’t see it.",
+        "ownText": "It is your own, so it is deleted as its author, as on the Feed page: no reason is kept and nothing goes to the activity log.",
         "cancel": "Cancel",
         "confirm": "Delete",
         "postDone": "Post deleted",

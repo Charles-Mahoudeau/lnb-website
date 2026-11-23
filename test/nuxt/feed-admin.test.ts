@@ -341,6 +341,22 @@ describe('the drawer', () => {
       'You can’t delete posts while a ban is in force on your account.',
     );
   });
+
+  it('asks no reason for the viewer’s own post, and says it is deleted as its author', async () => {
+    const mine = row({ id: id(40), authorUserId: 'me', text: 'Mon propre post' });
+    serveList(() => list({ items: [mine] }));
+    serveRow({ post: mine, thread: { post: mine, replies: [] } });
+    const remove = vi.spyOn(feedAdminActions, 'remove').mockResolvedValue(null);
+    await mountTab(`/admin/moderation/feed?post=${mine.id}`);
+    inDocument('[role="dialog"] button', 'Delete the post')!.click();
+    await settle(10);
+    expect(document.body.textContent).toContain('It is your own, so it is deleted as its author');
+    expect(document.querySelector('[role="dialog"] textarea')).toBeNull();
+    [...document.querySelectorAll<HTMLButtonElement>('button[type="submit"]')].at(-1)!.click();
+    await vi.waitFor(() => {
+      expect(remove.mock.calls).toEqual([[mine.id, '']]);
+    });
+  });
 });
 
 describe('the announcer switch', () => {

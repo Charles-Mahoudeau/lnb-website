@@ -5280,6 +5280,7 @@
         "replyText": "Elle disparaît tout de suite pour tout le monde, en jeu et sur le site. Les modérateurs la retrouvent dans « Supprimés » pendant 30 jours, puis elle est effacée.",
         "reason": "Raison (facultative)",
         "reasonHelp": "Gardée dans le journal d’activité et sur la ligne supprimée. Les joueurs ne la voient pas.",
+        "ownText": "C’est ta propre publication : elle est supprimée comme par son auteur, comme sur la page Feed. Aucune raison n’est gardée et rien n’est inscrit au journal d’activité.",
         "cancel": "Annuler",
         "confirm": "Supprimer",
         "postDone": "Post supprimé",

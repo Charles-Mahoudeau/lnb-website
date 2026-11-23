@@ -1,8 +1,9 @@
 <script setup lang="ts">
 // Deleting a Feed post or reply as a moderator (docs/feed.md, "Moderation"): says what deleting
 // does, takes an optional reason, and confirms with the outline destructive button. Closes with
-// the reason ('' for none), or null.
-const props = defineProps<{ reply: boolean; replies: number }>();
+// the reason ('' for none), or null. The viewer's own post is deleted as its author: no reason
+// is kept and nothing is audited, so the dialog asks for none and says so.
+const props = defineProps<{ reply: boolean; replies: number; own?: boolean }>();
 const emit = defineEmits<{ close: [reason: string | null] }>();
 
 const { t } = useI18n();
@@ -20,8 +21,10 @@ const reason = ref('');
     :close="false"
   >
     <template #body>
-      <form id="feed-admin-delete" @submit.prevent="emit('close', reason.trim())">
+      <form id="feed-admin-delete" @submit.prevent="emit('close', props.own ? '' : reason.trim())">
+        <p v-if="props.own" class="text-sm text-muted">{{ t('admin.feed.delete.ownText') }}</p>
         <UFormField
+          v-else
           :label="t('admin.feed.delete.reason')"
           :help="t('admin.feed.delete.reasonHelp')"
           name="reason"

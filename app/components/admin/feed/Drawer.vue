@@ -13,6 +13,7 @@ const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 const overlay = useOverlay();
+const { user: me } = useAuth();
 const deleteModal = overlay.create(AdminFeedDeleteModal);
 
 const postId = computed(() => feedAdminStateFromQuery(route.query).post);
@@ -98,6 +99,7 @@ async function onDelete() {
   const reason: unknown = await deleteModal.open({
     reply: value.threadId !== null,
     replies: liveReplies,
+    own: value.authorUserId === me.value?.id,
   }).result;
   if (typeof reason !== 'string') return;
   deleting.value = true;
