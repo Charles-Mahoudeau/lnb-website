@@ -49,6 +49,8 @@ export function createFeedSseReader(onMessage: (message: FeedLiveMessage) => voi
       buffer += chunk;
       let end: number;
       while ((end = buffer.search(/\r\n|\r|\n/)) >= 0) {
+        // A CR that ends what has arrived may be the first half of a CR LF: wait for the rest.
+        if (end === buffer.length - 1 && buffer[end] === '\r') break;
         const newline = buffer.startsWith('\r\n', end) ? 2 : 1;
         line(buffer.slice(0, end));
         buffer = buffer.slice(end + newline);

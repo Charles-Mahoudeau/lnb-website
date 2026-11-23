@@ -58,6 +58,9 @@ describe('the Server-Sent Events reader', () => {
       { id: '13', event: 'counts', data: '{}' },
     ]);
     expect(read('data: a\r\rdata: b\n')).toEqual([{ event: 'message', data: 'a' }]);
+    // A CR that ends a chunk waits for the next one, which may bring its LF.
+    expect(read('data: c\r', '\r')).toEqual([]);
+    expect(read('data: c\r', '\r', 'x')).toEqual([{ event: 'message', data: 'c' }]);
   });
 
   it('joins data lines, keeps a value without its leading space only, skips comments', () => {

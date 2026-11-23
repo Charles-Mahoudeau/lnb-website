@@ -47,12 +47,8 @@ describe('the Server-Sent Events reader, edges', () => {
     return messages;
   }
 
-  // DEFECT (low, app/utils/feed-live.ts, `push`): a CR LF line ending split between two chunks is
-  // read as a line end (the CR) and then an empty line (the LF), and an empty line closes the
-  // message: the fields read so far are thrown away, the `id` first. The site's own server writes
-  // plain LF, so only a proxy that rewrites line endings would meet it; the format allows CR LF, and
-  // the reader claims to read it.
-  it.fails('keeps a message whose CR LF is split between two chunks', () => {
+  // A CR LF split between two chunks is one line ending, not a line end and an empty line.
+  it('keeps a message whose CR LF is split between two chunks', () => {
     expect(read('id: 5\r', '\nevent: ping\r\ndata: {}\r\n\r\n')).toEqual([
       { id: '5', event: 'ping', data: '{}' },
     ]);
