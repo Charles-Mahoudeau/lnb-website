@@ -5,7 +5,7 @@
 
 /** The longest post or reply, in code points after cleaning. */
 export const FEED_TEXT_MAX = 280;
-/** The longest raw text a request may carry, in UTF-16 units (longer is a plain 400). */
+/** The longest raw text a request may carry, in code points as Zod counts them (longer is a plain 400). */
 export const FEED_TEXT_RAW_MAX = 4000;
 
 export type FeedTextProblem = 'emptyText' | 'tooLong';
