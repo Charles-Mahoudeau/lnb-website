@@ -118,7 +118,7 @@ Main posts and replies have one shape, computed **for one viewer**:
 | `canDelete`                      | boolean        | `mine` or the viewer moderates. Show the more button exactly when true.                                                                                                                                                                                                                                                                                                                                                      |
 | `canPin`                         | boolean        | An announcement's main post and the viewer announces. Show the pin button exactly when true.                                                                                                                                                                                                                                                                                                                                 |
 | `unseenReplies`                  | integer        | The number of replies that answer the viewer's post or reply (or, on a main post, that answer the viewer anywhere in its thread), not by the viewer, that arrived since the viewer last opened the thread. 0 when none, and always 0 on someone else's post. The phone shows its dot when above 0; the site a "{n} new" pill.                                                                                                |
-| `answersMe`                      | boolean        | On a reply: it answers a post or reply of the viewer. Lets the client raise the marker on the thread's main post when the reply arrives live.                                                                                                                                                                                                                                                                                |
+| `answersMe`                      | boolean        | On a reply: it answers a post or reply of the viewer, and is not the viewer's own. Lets the client raise the marker on the thread's main post when the reply arrives live.                                                                                                                                                                                                                                                   |
 
 **Anonymous, by viewer.** For an anonymous post by Mika: Mika (from any of their Minecraft accounts) gets `author` filled and `mine: true` (the app shows "Posted anonymously by you"); a moderator gets `author` filled and `mine: false` (the app shows "Author: Mika L. @MikaPvP" with its tooltip); everyone else gets `author: null`. See vector 13.3.
 
@@ -394,7 +394,7 @@ Creates a main post.
 
 The view is for `player`. The site also sends a `post` event (other players get it through 4.4) and, for an announcement, queues a notification for everyone but Kael's accounts (`notification` event).
 
-The site checks, in this order: the flags (`feed`, `feed.serverApi`, then `feed.writing`); the key (a stored post with this key answers `replayed: true`, or 409 `idempotencyMismatch`); the player (404 `notLinked`); the ban (403 `banned`); the right (403 `notAllowed` for Announcements without announce); the text (400 `emptyText`, `tooLong`); the rate (429 `rateLimited`).
+The site checks, in this order: the flags (`feed`, `feed.serverApi`, then `feed.writing`); the key (a stored post with this key answers `replayed: true`, 404 `notFound` when it was deleted since, or 409 `idempotencyMismatch` for another request); the player (404 `notLinked`); the ban (403 `banned`); the right (403 `notAllowed` for Announcements without announce); the text (400 `emptyText`, `tooLong`); the rate (429 `rateLimited`).
 
 ### 4.6 `POST /posts/:id/replies`
 
@@ -420,7 +420,7 @@ Creates a reply in the thread of main post `:id`.
 
 201 `{ "replayed": false, "post": { ...the reply, for player... } }`. The site sends `post` and `counts` events (the main post's and the target's `replies` changed) and, unless the target is the replier's own, queues a notification for the target's author.
 
-Checks as for a post, plus: `:id` unknown, deleted or a reply, or `replyTo` unknown, deleted or in another thread: 404 `notFound`. Any player who can write may reply in Announcements' threads.
+The checks, in this order: the flags, the key, the player (`notLinked`), the ban (`banned`), the thread (`notFound` for an `:id` unknown, deleted or a reply) and the reply answered (`notFound` for a `replyTo` unknown, deleted or in another thread), the text (`emptyText`, `tooLong`), the rate (`rateLimited`). Any player who can write may reply in Announcements' threads.
 
 ### 4.7 `PUT /posts/:id/like` and `DELETE /posts/:id/like?player=`
 
@@ -458,6 +458,7 @@ Both answer the pinned group after the call, most recent pin first, and the post
 - With `replace: true`: the oldest pin goes (`unpinned` is its ID) and the post is pinned, in one transaction.
 - Pinning a pinned post changes nothing and answers the group. Unpinning any post that isn't pinned, a Global post or a reply included, changes nothing and answers the group too.
 - A change sends a `pins` event.
+- The checks, in this order: the player (`notLinked`), the ban (`banned`), the right (`notAllowed`), the post (`notFound`), then for `PUT` only whether it can be pinned (`notPinnable`) and the limit (`pinLimit`).
 - Problems, both: `notFound`, `notLinked` (404), `banned`, `notAllowed` (403, no announce right). `PUT` only: `notPinnable` (409, a reply or a Global post), `pinLimit` (409). Not behind `feed.writing`.
 
 ### 4.9 `DELETE /posts/:id?player=`
@@ -636,7 +637,8 @@ Only creating a post or a reply takes a key. Likes, pins and deletes are idempot
 - The key changes when the draft changes after a failure (its text, the anonymous toggle, the destination, or the reply's target), and after a success (the draft is cleared).
 - The same key with the same request returns the first post with `replayed: true`: treat it as a success. The post may already be in the feed (its `post` event arrived first): the client deduplicates by `id`.
 - The same key with any other request (`player`, `feed`, thread, `replyTo`, `text` after cleaning, `anonymous`) is 409 `idempotencyMismatch`. Keys are checked after the flags and before everything else, so a replay works whatever changed since, rights and rate included.
-- A key whose post was deleted since answers 404 `notFound`: stop retrying and clear the draft.
+- A key whose post was deleted since answers 404 `notFound`, whatever the request: stop retrying and clear the draft.
+- Retries with one key sent at once wait for each other on the site: the first creates the post, the others replay it, whatever the rate limits say.
 - The mod doesn't retry on its own. It answers the client, and the player retries.
 
 ## 7. Limits
