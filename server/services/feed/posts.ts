@@ -80,11 +80,13 @@ async function idempotent(
   const outcome = await db.transaction(async (tx) => {
     await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${lock}))`);
     const row = await previous(tx, key, print);
-    return row ? { replayed: row } : { inserted: await insert(tx) };
+    return row
+      ? { replayed: true as const, row }
+      : { replayed: false as const, inserted: await insert(tx) };
   });
-  if ('replayed' in outcome) {
+  if (outcome.replayed) {
     const viewer = await feedRightsService.viewer(db, whoOf(actor));
-    return { replayed: true, post: await feedViewService.viewFor(db, outcome.replayed, viewer) };
+    return { replayed: true, post: await feedViewService.viewFor(db, outcome.row, viewer) };
   }
   const { row, viewer, counted, notify } = outcome.inserted;
   await feedEvents.post(row);
