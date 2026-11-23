@@ -204,6 +204,22 @@ Original mock (not code to port): [Minecraft account mocks](https://claude.ai/ar
 - **Bank** and **Quests** are larger summary cards, each with one button to its full page. Bank: the balance large with the LNBits unit, the baltop rank as a neutral pill, the gain over 14 days in muted text, the shared accounts as rows, no graph. Quests: the current tier large, its progress as text ("62% done · next payout 1,500 LNBits") and the next three goals as rows with their progress as text. Quests never show progress bars here.
 - **Linked accounts** are rows with a 40 px skin head, the username, last seen and playtime, an "Exempt" outline badge on an account the limit doesn't apply to, and a ghost Unlink button.
 
+## Feed
+
+Original mock (not code to port): [Feed web mocks](https://claude.ai/artifact/4mcavb4g9MQRqnPaqtLwxV), Feed page proposition A, "One column". See `docs/feed.md`. The site keeps its own neutral treatment for likes, the announcer badge and unseen replies, not the phone's coral and violet: Feed adds no color.
+
+- **Page**: the title and one muted line, then one column (a pill `UTabs` for Announcements and Global, the composer or the band that replaces it, the feed) beside "Good to know", a raised aside of three muted points and a link to the rules, which goes on phones. The only solid red buttons are Post and Reply.
+- **A post** is a row of a raised list, rows separated by dividers: the 40 px Minecraft head (`WardenMinecraftHead`, never `UserAvatar`: a post shows the Minecraft account it came from), the display name in semibold, the announcer badge, the handle and the age in muted text, the age right-aligned in tabular numbers. Under them the lines, the text (pre-wrapped, breaking anywhere), then the actions as neutral ghost buttons with their counts (a zero shows no number). The main post of a thread has its text a step larger and its full date under it instead of the age.
+- **Anonymous avatar** (`FeedAnonymousAvatar`): a head-sized square (`rounded-sm`) on the raised background (`bg-accented`) with Lucide's `venetian-mask` in muted text, and "Anonymous" as the name in muted text. Never the wolf: the wolf stands for a site account.
+- **Announcer badge** (`FeedAnnouncerBadge`): a soft neutral pill with a megaphone, by the name. Never on an anonymous post.
+- **Liked**: the heart button takes the neutral soft background and the highlight color, with a filled heart, like your own vote on a mod. Never red or coral: red stays for actions.
+- **Unseen replies**: a soft neutral "{n} new" pill beside the replies count of your own post, until you open the thread. A count is never red on the site.
+- **Lines under the name**, muted, with a small icon: "Pinned" (a pin, semibold, above the row, aligned with the name), "Replying to {name}" (`corner-down-right`), and the private line behind a lock: "Posted anonymously by you" on your own anonymous post, "Author: {name} {handle}" for a moderator.
+- **Pin** (announcers): a square ghost button at the end of the actions, soft with a filled pin while pinned. "Replace a pin?" asks first when three are pinned, quoting the oldest.
+- **Composer**: a raised section. Collapsed, the posting account's head and a field; open, the author row (or the anonymous one while the switch is on) with a ghost "Change account" menu for people with several linked accounts (each account with its head and the name it will show, a check on the current one), the text area, then the destination as a small pill `UTabs` for announcers, the anonymous switch with its line, the `n/280` counter in muted tabular numbers (error color past 280) and the solid Post button. The thread's reply composer is the same, docked at the bottom on phones (`bg-default` with a top border) and raised on wider screens.
+- **Bands** in the composer's place: no linked account is a raised band with a neutral soft "Link my account"; a ban is an error subtle callout (`UAlert`) with the ban's end and an outline "See my ban"; posting paused is one muted line with a pause icon. The actions stay drawn, static.
+- **Unread dot**: a small dot in the inverted color after the label of the tab that isn't shown.
+
 ## Partner event page
 
 Original mock (not code to port): [Arena League mocks](https://claude.ai/artifact/XvHUjSdFhA2ZQ6bdkY5KHM), "Art cards". The page is for an event another organization runs (`/special/<slug>`, see `docs/partner-events.md`): it says what it is, collects interest and helps students form teams.
