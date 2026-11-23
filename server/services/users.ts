@@ -21,6 +21,8 @@ import { auditService } from '~~/server/services/audit';
 import { changelogService } from '~~/server/services/changelog';
 import { economyAccountService } from '~~/server/services/economy/accounts';
 import { eventRegistrationService } from '~~/server/services/events/registrations';
+import { feedEvents } from '~~/server/services/feed/events';
+import { feedPostService } from '~~/server/services/feed/posts';
 import {
   inactiveBefore,
   lastActive,
@@ -80,7 +82,7 @@ async function requireTarget(dbx: Db, userId: string) {
  */
 async function setRoles(input: { actorId: string; userId: string; roles: AdminRolesBody }) {
   if (input.userId === input.actorId && !input.roles.admin) refuse(409, 'self');
-  await db.transaction(async (tx) => {
+  const moderatorChanged = await db.transaction(async (tx) => {
     const target = await requireTarget(tx, input.userId);
     // A ghost has no roles: the person would get them by signing in, before anyone checked.
     if (target.ghost) refuse(409, 'isGhost');
@@ -96,7 +98,7 @@ async function setRoles(input: { actorId: string; userId: string; roles: AdminRo
       before.eventsManager === input.roles.eventsManager &&
       before.economyAdmin === input.roles.economyAdmin
     )
-      return;
+      return false;
     let role = withRole(target.role, ADMIN_ROLE, input.roles.admin);
     role = withRole(role, WARDEN_ADMIN_ROLE, input.roles.wardenAdmin);
     role = withRole(role, EVENTS_MANAGER_ROLE, input.roles.eventsManager);
@@ -108,7 +110,10 @@ async function setRoles(input: { actorId: string; userId: string; roles: AdminRo
       targetUserId: input.userId,
       data: { before, after: input.roles },
     });
+    return before.admin !== input.roles.admin || before.wardenAdmin !== input.roles.wardenAdmin;
   });
+  // Moderating Feed comes with these two roles: the Minecraft server reads the rights again.
+  if (moderatorChanged) await feedEvents.rightsOfUsers([input.userId]);
 }
 
 /** Bans from the site and signs out every session. Admins lose their role before a ban. */
@@ -133,6 +138,7 @@ async function ban(input: { actorId: string; userId: string; ban: AdminBanBody }
       data: { reason: input.ban.reason, expiresAt: expires?.toISOString() ?? null },
     });
   });
+  await feedEvents.rightsOfUsers([input.userId]);
 }
 
 /** Lifts a site ban in force. */
@@ -151,6 +157,7 @@ async function unban(input: { actorId: string; userId: string }) {
       targetUserId: input.userId,
     });
   });
+  await feedEvents.rightsOfUsers([input.userId]);
 }
 
 /** Ends every session of the account, on every device. */
@@ -172,7 +179,7 @@ async function signOut(input: { actorId: string; userId: string }) {
  */
 async function remove(input: { actorId: string; userId: string }) {
   if (input.userId === input.actorId) refuse(409, 'self');
-  await db.transaction(async (tx) => {
+  const feedForgotten = await db.transaction(async (tx) => {
     const target = await requireTarget(tx, input.userId);
     if (isAdmin(target.role)) refuse(409, 'targetIsAdmin');
     await auditService.record(tx, {
@@ -182,12 +189,17 @@ async function remove(input: { actorId: string; userId: string }) {
     });
     await auditService.forgetPeople(tx, [input.userId]);
     await changelogService.forgetUsers(tx, [input.userId]);
+    // Their Feed posts, replies and likes go by cascade; this fixes the counts left behind.
+    const feedAfter = await feedPostService.forgetUsers(tx, [input.userId]);
     await tx.delete(user).where(eq(user.id, input.userId));
     // Their registrations went with the account: the waitlists move up.
     await eventRegistrationService.promoteAll(tx);
     // Their bank account is closed and its money destroyed; their shared accounts pass on.
     await economyAccountService.sweepOrphans(tx);
+    return feedAfter;
   });
+  // Tells the Minecraft server what left Feed, once it's gone.
+  await feedForgotten();
 }
 
 /**
@@ -293,7 +305,7 @@ async function applyBulk(actorId: string, body: AdminBulkBody, target: BulkTarge
  * them would let a banned person come back with a fresh account. Returns how many were deleted.
  */
 async function deleteInactive(now = new Date()): Promise<number> {
-  return db.transaction(async (tx) => {
+  const { count, feedForgotten } = await db.transaction(async (tx) => {
     const inactive = await tx
       .select({ id: user.id })
       .from(user)
@@ -324,6 +336,7 @@ async function deleteInactive(now = new Date()): Promise<number> {
     const ids = inactive.map((row) => row.id);
     await auditService.forgetPeople(tx, ids);
     await changelogService.forgetUsers(tx, ids);
+    const feedAfter = await feedPostService.forgetUsers(tx, ids);
     const deleted = ids.length
       ? await tx.delete(user).where(inArray(user.id, ids)).returning({ id: user.id })
       : [];
@@ -337,8 +350,10 @@ async function deleteInactive(now = new Date()): Promise<number> {
         data: { count: deleted.length },
       });
     }
-    return deleted.length;
+    return { count: deleted.length, feedForgotten: feedAfter };
   });
+  await feedForgotten();
+  return count;
 }
 
 export const usersService = {

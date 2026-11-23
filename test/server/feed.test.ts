@@ -17,6 +17,7 @@ import {
   wardenBan,
   wardenPlayer,
 } from '~~/server/db/schema';
+import { feedAnnouncerService } from '~~/server/services/feed/announcers';
 import { feedLikeService } from '~~/server/services/feed/likes';
 import { feedNotificationService } from '~~/server/services/feed/notifications';
 import { feedPinService } from '~~/server/services/feed/pins';
@@ -26,6 +27,9 @@ import { feedRightsService } from '~~/server/services/feed/rights';
 import { feedLimits } from '~~/server/services/feed/shared';
 import { feedViewService } from '~~/server/services/feed/views';
 import { minecraftEventService } from '~~/server/services/minecraft-events';
+import { usersService } from '~~/server/services/users';
+import { wardenModerationService } from '~~/server/services/warden/moderation';
+import { wardenPlayerService } from '~~/server/services/warden/players';
 
 // The Feed services against PostgreSQL: the paths docs/feed-mod.md's test vectors cover (13.2 to
 // 13.6), and deletion with its cascade. The routes are thin; their flags are checked there.
@@ -540,6 +544,122 @@ describe('Feed services', () => {
         announcements: false,
         global: false,
       });
+    });
+  });
+
+  describe('announcers (4.14, 4.15)', () => {
+    it('lets moderators give and take the role in game, never from a moderator', async () => {
+      const lune = await person('Lune Garnier', { role: 'warden-admin' });
+      const kael = await person('Kael Dubois', { showRealName: false });
+      const mika = await person('Mika Lefort');
+      const issuer = (who: Player) => ({ uuid: who.uuid, username: who.username });
+
+      expect(
+        await problemOf(
+          feedAnnouncerService.setFromServer({
+            uuid: kael.uuid,
+            announcer: true,
+            issuer: issuer(mika),
+          }),
+        ),
+      ).toMatchObject({ status: 403, problem: 'issuerNotAllowed' });
+      expect(
+        await problemOf(
+          feedAnnouncerService.setFromServer({ uuid: randomUUID(), announcer: true }),
+        ),
+      ).toMatchObject({ status: 404, problem: 'notLinked' });
+
+      const from = await minecraftEventService.latestId('feed');
+      const given = await feedAnnouncerService.setFromServer({
+        uuid: kael.uuid,
+        announcer: true,
+        issuer: issuer(lune),
+      });
+      expect(given).toEqual({
+        uuid: kael.uuid,
+        username: kael.username,
+        announcer: true,
+        viaRole: false,
+      });
+      // Giving it again changes nothing, and sends nothing more.
+      await feedAnnouncerService.setFromServer({ uuid: kael.uuid, announcer: true });
+      expect((await eventsSince(from)).map((event) => event.type)).toEqual(['rights']);
+      expect(await feedAnnouncerService.list()).toEqual({
+        items: [{ realName: null, accounts: [{ uuid: kael.uuid, username: kael.username }] }],
+      });
+
+      expect(
+        await problemOf(feedAnnouncerService.setFromServer({ uuid: lune.uuid, announcer: false })),
+      ).toMatchObject({ status: 409, problem: 'impliedByRole' });
+      expect(
+        await feedAnnouncerService.setFromServer({ uuid: lune.uuid, announcer: true }),
+      ).toMatchObject({ announcer: true, viaRole: true });
+
+      const actions = await db
+        .select({ actor: audit.actorUserId, target: audit.targetUserId, data: audit.data })
+        .from(audit)
+        .where(eq(audit.action, 'minecraft.feed.announcer'));
+      expect(actions).toEqual([{ actor: lune.id, target: kael.id, data: { announcer: true } }]);
+    });
+  });
+
+  describe('outside Feed', () => {
+    it('sends rights events from bans, moderator roles, the announcer role and unlinks', async () => {
+      const admin = await person('Admin Lune', { role: 'admin' });
+      const camille = await person('Camille Roux', { accounts: 2 });
+      const rights = async (from: number) =>
+        (await eventsSince(from))
+          .filter((event) => event.type === 'rights')
+          .map((event) => [...(event.data.uuids as string[])].sort());
+      const accounts = camille.accounts.map((account) => account.uuid).sort();
+
+      let from = await minecraftEventService.latestId('feed');
+      const web = { source: 'web' as const, userId: admin.id };
+      const ban = await wardenModerationService.ban({
+        userId: camille.id,
+        body: { reason: 'Spam', durationSeconds: 3600 },
+        actor: web,
+      });
+      await wardenModerationService.updateBan({ banId: ban.id, expiresAt: null, actor: web });
+      await wardenModerationService.unban({ userId: camille.id, actor: web });
+      await usersService.ban({
+        actorId: admin.id,
+        userId: camille.id,
+        ban: { reason: 'Spam', durationSeconds: null },
+      });
+      await usersService.unban({ actorId: admin.id, userId: camille.id });
+      expect(await rights(from)).toEqual([accounts, accounts, accounts, accounts, accounts]);
+
+      from = await minecraftEventService.latestId('feed');
+      const roles = { admin: false, wardenAdmin: false, eventsManager: true, economyAdmin: false };
+      await usersService.setRoles({ actorId: admin.id, userId: camille.id, roles });
+      expect(await rights(from)).toEqual([]);
+      await usersService.setRoles({
+        actorId: admin.id,
+        userId: camille.id,
+        roles: { ...roles, wardenAdmin: true },
+      });
+      expect(await rights(from)).toEqual([accounts]);
+
+      from = await minecraftEventService.latestId('feed');
+      await wardenPlayerService.unlink({ userId: camille.id, uuid: camille.uuid, actor: web });
+      expect(await rights(from)).toEqual([[camille.uuid]]);
+    });
+
+    it('takes an account’s posts with it when the account is deleted', async () => {
+      const admin = await person('Admin Lune', { role: 'admin' });
+      const camille = await person('Camille Roux');
+      const mika = await person('Mika Lefort');
+      const { post: created } = await post(camille, 'Bientôt parti', {
+        feed: 'global',
+      });
+      await reply(mika, created.id);
+      const from = await minecraftEventService.latestId('feed');
+      await usersService.remove({ actorId: admin.id, userId: camille.id });
+      expect(await db.select().from(feedPost)).toEqual([]);
+      const events = await eventsSince(from);
+      expect(events.map((event) => event.type)).toEqual(['deleted']);
+      expect((events[0]!.data.items as unknown[]).length).toBe(2);
     });
   });
 

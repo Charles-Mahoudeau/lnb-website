@@ -3,6 +3,7 @@ import { and, desc, eq, gt, isNull, or } from 'drizzle-orm';
 import { db } from '~~/server/db';
 import { minecraftAccount, user, wardenAppeal, wardenBan, wardenNote } from '~~/server/db/schema';
 import { auditService } from '~~/server/services/audit';
+import { feedEvents } from '~~/server/services/feed/events';
 import { ruleService } from '~~/server/services/rules';
 
 import { refuse } from './shared';
@@ -103,7 +104,7 @@ async function revoke(
   return revoked!;
 }
 
-async function view(dbx: Db, ban: typeof wardenBan.$inferSelect): Promise<WardenBanView> {
+async function loadBanView(dbx: Db, ban: typeof wardenBan.$inferSelect): Promise<WardenBanView> {
   return banView(ban, await namesOf(dbx, banNameIds(ban)));
 }
 
@@ -117,7 +118,7 @@ async function ban(input: {
   actor: WardenActor;
   minecraftUuid?: string;
 }): Promise<WardenBanView> {
-  return db.transaction(async (tx) => {
+  const view = await db.transaction(async (tx) => {
     await userExists(tx, input.userId);
     const ruleCitations = await ruleService.citationsFor(tx, input.body.ruleIds ?? []);
     const current = await activeBan(input.userId, tx);
@@ -151,8 +152,11 @@ async function ban(input: {
         expiresAt: created!.expiresAt?.toISOString() ?? null,
       },
     });
-    return view(tx, created!);
+    return loadBanView(tx, created!);
   });
+  // A ban removes Feed's write, announce and moderate rights.
+  await feedEvents.rightsOfUsers([input.userId]);
+  return view;
 }
 
 /** Lifts the player's active ban. */
@@ -161,11 +165,13 @@ async function unban(input: {
   reason?: string;
   actor: WardenActor;
 }): Promise<WardenBanView> {
-  return db.transaction(async (tx) => {
+  const lifted = await db.transaction(async (tx) => {
     const current = await activeBan(input.userId, tx);
     if (!current) refuse(409, 'notBanned');
-    return view(tx, await revoke(tx, current, input.actor, input.reason || null));
+    return loadBanView(tx, await revoke(tx, current, input.actor, input.reason || null));
   });
+  await feedEvents.rightsOfUsers([input.userId]);
+  return lifted;
 }
 
 /** Lifts one ban by its ID, from the admin panel. */
@@ -174,7 +180,7 @@ async function revokeById(input: {
   reason?: string;
   actor: WardenActor;
 }): Promise<WardenBanView> {
-  return db.transaction(async (tx) => {
+  const { lifted, userId } = await db.transaction(async (tx) => {
     const [row] = await tx
       .select()
       .from(wardenBan)
@@ -182,8 +188,11 @@ async function revokeById(input: {
       .for('update');
     if (!row) refuse(404, 'notFound');
     if (row.revokedAt || (row.expiresAt && row.expiresAt <= new Date())) refuse(409, 'notBanned');
-    return view(tx, await revoke(tx, row, input.actor, input.reason || null));
+    const revoked = await revoke(tx, row, input.actor, input.reason || null);
+    return { lifted: await loadBanView(tx, revoked), userId: row.userId };
   });
+  await feedEvents.rightsOfUsers([userId]);
+  return lifted;
 }
 
 /**
@@ -195,7 +204,7 @@ async function updateBan(input: {
   expiresAt: string | null;
   actor: WardenActor;
 }): Promise<WardenBanView> {
-  return db.transaction(async (tx) => {
+  const { updated, userId } = await db.transaction(async (tx) => {
     const [row] = await tx
       .select()
       .from(wardenBan)
@@ -206,7 +215,7 @@ async function updateBan(input: {
     if (row.revokedAt || (row.expiresAt && row.expiresAt <= now)) refuse(409, 'notBanned');
     const expiresAt = input.expiresAt === null ? null : new Date(input.expiresAt);
     if (expiresAt && expiresAt <= now) refuse(400, 'invalidEnd');
-    const [updated] = await tx
+    const [changed] = await tx
       .update(wardenBan)
       .set({ expiresAt })
       .where(eq(wardenBan.id, row.id))
@@ -221,8 +230,10 @@ async function updateBan(input: {
         expiresAt: expiresAt?.toISOString() ?? null,
       },
     });
-    return view(tx, updated!);
+    return { updated: await loadBanView(tx, changed!), userId: row.userId };
   });
+  await feedEvents.rightsOfUsers([userId]);
+  return updated;
 }
 
 /** Adds a private note, or a warning the player sees. */
