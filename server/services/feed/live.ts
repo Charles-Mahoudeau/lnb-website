@@ -111,6 +111,7 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
   let generation = 0;
   let running = false;
   let polling = false;
+  let checkingFlags = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
   /** The last event ID read, null until the poll loop has started. */
   let cursor: number | null = null;
@@ -172,6 +173,7 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
     timer = undefined;
     running = false;
     polling = false;
+    checkingFlags = false;
     cursor = null;
     floor = 0;
     ring = [];
@@ -198,6 +200,22 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
     // tend() may have dropped the last connection, which stopped this loop.
     if (gen !== generation) return;
     if (!polling) void poll(gen);
+    // A read that hangs doesn't hold the flags back: they are read on the side meanwhile.
+    else if (!checkingFlags) void checkFlags(gen);
+  }
+
+  /** Closes every connection when `feed` or `feed.live` is off. */
+  async function checkFlags(gen: number) {
+    checkingFlags = true;
+    try {
+      if (!(await deps.enabled()) && gen === generation) {
+        for (const conn of [...connections]) kick(conn);
+      }
+    } catch {
+      // The flags can't be read either: the next tick tries again.
+    } finally {
+      if (gen === generation) checkingFlags = false;
+    }
   }
 
   /** Pings, session checks and stalled clients. */

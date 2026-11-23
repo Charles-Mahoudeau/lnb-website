@@ -309,6 +309,18 @@ describe('the Feed live hub', () => {
     expect(db.calls.since).toBe(reads);
   });
 
+  it('closes every stream when the flag goes off, even while a read hangs', async () => {
+    const live = hub();
+    const a = connect(live);
+    await tick(0);
+    db.hold();
+    await tick();
+    enabled = false;
+    await tick();
+    expect(a.state.closed).toBe(true);
+    expect(live.stats()).toMatchObject({ connections: 0, running: false });
+  });
+
   it('pings after 25 quiet seconds, and checks the session then and every minute', async () => {
     const live = hub();
     const alive = vi.fn(() => Promise.resolve(true));

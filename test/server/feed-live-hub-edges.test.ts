@@ -471,7 +471,7 @@ describe('the Feed live hub, edges', () => {
       expect(vi.getTimerCount()).toBe(0);
     });
 
-    it('sees the flag go off once a slow read ends, the event it read still going out', async () => {
+    it('sees the flag go off within a second while a read hangs, and drops what it read', async () => {
       const live = rig.hub();
       const a = connect(live);
       await tick(0);
@@ -479,14 +479,13 @@ describe('the Feed live hub, edges', () => {
       const held = rig.db.holdSince();
       await tick();
       rig.flag.state.on = false;
-      await tick(3000);
-      // One read at a time: the flag is read at the next poll, after this one.
-      expect(a.state.closed).toBe(false);
+      await tick();
+      // The flags are read on the side while the read hangs.
+      expect(a.state.closed).toBe(true);
+      expect(live.stats()).toMatchObject({ connections: 0, running: false, buffered: 0 });
       held.open();
       await tick();
-      expect(a.state.closed).toBe(true);
-      expect(a.ids()).toEqual(['11']);
-      expect(live.stats()).toMatchObject({ connections: 0, running: false, buffered: 0 });
+      expect(a.ids()).toEqual([]);
     });
 
     it('keeps the streams open when the flags cannot be read, and goes on', async () => {
