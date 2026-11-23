@@ -60,13 +60,17 @@ export async function pinnedGroup(dbx: Db): Promise<{ id: string; pinnedAt: stri
   return rows.map((row) => ({ id: row.id, pinnedAt: row.pinnedAt!.toISOString() }));
 }
 
-/** A live (not deleted) post by ID, or a 404 `notFound`. */
+/**
+ * A live (not deleted) post by ID, or a 404 `notFound`. `lock` serialises the writes on it with
+ * `FOR NO KEY UPDATE`: it queues every other write, but not the key-share locks that inserts
+ * referencing the post take (a like, a seen thread, a notification).
+ */
 export async function livePost(dbx: Db, id: string, lock = false): Promise<FeedPostRow> {
   const query = dbx
     .select()
     .from(feedPost)
     .where(and(eq(feedPost.id, id), isNull(feedPost.deletedAt)));
-  const [row] = await (lock ? query.for('update') : query);
+  const [row] = await (lock ? query.for('no key update') : query);
   if (!row) refuse(404, 'notFound');
   return row;
 }
@@ -75,7 +79,10 @@ export async function livePost(dbx: Db, id: string, lock = false): Promise<FeedP
  * Locks a post for a write, its main post first. Every write in a thread takes the main post's
  * lock before anything else (and account deletion takes the main posts it touches before the
  * accounts' rows), so writes in a thread queue behind one lock and never deadlock. Returns the
- * post, deleted or not, or null when there is none.
+ * post, deleted or not, or null when there is none. The locks are `FOR NO KEY UPDATE`: they
+ * serialise the writes as well as `FOR UPDATE` would, without blocking the key-share locks that
+ * inserts referencing these posts need. Account deletion, which deletes the rows, keeps
+ * `FOR UPDATE`.
  */
 export async function lockPost(tx: Tx, id: string): Promise<FeedPostRow | null> {
   const [peek] = await tx
@@ -88,9 +95,9 @@ export async function lockPost(tx: Tx, id: string): Promise<FeedPostRow | null> 
       .select({ id: feedPost.id })
       .from(feedPost)
       .where(eq(feedPost.id, peek.threadId))
-      .for('update');
+      .for('no key update');
   }
-  const [row] = await tx.select().from(feedPost).where(eq(feedPost.id, id)).for('update');
+  const [row] = await tx.select().from(feedPost).where(eq(feedPost.id, id)).for('no key update');
   return row ?? null;
 }
 
