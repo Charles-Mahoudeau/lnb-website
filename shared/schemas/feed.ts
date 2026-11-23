@@ -359,10 +359,41 @@ export type FeedMe = z.infer<typeof feedMe>;
 
 export const feedAnnouncerState = z.object({
   userId: z.string(),
-  announcer: z.boolean(),
-  viaRole: z.boolean(),
+  announcer: z
+    .boolean()
+    .describe(
+      'The person holds the `feed-announcer` role, or a moderator role that implies it. The role, not the right: a ban or no linked account leaves it.',
+    ),
+  viaRole: z
+    .boolean()
+    .describe(
+      'They announce as a moderator (`admin` or `warden-admin`): the switch can’t turn it off.',
+    ),
 });
 export type FeedAnnouncerState = z.infer<typeof feedAnnouncerState>;
+
+// --- The admin (/api/feed/admin/, for moderators) ---------------------------------------------------
+
+export const feedAnnouncerParams = z.object({ userId: z.string().min(1).max(64) });
+
+export const feedAnnouncerBody = z.object({
+  announcer: z.boolean().describe('Give (true) or take (false) the `feed-announcer` role.'),
+});
+export type FeedAnnouncerBody = z.infer<typeof feedAnnouncerBody>;
+
+export const feedAdminDeleteBody = z.object({
+  reason: z
+    .string()
+    .trim()
+    .max(500)
+    .optional()
+    .describe(
+      'Why, for the activity log and the Deleted rows. At most 500 characters; empty is none.',
+    ),
+});
+export type FeedAdminDeleteBody = z.infer<typeof feedAdminDeleteBody>;
+/** The body itself is optional: none deletes without a reason. */
+export const feedAdminDeleteBodyOrNone = feedAdminDeleteBody.optional();
 
 export const feedAdminPost = feedPostView
   .omit({
