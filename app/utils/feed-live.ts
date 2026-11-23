@@ -60,13 +60,15 @@ export function createFeedSseReader(onMessage: (message: FeedLiveMessage) => voi
 }
 
 /**
- * The wait before reconnection number `attempt` (0 first): 1, 2, 4, 8, 16, then 30 seconds, each
- * shaken by up to a fifth so that tabs dropped together don't all come back at once.
+ * The wait before reconnection number `attempt` (0 first), spread so that tabs dropped together
+ * (a restart, a deploy) don't all come back at once: the first anywhere up to a second (at least
+ * 0.1), then between half and all of 2, 4, 8, 16 and 30 seconds.
  */
 export function feedLiveRetryDelay(attempt: number, random: () => number = Math.random): number {
-  const base = Math.min(30_000, 1000 * 2 ** Math.max(0, attempt));
-  const shaken = base * (0.8 + 0.4 * random());
-  return Math.round(Math.min(30_000, Math.max(1000, shaken)));
+  const n = Math.max(0, attempt);
+  if (n === 0) return Math.round(Math.max(100, 1000 * random()));
+  const base = Math.min(30_000, 1000 * 2 ** n);
+  return Math.round(base * (0.5 + 0.5 * random()));
 }
 
 /** What a feed's first page, read again after a `reset`, changes on the page. */

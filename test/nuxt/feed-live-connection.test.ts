@@ -181,20 +181,20 @@ describe('what each answer to the stream request means', () => {
 describe('the backoff', () => {
   // The waits between attempts that all fail, read off the times the page asked at.
   const cases = [
-    ['an even shake', 0.5, [1000, 2000, 4000, 8000, 16_000, 30_000, 30_000, 30_000]],
+    ['an even shake', 0.5, [500, 1500, 3000, 6000, 12_000, 22_500, 22_500, 22_500]],
     [
-      'the shortest shake, never under a second',
+      'the shortest shake: the first at once (0.1 s), then half of each wait',
       0,
-      [1000, 1600, 3200, 6400, 12_800, 24_000, 24_000, 24_000],
+      [100, 1000, 2000, 4000, 8000, 15_000, 15_000, 15_000],
     ],
     [
       'the longest shake, never over thirty seconds',
       1,
-      [1200, 2400, 4800, 9600, 19_200, 30_000, 30_000, 30_000],
+      [1000, 2000, 4000, 8000, 16_000, 30_000, 30_000, 30_000],
     ],
   ] as const;
   for (const [name, random, waits] of cases) {
-    it(`waits 1, 2, 4, 8, 16, then 30 seconds between failed attempts: ${name}`, async () => {
+    it(`waits up to 1, 2, 4, 8, 16, then 30 seconds between failed attempts: ${name}`, async () => {
       vi.spyOn(Math, 'random').mockReturnValue(random);
       live.fallback = 'network';
       fakeClock();
@@ -208,14 +208,14 @@ describe('the backoff', () => {
     });
   }
 
-  it('starts from one second again once a message came in', async () => {
+  it('starts from the first wait again once a message came in', async () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.5);
     live.queue = ['network', 'network', 'network'];
     fakeClock();
     await mountFeed();
     await settle();
     expect(live.requests).toBe(1);
-    await advance(1010 + 2010 + 4010);
+    await advance(510 + 1510 + 3010);
     const first = await current();
     first.send('ping', {}, 3);
     await advance(0);
@@ -223,7 +223,7 @@ describe('the backoff', () => {
     first.end();
     await advance(0);
     const before = live.requests;
-    await advance(990);
+    await advance(490);
     expect(live.requests).toBe(before);
     await advance(20);
     expect(live.requests).toBe(before + 1);
@@ -233,7 +233,7 @@ describe('the backoff', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.5);
     await mountFeed();
     fakeClock();
-    for (const wait of [1000, 2000, 4000]) {
+    for (const wait of [500, 1500, 3000]) {
       const stream = await current(live.streams.length || 1);
       stream.end();
       await advance(0);

@@ -75,15 +75,18 @@ describe('the Server-Sent Events reader', () => {
 });
 
 describe('the reconnection delay', () => {
-  it('doubles from 1 second to 30, shaken by up to a fifth, never outside 1 to 30', () => {
-    const middle = () => 0.5;
-    expect([0, 1, 2, 3, 4, 5, 6, 50].map((n) => feedLiveRetryDelay(n, middle))).toEqual([
+  it('spreads the first retry over a whole second, then doubles up to 30, each from half to all', () => {
+    const top = () => 1;
+    expect([0, 1, 2, 3, 4, 5, 6, 50].map((n) => feedLiveRetryDelay(n, top))).toEqual([
       1000, 2000, 4000, 8000, 16_000, 30_000, 30_000, 30_000,
     ]);
-    expect(feedLiveRetryDelay(0, () => 0)).toBe(1000);
-    expect(feedLiveRetryDelay(1, () => 0)).toBe(1600);
-    expect(feedLiveRetryDelay(9, () => 1)).toBe(30_000);
-    expect(feedLiveRetryDelay(-3, middle)).toBe(1000);
+    // Full jitter on the first: tabs dropped together don't come back at one moment.
+    expect([0, 0.25, 0.5, 0.75].map((r) => feedLiveRetryDelay(0, () => r))).toEqual([
+      100, 250, 500, 750,
+    ]);
+    expect(feedLiveRetryDelay(1, () => 0)).toBe(1000);
+    expect(feedLiveRetryDelay(9, () => 0)).toBe(15_000);
+    expect(feedLiveRetryDelay(-3, () => 0.5)).toBe(500);
   });
 });
 

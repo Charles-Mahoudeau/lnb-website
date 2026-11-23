@@ -97,11 +97,11 @@ describe('the Server-Sent Events reader, edges', () => {
 });
 
 describe('the reconnection delay, edges', () => {
-  it('stays within 1 to 30 seconds for any attempt and any random value', () => {
+  it('stays within 0.1 to 30 seconds for any attempt and any random value', () => {
     for (const attempt of [0, 1, 2, 3, 4, 5, 6, 10, 100, 1e6]) {
       for (const random of [0, 0.25, 0.5, 0.999, 1]) {
         const delay = feedLiveRetryDelay(attempt, () => random);
-        expect(delay).toBeGreaterThanOrEqual(1000);
+        expect(delay).toBeGreaterThanOrEqual(attempt === 0 ? 100 : 1000);
         expect(delay).toBeLessThanOrEqual(30_000);
         expect(Number.isInteger(delay)).toBe(true);
       }
