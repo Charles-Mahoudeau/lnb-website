@@ -41,7 +41,7 @@ Feed app (player's client)  <- payloads ->  Feed mod, server side  <- HTTPS + se
 - Base: `api.url` from Warden's `lnbwarden-server.toml`, path `/api/feed/server`. Token: `api.token` from the same file. Read them through Warden's `ServerConfig`, as `lnb-quests` does (`QuestsApi.connection`).
 - `Authorization: Bearer <WARDEN_SERVER_SECRET>`, `Content-Type: application/json` on bodies, `Accept: application/json`. Build requests with Warden's `ApiClient.request(url, path, token)` and send them with `ApiClient.HTTP`, decoding the body yourself: `ApiClient.send` keeps only `data.problem`, and Feed needs `data.oldest` (`pinLimit`) and the `Retry-After` header (`rateLimited`). Record every result with `ApiHealth.record("feed <what>", result)`, so an outage is told to operators once.
 - Never block the server thread on HTTP. Every call is asynchronous; hop back with `server.execute { }` before touching players or sending payloads.
-- Timeouts: 5 seconds for reads, 10 for writes (ApiClient's default is 15). A player waiting longer sees "Feed unavailable" sooner and can retry.
+- Timeout: 10 seconds for every call (ApiClient's default is 15), the threshold after which the app says "Feed unavailable" (art direction 9.12).
 - Every route needs the `feed` and `feed.serverApi` flags (503 `disabled` otherwise). The site limits the Minecraft server to 1,200 calls a minute on these routes (rule `feed-server`); a 429 there means "not processed, wait".
 
 ### 2.2 Conventions
@@ -756,9 +756,9 @@ So a right given or taken on the site reaches an online player within a second (
 
 ### 11.1 The site is unreachable
 
-- Reads (`state`, a page, a thread): answer the client `UNAVAILABLE`. The app shows "Feed unavailable" with Retry, or keeps what it has loaded and shows the snackbar (the art direction's F-3).
+- Reads (`state`, a page, a thread): answer the client `UNAVAILABLE`. The app shows "Feed unavailable" with Retry when nothing is loaded, or keeps what it has loaded and shows "Connection lost" (art direction 9.12).
 - Writes: answer `UNAVAILABLE`. The client keeps the draft and its key; the player retries.
-- The stream reconnects with a backoff; on success, catch up (8.3).
+- When the stream drops, tell the watchers at once (the app shows "Connection lost" and retries about every 15 seconds). It reconnects with a backoff; on success, catch up (8.3).
 - Notifications wait on the site; the drain at reconnection delivers them.
 - **Feed never gets in the way of playing**: the state read at join runs in the background and nothing waits for it, there is no retry loop, and nothing blocks the server thread.
 
