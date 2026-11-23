@@ -494,7 +494,7 @@
       "privateMine": "Publié anonymement par toi",
       "privateAuthor": "Auteur : {name}",
       "replies": "Aucune réponse | {count} réponse | {count} réponses",
-      "unseen": "{count} nouvelles",
+      "unseen": "{count} nouvelle | {count} nouvelles",
       "reply": "Répondre",
       "like": "J’aime, aucun pour l’instant | J’aime, {count} | J’aime, {count}",
       "pin": "Épingler",
@@ -556,8 +556,11 @@
       "tooLong": "Un post fait 280 caractères au plus. Raccourcis-le un peu.",
       "notPinnable": "Seules les annonces peuvent être épinglées.",
       "rateLimited": "Tu vas un peu vite. Réessaie dans {seconds} s.",
-      "disabled": "La publication est en pause pour l’instant. Réessaie plus tard.",
-      "failed": "Ça n’est pas passé. Vérifie ta connexion et renvoie-le : il ne sera pas publié deux fois."
+      "failed": "Ça n’est pas passé. Vérifie ta connexion et réessaie.",
+      "writingPaused": "La publication est en pause pour l’instant. Réessaie plus tard.",
+      "unavailable": "Le Feed est indisponible pour l’instant. Réessaie plus tard.",
+      "sendFailed": "Ça n’est pas passé. Vérifie ta connexion et renvoie-le : il ne sera pas publié deux fois.",
+      "sentThenDeleted": "Ce post était déjà parti, puis il a été supprimé : il n’est pas republié. Le brouillon est effacé."
     }
   },
   "warden": {

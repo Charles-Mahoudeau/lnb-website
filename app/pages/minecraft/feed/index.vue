@@ -13,6 +13,7 @@ const route = useRoute();
 const router = useRouter();
 const overlay = useOverlay();
 const toasts = useFeedToasts();
+useFeedClock();
 const confirm = overlay.create(WardenConfirmModal);
 
 useSeoMeta({ title: () => t('feed.title'), description: () => t('feed.lede'), robots: 'noindex' });
@@ -68,18 +69,19 @@ const loading = computed(
     !timeline.posts.value.length,
 );
 
-const busy = ref<string | null>(null);
+// The posts with an action running: a second click on one of them waits, others stay live.
+const busy = ref(new Set<string>());
 
 async function run(post: FeedPostView, action: () => Promise<void>) {
-  if (busy.value) return;
-  busy.value = post.id;
+  if (busy.value.has(post.id)) return;
+  busy.value.add(post.id);
   try {
     await action();
   } catch (error) {
     if (error instanceof FeedError && error.problem === 'notFound') timeline.remove(post.id);
     toasts.failed(error);
   } finally {
-    busy.value = null;
+    busy.value.delete(post.id);
   }
 }
 
@@ -244,7 +246,7 @@ function onWrite() {
             :key="post.id"
             :post="post"
             :can-act="canAct"
-            :busy="busy === post.id"
+            :busy="busy.has(post.id)"
             @like="onLike"
             @pin="onPin"
             @delete="onDelete"

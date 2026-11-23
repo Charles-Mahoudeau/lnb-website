@@ -12,6 +12,7 @@ const { t } = useI18n();
 const route = useRoute();
 const overlay = useOverlay();
 const toasts = useFeedToasts();
+useFeedClock();
 const confirm = overlay.create(WardenConfirmModal);
 
 const id = String(route.params.id);
@@ -58,23 +59,36 @@ function onReply(post: FeedPostView) {
   replyComposer.value?.focus();
 }
 
+/** The reply couldn't be sent, something it needed is gone: read the thread again. */
+async function onReplyGone() {
+  target.value = null;
+  await thread.refresh();
+}
+
 function onReplied(post: FeedPostView) {
   thread.addReply(post);
   target.value = null;
 }
 
-const busy = ref<string | null>(null);
+// The posts with an action running: a second click on one of them waits, others stay live.
+const busy = ref(new Set<string>());
+
+/** A post found gone: a reply leaves the list, a main post shows the thread as deleted. */
+async function dropGone(post: FeedPostView) {
+  if (post.threadId) thread.removeReply(post);
+  else await thread.refresh();
+}
 
 async function run(post: FeedPostView, action: () => Promise<void>) {
-  if (busy.value) return;
-  busy.value = post.id;
+  if (busy.value.has(post.id)) return;
+  busy.value.add(post.id);
   try {
     await action();
   } catch (error) {
     toasts.failed(error);
-    if (error instanceof FeedError && error.problem === 'notFound') await thread.refresh();
+    if (error instanceof FeedError && error.problem === 'notFound') await dropGone(post);
   } finally {
-    busy.value = null;
+    busy.value.delete(post.id);
   }
 }
 
@@ -125,7 +139,7 @@ async function onDelete(post: FeedPostView) {
     await feedActions.remove(post.id);
     toasts.done(t(isMain ? 'feed.delete.postDone' : 'feed.delete.replyDone'));
     if (isMain) await navigateTo(backLink.value);
-    else await thread.refresh();
+    else thread.removeReply(post);
   });
 }
 
@@ -190,7 +204,7 @@ async function onLoadMore() {
               :post="main"
               mode="main"
               :can-act="canAct"
-              :busy="busy === main.id"
+              :busy="busy.has(main.id)"
               @like="onLike"
               @pin="onPin"
               @delete="onDelete"
@@ -210,7 +224,7 @@ async function onLoadMore() {
                 :post="reply"
                 mode="reply"
                 :can-act="canAct"
-                :busy="busy === reply.id"
+                :busy="busy.has(reply.id)"
                 @like="onLike"
                 @delete="onDelete"
                 @reply="onReply"
@@ -238,6 +252,7 @@ async function onLoadMore() {
               :main-name="mainName"
               :target="target"
               @posted="onReplied"
+              @gone="onReplyGone"
               @clear="target = null"
             />
           </section>

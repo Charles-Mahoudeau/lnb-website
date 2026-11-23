@@ -494,7 +494,7 @@
       "privateMine": "Posted anonymously by you",
       "privateAuthor": "Author: {name}",
       "replies": "No replies | {count} reply | {count} replies",
-      "unseen": "{count} new",
+      "unseen": "{count} new | {count} new",
       "reply": "Reply",
       "like": "Like, no likes yet | Like, {count} like | Like, {count} likes",
       "pin": "Pin",
@@ -556,8 +556,11 @@
       "tooLong": "A post is 280 characters at most. Shorten it a little.",
       "notPinnable": "Only announcements can be pinned.",
       "rateLimited": "You’re going a bit fast. Try again in {seconds} s.",
-      "disabled": "Posting is paused for now. Try again later.",
-      "failed": "That didn’t go through. Check your connection and send it again: it won’t be posted twice."
+      "failed": "That didn’t go through. Check your connection and try again.",
+      "writingPaused": "Posting is paused for now. Try again later.",
+      "unavailable": "The Feed is unavailable for now. Try again later.",
+      "sendFailed": "That didn’t go through. Check your connection and send it again: it won’t be posted twice.",
+      "sentThenDeleted": "This post went through earlier, then was deleted, so it isn’t posted again. The draft is cleared."
     }
   },
   "warden": {

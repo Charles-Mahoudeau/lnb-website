@@ -15,7 +15,7 @@ const props = defineProps<{
   /** The reply answered, or null for the main post. */
   target: { id: string; name: string } | null;
 }>();
-const emit = defineEmits<{ posted: [post: FeedPostView]; clear: [] }>();
+const emit = defineEmits<{ posted: [post: FeedPostView]; clear: []; gone: [] }>();
 
 const { t } = useI18n();
 const toasts = useFeedToasts();
@@ -24,6 +24,8 @@ const sending = ref(false);
 const state = reactive({ text: '', anonymous: false });
 const checked = computed(() => checkFeedText(state.text));
 const over = computed(() => checked.value.length > FEED_TEXT_MAX);
+/** Screen readers hear the counter only from 20 characters before the limit. */
+const near = computed(() => checked.value.length >= FEED_TEXT_MAX - 20);
 const textarea = useTemplateRef<{ textareaRef?: HTMLTextAreaElement | null }>('textarea');
 
 defineExpose({
@@ -60,7 +62,18 @@ async function onSubmit() {
     toasts.done(t('feed.thread.replied'));
     emit('posted', post);
   } catch (error) {
-    toasts.failed(error);
+    if (error instanceof FeedError && error.problem === 'notFound') {
+      // The thread, the reply answered or the key's own reply is gone: the draft can't be sent
+      // as it is, so it goes, and the page reads the thread again (docs/feed-mod.md).
+      attempt = null;
+      state.text = '';
+      state.anonymous = false;
+      toasts.failed(error);
+      emit('gone');
+      return;
+    }
+    // The draft and its key stay: sending it again answers the same reply if this one went.
+    toasts.failed(error, { send: true });
   } finally {
     sending.value = false;
   }
@@ -114,7 +127,7 @@ async function onSubmit() {
       <div class="ms-auto flex items-center gap-3">
         <span
           :class="['text-sm tabular-nums', over ? 'font-semibold text-error' : 'text-muted']"
-          aria-live="polite"
+          :aria-live="near ? 'polite' : 'off'"
         >
           {{ t('feed.composer.counter', { count: checked.length, max: FEED_TEXT_MAX }) }}
         </span>

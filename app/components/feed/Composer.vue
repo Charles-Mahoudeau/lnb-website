@@ -32,6 +32,8 @@ const author = computed(() => props.me.me);
 const announcer = computed(() => props.me.rights.announce);
 const checked = computed(() => checkFeedText(state.text));
 const over = computed(() => checked.value.length > FEED_TEXT_MAX);
+/** Screen readers hear the counter only from 20 characters before the limit. */
+const near = computed(() => checked.value.length >= FEED_TEXT_MAX - 20);
 
 async function expand() {
   open.value = true;
@@ -108,8 +110,18 @@ async function onSubmit() {
     toasts.done(t('feed.composer.posted'));
     emit('posted', post);
   } catch (error) {
+    if (error instanceof FeedError && error.problem === 'notFound') {
+      // The key's post went through, then was deleted: sending it again would answer the same,
+      // so the draft goes (docs/feed-mod.md, Idempotency).
+      attempt = null;
+      state.text = '';
+      state.anonymous = false;
+      open.value = false;
+      toasts.failed(error, { sentThenDeleted: true });
+      return;
+    }
     // The draft and its key stay: sending it again answers the same post if this one went.
-    toasts.failed(error);
+    toasts.failed(error, { send: true });
   } finally {
     sending.value = false;
   }
@@ -211,7 +223,7 @@ async function onSubmit() {
         <div class="ms-auto flex items-center gap-3">
           <span
             :class="['text-sm tabular-nums', over ? 'font-semibold text-error' : 'text-muted']"
-            aria-live="polite"
+            :aria-live="near ? 'polite' : 'off'"
           >
             {{ t('feed.composer.counter', { count: checked.length, max: FEED_TEXT_MAX }) }}
           </span>

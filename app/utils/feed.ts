@@ -90,6 +90,24 @@ export function applyFeedPins(
   return { pinned, posts };
 }
 
+/**
+ * The page with a pinned group read again from the site (its views fresh): posts pinned now leave
+ * the list, posts no longer pinned go back to it in their place, and the rest of the list stays.
+ */
+export function mergeFeedPinned(
+  page: { pinned: FeedPostView[]; posts: FeedPostView[] },
+  fresh: FeedPostView[],
+): { pinned: FeedPostView[]; posts: FeedPostView[] } {
+  const pinnedIds = new Set(fresh.map((post) => post.id));
+  const posts = [
+    ...page.posts.filter((post) => !pinnedIds.has(post.id)),
+    ...page.pinned
+      .filter((post) => !pinnedIds.has(post.id))
+      .map((post) => ({ ...post, pinnedAt: null })),
+  ].sort(feedByNewest);
+  return { pinned: fresh, posts };
+}
+
 /** Appends a page of older posts, leaving out any the page already shows. */
 export function appendFeedPosts(current: FeedPostView[], more: FeedPostView[]): FeedPostView[] {
   const seen = new Set(current.map((post) => post.id));

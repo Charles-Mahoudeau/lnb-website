@@ -8,6 +8,7 @@ import {
   feedFromQuery,
   feedHandle,
   formatFeedAge,
+  mergeFeedPinned,
   newestFeedCreatedAt,
 } from '../../app/utils/feed.ts';
 import type { FeedPostView } from '../../shared/schemas/feed.ts';
@@ -142,5 +143,19 @@ describe('the tab', () => {
     for (const value of [undefined, 'announcements', 'news', ['global']]) {
       expect(feedFromQuery(value)).toBe('announcements');
     }
+  });
+});
+
+describe('the pinned group read again', () => {
+  it('keeps the loaded posts, moves the newly pinned out and the unpinned back in place', () => {
+    const a = post('a', '2026-11-23T10:00:00.000Z', '2026-11-23T13:00:00.000Z');
+    const b = post('b', '2026-11-23T11:00:00.000Z');
+    const c = post('c', '2026-11-23T09:00:00.000Z');
+    const z = post('z', '2026-11-20T09:00:00.000Z', '2026-11-23T14:00:00.000Z');
+    const fresh = [z, { ...b, pinnedAt: '2026-11-23T12:00:00.000Z' }];
+    const merged = mergeFeedPinned({ pinned: [a], posts: [b, c] }, fresh);
+    expect(merged.pinned.map((known) => known.id)).toEqual(['z', 'b']);
+    expect(merged.posts.map((known) => known.id)).toEqual(['a', 'c']);
+    expect(merged.posts[0]?.pinnedAt).toBeNull();
   });
 });

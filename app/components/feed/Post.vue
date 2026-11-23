@@ -50,8 +50,9 @@ const replyToLine = computed(() => {
   return t('feed.post.replyTo', { name: target.name ?? t('feed.post.anonymous') });
 });
 
-// One clock for the page, read once, so the server's render and the browser's agree.
-const now = useState('feed-now', () => Date.now());
+// The page's clock (useFeedClock): the server's render and the browser's first one agree, then it
+// moves on while the page stays open.
+const now = useFeedNow();
 const age = computed(
   () => formatFeedAge(props.post.createdAt, locale.value, now.value) ?? t('feed.post.now'),
 );
@@ -162,7 +163,9 @@ const filled = (content: string) => content.replaceAll('fill="none"', 'fill="cur
               color="neutral"
               variant="soft"
               size="md"
-              :label="t('feed.post.unseen', { count: props.post.unseenReplies })"
+              :label="
+                t('feed.post.unseen', { count: props.post.unseenReplies }, props.post.unseenReplies)
+              "
             />
           </UButton>
           <UButton

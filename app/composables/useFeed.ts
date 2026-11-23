@@ -56,7 +56,9 @@ export async function useFeedTimeline(feed: Ref<FeedName>) {
   const pinned = ref<FeedPostView[]>([]);
   const posts = ref<FeedPostView[]>([]);
   const next = ref<string | null>(null);
-  const loadingMore = ref(false);
+  /** The feed whose next page is loading, so a tab switched meanwhile doesn't show it busy. */
+  const loadingFeed = ref<FeedName | null>(null);
+  const loadingMore = computed(() => loadingFeed.value === feed.value);
 
   // While another tab's page loads, useFetch may still hold the last one: show nothing of it.
   watch(
@@ -70,18 +72,24 @@ export async function useFeedTimeline(feed: Ref<FeedName>) {
     { immediate: true },
   );
 
-  /** Adds the next page of older posts. Throws a FeedError. */
+  /**
+   * Adds the next page of older posts. Throws a FeedError. A page that arrives once another tab
+   * is shown, or once the list was reloaded, is dropped: it belongs to what was shown before.
+   */
   async function loadMore() {
-    if (!next.value || loadingMore.value) return;
-    loadingMore.value = true;
+    const shown = feed.value;
+    const before = next.value;
+    if (!before || loadingFeed.value === shown) return;
+    loadingFeed.value = shown;
     try {
       const page = await call(() =>
-        $fetch<FeedPage>('/api/feed/posts', { query: { feed: feed.value, before: next.value } }),
+        $fetch<FeedPage>('/api/feed/posts', { query: { feed: shown, before } }),
       );
+      if (feed.value !== shown || next.value !== before) return;
       posts.value = appendFeedPosts(posts.value, page.posts);
       next.value = page.next;
     } finally {
-      loadingMore.value = false;
+      if (loadingFeed.value === shown) loadingFeed.value = null;
     }
   }
 
@@ -101,15 +109,25 @@ export async function useFeedTimeline(feed: Ref<FeedName>) {
     posts.value = [post, ...posts.value.filter((known) => known.id !== post.id)];
   }
 
-  /** The pinned group after a pin or unpin; reloads when it names a post the page lacks. */
+  /**
+   * The pinned group after a pin or unpin. When it names a post the page lacks (pinned elsewhere
+   * since), only the group is read again: the posts "Load more" added stay.
+   */
   async function setPins(group: { id: string; pinnedAt: string }[]) {
     const applied = applyFeedPins({ pinned: pinned.value, posts: posts.value }, group);
     if (applied) {
       pinned.value = applied.pinned;
       posts.value = applied.posts;
-    } else {
-      await fetched.refresh();
+      return;
     }
+    const shown = feed.value;
+    const first = await call(() =>
+      $fetch<FeedPage>('/api/feed/posts', { query: { feed: 'announcements', limit: 1 } }),
+    );
+    if (feed.value !== shown) return;
+    const merged = mergeFeedPinned({ pinned: pinned.value, posts: posts.value }, first.pinned);
+    pinned.value = merged.pinned;
+    posts.value = merged.posts;
   }
 
   return {
@@ -170,6 +188,18 @@ export async function useFeedThread(id: string) {
     );
   }
 
+  /** A reply deleted (or found gone): out of the list, with the counts it changed. */
+  function removeReply(reply: FeedPostView) {
+    if (!replies.value.some((known) => known.id === reply.id)) return;
+    const answered = reply.replyTo?.id;
+    replies.value = replies.value
+      .filter((known) => known.id !== reply.id)
+      .map((known) =>
+        known.id === answered ? { ...known, replies: Math.max(0, known.replies - 1) } : known,
+      );
+    if (post.value) post.value = { ...post.value, replies: Math.max(0, post.value.replies - 1) };
+  }
+
   /** A reply just posted: at the end, with the counts it changes. */
   function addReply(reply: FeedPostView) {
     if (replies.value.some((known) => known.id === reply.id)) return;
@@ -195,6 +225,7 @@ export async function useFeedThread(id: string) {
     loadMore,
     update,
     addReply,
+    removeReply,
   };
 }
 
@@ -235,8 +266,27 @@ const FEED_MESSAGES: readonly string[] = [
   'tooLong',
   'notPinnable',
   'rateLimited',
-  'disabled',
 ];
+
+/**
+ * The message key of a refusal. A 503 says whether posting is paused (`feed.writing`) or the
+ * whole Feed is off; a failure to send says the draft can be sent again safely, since its key
+ * can't post twice; any other failure just says it didn't go through.
+ */
+export function feedErrorKey(
+  error: unknown,
+  options: { send?: boolean; sentThenDeleted?: boolean } = {},
+): string {
+  const problem = error instanceof FeedError ? error.problem : 'failed';
+  if (problem === 'notFound' && options.sentThenDeleted) return 'sentThenDeleted';
+  if (problem === 'disabled') {
+    return error instanceof FeedError && error.data.flag === 'feed.writing'
+      ? 'writingPaused'
+      : 'unavailable';
+  }
+  if (FEED_MESSAGES.includes(problem)) return problem;
+  return options.send ? 'sendFailed' : 'failed';
+}
 
 /** The page's toasts: what worked, and what a refusal means and how to fix it. */
 export function useFeedToasts() {
@@ -246,11 +296,14 @@ export function useFeedToasts() {
     done(title: string) {
       toast.add({ title, color: 'success', icon: 'i-lucide-circle-check' });
     },
-    failed(error: unknown) {
-      const problem = error instanceof FeedError ? error.problem : 'failed';
+    /**
+     * `send` for a post or a reply, whose draft can be sent again without posting twice;
+     * `sentThenDeleted` for a post whose key answers `notFound`.
+     */
+    failed(error: unknown, options: { send?: boolean; sentThenDeleted?: boolean } = {}) {
       const retryAfter = error instanceof FeedError ? Number(error.data.retryAfter) : NaN;
       toast.add({
-        title: t(`feed.errors.${FEED_MESSAGES.includes(problem) ? problem : 'failed'}`, {
+        title: t(`feed.errors.${feedErrorKey(error, options)}`, {
           seconds: Number.isFinite(retryAfter) ? retryAfter : 60,
         }),
         color: 'error',
@@ -258,6 +311,29 @@ export function useFeedToasts() {
       });
     },
   };
+}
+
+/**
+ * The clock the posts' ages read. The server's render and the browser's first one share it, so
+ * they agree; once the page is mounted it is set to now, then kept current every 30 seconds.
+ */
+export function useFeedNow() {
+  return useState('feed-now', () => Date.now());
+}
+
+/** Starts the clock for the page that calls it. */
+export function useFeedClock() {
+  const now = useFeedNow();
+  let timer: ReturnType<typeof setInterval> | undefined;
+  onMounted(() => {
+    now.value = Date.now();
+    timer = setInterval(() => {
+      now.value = Date.now();
+    }, 30_000);
+  });
+  onBeforeUnmount(() => {
+    clearInterval(timer);
+  });
 }
 
 /** Whether the person may post, reply and like now: linked, not banned, writing on. */
