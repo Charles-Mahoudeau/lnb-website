@@ -47,19 +47,36 @@ export interface FeedLiveHandlers {
 
 export type FeedStreamState = 'idle' | 'open' | 'retrying' | 'off';
 
-/** Hands one message of the stream to its handler. Anything malformed or unknown is skipped. */
+/** A list of objects, or nothing: what a malformed message gives is skipped. */
+function objects<T>(value: unknown): T[] {
+  return Array.isArray(value)
+    ? (value.filter((item) => typeof item === 'object' && item !== null) as T[])
+    : [];
+}
+
+/**
+ * Hands one message of the stream to its handler. Anything malformed or unknown is skipped, and
+ * a handler that fails on it doesn't break the stream.
+ */
 function dispatch(handlers: FeedLiveHandlers, message: FeedLiveMessage) {
-  let data: Record<string, unknown>;
+  let parsed: unknown;
   try {
-    data = JSON.parse(message.data) as Record<string, unknown>;
+    parsed = JSON.parse(message.data);
   } catch {
     return;
   }
-  if (message.event === 'post') handlers.post(data as unknown as PostEvent);
-  else if (message.event === 'deleted') handlers.deleted((data.items as Item[] | undefined) ?? []);
-  else if (message.event === 'counts') handlers.counts((data.items as Counts[] | undefined) ?? []);
-  else if (message.event === 'pins') handlers.pins((data.pinned as Pin[] | undefined) ?? []);
-  else if (message.event === 'reset') handlers.reset();
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return;
+  const data = parsed as Record<string, unknown>;
+  try {
+    if (message.event === 'post') {
+      if (typeof data.id === 'string') handlers.post(data as unknown as PostEvent);
+    } else if (message.event === 'deleted') handlers.deleted(objects<Item>(data.items));
+    else if (message.event === 'counts') handlers.counts(objects<Counts>(data.items));
+    else if (message.event === 'pins') handlers.pins(objects<Pin>(data.pinned));
+    else if (message.event === 'reset') handlers.reset();
+  } catch (error) {
+    console.error('A Feed live event could not be applied', error);
+  }
 }
 
 /**
@@ -117,6 +134,8 @@ export function useFeedStream(handlers: FeedLiveHandlers) {
     }
     // Closed on purpose (hidden, stopped, left): close() already let go of it.
     if (controller !== current) return;
+    // Whatever ended the reading, the connection goes before another one opens.
+    current.abort();
     controller = null;
     state.value = 'retrying';
     retryTimer = setTimeout(() => void connect(), feedLiveRetryDelay(attempt++));

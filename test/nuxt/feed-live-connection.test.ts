@@ -454,14 +454,9 @@ describe('messages that are not what the contract sends', () => {
     expect(again.headers.get('last-event-id')).toBe('x');
   });
 
-  // DEFECT (low, app/composables/useFeedLive.ts, `dispatch` and `connect`): the comment on
-  // `dispatch` says anything malformed is skipped, but only text that isn't JSON is. A message
-  // whose JSON is `null`, or a `deleted` whose `items` is not a list, throws inside the reader's
-  // callback; `connect` takes that for a dropped connection and schedules a reconnection, but never
-  // aborts the connection it was reading, so the old stream stays open while a new one opens a
-  // second later (and again for every such message, each one using a place of the account's five).
-  // The site never sends such a message; a broken proxy or a future event type could.
-  it.fails('keeps the stream open for a message whose data is null', async () => {
+  // A malformed message (JSON `null`, a `deleted` whose `items` is no list) is skipped, and the
+  // page never leaves a connection open that it stopped reading.
+  it('keeps the stream open for a message whose data is null', async () => {
     fakeClock();
     await mountFeed();
     await settle();
@@ -473,17 +468,20 @@ describe('messages that are not what the contract sends', () => {
     expect(stream.signal.aborted).toBe(false);
   });
 
-  it.fails(
-    'does not leave the connection it gave up reading open when it opens another',
-    async () => {
-      fakeClock();
-      await mountFeed();
-      await settle();
-      const first = await current();
-      first.send('deleted', { items: 'abc' });
-      await advance(1300);
-      expect(live.requests).toBe(2);
-      expect(first.signal.aborted).toBe(true);
-    },
-  );
+  it('does not leave the connection it gave up reading open when it opens another', async () => {
+    fakeClock();
+    await mountFeed();
+    await settle();
+    const first = await current();
+    first.send('deleted', { items: 'abc' });
+    await advance(1300);
+    // Skipped: still the same stream.
+    expect(live.requests).toBe(1);
+    expect(first.signal.aborted).toBe(false);
+    // The response ends: the page lets go of it before it opens the next.
+    first.end();
+    await advance(1300);
+    expect(live.requests).toBe(2);
+    expect(first.signal.aborted).toBe(true);
+  });
 });
