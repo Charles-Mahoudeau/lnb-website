@@ -38,7 +38,9 @@
     "changelog": "Changelog",
     "changelogDescription": "What changed on the Minecraft server",
     "rulesDescription": "What is and isn’t allowed on the server",
-    "marketDescription": "Prices of what the server buys and sells"
+    "marketDescription": "Prices of what the server buys and sells",
+    "feed": "Feed",
+    "feedDescription": "Announcements and players’ posts, as on the game phone"
   },
   "home": {
     "intro": {
@@ -433,6 +435,129 @@
       "lede": "Every ban and warning on your account, newest first.",
       "back": "Back to your Minecraft account",
       "empty": "Nothing here: no ban and no warning."
+    }
+  },
+  "feed": {
+    "title": "Feed",
+    "lede": "The server’s announcements and the players’ discussions, the same as on the phone in the game.",
+    "loadFailed": "The Feed didn’t load. Check your connection, then try again.",
+    "loading": "Loading the Feed",
+    "retry": "Try again",
+    "loadMore": "Load more",
+    "cancel": "Cancel",
+    "announcementsNote": "Only the team posts here. You can like and reply.",
+    "tabs": {
+      "label": "Feeds",
+      "announcements": "Announcements",
+      "global": "Global",
+      "unread": "New posts"
+    },
+    "aside": {
+      "title": "Good to know",
+      "text": "280 characters, plain text only.",
+      "anonymous": "An anonymous post hides your name from players. Moderators see it.",
+      "rules": "The Feed follows the server rules.",
+      "rulesLink": "Read the rules"
+    },
+    "composer": {
+      "label": "Your post",
+      "placeholder": "What’s new on the server?",
+      "changeAccount": "Change account",
+      "postWith": "Post with",
+      "accountShows": "Your posts will show {name}",
+      "accountChanged": "Your posts now show {name}",
+      "hidden": "Hidden from players",
+      "anonymous": "Post anonymously",
+      "anonymousHelp": "Hidden from players, visible to moderators",
+      "destination": "Where to post",
+      "counter": "{count}/{max}",
+      "post": "Post",
+      "posted": "Posted"
+    },
+    "bands": {
+      "noLinkTitle": "Link your Minecraft account to take part",
+      "noLinkText": "You can read everything. To post, reply and like, first link the account you play with.",
+      "noLinkAction": "Link my account",
+      "bannedUntil": "You are banned from the server until {date}",
+      "banned": "You are banned from the server",
+      "bannedText": "You can read the Feed, but not post, reply or like while the ban lasts.",
+      "bannedAction": "See my ban",
+      "paused": "Posting is paused for now. You can still read, and delete your own posts."
+    },
+    "post": {
+      "label": "Post by {name}",
+      "anonymous": "Anonymous",
+      "announcer": "Announcer",
+      "pinned": "Pinned",
+      "now": "now",
+      "replyTo": "Replying to {name}",
+      "privateMine": "Posted anonymously by you",
+      "privateAuthor": "Author: {name}",
+      "replies": "No replies | {count} reply | {count} replies",
+      "unseen": "{count} new",
+      "reply": "Reply",
+      "like": "Like, no likes yet | Like, {count} like | Like, {count} likes",
+      "pin": "Pin",
+      "unpin": "Unpin",
+      "more": "More actions",
+      "delete": "Delete"
+    },
+    "pin": {
+      "pinned": "Pinned",
+      "unpinned": "Unpinned",
+      "replaceTitle": "Replace a pin?",
+      "replaceText": "Three announcements are pinned already. Pinning this one unpins the oldest: “{text}”",
+      "replaceTextUnknown": "Three announcements are pinned already. Pinning this one unpins the oldest.",
+      "replace": "Replace"
+    },
+    "delete": {
+      "postTitle": "Delete this post?",
+      "postText": "Its replies will be deleted too. This can’t be undone.",
+      "replyTitle": "Delete this reply?",
+      "replyText": "This can’t be undone.",
+      "confirm": "Delete",
+      "postDone": "Post deleted",
+      "replyDone": "Reply deleted"
+    },
+    "empty": {
+      "announcements": {
+        "title": "No announcements",
+        "text": "Server announcements will show up here."
+      },
+      "global": {
+        "title": "No posts yet",
+        "text": "Start the conversation: write the server’s first post."
+      },
+      "write": "Write a post"
+    },
+    "thread": {
+      "title": "Feed post",
+      "heading": "Post by {name}",
+      "back": "Feed",
+      "count": "No replies | {count} reply | {count} replies, oldest first",
+      "none": "No replies yet",
+      "moreReplies": "Load more replies",
+      "replyLabel": "Your reply",
+      "placeholder": "Write a reply",
+      "replyToMain": "Reply to the main post instead",
+      "anonymous": "Reply anonymously",
+      "reply": "Reply",
+      "replied": "Reply posted",
+      "goneTitle": "This post was deleted",
+      "goneText": "Its author or a moderator deleted it, or the link is wrong.",
+      "goneBack": "Back to the Feed"
+    },
+    "errors": {
+      "notFound": "This post was deleted.",
+      "notLinked": "Link a Minecraft account first, on your Minecraft account page.",
+      "banned": "You can’t post, reply or like while you are banned.",
+      "notAllowed": "Only announcers can do that.",
+      "emptyText": "Write something first.",
+      "tooLong": "A post is 280 characters at most. Shorten it a little.",
+      "notPinnable": "Only announcements can be pinned.",
+      "rateLimited": "You’re going a bit fast. Try again in {seconds} s.",
+      "disabled": "Posting is paused for now. Try again later.",
+      "failed": "That didn’t go through. Check your connection and send it again: it won’t be posted twice."
     }
   },
   "warden": {

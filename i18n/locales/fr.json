@@ -38,7 +38,9 @@
     "changelog": "Changelog",
     "changelogDescription": "Ce qui change sur le serveur Minecraft",
     "rulesDescription": "Ce qui est autorisé ou non sur le serveur",
-    "marketDescription": "Les prix de ce que le serveur achète et vend"
+    "marketDescription": "Les prix de ce que le serveur achète et vend",
+    "feed": "Feed",
+    "feedDescription": "Les annonces et les posts des joueurs, comme sur le téléphone en jeu"
   },
   "home": {
     "intro": {
@@ -433,6 +435,129 @@
       "lede": "Tous les bannissements et avertissements de ton compte, du plus récent au plus ancien.",
       "back": "Retour à ton compte Minecraft",
       "empty": "Rien ici : aucun bannissement ni avertissement."
+    }
+  },
+  "feed": {
+    "title": "Feed",
+    "lede": "Les annonces du serveur et les discussions des joueurs, les mêmes que dans le téléphone en jeu.",
+    "loadFailed": "Le Feed n’a pas pu se charger. Vérifie ta connexion, puis réessaie.",
+    "loading": "Chargement du Feed",
+    "retry": "Réessayer",
+    "loadMore": "Charger plus",
+    "cancel": "Annuler",
+    "announcementsNote": "Seule l’équipe publie ici. Tu peux aimer et répondre.",
+    "tabs": {
+      "label": "Fils",
+      "announcements": "Annonces",
+      "global": "Global",
+      "unread": "Nouveaux posts"
+    },
+    "aside": {
+      "title": "Bon à savoir",
+      "text": "280 caractères, du texte seulement.",
+      "anonymous": "Un post anonyme cache ton nom aux joueurs. Les modérateurs le voient.",
+      "rules": "Le Feed suit le règlement du serveur.",
+      "rulesLink": "Lire le règlement"
+    },
+    "composer": {
+      "label": "Ton post",
+      "placeholder": "Quoi de neuf sur le serveur ?",
+      "changeAccount": "Changer de compte",
+      "postWith": "Publier avec",
+      "accountShows": "Tes posts afficheront {name}",
+      "accountChanged": "Tes posts affichent maintenant {name}",
+      "hidden": "Masqué aux joueurs",
+      "anonymous": "Publier anonymement",
+      "anonymousHelp": "Masqué aux joueurs, visible par les modérateurs",
+      "destination": "Où publier",
+      "counter": "{count}/{max}",
+      "post": "Publier",
+      "posted": "Publié"
+    },
+    "bands": {
+      "noLinkTitle": "Lie ton compte Minecraft pour participer",
+      "noLinkText": "Tu peux tout lire. Pour publier, répondre et aimer, lie d’abord le compte avec lequel tu joues.",
+      "noLinkAction": "Lier mon compte",
+      "bannedUntil": "Tu es banni du serveur jusqu’au {date}",
+      "banned": "Tu es banni du serveur",
+      "bannedText": "Tu peux lire le Feed, mais pas publier, répondre ni aimer pendant le bannissement.",
+      "bannedAction": "Voir mon bannissement",
+      "paused": "La publication est en pause pour l’instant. Tu peux toujours lire et supprimer tes posts."
+    },
+    "post": {
+      "label": "Post de {name}",
+      "anonymous": "Anonyme",
+      "announcer": "Annonceur",
+      "pinned": "Épinglé",
+      "now": "à l’instant",
+      "replyTo": "En réponse à {name}",
+      "privateMine": "Publié anonymement par toi",
+      "privateAuthor": "Auteur : {name}",
+      "replies": "Aucune réponse | {count} réponse | {count} réponses",
+      "unseen": "{count} nouvelles",
+      "reply": "Répondre",
+      "like": "J’aime, aucun pour l’instant | J’aime, {count} | J’aime, {count}",
+      "pin": "Épingler",
+      "unpin": "Désépingler",
+      "more": "Plus d’actions",
+      "delete": "Supprimer"
+    },
+    "pin": {
+      "pinned": "Épinglé",
+      "unpinned": "Désépinglé",
+      "replaceTitle": "Remplacer un post épinglé ?",
+      "replaceText": "Trois annonces sont déjà épinglées. Épingler celle-ci désépingle la plus ancienne : « {text} »",
+      "replaceTextUnknown": "Trois annonces sont déjà épinglées. Épingler celle-ci désépingle la plus ancienne.",
+      "replace": "Remplacer"
+    },
+    "delete": {
+      "postTitle": "Supprimer ce post ?",
+      "postText": "Ses réponses seront aussi supprimées. C’est définitif.",
+      "replyTitle": "Supprimer cette réponse ?",
+      "replyText": "C’est définitif.",
+      "confirm": "Supprimer",
+      "postDone": "Post supprimé",
+      "replyDone": "Réponse supprimée"
+    },
+    "empty": {
+      "announcements": {
+        "title": "Aucune annonce",
+        "text": "Les annonces du serveur apparaîtront ici."
+      },
+      "global": {
+        "title": "Aucun post pour l’instant",
+        "text": "Lance la conversation : écris le premier post du serveur."
+      },
+      "write": "Écrire un post"
+    },
+    "thread": {
+      "title": "Post du Feed",
+      "heading": "Post de {name}",
+      "back": "Feed",
+      "count": "Aucune réponse | {count} réponse | {count} réponses, de la plus ancienne à la plus récente",
+      "none": "Pas encore de réponse",
+      "moreReplies": "Charger plus de réponses",
+      "replyLabel": "Ta réponse",
+      "placeholder": "Écris une réponse",
+      "replyToMain": "Répondre au post principal à la place",
+      "anonymous": "Répondre anonymement",
+      "reply": "Répondre",
+      "replied": "Réponse publiée",
+      "goneTitle": "Ce post a été supprimé",
+      "goneText": "Son auteur ou un modérateur l’a supprimé, ou le lien est faux.",
+      "goneBack": "Retour au Feed"
+    },
+    "errors": {
+      "notFound": "Ce post a été supprimé.",
+      "notLinked": "Lie d’abord un compte Minecraft, depuis la page de ton compte Minecraft.",
+      "banned": "Tu ne peux pas publier, répondre ni aimer pendant un bannissement.",
+      "notAllowed": "Seuls les annonceurs peuvent faire ça.",
+      "emptyText": "Écris d’abord quelque chose.",
+      "tooLong": "Un post fait 280 caractères au plus. Raccourcis-le un peu.",
+      "notPinnable": "Seules les annonces peuvent être épinglées.",
+      "rateLimited": "Tu vas un peu vite. Réessaie dans {seconds} s.",
+      "disabled": "La publication est en pause pour l’instant. Réessaie plus tard.",
+      "failed": "Ça n’est pas passé. Vérifie ta connexion et renvoie-le : il ne sera pas publié deux fois."
     }
   },
   "warden": {
