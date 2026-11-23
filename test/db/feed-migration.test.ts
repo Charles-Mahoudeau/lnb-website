@@ -3,8 +3,9 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { applyMigration, databaseBefore } from './migrations.ts';
 
-// 0064 adds Feed's tables and ships the feature off: a `feed` flag row, disabled, while its parts
-// have no row and so follow it. The table checks hold what the services rely on even if a bug
+// 0064 adds Feed's tables and ships the feature off: a `feed` flag row, disabled, and a disabled
+// `feed.live` row, so live updates wait for their own switch; the other parts have no row and so
+// follow `feed`. The table checks hold what the services rely on even if a bug
 // slipped past them: 1 to 280 code points, the two feeds, pins on announcements' main posts only.
 
 let pool: pg.Pool;
@@ -70,11 +71,15 @@ afterAll(async () => {
 });
 
 describe('0064_feed', () => {
-  it('ships Feed off: a disabled feed row, and no row for its parts', async () => {
+  it('ships Feed off with its live updates off too, and no row for its other parts', async () => {
     const flags = await rows<{ key: string; enabled: boolean }>(
       `SELECT key, enabled FROM feature_flag WHERE key LIKE 'feed%' OR key = 'jobs.feedPurge' ORDER BY key`,
     );
-    expect(flags).toEqual([{ key: 'feed', enabled: false }]);
+    // feed.live stays off when feed is switched on: the owner opens it after checking his proxy.
+    expect(flags).toEqual([
+      { key: 'feed', enabled: false },
+      { key: 'feed.live', enabled: false },
+    ]);
   });
 
   it('stores the times the API sends back to the millisecond, as JSON carries them', async () => {

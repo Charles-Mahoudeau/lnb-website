@@ -23,7 +23,7 @@ Taken with the owner on 2026-11-23, including the choices this page proposed whe
 - **The badge follows the role** (chosen). The announcer badge shows on posts and replies whose author is an announcer now, like the name follows the current setting. An announcement by someone who is no longer an announcer loses its badge.
 - **The site works out every recipient** (chosen). Notifications wait in a queue on the site until the Minecraft server takes them, so a reply made in the browser while the server is down still reaches the player when it comes back.
 - **Read state lives on the site** (chosen), per LNB account: which posts of each feed were seen and which threads were opened. The unread dots and the unseen-replies markers are then right after a restart, and the same in the browser and in game.
-- **Flag.** `feed`, shipped **off** (seeded as a disabled row by the migration, as the Market's flags are), with parts `feed.serverApi`, `feed.writing` and `feed.live`, and `jobs.feedPurge` for the nightly purge.
+- **Flag.** `feed`, shipped **off** (seeded as a disabled row by the migration, as the Market's flags are), with parts `feed.serverApi`, `feed.writing` and `feed.live`, and `jobs.feedPurge` for the nightly purge. `feed.live` is seeded off too (decided on 2026-11-24), so switching `feed` on doesn't switch live updates on: the owner opens them after checking his proxy (see "Before switching it on").
 - **Looks.** The site keeps its own neutral styles for likes, the announcer badge and unseen replies, as the mock shows, not the phone's coral and violet.
 
 ## Identity
@@ -376,7 +376,21 @@ Writes made from the same tab already show their answer; the matching `post` eve
 - **The composables** are `useFeedTimelineLive` (the Feed page) and `useFeedThreadLive` (a thread), in `app/composables/useFeedLive.ts`, over `useFeedStream`; the pure parts (the reader, the delay, the merges of a `reset`) are in `app/utils/feed-live.ts`. A page opens no stream while the flags it loaded say `feed.live` is off.
 - **The "N new posts" button** is a neutral solid pill, sticky under the header at the top of the list, with an up arrow only when the place of the new posts is above what the reader sees (as in game); a click lets them in and scrolls to the first, and scrolling there by hand does the same. On Announcements it says "N new announcements". A new post counts as shown when its place, under the pinned group, is in view with room for a post. A new post is inserted with no highlight (the site's motion rules allow motion only in answer to the reader).
 - **Counts** come only from `counts` events: a reply or a deletion that arrives live adds or removes its row without touching the counts, so the two events can't count it twice.
-- **`feed.live` is not seeded**: like `feed.serverApi` and `feed.writing`, it follows `feed`, which ships off, so live updates come with Feed in version 1 and an admin can switch this part off alone.
+- **`feed.live` ships off**: the migration seeds it as a disabled row, like `feed`, so switching `feed` on leaves live updates off until the owner switches them on (2026-11-24).
+
+**Before switching it on.** `feed.live` ships off. Before the owner switches it on in `/admin/settings/flags`:
+
+- **The proxy's read timeout on long responses.** Traefik, Coolify's default proxy, has given its entry points a 60-second `respondingTimeouts.readTimeout` since 2.11.2, and community reports say it cuts long responses at that mark. Unless the HTTPS entry point sets it to 0 (or a long value), every stream is cut each minute, the Minecraft server's stream included. Pages and the mod come back by themselves with `Last-Event-ID`, so nothing is lost, but each tab then makes a request, a session check and a replay every minute.
+- **HTTP/2 between browsers and the proxy.** Over HTTP/1.1 a browser opens about six connections per site and each open stream holds one; over HTTP/2 they share one connection. Traefik offers HTTP/2 on TLS by default: check that the site is served with it (the browser's network panel shows `h2`).
+- **What the proxy answers during a deploy.** Pages give up for good only on 401, 403 and the site's own 503 `disabled` (its JSON body says so); a proxy's bare 502 or 503 makes them try again with a backoff. Check that a deploy answers one of those, not a 200 HTML page or a 404, which would leave pages retrying.
+- **No buffering or compression on the stream.** The response carries `Cache-Control: no-transform` and `X-Accel-Buffering: no`; a compression or buffering middleware added in front of the site must leave `text/event-stream` alone, or events arrive late, in bursts.
+- **One real deploy watched with a few tabs open**, signed in as two people: posts appear in the other tab, the tabs come back after the deploy without a reload, and the server's log shows no stream errors.
+
+**For the owner, from the review.**
+
+- **The "new posts" button is a solid neutral pill**, a button variant `docs/design.md` didn't list before. It is documented there and on `/styleguide`, and needs the owner's approval as a design change.
+- **A page left open keeps its session alive.** Each session check (every 60 seconds, and at each ping) goes through Better Auth's `getSession`, which slides the session's expiry like any request, so a Feed tab left open never lets its session expire.
+- **A limit of the site's event table, not of this feature.** The streams read `minecraft_server_event` by increasing ID. A row whose transaction commits after a row with a higher ID was already read (two writes committing out of order) is never read by any cursor, the Minecraft server's included. Feed records its events after its transactions commit, one insert each, which keeps the window to concurrent inserts committing out of order; fixing it for every topic belongs to the event table.
 
 ### For the admin
 
@@ -427,7 +441,7 @@ Following the picked mocks (`C:\Users\pain_\Documents\LNB\feed-mocks\feed-web-mo
 | `feed`           | Every Feed route but the admin's answers 503 `disabled`, the stream included; the browser page shows the 503 page and its menu entry hides. Nothing is deleted. Shipped off.                   |
 | `feed.serverApi` | Only the Minecraft server's routes answer 503 (the game shows "Feed unavailable"); the browser keeps working.                                                                                  |
 | `feed.writing`   | Posting, replying and liking answer 503, in game and in the browser (read-only mode for an incident). Deleting and pinning still work. `writing: false` in `GET /players/:uuid` and `GET /me`. |
-| `feed.live`      | The browser's live stream answers 503 and the open streams close; the Feed page works without live updates (reload to see newer posts). Nothing else changes.                                  |
+| `feed.live`      | The browser's live stream answers 503 and the open streams close; the Feed page works without live updates (reload to see newer posts). Nothing else changes. Shipped off, apart from `feed`.  |
 | `jobs.feedPurge` | The nightly purge skips its run.                                                                                                                                                               |
 
 Labels and descriptions go under `admin.flags.items` in both locales.

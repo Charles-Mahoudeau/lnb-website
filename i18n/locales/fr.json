@@ -1671,7 +1671,7 @@
         },
         "feed_live": {
           "label": "Feed en direct",
-          "description": "Les nouveaux posts, les suppressions, les j’aime et les épingles qui apparaissent sur la page Feed du site sans recharger. Désactivé, les pages ouvertes ne se mettent plus à jour et montrent les nouveaux posts quand on recharge ; rien d’autre ne change."
+          "description": "Les nouveaux posts, les suppressions, les j’aime et les épingles qui apparaissent sur la page Feed du site sans recharger. Désactivé, les pages ouvertes ne se mettent plus à jour et montrent les nouveaux posts quand on recharge ; rien d’autre ne change. Désactivé par défaut : à activer une fois le proxy devant le site vérifié (docs/feed.md)."
         },
         "jobs_feedPurge": {
           "label": "Purge du Feed",

@@ -50,8 +50,9 @@ export const FLAG_DEFINITIONS = [
   { key: 'events.bdeSync', parent: 'events' },
   { key: 'map' },
   { key: 'changelog' },
-  // Feed, the short posts of the game phone and the website (docs/feed.md). It ships off; its
-  // parts are on, so they follow `feed`. `feed.live` is the browser's live stream.
+  // Feed, the short posts of the game phone and the website (docs/feed.md). It ships off, and so
+  // does `feed.live`, the browser's live stream, which the owner opens after checking his proxy;
+  // the other parts follow `feed`.
   { key: 'feed' },
   { key: 'feed.serverApi', parent: 'feed' },
   { key: 'feed.writing', parent: 'feed' },

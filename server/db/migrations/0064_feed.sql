@@ -92,4 +92,5 @@ CREATE INDEX "feed_post_pinned_by_idx" ON "feed_post" USING btree ("pinned_by_us
 CREATE INDEX "feed_post_deleted_by_idx" ON "feed_post" USING btree ("deleted_by_user_id");--> statement-breakpoint
 CREATE INDEX "feed_post_deleted_idx" ON "feed_post" USING btree ("deleted_at") WHERE "feed_post"."deleted_at" is not null;--> statement-breakpoint
 CREATE INDEX "feed_thread_seen_thread_idx" ON "feed_thread_seen" USING btree ("thread_id");--> statement-breakpoint
-INSERT INTO "feature_flag" ("key", "enabled") VALUES ('feed', false) ON CONFLICT DO NOTHING;
+INSERT INTO "feature_flag" ("key", "enabled") VALUES ('feed', false) ON CONFLICT DO NOTHING;--> statement-breakpoint
+INSERT INTO "feature_flag" ("key", "enabled") VALUES ('feed.live', false) ON CONFLICT DO NOTHING;
