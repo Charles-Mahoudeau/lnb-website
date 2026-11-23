@@ -23,6 +23,7 @@ export const FEED_PROBLEMS = [
   'isGhost',
   'rateLimited',
   'disabled',
+  'tooManyStreams',
 ] as const;
 export type FeedProblem = (typeof FEED_PROBLEMS)[number];
 
@@ -334,6 +335,46 @@ export const feedPinBody = feedServerPinBody.omit({ player: true });
 export const feedPinBodyOrNone = feedPinBody.optional();
 
 export const feedSeenBody = feedServerSeenBody.omit({ player: true });
+
+/** `GET /api/feed/views?ids=`: 1 to 20 distinct post or reply IDs, comma-separated. */
+export const feedViewsQuery = z.object({
+  ids: z
+    .string()
+    .max(800)
+    .transform((value) => value.split(','))
+    .pipe(z.array(z.uuid()).min(1).max(20).refine(distinct, 'Distinct IDs'))
+    .describe('1 to 20 distinct post or reply IDs, comma-separated.'),
+});
+
+export const feedViewsOf = z.object({
+  posts: z.array(feedPostView).describe('In the order of `ids`, deleted or unknown ones out.'),
+});
+export type FeedViewsOf = z.infer<typeof feedViewsOf>;
+
+/**
+ * The events of `GET /api/feed/events`: the four public ones of the server's stream, with the same
+ * data, then `ping` and `reset`. Never `rights` or `notification`.
+ */
+const [livePost, liveDeleted, liveCounts, livePins] = feedServerEvent.options;
+export const feedLiveEvent = z.discriminatedUnion('type', [
+  livePost,
+  liveDeleted,
+  liveCounts,
+  livePins,
+  z.object({
+    type: z.literal('ping'),
+    data: z.object({}).describe('Nothing to say: sent at opening and after 25 quiet seconds.'),
+  }),
+  z.object({
+    type: z.literal('reset'),
+    data: z
+      .object({})
+      .describe(
+        'Events were missed (`Last-Event-ID` older than the replay buffer, or unknown): reload what the page shows and merge it.',
+      ),
+  }),
+]);
+export type FeedLiveEvent = z.infer<typeof feedLiveEvent>;
 
 export const feedMePatchBody = z.object({
   postingAccount: minecraftUuid.describe('One of the caller’s linked Minecraft accounts.'),
