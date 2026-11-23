@@ -169,7 +169,7 @@ function viewOf(post: FeedPostRow, viewer: FeedViewer, ctx: ViewContext): FeedPo
     pinnedAt: post.pinnedAt?.toISOString() ?? null,
     liked: viewer.userId !== null && ctx.liked.has(`${post.id}:${viewer.userId}`),
     mine,
-    canDelete: mine || viewer.rights.moderate,
+    canDelete: mine || viewer.deletesOthers,
     canPin: post.feed === 'announcements' && post.threadId === null && viewer.rights.announce,
     unseenReplies: mine ? (ctx.unseen.get(post.id) ?? 0) : 0,
     // A reply of one's own to oneself raises no marker, as markers never count one's own replies.

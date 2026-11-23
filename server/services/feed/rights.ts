@@ -35,9 +35,11 @@ export interface FeedPerson {
 export interface FeedViewer {
   userId: string | null;
   rights: FeedRights;
+  /** Whether `canDelete` shows on others' posts: for moderators in game, never in the browser. */
+  deletesOthers: boolean;
 }
 
-export const GUEST: FeedViewer = { userId: null, rights: NO_RIGHTS };
+export const GUEST: FeedViewer = { userId: null, rights: NO_RIGHTS, deletesOthers: false };
 
 /** These LNB accounts, with their rights now. Unknown IDs are left out. */
 async function people(dbx: Db, userIds: readonly string[]): Promise<Map<string, FeedPerson>> {
@@ -130,7 +132,9 @@ async function viewer(dbx: Db, who: FeedWho): Promise<FeedViewer> {
   const userId = 'userId' in who ? who.userId : (await linkedAccount(dbx, who.player))?.userId;
   if (!userId) return GUEST;
   const found = await person(dbx, userId);
-  return found ? { userId, rights: found.rights } : GUEST;
+  if (!found) return GUEST;
+  // In the browser, moderators delete others' posts from the admin only (docs/feed.md, Deleting).
+  return { userId, rights: found.rights, deletesOthers: 'player' in who && found.rights.moderate };
 }
 
 /** The viewers behind many players at once, keyed by UUID. Unlinked ones are guests. */
@@ -153,7 +157,12 @@ async function viewersOfPlayers(
     uuids.map((uuid) => {
       const userId = ownerOf.get(uuid);
       const known = userId ? found.get(userId) : undefined;
-      return [uuid, known ? { userId: known.userId, rights: known.rights } : GUEST];
+      return [
+        uuid,
+        known
+          ? { userId: known.userId, rights: known.rights, deletesOthers: known.rights.moderate }
+          : GUEST,
+      ];
     }),
   );
 }

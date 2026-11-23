@@ -87,7 +87,9 @@ export const feedPostView = z.object({
   pinnedAt: isoDate.nullable(),
   liked: z.boolean().describe('The viewer’s LNB account liked it. False for a guest.'),
   mine: z.boolean().describe('The viewer’s LNB account wrote it.'),
-  canDelete: z.boolean().describe('`mine`, or the viewer moderates.'),
+  canDelete: z
+    .boolean()
+    .describe('`mine`, or in game the viewer moderates. In the browser, `mine` only.'),
   canPin: z.boolean().describe('An announcement’s main post, and the viewer announces.'),
   unseenReplies: z
     .int()

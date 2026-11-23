@@ -30,8 +30,13 @@ function requesterOf(actor: FeedActor): FeedRequester {
     : { source: 'site', userId: actor.userId };
 }
 
-function viewerOf(writer: FeedWriter): FeedViewer {
-  return { userId: writer.userId, rights: writer.person.rights };
+function viewerOf(writer: FeedWriter, actor: FeedActor): FeedViewer {
+  const { rights } = writer.person;
+  return {
+    userId: writer.userId,
+    rights,
+    deletesOthers: actor.source === 'server' && rights.moderate,
+  };
 }
 
 /**
@@ -128,7 +133,7 @@ async function create(input: {
     if (announcement) await feedEvents.notification();
     return {
       replayed: false,
-      post: await feedViewService.viewFor(db, created, viewerOf(writer)),
+      post: await feedViewService.viewFor(db, created, viewerOf(writer, input.actor)),
     };
   });
 }
@@ -208,7 +213,7 @@ async function reply(input: {
     if (notify) await feedEvents.notification();
     return {
       replayed: false,
-      post: await feedViewService.viewFor(db, created, viewerOf(writer)),
+      post: await feedViewService.viewFor(db, created, viewerOf(writer, input.actor)),
     };
   });
 }

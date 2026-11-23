@@ -225,6 +225,22 @@ describe('Feed in the browser and the admin', () => {
       await feedPostService.remove({ actor: site(camille), postId: mine.id, ownOnly: true });
     });
 
+    it('offers a moderator Delete on others’ posts in game only, as the browser refuses it', async () => {
+      const lune = await person('Lune Garnier', { role: 'warden-admin' });
+      const camille = await person('Camille Roux');
+      const { post: theirs } = await post(camille, 'À Camille', { anonymous: true });
+      const { post: own } = await sitePost(lune, 'À Lune');
+      const inBrowser = await feedViewService.viewsOf({ userId: lune.id }, [theirs.id, own.id]);
+      expect(inBrowser.posts.map((row) => row.canDelete)).toEqual([false, true]);
+      // A moderator still sees who wrote an anonymous post, in the browser too.
+      expect(inBrowser.posts[0]!.author).not.toBeNull();
+      const page = await feedViewService.page({ who: { userId: lune.id }, feed: 'global' });
+      expect(page.posts.find((row) => row.id === theirs.id)?.canDelete).toBe(false);
+      const inGame = await feedViewService.views({ viewers: [lune.uuid], ids: [theirs.id] });
+      expect(inGame.views[0]!.posts[0]!.canDelete).toBe(true);
+      expect(own.canDelete).toBe(true);
+    });
+
     it('likes and pins from the browser need a linked account, not the posting account', async () => {
       const kael = await person('Kael Dubois', { role: 'feed-announcer', accounts: 2 });
       const { post: announcement } = await post(kael, 'Annonce', { feed: 'announcements' });
