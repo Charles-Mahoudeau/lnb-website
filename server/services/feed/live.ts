@@ -263,6 +263,8 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
       }
       failures = 0;
     } catch (error) {
+      // A read from a loop that was stopped since says nothing about the current one.
+      if (gen !== generation) return;
       // Logged once per outage, then every minute or so: the loop keeps trying each second.
       if (failures++ % 60 === 0) log('The Feed live stream could not read new events', error);
     } finally {

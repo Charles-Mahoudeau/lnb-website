@@ -132,12 +132,9 @@ describe('the Feed live hub, poller lifecycle', () => {
       expect(b.state.messages).toEqual([{ id: '11', event: 'ping', data: '{}' }]);
     });
 
-    // DEFECT (minor, server/services/feed/live.ts, `poll`'s catch): a read that fails after its
-    // loop was stopped and a new one started is still logged and still counted in `failures`,
-    // which `stop()` had just reset for the new run. The log is a false alarm, and the new run's
-    // first real outage then lands on a count of 1, so it is not logged ("once per outage"). The
-    // catch should ignore the error when `gen !== generation`, as every other path of `poll` does.
-    it.fails('does not log the failure of a read from a loop that was stopped', async () => {
+    // A read that fails after its loop was stopped and a new one started is ignored: it is no
+    // outage of the new run, which still logs its own first one.
+    it('does not log the failure of a read from a loop that was stopped', async () => {
       const live = rig.hub();
       const a = connect(live);
       await tick(0);
@@ -151,7 +148,7 @@ describe('the Feed live hub, poller lifecycle', () => {
       expect(rig.log).not.toHaveBeenCalled();
     });
 
-    it.fails('logs the first outage of a new run even after a stale read failed', async () => {
+    it('logs the first outage of a new run even after a stale read failed', async () => {
       const live = rig.hub();
       const a = connect(live);
       await tick(0);
