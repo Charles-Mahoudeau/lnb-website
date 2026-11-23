@@ -274,9 +274,9 @@ describe('the live routes over HTTP', () => {
       expect(String(stream.headers.get('cache-control'))).toContain('no-transform');
       expect(String(stream.headers.get('cache-control'))).toContain('no-cache');
       expect(stream.headers.get('x-accel-buffering')).toBe('no');
-      expect(await stream.read((events) => events.length > 0)).toEqual([
-        { id: undefined, event: 'ping', data: '{}' },
-      ]);
+      const [opening] = await stream.read((events) => events.length > 0);
+      expect(opening).toMatchObject({ event: 'ping', data: '{}' });
+      expect(opening!.id).toMatch(/^\d+$/);
       expect(feedLiveHub.stats().connections).toBe(1);
       stream.close();
       expect(feedLiveHub.stats()).toMatchObject({ connections: 0, running: false });
@@ -357,9 +357,7 @@ describe('the live routes over HTTP', () => {
         },
         { timeout: 3000 },
       );
-      await expect(stream.read(() => false)).resolves.toEqual([
-        { id: undefined, event: 'ping', data: '{}' },
-      ]);
+      expect((await stream.read(() => false)).map((event) => event.event)).toEqual(['ping']);
     });
   });
 

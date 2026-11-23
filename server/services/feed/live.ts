@@ -91,7 +91,6 @@ interface Buffered extends FeedLiveMessage {
   seq: number;
 }
 
-const PING: FeedLiveMessage = { event: 'ping', data: '{}' };
 const RESET: FeedLiveMessage = { event: 'reset', data: '{}' };
 
 /**
@@ -119,6 +118,14 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
   let floor = 0;
   let ring: Buffered[] = [];
   let failures = 0;
+
+  /**
+   * A ping carries the last event ID read: the tab has every public event up to it, so a tab
+   * that saw no event yet still reconnects with a Last-Event-ID and misses nothing.
+   */
+  function ping(): FeedLiveMessage {
+    return { ...(cursor === null ? {} : { id: String(cursor) }), event: 'ping', data: '{}' };
+  }
 
   /** Pushes one message, unless the client stopped reading. False when it wasn't sent. */
   function send(conn: Connection, message: FeedLiveMessage): boolean {
@@ -201,7 +208,7 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
         continue;
       }
       if (at - conn.lastPush >= limits.pingMs) {
-        send(conn, PING);
+        send(conn, ping());
         check(conn, at);
       } else if (at - conn.lastCheck >= limits.sessionMs) {
         check(conn, at);
@@ -290,7 +297,7 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
       }
     }
     // Something at once, so the response starts and the client knows it is open.
-    if (!sent) send(conn, PING);
+    if (!sent) send(conn, ping());
     conn.ready = !conn.closed;
   }
 

@@ -363,7 +363,11 @@ export const feedLiveEvent = z.discriminatedUnion('type', [
   livePins,
   z.object({
     type: z.literal('ping'),
-    data: z.object({}).describe('Nothing to say: sent at opening and after 25 quiet seconds.'),
+    data: z
+      .object({})
+      .describe(
+        'Nothing to say: sent at opening and after 25 quiet seconds, its `id` the last event read.',
+      ),
   }),
   z.object({
     type: z.literal('reset'),

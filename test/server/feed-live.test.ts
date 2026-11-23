@@ -225,7 +225,7 @@ describe('the Feed live hub', () => {
     const row = db.add('post', post('p1'));
     await tick();
     const b = connect(live, { last: row.id });
-    expect(b.state.messages).toEqual([{ event: 'ping', data: '{}' }]);
+    expect(b.state.messages).toEqual([{ id: String(row.id), event: 'ping', data: '{}' }]);
   });
 
   it('sends reset for an ID older than the buffer, unknown, or from the future', async () => {
@@ -247,6 +247,23 @@ describe('the Feed live hub', () => {
     expect(connect(live, { last: 999, user: 'u2' }).state.messages[0]!.event).toBe('reset');
   });
 
+  it('gives pings the last ID read, so a tab that saw no event yet loses nothing', async () => {
+    const live = hub();
+    const a = connect(live);
+    connect(live, { user: 'u2' });
+    await tick(0);
+    db.add('notification', {});
+    await tick(25_000);
+    const last = a.state.messages.at(-1)!;
+    expect(last).toEqual({ id: '11', event: 'ping', data: '{}' });
+    // The tab drops (a proxy's timeout) while another keeps the hub running.
+    a.leave();
+    const missed = db.add('post', post('p1'));
+    await tick();
+    const back = connect(live, { last: Number(last.id) });
+    expect(back.events().map((message) => message.id)).toEqual([String(missed.id)]);
+  });
+
   it('decides replay or reset once it knows where it stands, for tabs that came first', async () => {
     const live = hub();
     const early = connect(live, { last: 3 });
@@ -254,7 +271,7 @@ describe('the Feed live hub', () => {
     expect(early.state.messages).toEqual([]);
     await tick(0);
     expect(early.state.messages).toEqual([{ event: 'reset', data: '{}' }]);
-    expect(current.state.messages).toEqual([{ event: 'ping', data: '{}' }]);
+    expect(current.state.messages).toEqual([{ id: '10', event: 'ping', data: '{}' }]);
   });
 
   it('refuses a sixth stream for one account, and a stream past the total, with 429', () => {
@@ -377,7 +394,7 @@ describe('the Feed live hub', () => {
     // What happened while nobody watched can't be replayed: the page reloads.
     expect(b.state.messages).toEqual([{ event: 'reset', data: '{}' }]);
     const fresh = connect(live, { user: 'u2' });
-    expect(fresh.state.messages).toEqual([{ event: 'ping', data: '{}' }]);
+    expect(fresh.state.messages).toEqual([{ id: '12', event: 'ping', data: '{}' }]);
   });
 
   it('keeps the streams open while the database is away, and loses nothing', async () => {
