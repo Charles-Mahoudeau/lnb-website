@@ -1226,7 +1226,7 @@ describe('the reply composer', () => {
       expect((view.find('textarea').element as HTMLTextAreaElement).value).toBe('Un');
     });
 
-    it('goes with the draft when the thread, the reply answered or the post is gone: gone is emitted', async () => {
+    it('keeps the text but not the key when the thread, the reply answered or the post is gone: gone is emitted', async () => {
       const send = vi
         .spyOn(feedActions, 'reply')
         .mockImplementationOnce(() => Promise.reject(new FeedError('notFound')))
@@ -1236,10 +1236,11 @@ describe('the reply composer', () => {
       await type(view, 'Un');
       await submit(view);
       expect(onGone).toHaveBeenCalledTimes(1);
-      expect((view.find('textarea').element as HTMLTextAreaElement).value).toBe('');
+      // The text stays: only the reply answered may be gone, and the page decides by reading the
+      // thread again (a thread that is gone takes the composer away).
+      expect((view.find('textarea').element as HTMLTextAreaElement).value).toBe('Un');
       expect(toastTitles()).toEqual(['This post was deleted.']);
       clearToasts();
-      await type(view, 'Un');
       await submit(view);
       const sent = keys(send);
       expect(sent[0]).not.toBe(sent[1]);

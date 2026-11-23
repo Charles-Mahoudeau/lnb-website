@@ -63,11 +63,10 @@ async function onSubmit() {
     emit('posted', post);
   } catch (error) {
     if (error instanceof FeedError && error.problem === 'notFound') {
-      // The thread, the reply answered or the key's own reply is gone: the draft can't be sent
-      // as it is, so it goes, and the page reads the thread again (docs/feed-mod.md).
+      // The thread, the reply answered or the key's own reply is gone. The text stays, with a new
+      // key next time; the page drops the target and reads the thread again, and only a thread
+      // that is gone takes the composer (and its draft) away (docs/feed-mod.md).
       attempt = null;
-      state.text = '';
-      state.anonymous = false;
       toasts.failed(error);
       emit('gone');
       return;

@@ -1017,6 +1017,49 @@ describe('a thread', () => {
       await settle(15);
       expect(reads).toBe(2);
     });
+
+    it('keeps the text and answers the main post when only the reply answered is gone', async () => {
+      registerEndpoint('/api/feed/me', () => me());
+      let replies = [answer(1)];
+      registerEndpoint(`/api/feed/posts/${MAIN_ID}`, () => thread(main(), replies));
+      registerEndpoint(`/api/feed/posts/${MAIN_ID}/seen`, { method: 'POST', handler: () => null });
+      vi.spyOn(feedActions, 'markThreadSeen').mockResolvedValue(null);
+      const reply = vi.spyOn(feedActions, 'reply').mockImplementation(() => {
+        replies = [];
+        return Promise.reject(new FeedError('notFound'));
+      });
+      const view = await mountThread();
+      await view.findAll('button[aria-label="Reply"]').at(-1)!.trigger('click');
+      await settle(5);
+      expect(view.find('form').text()).not.toContain('Replying to Alexandre M.');
+      await view.find('textarea').setValue('Je réponds');
+      await view.find('form').trigger('submit');
+      await settle(15);
+      expect(reply.mock.calls[0]![1]).toMatchObject({ replyTo: id(501), text: 'Je réponds' });
+      expect((view.find('textarea').element as HTMLTextAreaElement).value).toBe('Je réponds');
+      expect(view.find('form').text()).toContain('Replying to Alexandre M.');
+    });
+
+    it('shows the thread as deleted, its composer gone, when the thread itself is gone', async () => {
+      registerEndpoint('/api/feed/me', () => me());
+      let goneNow = false;
+      registerEndpoint(`/api/feed/posts/${MAIN_ID}`, () => {
+        if (goneNow) throw createError({ status: 404, data: { problem: 'notFound' } });
+        return thread(main(), [answer(1)]);
+      });
+      registerEndpoint(`/api/feed/posts/${MAIN_ID}/seen`, { method: 'POST', handler: () => null });
+      vi.spyOn(feedActions, 'markThreadSeen').mockResolvedValue(null);
+      vi.spyOn(feedActions, 'reply').mockImplementation(() => {
+        goneNow = true;
+        return Promise.reject(new FeedError('notFound'));
+      });
+      const view = await mountThread();
+      await view.find('textarea').setValue('Trop tard');
+      await view.find('form').trigger('submit');
+      await settle(15);
+      expect(view.text()).toContain('This post was deleted');
+      expect(view.find('textarea').exists()).toBe(false);
+    });
   });
 
   describe('its actions', () => {
