@@ -50,8 +50,8 @@ function whoOf(actor: FeedActor) {
 async function previous(dbx: Db, key: string, print: string): Promise<FeedPostRow | undefined> {
   const [row] = await dbx.select().from(feedPost).where(eq(feedPost.idempotencyKey, key));
   if (!row) return undefined;
-  if (row.fingerprint !== print) refuse(409, 'idempotencyMismatch');
   if (row.deletedAt) refuse(404, 'notFound');
+  if (row.fingerprint !== print) refuse(409, 'idempotencyMismatch');
   return row;
 }
 

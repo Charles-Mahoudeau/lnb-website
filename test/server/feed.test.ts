@@ -267,6 +267,11 @@ describe('Feed services', () => {
         status: 404,
         problem: 'notFound',
       });
+      // Whatever the request: the post existed, so the client stops retrying.
+      expect(await problemOf(post(mika, 'Autre', { key }))).toMatchObject({
+        status: 404,
+        problem: 'notFound',
+      });
     });
 
     it('checks the key before the player, so a replay works after an unlink', async () => {
