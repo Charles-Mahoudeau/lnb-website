@@ -195,6 +195,8 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
     if (gen !== generation) return;
     schedule(gen, limits.pollMs);
     tend();
+    // tend() may have dropped the last connection, which stopped this loop.
+    if (gen !== generation) return;
     if (!polling) void poll(gen);
   }
 

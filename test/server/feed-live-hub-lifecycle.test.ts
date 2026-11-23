@@ -244,15 +244,9 @@ describe('the Feed live hub, poller lifecycle', () => {
       expect(next.ids()).toEqual([String(rig.db.latest)]);
     }
 
-    // DEFECT (serious, server/services/feed/live.ts, `wake`): when `tend()` drops the last
-    // connection (a client that stopped reading, a socket that fails on its ping), `stop()` resets
-    // `polling` to false, then `wake` goes on to `poll(gen)` with the generation that was just
-    // stopped. That poll's `finally` only clears `polling` for the current generation, so
-    // `polling` stays true for good: every later `start()` schedules a loop whose `wake` never
-    // polls. The next tab gets its opening ping and then nothing but pings, until the process
-    // restarts, and a single sleeping laptop is enough to cause it. `wake` should not poll after
-    // `tend()` stopped the loop (or `poll` should clear `polling` whatever the generation).
-    it.fails('serves the next tab after tend dropped the last one for not reading', async () => {
+    // When tend() drops the last connection (a client that stopped reading, a socket that fails
+    // on its ping), the loop stops there and reads nothing for it, so the next tab's loop polls.
+    it('serves the next tab after tend dropped the last one for not reading', async () => {
       const live = rig.hub();
       const stalled = connect(live);
       await tick(0);
@@ -262,7 +256,7 @@ describe('the Feed live hub, poller lifecycle', () => {
       await serves(live);
     });
 
-    it.fails('serves the next tab after tend dropped the last one for a failing ping', async () => {
+    it('serves the next tab after tend dropped the last one for a failing ping', async () => {
       const live = rig.hub();
       const broken = connect(live);
       await tick(0);
