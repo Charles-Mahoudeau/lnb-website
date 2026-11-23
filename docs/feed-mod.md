@@ -456,9 +456,9 @@ Both answer the pinned group after the call, most recent pin first, and the post
 
 - With 3 pinned and `replace: false`: 409 `pinLimit`, with `data.oldest: { id }`, the pin that would go. Show the "Replace a pin?" dialog; on confirm, send again with `replace: true`. `replace` is optional and false by default.
 - With `replace: true`: the oldest pin goes (`unpinned` is its ID) and the post is pinned, in one transaction.
-- Pinning a pinned post, or unpinning one that isn't, changes nothing and answers the group.
+- Pinning a pinned post changes nothing and answers the group. Unpinning any post that isn't pinned, a Global post or a reply included, changes nothing and answers the group too.
 - A change sends a `pins` event.
-- Problems: `notFound`, `notLinked` (404), `banned`, `notAllowed` (403, no announce right), `notPinnable` (409, a reply or a Global post), `pinLimit` (409). Not behind `feed.writing`.
+- Problems, both: `notFound`, `notLinked` (404), `banned`, `notAllowed` (403, no announce right). `PUT` only: `notPinnable` (409, a reply or a Global post), `pinLimit` (409). Not behind `feed.writing`.
 
 ### 4.9 `DELETE /posts/:id?player=`
 

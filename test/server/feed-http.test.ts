@@ -637,7 +637,12 @@ describe('Feed server routes over HTTP', () => {
       expect(refusal(await api.unpin(randomUUID(), kael.uuid))).toEqual(problem(404, 'notFound'));
       expect(refusal(await api.pin(global.id, kael.uuid))).toEqual(problem(409, 'notPinnable'));
       expect(refusal(await api.pin(answer.id, kael.uuid))).toEqual(problem(409, 'notPinnable'));
-      expect(refusal(await api.unpin(global.id, kael.uuid))).toEqual(problem(409, 'notPinnable'));
+      // Unpinning what isn't pinned changes nothing, whatever the post: a Global post, a reply.
+      for (const id of [global.id, answer.id]) {
+        const unpinned = await api.unpin(id, kael.uuid);
+        expect(unpinned.status).toBe(200);
+        expect(unpinned.body).toEqual({ pinned: [], unpinned: null });
+      }
 
       for (const id of [A, B, C]) expect((await api.pin(id, kael.uuid)).status).toBe(200);
       const full = await api.pin(D, lune.uuid);

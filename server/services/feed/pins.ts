@@ -18,12 +18,16 @@ import type { FeedPinsResult } from '#shared/schemas/feed';
 // unpin it, in the same transaction. Pinning a pinned post, or unpinning one that isn't, changes
 // nothing. Not behind `feed.writing`, so moderation never stops.
 
-/** The announcer behind a pin, and the announcement, or the matching refusal. */
-async function check(actor: FeedActor, postId: string): Promise<FeedWriter> {
+/**
+ * The announcer behind a pin or an unpin, and a live post, or the matching refusal. Only pinning
+ * needs an announcement's main post: unpinning anything that isn't pinned changes nothing.
+ */
+async function check(actor: FeedActor, postId: string, needPinnable: boolean): Promise<FeedWriter> {
   const writer = await feedRightsService.writer(db, actor, 'linked');
   if (writer.person.banned) refuse(403, 'banned');
   if (!writer.person.rights.announce) refuse(403, 'notAllowed');
-  pinnable(await livePost(db, postId));
+  const post = await livePost(db, postId);
+  if (needPinnable) pinnable(post);
   return writer;
 }
 
@@ -44,7 +48,7 @@ async function pin(input: {
   postId: string;
   replace?: boolean;
 }): Promise<FeedPinsResult> {
-  const writer = await check(input.actor, input.postId);
+  const writer = await check(input.actor, input.postId, true);
   const outcome = await db.transaction(async (tx) => {
     await lockPins(tx);
     const post = await livePost(tx, input.postId, true);
@@ -78,7 +82,7 @@ async function pin(input: {
 }
 
 async function unpin(input: { actor: FeedActor; postId: string }): Promise<FeedPinsResult> {
-  const writer = await check(input.actor, input.postId);
+  const writer = await check(input.actor, input.postId, false);
   const outcome = await db.transaction(async (tx) => {
     await lockPins(tx);
     const post = await livePost(tx, input.postId, true);

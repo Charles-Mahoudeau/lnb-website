@@ -4917,7 +4917,7 @@ const routes: RouteDoc[] = [
     tag: TAGS.feedServer,
     summary: 'Unpin an announcement',
     description:
-      'Announcers unpin any announcement. Unpinning a post that isn’t pinned changes nothing and answers the group. A change is audited and sends a `pins` event. Not behind `feed.writing`.',
+      'Announcers unpin any announcement. Unpinning a post that isn’t pinned (a Global post or a reply included) changes nothing and answers the group: only pinning answers `notPinnable`. A change is audited and sends a `pins` event. Not behind `feed.writing`.',
     access: 'wardenServer',
     params: feed.feedIdParams,
     query: feed.feedPlayerQuery,
@@ -4925,7 +4925,6 @@ const routes: RouteDoc[] = [
     problems: [
       { status: 403, problems: ['banned', 'notAllowed'] },
       { status: 404, problems: ['notFound', 'notLinked'] },
-      { status: 409, problems: ['notPinnable'] },
       { status: 503, problems: ['disabled'] },
     ],
   },
