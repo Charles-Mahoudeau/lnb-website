@@ -135,4 +135,44 @@ describe('Feed rules', () => {
     expect(decodeCursor('nope')).toBeNull();
     expect(decodeCursor(Buffer.from('[1,"x"]').toString('base64url'))).toBeNull();
   });
+
+  it('refuses forged cursors: wrong shapes, negative or fractional times, non-UUIDs', () => {
+    const id = '0d1c7e3a-7f2b-4a51-9a63-2f5d8c1b4e70';
+    const forge = (value: string) => Buffer.from(value).toString('base64url');
+    for (const value of [
+      `[-1,"${id}"]`,
+      `[1.5,"${id}"]`,
+      `["1","${id}"]`,
+      `[1,"${id}",2]`,
+      '[1]',
+      `{"at":1,"id":"${id}"}`,
+      '[1,"nope"]',
+      `[null,"${id}"]`,
+      `[1e400,"${id}"]`,
+    ]) {
+      expect(decodeCursor(forge(value)), value).toBeNull();
+    }
+    expect(decodeCursor('')).toBeNull();
+    expect(decodeCursor('%%%')).toBeNull();
+    // An upper-case ID is the same position.
+    expect(decodeCursor(forge(`[0,"${id.toUpperCase()}"]`))).toEqual({
+      at: new Date(0),
+      id: id.toUpperCase(),
+    });
+  });
+
+  // Number.isSafeInteger lets through times past the largest Date (8.64e15 ms): the cursor
+  // decodes to an Invalid Date, which the query then fails on (a 500 where a 400 is due).
+  it.fails('refuses a cursor whose time is past the largest date', () => {
+    const id = '0d1c7e3a-7f2b-4a51-9a63-2f5d8c1b4e70';
+    const cursor = Buffer.from(`[8640000000000001,"${id}"]`).toString('base64url');
+    expect(decodeCursor(cursor)).toBeNull();
+  });
+
+  it('reads the 4,000-character raw cap in code points', () => {
+    const body = { idempotencyKey: crypto.randomUUID(), player, feed: 'global', anonymous: false };
+    const smile = String.fromCodePoint(0x1f600);
+    expect(feedServerPostBody.safeParse({ ...body, text: smile.repeat(4000) }).success).toBe(true);
+    expect(feedServerPostBody.safeParse({ ...body, text: smile.repeat(4001) }).success).toBe(false);
+  });
 });

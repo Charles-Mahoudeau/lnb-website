@@ -74,4 +74,66 @@ describe('the Feed text rule', () => {
     expect(isFeedCodePointAllowed(0xa0)).toBe(true);
     expect(isFeedCodePointAllowed(0xa7)).toBe(false);
   });
+
+  describe('hostile input', () => {
+    const smile = cp(0x1f600);
+
+    it('counts astral characters as one code point each: 280 pass, 281 are tooLong', () => {
+      expect(checkFeedText(smile.repeat(280))).toEqual({
+        ok: true,
+        text: smile.repeat(280),
+        length: 280,
+      });
+      expect(checkFeedText(smile.repeat(281))).toEqual({
+        ok: false,
+        problem: 'tooLong',
+        length: 281,
+      });
+      // A skin-toned emoji is two: 140 of them are 280.
+      const thumb = '\u{1F44D}\u{1F3FD}';
+      expect(checkFeedText(thumb.repeat(140))).toMatchObject({ ok: true, length: 280 });
+      expect(checkFeedText(thumb.repeat(141))).toMatchObject({ problem: 'tooLong' });
+    });
+
+    it.each([
+      ['C0 controls', '\u0000\u0001\u0008\u001b\u001f'],
+      ['DEL and C1 controls', '\u007f\u0080\u0085\u009f'],
+      ['section signs', cp(0xa7, 0xa7)],
+      ['lone surrogates', '\udfff\ud800\udbff'],
+      ['tabs and returns', '\t\r\r\n\t'],
+      ['every kind of space', cp(0x20, 0xa0, 0x1680, 0x2000, 0x200a, 0x202f, 0x205f, 0x3000)],
+      ['line and paragraph separators', cp(0x2028, 0x2029, 0x0a)],
+      ['a mix of all', `\t${cp(0xa7)}\u0000 \ud800\r\n${cp(0x3000)}`],
+    ])('refuses a text of only %s as emptyText', (_name, input) => {
+      expect(checkFeedText(input)).toMatchObject({ ok: false, problem: 'emptyText', length: 0 });
+    });
+
+    it('cleans before it trims and folds', () => {
+      // Controls between spaces vanish, so the spaces meet and are trimmed.
+      expect(cleanFeedText(' \u0000 hi \u0007 ')).toBe('hi');
+      // Line feeds made from CR count toward the fold.
+      expect(cleanFeedText('a\r\n\r\n\r\nb')).toBe('a\n\nb');
+      expect(cleanFeedText('a\r\r\rb')).toBe('a\n\nb');
+      // A control between line feeds goes first, so they fold.
+      expect(cleanFeedText('a\n\u0000\n\u0001\nb')).toBe('a\n\nb');
+      // Folding never leaves a line feed at an edge.
+      expect(cleanFeedText('\n\n\n\na\n\n\n\n')).toBe('a');
+    });
+
+    it('keeps a BOM before spaces, and separators inside the text', () => {
+      expect(cleanFeedText(`${cp(0xfeff)}  hi  `)).toBe(`${cp(0xfeff)}  hi`);
+      expect(cleanFeedText(`a${cp(0x2028)}b${cp(0x2029)}c`)).toBe(`a${cp(0x2028)}b${cp(0x2029)}c`);
+      expect(checkFeedText(cp(0x200b))).toEqual({ ok: true, text: cp(0x200b), length: 1 });
+    });
+
+    it('composes after dropping, so a dropped control can join a letter to its accent', () => {
+      expect(cleanFeedText(`e\u0000${ACUTE}`)).toBe(E_ACUTE);
+    });
+
+    it('counts 281 raw characters that clean down to 280 as 280', () => {
+      expect(checkFeedText(` ${a(280)}`)).toMatchObject({ ok: true, length: 280 });
+      expect(checkFeedText(`${a(280)}\u0000`)).toMatchObject({ ok: true, length: 280 });
+      expect(checkFeedText(`${a(279)}${cp(0xa7)}b`)).toMatchObject({ ok: true, length: 280 });
+    });
+  });
 });
