@@ -5225,6 +5225,7 @@
       "first": "Première page",
       "next": "Page suivante",
       "loadFailed": "La table du Feed ne s’est pas chargée. Recharge la page pour réessayer.",
+      "pageFailed": "Cette page de la table du Feed ne s’est pas chargée. Son adresse est peut-être périmée : reviens à la première page.",
       "empty": {
         "title": "Aucune publication",
         "text": "Les posts et réponses du jeu et du site s’affichent ici, les supprimés aussi pendant 30 jours.",

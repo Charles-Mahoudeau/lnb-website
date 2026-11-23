@@ -215,6 +215,24 @@ describe('the Feed table', () => {
     expect(now.value).toBeGreaterThanOrEqual(before);
   });
 
+  it('offers the first page when a forged cursor makes the page fail', async () => {
+    serveList((query) => {
+      if (query.cursor) throw createError({ status: 400 });
+      return list();
+    });
+    const view = await mountTab('/admin/moderation/feed?deleted=true&cursor=forged');
+    expect(view.text()).toContain('Its address may be out of date');
+    await view
+      .findAll('button')
+      .find((button) => button.text() === 'First page')!
+      .trigger('click');
+    await vi.waitFor(() => {
+      expect(currentQuery()).toEqual({ deleted: 'true' });
+    });
+    await settle(10);
+    expect(view.findAll('tbody tr')).toHaveLength(3);
+  });
+
   it('sends the search after a pause, and only from 2 characters', async () => {
     serveList();
     const view = await mountTab();

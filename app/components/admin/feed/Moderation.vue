@@ -220,7 +220,19 @@ async function onDeleted() {
       color="error"
       variant="subtle"
       icon="i-lucide-circle-alert"
-      :description="t('admin.feed.loadFailed')"
+      :description="t(state.cursor ? 'admin.feed.pageFailed' : 'admin.feed.loadFailed')"
+      :actions="
+        state.cursor
+          ? [
+              {
+                label: t('admin.feed.first'),
+                color: 'neutral',
+                variant: 'outline',
+                onClick: first,
+              },
+            ]
+          : undefined
+      "
     />
 
     <section

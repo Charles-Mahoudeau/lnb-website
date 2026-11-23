@@ -5221,6 +5221,7 @@
       "first": "First page",
       "next": "Next page",
       "loadFailed": "The Feed table didn’t load. Reload the page to try again.",
+      "pageFailed": "This page of the Feed table didn’t load. Its address may be out of date: go back to the first page.",
       "empty": {
         "title": "No posts yet",
         "text": "Posts and replies from the game and the site show up here, deleted ones too for 30 days.",
