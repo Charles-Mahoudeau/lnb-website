@@ -224,7 +224,8 @@ export async function useFeedThread(id: string) {
    */
   function appendLive(reply: FeedPostView) {
     if (next.value || replies.value.some((known) => known.id === reply.id)) return;
-    replies.value = [...replies.value, reply];
+    // Events come in commit order, which two replies made at once can swap: keep oldest first.
+    replies.value = [...replies.value, reply].sort((a, b) => feedByNewest(b, a));
   }
 
   /** A reply the live stream says went: out of the list; the counts come with `counts`. */

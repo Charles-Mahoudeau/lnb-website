@@ -100,12 +100,8 @@ describe('replies on a thread’s page', () => {
     expect(viewsAsked).toEqual([[answer(2).id, answer(3).id]]);
   });
 
-  // DEFECT (low, app/composables/useFeed.ts, `appendLive`): a reply the stream announced is added
-  // at the end of the list as it comes. Events are in the order the posts were committed, which can
-  // differ from the order they were made (two replies written at once), and the thread is "oldest
-  // first": the page then shows the newer one above the older until it is reloaded. The Feed page
-  // sorts what it receives (`prependAll`); the thread should place a reply by its date too.
-  it.fails('keeps replies oldest first when they were announced in another order', async () => {
+  // Events come in commit order: a live reply still takes its place by date, oldest first.
+  it('keeps replies oldest first when they were announced in another order', async () => {
     serveThread(MAIN_ID, () => thread(main(), [answer(1)]));
     serveViews([answer(2), answer(3)]);
     const view = await mountThread();
