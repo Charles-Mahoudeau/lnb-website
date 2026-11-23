@@ -26,16 +26,34 @@ export class FeedError extends Error {
   }
 }
 
+/**
+ * The seconds a 429 asks to wait: the body's `retryAfter` (the per-account limits of the
+ * services), else the `Retry-After` header, which is all the site's rate-limit middleware sends.
+ */
+function retryAfterOf(error: unknown, data: Record<string, unknown> | undefined): number | null {
+  if (typeof data?.retryAfter === 'number') return data.retryAfter;
+  const headers = (error as { response?: { headers?: Partial<Headers> } } | null)?.response
+    ?.headers;
+  const header =
+    typeof headers?.get === 'function' ? headers.get('Retry-After')?.trim() : undefined;
+  const seconds = header && /^\d+$/.test(header) ? Number(header) : NaN;
+  return Number.isSafeInteger(seconds) && seconds > 0 ? seconds : null;
+}
+
 async function call<T>(request: () => Promise<T>): Promise<T> {
   try {
     return await request();
   } catch (error) {
-    const data = (error as { data?: { data?: Record<string, unknown> } }).data?.data;
-    const problem = data?.problem;
-    throw new FeedError(
-      FEED_PROBLEMS.includes(problem as FeedProblem) ? (problem as FeedProblem) : 'failed',
-      data ?? {},
-    );
+    const raw = (error as { data?: { data?: unknown } } | null)?.data?.data;
+    const data = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : undefined;
+    const problem = FEED_PROBLEMS.includes(data?.problem as FeedProblem)
+      ? (data?.problem as FeedProblem)
+      : 'failed';
+    const retryAfter = problem === 'rateLimited' ? retryAfterOf(error, data) : null;
+    throw new FeedError(problem, {
+      ...data,
+      ...(retryAfter === null ? {} : { retryAfter }),
+    });
   }
 }
 

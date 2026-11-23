@@ -704,22 +704,32 @@ describe('the writes', () => {
       }
     });
 
-    // DEFECT: the rate-limit middleware (the `api` and `write` rules) answers 429 with only the
-    // `Retry-After` header, and the page reads the seconds from the body's `retryAfter`, which only
-    // the per-account limits of the services put there. A person stopped by the middleware is told
-    // "Try again in 60 s" whatever the real wait.
-    it.fails('reads the seconds to wait from Retry-After when the body has none', async () => {
-      fetchWith(() =>
-        Promise.reject(
-          Object.assign(new Error('429'), {
-            status: 429,
-            data: { statusCode: 429, data: { problem: 'rateLimited' } },
-            response: { headers: new Headers({ 'Retry-After': '7' }) },
-          }),
-        ),
-      );
+    // The rate-limit middleware (the `api` and `write` rules) answers 429 with only the
+    // `Retry-After` header; the per-account limits of the services put `retryAfter` in the body.
+    const limited = (body: Record<string, unknown>, retryAfter?: string) =>
+      Object.assign(new Error('429'), {
+        status: 429,
+        data: { statusCode: 429, data: { problem: 'rateLimited', ...body } },
+        response: {
+          headers: new Headers(retryAfter === undefined ? {} : { 'Retry-After': retryAfter }),
+        },
+      });
+
+    it('reads the seconds to wait from Retry-After when the body has none', async () => {
+      fetchWith(() => Promise.reject(limited({}, '7')));
       const error = await feedActions.setLiked(MAIN, true).catch((caught: unknown) => caught);
       expect(error).toMatchObject({ problem: 'rateLimited', data: { retryAfter: 7 } });
+    });
+
+    it('prefers the body’s seconds, and ignores a header that is not a number of seconds', async () => {
+      fetchWith(() => Promise.reject(limited({ retryAfter: 12 }, '7')));
+      const fromBody = await feedActions.setLiked(MAIN, true).catch((caught: unknown) => caught);
+      expect(fromBody).toMatchObject({ data: { retryAfter: 12 } });
+      for (const header of ['', 'soon', '0', '-3', '1.5', 'Wed, 21 Oct 2026 07:28:00 GMT']) {
+        fetchWith(() => Promise.reject(limited({}, header)));
+        const error = await feedActions.setLiked(MAIN, true).catch((caught: unknown) => caught);
+        expect((error as FeedError).data.retryAfter, header).toBeUndefined();
+      }
     });
   });
 });
