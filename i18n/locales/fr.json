@@ -866,7 +866,8 @@
       "rewardIndex": "Indice des récompenses",
       "bans": "Bannissements",
       "market": "Market",
-      "orders": "Ordres"
+      "orders": "Ordres",
+      "feed": "Feed"
     },
     "cancel": "Annuler",
     "typedConfirm": {
@@ -5169,6 +5170,124 @@
         "flagsNote": "Le Market s’active et se coupe dans Paramètres › Fonctionnalités : Market, puis Ventes du Market et Achats du Market, l’un après l’autre.",
         "save": "Enregistrer les paramètres",
         "saved": "Paramètres du Market enregistrés"
+      }
+    },
+    "feed": {
+      "search": "Rechercher un texte, un pseudo ou un nom",
+      "filters": {
+        "label": "Filtres",
+        "announcements": "Annonces",
+        "global": "Global",
+        "replies": "Réponses",
+        "anonymous": "Anonymes",
+        "deleted": "Supprimés"
+      },
+      "person": {
+        "label": "Personne",
+        "everyone": "Toutes les personnes",
+        "search": "Rechercher un nom ou un e-mail",
+        "chosen": "Une personne"
+      },
+      "summary": {
+        "line": "{posts}, {deleted}",
+        "posts": "Aucune publication ces 30 derniers jours | 1 publication ces 30 derniers jours | {count} publications ces 30 derniers jours",
+        "deleted": "aucune supprimée | dont 1 supprimée | dont {count} supprimées",
+        "deletedOnly": "Aucune publication supprimée ces 30 derniers jours. Les publications supprimées sont gardées 30 jours, puis effacées. | 1 publication supprimée ces 30 derniers jours. Les publications supprimées sont gardées 30 jours, puis effacées. | {count} publications supprimées ces 30 derniers jours. Les publications supprimées sont gardées 30 jours, puis effacées."
+      },
+      "columns": {
+        "author": "Auteur",
+        "post": "Publication",
+        "feed": "Fil",
+        "reactions": "Réactions",
+        "date": "Date",
+        "state": "État"
+      },
+      "feeds": {
+        "announcements": "Annonces",
+        "global": "Global"
+      },
+      "pinned": "Épinglé",
+      "realAuthor": "Auteur réel, que les joueurs ne voient pas",
+      "nameHidden": "Nom réel masqué",
+      "replyTo": "Réponse à {name}",
+      "replyToPost": "Réponse au post",
+      "likes": "Aucun j’aime | 1 j’aime | {count} j’aime",
+      "replies": "Aucune réponse | 1 réponse | {count} réponses",
+      "state": {
+        "deleted": "Supprimé",
+        "by": "Par {name}, {date}",
+        "author": "Par l’auteur, {date}",
+        "thread": "Avec son post, {date}",
+        "purge": "Effacé le {date}"
+      },
+      "first": "Première page",
+      "next": "Page suivante",
+      "loadFailed": "La table du Feed ne s’est pas chargée. Recharge la page pour réessayer.",
+      "empty": {
+        "title": "Aucune publication",
+        "text": "Les posts et réponses du jeu et du site s’affichent ici, les supprimés aussi pendant 30 jours.",
+        "filteredTitle": "Rien ne correspond",
+        "filteredText": "Aucun post ni réponse ne correspond à ces filtres. Retire un filtre ou change la recherche.",
+        "clear": "Effacer les filtres"
+      },
+      "drawer": {
+        "loading": "Publication",
+        "titles": {
+          "plain": {
+            "post": "Post",
+            "announcement": "Annonce",
+            "reply": "Réponse"
+          },
+          "anonymous": {
+            "post": "Post anonyme",
+            "announcement": "Annonce anonyme",
+            "reply": "Réponse anonyme"
+          }
+        },
+        "realAuthor": "Auteur réel, que les joueurs ne voient pas",
+        "author": "Auteur",
+        "openProfile": "Ouvrir la fiche",
+        "pinnedIn": "{feed}, épinglé",
+        "facts": {
+          "feed": "Fil",
+          "replyingTo": "En réponse à",
+          "posted": "Publiée",
+          "account": "Compte Minecraft",
+          "source": "Publiée depuis",
+          "likes": "J’aime",
+          "replies": "Réponses",
+          "reason": "Raison"
+        },
+        "sources": {
+          "server": "Le jeu",
+          "site": "Le site"
+        },
+        "answered": "{name}, « {text} »",
+        "unknown": "Un compte supprimé",
+        "discussion": "La discussion",
+        "earlier": "1 réponse plus ancienne | 1 réponse plus ancienne | {count} réponses plus anciennes",
+        "later": "1 autre réponse | 1 autre réponse | {count} autres réponses",
+        "deletePost": "Supprimer le post",
+        "deleteReply": "Supprimer la réponse",
+        "missing": "Cette publication n’est plus gardée : elle a été effacée 30 jours après sa suppression, ou avec le compte de son auteur.",
+        "failed": "Cette publication ne s’est pas chargée. Ferme le tiroir et réessaie."
+      },
+      "delete": {
+        "postTitle": "Supprimer ce post ?",
+        "replyTitle": "Supprimer cette réponse ?",
+        "postText": "Il disparaît tout de suite pour tout le monde, en jeu et sur le site. Les modérateurs le retrouvent dans « Supprimés » pendant 30 jours, puis il est effacé. | Il disparaît tout de suite pour tout le monde, en jeu et sur le site, avec sa réponse. Les modérateurs le retrouvent dans « Supprimés » pendant 30 jours, puis il est effacé. | Il disparaît tout de suite pour tout le monde, en jeu et sur le site, avec ses {count} réponses. Les modérateurs le retrouvent dans « Supprimés » pendant 30 jours, puis il est effacé.",
+        "replyText": "Elle disparaît tout de suite pour tout le monde, en jeu et sur le site. Les modérateurs la retrouvent dans « Supprimés » pendant 30 jours, puis elle est effacée.",
+        "reason": "Raison (facultative)",
+        "reasonHelp": "Gardée dans le journal d’activité et sur la ligne supprimée. Les joueurs ne la voient pas.",
+        "cancel": "Annuler",
+        "confirm": "Supprimer",
+        "postDone": "Post supprimé",
+        "replyDone": "Réponse supprimée"
+      },
+      "errors": {
+        "failed": "La publication n’a pas pu être supprimée. Vérifie ta connexion, puis réessaie.",
+        "notFound": "Cette publication n’est plus gardée : il n’y a rien à supprimer.",
+        "notAllowed": "Tu ne peux pas supprimer de publications tant qu’un bannissement est en cours sur ton compte."
       }
     }
   },

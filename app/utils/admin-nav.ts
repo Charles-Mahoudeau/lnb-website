@@ -140,6 +140,7 @@ export const ADMIN_ENTRIES: AdminEntry[] = [
       { id: 'appeals', labelKey: 'admin.nav.appeals', to: '/admin/moderation/appeals' },
       { id: 'bans', labelKey: 'admin.nav.bans', to: '/admin/moderation/bans' },
       { id: 'rules', labelKey: 'admin.nav.rules', to: '/admin/moderation/rules' },
+      { id: 'feed', labelKey: 'admin.nav.feed', to: '/admin/moderation/feed' },
     ],
   },
   {

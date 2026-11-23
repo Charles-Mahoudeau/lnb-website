@@ -862,7 +862,8 @@
       "rewardIndex": "Reward index",
       "bans": "Bans",
       "market": "Market",
-      "orders": "Orders"
+      "orders": "Orders",
+      "feed": "Feed"
     },
     "cancel": "Cancel",
     "typedConfirm": {
@@ -5165,6 +5166,124 @@
         "flagsNote": "The Market is switched on and off in Settings › Feature flags: Market, then Market sales and Market purchases, one at a time.",
         "save": "Save settings",
         "saved": "Market settings saved"
+      }
+    },
+    "feed": {
+      "search": "Search a text, a username or a name",
+      "filters": {
+        "label": "Filters",
+        "announcements": "Announcements",
+        "global": "Global",
+        "replies": "Replies",
+        "anonymous": "Anonymous",
+        "deleted": "Deleted"
+      },
+      "person": {
+        "label": "Person",
+        "everyone": "Everyone",
+        "search": "Search a name or an email",
+        "chosen": "One person"
+      },
+      "summary": {
+        "line": "{posts}, {deleted}",
+        "posts": "No posts in the last 30 days | 1 post in the last 30 days | {count} posts in the last 30 days",
+        "deleted": "none deleted | 1 deleted | {count} deleted",
+        "deletedOnly": "No deleted posts from the last 30 days. Deleted posts are kept 30 days, then erased. | 1 deleted post from the last 30 days. Deleted posts are kept 30 days, then erased. | {count} deleted posts from the last 30 days. Deleted posts are kept 30 days, then erased."
+      },
+      "columns": {
+        "author": "Author",
+        "post": "Post",
+        "feed": "Feed",
+        "reactions": "Reactions",
+        "date": "Date",
+        "state": "State"
+      },
+      "feeds": {
+        "announcements": "Announcements",
+        "global": "Global"
+      },
+      "pinned": "Pinned",
+      "realAuthor": "Real author, hidden from players",
+      "nameHidden": "Real name hidden",
+      "replyTo": "Reply to {name}",
+      "replyToPost": "Reply to the post",
+      "likes": "No likes | 1 like | {count} likes",
+      "replies": "No replies | 1 reply | {count} replies",
+      "state": {
+        "deleted": "Deleted",
+        "by": "By {name}, {date}",
+        "author": "By the author, {date}",
+        "thread": "With its post, {date}",
+        "purge": "Erased on {date}"
+      },
+      "first": "First page",
+      "next": "Next page",
+      "loadFailed": "The Feed table didn’t load. Reload the page to try again.",
+      "empty": {
+        "title": "No posts yet",
+        "text": "Posts and replies from the game and the site show up here, deleted ones too for 30 days.",
+        "filteredTitle": "Nothing matches",
+        "filteredText": "No post or reply matches these filters. Remove a filter or change the search.",
+        "clear": "Clear the filters"
+      },
+      "drawer": {
+        "loading": "Post",
+        "titles": {
+          "plain": {
+            "post": "Post",
+            "announcement": "Announcement",
+            "reply": "Reply"
+          },
+          "anonymous": {
+            "post": "Anonymous post",
+            "announcement": "Anonymous announcement",
+            "reply": "Anonymous reply"
+          }
+        },
+        "realAuthor": "Real author, hidden from players",
+        "author": "Author",
+        "openProfile": "Open the profile",
+        "pinnedIn": "{feed}, pinned",
+        "facts": {
+          "feed": "Feed",
+          "replyingTo": "Replying to",
+          "posted": "Posted",
+          "account": "Minecraft account",
+          "source": "Posted from",
+          "likes": "Likes",
+          "replies": "Replies",
+          "reason": "Reason"
+        },
+        "sources": {
+          "server": "The game",
+          "site": "The website"
+        },
+        "answered": "{name}, “{text}”",
+        "unknown": "A deleted account",
+        "discussion": "The discussion",
+        "earlier": "1 earlier reply | 1 earlier reply | {count} earlier replies",
+        "later": "1 more reply | 1 more reply | {count} more replies",
+        "deletePost": "Delete the post",
+        "deleteReply": "Delete the reply",
+        "missing": "This post is no longer kept: it was erased 30 days after it was deleted, or with its author’s account.",
+        "failed": "This post didn’t load. Close the drawer and try again."
+      },
+      "delete": {
+        "postTitle": "Delete this post?",
+        "replyTitle": "Delete this reply?",
+        "postText": "It disappears at once for everyone, in game and on the site. Moderators find it in Deleted for 30 days, then it is erased. | It disappears at once for everyone, in game and on the site, with its reply. Moderators find it in Deleted for 30 days, then it is erased. | It disappears at once for everyone, in game and on the site, with its {count} replies. Moderators find it in Deleted for 30 days, then it is erased.",
+        "replyText": "It disappears at once for everyone, in game and on the site. Moderators find it in Deleted for 30 days, then it is erased.",
+        "reason": "Reason (optional)",
+        "reasonHelp": "Kept in the activity log and on the deleted row. Players don’t see it.",
+        "cancel": "Cancel",
+        "confirm": "Delete",
+        "postDone": "Post deleted",
+        "replyDone": "Reply deleted"
+      },
+      "errors": {
+        "failed": "The post couldn’t be deleted. Check your connection, then try again.",
+        "notFound": "This post is no longer kept, so there is nothing to delete.",
+        "notAllowed": "You can’t delete posts while a ban is in force on your account."
       }
     }
   },
