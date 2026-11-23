@@ -5,11 +5,12 @@ import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MockInstance } from 'vitest';
 
 import { db } from '~~/server/db';
-import { feedLike, feedNotification, feedPost } from '~~/server/db/schema';
+import { feedLike, feedNotification, feedPost, user } from '~~/server/db/schema';
 import { feedLikeService } from '~~/server/services/feed/likes';
 import { feedPinService } from '~~/server/services/feed/pins';
 import { feedPostService } from '~~/server/services/feed/posts';
 import { feedLimits } from '~~/server/services/feed/shared';
+import { usersService } from '~~/server/services/users';
 
 import {
   eventsSince,
@@ -442,6 +443,50 @@ describe('Feed races', () => {
         }
       }
     });
+  });
+
+  describe('deleting an account during the replies, likes and deletes it touches', () => {
+    // The deletion locks the threads it touches before the account's row; every write in a
+    // thread locks its main post first. Without that order a reply (thread, then the account it
+    // answers) and the deletion (account, then its threads) deadlocked.
+    it('never deadlocks, deletes the account, and leaves counts matching the rows', async () => {
+      for (let round = 0; round < 5; round++) {
+        await wipe();
+        const admin = await person('Admin Lune', { role: 'admin' });
+        const lune = await person('Lune Garnier', { role: 'warden-admin' });
+        const camille = await person('Camille Roux');
+        const mika = await person('Mika Lefort');
+        const others = await Promise.all(
+          Array.from({ length: 6 }, (_, i) => person(`Joueur ${String(i)}`)),
+        );
+        const { post: hers } = await post(camille, 'À elle');
+        const { post: his } = await post(mika, 'À lui');
+        const { post: herReply } = await reply(camille, his.id);
+        await feedLikeService.setLiked({ actor: server(camille), postId: his.id, liked: true });
+        const results = await race<unknown>([
+          () => usersService.remove({ actorId: admin.id, userId: camille.id }),
+          () => feedPostService.remove({ actor: server(lune), postId: herReply.id }),
+          () => feedLikeService.setLiked({ actor: server(camille), postId: his.id, liked: false }),
+          ...others.map((who) => () => reply(who, hers.id)),
+          ...others.map((who) => () => reply(who, his.id, herReply.id)),
+          ...others.map(
+            (who) => () =>
+              feedLikeService.setLiked({ actor: server(who), postId: his.id, liked: true }),
+          ),
+        ]);
+        const deadlocks = results.filter(
+          (result) => !result.ok && /deadlock/i.test(String(result.error)),
+        );
+        expect(deadlocks, `round ${String(round)}`).toEqual([]);
+        expect(results[0]!.ok, `round ${String(round)}: the account deletion`).toBe(true);
+        // Whatever lost to the deletion lost cleanly: not found, or no longer linked.
+        for (const result of results) {
+          if (!result.ok) expect(result.status, String(result.error)).toBe(404);
+        }
+        expect(await db.select().from(user).where(eq(user.id, camille.id))).toEqual([]);
+        await expectCountsMatchRows();
+      }
+    }, 120_000);
   });
 
   describe('rate limits under concurrent calls', () => {

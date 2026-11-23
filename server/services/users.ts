@@ -180,6 +180,8 @@ async function signOut(input: { actorId: string; userId: string }) {
 async function remove(input: { actorId: string; userId: string }) {
   if (input.userId === input.actorId) refuse(409, 'self');
   const feedForgotten = await db.transaction(async (tx) => {
+    // Before the account's row is locked: Feed locks the threads it touches first.
+    const feed = await feedPostService.forgetUsers(tx, [input.userId]);
     const target = await requireTarget(tx, input.userId);
     if (isAdmin(target.role)) refuse(409, 'targetIsAdmin');
     await auditService.record(tx, {
@@ -189,17 +191,17 @@ async function remove(input: { actorId: string; userId: string }) {
     });
     await auditService.forgetPeople(tx, [input.userId]);
     await changelogService.forgetUsers(tx, [input.userId]);
-    // Their Feed posts, replies and likes go by cascade; this fixes the counts left behind.
-    const feedAfter = await feedPostService.forgetUsers(tx, [input.userId]);
+    // Their Feed posts, replies and likes go by cascade; the counts left behind are fixed.
     await tx.delete(user).where(eq(user.id, input.userId));
+    await feed.afterDelete(tx);
     // Their registrations went with the account: the waitlists move up.
     await eventRegistrationService.promoteAll(tx);
     // Their bank account is closed and its money destroyed; their shared accounts pass on.
     await economyAccountService.sweepOrphans(tx);
-    return feedAfter;
+    return feed;
   });
   // Tells the Minecraft server what left Feed, once it's gone.
-  await feedForgotten();
+  await feedForgotten.afterCommit();
 }
 
 /**
@@ -336,10 +338,12 @@ async function deleteInactive(now = new Date()): Promise<number> {
     const ids = inactive.map((row) => row.id);
     await auditService.forgetPeople(tx, ids);
     await changelogService.forgetUsers(tx, ids);
-    const feedAfter = await feedPostService.forgetUsers(tx, ids);
+    // Before the accounts' rows are locked: Feed locks the threads it touches first.
+    const feed = await feedPostService.forgetUsers(tx, ids);
     const deleted = ids.length
       ? await tx.delete(user).where(inArray(user.id, ids)).returning({ id: user.id })
       : [];
+    await feed.afterDelete(tx);
     if (deleted.length) {
       await eventRegistrationService.promoteAll(tx);
       await economyAccountService.sweepOrphans(tx);
@@ -350,9 +354,9 @@ async function deleteInactive(now = new Date()): Promise<number> {
         data: { count: deleted.length },
       });
     }
-    return { count: deleted.length, feedForgotten: feedAfter };
+    return { count: deleted.length, feedForgotten: feed };
   });
-  await feedForgotten();
+  await feedForgotten.afterCommit();
   return count;
 }
 

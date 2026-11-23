@@ -71,6 +71,29 @@ export async function livePost(dbx: Db, id: string, lock = false): Promise<FeedP
   return row;
 }
 
+/**
+ * Locks a post for a write, its main post first. Every write in a thread takes the main post's
+ * lock before anything else (and account deletion takes the main posts it touches before the
+ * accounts' rows), so writes in a thread queue behind one lock and never deadlock. Returns the
+ * post, deleted or not, or null when there is none.
+ */
+export async function lockPost(tx: Tx, id: string): Promise<FeedPostRow | null> {
+  const [peek] = await tx
+    .select({ threadId: feedPost.threadId })
+    .from(feedPost)
+    .where(eq(feedPost.id, id));
+  if (!peek) return null;
+  if (peek.threadId) {
+    await tx
+      .select({ id: feedPost.id })
+      .from(feedPost)
+      .where(eq(feedPost.id, peek.threadId))
+      .for('update');
+  }
+  const [row] = await tx.select().from(feedPost).where(eq(feedPost.id, id)).for('update');
+  return row ?? null;
+}
+
 /** Refuses with 503 `disabled` while `feed.writing` is off: posting, replying and liking. */
 export async function requireWriting(): Promise<void> {
   if (!(await flagService.isEnabled('feed.writing'))) {

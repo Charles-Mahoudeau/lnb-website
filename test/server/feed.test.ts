@@ -466,9 +466,10 @@ describe('Feed services', () => {
       const after = await db.transaction(async (tx) => {
         const notify = await feedPostService.forgetUsers(tx, [camille.id]);
         await tx.delete(user).where(eq(user.id, camille.id));
+        await notify.afterDelete(tx);
         return notify;
       });
-      await after();
+      await after.afterCommit();
 
       const left = await db.select().from(feedPost);
       expect(left.map((row) => row.id).sort()).toEqual([mikaPost.id, answer.id].sort());

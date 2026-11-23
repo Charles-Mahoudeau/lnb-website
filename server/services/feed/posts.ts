@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNotNull, isNull, notInArray, or, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, or, sql } from 'drizzle-orm';
 
 import { db } from '~~/server/db';
 import { feedLike, feedNotification, feedPost } from '~~/server/db/schema';
@@ -11,7 +11,7 @@ import { feedRightsService } from './rights';
 import type { FeedViewer, FeedWriter } from './rights';
 import { fingerprint } from './rules';
 import type { FeedRequester, FeedTarget } from './rules';
-import { feedLimits, livePost, refuse, requireWriting } from './shared';
+import { feedLimits, livePost, lockPost, refuse, requireWriting } from './shared';
 import type { Db, FeedActor, FeedPostRow, Tx } from './shared';
 import { feedViewService } from './views';
 
@@ -225,24 +225,7 @@ async function remove(input: {
 }): Promise<void> {
   const outcome = await db.transaction(async (tx) => {
     const who = await deleter(tx, input.actor);
-    // A reply's main post is locked first, in the order a new reply locks them.
-    const [peek] = await tx
-      .select({ threadId: feedPost.threadId })
-      .from(feedPost)
-      .where(eq(feedPost.id, input.postId));
-    if (!peek) refuse(404, 'notFound');
-    if (peek.threadId) {
-      await tx
-        .select({ id: feedPost.id })
-        .from(feedPost)
-        .where(eq(feedPost.id, peek.threadId))
-        .for('update');
-    }
-    const [post] = await tx
-      .select()
-      .from(feedPost)
-      .where(eq(feedPost.id, input.postId))
-      .for('update');
+    const post = await lockPost(tx, input.postId);
     if (!post) refuse(404, 'notFound');
     const own = post.authorUserId === who.userId;
     const allowed = own || (!input.ownOnly && who.person.rights.moderate);
@@ -311,20 +294,44 @@ async function remove(input: {
   if (outcome.wasPinned) await feedEvents.pins();
 }
 
+/** What deleting accounts asks of Feed, in the deletion's transaction and after it. */
+export interface FeedForgetting {
+  /** Right after the accounts' rows are deleted, in the same transaction: fixes the counts. */
+  afterDelete(tx: Tx): Promise<void>;
+  /** Once the deletion has committed: tells the Minecraft server what went. */
+  afterCommit(): Promise<void>;
+}
+
 /**
- * Before LNB accounts are deleted, in their transaction: their posts, replies and likes go with
- * them by cascade, and with their main posts the whole threads. This fixes the counts of the posts
- * that stay, and returns what to tell the Minecraft server once the deletion has committed
- * (`deleted`, `counts` and, when a pinned post went, `pins`).
+ * Before LNB accounts are deleted, in their transaction, and before anything locks their rows:
+ * their posts, replies and likes go with them by cascade, and with their main posts the whole
+ * threads. This locks the main posts of every thread the deletion touches, in one order, before
+ * the accounts' rows are locked, as every write in a thread takes its main post first: a reply,
+ * a like or a moderator's delete racing the deletion waits for it instead of deadlocking. The
+ * counts of the posts that stay are recomputed from the rows once the accounts are gone.
  */
-async function forgetUsers(tx: Tx, userIds: string[]): Promise<() => Promise<void>> {
-  if (!userIds.length) return async () => {};
-  const going = (column: typeof feedPost.authorUserId) => inArray(column, userIds);
-  // Live rows that go: theirs, and every reply in the threads of their main posts.
-  const mains = tx
-    .select({ id: feedPost.id })
+async function forgetUsers(tx: Tx, userIds: string[]): Promise<FeedForgetting> {
+  if (!userIds.length) return { afterDelete: async () => {}, afterCommit: async () => {} };
+  const theirs = await tx
+    .select({ id: feedPost.id, threadId: feedPost.threadId, replyToId: feedPost.replyToId })
     .from(feedPost)
-    .where(and(going(feedPost.authorUserId), isNull(feedPost.threadId)));
+    .where(inArray(feedPost.authorUserId, userIds));
+  const liked = await tx
+    .select({ id: feedPost.id, threadId: feedPost.threadId })
+    .from(feedLike)
+    .innerJoin(feedPost, eq(feedPost.id, feedLike.postId))
+    .where(inArray(feedLike.userId, userIds));
+  const threads = [...new Set([...theirs, ...liked].map((row) => row.threadId ?? row.id))].sort();
+  if (threads.length) {
+    await tx
+      .select({ id: feedPost.id })
+      .from(feedPost)
+      .where(inArray(feedPost.id, threads))
+      .orderBy(asc(feedPost.id))
+      .for('update');
+  }
+  // Read once the threads are locked: nothing in them changes until the deletion commits.
+  const mains = theirs.filter((row) => row.threadId === null).map((row) => row.id);
   const gone = await tx
     .select({
       id: feedPost.id,
@@ -336,61 +343,47 @@ async function forgetUsers(tx: Tx, userIds: string[]): Promise<() => Promise<voi
     .where(
       and(
         isNull(feedPost.deletedAt),
-        or(going(feedPost.authorUserId), inArray(feedPost.threadId, mains)),
+        or(
+          inArray(feedPost.authorUserId, userIds),
+          mains.length ? inArray(feedPost.threadId, mains) : undefined,
+        ),
       ),
     );
-  const goneIds = gone.map((row) => row.id);
-  // Their live replies in threads that stay: the main post and the reply answered lose one.
-  const theirReplies = await tx
-    .select({ threadId: feedPost.threadId, replyToId: feedPost.replyToId })
-    .from(feedPost)
-    .where(
-      and(
-        going(feedPost.authorUserId),
-        isNotNull(feedPost.threadId),
-        isNull(feedPost.deletedAt),
-        goneIds.length ? notInArray(feedPost.threadId, goneIds) : undefined,
-      ),
-    );
-  const lost = new Map<string, number>();
-  for (const row of theirReplies) {
-    for (const id of [row.threadId, row.replyToId]) {
-      if (id && !goneIds.includes(id)) lost.set(id, (lost.get(id) ?? 0) + 1);
-    }
-  }
-  for (const [id, n] of lost) {
-    await tx
-      .update(feedPost)
-      .set({ replyCount: sql`greatest(${feedPost.replyCount} - ${n}, 0)` })
-      .where(eq(feedPost.id, id));
-  }
-  // Their likes on posts that stay.
-  const liked = await tx
-    .select({ postId: feedLike.postId, n: sql<number>`count(*)::int` })
-    .from(feedLike)
-    .innerJoin(feedPost, eq(feedPost.id, feedLike.postId))
-    .where(
-      and(
-        inArray(feedLike.userId, userIds),
-        isNull(feedPost.deletedAt),
-        notInArray(feedPost.authorUserId, userIds),
-      ),
-    )
-    .groupBy(feedLike.postId);
-  const likedStaying = liked.filter((row) => !goneIds.includes(row.postId));
-  for (const row of likedStaying) {
-    await tx
-      .update(feedPost)
-      .set({ likeCount: sql`greatest(${feedPost.likeCount} - ${row.n}, 0)` })
-      .where(eq(feedPost.id, row.postId));
-  }
+  // The posts that stay but lose a reply or a like: recounted after the delete.
+  const touched = new Set<string>([
+    ...liked.map((row) => row.id),
+    ...theirs.flatMap((row) => (row.threadId ? [row.threadId] : [])),
+    ...theirs.flatMap((row) => (row.replyToId ? [row.replyToId] : [])),
+  ]);
+  for (const row of gone) touched.delete(row.id);
+  for (const id of mains) touched.delete(id);
+  const recounted = [...touched];
   const items = gone.map((row) => ({ id: row.id, feed: row.feed, threadId: row.threadId }));
-  const counted = [...lost.keys(), ...likedStaying.map((row) => row.postId)];
   const pinned = gone.some((row) => row.pinnedAt !== null);
-  return async () => {
-    await feedEvents.deleted(items);
-    await feedEvents.counts(counted);
-    if (pinned) await feedEvents.pins();
+  return {
+    async afterDelete(deletion: Tx) {
+      if (!recounted.length) return;
+      // From the rows, so nothing read before the delete can be counted twice. Plain SQL: the
+      // updated row is named in full, since a bare column in a subquery would be the subquery's.
+      await deletion
+        .update(feedPost)
+        .set({
+          likeCount: sql.raw(
+            '(select count(*) from feed_like l where l.post_id = "feed_post"."id")::int',
+          ),
+          replyCount: sql.raw(
+            '(select count(*) from feed_post r where r.deleted_at is null and (' +
+              '("feed_post"."thread_id" is null and r.thread_id = "feed_post"."id") or ' +
+              '("feed_post"."thread_id" is not null and r.reply_to_id = "feed_post"."id")))::int',
+          ),
+        })
+        .where(inArray(feedPost.id, recounted));
+    },
+    async afterCommit() {
+      await feedEvents.deleted(items);
+      await feedEvents.counts(recounted);
+      if (pinned) await feedEvents.pins();
+    },
   };
 }
 

@@ -474,11 +474,12 @@ describe('Feed over time', () => {
       const after = await db.transaction(async (tx) => {
         const notify = await feedPostService.forgetUsers(tx, [ana.id, ben.id]);
         await tx.delete(user).where(inArray(user.id, [ana.id, ben.id]));
+        await notify.afterDelete(tx);
         return notify;
       });
       // Nothing is told before the commit.
       expect(await eventsSince(from)).toEqual([]);
-      await after();
+      await after.afterCommit();
 
       const left = await db.select().from(feedPost);
       const live = left.filter((row) => row.deletedAt === null);
@@ -514,13 +515,12 @@ describe('Feed over time', () => {
       expect(await db.select().from(user).where(eq(user.id, admin.id))).toHaveLength(1);
     });
 
-    // forgetUsers updates the counts of rows that stay before the account's rows are deleted. A
-    // row it updated that answered one of the account's replies then has two ON DELETE SET NULL
-    // actions to take (reply_to_id and reply_to_user_id); PostgreSQL checks the foreign keys of a
-    // row updated earlier in the same transaction, the first action finds reply_to_id still
-    // naming a deleted row, and the whole deletion fails with 23503. A conversation is enough:
-    // Camille replies, Mika answers her, Camille answers Mika.
-    it.fails('deletes an account that answered a reply answering its own reply', async () => {
+    // A row that answered one of the account's replies has two ON DELETE SET NULL actions to take
+    // (reply_to_id and reply_to_user_id). Had forgetUsers updated it before the delete, in the same
+    // transaction, PostgreSQL would check its keys mid-way and the deletion would fail with 23503;
+    // the counts are recomputed after the delete instead. A conversation is enough: Camille
+    // replies, Mika answers her, Camille answers Mika.
+    it('deletes an account that answered a reply answering its own reply', async () => {
       const admin = await person('Admin Lune', { role: 'admin' });
       const camille = await person('Camille Roux');
       const mika = await person('Mika Lefort');
@@ -532,7 +532,7 @@ describe('Feed over time', () => {
       expect((await viewOf(mika, his.id))!).toMatchObject({ replyTo: null, replies: 0 });
     });
 
-    it.fails('deletes an account that liked a reply answering its own reply', async () => {
+    it('deletes an account that liked a reply answering its own reply', async () => {
       const admin = await person('Admin Lune', { role: 'admin' });
       const camille = await person('Camille Roux');
       const mika = await person('Mika Lefort');
@@ -544,9 +544,8 @@ describe('Feed over time', () => {
       expect((await viewOf(mika, his.id))!).toMatchObject({ replyTo: null, likes: 0 });
     });
 
-    // The same failure in the nightly job: one such account makes the whole run fail, so no
-    // inactive account is deleted at all.
-    it.fails('deletes inactive accounts even when one of them was in a conversation', async () => {
+    // The same in the nightly job: one such account would make the whole run fail.
+    it('deletes inactive accounts even when one of them was in a conversation', async () => {
       const camille = await person('Camille Roux');
       const mika = await person('Mika Lefort');
       const { post: main } = await post(mika, 'Fil');

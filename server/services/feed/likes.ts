@@ -5,7 +5,7 @@ import { feedLike, feedPost } from '~~/server/db/schema';
 
 import { feedEvents } from './events';
 import { feedRightsService } from './rights';
-import { feedLimits, livePost, refuse, requireWriting } from './shared';
+import { feedLimits, livePost, lockPost, refuse, requireWriting } from './shared';
 import type { FeedActor } from './shared';
 
 import type { FeedLikeResult } from '#shared/schemas/feed';
@@ -25,7 +25,9 @@ async function setLiked(input: {
   await livePost(db, input.postId);
   await feedLimits.check('like', writer.userId);
   const { likes, changed } = await db.transaction(async (tx) => {
-    const post = await livePost(tx, input.postId, true);
+    // Its main post first, as every write in a thread.
+    const post = await lockPost(tx, input.postId);
+    if (!post || post.deletedAt) refuse(404, 'notFound');
     const changedRows = input.liked
       ? await tx
           .insert(feedLike)
