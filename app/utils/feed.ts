@@ -59,9 +59,11 @@ export function newestFeedCreatedAt(page: Pick<FeedPage, 'pinned' | 'posts'>): s
   return newest;
 }
 
-/** Posts newest first, as a feed lists them (keyset order: `createdAt`, then `id`). */
+/** Posts newest first, as a feed lists them (keyset order: `createdAt`, then `id`). 0 for one post. */
 export function feedByNewest(a: FeedPostView, b: FeedPostView): number {
-  return Date.parse(b.createdAt) - Date.parse(a.createdAt) || (a.id < b.id ? 1 : -1);
+  return (
+    Date.parse(b.createdAt) - Date.parse(a.createdAt) || (a.id === b.id ? 0 : a.id < b.id ? 1 : -1)
+  );
 }
 
 /**

@@ -134,15 +134,8 @@ describe('merging a feed’s first page, boundaries', () => {
     expect(texts(mergeFeedFirstPage(held(6), fresh).newer)).toEqual(['Post 9', 'Post 8', 'Post 7']);
   });
 
-  // DEFECT (low, app/utils/feed-live.ts, `mergeFeedFirstPage`): `reaches` asks whether the page's
-  // oldest post is no newer than the newest one held, with `feedByNewest(oldestFresh, newestHeld)
-  // >= 0`. When they are the same post, `feedByNewest` answers -1 (its tie-break says "newer"
-  // for equal IDs), so the page that does reach the held list down to its newest post is called a
-  // gap. The new posts then wait behind the button with a cursor taken after that post, and letting
-  // them in replaces the list by them alone: the post that bridged the two vanishes from the page
-  // until a reload. It needs the page to end exactly on the newest held post (a short list, or
-  // page-size minus one posts made while the stream was away).
-  it.fails('has no gap when the page ends exactly on the newest post held', () => {
+  // A page that ends exactly on the newest post held reaches it: no gap.
+  it('has no gap when the page ends exactly on the newest post held', () => {
     const merged = mergeFeedFirstPage(
       { pinned: [], posts: [post(7)], next: null },
       { pinned: [], posts: [post(9), post(8), post(7)], next: 'c' },
@@ -245,12 +238,8 @@ describe('merging a thread, boundaries', () => {
     expect(merged.next).toBe('f');
   });
 
-  // DEFECT (low, `mergeFeedThread`): `inSpan` asks `feedByNewest(reply, last) >= 0`, which is false
-  // for the page's own last reply (a post compared with itself answers -1). That reply, held, then
-  // counts as "beyond the page", so the held cursor (here none) wins over the page's: a thread whose
-  // held replies are exactly the first page, and which gained a reply while the stream was away, is
-  // shown with no "Load more" and the new reply stays hidden until a reload.
-  it.fails('takes the page’s cursor when the replies held are exactly the page', () => {
+  // Held replies that are exactly the first page take the page's cursor.
+  it('takes the page’s cursor when the replies held are exactly the page', () => {
     const merged = mergeFeedThread(
       { replies: [reply(1), reply(2), reply(3)], next: null },
       { replies: [reply(1), reply(2), reply(3)], next: 'more' },
@@ -351,9 +340,8 @@ describe('a reset’s merge of a feed, on random feeds', () => {
     fuzz(() => {});
   });
 
-  // The same DEFECT as the page that ends exactly on the newest post held (see above), found by the
-  // fuzz at seed 2: a gap reported for a page that contains the newest held post.
-  it.fails('reports a gap only when the page stops short of the newest post held', () => {
+  // Found by the fuzz at seed 2 before feedByNewest compared a post with itself as equal.
+  it('reports a gap only when the page stops short of the newest post held', () => {
     fuzz((found) => {
       expect(found.gapOnHeldPost).toBeNull();
     });
