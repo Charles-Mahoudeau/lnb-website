@@ -92,7 +92,7 @@ Main posts and replies have one shape, computed **for one viewer**:
   "mine": false,
   "canDelete": false,
   "canPin": false,
-  "unseenReplies": false,
+  "unseenReplies": 0,
   "answersMe": false
 }
 ```
@@ -117,7 +117,7 @@ Main posts and replies have one shape, computed **for one viewer**:
 | `mine`                           | boolean        | The viewer's LNB account wrote it (from any of its Minecraft accounts, or the browser).                                                                                                                                                                                                                                                                                                                                      |
 | `canDelete`                      | boolean        | `mine` or the viewer moderates. Show the more button exactly when true.                                                                                                                                                                                                                                                                                                                                                      |
 | `canPin`                         | boolean        | An announcement's main post and the viewer announces. Show the pin button exactly when true.                                                                                                                                                                                                                                                                                                                                 |
-| `unseenReplies`                  | boolean        | The viewer wrote it and a reply answering it (or, on a main post, answering the viewer anywhere in its thread) arrived since the viewer last opened the thread. The blue marker.                                                                                                                                                                                                                                             |
+| `unseenReplies`                  | integer        | The number of replies that answer the viewer's post or reply (or, on a main post, that answer the viewer anywhere in its thread), not by the viewer, that arrived since the viewer last opened the thread. 0 when none, and always 0 on someone else's post. The phone shows its dot when above 0; the site a "{n} new" pill.                                                                                                |
 | `answersMe`                      | boolean        | On a reply: it answers a post or reply of the viewer. Lets the client raise the marker on the thread's main post when the reply arrives live.                                                                                                                                                                                                                                                                                |
 
 **Anonymous, by viewer.** For an anonymous post by Mika: Mika (from any of their Minecraft accounts) gets `author` filled and `mine: true` (the app shows "Posted anonymously by you"); a moderator gets `author` filled and `mine: false` (the app shows "Author: Mika L. @MikaPvP" with its tooltip); everyone else gets `author: null`. See vector 13.3.
@@ -195,7 +195,7 @@ curl -H "Authorization: Bearer $SECRET" \
       "mine": false,
       "canDelete": false,
       "canPin": false,
-      "unseenReplies": false,
+      "unseenReplies": 0,
       "answersMe": false
     }
   ],
@@ -242,7 +242,7 @@ A thread for one viewer: the main post and a page of its replies, oldest first. 
       "mine": false,
       "canDelete": false,
       "canPin": false,
-      "unseenReplies": false,
+      "unseenReplies": 0,
       "answersMe": false
     },
     {
@@ -265,7 +265,7 @@ A thread for one viewer: the main post and a page of its replies, oldest first. 
       "mine": false,
       "canDelete": false,
       "canPin": false,
-      "unseenReplies": false,
+      "unseenReplies": 0,
       "answersMe": false
     }
   ],
@@ -342,13 +342,13 @@ Per-viewer views of a few posts for many viewers in one call: what the mod uses 
 
 Creates a main post.
 
-| Field            | Type    | Notes                                                                                  |
-| ---------------- | ------- | -------------------------------------------------------------------------------------- |
-| `idempotencyKey` | UUID    | Made by the player's client with the draft, see 6.                                     |
-| `player`         | UUID    | The author, the payload's sender.                                                      |
-| `feed`           | string  | `announcements` needs the announce right.                                              |
-| `text`           | string  | As typed, trimmed; at most 4,000 characters raw. The site cleans and checks it (13.1). |
-| `anonymous`      | boolean | Refused in `announcements` (400 `anonymousAnnouncement`).                              |
+| Field            | Type    | Notes                                                                                                |
+| ---------------- | ------- | ---------------------------------------------------------------------------------------------------- |
+| `idempotencyKey` | UUID    | Made by the player's client with the draft, see 6.                                                   |
+| `player`         | UUID    | The author, the payload's sender.                                                                    |
+| `feed`           | string  | `announcements` needs the announce right.                                                            |
+| `text`           | string  | As typed, trimmed; at most 4,000 characters raw. The site cleans and checks it (13.1).               |
+| `anonymous`      | boolean | Allowed in both feeds. An anonymous announcement shows no author, no handle and no badge to players. |
 
 ```json
 {
@@ -386,7 +386,7 @@ Creates a main post.
     "mine": true,
     "canDelete": true,
     "canPin": true,
-    "unseenReplies": false,
+    "unseenReplies": 0,
     "answersMe": false
   }
 }
@@ -394,7 +394,7 @@ Creates a main post.
 
 The view is for `player`. The site also sends a `post` event (other players get it through 4.4) and, for an announcement, queues a notification for everyone but Kael's accounts (`notification` event).
 
-The site checks, in this order: the flags (`feed`, `feed.serverApi`, then `feed.writing`); the key (a stored post with this key answers `replayed: true`, or 409 `idempotencyMismatch`); the player (404 `notLinked`); the ban (403 `banned`); the right (403 `notAllowed` for Announcements without announce); `anonymousAnnouncement`; the text (400 `emptyText`, `tooLong`); the rate (429 `rateLimited`).
+The site checks, in this order: the flags (`feed`, `feed.serverApi`, then `feed.writing`); the key (a stored post with this key answers `replayed: true`, or 409 `idempotencyMismatch`); the player (404 `notLinked`); the ban (403 `banned`); the right (403 `notAllowed` for Announcements without announce); the text (400 `emptyText`, `tooLong`); the rate (429 `rateLimited`).
 
 ### 4.6 `POST /posts/:id/replies`
 
@@ -610,7 +610,6 @@ The `feed` topic as Server-Sent Events: section 8.
 | 400                         | none                               | any                                     | Malformed body or query                                                            | A bug: log it, answer the client `UNAVAILABLE`.                                                                                           |
 | 400                         | `emptyText`                        | posts, replies                          | Nothing left after cleaning                                                        | The client never sends that (it checks with `TextLimits.canSend`): log, answer `INVALID`.                                                 |
 | 400                         | `tooLong`                          | posts, replies                          | More than 280 code points after cleaning                                           | As `emptyText`.                                                                                                                           |
-| 400                         | `anonymousAnnouncement`            | posts                                   | Anonymous in Announcements                                                         | As `emptyText` (the app hides the toggle there).                                                                                          |
 | 401                         | none                               | any                                     | Wrong secret                                                                       | Configuration: `ApiHealth` tells operators. Answer `UNAVAILABLE`.                                                                         |
 | 403                         | `banned`                           | writes, pins                            | A Warden or site ban is in force                                                   | Answer `BANNED`, re-read the player's rights.                                                                                             |
 | 403                         | `notAllowed`                       | posts (Announcements), pins, deletes    | The right is missing                                                               | Answer `NOT_ALLOWED`, re-read the player's rights.                                                                                        |
@@ -718,12 +717,12 @@ Never two drains at once: a drain that is asked for while one runs runs once mor
 
 From the server thread (or any thread: `PhoneNotifications` may be called from any), with the app ID `lnbphone_feed:feed`:
 
-| Kind           | Recipients                                                                                                                                                                                     | Title                              | Text                                                                                                                                                            | Target                              |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
-| `announcement` | every player of the world: the UUIDs of the world's `playerdata` folder (`server.getWorldPath(LevelResource.PLAYER_DATA_DIR)`, the `<uuid>.dat` files) and every online player, minus `except` | `notif.lnbphone_feed.announcement` | `notif.lnbphone_feed.text` with the author's display name and the post's text                                                                                   | `post:<postId>`                     |
-| `reply`        | `players`                                                                                                                                                                                      | `notif.lnbphone_feed.reply`        | `notif.lnbphone_feed.text` with the reply author's display name, or the translatable `lnbphone_feed.post.anonymous` when `author` is null, and the reply's text | `reply:<feed>:<threadId>:<replyId>` |
+| Kind           | Recipients                             | Title                              | Text                                                                                                                                                                                 | Target                              |
+| -------------- | -------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------- |
+| `announcement` | every player of the world but `except` | `notif.lnbphone_feed.announcement` | `notif.lnbphone_feed.text` with the author's display name, or the translatable `lnbphone_feed.post.anonymous` when `author` is null (an anonymous announcement), and the post's text | `post:<postId>`                     |
+| `reply`        | `players`                              | `notif.lnbphone_feed.reply`        | `notif.lnbphone_feed.text` with the reply author's display name, or the translatable `lnbphone_feed.post.anonymous` when `author` is null, and the reply's text                      | `reply:<feed>:<threadId>:<replyId>` |
 
-- Use `PhoneNotifications.send(players: Collection<UUID>, appId, title, text, target)`: it stores the notification for offline players and delivers it at their next login. Not `sendToEveryone` for announcements: it can't leave the author out, and a player's own action must never notify them.
+- A reply: `PhoneNotifications.send(players: Collection<UUID>, appId, title, text, target)`. An announcement: `PhoneNotifications.sendToEveryone(appId, title, text, target, except)`, the phone's variant that leaves the players of `except` out (added to the phone with the mod's first task; `docs/feed-app.md` in LNB-phone-mod specifies it). Both store the notification for offline players and deliver it at their next login; a player's own action never notifies them, anonymous or not.
 - Player content goes in as arguments of your own keys, never as a key (see the phone's `PhoneNotifications` KDoc). The phone cuts the text to 320 characters between graphemes; pass the whole post.
 - Acknowledge a row once `send` has been called for it. A crash between the two delivers it twice at the next drain; that is rare and harmless next to losing it.
 - `players: []`: acknowledge without sending.
@@ -770,7 +769,7 @@ So a right given or taken on the site reaches an online player within a second (
 
 ### 11.3 Guests
 
-A guest (`linked: false`) reads both feeds and threads, with no compose button, no reply composer, and likes shown but inactive. Their views have every viewer field false. They get announcement notifications like everyone (they are in the world's `playerdata`). Marking seen does nothing for them: their dots live only in the client, for the session.
+A guest (`linked: false`) reads both feeds and threads, with no compose button, no reply composer, and likes shown but inactive. Their views have every viewer field false. They get announcement notifications like everyone (`sendToEveryone` reaches every player who has played on the world). Marking seen does nothing for them: their dots live only in the client, for the session.
 
 ### 11.4 Banned players
 
@@ -783,7 +782,7 @@ Warden kicks them (its `kick` event, reason `unlinked`). If they come back as a 
 ## 12. Privacy
 
 - **Never send a client what the site didn't give for that player.** Relay per-viewer views (`POST /views`, pages, threads) to the viewer they were made for, and nothing else. Never copy one player's view to another.
-- **The author of an anonymous post or reply** reaches the mod in two ways only: inside a view made for a moderator or for the author, and as the `players` of a reply notification (who are the author of what was answered). Don't log either, don't keep them beyond the call that needs them, don't show them in a command's output.
+- **The author of an anonymous post or reply** reaches the mod in three ways only: inside a view made for a moderator or for the author, as the `players` of a reply notification (who are the author of what was answered), and as the `except` of an announcement notification (its author's accounts, an anonymous announcement included). Pass `except` to the phone and nothing else. Don't log any of them, don't keep them beyond the call that needs them, don't show them in a command's output.
 - Don't log post texts. Log IDs and problem codes.
 - The secret stays in `lnbwarden-server.toml` on the server. The client never calls the site.
 
@@ -841,7 +840,16 @@ Camille posts in Global, anonymous. The views:
 
 Mika replies to it: the reply's `replyTo` is null (it answers the main post); the notification queued for Camille has `players` = Camille's accounts and `post.author` = Mika. Lune replies to Mika's reply, anonymous: for Kael, that reply has `author: null` and `replyTo: { id: <Mika's reply>, anonymous: false, name: "Mika L." }`; Mika's notification has `post.author: null`. The `post` events for all three carry only `{ id, feed, threadId, createdAt }`.
 
-`POST /posts` in Announcements with `anonymous: true` by Kael: 400 `anonymousAnnouncement`.
+Kael posts an announcement with `anonymous: true` (201). The views:
+
+| Viewer                         | `author` | `mine` | `canDelete` | `canPin` |
+| ------------------------------ | -------- | ------ | ----------- | -------- |
+| Kael                           | filled   | true   | true        | true     |
+| Lune (moderator and announcer) | filled   | false  | true        | true     |
+| Camille                        | null     | false  | false       | false    |
+| `Visitor42` (guest)            | null     | false  | false       | false    |
+
+No viewer without `author` gets a badge or a handle: both come from `author`. The notification queued has `kind: announcement`, `players: null`, `except` = Kael's accounts and `post.author: null`, so its text reads "Anonymous: …" for everyone; the `except` list stays on the Minecraft server, which never shows it to a player. The `post` event carries only `{ id, feed, threadId, createdAt }`.
 
 ### 13.4 Pagination
 
@@ -870,8 +878,8 @@ A, B, C are pinned in that order (C last). Lune pins D:
 2. `POST /seen` Global, `upTo` = G1's `createdAt`: `unread.global` false.
 3. Camille posts G2: `unread.global` stays false (her own post).
 4. Mika posts G3: `unread.global` true.
-5. Mika replies to Camille's G2: Camille's view of G2 has `unseenReplies: true`; the reply has `answersMe: true` for Camille.
-6. Camille opens G2's thread (`GET`, then `POST /posts/G2/seen`): G2's `unseenReplies` is false afterwards.
+5. Mika replies to Camille's G2: Camille's view of G2 has `unseenReplies: 1`; the reply has `answersMe: true` for Camille.
+6. Camille opens G2's thread (`GET`, then `POST /posts/G2/seen`): G2's `unseenReplies` is 0 afterwards.
 
 ## 14. Running against a local site
 
@@ -900,9 +908,10 @@ On a real server against a site with `feed` on, with a player, an announcer, a W
 - [ ] An anonymous post: its author sees "Posted anonymously by you", the Warden admin sees the author line, the announcer and the guest see neither; same in the browser for the author.
 - [ ] A reply notifies the author of what it answers, in game, online (banner) and offline (badge at next login); a reply to oneself notifies nobody.
 - [ ] A reply made in the browser while the Minecraft server is stopped notifies the player after the server starts.
-- [ ] An announcement notifies everyone but its author, guests included.
+- [ ] An announcement notifies everyone but its author, guests included, offline players at their next login.
+- [ ] An anonymous announcement: players see "Anonymous" with no badge and the notification reads "Anonymous: …"; its author and the Warden admin see who wrote it; its author gets no notification.
 - [ ] Deleting a notified post takes the notification back (the badge goes).
-- [ ] Pin 3 announcements, pin a 4th: the dialog, then the oldest drops back.
+- [ ] Pin 3 announcements, pin a 4th: the dialog, then the oldest drops back. Pin one from the browser: the game's pinned group follows within a second.
 - [ ] Delete a main post: its thread disappears for a player who has it open ("This post was deleted").
 - [ ] Give the announcer role from the admin, then from `/feed announcer add` as a Warden admin: the compose button appears on Announcements within a second; `/feed announcer add` by a plain player is refused.
 - [ ] Ban a player in Warden while they are on the browser: posting is refused, reading works.
