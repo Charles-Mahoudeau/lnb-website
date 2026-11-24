@@ -5008,6 +5008,13 @@ const routes: RouteDoc[] = [
       "Server-Sent Events: each event's `id` is its number, its `event` the type and its `data` the JSON below. A `ping` comes at opening and after 25 quiet seconds, its `id` the last event read. Send `Last-Event-ID` when reconnecting to get the events missed (the last 500); an older or unknown ID gets `reset` first, and the page reloads what it shows. The stream closes when your session ends or when `feed` or `feed.live` goes off. 5 open streams per account: a sixth closes the account's oldest, which gets a `closed` event first. 500 in all, past which `tooManyStreams`. Behind `feed` and `feed.live`.",
     ].join('\n'),
     access: 'user',
+    headers: {
+      'Last-Event-ID': {
+        description:
+          'The last event ID received (a `ping`’s included), or at the first opening the page’s `X-Feed-Event-Id`, to get what was missed: replayed from the last 500 events, else `reset`. Without it, the stream starts from now.',
+        schema: { type: 'integer', minimum: 0 },
+      },
+    },
     response: {
       description: 'An event stream. The `data` of each event is shown here.',
       content: {
@@ -5287,9 +5294,16 @@ const routes: RouteDoc[] = [
     description: [
       'Keep it open: `post` (ask `POST /api/feed/server/views` for each watcher’s view), `deleted`, `counts`, `pins` (the whole group), `rights` (read these players’ state again) and `notification` (drain the queue). No event carries an anonymous author or anything per viewer.',
       '',
-      "Server-Sent Events, as `/api/quests/server/events`: each event's `id` is its number, its `event` the type and its `data` the JSON below. Send `Last-Event-ID` when reconnecting to get the events missed (kept a day); without it, the stream starts from now. A `ping` event comes after 25 quiet seconds. Behind `feed` and `feed.serverApi`.",
+      "Server-Sent Events, as `/api/quests/server/events`: each event's `id` is its number, its `event` the type and its `data` the JSON below. Send `Last-Event-ID` when reconnecting to get the events missed (kept a day); without it, the stream starts from now. It starts with a `ping` event, and another comes after 25 quiet seconds. Behind `feed` and `feed.serverApi`: an open stream closes when either goes off, and the reconnection gets 503 `disabled`.",
     ].join('\n'),
     access: 'wardenServer',
+    headers: {
+      'Last-Event-ID': {
+        description:
+          'The last event ID received, when reconnecting, to get the events missed (kept a day). Without it, the stream starts from now.',
+        schema: { type: 'integer', minimum: 0 },
+      },
+    },
     response: {
       description: 'An event stream. The `data` of each event is shown here.',
       content: {
