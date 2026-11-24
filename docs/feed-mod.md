@@ -666,7 +666,7 @@ Only creating a post or a reply takes a key. Likes, pins and deletes are idempot
 
 ### 8.1 The stream
 
-`GET /api/feed/server/events`, with the secret, behind `feed` and `feed.serverApi`. It is the same stream as the economy's and the quests' (`server/utils/minecraft-event-stream.ts`): each event has an `id` (a number, shared by every topic, growing), an `event` type and a JSON `data`. Send `Last-Event-ID` when reconnecting to receive what was missed in the last 24 hours; without it the stream starts from now. The stream starts with a `ping` event (no `id`), so the headers and a first line arrive at once; another `ping` comes after 25 quiet seconds: drop a connection silent for 75 seconds and reconnect, with a backoff from 1 to 30 seconds, as `QuestEvents` does. A 503 `disabled` at connection means the feature is off: try again every 60 seconds.
+`GET /api/feed/server/events`, with the secret, behind `feed` and `feed.serverApi`. It is the same stream as the economy's and the quests' (`server/utils/minecraft-event-stream.ts`): each event has an `id` (a number, shared by every topic, growing), an `event` type and a JSON `data`. Send `Last-Event-ID` when reconnecting to receive what was missed in the last 24 hours; without it the stream starts from now. The stream starts with a `ping` event (no `id`), so the headers and a first line arrive at once; another `ping` comes after 25 quiet seconds: drop a connection silent for 75 seconds and reconnect, with a backoff from 1 to 30 seconds, as `QuestEvents` does. A 503 `disabled` at connection means the feature is off: try again every 60 seconds. An open stream is closed when `feed` or `feed.serverApi` goes off (within the site's 10-second flag cache and a second): the reconnection then gets the 503.
 
 | Event          | Data                                  | Sent when                                                                                                                                  |
 | -------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -765,7 +765,7 @@ So a right given or taken on the site reaches an online player within a second (
 
 ### 11.2 The feature is switched off
 
-- `feed` or `feed.serverApi` off: every route answers 503 `disabled`. The app shows "Feed unavailable". The stream refuses to connect: retry every 60 seconds; when it connects again, catch up (8.3).
+- `feed` or `feed.serverApi` off: every route answers 503 `disabled`. The app shows "Feed unavailable". An open stream is closed within about 11 seconds of the switch, and the reconnection is refused: retry every 60 seconds; when it connects again, catch up (8.3).
 - `feed.writing` off: reads work; posts, replies and likes answer 503 `disabled` with `flag: "feed.writing"`. Re-read the player's state: `writing: false` makes the app hide the compose button and the reply composer, and show likes inactive. Deleting and pinning still work.
 - A flag turned back on sends no event. The next read that succeeds, or the stream reconnecting, brings Feed back; the app's Retry does it at once.
 

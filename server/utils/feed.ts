@@ -1,5 +1,6 @@
 import type { RequestEvent } from 'nuxt/server';
 
+import { flagService } from '~~/server/services/flags';
 import { minecraftEventService } from '~~/server/services/minecraft-events';
 import { requireFlag } from '~~/server/utils/flags';
 import { requireWardenServer } from '~~/server/utils/warden';
@@ -12,6 +13,14 @@ export async function requireFeedServer(event: RequestEvent): Promise<void> {
   requireWardenServer(event);
   await requireFlag(event, 'feed');
   await requireFlag(event, 'feed.serverApi');
+}
+
+/**
+ * Whether the Minecraft server's Feed routes are still on (`feed` and `feed.serverApi`), for its
+ * open stream: it closes when either goes off, and the mod's reconnection gets 503 `disabled`.
+ */
+export async function feedServerApiOn(): Promise<boolean> {
+  return (await flagService.isEnabled('feed')) && (await flagService.isEnabled('feed.serverApi'));
 }
 
 /** The header that tells a page where its live stream starts, read before the page's data. */
