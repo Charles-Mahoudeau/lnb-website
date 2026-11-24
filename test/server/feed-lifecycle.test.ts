@@ -173,15 +173,17 @@ describe('Feed over time', () => {
       const mika = await person('Mika Lefort');
       const ids: string[] = [];
       for (let i = 0; i < 3; i++) ids.push((await post(mika, `G${String(i)}`)).post.id);
-      // Written by hand to the microsecond, as a script or a console might.
+      // Written by hand to the microsecond, as a script or a console might. The day is in the past
+      // whatever the date of the run: a seen mark is never kept ahead of the clock.
+      const day = new Date(Date.now() - 10 * DAY).toISOString().slice(0, 10);
       for (const [i, id] of ids.entries()) {
         await db.execute(
-          sql`update feed_post set created_at = ${`2026-11-01 20:14:05.12${String(i)}789`}::timestamp where id = ${id}`,
+          sql`update feed_post set created_at = ${`${day} 20:14:05.12${String(i)}789`}::timestamp where id = ${id}`,
         );
       }
       const first = await feedViewService.page({ who: { player: camille.uuid }, feed: 'global' });
       const newest = first.posts[0]!;
-      expect(newest.createdAt).toBe('2026-11-01T20:14:05.123Z');
+      expect(newest.createdAt).toBe(`${day}T20:14:05.123Z`);
       await feedReadStateService.markFeedSeen(
         { player: camille.uuid },
         'global',
