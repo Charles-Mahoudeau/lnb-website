@@ -11,8 +11,9 @@ const PING_MS = 25_000;
 /**
  * Serves a topic of minecraft_server_event as Server-Sent Events, as Warden's stream does: each
  * event's `id` is its row ID, `event` its type and `data` its JSON. Last-Event-ID resumes after a
- * reconnection; without it the stream starts from now. A `ping` after 25 quiet seconds keeps
- * proxies from closing the connection. The caller checks access first.
+ * reconnection; without it the stream starts from now. A `ping` opens the stream, so the response
+ * starts at once (Node sends no headers before the first write), and another after 25 quiet
+ * seconds keeps proxies from closing the connection. The caller checks access first.
  */
 export async function streamMinecraftEvents(
   event: Parameters<typeof getRequestHeader>[0],
@@ -30,6 +31,9 @@ export async function streamMinecraftEvents(
   let lastPush = Date.now();
 
   async function poll() {
+    // Resolves once the response is being sent: the client has its headers at once.
+    await stream.push({ event: 'ping', data: '{}' });
+    lastPush = Date.now();
     while (!closed) {
       for (const row of await minecraftEventService.since(topic, cursor)) {
         await stream.push({ id: String(row.id), event: row.type, data: JSON.stringify(row.data) });
