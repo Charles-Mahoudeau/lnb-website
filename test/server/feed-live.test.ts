@@ -326,6 +326,54 @@ describe('the Feed live hub', () => {
     expect(live.stats()).toMatchObject({ connections: 0, running: false });
   });
 
+  it('gives up a read that never ends: the tabs get reset, and events flow again', async () => {
+    const live = hub();
+    const a = connect(live);
+    const b = connect(live, { user: 'u2' });
+    await tick(0);
+    // The next read never answers, as on a pool connection stuck on a dead socket.
+    const since = db.source.since.bind(db.source);
+    let stuck = true;
+    db.source.since = (after, limit) => {
+      if (stuck) {
+        stuck = false;
+        return new Promise(() => {});
+      }
+      return since(after, limit);
+    };
+    await tick();
+    const missed = db.add('post', post('p1'));
+    await tick(29_000);
+    expect(a.events()).toEqual([]);
+    await tick(1000);
+    for (const client of [a, b]) {
+      expect(client.events()).toEqual([{ event: 'reset', data: '{}' }]);
+      expect(client.state.closed).toBe(false);
+    }
+    expect(log).toHaveBeenCalledTimes(1);
+    // A new loop, from the newest event: the missed post is the page's to read again on reset.
+    await tick();
+    expect(live.stats()).toMatchObject({ connections: 2, running: true, cursor: missed.id });
+    const next = db.add('post', post('p2'));
+    await tick();
+    for (const client of [a, b]) {
+      expect(client.events().map((message) => message.id)).toEqual([undefined, String(next.id)]);
+    }
+    expect(vi.getTimerCount()).toBe(1);
+  });
+
+  it('sends one reset for a stuck spell, however many reads it gives up', async () => {
+    const live = hub();
+    const a = connect(live);
+    await tick(0);
+    db.source.since = () => new Promise(() => {});
+    db.source.latestId = () => new Promise(() => {});
+    await tick(95_000);
+    expect(a.events()).toEqual([{ event: 'reset', data: '{}' }]);
+    expect(a.state.closed).toBe(false);
+    expect(log).toHaveBeenCalledTimes(3);
+  });
+
   it('pings after 25 quiet seconds, and checks the session then and every minute', async () => {
     const live = hub();
     const alive = vi.fn(() => Promise.resolve(true));

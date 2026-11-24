@@ -30,6 +30,11 @@ export const FEED_LIVE_LIMITS = {
   /** Rows read per query, and queries per poll at most, to catch up after a pause. */
   page: 500,
   pagesPerPoll: 10,
+  /**
+   * A read of the database that hasn't ended after this long is given up: the loop starts again
+   * from the newest event and the tabs are told to `reset`.
+   */
+  readTimeoutMs: 30_000,
 };
 
 export type FeedLiveLimits = typeof FEED_LIVE_LIMITS;
@@ -121,6 +126,10 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
   let floor = 0;
   let ring: Buffered[] = [];
   let failures = 0;
+  /** When the read in flight started. */
+  let readStartedAt = 0;
+  /** A read ended since the last one given up: the tabs get one `reset` per stuck spell. */
+  let readSinceGiveUp = true;
 
   /**
    * A ping carries the last event ID read: the tab has every public event up to it, so a tab
@@ -180,6 +189,7 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
     floor = 0;
     ring = [];
     failures = 0;
+    readSinceGiveUp = true;
   }
 
   function start() {
@@ -197,6 +207,10 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
   /** Each tick: look after the connections, then read new events unless a read is running. */
   function wake(gen: number) {
     if (gen !== generation) return;
+    if (polling && now() - readStartedAt >= limits.readTimeoutMs) {
+      giveUpRead();
+      return;
+    }
     schedule(gen, limits.pollMs);
     tend();
     // tend() may have dropped the last connection, which stopped this loop.
@@ -204,6 +218,33 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
     if (!polling) void poll(gen);
     // A read that hangs doesn't hold the flags back: they are read on the side meanwhile.
     else if (!checkingFlags) void checkFlags(gen);
+  }
+
+  /**
+   * Gives up a read that never ended (a pool connection stuck on a dead socket, which no error
+   * ever ends): a new loop, its own generation, starts from the newest event, so the stuck read
+   * drops whatever it may still bring back, and the tabs, kept open, get `reset` to read
+   * themselves again for what was missed meanwhile.
+   */
+  function giveUpRead() {
+    log(
+      'The Feed live stream gave up a read of new events that did not end',
+      new Error(`No answer in ${String(limits.readTimeoutMs)} ms`),
+    );
+    generation++;
+    clearTimeout(timer);
+    polling = false;
+    checkingFlags = false;
+    cursor = null;
+    floor = 0;
+    ring = [];
+    failures = 0;
+    if (readSinceGiveUp) {
+      readSinceGiveUp = false;
+      for (const conn of [...connections]) if (conn.ready) send(conn, RESET);
+    }
+    // Sending may have dropped the last connection, which stopped the hub.
+    if (running && connections.size) schedule(generation, 0);
   }
 
   /** Closes every connection when `feed` or `feed.live` is off. */
@@ -258,6 +299,7 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
 
   async function poll(gen: number) {
     polling = true;
+    readStartedAt = now();
     try {
       if (!(await deps.enabled())) {
         if (gen === generation) for (const conn of [...connections]) kick(conn);
@@ -284,6 +326,7 @@ export function createFeedLiveHub(deps: FeedLiveDeps, limits: FeedLiveLimits = F
         if (rows.length < limits.page) break;
       }
       failures = 0;
+      readSinceGiveUp = true;
     } catch (error) {
       // A read from a loop that was stopped since says nothing about the current one.
       if (gen !== generation) return;

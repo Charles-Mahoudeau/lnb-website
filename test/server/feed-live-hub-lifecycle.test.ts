@@ -319,9 +319,10 @@ describe('the Feed live hub, poller lifecycle', () => {
       await tick(0);
       const held = rig.db.holdSince();
       const reads = rig.db.calls.since;
-      await tick(60_000);
+      // Slow, not stuck: under the 30 seconds after which the read is given up.
+      await tick(29_000);
       expect(rig.db.calls.since - reads).toBe(1);
-      expect(a.pings().length).toBeGreaterThanOrEqual(3);
+      expect(a.pings().length).toBeGreaterThanOrEqual(2);
       expect(alive).toHaveBeenCalled();
       expect(a.state.closed).toBe(false);
       held.open();
