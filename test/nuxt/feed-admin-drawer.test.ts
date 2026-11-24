@@ -94,6 +94,7 @@ function signIn(role: string) {
 const mounted: { unmount: () => void }[] = [];
 afterEach(() => {
   for (const view of mounted.splice(0)) view.unmount();
+  vi.useRealTimers();
   vi.mocked($fetch).mockReset();
 });
 beforeEach(() => {
@@ -101,6 +102,10 @@ beforeEach(() => {
   clearNuxtData();
   clearToasts();
   clearPortals();
+  // The component also reads the real clock (the drawer's dates, the default of the helpers): only
+  // `Date` is faked, so the debounce timers still run.
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(NOW);
   useState('feed-now').value = NOW;
 });
 
