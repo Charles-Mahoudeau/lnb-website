@@ -1663,7 +1663,7 @@
         },
         "feed_serverApi": {
           "label": "Feed pour le serveur Minecraft",
-          "description": "Les routes du Feed pour le serveur Minecraft et son flux en direct. Désactivé, le téléphone du jeu affiche le Feed comme indisponible ; le site continue de fonctionner."
+          "description": "Les routes du Feed pour le serveur Minecraft et son flux en direct. Désactivé, le téléphone du jeu affiche le Feed comme désactivé, et il revient de lui-même une fois réactivé ; le site continue de fonctionner."
         },
         "feed_writing": {
           "label": "Écriture dans le Feed",

@@ -1659,7 +1659,7 @@
         },
         "feed_serverApi": {
           "label": "Feed for the Minecraft server",
-          "description": "The Minecraft server's Feed routes and live stream. Off, the game phone shows Feed as unavailable; the website keeps working."
+          "description": "The Minecraft server's Feed routes and live stream. Off, the game phone shows Feed as switched off, and it comes back by itself once on; the website keeps working."
         },
         "feed_writing": {
           "label": "Feed writing",

@@ -765,9 +765,9 @@ So a right given or taken on the site reaches an online player within a second (
 
 ### 11.2 The feature is switched off
 
-- `feed` or `feed.serverApi` off: every route answers 503 `disabled`. The app shows "Feed unavailable". An open stream is closed within about 11 seconds of the switch, and the reconnection is refused: retry every 60 seconds; when it connects again, catch up (8.3).
+- `feed` or `feed.serverApi` off: every route answers 503 `disabled`. With nothing loaded, the app shows "Feed is switched off" ("Feed désactivé", `feed.disabled.*`, with Retry); over a loaded list, "Connection lost". An open stream is closed within about 11 seconds of the switch, and the reconnection is refused: retry every 60 seconds, telling the watchers at each refused try (once a minute); when it connects again, catch up (8.3).
 - `feed.writing` off: reads work; posts, replies and likes answer 503 `disabled` with `flag: "feed.writing"`. Re-read the player's state: `writing: false` makes the app hide the compose button and the reply composer, and show likes inactive. Deleting and pinning still work.
-- A flag turned back on sends no event. The next read that succeeds, or the stream reconnecting, brings Feed back; the app's Retry does it at once.
+- A flag turned back on sends no event. Feed comes back by itself: over a loaded list within about 15 seconds (the app asks again on its own), on the switched-off screen within a minute (the stream's next try, which then tells the watchers); the app's Retry does it at once.
 
 ### 11.3 Guests
 
@@ -898,14 +898,14 @@ A, B, C are pinned in that order (C last). Lune pins D:
 ### 15.1 Order
 
 1. The site, with `feed` off (seeded disabled).
-2. The mod, which shows "Feed unavailable" while the flag is off.
+2. The mod, which shows "Feed is switched off" ("Feed désactivé") while the flag is off.
 3. Turn `feed` on. `feed.writing` can be switched off on its own for a read-only period.
 
 ### 15.2 Manual checklist
 
 On a real server against a site with `feed` on, with a player, an announcer, a Warden admin and a guest:
 
-- [ ] Feed off: the app says unavailable, nothing crashes, the stream retries every minute; turn it on: Retry loads.
+- [ ] Feed off: the app says "Feed is switched off", nothing crashes, the stream retries every minute; turn it on: Feed comes back by itself within a minute (about 15 seconds over a loaded list), or at once with Retry.
 - [ ] A post from the game appears at once for another player in game, and on the site after a reload; a post from the browser appears in game within a second.
 - [ ] An anonymous post: its author sees "Posted anonymously by you", the Warden admin sees the author line, the announcer and the guest see neither; same in the browser for the author.
 - [ ] A reply notifies the author of what it answers, in game, online (banner) and offline (badge at next login); a reply to oneself notifies nobody.
