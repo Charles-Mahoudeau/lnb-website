@@ -109,8 +109,21 @@ describe('admin sidebar entries', () => {
 });
 
 describe('Moderation tabs', () => {
-  it('has Appeals, Bans and Rules', () => {
-    expect(ids(adminTabs('moderation', () => true))).toEqual(['appeals', 'bans', 'rules']);
+  it('has Appeals, Bans, Rules and Feed', () => {
+    expect(ids(adminTabs('moderation', () => true))).toEqual(['appeals', 'bans', 'rules', 'feed']);
+  });
+
+  // Feed has no flag in the admin: moderation works while Feed is off (docs/feed.md).
+  it('keeps the Feed tab whatever the flags, for Warden admins only', () => {
+    expect(ids(adminTabs('moderation', () => false))).toContain('feed');
+    expect(adminSearchPages('warden-admin', () => false).map((page) => page.to)).toContain(
+      '/admin/moderation/feed',
+    );
+    for (const role of ['events-manager', 'economy-admin', 'feed-announcer', null]) {
+      expect(adminSearchPages(role, () => true).map((page) => page.to)).not.toContain(
+        '/admin/moderation/feed',
+      );
+    }
   });
 });
 

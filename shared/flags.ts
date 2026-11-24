@@ -50,6 +50,13 @@ export const FLAG_DEFINITIONS = [
   { key: 'events.bdeSync', parent: 'events' },
   { key: 'map' },
   { key: 'changelog' },
+  // Feed, the short posts of the game phone and the website (docs/feed.md). It ships off, and so
+  // does `feed.live`, the browser's live stream, which the owner opens after checking his proxy;
+  // the other parts follow `feed`.
+  { key: 'feed' },
+  { key: 'feed.serverApi', parent: 'feed' },
+  { key: 'feed.writing', parent: 'feed' },
+  { key: 'feed.live', parent: 'feed' },
   { key: 'team' },
   { key: 'team.join', parent: 'team' },
   { key: 'partners' },
@@ -116,6 +123,7 @@ export const FLAG_DEFINITIONS = [
   { key: 'jobs.playtimePrune', parent: 'jobs' },
   { key: 'jobs.pruneAudit', parent: 'jobs' },
   { key: 'jobs.changelogPublish', parent: 'jobs' },
+  { key: 'jobs.feedPurge', parent: 'jobs' },
 ] as const satisfies readonly FlagDefinition[];
 
 export type FlagKey = (typeof FLAG_DEFINITIONS)[number]['key'];

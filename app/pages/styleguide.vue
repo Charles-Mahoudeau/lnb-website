@@ -7,6 +7,7 @@ import type { AnticheatBreakdown, AnticheatStatus } from '#shared/schemas/antich
 import type { ChangelogPublicPost } from '#shared/schemas/changelog';
 import type { EventTeamsView, EventTeamView } from '#shared/schemas/event-teams';
 import type { EventAdminView, EventSummary, EventView } from '#shared/schemas/events';
+import type { FeedPostView } from '#shared/schemas/feed';
 import type { ModView } from '#shared/schemas/mods';
 import type { PartnerPublicKind } from '#shared/schemas/partners';
 import type { PlaytimeMe } from '#shared/schemas/playtime';
@@ -567,6 +568,87 @@ const sampleGamesplanet = {
     pinned: false,
   })),
 };
+
+// Feed posts in every form (docs/design.md, Feed). The heads fall back to the plain tile here.
+const feedBase: FeedPostView = {
+  id: '00000000-0000-4000-8000-000000000001',
+  feed: 'global',
+  threadId: null,
+  replyTo: null,
+  text: 'Quelqu’un a vu des pillards près du spawn ? J’y ai perdu tout mon stuff hier soir.',
+  createdAt: '2026-11-23T14:08:00.000Z',
+  anonymous: false,
+  author: {
+    uuid: '069a79f4-44e9-4726-a5be-fca90e38aaf5',
+    username: 'Alex_Craft',
+    realName: 'Alexandre M.',
+    announcer: false,
+  },
+  likes: 8,
+  replies: 3,
+  pinnedAt: null,
+  liked: false,
+  mine: false,
+  canDelete: false,
+  canPin: false,
+  unseenReplies: 0,
+  answersMe: false,
+};
+const feedSamples: FeedPostView[] = [
+  {
+    ...feedBase,
+    id: '00000000-0000-4000-8000-000000000002',
+    feed: 'announcements',
+    text: 'La saison 2 commence samedi à 18 h ! Pensez à vider vos coffres avant vendredi soir.',
+    author: { ...feedBase.author!, username: 'Ines_Rdl', realName: 'Inès R.', announcer: true },
+    pinnedAt: '2026-11-23T14:20:00.000Z',
+    canPin: true,
+  },
+  feedBase,
+  {
+    ...feedBase,
+    id: '00000000-0000-4000-8000-000000000003',
+    author: { ...feedBase.author!, username: 'SteveBuilds', realName: null },
+    liked: true,
+    likes: 12,
+    replies: 0,
+  },
+  {
+    ...feedBase,
+    id: '00000000-0000-4000-8000-000000000004',
+    author: { ...feedBase.author!, username: 'LeaBuilds', realName: 'Léa B.' },
+    mine: true,
+    canDelete: true,
+    unseenReplies: 2,
+  },
+  {
+    ...feedBase,
+    id: '00000000-0000-4000-8000-000000000005',
+    anonymous: true,
+    author: null,
+    replies: 0,
+    likes: 31,
+  },
+  {
+    ...feedBase,
+    id: '00000000-0000-4000-8000-000000000006',
+    anonymous: true,
+    author: { ...feedBase.author!, username: 'LeaBuilds', realName: 'Léa B.' },
+    mine: true,
+    canDelete: true,
+    replies: 2,
+    likes: 4,
+  },
+  {
+    ...feedBase,
+    id: '00000000-0000-4000-8000-000000000007',
+    threadId: '00000000-0000-4000-8000-000000000001',
+    replyTo: { id: '00000000-0000-4000-8000-000000000008', anonymous: false, name: 'Mika L.' },
+    author: { ...feedBase.author!, username: 'SteveBuilds', realName: null },
+    replies: 0,
+    likes: 1,
+  },
+];
 </script>
 
 <template>
@@ -1162,6 +1244,48 @@ const sampleGamesplanet = {
         <WardenMinecraftHead uuid="069a79f4-44e9-4726-a5be-fca90e38aaf5" size="lg" />
         <WardenNametag username="Renard_Lunaire" name="Charles M." />
         <WardenNametag username="Renard_Lunaire" />
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="text-2xl font-bold">Feed</h2>
+      <p class="max-w-2xl text-muted">
+        Posts of the Feed page: the Minecraft head (or the anonymous mask on the raised background),
+        the neutral announcer badge, the pinned line, the lock line of one's own anonymous post, the
+        reply-to line, the "2 new" pill and the liked state (a filled heart in the highlight color
+        on a neutral background, like your vote on a mod). No new color: likes, the badge and unseen
+        replies stay neutral. New posts that arrive live while the reader is further down wait
+        behind a floating neutral pill, with an up arrow only when their place is above the screen.
+      </p>
+      <div class="flex flex-wrap items-center gap-6">
+        <FeedAnonymousAvatar size="sm" />
+        <FeedAnonymousAvatar />
+        <FeedAnnouncerBadge />
+        <UBadge color="neutral" variant="soft" size="md" label="2 new" />
+        <UButton
+          color="neutral"
+          variant="solid"
+          size="md"
+          class="rounded-full shadow-lg"
+          icon="i-lucide-arrow-up"
+          label="2 new posts"
+        />
+        <UButton
+          color="neutral"
+          variant="solid"
+          size="md"
+          class="rounded-full shadow-lg"
+          label="1 new announcement"
+        />
+      </div>
+      <div class="flex max-w-2xl flex-col divide-y divide-default rounded-lg bg-elevated">
+        <FeedPost v-for="post in feedSamples" :key="post.id" :post="post" can-act />
+      </div>
+      <div class="flex max-w-2xl flex-col rounded-lg bg-elevated">
+        <FeedPost :post="feedBase" mode="main" can-act />
+      </div>
+      <div class="flex max-w-2xl flex-col rounded-lg bg-elevated">
+        <FeedPost :post="feedSamples[1]!" />
       </div>
     </section>
 

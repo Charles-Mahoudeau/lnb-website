@@ -24,6 +24,7 @@ import {
   isWardenAdmin,
   ECONOMY_ADMIN_ROLE,
   EVENTS_MANAGER_ROLE,
+  FEED_ANNOUNCER_ROLE,
   WARDEN_ADMIN_ROLE,
   ADMIN_ROLE,
 } from '#shared/utils/roles';
@@ -244,6 +245,7 @@ export async function peopleWhere(
           roleMatch(WARDEN_ADMIN_ROLE),
           roleMatch(EVENTS_MANAGER_ROLE),
           roleMatch(ECONOMY_ADMIN_ROLE),
+          roleMatch(FEED_ANNOUNCER_ROLE),
         )
       : undefined,
     filters.has('inactive') ? lt(lastActive, inactiveBefore(now)) : undefined,

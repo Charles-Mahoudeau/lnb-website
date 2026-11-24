@@ -38,7 +38,9 @@
     "changelog": "Changelog",
     "changelogDescription": "What changed on the Minecraft server",
     "rulesDescription": "What is and isn’t allowed on the server",
-    "marketDescription": "Prices of what the server buys and sells"
+    "marketDescription": "Prices of what the server buys and sells",
+    "feed": "Feed",
+    "feedDescription": "Announcements and players’ posts, as on the game phone"
   },
   "home": {
     "intro": {
@@ -435,6 +437,137 @@
       "empty": "Nothing here: no ban and no warning."
     }
   },
+  "feed": {
+    "title": "Feed",
+    "lede": "The server’s announcements and the players’ discussions, the same as on the phone in the game.",
+    "loadFailed": "The Feed didn’t load. Check your connection, then try again.",
+    "loading": "Loading the Feed",
+    "retry": "Try again",
+    "loadMore": "Load more",
+    "cancel": "Cancel",
+    "announcementsNote": "Only the team posts here. You can like and reply.",
+    "live": {
+      "newPosts": "1 new post | {count} new posts",
+      "newAnnouncements": "1 new announcement | {count} new announcements"
+    },
+    "tabs": {
+      "label": "Feeds",
+      "announcements": "Announcements",
+      "global": "Global",
+      "unread": "New posts"
+    },
+    "aside": {
+      "title": "Good to know",
+      "text": "280 characters, plain text only.",
+      "anonymous": "An anonymous post hides your name from players. Moderators see it.",
+      "rules": "The Feed follows the server rules.",
+      "rulesLink": "Read the rules"
+    },
+    "composer": {
+      "label": "Your post",
+      "placeholder": "What’s new on the server?",
+      "changeAccount": "Change account",
+      "postWith": "Post with",
+      "accountShows": "Your posts will show {name}",
+      "accountChanged": "Your posts now show {name}",
+      "hidden": "Hidden from players",
+      "anonymous": "Post anonymously",
+      "anonymousHelp": "Hidden from players, visible to moderators",
+      "destination": "Where to post",
+      "counter": "{count}/{max}",
+      "post": "Post",
+      "posted": "Posted"
+    },
+    "bands": {
+      "noLinkTitle": "Link your Minecraft account to take part",
+      "noLinkText": "You can read everything. To post, reply and like, first link the account you play with.",
+      "noLinkAction": "Link my account",
+      "bannedUntil": "You are banned from the server until {date}",
+      "banned": "You are banned from the server",
+      "bannedText": "You can read the Feed, but not post, reply or like while the ban lasts.",
+      "bannedAction": "See my ban",
+      "paused": "Posting is paused for now. You can still read, and delete your own posts."
+    },
+    "post": {
+      "label": "Post by {name}",
+      "anonymous": "Anonymous",
+      "announcer": "Announcer",
+      "pinned": "Pinned",
+      "now": "now",
+      "replyTo": "Replying to {name}",
+      "privateMine": "Posted anonymously by you",
+      "privateMineReply": "Posted anonymously by you",
+      "privateAuthor": "Author: {name}",
+      "replies": "No replies | {count} reply | {count} replies",
+      "unseen": "{count} new | {count} new",
+      "reply": "Reply",
+      "like": "Like, no likes yet | Like, {count} like | Like, {count} likes",
+      "pin": "Pin",
+      "unpin": "Unpin",
+      "more": "More actions",
+      "delete": "Delete"
+    },
+    "pin": {
+      "pinned": "Pinned",
+      "unpinned": "Unpinned",
+      "replaceTitle": "Replace a pin?",
+      "replaceText": "Three announcements are pinned already. Pinning this one unpins the oldest: “{text}”",
+      "replaceTextUnknown": "Three announcements are pinned already. Pinning this one unpins the oldest.",
+      "replace": "Replace"
+    },
+    "delete": {
+      "postTitle": "Delete this post?",
+      "postText": "Its replies will be deleted too. This can’t be undone.",
+      "replyTitle": "Delete this reply?",
+      "replyText": "This can’t be undone.",
+      "confirm": "Delete",
+      "postDone": "Post deleted",
+      "replyDone": "Reply deleted"
+    },
+    "empty": {
+      "announcements": {
+        "title": "No announcements",
+        "text": "Server announcements will show up here."
+      },
+      "global": {
+        "title": "No posts yet",
+        "text": "Start the conversation: write the server’s first post."
+      },
+      "write": "Write a post"
+    },
+    "thread": {
+      "title": "Feed post",
+      "heading": "Post by {name}",
+      "back": "Feed",
+      "count": "No replies | {count} reply | {count} replies, oldest first",
+      "none": "No replies yet",
+      "moreReplies": "Load more replies",
+      "replyLabel": "Your reply",
+      "placeholder": "Write a reply",
+      "replyToMain": "Reply to the main post instead",
+      "anonymous": "Reply anonymously",
+      "reply": "Reply",
+      "replied": "Reply posted",
+      "goneTitle": "This post was deleted",
+      "goneText": "Its author or a moderator deleted it, or the link is wrong.",
+      "goneBack": "Back to the Feed"
+    },
+    "errors": {
+      "notFound": "This post was deleted.",
+      "notLinked": "Link a Minecraft account first, on your Minecraft account page.",
+      "banned": "You can’t post, reply or like while you are banned.",
+      "notAllowed": "Only announcers can do that.",
+      "emptyText": "Write something first.",
+      "tooLong": "A post is 280 characters at most. Shorten it a little.",
+      "notPinnable": "Only announcements can be pinned.",
+      "rateLimited": "You’re going a bit fast. Try again in {seconds} s.",
+      "failed": "That didn’t go through. Check your connection and try again.",
+      "writingPaused": "Posting is paused for now. Try again later.",
+      "unavailable": "The Feed is unavailable for now. Try again later.",
+      "sendFailed": "That didn’t go through. Check your connection and send it again: it won’t be posted twice.",
+      "sentThenDeleted": "This post went through earlier, then was deleted, so it isn’t posted again. The draft is cleared."
+    }
+  },
   "warden": {
     "title": "Warden",
     "lede": "Your Minecraft accounts on the LNB server, and the devices you play from.",
@@ -734,7 +867,8 @@
       "rewardIndex": "Reward index",
       "bans": "Bans",
       "market": "Market",
-      "orders": "Orders"
+      "orders": "Orders",
+      "feed": "Feed"
     },
     "cancel": "Cancel",
     "typedConfirm": {
@@ -745,7 +879,8 @@
       "admin": "Admin",
       "wardenAdmin": "Warden admin",
       "eventsManager": "Events manager",
-      "economyAdmin": "Economy admin"
+      "economyAdmin": "Economy admin",
+      "feedAnnouncer": "Feed announcer"
     },
     "users": {
       "search": "Search by name or email",
@@ -1517,6 +1652,26 @@
         "jobs_changelogPublish": {
           "label": "Scheduled changelog posts",
           "description": "The job that publishes changelog posts when their date comes."
+        },
+        "feed": {
+          "label": "Feed",
+          "description": "The Feed of the game phone and the website: announcements and the players' posts. Off by default. With it off, every Feed route answers that it is unavailable; nothing is deleted."
+        },
+        "feed_serverApi": {
+          "label": "Feed for the Minecraft server",
+          "description": "The Minecraft server's Feed routes and live stream. Off, the game phone shows Feed as switched off, and it comes back by itself once on; the website keeps working."
+        },
+        "feed_writing": {
+          "label": "Feed writing",
+          "description": "Posting, replying and liking, in game and on the website. Off, Feed is read-only; deleting and pinning still work."
+        },
+        "feed_live": {
+          "label": "Feed live updates",
+          "description": "New posts, deletions, likes and pins appearing on the website's Feed page without a reload. Off, open pages stop updating and show newer posts on reload; nothing else changes. Off by default: switch it on once the proxy in front of the site is checked (docs/feed.md)."
+        },
+        "jobs_feedPurge": {
+          "label": "Feed purge",
+          "description": "The nightly removal of Feed posts deleted more than 30 days ago, and of notifications nobody took in 30 days."
         },
         "jobs_pruneAudit": {
           "label": "Activity log cleanup",
@@ -4678,6 +4833,11 @@
         "minecraftChangelogSchedule": "{actor} scheduled the changelog post {name}",
         "minecraftChangelogPublish": "{actor} published the changelog post {name}",
         "minecraftChangelogUnpublish": "{actor} unpublished the changelog post {name}",
+        "minecraftFeedDelete": "{actor} deleted a Feed post by {target}",
+        "minecraftFeedPin": "{actor} pinned a Feed announcement",
+        "minecraftFeedUnpin": "{actor} unpinned a Feed announcement",
+        "minecraftFeedAnnouncer": "{actor} changed whether {target} is a Feed announcer",
+        "minecraftFeedPurge": "{actor} erased the Feed posts deleted more than 30 days ago",
         "minecraftRuleCreate": "{actor} added a server rule",
         "minecraftRuleUpdate": "{actor} edited a server rule",
         "minecraftRuleRetire": "{actor} retired a server rule",
@@ -5016,6 +5176,149 @@
         "flagsNote": "The Market is switched on and off in Settings › Feature flags: Market, then Market sales and Market purchases, one at a time.",
         "save": "Save settings",
         "saved": "Market settings saved"
+      }
+    },
+    "feed": {
+      "search": "Search a text, a username or a name",
+      "filters": {
+        "label": "Filters",
+        "announcements": "Announcements",
+        "global": "Global",
+        "replies": "Replies",
+        "anonymous": "Anonymous",
+        "deleted": "Deleted"
+      },
+      "person": {
+        "label": "Person",
+        "everyone": "Everyone",
+        "search": "Search a name or an email",
+        "chosen": "One person"
+      },
+      "summary": {
+        "line": "{posts}, {deleted}",
+        "posts": "No posts in the last 30 days | 1 post in the last 30 days | {count} posts in the last 30 days",
+        "deleted": "none deleted | 1 deleted | {count} deleted",
+        "deletedOnly": "No deleted posts from the last 30 days. Deleted posts are kept 30 days, then erased. | 1 deleted post from the last 30 days. Deleted posts are kept 30 days, then erased. | {count} deleted posts from the last 30 days. Deleted posts are kept 30 days, then erased."
+      },
+      "columns": {
+        "author": "Author",
+        "post": "Post",
+        "feed": "Feed",
+        "reactions": "Reactions",
+        "date": "Date",
+        "state": "State"
+      },
+      "feeds": {
+        "announcements": "Announcements",
+        "global": "Global"
+      },
+      "pinned": "Pinned",
+      "realAuthor": "Real author, hidden from players",
+      "nameHidden": "Real name hidden",
+      "replyTo": "Reply to {name}",
+      "replyToPost": "Reply to the post",
+      "replyToGone": "Reply to a reply whose author is gone",
+      "likes": "No likes | 1 like | {count} likes",
+      "replies": "No replies | 1 reply | {count} replies",
+      "state": {
+        "deleted": {
+          "post": "Deleted",
+          "reply": "Deleted"
+        },
+        "by": "By {name}, {date}",
+        "author": "By the author, {date}",
+        "thread": "With its post, {date}",
+        "purge": {
+          "post": "Erased on {date}",
+          "reply": "Erased on {date}"
+        }
+      },
+      "first": "First page",
+      "next": "Next page",
+      "loadFailed": "The Feed table didn’t load. Reload the page to try again.",
+      "pageFailed": "This page of the Feed table didn’t load. Its address may be out of date: go back to the first page.",
+      "empty": {
+        "title": "No posts yet",
+        "text": "Posts and replies from the game and the site show up here, deleted ones too for 30 days.",
+        "filteredTitle": "Nothing matches",
+        "filteredText": "No post or reply matches these filters. Remove a filter or change the search.",
+        "clear": "Clear the filters"
+      },
+      "drawer": {
+        "loading": "Post",
+        "titles": {
+          "plain": {
+            "post": "Post",
+            "announcement": "Announcement",
+            "reply": "Reply"
+          },
+          "anonymous": {
+            "post": "Anonymous post",
+            "announcement": "Anonymous announcement",
+            "reply": "Anonymous reply"
+          }
+        },
+        "realAuthor": "Real author, hidden from players",
+        "author": "Author",
+        "openProfile": "Open the profile",
+        "pinnedIn": "{feed}, pinned",
+        "facts": {
+          "feed": "Feed",
+          "replyingTo": "Replying to",
+          "posted": "Posted",
+          "account": "Minecraft account",
+          "source": "Posted from",
+          "likes": "Likes",
+          "replies": "Replies",
+          "reason": "Reason"
+        },
+        "sources": {
+          "server": "The game",
+          "site": "The website"
+        },
+        "answered": "{name}, “{text}”",
+        "answeredGone": "A reply whose author is gone",
+        "unknown": "A deleted account",
+        "discussion": "The discussion",
+        "earlier": "1 earlier reply | 1 earlier reply | {count} earlier replies",
+        "later": "1 more reply | 1 more reply | {count} more replies",
+        "deletePost": "Delete the post",
+        "deleteReply": "Delete the reply",
+        "missing": "This post is no longer kept: it was erased 30 days after it was deleted, or with its author’s account.",
+        "failed": "This post didn’t load. Close the drawer and try again."
+      },
+      "delete": {
+        "postTitle": "Delete this post?",
+        "replyTitle": "Delete this reply?",
+        "postText": "It disappears at once for everyone, in game and on the site. Moderators find it in Deleted for 30 days, then it is erased. | It disappears at once for everyone, in game and on the site, with its reply. Moderators find it in Deleted for 30 days, then it is erased. | It disappears at once for everyone, in game and on the site, with its {count} replies. Moderators find it in Deleted for 30 days, then it is erased.",
+        "replyText": "It disappears at once for everyone, in game and on the site. Moderators find it in Deleted for 30 days, then it is erased.",
+        "reason": "Reason (optional)",
+        "reasonHelp": "Kept in the activity log and on the deleted row. Players don’t see it.",
+        "ownText": "It is your own, so it is deleted as its author, as on the Feed page: no reason is kept and nothing goes to the activity log.",
+        "cancel": "Cancel",
+        "confirm": "Delete",
+        "postDone": "Post deleted",
+        "replyDone": "Reply deleted"
+      },
+      "errors": {
+        "failed": "The post couldn’t be deleted. Check your connection, then try again.",
+        "notFound": "This post is no longer kept, so there is nothing to delete.",
+        "notAllowed": "You can’t delete posts while a ban is in force on your account."
+      },
+      "announcer": {
+        "title": "Feed announcer",
+        "text": "Can post in Announcements and pin. Moderators are announcers by role. Also given in game by command.",
+        "viaRole": "An announcer by role, as a moderator: it can’t be turned off here.",
+        "pill": "Announcer",
+        "given": "{name} is now a Feed announcer",
+        "taken": "{name} is no longer a Feed announcer",
+        "loadFailed": "The Feed announcer role didn’t load. Reload the page to try again.",
+        "errors": {
+          "failed": "The announcer role couldn’t be changed. Check your connection, then try again.",
+          "impliedByRole": "Moderators are announcers by role: take their moderator role instead.",
+          "isGhost": "A ghost account can’t be an announcer before the person signs in.",
+          "notFound": "This account no longer exists."
+        }
       }
     }
   },

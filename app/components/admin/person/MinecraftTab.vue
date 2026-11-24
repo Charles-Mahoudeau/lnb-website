@@ -8,7 +8,8 @@ import type {
   WardenTransferView,
 } from '#shared/schemas/warden';
 
-// The Minecraft tab of the Person page: accounts, devices, account takeovers and sessions.
+// The Minecraft tab of the Person page: accounts, devices, account takeovers, sessions, and the
+// facts with the Feed announcer switch.
 const props = defineProps<{ userId: string }>();
 const { t, locale } = useI18n();
 const overlay = useOverlay();
@@ -247,6 +248,7 @@ function dateTime(iso: string) {
           }}
         </dd>
       </dl>
+      <AdminFeedAnnouncerRow :user-id="userId" :name="data.player.name" />
     </section>
   </div>
 </template>

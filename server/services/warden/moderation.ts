@@ -3,6 +3,7 @@ import { and, desc, eq, gt, isNull, or } from 'drizzle-orm';
 import { db } from '~~/server/db';
 import { minecraftAccount, user, wardenAppeal, wardenBan, wardenNote } from '~~/server/db/schema';
 import { auditService } from '~~/server/services/audit';
+import { feedEvents } from '~~/server/services/feed/events';
 import { ruleService } from '~~/server/services/rules';
 
 import { refuse } from './shared';
@@ -117,7 +118,7 @@ async function ban(input: {
   actor: WardenActor;
   minecraftUuid?: string;
 }): Promise<WardenBanView> {
-  return db.transaction(async (tx) => {
+  const issued = await db.transaction(async (tx) => {
     await userExists(tx, input.userId);
     const ruleCitations = await ruleService.citationsFor(tx, input.body.ruleIds ?? []);
     const current = await activeBan(input.userId, tx);
@@ -153,6 +154,9 @@ async function ban(input: {
     });
     return view(tx, created!);
   });
+  // A ban removes Feed's write, announce and moderate rights.
+  await feedEvents.rightsOfUsers([input.userId]);
+  return issued;
 }
 
 /** Lifts the player's active ban. */
@@ -161,11 +165,13 @@ async function unban(input: {
   reason?: string;
   actor: WardenActor;
 }): Promise<WardenBanView> {
-  return db.transaction(async (tx) => {
+  const lifted = await db.transaction(async (tx) => {
     const current = await activeBan(input.userId, tx);
     if (!current) refuse(409, 'notBanned');
     return view(tx, await revoke(tx, current, input.actor, input.reason || null));
   });
+  await feedEvents.rightsOfUsers([input.userId]);
+  return lifted;
 }
 
 /** Lifts one ban by its ID, from the admin panel. */
@@ -174,7 +180,7 @@ async function revokeById(input: {
   reason?: string;
   actor: WardenActor;
 }): Promise<WardenBanView> {
-  return db.transaction(async (tx) => {
+  const { lifted, userId } = await db.transaction(async (tx) => {
     const [row] = await tx
       .select()
       .from(wardenBan)
@@ -182,8 +188,11 @@ async function revokeById(input: {
       .for('update');
     if (!row) refuse(404, 'notFound');
     if (row.revokedAt || (row.expiresAt && row.expiresAt <= new Date())) refuse(409, 'notBanned');
-    return view(tx, await revoke(tx, row, input.actor, input.reason || null));
+    const lifted = await view(tx, await revoke(tx, row, input.actor, input.reason || null));
+    return { lifted, userId: row.userId };
   });
+  await feedEvents.rightsOfUsers([userId]);
+  return lifted;
 }
 
 /**
@@ -195,7 +204,7 @@ async function updateBan(input: {
   expiresAt: string | null;
   actor: WardenActor;
 }): Promise<WardenBanView> {
-  return db.transaction(async (tx) => {
+  const { changed, userId } = await db.transaction(async (tx) => {
     const [row] = await tx
       .select()
       .from(wardenBan)
@@ -221,8 +230,10 @@ async function updateBan(input: {
         expiresAt: expiresAt?.toISOString() ?? null,
       },
     });
-    return view(tx, updated!);
+    return { changed: await view(tx, updated!), userId: row.userId };
   });
+  await feedEvents.rightsOfUsers([userId]);
+  return changed;
 }
 
 /** Adds a private note, or a warning the player sees. */
@@ -290,7 +301,7 @@ async function decideAppeal(input: {
   accept: boolean;
   response: string;
 }): Promise<WardenAppealView> {
-  return db.transaction(async (tx) => {
+  const { decided, lifted } = await db.transaction(async (tx) => {
     const [row] = await tx
       .select({ appeal: wardenAppeal, ban: wardenBan })
       .from(wardenAppeal)
@@ -322,8 +333,14 @@ async function decideAppeal(input: {
     if (input.accept && stillActive) {
       await revoke(tx, row.ban, actor, `Appeal accepted: ${input.response}`);
     }
-    return appealView(decided!, await namesOf(tx, [input.actorId]));
+    return {
+      decided: appealView(decided!, await namesOf(tx, [input.actorId])),
+      lifted: input.accept && stillActive ? row.ban.userId : null,
+    };
   });
+  // An accepted appeal lifts the ban: Feed's rights come back.
+  if (lifted) await feedEvents.rightsOfUsers([lifted]);
+  return decided;
 }
 
 /** Appeals for the admin panel, newest first. */

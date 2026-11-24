@@ -55,3 +55,16 @@ export function withRole(
   if (on) roles.push(name);
   return roles.length ? roles.join(',') : null;
 }
+
+/** Feed announcers: post in Announcements and pin announcements (docs/feed.md), nothing else. */
+export const FEED_ANNOUNCER_ROLE = 'feed-announcer';
+
+/** Feed moderators delete any post and see anonymous authors: the Warden admins (and site admins). */
+export function isFeedModerator(role: string | null | undefined): boolean {
+  return isWardenAdmin(role);
+}
+
+/** Moderators are announcers too, by role. */
+export function isFeedAnnouncer(role: string | null | undefined): boolean {
+  return isFeedModerator(role) || hasRole(role, FEED_ANNOUNCER_ROLE);
+}

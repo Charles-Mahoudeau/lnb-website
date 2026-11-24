@@ -78,6 +78,17 @@ const navItems = computed<NavigationMenuItem[]>(() => {
           },
         ]
       : []),
+    // The Feed is for signed-in people only, and ships off behind its flag.
+    ...(user.value && isEnabled('feed')
+      ? [
+          {
+            label: t('nav.feed'),
+            description: t('nav.feedDescription'),
+            icon: 'i-lucide-messages-square',
+            to: '/minecraft/feed',
+          },
+        ]
+      : []),
     ...(isEnabled('downloads')
       ? [
           {

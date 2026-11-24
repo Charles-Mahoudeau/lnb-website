@@ -43,6 +43,10 @@ describe('rulesFor', () => {
     expect(names('POST', '/api/warden/server/sessions/heartbeat')).toEqual(['warden-server']);
     expect(names('GET', '/api/changelog/public/posts')).toEqual(['api', 'changelog-public']);
     expect(names('POST', '/api/economy/server/transfers')).toEqual(['economy-server']);
+    expect(names('POST', '/api/feed/server/posts')).toEqual(['feed-server']);
+    expect(names('GET', '/api/feed/server/posts')).toEqual(['feed-server']);
+    expect(names('POST', '/api/feed/posts')).toEqual(['api', 'write']);
+    expect(names('POST', '/api/feed/admin/posts/x/delete')).toEqual(['api', 'write-admin']);
     expect(names('POST', '/api/economy/admin/accounts/x/adjustments')).toEqual([
       'api',
       'write-admin',

@@ -39,6 +39,15 @@ const ECONOMY_SERVER_PER_IP: RateRule = {
   by: 'ip',
 };
 
+// The Minecraft server for Feed: every player's posts, likes and reads come from its one IP, so
+// the per-account limits live in the Feed services (docs/feed.md, Rate limits).
+const FEED_SERVER_PER_IP: RateRule = {
+  name: 'feed-server',
+  points: 1200,
+  windowSeconds: 60,
+  by: 'ip',
+};
+
 // The mod before it has a device (link requests) and with one (join tickets, presence). The
 // device limits are per device and live in the handlers; this is the IP ceiling.
 const WARDEN_CLIENT_PER_IP: RateRule = {
@@ -105,6 +114,7 @@ const ADMIN_PREFIXES = [
   '/api/minecraft/admin/',
   '/api/warden/admin/',
   '/api/economy/admin/',
+  '/api/feed/admin/',
 ];
 
 /** The rules for a request, all of which must pass. Empty when the route isn't limited here. */
@@ -124,6 +134,7 @@ export function rulesFor(method: string, path: string): RateRule[] {
   if (path.startsWith('/api/changelog/public/')) return [API_PER_IP, CHANGELOG_PUBLIC_PER_IP];
   if (path.startsWith('/api/warden/server/')) return [WARDEN_SERVER_PER_IP];
   if (path.startsWith('/api/economy/server/')) return [ECONOMY_SERVER_PER_IP];
+  if (path.startsWith('/api/feed/server/')) return [FEED_SERVER_PER_IP];
   if (path.startsWith('/api/warden/client/')) {
     return method.toUpperCase() === 'POST' && path === '/api/warden/client/link-requests'
       ? [WARDEN_CLIENT_PER_IP, WARDEN_LINK_REQUEST]
@@ -166,6 +177,7 @@ export function acceptsApiKey(path: string): boolean {
     path !== '/api/health' &&
     !path.startsWith('/api/warden/server/') &&
     !path.startsWith('/api/economy/server/') &&
+    !path.startsWith('/api/feed/server/') &&
     !path.startsWith('/api/warden/client/')
   );
 }

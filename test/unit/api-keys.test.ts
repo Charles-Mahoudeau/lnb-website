@@ -152,6 +152,7 @@ describe('rate limits for keys', () => {
       '/api/auth/get-session',
       '/api/health',
       '/api/warden/server/login',
+      '/api/feed/server/posts',
       '/api/warden/client/me',
       '/go/abc',
       '/events',

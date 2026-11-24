@@ -121,6 +121,7 @@ const flags = computed(() => {
     roles.wardenAdmin && t('admin.roles.wardenAdmin'),
     roles.eventsManager && t('admin.roles.eventsManager'),
     roles.economyAdmin && t('admin.roles.economyAdmin'),
+    roles.feedAnnouncer && t('admin.roles.feedAnnouncer'),
   ].filter(Boolean) as string[];
 });
 </script>

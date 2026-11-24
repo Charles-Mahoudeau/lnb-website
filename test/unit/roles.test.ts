@@ -6,6 +6,8 @@ import {
   isAdmin,
   isEconomyAdmin,
   isEventsManager,
+  isFeedAnnouncer,
+  isFeedModerator,
   isWardenAdmin,
   parseRoles,
   withRole,
@@ -48,5 +50,16 @@ describe('roles', () => {
     expect(withRole('user', 'warden-admin', true)).toBe('warden-admin');
     expect(withRole('warden-admin', 'warden-admin', false)).toBeNull();
     expect(withRole('admin,warden-admin', 'warden-admin', false)).toBe('admin');
+  });
+
+  it('makes Feed moderators announcers, and keeps the announcer role out of the admin', () => {
+    expect(isFeedModerator('warden-admin')).toBe(true);
+    expect(isFeedModerator('admin')).toBe(true);
+    expect(isFeedModerator('feed-announcer')).toBe(false);
+    expect(isFeedAnnouncer('feed-announcer')).toBe(true);
+    expect(isFeedAnnouncer('admin')).toBe(true);
+    expect(isFeedAnnouncer('economy-admin')).toBe(false);
+    expect(canOpenAdmin('feed-announcer')).toBe(false);
+    expect(withRole('warden-admin,feed-announcer', 'warden-admin', false)).toBe('feed-announcer');
   });
 });

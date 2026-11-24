@@ -8,6 +8,7 @@ export * from './changelog';
 export * from './downloads';
 export * from './economy';
 export * from './events';
+export * from './feed';
 export * from './files';
 export * from './flags';
 export * from './gamesplanet';

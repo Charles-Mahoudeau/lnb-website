@@ -12,6 +12,7 @@ import {
   wardenSession,
 } from '~~/server/db/schema';
 import { auditService } from '~~/server/services/audit';
+import { feedEvents } from '~~/server/services/feed/events';
 import { playtimeSettingsService } from '~~/server/services/playtime/settings';
 import { fallbackPlaytime, playtimeStateService } from '~~/server/services/playtime/state';
 
@@ -214,7 +215,7 @@ async function setShowRealName(actor: { id: string; tenantId: string }, showReal
  * can link it again, and so a player who links it later takes it over (see the login).
  */
 async function unlink(input: { userId: string; uuid: string; actor: WardenActor }) {
-  return db.transaction(async (tx) => {
+  const result = await db.transaction(async (tx) => {
     const [removed] = await tx
       .update(minecraftAccount)
       .set({ unlinkedAt: new Date() })
@@ -236,6 +237,9 @@ async function unlink(input: { userId: string; uuid: string; actor: WardenActor 
     });
     return { auditId };
   });
+  // The account can no longer write in Feed (a guest now, if Warden lets it in).
+  await feedEvents.rights([input.uuid]);
+  return result;
 }
 
 /** The player's sessions, newest first, 20 per page. */

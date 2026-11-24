@@ -13,6 +13,7 @@ import {
   wardenSettings,
 } from '~~/server/db/schema';
 import { auditService } from '~~/server/services/audit';
+import { feedEvents } from '~~/server/services/feed/events';
 
 import { wardenDeviceService } from './devices';
 import { wardenPlayerService } from './players';
@@ -334,6 +335,8 @@ async function setWardenAdmin(input: { userId: string; on: boolean; actor: Warde
       data: { role: WARDEN_ADMIN_ROLE, on: input.on },
     });
   });
+  // Warden admins moderate Feed: the Minecraft server reads the rights again.
+  await feedEvents.rightsOfUsers([input.userId]);
 }
 
 async function requireUser(dbx: Db, userId: string) {

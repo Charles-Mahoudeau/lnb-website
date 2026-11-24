@@ -38,7 +38,9 @@
     "changelog": "Changelog",
     "changelogDescription": "Ce qui change sur le serveur Minecraft",
     "rulesDescription": "Ce qui est autorisé ou non sur le serveur",
-    "marketDescription": "Les prix de ce que le serveur achète et vend"
+    "marketDescription": "Les prix de ce que le serveur achète et vend",
+    "feed": "Feed",
+    "feedDescription": "Les annonces et les posts des joueurs, comme sur le téléphone en jeu"
   },
   "home": {
     "intro": {
@@ -435,6 +437,137 @@
       "empty": "Rien ici : aucun bannissement ni avertissement."
     }
   },
+  "feed": {
+    "title": "Feed",
+    "lede": "Les annonces du serveur et les discussions des joueurs, les mêmes que dans le téléphone en jeu.",
+    "loadFailed": "Le Feed n’a pas pu se charger. Vérifie ta connexion, puis réessaie.",
+    "loading": "Chargement du Feed",
+    "retry": "Réessayer",
+    "loadMore": "Charger plus",
+    "cancel": "Annuler",
+    "announcementsNote": "Seule l’équipe publie ici. Tu peux aimer et répondre.",
+    "live": {
+      "newPosts": "1 nouveau post | {count} nouveaux posts",
+      "newAnnouncements": "1 nouvelle annonce | {count} nouvelles annonces"
+    },
+    "tabs": {
+      "label": "Fils",
+      "announcements": "Annonces",
+      "global": "Global",
+      "unread": "Nouveaux posts"
+    },
+    "aside": {
+      "title": "Bon à savoir",
+      "text": "280 caractères, du texte seulement.",
+      "anonymous": "Une publication anonyme cache ton nom aux joueurs. Les modérateurs le voient.",
+      "rules": "Le Feed suit le règlement du serveur.",
+      "rulesLink": "Lire le règlement"
+    },
+    "composer": {
+      "label": "Ton post",
+      "placeholder": "Quoi de neuf sur le serveur ?",
+      "changeAccount": "Changer de compte",
+      "postWith": "Publier avec",
+      "accountShows": "Tes publications afficheront {name}",
+      "accountChanged": "Tes publications affichent maintenant {name}",
+      "hidden": "Masqué aux joueurs",
+      "anonymous": "Publier anonymement",
+      "anonymousHelp": "Masqué aux joueurs, visible par les modérateurs",
+      "destination": "Où publier",
+      "counter": "{count}/{max}",
+      "post": "Publier",
+      "posted": "Publié"
+    },
+    "bands": {
+      "noLinkTitle": "Lie ton compte Minecraft pour participer",
+      "noLinkText": "Tu peux tout lire. Pour publier, répondre et aimer, lie d’abord le compte avec lequel tu joues.",
+      "noLinkAction": "Lier mon compte",
+      "bannedUntil": "Tu es banni du serveur jusqu’au {date}",
+      "banned": "Tu es banni du serveur",
+      "bannedText": "Tu peux lire le Feed, mais pas publier, répondre ni aimer pendant le bannissement.",
+      "bannedAction": "Voir mon bannissement",
+      "paused": "Impossible de publier pour l’instant. Tu peux toujours lire et supprimer tes publications."
+    },
+    "post": {
+      "label": "Post de {name}",
+      "anonymous": "Anonyme",
+      "announcer": "Annonceur",
+      "pinned": "Épinglé",
+      "now": "à l’instant",
+      "replyTo": "En réponse à {name}",
+      "privateMine": "Publié anonymement par toi",
+      "privateMineReply": "Publiée anonymement par toi",
+      "privateAuthor": "Auteur : {name}",
+      "replies": "Aucune réponse | {count} réponse | {count} réponses",
+      "unseen": "{count} nouvelle | {count} nouvelles",
+      "reply": "Répondre",
+      "like": "J’aime, aucun pour l’instant | J’aime, {count} | J’aime, {count}",
+      "pin": "Épingler",
+      "unpin": "Désépingler",
+      "more": "Plus d’actions",
+      "delete": "Supprimer"
+    },
+    "pin": {
+      "pinned": "Épinglé",
+      "unpinned": "Désépinglé",
+      "replaceTitle": "Remplacer un post épinglé ?",
+      "replaceText": "Trois annonces sont déjà épinglées. Épingler celle-ci désépingle la plus ancienne : « {text} »",
+      "replaceTextUnknown": "Trois annonces sont déjà épinglées. Épingler celle-ci désépingle la plus ancienne.",
+      "replace": "Remplacer"
+    },
+    "delete": {
+      "postTitle": "Supprimer ce post ?",
+      "postText": "Ses réponses seront aussi supprimées. C’est définitif.",
+      "replyTitle": "Supprimer cette réponse ?",
+      "replyText": "C’est définitif.",
+      "confirm": "Supprimer",
+      "postDone": "Post supprimé",
+      "replyDone": "Réponse supprimée"
+    },
+    "empty": {
+      "announcements": {
+        "title": "Aucune annonce",
+        "text": "Les annonces du serveur apparaîtront ici."
+      },
+      "global": {
+        "title": "Aucun post pour l’instant",
+        "text": "Lance la conversation : écris le premier post du serveur."
+      },
+      "write": "Écrire un post"
+    },
+    "thread": {
+      "title": "Post du Feed",
+      "heading": "Post de {name}",
+      "back": "Feed",
+      "count": "Aucune réponse | {count} réponse | {count} réponses, de la plus ancienne à la plus récente",
+      "none": "Pas encore de réponse",
+      "moreReplies": "Charger plus de réponses",
+      "replyLabel": "Ta réponse",
+      "placeholder": "Écris une réponse",
+      "replyToMain": "Répondre au post principal à la place",
+      "anonymous": "Répondre anonymement",
+      "reply": "Répondre",
+      "replied": "Réponse publiée",
+      "goneTitle": "Ce post a été supprimé",
+      "goneText": "Son auteur ou un modérateur l’a supprimé, ou le lien est faux.",
+      "goneBack": "Retour au Feed"
+    },
+    "errors": {
+      "notFound": "Cette publication a été supprimée.",
+      "notLinked": "Lie d’abord un compte Minecraft, depuis la page de ton compte Minecraft.",
+      "banned": "Tu ne peux pas publier, répondre ni aimer pendant un bannissement.",
+      "notAllowed": "Seuls les annonceurs peuvent faire ça.",
+      "emptyText": "Écris d’abord quelque chose.",
+      "tooLong": "Une publication fait 280 caractères au plus. Raccourcis-la un peu.",
+      "notPinnable": "Seules les annonces peuvent être épinglées.",
+      "rateLimited": "Tu vas un peu vite. Réessaie dans {seconds} s.",
+      "failed": "Ça n’est pas passé. Vérifie ta connexion et réessaie.",
+      "writingPaused": "Impossible de publier pour l’instant. Réessaie plus tard.",
+      "unavailable": "Le Feed est indisponible pour l’instant. Réessaie plus tard.",
+      "sendFailed": "Ça n’est pas passé. Vérifie ta connexion et renvoie-le : il ne sera pas publié deux fois.",
+      "sentThenDeleted": "Cette publication était déjà partie, puis elle a été supprimée : elle n’est pas republiée. Le brouillon est effacé."
+    }
+  },
   "warden": {
     "title": "Warden",
     "lede": "Tes comptes Minecraft sur le serveur LNB, et les appareils depuis lesquels tu joues.",
@@ -738,7 +871,8 @@
       "rewardIndex": "Indice des récompenses",
       "bans": "Bannissements",
       "market": "Market",
-      "orders": "Ordres"
+      "orders": "Ordres",
+      "feed": "Feed"
     },
     "cancel": "Annuler",
     "typedConfirm": {
@@ -749,7 +883,8 @@
       "admin": "Admin",
       "wardenAdmin": "Admin Warden",
       "eventsManager": "Gestion des événements",
-      "economyAdmin": "Gestion de l’économie"
+      "economyAdmin": "Gestion de l’économie",
+      "feedAnnouncer": "Annonceur du Feed"
     },
     "users": {
       "search": "Rechercher par nom ou e-mail",
@@ -1521,6 +1656,26 @@
         "jobs_changelogPublish": {
           "label": "Billets du changelog programmés",
           "description": "La tâche qui publie les billets du changelog quand leur date arrive."
+        },
+        "feed": {
+          "label": "Feed",
+          "description": "Le Feed du téléphone du jeu et du site : les annonces et les messages des joueurs. Désactivé par défaut. Désactivé, toutes les routes du Feed répondent qu’il est indisponible ; rien n’est supprimé."
+        },
+        "feed_serverApi": {
+          "label": "Feed pour le serveur Minecraft",
+          "description": "Les routes du Feed pour le serveur Minecraft et son flux en direct. Désactivé, le téléphone du jeu affiche le Feed comme désactivé, et il revient de lui-même une fois réactivé ; le site continue de fonctionner."
+        },
+        "feed_writing": {
+          "label": "Écriture dans le Feed",
+          "description": "Publier, répondre et aimer, en jeu et sur le site. Désactivé, le Feed est en lecture seule ; supprimer et épingler restent possibles."
+        },
+        "feed_live": {
+          "label": "Feed en direct",
+          "description": "Les nouveaux posts, les suppressions, les j’aime et les épingles qui apparaissent sur la page Feed du site sans recharger. Désactivé, les pages ouvertes ne se mettent plus à jour et montrent les nouveaux posts quand on recharge ; rien d’autre ne change. Désactivé par défaut : à activer une fois le proxy devant le site vérifié (docs/feed.md)."
+        },
+        "jobs_feedPurge": {
+          "label": "Purge du Feed",
+          "description": "La suppression nocturne des messages du Feed supprimés depuis plus de 30 jours, et des notifications que personne n’a prises en 30 jours."
         },
         "jobs_pruneAudit": {
           "label": "Nettoyage du journal d’activité",
@@ -4682,6 +4837,11 @@
         "minecraftChangelogSchedule": "{actor} a programmé le billet du changelog {name}",
         "minecraftChangelogPublish": "{actor} a publié le billet du changelog {name}",
         "minecraftChangelogUnpublish": "{actor} a dépublié le billet du changelog {name}",
+        "minecraftFeedDelete": "{actor} a supprimé un message du Feed de {target}",
+        "minecraftFeedPin": "{actor} a épinglé une annonce du Feed",
+        "minecraftFeedUnpin": "{actor} a désépinglé une annonce du Feed",
+        "minecraftFeedAnnouncer": "{actor} a changé le rôle d’annonceur du Feed de {target}",
+        "minecraftFeedPurge": "{actor} a effacé les messages du Feed supprimés depuis plus de 30 jours",
         "minecraftRuleCreate": "{actor} a ajouté une règle du serveur",
         "minecraftRuleUpdate": "{actor} a modifié une règle du serveur",
         "minecraftRuleRetire": "{actor} a retiré une règle du serveur",
@@ -5020,6 +5180,149 @@
         "flagsNote": "Le Market s’active et se coupe dans Paramètres › Fonctionnalités : Market, puis Ventes du Market et Achats du Market, l’un après l’autre.",
         "save": "Enregistrer les paramètres",
         "saved": "Paramètres du Market enregistrés"
+      }
+    },
+    "feed": {
+      "search": "Rechercher un texte, un pseudo ou un nom",
+      "filters": {
+        "label": "Filtres",
+        "announcements": "Annonces",
+        "global": "Global",
+        "replies": "Réponses",
+        "anonymous": "Anonymes",
+        "deleted": "Supprimées"
+      },
+      "person": {
+        "label": "Personne",
+        "everyone": "Toutes les personnes",
+        "search": "Rechercher un nom ou un e-mail",
+        "chosen": "Une personne"
+      },
+      "summary": {
+        "line": "{posts}, {deleted}",
+        "posts": "Aucune publication ces 30 derniers jours | 1 publication ces 30 derniers jours | {count} publications ces 30 derniers jours",
+        "deleted": "aucune supprimée | dont 1 supprimée | dont {count} supprimées",
+        "deletedOnly": "Aucune publication supprimée ces 30 derniers jours. Les publications supprimées sont gardées 30 jours, puis effacées. | 1 publication supprimée ces 30 derniers jours. Les publications supprimées sont gardées 30 jours, puis effacées. | {count} publications supprimées ces 30 derniers jours. Les publications supprimées sont gardées 30 jours, puis effacées."
+      },
+      "columns": {
+        "author": "Auteur",
+        "post": "Publication",
+        "feed": "Fil",
+        "reactions": "Réactions",
+        "date": "Date",
+        "state": "État"
+      },
+      "feeds": {
+        "announcements": "Annonces",
+        "global": "Global"
+      },
+      "pinned": "Épinglé",
+      "realAuthor": "Auteur réel, que les joueurs ne voient pas",
+      "nameHidden": "Nom réel masqué",
+      "replyTo": "Réponse à {name}",
+      "replyToPost": "Réponse au post",
+      "replyToGone": "Réponse à une réponse dont l’auteur n’existe plus",
+      "likes": "Aucun j’aime | 1 j’aime | {count} j’aime",
+      "replies": "Aucune réponse | 1 réponse | {count} réponses",
+      "state": {
+        "deleted": {
+          "post": "Supprimé",
+          "reply": "Supprimée"
+        },
+        "by": "Par {name}, {date}",
+        "author": "Par l’auteur, {date}",
+        "thread": "Avec son post, {date}",
+        "purge": {
+          "post": "Effacé le {date}",
+          "reply": "Effacée le {date}"
+        }
+      },
+      "first": "Première page",
+      "next": "Page suivante",
+      "loadFailed": "La table du Feed ne s’est pas chargée. Recharge la page pour réessayer.",
+      "pageFailed": "Cette page de la table du Feed ne s’est pas chargée. Son adresse est peut-être périmée : reviens à la première page.",
+      "empty": {
+        "title": "Aucune publication",
+        "text": "Les publications du jeu et du site s’affichent ici, les supprimées aussi pendant 30 jours.",
+        "filteredTitle": "Rien ne correspond",
+        "filteredText": "Aucune publication ne correspond à ces filtres. Retire un filtre ou change la recherche.",
+        "clear": "Effacer les filtres"
+      },
+      "drawer": {
+        "loading": "Publication",
+        "titles": {
+          "plain": {
+            "post": "Post",
+            "announcement": "Annonce",
+            "reply": "Réponse"
+          },
+          "anonymous": {
+            "post": "Post anonyme",
+            "announcement": "Annonce anonyme",
+            "reply": "Réponse anonyme"
+          }
+        },
+        "realAuthor": "Auteur réel, que les joueurs ne voient pas",
+        "author": "Auteur",
+        "openProfile": "Ouvrir la fiche",
+        "pinnedIn": "{feed}, épinglé",
+        "facts": {
+          "feed": "Fil",
+          "replyingTo": "En réponse à",
+          "posted": "Date",
+          "account": "Compte Minecraft",
+          "source": "Provenance",
+          "likes": "J’aime",
+          "replies": "Réponses",
+          "reason": "Raison"
+        },
+        "sources": {
+          "server": "Le jeu",
+          "site": "Le site"
+        },
+        "answered": "{name}, « {text} »",
+        "answeredGone": "Une réponse dont l’auteur n’existe plus",
+        "unknown": "Un compte supprimé",
+        "discussion": "La discussion",
+        "earlier": "1 réponse plus ancienne | 1 réponse plus ancienne | {count} réponses plus anciennes",
+        "later": "1 autre réponse | 1 autre réponse | {count} autres réponses",
+        "deletePost": "Supprimer le post",
+        "deleteReply": "Supprimer la réponse",
+        "missing": "Cette publication n’est plus gardée : elle a été effacée 30 jours après sa suppression, ou avec le compte de son auteur.",
+        "failed": "Cette publication ne s’est pas chargée. Ferme le tiroir et réessaie."
+      },
+      "delete": {
+        "postTitle": "Supprimer ce post ?",
+        "replyTitle": "Supprimer cette réponse ?",
+        "postText": "Il disparaît tout de suite pour tout le monde, en jeu et sur le site. Les modérateurs le retrouvent dans « Supprimées » pendant 30 jours, puis il est effacé. | Il disparaît tout de suite pour tout le monde, en jeu et sur le site, avec sa réponse. Les modérateurs le retrouvent dans « Supprimées » pendant 30 jours, puis il est effacé. | Il disparaît tout de suite pour tout le monde, en jeu et sur le site, avec ses {count} réponses. Les modérateurs le retrouvent dans « Supprimées » pendant 30 jours, puis il est effacé.",
+        "replyText": "Elle disparaît tout de suite pour tout le monde, en jeu et sur le site. Les modérateurs la retrouvent dans « Supprimées » pendant 30 jours, puis elle est effacée.",
+        "reason": "Raison (facultative)",
+        "reasonHelp": "Gardée dans le journal d’activité et sur la ligne supprimée. Les joueurs ne la voient pas.",
+        "ownText": "C’est ta propre publication : elle est supprimée comme par son auteur, comme sur la page Feed. Aucune raison n’est gardée et rien n’est inscrit au journal d’activité.",
+        "cancel": "Annuler",
+        "confirm": "Supprimer",
+        "postDone": "Post supprimé",
+        "replyDone": "Réponse supprimée"
+      },
+      "errors": {
+        "failed": "La publication n’a pas pu être supprimée. Vérifie ta connexion, puis réessaie.",
+        "notFound": "Cette publication n’est plus gardée : il n’y a rien à supprimer.",
+        "notAllowed": "Tu ne peux pas supprimer de publications tant qu’un bannissement est en cours sur ton compte."
+      },
+      "announcer": {
+        "title": "Annonceur du Feed",
+        "text": "Peut publier dans Annonces et épingler. Les modérateurs le sont d’office. Se donne aussi en jeu par commande.",
+        "viaRole": "Annonceur d’office, en tant que modérateur : ça ne se retire pas ici.",
+        "pill": "Annonceur",
+        "given": "{name} est maintenant annonceur du Feed",
+        "taken": "{name} n’est plus annonceur du Feed",
+        "loadFailed": "Le rôle d’annonceur du Feed ne s’est pas chargé. Recharge la page pour réessayer.",
+        "errors": {
+          "failed": "Le rôle d’annonceur n’a pas pu être changé. Vérifie ta connexion, puis réessaie.",
+          "impliedByRole": "Les modérateurs sont annonceurs d’office : retire plutôt leur rôle de modérateur.",
+          "isGhost": "Un compte fantôme ne peut pas être annonceur avant que la personne se connecte.",
+          "notFound": "Ce compte n’existe plus."
+        }
       }
     }
   },

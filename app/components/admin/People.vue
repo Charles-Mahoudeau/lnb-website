@@ -105,6 +105,7 @@ const roleItems = computed(() => [
   { label: t('admin.roles.wardenAdmin'), value: 'warden-admin' },
   { label: t('admin.roles.eventsManager'), value: 'events-manager' },
   { label: t('admin.roles.economyAdmin'), value: 'economy-admin' },
+  { label: t('admin.roles.feedAnnouncer'), value: 'feed-announcer' },
 ]);
 
 // The quick filters the role may use. The server refuses the others.
@@ -271,6 +272,7 @@ const roleNames = (flags: NonNullable<AdminPersonRow['roles']>) =>
     flags.wardenAdmin && t('admin.roles.wardenAdmin'),
     flags.eventsManager && t('admin.roles.eventsManager'),
     flags.economyAdmin && t('admin.roles.economyAdmin'),
+    flags.feedAnnouncer && t('admin.roles.feedAnnouncer'),
   ].filter(Boolean) as string[];
 </script>
 
